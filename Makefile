@@ -14,7 +14,7 @@
 ######################################
 # target
 ######################################
-TARGET = basic_framework
+TARGET = electric_framework
 
 
 ######################################
@@ -121,6 +121,7 @@ bsp/bsp_tools.c \
 modules/algorithm/controller.c \
 modules/algorithm/kalman_filter.c \
 modules/algorithm/QuaternionEKF.c \
+modules/algorithm/RLS.c \
 modules/algorithm/crc8.c \
 modules/algorithm/crc16.c \
 modules/algorithm/user_lib.c \
@@ -136,6 +137,8 @@ modules/motor/DJImotor/dji_motor.c \
 modules/motor/HTmotor/HT04.c \
 modules/motor/LKmotor/LK9025.c \
 modules/motor/DMmotor/dmmotor.c \
+modules/motor/DRmotor/drmotor.c \
+modules/motor/XMmotor/xmmotor.c \
 modules/motor/step_motor/step_motor.c \
 modules/motor/servo_motor/servo_motor.c \
 modules/motor/motor_task.c \
@@ -145,16 +148,22 @@ modules/referee/rm_referee.c \
 modules/referee/referee_UI.c \
 modules/referee/referee_task.c \
 modules/remote/remote_control.c \
-modules/super_cap/super_cap.c \
+modules/power/super_cap.c \
+modules/power/power_manager.c \
 modules/can_comm/can_comm.c \
 modules/message_center/message_center.c \
 modules/daemon/daemon.c \
-modules/alarm/buzzer.c \
+modules/alarm/buzzer/buzzer.c \
+modules/alarm/led/led.c \
 application/gimbal/gimbal.c \
 application/chassis/chassis.c \
 application/shoot/shoot.c \
 application/cmd/robot_cmd.c \
-application/robot.c
+application/config/infantry_robot/infantry_config.c \
+application/config/sentinel_robot/sentinel_config.c \
+application/config/hero_robot/hero_config.c \
+application/robot.c \
+application/robot_def.c 
 
 # ASM sources
 ASM_SOURCES =  \
@@ -232,6 +241,10 @@ C_INCLUDES =  \
 -Iapplication/shoot \
 -Iapplication/gimbal \
 -Iapplication/cmd \
+-Iapplication/config \
+-Iapplication/config/infantry_robot \
+-Iapplication/config/sentinel_robot \
+-Iapplication/config/hero_robot \
 -Iapplication \
 -Ibsp/dwt \
 -Ibsp/can \
@@ -256,15 +269,19 @@ C_INCLUDES =  \
 -Imodules/motor/step_motor \
 -Imodules/motor/servo_motor \
 -Imodules/motor/DMmotor \
+-Imodules/motor/DRmotor \
+-Imodules/motor/XMmotor \
 -Imodules/motor \
 -Imodules/oled \
 -Imodules/referee \
 -Imodules/remote \
--Imodules/super_cap \
+-Imodules/power \
 -Imodules/can_comm \
 -Imodules/message_center \
 -Imodules/daemon \
 -Imodules/alarm \
+-Imodules/alarm/buzzer \
+-Imodules/alarm/led \
 -Imodules  \
 -IMiddlewares/ST/ARM/DSP/Inc
 
@@ -346,8 +363,10 @@ clean:
 #######################################
 # download directl without debugging
 #######################################
+
+# 建议使用program代替flash write_image erase进行烧录，因为flash write_image erase写入后给芯片进行保护，有时候需要reset一下
 download_dap:
-	openocd -f openocd_dap.cfg -c init -c halt -c "flash write_image erase $(BUILD_DIR)/$(TARGET).bin 0x08000000" -c reset -c shutdown
+	openocd -f openocd_dap.cfg -c init -c halt -c "program $(BUILD_DIR)/$(TARGET).hex" -c reset -c shutdown
 download_jlink:
 	JFlash -openprj'stm32.jflash' -open'$(BUILD_DIR)/$(TARGET).hex',0x8000000 -auto -startapp -exit
 

@@ -1,0 +1,1681 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"stm32f4xx_hal_can.c"
+  16              		.text
+  17              		.section	.text.HAL_CAN_MspInit,"ax",%progbits
+  18              		.align	1
+  19              		.weak	HAL_CAN_MspInit
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	HAL_CAN_MspInit:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27              		@ link register save eliminated.
+  28 0000 7047     		bx	lr
+  30              		.section	.text.HAL_CAN_Init,"ax",%progbits
+  31              		.align	1
+  32              		.global	HAL_CAN_Init
+  33              		.syntax unified
+  34              		.thumb
+  35              		.thumb_func
+  37              	HAL_CAN_Init:
+  38              		@ args = 0, pretend = 0, frame = 0
+  39              		@ frame_needed = 0, uses_anonymous_args = 0
+  40 0000 0028     		cmp	r0, #0
+  41 0002 00F0A180 		beq	.L21
+  42 0006 38B5     		push	{r3, r4, r5, lr}
+  43 0008 0446     		mov	r4, r0
+  44 000a 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+  45 000e D3B1     		cbz	r3, .L26
+  46              	.L4:
+  47 0010 2268     		ldr	r2, [r4]
+  48 0012 1368     		ldr	r3, [r2]
+  49 0014 43F00103 		orr	r3, r3, #1
+  50 0018 1360     		str	r3, [r2]
+  51 001a FFF7FEFF 		bl	HAL_GetTick
+  52 001e 0546     		mov	r5, r0
+  53              	.L5:
+  54 0020 2368     		ldr	r3, [r4]
+  55 0022 5A68     		ldr	r2, [r3, #4]
+  56 0024 12F0010F 		tst	r2, #1
+  57 0028 10D1     		bne	.L27
+  58 002a FFF7FEFF 		bl	HAL_GetTick
+  59 002e 401B     		subs	r0, r0, r5
+  60 0030 0A28     		cmp	r0, #10
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 2
+
+
+  61 0032 F5D9     		bls	.L5
+  62 0034 636A     		ldr	r3, [r4, #36]
+  63 0036 43F40033 		orr	r3, r3, #131072
+  64 003a 6362     		str	r3, [r4, #36]
+  65 003c 0523     		movs	r3, #5
+  66 003e 84F82030 		strb	r3, [r4, #32]
+  67 0042 0120     		movs	r0, #1
+  68              	.L3:
+  69 0044 38BD     		pop	{r3, r4, r5, pc}
+  70              	.L26:
+  71 0046 FFF7FEFF 		bl	HAL_CAN_MspInit
+  72 004a E1E7     		b	.L4
+  73              	.L27:
+  74 004c 1A68     		ldr	r2, [r3]
+  75 004e 22F00202 		bic	r2, r2, #2
+  76 0052 1A60     		str	r2, [r3]
+  77 0054 FFF7FEFF 		bl	HAL_GetTick
+  78 0058 0546     		mov	r5, r0
+  79              	.L7:
+  80 005a 2368     		ldr	r3, [r4]
+  81 005c 5A68     		ldr	r2, [r3, #4]
+  82 005e 12F0020F 		tst	r2, #2
+  83 0062 0DD0     		beq	.L28
+  84 0064 FFF7FEFF 		bl	HAL_GetTick
+  85 0068 401B     		subs	r0, r0, r5
+  86 006a 0A28     		cmp	r0, #10
+  87 006c F5D9     		bls	.L7
+  88 006e 636A     		ldr	r3, [r4, #36]
+  89 0070 43F40033 		orr	r3, r3, #131072
+  90 0074 6362     		str	r3, [r4, #36]
+  91 0076 0523     		movs	r3, #5
+  92 0078 84F82030 		strb	r3, [r4, #32]
+  93 007c 0120     		movs	r0, #1
+  94 007e E1E7     		b	.L3
+  95              	.L28:
+  96 0080 227E     		ldrb	r2, [r4, #24]	@ zero_extendqisi2
+  97 0082 012A     		cmp	r2, #1
+  98 0084 3DD0     		beq	.L29
+  99 0086 1A68     		ldr	r2, [r3]
+ 100 0088 22F08002 		bic	r2, r2, #128
+ 101 008c 1A60     		str	r2, [r3]
+ 102              	.L10:
+ 103 008e 637E     		ldrb	r3, [r4, #25]	@ zero_extendqisi2
+ 104 0090 012B     		cmp	r3, #1
+ 105 0092 3BD0     		beq	.L30
+ 106 0094 2268     		ldr	r2, [r4]
+ 107 0096 1368     		ldr	r3, [r2]
+ 108 0098 23F04003 		bic	r3, r3, #64
+ 109 009c 1360     		str	r3, [r2]
+ 110              	.L12:
+ 111 009e A37E     		ldrb	r3, [r4, #26]	@ zero_extendqisi2
+ 112 00a0 012B     		cmp	r3, #1
+ 113 00a2 39D0     		beq	.L31
+ 114 00a4 2268     		ldr	r2, [r4]
+ 115 00a6 1368     		ldr	r3, [r2]
+ 116 00a8 23F02003 		bic	r3, r3, #32
+ 117 00ac 1360     		str	r3, [r2]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 3
+
+
+ 118              	.L14:
+ 119 00ae E37E     		ldrb	r3, [r4, #27]	@ zero_extendqisi2
+ 120 00b0 012B     		cmp	r3, #1
+ 121 00b2 37D0     		beq	.L32
+ 122 00b4 2268     		ldr	r2, [r4]
+ 123 00b6 1368     		ldr	r3, [r2]
+ 124 00b8 43F01003 		orr	r3, r3, #16
+ 125 00bc 1360     		str	r3, [r2]
+ 126              	.L16:
+ 127 00be 237F     		ldrb	r3, [r4, #28]	@ zero_extendqisi2
+ 128 00c0 012B     		cmp	r3, #1
+ 129 00c2 35D0     		beq	.L33
+ 130 00c4 2268     		ldr	r2, [r4]
+ 131 00c6 1368     		ldr	r3, [r2]
+ 132 00c8 23F00803 		bic	r3, r3, #8
+ 133 00cc 1360     		str	r3, [r2]
+ 134              	.L18:
+ 135 00ce 637F     		ldrb	r3, [r4, #29]	@ zero_extendqisi2
+ 136 00d0 012B     		cmp	r3, #1
+ 137 00d2 33D0     		beq	.L34
+ 138 00d4 2268     		ldr	r2, [r4]
+ 139 00d6 1368     		ldr	r3, [r2]
+ 140 00d8 23F00403 		bic	r3, r3, #4
+ 141 00dc 1360     		str	r3, [r2]
+ 142              	.L20:
+ 143 00de A368     		ldr	r3, [r4, #8]
+ 144 00e0 E268     		ldr	r2, [r4, #12]
+ 145 00e2 1343     		orrs	r3, r3, r2
+ 146 00e4 2269     		ldr	r2, [r4, #16]
+ 147 00e6 1343     		orrs	r3, r3, r2
+ 148 00e8 6269     		ldr	r2, [r4, #20]
+ 149 00ea 1343     		orrs	r3, r3, r2
+ 150 00ec 6268     		ldr	r2, [r4, #4]
+ 151 00ee 013A     		subs	r2, r2, #1
+ 152 00f0 2168     		ldr	r1, [r4]
+ 153 00f2 1343     		orrs	r3, r3, r2
+ 154 00f4 CB61     		str	r3, [r1, #28]
+ 155 00f6 0020     		movs	r0, #0
+ 156 00f8 6062     		str	r0, [r4, #36]
+ 157 00fa 0123     		movs	r3, #1
+ 158 00fc 84F82030 		strb	r3, [r4, #32]
+ 159 0100 A0E7     		b	.L3
+ 160              	.L29:
+ 161 0102 1A68     		ldr	r2, [r3]
+ 162 0104 42F08002 		orr	r2, r2, #128
+ 163 0108 1A60     		str	r2, [r3]
+ 164 010a C0E7     		b	.L10
+ 165              	.L30:
+ 166 010c 2268     		ldr	r2, [r4]
+ 167 010e 1368     		ldr	r3, [r2]
+ 168 0110 43F04003 		orr	r3, r3, #64
+ 169 0114 1360     		str	r3, [r2]
+ 170 0116 C2E7     		b	.L12
+ 171              	.L31:
+ 172 0118 2268     		ldr	r2, [r4]
+ 173 011a 1368     		ldr	r3, [r2]
+ 174 011c 43F02003 		orr	r3, r3, #32
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 4
+
+
+ 175 0120 1360     		str	r3, [r2]
+ 176 0122 C4E7     		b	.L14
+ 177              	.L32:
+ 178 0124 2268     		ldr	r2, [r4]
+ 179 0126 1368     		ldr	r3, [r2]
+ 180 0128 23F01003 		bic	r3, r3, #16
+ 181 012c 1360     		str	r3, [r2]
+ 182 012e C6E7     		b	.L16
+ 183              	.L33:
+ 184 0130 2268     		ldr	r2, [r4]
+ 185 0132 1368     		ldr	r3, [r2]
+ 186 0134 43F00803 		orr	r3, r3, #8
+ 187 0138 1360     		str	r3, [r2]
+ 188 013a C8E7     		b	.L18
+ 189              	.L34:
+ 190 013c 2268     		ldr	r2, [r4]
+ 191 013e 1368     		ldr	r3, [r2]
+ 192 0140 43F00403 		orr	r3, r3, #4
+ 193 0144 1360     		str	r3, [r2]
+ 194 0146 CAE7     		b	.L20
+ 195              	.L21:
+ 196 0148 0120     		movs	r0, #1
+ 197 014a 7047     		bx	lr
+ 199              		.section	.text.HAL_CAN_MspDeInit,"ax",%progbits
+ 200              		.align	1
+ 201              		.weak	HAL_CAN_MspDeInit
+ 202              		.syntax unified
+ 203              		.thumb
+ 204              		.thumb_func
+ 206              	HAL_CAN_MspDeInit:
+ 207              		@ args = 0, pretend = 0, frame = 0
+ 208              		@ frame_needed = 0, uses_anonymous_args = 0
+ 209              		@ link register save eliminated.
+ 210 0000 7047     		bx	lr
+ 212              		.section	.text.HAL_CAN_ConfigFilter,"ax",%progbits
+ 213              		.align	1
+ 214              		.global	HAL_CAN_ConfigFilter
+ 215              		.syntax unified
+ 216              		.thumb
+ 217              		.thumb_func
+ 219              	HAL_CAN_ConfigFilter:
+ 220              		@ args = 0, pretend = 0, frame = 0
+ 221              		@ frame_needed = 0, uses_anonymous_args = 0
+ 222 0000 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 223 0004 013B     		subs	r3, r3, #1
+ 224 0006 DBB2     		uxtb	r3, r3
+ 225 0008 012B     		cmp	r3, #1
+ 226 000a 05D9     		bls	.L50
+ 227 000c 436A     		ldr	r3, [r0, #36]
+ 228 000e 43F48023 		orr	r3, r3, #262144
+ 229 0012 4362     		str	r3, [r0, #36]
+ 230 0014 0120     		movs	r0, #1
+ 231 0016 7047     		bx	lr
+ 232              	.L50:
+ 233 0018 10B5     		push	{r4, lr}
+ 234 001a 474B     		ldr	r3, .L53
+ 235 001c D3F80022 		ldr	r2, [r3, #512]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 5
+
+
+ 236 0020 42F00102 		orr	r2, r2, #1
+ 237 0024 C3F80022 		str	r2, [r3, #512]
+ 238 0028 D3F80022 		ldr	r2, [r3, #512]
+ 239 002c 22F47C52 		bic	r2, r2, #16128
+ 240 0030 C3F80022 		str	r2, [r3, #512]
+ 241 0034 D3F80022 		ldr	r2, [r3, #512]
+ 242 0038 486A     		ldr	r0, [r1, #36]
+ 243 003a 42EA0022 		orr	r2, r2, r0, lsl #8
+ 244 003e C3F80022 		str	r2, [r3, #512]
+ 245 0042 4A69     		ldr	r2, [r1, #20]
+ 246 0044 02F01F02 		and	r2, r2, #31
+ 247 0048 0120     		movs	r0, #1
+ 248 004a 00FA02F2 		lsl	r2, r0, r2
+ 249 004e D3F81C02 		ldr	r0, [r3, #540]
+ 250 0052 6FEA020C 		mvn	ip, r2
+ 251 0056 20EA0200 		bic	r0, r0, r2
+ 252 005a C3F81C02 		str	r0, [r3, #540]
+ 253 005e CB69     		ldr	r3, [r1, #28]
+ 254 0060 CBB9     		cbnz	r3, .L38
+ 255 0062 354B     		ldr	r3, .L53
+ 256 0064 D3F80C02 		ldr	r0, [r3, #524]
+ 257 0068 0CEA0000 		and	r0, ip, r0
+ 258 006c C3F80C02 		str	r0, [r3, #524]
+ 259 0070 B1F804E0 		ldrh	lr, [r1, #4]
+ 260 0074 4869     		ldr	r0, [r1, #20]
+ 261 0076 CC68     		ldr	r4, [r1, #12]
+ 262 0078 4EEA044E 		orr	lr, lr, r4, lsl #16
+ 263 007c 4830     		adds	r0, r0, #72
+ 264 007e 43F830E0 		str	lr, [r3, r0, lsl #3]
+ 265 0082 0888     		ldrh	r0, [r1]
+ 266 0084 8C68     		ldr	r4, [r1, #8]
+ 267 0086 40EA0440 		orr	r0, r0, r4, lsl #16
+ 268 008a 4C69     		ldr	r4, [r1, #20]
+ 269 008c 04F1480E 		add	lr, r4, #72
+ 270 0090 03EBCE03 		add	r3, r3, lr, lsl #3
+ 271 0094 5860     		str	r0, [r3, #4]
+ 272              	.L38:
+ 273 0096 CB69     		ldr	r3, [r1, #28]
+ 274 0098 012B     		cmp	r3, #1
+ 275 009a 1ED0     		beq	.L51
+ 276              	.L39:
+ 277 009c 8B69     		ldr	r3, [r1, #24]
+ 278 009e 002B     		cmp	r3, #0
+ 279 00a0 35D1     		bne	.L40
+ 280 00a2 2548     		ldr	r0, .L53
+ 281 00a4 D0F80432 		ldr	r3, [r0, #516]
+ 282 00a8 0CEA0303 		and	r3, ip, r3
+ 283 00ac C0F80432 		str	r3, [r0, #516]
+ 284              	.L41:
+ 285 00b0 0B69     		ldr	r3, [r1, #16]
+ 286 00b2 9BBB     		cbnz	r3, .L42
+ 287 00b4 2048     		ldr	r0, .L53
+ 288 00b6 D0F81432 		ldr	r3, [r0, #532]
+ 289 00ba 0CEA0303 		and	r3, ip, r3
+ 290 00be C0F81432 		str	r3, [r0, #532]
+ 291              	.L43:
+ 292 00c2 0B6A     		ldr	r3, [r1, #32]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 6
+
+
+ 293 00c4 012B     		cmp	r3, #1
+ 294 00c6 30D0     		beq	.L52
+ 295              	.L44:
+ 296 00c8 1B4A     		ldr	r2, .L53
+ 297 00ca D2F80032 		ldr	r3, [r2, #512]
+ 298 00ce 23F00103 		bic	r3, r3, #1
+ 299 00d2 C2F80032 		str	r3, [r2, #512]
+ 300 00d6 0020     		movs	r0, #0
+ 301 00d8 10BD     		pop	{r4, pc}
+ 302              	.L51:
+ 303 00da 174B     		ldr	r3, .L53
+ 304 00dc D3F80C02 		ldr	r0, [r3, #524]
+ 305 00e0 1043     		orrs	r0, r0, r2
+ 306 00e2 C3F80C02 		str	r0, [r3, #524]
+ 307 00e6 B1F804E0 		ldrh	lr, [r1, #4]
+ 308 00ea 4869     		ldr	r0, [r1, #20]
+ 309 00ec 0C68     		ldr	r4, [r1]
+ 310 00ee 4EEA044E 		orr	lr, lr, r4, lsl #16
+ 311 00f2 4830     		adds	r0, r0, #72
+ 312 00f4 43F830E0 		str	lr, [r3, r0, lsl #3]
+ 313 00f8 8889     		ldrh	r0, [r1, #12]
+ 314 00fa 8C68     		ldr	r4, [r1, #8]
+ 315 00fc 40EA0440 		orr	r0, r0, r4, lsl #16
+ 316 0100 4C69     		ldr	r4, [r1, #20]
+ 317 0102 04F1480E 		add	lr, r4, #72
+ 318 0106 03EBCE03 		add	r3, r3, lr, lsl #3
+ 319 010a 5860     		str	r0, [r3, #4]
+ 320 010c C6E7     		b	.L39
+ 321              	.L40:
+ 322 010e 0A48     		ldr	r0, .L53
+ 323 0110 D0F80432 		ldr	r3, [r0, #516]
+ 324 0114 1343     		orrs	r3, r3, r2
+ 325 0116 C0F80432 		str	r3, [r0, #516]
+ 326 011a C9E7     		b	.L41
+ 327              	.L42:
+ 328 011c 0648     		ldr	r0, .L53
+ 329 011e D0F81432 		ldr	r3, [r0, #532]
+ 330 0122 1343     		orrs	r3, r3, r2
+ 331 0124 C0F81432 		str	r3, [r0, #532]
+ 332 0128 CBE7     		b	.L43
+ 333              	.L52:
+ 334 012a 0349     		ldr	r1, .L53
+ 335 012c D1F81C32 		ldr	r3, [r1, #540]
+ 336 0130 1343     		orrs	r3, r3, r2
+ 337 0132 C1F81C32 		str	r3, [r1, #540]
+ 338 0136 C7E7     		b	.L44
+ 339              	.L54:
+ 340              		.align	2
+ 341              	.L53:
+ 342 0138 00640040 		.word	1073767424
+ 344              		.section	.text.HAL_CAN_Start,"ax",%progbits
+ 345              		.align	1
+ 346              		.global	HAL_CAN_Start
+ 347              		.syntax unified
+ 348              		.thumb
+ 349              		.thumb_func
+ 351              	HAL_CAN_Start:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 7
+
+
+ 352              		@ args = 0, pretend = 0, frame = 0
+ 353              		@ frame_needed = 0, uses_anonymous_args = 0
+ 354 0000 70B5     		push	{r4, r5, r6, lr}
+ 355 0002 0446     		mov	r4, r0
+ 356 0004 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 357 0008 012B     		cmp	r3, #1
+ 358 000a 06D0     		beq	.L61
+ 359 000c 436A     		ldr	r3, [r0, #36]
+ 360 000e 43F40023 		orr	r3, r3, #524288
+ 361 0012 4362     		str	r3, [r0, #36]
+ 362 0014 0126     		movs	r6, #1
+ 363              	.L58:
+ 364 0016 3046     		mov	r0, r6
+ 365 0018 70BD     		pop	{r4, r5, r6, pc}
+ 366              	.L61:
+ 367 001a DEB2     		uxtb	r6, r3
+ 368 001c 0223     		movs	r3, #2
+ 369 001e 80F82030 		strb	r3, [r0, #32]
+ 370 0022 0268     		ldr	r2, [r0]
+ 371 0024 1368     		ldr	r3, [r2]
+ 372 0026 23F00103 		bic	r3, r3, #1
+ 373 002a 1360     		str	r3, [r2]
+ 374 002c FFF7FEFF 		bl	HAL_GetTick
+ 375 0030 0546     		mov	r5, r0
+ 376              	.L57:
+ 377 0032 2368     		ldr	r3, [r4]
+ 378 0034 5B68     		ldr	r3, [r3, #4]
+ 379 0036 13F0010F 		tst	r3, #1
+ 380 003a 0CD0     		beq	.L62
+ 381 003c FFF7FEFF 		bl	HAL_GetTick
+ 382 0040 431B     		subs	r3, r0, r5
+ 383 0042 0A2B     		cmp	r3, #10
+ 384 0044 F5D9     		bls	.L57
+ 385 0046 636A     		ldr	r3, [r4, #36]
+ 386 0048 43F40033 		orr	r3, r3, #131072
+ 387 004c 6362     		str	r3, [r4, #36]
+ 388 004e 0523     		movs	r3, #5
+ 389 0050 84F82030 		strb	r3, [r4, #32]
+ 390 0054 DFE7     		b	.L58
+ 391              	.L62:
+ 392 0056 0026     		movs	r6, #0
+ 393 0058 6662     		str	r6, [r4, #36]
+ 394 005a DCE7     		b	.L58
+ 396              		.section	.text.HAL_CAN_Stop,"ax",%progbits
+ 397              		.align	1
+ 398              		.global	HAL_CAN_Stop
+ 399              		.syntax unified
+ 400              		.thumb
+ 401              		.thumb_func
+ 403              	HAL_CAN_Stop:
+ 404              		@ args = 0, pretend = 0, frame = 0
+ 405              		@ frame_needed = 0, uses_anonymous_args = 0
+ 406 0000 38B5     		push	{r3, r4, r5, lr}
+ 407 0002 0446     		mov	r4, r0
+ 408 0004 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 409 0008 022B     		cmp	r3, #2
+ 410 000a 05D0     		beq	.L69
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 8
+
+
+ 411 000c 436A     		ldr	r3, [r0, #36]
+ 412 000e 43F48013 		orr	r3, r3, #1048576
+ 413 0012 4362     		str	r3, [r0, #36]
+ 414 0014 0120     		movs	r0, #1
+ 415              	.L66:
+ 416 0016 38BD     		pop	{r3, r4, r5, pc}
+ 417              	.L69:
+ 418 0018 0268     		ldr	r2, [r0]
+ 419 001a 1368     		ldr	r3, [r2]
+ 420 001c 43F00103 		orr	r3, r3, #1
+ 421 0020 1360     		str	r3, [r2]
+ 422 0022 FFF7FEFF 		bl	HAL_GetTick
+ 423 0026 0546     		mov	r5, r0
+ 424              	.L65:
+ 425 0028 2368     		ldr	r3, [r4]
+ 426 002a 5A68     		ldr	r2, [r3, #4]
+ 427 002c 12F0010F 		tst	r2, #1
+ 428 0030 0DD1     		bne	.L70
+ 429 0032 FFF7FEFF 		bl	HAL_GetTick
+ 430 0036 431B     		subs	r3, r0, r5
+ 431 0038 0A2B     		cmp	r3, #10
+ 432 003a F5D9     		bls	.L65
+ 433 003c 636A     		ldr	r3, [r4, #36]
+ 434 003e 43F40033 		orr	r3, r3, #131072
+ 435 0042 6362     		str	r3, [r4, #36]
+ 436 0044 0523     		movs	r3, #5
+ 437 0046 84F82030 		strb	r3, [r4, #32]
+ 438 004a 0120     		movs	r0, #1
+ 439 004c E3E7     		b	.L66
+ 440              	.L70:
+ 441 004e 1A68     		ldr	r2, [r3]
+ 442 0050 22F00202 		bic	r2, r2, #2
+ 443 0054 1A60     		str	r2, [r3]
+ 444 0056 0123     		movs	r3, #1
+ 445 0058 84F82030 		strb	r3, [r4, #32]
+ 446 005c 0020     		movs	r0, #0
+ 447 005e DAE7     		b	.L66
+ 449              		.section	.text.HAL_CAN_DeInit,"ax",%progbits
+ 450              		.align	1
+ 451              		.global	HAL_CAN_DeInit
+ 452              		.syntax unified
+ 453              		.thumb
+ 454              		.thumb_func
+ 456              	HAL_CAN_DeInit:
+ 457              		@ args = 0, pretend = 0, frame = 0
+ 458              		@ frame_needed = 0, uses_anonymous_args = 0
+ 459 0000 80B1     		cbz	r0, .L73
+ 460 0002 10B5     		push	{r4, lr}
+ 461 0004 0446     		mov	r4, r0
+ 462 0006 FFF7FEFF 		bl	HAL_CAN_Stop
+ 463 000a 2046     		mov	r0, r4
+ 464 000c FFF7FEFF 		bl	HAL_CAN_MspDeInit
+ 465 0010 2268     		ldr	r2, [r4]
+ 466 0012 1368     		ldr	r3, [r2]
+ 467 0014 43F40043 		orr	r3, r3, #32768
+ 468 0018 1360     		str	r3, [r2]
+ 469 001a 0020     		movs	r0, #0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 9
+
+
+ 470 001c 6062     		str	r0, [r4, #36]
+ 471 001e 84F82000 		strb	r0, [r4, #32]
+ 472 0022 10BD     		pop	{r4, pc}
+ 473              	.L73:
+ 474 0024 0120     		movs	r0, #1
+ 475 0026 7047     		bx	lr
+ 477              		.section	.text.HAL_CAN_RequestSleep,"ax",%progbits
+ 478              		.align	1
+ 479              		.global	HAL_CAN_RequestSleep
+ 480              		.syntax unified
+ 481              		.thumb
+ 482              		.thumb_func
+ 484              	HAL_CAN_RequestSleep:
+ 485              		@ args = 0, pretend = 0, frame = 0
+ 486              		@ frame_needed = 0, uses_anonymous_args = 0
+ 487              		@ link register save eliminated.
+ 488 0000 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 489 0004 013B     		subs	r3, r3, #1
+ 490 0006 DBB2     		uxtb	r3, r3
+ 491 0008 012B     		cmp	r3, #1
+ 492 000a 05D9     		bls	.L81
+ 493 000c 436A     		ldr	r3, [r0, #36]
+ 494 000e 43F48023 		orr	r3, r3, #262144
+ 495 0012 4362     		str	r3, [r0, #36]
+ 496 0014 0120     		movs	r0, #1
+ 497 0016 7047     		bx	lr
+ 498              	.L81:
+ 499 0018 0268     		ldr	r2, [r0]
+ 500 001a 1368     		ldr	r3, [r2]
+ 501 001c 43F00203 		orr	r3, r3, #2
+ 502 0020 1360     		str	r3, [r2]
+ 503 0022 0020     		movs	r0, #0
+ 504 0024 7047     		bx	lr
+ 506              		.section	.text.HAL_CAN_WakeUp,"ax",%progbits
+ 507              		.align	1
+ 508              		.global	HAL_CAN_WakeUp
+ 509              		.syntax unified
+ 510              		.thumb
+ 511              		.thumb_func
+ 513              	HAL_CAN_WakeUp:
+ 514              		@ args = 0, pretend = 0, frame = 8
+ 515              		@ frame_needed = 0, uses_anonymous_args = 0
+ 516              		@ link register save eliminated.
+ 517 0000 82B0     		sub	sp, sp, #8
+ 518 0002 0023     		movs	r3, #0
+ 519 0004 0193     		str	r3, [sp, #4]
+ 520 0006 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 521 000a 013B     		subs	r3, r3, #1
+ 522 000c DBB2     		uxtb	r3, r3
+ 523 000e 012B     		cmp	r3, #1
+ 524 0010 18D8     		bhi	.L83
+ 525 0012 0268     		ldr	r2, [r0]
+ 526 0014 1368     		ldr	r3, [r2]
+ 527 0016 23F00203 		bic	r3, r3, #2
+ 528 001a 1360     		str	r3, [r2]
+ 529              	.L86:
+ 530 001c 019B     		ldr	r3, [sp, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 10
+
+
+ 531 001e 0133     		adds	r3, r3, #1
+ 532 0020 0193     		str	r3, [sp, #4]
+ 533 0022 019A     		ldr	r2, [sp, #4]
+ 534 0024 0B4B     		ldr	r3, .L89
+ 535 0026 9A42     		cmp	r2, r3
+ 536 0028 06D8     		bhi	.L88
+ 537 002a 0368     		ldr	r3, [r0]
+ 538 002c 5B68     		ldr	r3, [r3, #4]
+ 539 002e 13F0020F 		tst	r3, #2
+ 540 0032 F3D1     		bne	.L86
+ 541 0034 0020     		movs	r0, #0
+ 542 0036 0AE0     		b	.L85
+ 543              	.L88:
+ 544 0038 436A     		ldr	r3, [r0, #36]
+ 545 003a 43F40033 		orr	r3, r3, #131072
+ 546 003e 4362     		str	r3, [r0, #36]
+ 547 0040 0120     		movs	r0, #1
+ 548 0042 04E0     		b	.L85
+ 549              	.L83:
+ 550 0044 436A     		ldr	r3, [r0, #36]
+ 551 0046 43F48023 		orr	r3, r3, #262144
+ 552 004a 4362     		str	r3, [r0, #36]
+ 553 004c 0120     		movs	r0, #1
+ 554              	.L85:
+ 555 004e 02B0     		add	sp, sp, #8
+ 556              		@ sp needed
+ 557 0050 7047     		bx	lr
+ 558              	.L90:
+ 559 0052 00BF     		.align	2
+ 560              	.L89:
+ 561 0054 40420F00 		.word	1000000
+ 563              		.section	.text.HAL_CAN_IsSleepActive,"ax",%progbits
+ 564              		.align	1
+ 565              		.global	HAL_CAN_IsSleepActive
+ 566              		.syntax unified
+ 567              		.thumb
+ 568              		.thumb_func
+ 570              	HAL_CAN_IsSleepActive:
+ 571              		@ args = 0, pretend = 0, frame = 0
+ 572              		@ frame_needed = 0, uses_anonymous_args = 0
+ 573              		@ link register save eliminated.
+ 574 0000 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 575 0004 013B     		subs	r3, r3, #1
+ 576 0006 DBB2     		uxtb	r3, r3
+ 577 0008 012B     		cmp	r3, #1
+ 578 000a 01D9     		bls	.L95
+ 579 000c 0020     		movs	r0, #0
+ 580 000e 7047     		bx	lr
+ 581              	.L95:
+ 582 0010 0368     		ldr	r3, [r0]
+ 583 0012 5868     		ldr	r0, [r3, #4]
+ 584 0014 10F00200 		ands	r0, r0, #2
+ 585 0018 00D1     		bne	.L94
+ 586 001a 7047     		bx	lr
+ 587              	.L94:
+ 588 001c 0120     		movs	r0, #1
+ 589 001e 7047     		bx	lr
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 11
+
+
+ 591              		.section	.text.HAL_CAN_AddTxMessage,"ax",%progbits
+ 592              		.align	1
+ 593              		.global	HAL_CAN_AddTxMessage
+ 594              		.syntax unified
+ 595              		.thumb
+ 596              		.thumb_func
+ 598              	HAL_CAN_AddTxMessage:
+ 599              		@ args = 0, pretend = 0, frame = 0
+ 600              		@ frame_needed = 0, uses_anonymous_args = 0
+ 601 0000 10B5     		push	{r4, lr}
+ 602 0002 90F820E0 		ldrb	lr, [r0, #32]	@ zero_extendqisi2
+ 603 0006 0468     		ldr	r4, [r0]
+ 604 0008 D4F808C0 		ldr	ip, [r4, #8]
+ 605 000c 0EF1FF3E 		add	lr, lr, #-1
+ 606 0010 5FFA8EFE 		uxtb	lr, lr
+ 607 0014 BEF1010F 		cmp	lr, #1
+ 608 0018 78D8     		bhi	.L97
+ 609 001a 1CF0806F 		tst	ip, #67108864
+ 610 001e 05D1     		bne	.L98
+ 611 0020 1CF0006F 		tst	ip, #134217728
+ 612 0024 02D1     		bne	.L98
+ 613 0026 1CF0805F 		tst	ip, #268435456
+ 614 002a 69D0     		beq	.L99
+ 615              	.L98:
+ 616 002c CCF3016C 		ubfx	ip, ip, #24, #2
+ 617 0030 BCF1020F 		cmp	ip, #2
+ 618 0034 05D9     		bls	.L100
+ 619 0036 436A     		ldr	r3, [r0, #36]
+ 620 0038 43F40003 		orr	r3, r3, #8388608
+ 621 003c 4362     		str	r3, [r0, #36]
+ 622 003e 0120     		movs	r0, #1
+ 623 0040 69E0     		b	.L101
+ 624              	.L100:
+ 625 0042 4FF0010E 		mov	lr, #1
+ 626 0046 0EFA0CFE 		lsl	lr, lr, ip
+ 627 004a C3F800E0 		str	lr, [r3]
+ 628 004e 8B68     		ldr	r3, [r1, #8]
+ 629 0050 002B     		cmp	r3, #0
+ 630 0052 40D1     		bne	.L102
+ 631 0054 CB68     		ldr	r3, [r1, #12]
+ 632 0056 0C68     		ldr	r4, [r1]
+ 633 0058 43EA445E 		orr	lr, r3, r4, lsl #21
+ 634 005c 0CF11803 		add	r3, ip, #24
+ 635 0060 1B01     		lsls	r3, r3, #4
+ 636 0062 0468     		ldr	r4, [r0]
+ 637 0064 44F803E0 		str	lr, [r4, r3]
+ 638              	.L103:
+ 639 0068 0368     		ldr	r3, [r0]
+ 640 006a 0CF1180E 		add	lr, ip, #24
+ 641 006e 03EB0E13 		add	r3, r3, lr, lsl #4
+ 642 0072 0C69     		ldr	r4, [r1, #16]
+ 643 0074 5C60     		str	r4, [r3, #4]
+ 644 0076 0B7D     		ldrb	r3, [r1, #20]	@ zero_extendqisi2
+ 645 0078 012B     		cmp	r3, #1
+ 646 007a 39D0     		beq	.L106
+ 647              	.L104:
+ 648 007c D179     		ldrb	r1, [r2, #7]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 12
+
+
+ 649 007e 9379     		ldrb	r3, [r2, #6]	@ zero_extendqisi2
+ 650 0080 1B04     		lsls	r3, r3, #16
+ 651 0082 43EA0163 		orr	r3, r3, r1, lsl #24
+ 652 0086 5179     		ldrb	r1, [r2, #5]	@ zero_extendqisi2
+ 653 0088 43EA0123 		orr	r3, r3, r1, lsl #8
+ 654 008c 92F804E0 		ldrb	lr, [r2, #4]	@ zero_extendqisi2
+ 655 0090 0168     		ldr	r1, [r0]
+ 656 0092 43EA0E03 		orr	r3, r3, lr
+ 657 0096 01EB0C11 		add	r1, r1, ip, lsl #4
+ 658 009a C1F88C31 		str	r3, [r1, #396]
+ 659 009e D178     		ldrb	r1, [r2, #3]	@ zero_extendqisi2
+ 660 00a0 9378     		ldrb	r3, [r2, #2]	@ zero_extendqisi2
+ 661 00a2 1B04     		lsls	r3, r3, #16
+ 662 00a4 43EA0163 		orr	r3, r3, r1, lsl #24
+ 663 00a8 5178     		ldrb	r1, [r2, #1]	@ zero_extendqisi2
+ 664 00aa 43EA0123 		orr	r3, r3, r1, lsl #8
+ 665 00ae 1178     		ldrb	r1, [r2]	@ zero_extendqisi2
+ 666 00b0 0268     		ldr	r2, [r0]
+ 667 00b2 0B43     		orrs	r3, r3, r1
+ 668 00b4 02EB0C12 		add	r2, r2, ip, lsl #4
+ 669 00b8 C2F88831 		str	r3, [r2, #392]
+ 670 00bc 0268     		ldr	r2, [r0]
+ 671 00be 0CF1180C 		add	ip, ip, #24
+ 672 00c2 4FEA0C1C 		lsl	ip, ip, #4
+ 673 00c6 52F80C30 		ldr	r3, [r2, ip]
+ 674 00ca 43F00103 		orr	r3, r3, #1
+ 675 00ce 42F80C30 		str	r3, [r2, ip]
+ 676 00d2 0020     		movs	r0, #0
+ 677 00d4 1FE0     		b	.L101
+ 678              	.L102:
+ 679 00d6 4C68     		ldr	r4, [r1, #4]
+ 680 00d8 43EAC403 		orr	r3, r3, r4, lsl #3
+ 681 00dc CC68     		ldr	r4, [r1, #12]
+ 682 00de 2343     		orrs	r3, r3, r4
+ 683 00e0 0CF1180E 		add	lr, ip, #24
+ 684 00e4 4FEA0E1E 		lsl	lr, lr, #4
+ 685 00e8 0468     		ldr	r4, [r0]
+ 686 00ea 44F80E30 		str	r3, [r4, lr]
+ 687 00ee BBE7     		b	.L103
+ 688              	.L106:
+ 689 00f0 0368     		ldr	r3, [r0]
+ 690 00f2 03EB0E13 		add	r3, r3, lr, lsl #4
+ 691 00f6 5968     		ldr	r1, [r3, #4]
+ 692 00f8 41F48071 		orr	r1, r1, #256
+ 693 00fc 5960     		str	r1, [r3, #4]
+ 694 00fe BDE7     		b	.L104
+ 695              	.L99:
+ 696 0100 436A     		ldr	r3, [r0, #36]
+ 697 0102 43F40013 		orr	r3, r3, #2097152
+ 698 0106 4362     		str	r3, [r0, #36]
+ 699 0108 0120     		movs	r0, #1
+ 700 010a 04E0     		b	.L101
+ 701              	.L97:
+ 702 010c 436A     		ldr	r3, [r0, #36]
+ 703 010e 43F48023 		orr	r3, r3, #262144
+ 704 0112 4362     		str	r3, [r0, #36]
+ 705 0114 0120     		movs	r0, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 13
+
+
+ 706              	.L101:
+ 707 0116 10BD     		pop	{r4, pc}
+ 709              		.section	.text.HAL_CAN_AbortTxRequest,"ax",%progbits
+ 710              		.align	1
+ 711              		.global	HAL_CAN_AbortTxRequest
+ 712              		.syntax unified
+ 713              		.thumb
+ 714              		.thumb_func
+ 716              	HAL_CAN_AbortTxRequest:
+ 717              		@ args = 0, pretend = 0, frame = 0
+ 718              		@ frame_needed = 0, uses_anonymous_args = 0
+ 719              		@ link register save eliminated.
+ 720 0000 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 721 0004 013B     		subs	r3, r3, #1
+ 722 0006 DBB2     		uxtb	r3, r3
+ 723 0008 012B     		cmp	r3, #1
+ 724 000a 05D9     		bls	.L113
+ 725 000c 436A     		ldr	r3, [r0, #36]
+ 726 000e 43F48023 		orr	r3, r3, #262144
+ 727 0012 4362     		str	r3, [r0, #36]
+ 728 0014 0120     		movs	r0, #1
+ 729 0016 7047     		bx	lr
+ 730              	.L113:
+ 731 0018 11F0010F 		tst	r1, #1
+ 732 001c 04D0     		beq	.L109
+ 733 001e 0268     		ldr	r2, [r0]
+ 734 0020 9368     		ldr	r3, [r2, #8]
+ 735 0022 43F08003 		orr	r3, r3, #128
+ 736 0026 9360     		str	r3, [r2, #8]
+ 737              	.L109:
+ 738 0028 11F0020F 		tst	r1, #2
+ 739 002c 04D0     		beq	.L110
+ 740 002e 0268     		ldr	r2, [r0]
+ 741 0030 9368     		ldr	r3, [r2, #8]
+ 742 0032 43F40043 		orr	r3, r3, #32768
+ 743 0036 9360     		str	r3, [r2, #8]
+ 744              	.L110:
+ 745 0038 11F0040F 		tst	r1, #4
+ 746 003c 04D0     		beq	.L111
+ 747 003e 0268     		ldr	r2, [r0]
+ 748 0040 9368     		ldr	r3, [r2, #8]
+ 749 0042 43F40003 		orr	r3, r3, #8388608
+ 750 0046 9360     		str	r3, [r2, #8]
+ 751              	.L111:
+ 752 0048 0020     		movs	r0, #0
+ 753 004a 7047     		bx	lr
+ 755              		.section	.text.HAL_CAN_GetTxMailboxesFreeLevel,"ax",%progbits
+ 756              		.align	1
+ 757              		.global	HAL_CAN_GetTxMailboxesFreeLevel
+ 758              		.syntax unified
+ 759              		.thumb
+ 760              		.thumb_func
+ 762              	HAL_CAN_GetTxMailboxesFreeLevel:
+ 763              		@ args = 0, pretend = 0, frame = 0
+ 764              		@ frame_needed = 0, uses_anonymous_args = 0
+ 765              		@ link register save eliminated.
+ 766 0000 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 14
+
+
+ 767 0004 013B     		subs	r3, r3, #1
+ 768 0006 DBB2     		uxtb	r3, r3
+ 769 0008 012B     		cmp	r3, #1
+ 770 000a 01D9     		bls	.L120
+ 771 000c 0020     		movs	r0, #0
+ 772              	.L114:
+ 773 000e 7047     		bx	lr
+ 774              	.L120:
+ 775 0010 0368     		ldr	r3, [r0]
+ 776 0012 9868     		ldr	r0, [r3, #8]
+ 777 0014 10F08060 		ands	r0, r0, #67108864
+ 778 0018 00D0     		beq	.L116
+ 779 001a 0120     		movs	r0, #1
+ 780              	.L116:
+ 781 001c 9A68     		ldr	r2, [r3, #8]
+ 782 001e 12F0006F 		tst	r2, #134217728
+ 783 0022 00D0     		beq	.L117
+ 784 0024 0130     		adds	r0, r0, #1
+ 785              	.L117:
+ 786 0026 9B68     		ldr	r3, [r3, #8]
+ 787 0028 13F0805F 		tst	r3, #268435456
+ 788 002c EFD0     		beq	.L114
+ 789 002e 0130     		adds	r0, r0, #1
+ 790 0030 7047     		bx	lr
+ 792              		.section	.text.HAL_CAN_IsTxMessagePending,"ax",%progbits
+ 793              		.align	1
+ 794              		.global	HAL_CAN_IsTxMessagePending
+ 795              		.syntax unified
+ 796              		.thumb
+ 797              		.thumb_func
+ 799              	HAL_CAN_IsTxMessagePending:
+ 800              		@ args = 0, pretend = 0, frame = 0
+ 801              		@ frame_needed = 0, uses_anonymous_args = 0
+ 802              		@ link register save eliminated.
+ 803 0000 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 804 0004 013B     		subs	r3, r3, #1
+ 805 0006 DBB2     		uxtb	r3, r3
+ 806 0008 012B     		cmp	r3, #1
+ 807 000a 01D9     		bls	.L125
+ 808 000c 0020     		movs	r0, #0
+ 809 000e 7047     		bx	lr
+ 810              	.L125:
+ 811 0010 0368     		ldr	r3, [r0]
+ 812 0012 9B68     		ldr	r3, [r3, #8]
+ 813 0014 03EA8163 		and	r3, r3, r1, lsl #26
+ 814 0018 B3EB816F 		cmp	r3, r1, lsl #26
+ 815 001c 01D0     		beq	.L126
+ 816 001e 0120     		movs	r0, #1
+ 817 0020 7047     		bx	lr
+ 818              	.L126:
+ 819 0022 0020     		movs	r0, #0
+ 820 0024 7047     		bx	lr
+ 822              		.section	.text.HAL_CAN_GetTxTimestamp,"ax",%progbits
+ 823              		.align	1
+ 824              		.global	HAL_CAN_GetTxTimestamp
+ 825              		.syntax unified
+ 826              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 15
+
+
+ 827              		.thumb_func
+ 829              	HAL_CAN_GetTxTimestamp:
+ 830              		@ args = 0, pretend = 0, frame = 0
+ 831              		@ frame_needed = 0, uses_anonymous_args = 0
+ 832              		@ link register save eliminated.
+ 833 0000 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 834 0004 013B     		subs	r3, r3, #1
+ 835 0006 DBB2     		uxtb	r3, r3
+ 836 0008 012B     		cmp	r3, #1
+ 837 000a 01D9     		bls	.L130
+ 838 000c 0020     		movs	r0, #0
+ 839 000e 7047     		bx	lr
+ 840              	.L130:
+ 841              		.syntax unified
+ 842              	@ 988 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 843 0010 91FAA1F1 		rbit r1, r1
+ 844              	@ 0 "" 2
+ 845              		.thumb
+ 846              		.syntax unified
+ 847 0014 B1FA81F1 		clz	r1, r1
+ 848 0018 0368     		ldr	r3, [r0]
+ 849 001a 1831     		adds	r1, r1, #24
+ 850 001c 03EB0113 		add	r3, r3, r1, lsl #4
+ 851 0020 5868     		ldr	r0, [r3, #4]
+ 852 0022 000C     		lsrs	r0, r0, #16
+ 853 0024 7047     		bx	lr
+ 855              		.section	.text.HAL_CAN_GetRxMessage,"ax",%progbits
+ 856              		.align	1
+ 857              		.global	HAL_CAN_GetRxMessage
+ 858              		.syntax unified
+ 859              		.thumb
+ 860              		.thumb_func
+ 862              	HAL_CAN_GetRxMessage:
+ 863              		@ args = 0, pretend = 0, frame = 0
+ 864              		@ frame_needed = 0, uses_anonymous_args = 0
+ 865 0000 90F820C0 		ldrb	ip, [r0, #32]	@ zero_extendqisi2
+ 866 0004 0CF1FF3C 		add	ip, ip, #-1
+ 867 0008 5FFA8CFC 		uxtb	ip, ip
+ 868 000c BCF1010F 		cmp	ip, #1
+ 869 0010 00F2AC80 		bhi	.L132
+ 870 0014 10B5     		push	{r4, lr}
+ 871 0016 59B9     		cbnz	r1, .L133
+ 872 0018 0468     		ldr	r4, [r0]
+ 873 001a D4F80CC0 		ldr	ip, [r4, #12]
+ 874 001e 1CF0030F 		tst	ip, #3
+ 875 0022 11D1     		bne	.L134
+ 876 0024 436A     		ldr	r3, [r0, #36]
+ 877 0026 43F40013 		orr	r3, r3, #2097152
+ 878 002a 4362     		str	r3, [r0, #36]
+ 879 002c 0120     		movs	r0, #1
+ 880 002e 8AE0     		b	.L135
+ 881              	.L133:
+ 882 0030 0468     		ldr	r4, [r0]
+ 883 0032 D4F810C0 		ldr	ip, [r4, #16]
+ 884 0036 1CF0030F 		tst	ip, #3
+ 885 003a 05D1     		bne	.L134
+ 886 003c 436A     		ldr	r3, [r0, #36]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 16
+
+
+ 887 003e 43F40013 		orr	r3, r3, #2097152
+ 888 0042 4362     		str	r3, [r0, #36]
+ 889 0044 0120     		movs	r0, #1
+ 890 0046 7EE0     		b	.L135
+ 891              	.L134:
+ 892 0048 01F11B0C 		add	ip, r1, #27
+ 893 004c 4FEA0C1C 		lsl	ip, ip, #4
+ 894 0050 0468     		ldr	r4, [r0]
+ 895 0052 54F80CC0 		ldr	ip, [r4, ip]
+ 896 0056 0CF0040C 		and	ip, ip, #4
+ 897 005a C2F808C0 		str	ip, [r2, #8]
+ 898 005e BCF1000F 		cmp	ip, #0
+ 899 0062 71D1     		bne	.L136
+ 900 0064 01F11B0C 		add	ip, r1, #27
+ 901 0068 4FEA0C1C 		lsl	ip, ip, #4
+ 902 006c 0468     		ldr	r4, [r0]
+ 903 006e 54F80CC0 		ldr	ip, [r4, ip]
+ 904 0072 4FEA5C5C 		lsr	ip, ip, #21
+ 905 0076 C2F800C0 		str	ip, [r2]
+ 906              	.L137:
+ 907 007a 01F11B0C 		add	ip, r1, #27
+ 908 007e 4FEA0C1C 		lsl	ip, ip, #4
+ 909 0082 0468     		ldr	r4, [r0]
+ 910 0084 54F80CE0 		ldr	lr, [r4, ip]
+ 911 0088 0EF0020E 		and	lr, lr, #2
+ 912 008c C2F80CE0 		str	lr, [r2, #12]
+ 913 0090 0468     		ldr	r4, [r0]
+ 914 0092 04EB0C0E 		add	lr, r4, ip
+ 915 0096 DEF804E0 		ldr	lr, [lr, #4]
+ 916 009a 0EF00F0E 		and	lr, lr, #15
+ 917 009e C2F810E0 		str	lr, [r2, #16]
+ 918 00a2 0468     		ldr	r4, [r0]
+ 919 00a4 04EB0C0E 		add	lr, r4, ip
+ 920 00a8 DEF804E0 		ldr	lr, [lr, #4]
+ 921 00ac CEF3072E 		ubfx	lr, lr, #8, #8
+ 922 00b0 C2F818E0 		str	lr, [r2, #24]
+ 923 00b4 0468     		ldr	r4, [r0]
+ 924 00b6 A444     		add	ip, ip, r4
+ 925 00b8 DCF804C0 		ldr	ip, [ip, #4]
+ 926 00bc 4FEA1C4C 		lsr	ip, ip, #16
+ 927 00c0 C2F814C0 		str	ip, [r2, #20]
+ 928 00c4 0268     		ldr	r2, [r0]
+ 929 00c6 02EB0112 		add	r2, r2, r1, lsl #4
+ 930 00ca D2F8B821 		ldr	r2, [r2, #440]
+ 931 00ce 1A70     		strb	r2, [r3]
+ 932 00d0 0268     		ldr	r2, [r0]
+ 933 00d2 02EB0112 		add	r2, r2, r1, lsl #4
+ 934 00d6 D2F8B821 		ldr	r2, [r2, #440]
+ 935 00da C2F30722 		ubfx	r2, r2, #8, #8
+ 936 00de 5A70     		strb	r2, [r3, #1]
+ 937 00e0 0268     		ldr	r2, [r0]
+ 938 00e2 02EB0112 		add	r2, r2, r1, lsl #4
+ 939 00e6 D2F8B821 		ldr	r2, [r2, #440]
+ 940 00ea C2F30742 		ubfx	r2, r2, #16, #8
+ 941 00ee 9A70     		strb	r2, [r3, #2]
+ 942 00f0 0268     		ldr	r2, [r0]
+ 943 00f2 02EB0112 		add	r2, r2, r1, lsl #4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 17
+
+
+ 944 00f6 D2F8B821 		ldr	r2, [r2, #440]
+ 945 00fa 120E     		lsrs	r2, r2, #24
+ 946 00fc DA70     		strb	r2, [r3, #3]
+ 947 00fe 0268     		ldr	r2, [r0]
+ 948 0100 02EB0112 		add	r2, r2, r1, lsl #4
+ 949 0104 D2F8BC21 		ldr	r2, [r2, #444]
+ 950 0108 1A71     		strb	r2, [r3, #4]
+ 951 010a 0268     		ldr	r2, [r0]
+ 952 010c 02EB0112 		add	r2, r2, r1, lsl #4
+ 953 0110 D2F8BC21 		ldr	r2, [r2, #444]
+ 954 0114 C2F30722 		ubfx	r2, r2, #8, #8
+ 955 0118 5A71     		strb	r2, [r3, #5]
+ 956 011a 0268     		ldr	r2, [r0]
+ 957 011c 02EB0112 		add	r2, r2, r1, lsl #4
+ 958 0120 D2F8BC21 		ldr	r2, [r2, #444]
+ 959 0124 C2F30742 		ubfx	r2, r2, #16, #8
+ 960 0128 9A71     		strb	r2, [r3, #6]
+ 961 012a 0268     		ldr	r2, [r0]
+ 962 012c 02EB0112 		add	r2, r2, r1, lsl #4
+ 963 0130 D2F8BC21 		ldr	r2, [r2, #444]
+ 964 0134 120E     		lsrs	r2, r2, #24
+ 965 0136 DA71     		strb	r2, [r3, #7]
+ 966 0138 91B9     		cbnz	r1, .L138
+ 967 013a 0268     		ldr	r2, [r0]
+ 968 013c D368     		ldr	r3, [r2, #12]
+ 969 013e 43F02003 		orr	r3, r3, #32
+ 970 0142 D360     		str	r3, [r2, #12]
+ 971              	.L139:
+ 972 0144 0020     		movs	r0, #0
+ 973              	.L135:
+ 974 0146 10BD     		pop	{r4, pc}
+ 975              	.L136:
+ 976 0148 01F11B0C 		add	ip, r1, #27
+ 977 014c 4FEA0C1C 		lsl	ip, ip, #4
+ 978 0150 0468     		ldr	r4, [r0]
+ 979 0152 54F80CC0 		ldr	ip, [r4, ip]
+ 980 0156 4FEADC0C 		lsr	ip, ip, #3
+ 981 015a C2F804C0 		str	ip, [r2, #4]
+ 982 015e 8CE7     		b	.L137
+ 983              	.L138:
+ 984 0160 0268     		ldr	r2, [r0]
+ 985 0162 1369     		ldr	r3, [r2, #16]
+ 986 0164 43F02003 		orr	r3, r3, #32
+ 987 0168 1361     		str	r3, [r2, #16]
+ 988 016a EBE7     		b	.L139
+ 989              	.L132:
+ 990 016c 436A     		ldr	r3, [r0, #36]
+ 991 016e 43F48023 		orr	r3, r3, #262144
+ 992 0172 4362     		str	r3, [r0, #36]
+ 993 0174 0120     		movs	r0, #1
+ 994 0176 7047     		bx	lr
+ 996              		.section	.text.HAL_CAN_GetRxFifoFillLevel,"ax",%progbits
+ 997              		.align	1
+ 998              		.global	HAL_CAN_GetRxFifoFillLevel
+ 999              		.syntax unified
+ 1000              		.thumb
+ 1001              		.thumb_func
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 18
+
+
+ 1003              	HAL_CAN_GetRxFifoFillLevel:
+ 1004              		@ args = 0, pretend = 0, frame = 0
+ 1005              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1006              		@ link register save eliminated.
+ 1007 0000 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 1008 0004 013B     		subs	r3, r3, #1
+ 1009 0006 DBB2     		uxtb	r3, r3
+ 1010 0008 012B     		cmp	r3, #1
+ 1011 000a 01D9     		bls	.L148
+ 1012 000c 0020     		movs	r0, #0
+ 1013 000e 7047     		bx	lr
+ 1014              	.L148:
+ 1015 0010 21B9     		cbnz	r1, .L146
+ 1016 0012 0368     		ldr	r3, [r0]
+ 1017 0014 D868     		ldr	r0, [r3, #12]
+ 1018 0016 00F00300 		and	r0, r0, #3
+ 1019 001a 7047     		bx	lr
+ 1020              	.L146:
+ 1021 001c 0368     		ldr	r3, [r0]
+ 1022 001e 1869     		ldr	r0, [r3, #16]
+ 1023 0020 00F00300 		and	r0, r0, #3
+ 1024 0024 7047     		bx	lr
+ 1026              		.section	.text.HAL_CAN_ActivateNotification,"ax",%progbits
+ 1027              		.align	1
+ 1028              		.global	HAL_CAN_ActivateNotification
+ 1029              		.syntax unified
+ 1030              		.thumb
+ 1031              		.thumb_func
+ 1033              	HAL_CAN_ActivateNotification:
+ 1034              		@ args = 0, pretend = 0, frame = 0
+ 1035              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1036              		@ link register save eliminated.
+ 1037 0000 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 1038 0004 013B     		subs	r3, r3, #1
+ 1039 0006 DBB2     		uxtb	r3, r3
+ 1040 0008 012B     		cmp	r3, #1
+ 1041 000a 05D9     		bls	.L152
+ 1042 000c 436A     		ldr	r3, [r0, #36]
+ 1043 000e 43F48023 		orr	r3, r3, #262144
+ 1044 0012 4362     		str	r3, [r0, #36]
+ 1045 0014 0120     		movs	r0, #1
+ 1046 0016 7047     		bx	lr
+ 1047              	.L152:
+ 1048 0018 0268     		ldr	r2, [r0]
+ 1049 001a 5369     		ldr	r3, [r2, #20]
+ 1050 001c 0B43     		orrs	r3, r3, r1
+ 1051 001e 5361     		str	r3, [r2, #20]
+ 1052 0020 0020     		movs	r0, #0
+ 1053 0022 7047     		bx	lr
+ 1055              		.section	.text.HAL_CAN_DeactivateNotification,"ax",%progbits
+ 1056              		.align	1
+ 1057              		.global	HAL_CAN_DeactivateNotification
+ 1058              		.syntax unified
+ 1059              		.thumb
+ 1060              		.thumb_func
+ 1062              	HAL_CAN_DeactivateNotification:
+ 1063              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 19
+
+
+ 1064              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1065              		@ link register save eliminated.
+ 1066 0000 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 1067 0004 013B     		subs	r3, r3, #1
+ 1068 0006 DBB2     		uxtb	r3, r3
+ 1069 0008 012B     		cmp	r3, #1
+ 1070 000a 05D9     		bls	.L156
+ 1071 000c 436A     		ldr	r3, [r0, #36]
+ 1072 000e 43F48023 		orr	r3, r3, #262144
+ 1073 0012 4362     		str	r3, [r0, #36]
+ 1074 0014 0120     		movs	r0, #1
+ 1075 0016 7047     		bx	lr
+ 1076              	.L156:
+ 1077 0018 0268     		ldr	r2, [r0]
+ 1078 001a 5369     		ldr	r3, [r2, #20]
+ 1079 001c 23EA0103 		bic	r3, r3, r1
+ 1080 0020 5361     		str	r3, [r2, #20]
+ 1081 0022 0020     		movs	r0, #0
+ 1082 0024 7047     		bx	lr
+ 1084              		.section	.text.HAL_CAN_TxMailbox0CompleteCallback,"ax",%progbits
+ 1085              		.align	1
+ 1086              		.weak	HAL_CAN_TxMailbox0CompleteCallback
+ 1087              		.syntax unified
+ 1088              		.thumb
+ 1089              		.thumb_func
+ 1091              	HAL_CAN_TxMailbox0CompleteCallback:
+ 1092              		@ args = 0, pretend = 0, frame = 0
+ 1093              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1094              		@ link register save eliminated.
+ 1095 0000 7047     		bx	lr
+ 1097              		.section	.text.HAL_CAN_TxMailbox1CompleteCallback,"ax",%progbits
+ 1098              		.align	1
+ 1099              		.weak	HAL_CAN_TxMailbox1CompleteCallback
+ 1100              		.syntax unified
+ 1101              		.thumb
+ 1102              		.thumb_func
+ 1104              	HAL_CAN_TxMailbox1CompleteCallback:
+ 1105              		@ args = 0, pretend = 0, frame = 0
+ 1106              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1107              		@ link register save eliminated.
+ 1108 0000 7047     		bx	lr
+ 1110              		.section	.text.HAL_CAN_TxMailbox2CompleteCallback,"ax",%progbits
+ 1111              		.align	1
+ 1112              		.weak	HAL_CAN_TxMailbox2CompleteCallback
+ 1113              		.syntax unified
+ 1114              		.thumb
+ 1115              		.thumb_func
+ 1117              	HAL_CAN_TxMailbox2CompleteCallback:
+ 1118              		@ args = 0, pretend = 0, frame = 0
+ 1119              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1120              		@ link register save eliminated.
+ 1121 0000 7047     		bx	lr
+ 1123              		.section	.text.HAL_CAN_TxMailbox0AbortCallback,"ax",%progbits
+ 1124              		.align	1
+ 1125              		.weak	HAL_CAN_TxMailbox0AbortCallback
+ 1126              		.syntax unified
+ 1127              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 20
+
+
+ 1128              		.thumb_func
+ 1130              	HAL_CAN_TxMailbox0AbortCallback:
+ 1131              		@ args = 0, pretend = 0, frame = 0
+ 1132              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1133              		@ link register save eliminated.
+ 1134 0000 7047     		bx	lr
+ 1136              		.section	.text.HAL_CAN_TxMailbox1AbortCallback,"ax",%progbits
+ 1137              		.align	1
+ 1138              		.weak	HAL_CAN_TxMailbox1AbortCallback
+ 1139              		.syntax unified
+ 1140              		.thumb
+ 1141              		.thumb_func
+ 1143              	HAL_CAN_TxMailbox1AbortCallback:
+ 1144              		@ args = 0, pretend = 0, frame = 0
+ 1145              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1146              		@ link register save eliminated.
+ 1147 0000 7047     		bx	lr
+ 1149              		.section	.text.HAL_CAN_TxMailbox2AbortCallback,"ax",%progbits
+ 1150              		.align	1
+ 1151              		.weak	HAL_CAN_TxMailbox2AbortCallback
+ 1152              		.syntax unified
+ 1153              		.thumb
+ 1154              		.thumb_func
+ 1156              	HAL_CAN_TxMailbox2AbortCallback:
+ 1157              		@ args = 0, pretend = 0, frame = 0
+ 1158              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1159              		@ link register save eliminated.
+ 1160 0000 7047     		bx	lr
+ 1162              		.section	.text.HAL_CAN_RxFifo0MsgPendingCallback,"ax",%progbits
+ 1163              		.align	1
+ 1164              		.weak	HAL_CAN_RxFifo0MsgPendingCallback
+ 1165              		.syntax unified
+ 1166              		.thumb
+ 1167              		.thumb_func
+ 1169              	HAL_CAN_RxFifo0MsgPendingCallback:
+ 1170              		@ args = 0, pretend = 0, frame = 0
+ 1171              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1172              		@ link register save eliminated.
+ 1173 0000 7047     		bx	lr
+ 1175              		.section	.text.HAL_CAN_RxFifo0FullCallback,"ax",%progbits
+ 1176              		.align	1
+ 1177              		.weak	HAL_CAN_RxFifo0FullCallback
+ 1178              		.syntax unified
+ 1179              		.thumb
+ 1180              		.thumb_func
+ 1182              	HAL_CAN_RxFifo0FullCallback:
+ 1183              		@ args = 0, pretend = 0, frame = 0
+ 1184              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1185              		@ link register save eliminated.
+ 1186 0000 7047     		bx	lr
+ 1188              		.section	.text.HAL_CAN_RxFifo1MsgPendingCallback,"ax",%progbits
+ 1189              		.align	1
+ 1190              		.weak	HAL_CAN_RxFifo1MsgPendingCallback
+ 1191              		.syntax unified
+ 1192              		.thumb
+ 1193              		.thumb_func
+ 1195              	HAL_CAN_RxFifo1MsgPendingCallback:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 21
+
+
+ 1196              		@ args = 0, pretend = 0, frame = 0
+ 1197              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1198              		@ link register save eliminated.
+ 1199 0000 7047     		bx	lr
+ 1201              		.section	.text.HAL_CAN_RxFifo1FullCallback,"ax",%progbits
+ 1202              		.align	1
+ 1203              		.weak	HAL_CAN_RxFifo1FullCallback
+ 1204              		.syntax unified
+ 1205              		.thumb
+ 1206              		.thumb_func
+ 1208              	HAL_CAN_RxFifo1FullCallback:
+ 1209              		@ args = 0, pretend = 0, frame = 0
+ 1210              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1211              		@ link register save eliminated.
+ 1212 0000 7047     		bx	lr
+ 1214              		.section	.text.HAL_CAN_SleepCallback,"ax",%progbits
+ 1215              		.align	1
+ 1216              		.weak	HAL_CAN_SleepCallback
+ 1217              		.syntax unified
+ 1218              		.thumb
+ 1219              		.thumb_func
+ 1221              	HAL_CAN_SleepCallback:
+ 1222              		@ args = 0, pretend = 0, frame = 0
+ 1223              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1224              		@ link register save eliminated.
+ 1225 0000 7047     		bx	lr
+ 1227              		.section	.text.HAL_CAN_WakeUpFromRxMsgCallback,"ax",%progbits
+ 1228              		.align	1
+ 1229              		.weak	HAL_CAN_WakeUpFromRxMsgCallback
+ 1230              		.syntax unified
+ 1231              		.thumb
+ 1232              		.thumb_func
+ 1234              	HAL_CAN_WakeUpFromRxMsgCallback:
+ 1235              		@ args = 0, pretend = 0, frame = 0
+ 1236              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1237              		@ link register save eliminated.
+ 1238 0000 7047     		bx	lr
+ 1240              		.section	.text.HAL_CAN_ErrorCallback,"ax",%progbits
+ 1241              		.align	1
+ 1242              		.weak	HAL_CAN_ErrorCallback
+ 1243              		.syntax unified
+ 1244              		.thumb
+ 1245              		.thumb_func
+ 1247              	HAL_CAN_ErrorCallback:
+ 1248              		@ args = 0, pretend = 0, frame = 0
+ 1249              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1250              		@ link register save eliminated.
+ 1251 0000 7047     		bx	lr
+ 1253              		.section	.text.HAL_CAN_IRQHandler,"ax",%progbits
+ 1254              		.align	1
+ 1255              		.global	HAL_CAN_IRQHandler
+ 1256              		.syntax unified
+ 1257              		.thumb
+ 1258              		.thumb_func
+ 1260              	HAL_CAN_IRQHandler:
+ 1261              		@ args = 0, pretend = 0, frame = 0
+ 1262              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 22
+
+
+ 1263 0000 2DE9F84F 		push	{r3, r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 1264 0004 0546     		mov	r5, r0
+ 1265 0006 0368     		ldr	r3, [r0]
+ 1266 0008 5C69     		ldr	r4, [r3, #20]
+ 1267 000a D3F80480 		ldr	r8, [r3, #4]
+ 1268 000e 9F68     		ldr	r7, [r3, #8]
+ 1269 0010 DA68     		ldr	r2, [r3, #12]
+ 1270 0012 9146     		mov	r9, r2
+ 1271 0014 1A69     		ldr	r2, [r3, #16]
+ 1272 0016 9246     		mov	r10, r2
+ 1273 0018 9A69     		ldr	r2, [r3, #24]
+ 1274 001a 9346     		mov	fp, r2
+ 1275 001c 14F00106 		ands	r6, r4, #1
+ 1276 0020 3BD0     		beq	.L171
+ 1277 0022 17F00106 		ands	r6, r7, #1
+ 1278 0026 16D0     		beq	.L172
+ 1279 0028 0122     		movs	r2, #1
+ 1280 002a 9A60     		str	r2, [r3, #8]
+ 1281 002c 17F0020F 		tst	r7, #2
+ 1282 0030 08D1     		bne	.L206
+ 1283 0032 17F0040F 		tst	r7, #4
+ 1284 0036 0CD1     		bne	.L203
+ 1285 0038 17F00806 		ands	r6, r7, #8
+ 1286 003c 06D0     		beq	.L207
+ 1287 003e 4FF48056 		mov	r6, #4096
+ 1288 0042 08E0     		b	.L172
+ 1289              	.L206:
+ 1290 0044 FFF7FEFF 		bl	HAL_CAN_TxMailbox0CompleteCallback
+ 1291 0048 0026     		movs	r6, #0
+ 1292 004a 04E0     		b	.L172
+ 1293              	.L207:
+ 1294 004c FFF7FEFF 		bl	HAL_CAN_TxMailbox0AbortCallback
+ 1295 0050 01E0     		b	.L172
+ 1296              	.L203:
+ 1297 0052 4FF40066 		mov	r6, #2048
+ 1298              	.L172:
+ 1299 0056 17F4807F 		tst	r7, #256
+ 1300 005a 0DD0     		beq	.L174
+ 1301 005c 2B68     		ldr	r3, [r5]
+ 1302 005e 4FF48072 		mov	r2, #256
+ 1303 0062 9A60     		str	r2, [r3, #8]
+ 1304 0064 17F4007F 		tst	r7, #512
+ 1305 0068 40F09280 		bne	.L208
+ 1306 006c 17F4806F 		tst	r7, #1024
+ 1307 0070 00F09280 		beq	.L176
+ 1308 0074 46F40056 		orr	r6, r6, #8192
+ 1309              	.L174:
+ 1310 0078 17F4803F 		tst	r7, #65536
+ 1311 007c 0DD0     		beq	.L171
+ 1312 007e 2B68     		ldr	r3, [r5]
+ 1313 0080 4FF48032 		mov	r2, #65536
+ 1314 0084 9A60     		str	r2, [r3, #8]
+ 1315 0086 17F4003F 		tst	r7, #131072
+ 1316 008a 40F08F80 		bne	.L209
+ 1317 008e 17F4802F 		tst	r7, #262144
+ 1318 0092 00F08F80 		beq	.L179
+ 1319 0096 46F40046 		orr	r6, r6, #32768
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 23
+
+
+ 1320              	.L171:
+ 1321 009a 14F0080F 		tst	r4, #8
+ 1322 009e 07D0     		beq	.L181
+ 1323 00a0 19F0100F 		tst	r9, #16
+ 1324 00a4 04D0     		beq	.L181
+ 1325 00a6 46F40076 		orr	r6, r6, #512
+ 1326 00aa 2B68     		ldr	r3, [r5]
+ 1327 00ac 1022     		movs	r2, #16
+ 1328 00ae DA60     		str	r2, [r3, #12]
+ 1329              	.L181:
+ 1330 00b0 14F0040F 		tst	r4, #4
+ 1331 00b4 03D0     		beq	.L182
+ 1332 00b6 19F0080F 		tst	r9, #8
+ 1333 00ba 40F08580 		bne	.L210
+ 1334              	.L182:
+ 1335 00be 14F0020F 		tst	r4, #2
+ 1336 00c2 05D0     		beq	.L183
+ 1337 00c4 2B68     		ldr	r3, [r5]
+ 1338 00c6 DB68     		ldr	r3, [r3, #12]
+ 1339 00c8 13F0030F 		tst	r3, #3
+ 1340 00cc 40F08380 		bne	.L211
+ 1341              	.L183:
+ 1342 00d0 14F0400F 		tst	r4, #64
+ 1343 00d4 07D0     		beq	.L184
+ 1344 00d6 1AF0100F 		tst	r10, #16
+ 1345 00da 04D0     		beq	.L184
+ 1346 00dc 46F48066 		orr	r6, r6, #1024
+ 1347 00e0 2B68     		ldr	r3, [r5]
+ 1348 00e2 1022     		movs	r2, #16
+ 1349 00e4 1A61     		str	r2, [r3, #16]
+ 1350              	.L184:
+ 1351 00e6 14F0200F 		tst	r4, #32
+ 1352 00ea 02D0     		beq	.L185
+ 1353 00ec 1AF0080F 		tst	r10, #8
+ 1354 00f0 75D1     		bne	.L212
+ 1355              	.L185:
+ 1356 00f2 14F0100F 		tst	r4, #16
+ 1357 00f6 04D0     		beq	.L186
+ 1358 00f8 2B68     		ldr	r3, [r5]
+ 1359 00fa 1B69     		ldr	r3, [r3, #16]
+ 1360 00fc 13F0030F 		tst	r3, #3
+ 1361 0100 74D1     		bne	.L213
+ 1362              	.L186:
+ 1363 0102 14F4003F 		tst	r4, #131072
+ 1364 0106 02D0     		beq	.L187
+ 1365 0108 18F0100F 		tst	r8, #16
+ 1366 010c 72D1     		bne	.L214
+ 1367              	.L187:
+ 1368 010e 14F4803F 		tst	r4, #65536
+ 1369 0112 02D0     		beq	.L188
+ 1370 0114 18F0080F 		tst	r8, #8
+ 1371 0118 73D1     		bne	.L215
+ 1372              	.L188:
+ 1373 011a 14F4004F 		tst	r4, #32768
+ 1374 011e 33D0     		beq	.L189
+ 1375 0120 18F0040F 		tst	r8, #4
+ 1376 0124 2DD0     		beq	.L190
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 24
+
+
+ 1377 0126 14F4807F 		tst	r4, #256
+ 1378 012a 04D0     		beq	.L191
+ 1379 012c 1BF0010F 		tst	fp, #1
+ 1380 0130 01D0     		beq	.L191
+ 1381 0132 46F00106 		orr	r6, r6, #1
+ 1382              	.L191:
+ 1383 0136 14F4007F 		tst	r4, #512
+ 1384 013a 04D0     		beq	.L192
+ 1385 013c 1BF0020F 		tst	fp, #2
+ 1386 0140 01D0     		beq	.L192
+ 1387 0142 46F00206 		orr	r6, r6, #2
+ 1388              	.L192:
+ 1389 0146 14F4806F 		tst	r4, #1024
+ 1390 014a 04D0     		beq	.L193
+ 1391 014c 1BF0040F 		tst	fp, #4
+ 1392 0150 01D0     		beq	.L193
+ 1393 0152 46F00406 		orr	r6, r6, #4
+ 1394              	.L193:
+ 1395 0156 14F4006F 		tst	r4, #2048
+ 1396 015a 12D0     		beq	.L190
+ 1397 015c 1BF07003 		ands	r3, fp, #112
+ 1398 0160 0FD0     		beq	.L190
+ 1399 0162 402B     		cmp	r3, #64
+ 1400 0164 61D0     		beq	.L194
+ 1401 0166 53D8     		bhi	.L195
+ 1402 0168 202B     		cmp	r3, #32
+ 1403 016a 58D0     		beq	.L196
+ 1404 016c 302B     		cmp	r3, #48
+ 1405 016e 59D0     		beq	.L197
+ 1406 0170 102B     		cmp	r3, #16
+ 1407 0172 01D1     		bne	.L199
+ 1408 0174 46F00806 		orr	r6, r6, #8
+ 1409              	.L199:
+ 1410 0178 2A68     		ldr	r2, [r5]
+ 1411 017a 9369     		ldr	r3, [r2, #24]
+ 1412 017c 23F07003 		bic	r3, r3, #112
+ 1413 0180 9361     		str	r3, [r2, #24]
+ 1414              	.L190:
+ 1415 0182 2B68     		ldr	r3, [r5]
+ 1416 0184 0422     		movs	r2, #4
+ 1417 0186 5A60     		str	r2, [r3, #4]
+ 1418              	.L189:
+ 1419 0188 002E     		cmp	r6, #0
+ 1420 018a 54D1     		bne	.L216
+ 1421              	.L170:
+ 1422 018c BDE8F88F 		pop	{r3, r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 1423              	.L208:
+ 1424 0190 2846     		mov	r0, r5
+ 1425 0192 FFF7FEFF 		bl	HAL_CAN_TxMailbox1CompleteCallback
+ 1426 0196 6FE7     		b	.L174
+ 1427              	.L176:
+ 1428 0198 17F4006F 		tst	r7, #2048
+ 1429 019c 02D0     		beq	.L177
+ 1430 019e 46F48046 		orr	r6, r6, #16384
+ 1431 01a2 69E7     		b	.L174
+ 1432              	.L177:
+ 1433 01a4 2846     		mov	r0, r5
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 25
+
+
+ 1434 01a6 FFF7FEFF 		bl	HAL_CAN_TxMailbox1AbortCallback
+ 1435 01aa 65E7     		b	.L174
+ 1436              	.L209:
+ 1437 01ac 2846     		mov	r0, r5
+ 1438 01ae FFF7FEFF 		bl	HAL_CAN_TxMailbox2CompleteCallback
+ 1439 01b2 72E7     		b	.L171
+ 1440              	.L179:
+ 1441 01b4 17F4002F 		tst	r7, #524288
+ 1442 01b8 02D0     		beq	.L180
+ 1443 01ba 46F48036 		orr	r6, r6, #65536
+ 1444 01be 6CE7     		b	.L171
+ 1445              	.L180:
+ 1446 01c0 2846     		mov	r0, r5
+ 1447 01c2 FFF7FEFF 		bl	HAL_CAN_TxMailbox2AbortCallback
+ 1448 01c6 68E7     		b	.L171
+ 1449              	.L210:
+ 1450 01c8 2B68     		ldr	r3, [r5]
+ 1451 01ca 0822     		movs	r2, #8
+ 1452 01cc DA60     		str	r2, [r3, #12]
+ 1453 01ce 2846     		mov	r0, r5
+ 1454 01d0 FFF7FEFF 		bl	HAL_CAN_RxFifo0FullCallback
+ 1455 01d4 73E7     		b	.L182
+ 1456              	.L211:
+ 1457 01d6 2846     		mov	r0, r5
+ 1458 01d8 FFF7FEFF 		bl	HAL_CAN_RxFifo0MsgPendingCallback
+ 1459 01dc 78E7     		b	.L183
+ 1460              	.L212:
+ 1461 01de 2B68     		ldr	r3, [r5]
+ 1462 01e0 0822     		movs	r2, #8
+ 1463 01e2 1A61     		str	r2, [r3, #16]
+ 1464 01e4 2846     		mov	r0, r5
+ 1465 01e6 FFF7FEFF 		bl	HAL_CAN_RxFifo1FullCallback
+ 1466 01ea 82E7     		b	.L185
+ 1467              	.L213:
+ 1468 01ec 2846     		mov	r0, r5
+ 1469 01ee FFF7FEFF 		bl	HAL_CAN_RxFifo1MsgPendingCallback
+ 1470 01f2 86E7     		b	.L186
+ 1471              	.L214:
+ 1472 01f4 2B68     		ldr	r3, [r5]
+ 1473 01f6 1022     		movs	r2, #16
+ 1474 01f8 5A60     		str	r2, [r3, #4]
+ 1475 01fa 2846     		mov	r0, r5
+ 1476 01fc FFF7FEFF 		bl	HAL_CAN_SleepCallback
+ 1477 0200 85E7     		b	.L187
+ 1478              	.L215:
+ 1479 0202 2B68     		ldr	r3, [r5]
+ 1480 0204 0822     		movs	r2, #8
+ 1481 0206 5A60     		str	r2, [r3, #4]
+ 1482 0208 2846     		mov	r0, r5
+ 1483 020a FFF7FEFF 		bl	HAL_CAN_WakeUpFromRxMsgCallback
+ 1484 020e 84E7     		b	.L188
+ 1485              	.L195:
+ 1486 0210 502B     		cmp	r3, #80
+ 1487 0212 0DD0     		beq	.L200
+ 1488 0214 602B     		cmp	r3, #96
+ 1489 0216 AFD1     		bne	.L199
+ 1490 0218 46F48076 		orr	r6, r6, #256
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 26
+
+
+ 1491 021c ACE7     		b	.L199
+ 1492              	.L196:
+ 1493 021e 46F01006 		orr	r6, r6, #16
+ 1494 0222 A9E7     		b	.L199
+ 1495              	.L197:
+ 1496 0224 46F02006 		orr	r6, r6, #32
+ 1497 0228 A6E7     		b	.L199
+ 1498              	.L194:
+ 1499 022a 46F04006 		orr	r6, r6, #64
+ 1500 022e A3E7     		b	.L199
+ 1501              	.L200:
+ 1502 0230 46F08006 		orr	r6, r6, #128
+ 1503 0234 A0E7     		b	.L199
+ 1504              	.L216:
+ 1505 0236 6B6A     		ldr	r3, [r5, #36]
+ 1506 0238 3343     		orrs	r3, r3, r6
+ 1507 023a 6B62     		str	r3, [r5, #36]
+ 1508 023c 2846     		mov	r0, r5
+ 1509 023e FFF7FEFF 		bl	HAL_CAN_ErrorCallback
+ 1510 0242 A3E7     		b	.L170
+ 1512              		.section	.text.HAL_CAN_GetState,"ax",%progbits
+ 1513              		.align	1
+ 1514              		.global	HAL_CAN_GetState
+ 1515              		.syntax unified
+ 1516              		.thumb
+ 1517              		.thumb_func
+ 1519              	HAL_CAN_GetState:
+ 1520              		@ args = 0, pretend = 0, frame = 0
+ 1521              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1522              		@ link register save eliminated.
+ 1523 0000 0246     		mov	r2, r0
+ 1524 0002 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 1525 0006 D8B2     		uxtb	r0, r3
+ 1526 0008 013B     		subs	r3, r3, #1
+ 1527 000a DBB2     		uxtb	r3, r3
+ 1528 000c 012B     		cmp	r3, #1
+ 1529 000e 00D9     		bls	.L221
+ 1530              	.L218:
+ 1531 0010 7047     		bx	lr
+ 1532              	.L221:
+ 1533 0012 1368     		ldr	r3, [r2]
+ 1534 0014 5A68     		ldr	r2, [r3, #4]
+ 1535 0016 12F0020F 		tst	r2, #2
+ 1536 001a 05D1     		bne	.L219
+ 1537 001c 1B68     		ldr	r3, [r3]
+ 1538 001e 13F0020F 		tst	r3, #2
+ 1539 0022 F5D0     		beq	.L218
+ 1540 0024 0320     		movs	r0, #3
+ 1541 0026 F3E7     		b	.L218
+ 1542              	.L219:
+ 1543 0028 0420     		movs	r0, #4
+ 1544 002a 7047     		bx	lr
+ 1546              		.section	.text.HAL_CAN_GetError,"ax",%progbits
+ 1547              		.align	1
+ 1548              		.global	HAL_CAN_GetError
+ 1549              		.syntax unified
+ 1550              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 27
+
+
+ 1551              		.thumb_func
+ 1553              	HAL_CAN_GetError:
+ 1554              		@ args = 0, pretend = 0, frame = 0
+ 1555              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1556              		@ link register save eliminated.
+ 1557 0000 406A     		ldr	r0, [r0, #36]
+ 1558 0002 7047     		bx	lr
+ 1560              		.section	.text.HAL_CAN_ResetError,"ax",%progbits
+ 1561              		.align	1
+ 1562              		.global	HAL_CAN_ResetError
+ 1563              		.syntax unified
+ 1564              		.thumb
+ 1565              		.thumb_func
+ 1567              	HAL_CAN_ResetError:
+ 1568              		@ args = 0, pretend = 0, frame = 0
+ 1569              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1570              		@ link register save eliminated.
+ 1571 0000 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 1572 0004 013B     		subs	r3, r3, #1
+ 1573 0006 DBB2     		uxtb	r3, r3
+ 1574 0008 012B     		cmp	r3, #1
+ 1575 000a 05D9     		bls	.L226
+ 1576 000c 436A     		ldr	r3, [r0, #36]
+ 1577 000e 43F48023 		orr	r3, r3, #262144
+ 1578 0012 4362     		str	r3, [r0, #36]
+ 1579 0014 0120     		movs	r0, #1
+ 1580 0016 7047     		bx	lr
+ 1581              	.L226:
+ 1582 0018 0023     		movs	r3, #0
+ 1583 001a 4362     		str	r3, [r0, #36]
+ 1584 001c 1846     		mov	r0, r3
+ 1585 001e 7047     		bx	lr
+ 1587              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 28
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f4xx_hal_can.c
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:18     .text.HAL_CAN_MspInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:24     .text.HAL_CAN_MspInit:00000000 HAL_CAN_MspInit
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:31     .text.HAL_CAN_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:37     .text.HAL_CAN_Init:00000000 HAL_CAN_Init
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:200    .text.HAL_CAN_MspDeInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:206    .text.HAL_CAN_MspDeInit:00000000 HAL_CAN_MspDeInit
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:213    .text.HAL_CAN_ConfigFilter:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:219    .text.HAL_CAN_ConfigFilter:00000000 HAL_CAN_ConfigFilter
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:342    .text.HAL_CAN_ConfigFilter:00000138 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:345    .text.HAL_CAN_Start:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:351    .text.HAL_CAN_Start:00000000 HAL_CAN_Start
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:397    .text.HAL_CAN_Stop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:403    .text.HAL_CAN_Stop:00000000 HAL_CAN_Stop
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:450    .text.HAL_CAN_DeInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:456    .text.HAL_CAN_DeInit:00000000 HAL_CAN_DeInit
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:478    .text.HAL_CAN_RequestSleep:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:484    .text.HAL_CAN_RequestSleep:00000000 HAL_CAN_RequestSleep
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:507    .text.HAL_CAN_WakeUp:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:513    .text.HAL_CAN_WakeUp:00000000 HAL_CAN_WakeUp
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:561    .text.HAL_CAN_WakeUp:00000054 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:564    .text.HAL_CAN_IsSleepActive:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:570    .text.HAL_CAN_IsSleepActive:00000000 HAL_CAN_IsSleepActive
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:592    .text.HAL_CAN_AddTxMessage:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:598    .text.HAL_CAN_AddTxMessage:00000000 HAL_CAN_AddTxMessage
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:710    .text.HAL_CAN_AbortTxRequest:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:716    .text.HAL_CAN_AbortTxRequest:00000000 HAL_CAN_AbortTxRequest
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:756    .text.HAL_CAN_GetTxMailboxesFreeLevel:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:762    .text.HAL_CAN_GetTxMailboxesFreeLevel:00000000 HAL_CAN_GetTxMailboxesFreeLevel
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:793    .text.HAL_CAN_IsTxMessagePending:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:799    .text.HAL_CAN_IsTxMessagePending:00000000 HAL_CAN_IsTxMessagePending
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:823    .text.HAL_CAN_GetTxTimestamp:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:829    .text.HAL_CAN_GetTxTimestamp:00000000 HAL_CAN_GetTxTimestamp
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:856    .text.HAL_CAN_GetRxMessage:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:862    .text.HAL_CAN_GetRxMessage:00000000 HAL_CAN_GetRxMessage
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:997    .text.HAL_CAN_GetRxFifoFillLevel:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1003   .text.HAL_CAN_GetRxFifoFillLevel:00000000 HAL_CAN_GetRxFifoFillLevel
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1027   .text.HAL_CAN_ActivateNotification:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1033   .text.HAL_CAN_ActivateNotification:00000000 HAL_CAN_ActivateNotification
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1056   .text.HAL_CAN_DeactivateNotification:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1062   .text.HAL_CAN_DeactivateNotification:00000000 HAL_CAN_DeactivateNotification
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1085   .text.HAL_CAN_TxMailbox0CompleteCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1091   .text.HAL_CAN_TxMailbox0CompleteCallback:00000000 HAL_CAN_TxMailbox0CompleteCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1098   .text.HAL_CAN_TxMailbox1CompleteCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1104   .text.HAL_CAN_TxMailbox1CompleteCallback:00000000 HAL_CAN_TxMailbox1CompleteCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1111   .text.HAL_CAN_TxMailbox2CompleteCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1117   .text.HAL_CAN_TxMailbox2CompleteCallback:00000000 HAL_CAN_TxMailbox2CompleteCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1124   .text.HAL_CAN_TxMailbox0AbortCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1130   .text.HAL_CAN_TxMailbox0AbortCallback:00000000 HAL_CAN_TxMailbox0AbortCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1137   .text.HAL_CAN_TxMailbox1AbortCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1143   .text.HAL_CAN_TxMailbox1AbortCallback:00000000 HAL_CAN_TxMailbox1AbortCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1150   .text.HAL_CAN_TxMailbox2AbortCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1156   .text.HAL_CAN_TxMailbox2AbortCallback:00000000 HAL_CAN_TxMailbox2AbortCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1163   .text.HAL_CAN_RxFifo0MsgPendingCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1169   .text.HAL_CAN_RxFifo0MsgPendingCallback:00000000 HAL_CAN_RxFifo0MsgPendingCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1176   .text.HAL_CAN_RxFifo0FullCallback:00000000 $t
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s 			page 29
+
+
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1182   .text.HAL_CAN_RxFifo0FullCallback:00000000 HAL_CAN_RxFifo0FullCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1189   .text.HAL_CAN_RxFifo1MsgPendingCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1195   .text.HAL_CAN_RxFifo1MsgPendingCallback:00000000 HAL_CAN_RxFifo1MsgPendingCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1202   .text.HAL_CAN_RxFifo1FullCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1208   .text.HAL_CAN_RxFifo1FullCallback:00000000 HAL_CAN_RxFifo1FullCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1215   .text.HAL_CAN_SleepCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1221   .text.HAL_CAN_SleepCallback:00000000 HAL_CAN_SleepCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1228   .text.HAL_CAN_WakeUpFromRxMsgCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1234   .text.HAL_CAN_WakeUpFromRxMsgCallback:00000000 HAL_CAN_WakeUpFromRxMsgCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1241   .text.HAL_CAN_ErrorCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1247   .text.HAL_CAN_ErrorCallback:00000000 HAL_CAN_ErrorCallback
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1254   .text.HAL_CAN_IRQHandler:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1260   .text.HAL_CAN_IRQHandler:00000000 HAL_CAN_IRQHandler
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1513   .text.HAL_CAN_GetState:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1519   .text.HAL_CAN_GetState:00000000 HAL_CAN_GetState
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1547   .text.HAL_CAN_GetError:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1553   .text.HAL_CAN_GetError:00000000 HAL_CAN_GetError
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1561   .text.HAL_CAN_ResetError:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdgL005.s:1567   .text.HAL_CAN_ResetError:00000000 HAL_CAN_ResetError
+
+UNDEFINED SYMBOLS
+HAL_GetTick

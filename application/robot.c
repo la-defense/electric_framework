@@ -31,8 +31,8 @@ void RobotInit()
 
 #if defined(ONE_BOARD) || defined(GIMBAL_BOARD)
     RobotCMDInit();
-    GimbalInit();
-    ShootInit();
+     GimbalInit();
+     ShootInit();
 #endif
 
 #if defined(ONE_BOARD) || defined(CHASSIS_BOARD)
@@ -44,6 +44,7 @@ void RobotInit()
     // 初始化完成,开启中断
     __enable_irq();
 }
+
 
 void RobotTask()
 {

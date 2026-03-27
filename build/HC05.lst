@@ -1,0 +1,367 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"HC05.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/bluetooth/HC05.c"
+  20              		.section	.text.HC05RxCallback,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	HC05RxCallback:
+  27              	.LFB235:
+   1:modules/bluetooth/HC05.c **** #include "HC05.h"
+   2:modules/bluetooth/HC05.c **** #include "bsp_usart.h"
+   3:modules/bluetooth/HC05.c **** 
+   4:modules/bluetooth/HC05.c **** #define HC05_BUFFERSIZE  HC05_DATASIZE+2  // HC05发送和接收数据buffer大小，不得大于25
+   5:modules/bluetooth/HC05.c **** 
+   6:modules/bluetooth/HC05.c **** #define FRAME_HEAD  0XAA    // 帧头
+   7:modules/bluetooth/HC05.c **** #define FRAME_END   0X55    // 帧尾
+   8:modules/bluetooth/HC05.c **** 
+   9:modules/bluetooth/HC05.c **** static HC05 hc05_msg;   // HC05通信数据
+  10:modules/bluetooth/HC05.c **** static USARTInstance *hc05_usart_instance;    // HC05串口通信实例
+  11:modules/bluetooth/HC05.c **** 
+  12:modules/bluetooth/HC05.c **** static uint8_t hc05_init_flag = 0;  // HC05初始化标志位
+  13:modules/bluetooth/HC05.c **** 
+  14:modules/bluetooth/HC05.c **** // *hc05_usart_instance串口回调函数
+  15:modules/bluetooth/HC05.c **** static void HC05RxCallback()
+  16:modules/bluetooth/HC05.c **** {
+  28              		.loc 1 16 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  17:modules/bluetooth/HC05.c ****     uint8_t *rxbuff;
+  33              		.loc 1 17 5 view .LVU1
+  18:modules/bluetooth/HC05.c ****     rxbuff = hc05_usart_instance->recv_buff;
+  34              		.loc 1 18 5 view .LVU2
+  35              		.loc 1 18 33 is_stmt 0 view .LVU3
+  36 0000 0A4B     		ldr	r3, .L7
+  37 0002 1B68     		ldr	r3, [r3]
+  38              	.LVL0:
+  19:modules/bluetooth/HC05.c **** 
+  20:modules/bluetooth/HC05.c ****     // 帧头帧尾判断
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s 			page 2
+
+
+  21:modules/bluetooth/HC05.c ****     if(rxbuff[0] == FRAME_HEAD && rxbuff[HC05_BUFFERSIZE - 1] == FRAME_END)
+  39              		.loc 1 21 5 is_stmt 1 view .LVU4
+  40              		.loc 1 21 14 is_stmt 0 view .LVU5
+  41 0004 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+  42              		.loc 1 21 7 view .LVU6
+  43 0006 AA2A     		cmp	r2, #170
+  44 0008 00D0     		beq	.L6
+  45              	.L1:
+  22:modules/bluetooth/HC05.c ****     {
+  23:modules/bluetooth/HC05.c ****         for(int i = 0; i < HC05_DATASIZE; i++)
+  24:modules/bluetooth/HC05.c ****             hc05_msg.recv_data[i] = (uint8_t)rxbuff[i+1];
+  25:modules/bluetooth/HC05.c ****     }
+  26:modules/bluetooth/HC05.c ****     
+  27:modules/bluetooth/HC05.c ****     return;
+  28:modules/bluetooth/HC05.c **** }
+  46              		.loc 1 28 1 view .LVU7
+  47 000a 7047     		bx	lr
+  48              	.L6:
+  21:modules/bluetooth/HC05.c ****     {
+  49              		.loc 1 21 41 discriminator 1 view .LVU8
+  50 000c 5A79     		ldrb	r2, [r3, #5]	@ zero_extendqisi2
+  21:modules/bluetooth/HC05.c ****     {
+  51              		.loc 1 21 32 discriminator 1 view .LVU9
+  52 000e 552A     		cmp	r2, #85
+  53 0010 FBD1     		bne	.L1
+  54              	.LBB2:
+  23:modules/bluetooth/HC05.c ****             hc05_msg.recv_data[i] = (uint8_t)rxbuff[i+1];
+  55              		.loc 1 23 17 view .LVU10
+  56 0012 0022     		movs	r2, #0
+  57              	.L3:
+  58              	.LVL1:
+  23:modules/bluetooth/HC05.c ****             hc05_msg.recv_data[i] = (uint8_t)rxbuff[i+1];
+  59              		.loc 1 23 26 is_stmt 1 discriminator 1 view .LVU11
+  60 0014 032A     		cmp	r2, #3
+  61 0016 F8DC     		bgt	.L1
+  24:modules/bluetooth/HC05.c ****     }
+  62              		.loc 1 24 13 view .LVU12
+  24:modules/bluetooth/HC05.c ****     }
+  63              		.loc 1 24 52 is_stmt 0 view .LVU13
+  64 0018 501C     		adds	r0, r2, #1
+  24:modules/bluetooth/HC05.c ****     }
+  65              		.loc 1 24 37 view .LVU14
+  66 001a 13F800C0 		ldrb	ip, [r3, r0]	@ zero_extendqisi2
+  24:modules/bluetooth/HC05.c ****     }
+  67              		.loc 1 24 35 view .LVU15
+  68 001e 0449     		ldr	r1, .L7+4
+  69 0020 0A44     		add	r2, r2, r1
+  70              	.LVL2:
+  24:modules/bluetooth/HC05.c ****     }
+  71              		.loc 1 24 35 view .LVU16
+  72 0022 82F806C0 		strb	ip, [r2, #6]
+  23:modules/bluetooth/HC05.c ****             hc05_msg.recv_data[i] = (uint8_t)rxbuff[i+1];
+  73              		.loc 1 23 44 is_stmt 1 discriminator 3 view .LVU17
+  74 0026 0246     		mov	r2, r0
+  75              	.LVL3:
+  23:modules/bluetooth/HC05.c ****             hc05_msg.recv_data[i] = (uint8_t)rxbuff[i+1];
+  76              		.loc 1 23 44 is_stmt 0 discriminator 3 view .LVU18
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s 			page 3
+
+
+  77 0028 F4E7     		b	.L3
+  78              	.L8:
+  79 002a 00BF     		.align	2
+  80              	.L7:
+  81 002c 00000000 		.word	hc05_usart_instance
+  82 0030 00000000 		.word	hc05_msg
+  83              	.LBE2:
+  84              		.cfi_endproc
+  85              	.LFE235:
+  87              		.section	.text.HC05Init,"ax",%progbits
+  88              		.align	1
+  89              		.global	HC05Init
+  90              		.syntax unified
+  91              		.thumb
+  92              		.thumb_func
+  94              	HC05Init:
+  95              	.LVL4:
+  96              	.LFB236:
+  29:modules/bluetooth/HC05.c **** 
+  30:modules/bluetooth/HC05.c **** // HC05串口接收初始化
+  31:modules/bluetooth/HC05.c **** HC05 *HC05Init(UART_HandleTypeDef *hc05_usart_handle)
+  32:modules/bluetooth/HC05.c **** {
+  97              		.loc 1 32 1 is_stmt 1 view -0
+  98              		.cfi_startproc
+  99              		@ args = 0, pretend = 0, frame = 16
+ 100              		@ frame_needed = 0, uses_anonymous_args = 0
+ 101              		.loc 1 32 1 is_stmt 0 view .LVU20
+ 102 0000 00B5     		push	{lr}
+ 103              	.LCFI0:
+ 104              		.cfi_def_cfa_offset 4
+ 105              		.cfi_offset 14, -4
+ 106 0002 85B0     		sub	sp, sp, #20
+ 107              	.LCFI1:
+ 108              		.cfi_def_cfa_offset 24
+  33:modules/bluetooth/HC05.c ****     USART_Init_Config_s conf;
+ 109              		.loc 1 33 5 is_stmt 1 view .LVU21
+  34:modules/bluetooth/HC05.c ****     conf.module_callback = HC05RxCallback;
+ 110              		.loc 1 34 5 view .LVU22
+ 111              		.loc 1 34 26 is_stmt 0 view .LVU23
+ 112 0004 084B     		ldr	r3, .L11
+ 113 0006 0393     		str	r3, [sp, #12]
+  35:modules/bluetooth/HC05.c ****     conf.usart_handle = hc05_usart_handle;
+ 114              		.loc 1 35 5 is_stmt 1 view .LVU24
+ 115              		.loc 1 35 23 is_stmt 0 view .LVU25
+ 116 0008 0290     		str	r0, [sp, #8]
+  36:modules/bluetooth/HC05.c ****     conf.recv_buff_size = HC05_BUFFERSIZE;
+ 117              		.loc 1 36 5 is_stmt 1 view .LVU26
+ 118              		.loc 1 36 25 is_stmt 0 view .LVU27
+ 119 000a 0623     		movs	r3, #6
+ 120 000c 8DF80430 		strb	r3, [sp, #4]
+  37:modules/bluetooth/HC05.c ****     hc05_usart_instance = USARTRegister(&conf);
+ 121              		.loc 1 37 5 is_stmt 1 view .LVU28
+ 122              		.loc 1 37 27 is_stmt 0 view .LVU29
+ 123 0010 01A8     		add	r0, sp, #4
+ 124              	.LVL5:
+ 125              		.loc 1 37 27 view .LVU30
+ 126 0012 FFF7FEFF 		bl	USARTRegister
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s 			page 4
+
+
+ 127              	.LVL6:
+ 128              		.loc 1 37 25 discriminator 1 view .LVU31
+ 129 0016 054B     		ldr	r3, .L11+4
+ 130 0018 1860     		str	r0, [r3]
+  38:modules/bluetooth/HC05.c **** 
+  39:modules/bluetooth/HC05.c ****     hc05_init_flag = 1;
+ 131              		.loc 1 39 5 is_stmt 1 view .LVU32
+ 132              		.loc 1 39 20 is_stmt 0 view .LVU33
+ 133 001a 054B     		ldr	r3, .L11+8
+ 134 001c 0122     		movs	r2, #1
+ 135 001e 1A70     		strb	r2, [r3]
+  40:modules/bluetooth/HC05.c ****     return (HC05*)&hc05_msg;
+ 136              		.loc 1 40 5 is_stmt 1 view .LVU34
+  41:modules/bluetooth/HC05.c **** }
+ 137              		.loc 1 41 1 is_stmt 0 view .LVU35
+ 138 0020 0448     		ldr	r0, .L11+12
+ 139 0022 05B0     		add	sp, sp, #20
+ 140              	.LCFI2:
+ 141              		.cfi_def_cfa_offset 4
+ 142              		@ sp needed
+ 143 0024 5DF804FB 		ldr	pc, [sp], #4
+ 144              	.L12:
+ 145              		.align	2
+ 146              	.L11:
+ 147 0028 00000000 		.word	HC05RxCallback
+ 148 002c 00000000 		.word	hc05_usart_instance
+ 149 0030 00000000 		.word	hc05_init_flag
+ 150 0034 00000000 		.word	hc05_msg
+ 151              		.cfi_endproc
+ 152              	.LFE236:
+ 154              		.section	.text.HC05_SendData,"ax",%progbits
+ 155              		.align	1
+ 156              		.global	HC05_SendData
+ 157              		.syntax unified
+ 158              		.thumb
+ 159              		.thumb_func
+ 161              	HC05_SendData:
+ 162              	.LVL7:
+ 163              	.LFB237:
+  42:modules/bluetooth/HC05.c **** 
+  43:modules/bluetooth/HC05.c **** // HC05串口发送函数，一次最多发送HC05_DATASIZE个数据
+  44:modules/bluetooth/HC05.c **** void HC05_SendData(uint8_t *data, uint8_t data_num)
+  45:modules/bluetooth/HC05.c **** {
+ 164              		.loc 1 45 1 is_stmt 1 view -0
+ 165              		.cfi_startproc
+ 166              		@ args = 0, pretend = 0, frame = 0
+ 167              		@ frame_needed = 0, uses_anonymous_args = 0
+ 168              		.loc 1 45 1 is_stmt 0 view .LVU37
+ 169 0000 10B5     		push	{r4, lr}
+ 170              	.LCFI3:
+ 171              		.cfi_def_cfa_offset 8
+ 172              		.cfi_offset 4, -8
+ 173              		.cfi_offset 14, -4
+ 174 0002 0A46     		mov	r2, r1
+  46:modules/bluetooth/HC05.c **** 
+  47:modules/bluetooth/HC05.c ****     // 发送数据中加入帧头和帧尾
+  48:modules/bluetooth/HC05.c ****     hc05_msg.send_data[0] = FRAME_HEAD;
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s 			page 5
+
+
+ 175              		.loc 1 48 5 is_stmt 1 view .LVU38
+ 176              		.loc 1 48 27 is_stmt 0 view .LVU39
+ 177 0004 0B4B     		ldr	r3, .L17
+ 178 0006 AA21     		movs	r1, #170
+ 179              	.LVL8:
+ 180              		.loc 1 48 27 view .LVU40
+ 181 0008 1970     		strb	r1, [r3]
+  49:modules/bluetooth/HC05.c **** 
+  50:modules/bluetooth/HC05.c ****     for (int i = 0; i < data_num; i++)
+ 182              		.loc 1 50 5 is_stmt 1 view .LVU41
+ 183              	.LBB3:
+ 184              		.loc 1 50 10 view .LVU42
+ 185              	.LVL9:
+ 186              		.loc 1 50 14 is_stmt 0 view .LVU43
+ 187 000a 0023     		movs	r3, #0
+ 188              		.loc 1 50 5 view .LVU44
+ 189 000c 06E0     		b	.L14
+ 190              	.LVL10:
+ 191              	.L15:
+  51:modules/bluetooth/HC05.c ****         hc05_msg.send_data[i+1] = data[i];
+ 192              		.loc 1 51 9 is_stmt 1 view .LVU45
+ 193              		.loc 1 51 39 is_stmt 0 view .LVU46
+ 194 000e C418     		adds	r4, r0, r3
+ 195              		.loc 1 51 29 view .LVU47
+ 196 0010 0133     		adds	r3, r3, #1
+ 197              	.LVL11:
+ 198              		.loc 1 51 39 view .LVU48
+ 199 0012 94F800C0 		ldrb	ip, [r4]	@ zero_extendqisi2
+ 200              		.loc 1 51 33 view .LVU49
+ 201 0016 074C     		ldr	r4, .L17
+ 202 0018 04F803C0 		strb	ip, [r4, r3]
+  50:modules/bluetooth/HC05.c ****         hc05_msg.send_data[i+1] = data[i];
+ 203              		.loc 1 50 36 is_stmt 1 discriminator 3 view .LVU50
+ 204              	.LVL12:
+ 205              	.L14:
+  50:modules/bluetooth/HC05.c ****         hc05_msg.send_data[i+1] = data[i];
+ 206              		.loc 1 50 23 discriminator 1 view .LVU51
+ 207 001c 9A42     		cmp	r2, r3
+ 208 001e F6DC     		bgt	.L15
+ 209              	.LBE3:
+  52:modules/bluetooth/HC05.c ****     
+  53:modules/bluetooth/HC05.c ****     hc05_msg.send_data[HC05_BUFFERSIZE - 1] = FRAME_END;
+ 210              		.loc 1 53 5 view .LVU52
+ 211              		.loc 1 53 45 is_stmt 0 view .LVU53
+ 212 0020 0449     		ldr	r1, .L17
+ 213 0022 5523     		movs	r3, #85
+ 214              	.LVL13:
+ 215              		.loc 1 53 45 view .LVU54
+ 216 0024 4B71     		strb	r3, [r1, #5]
+  54:modules/bluetooth/HC05.c **** 
+  55:modules/bluetooth/HC05.c ****     // 发送数据
+  56:modules/bluetooth/HC05.c ****     USARTSend(hc05_usart_instance, hc05_msg.send_data, data_num+2, USART_TRANSFER_IT); 
+ 217              		.loc 1 56 5 is_stmt 1 view .LVU55
+ 218 0026 0223     		movs	r3, #2
+ 219 0028 1A44     		add	r2, r2, r3
+ 220              	.LVL14:
+ 221              		.loc 1 56 5 is_stmt 0 view .LVU56
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s 			page 6
+
+
+ 222 002a 0348     		ldr	r0, .L17+4
+ 223              	.LVL15:
+ 224              		.loc 1 56 5 view .LVU57
+ 225 002c 0068     		ldr	r0, [r0]
+ 226 002e FFF7FEFF 		bl	USARTSend
+ 227              	.LVL16:
+  57:modules/bluetooth/HC05.c **** 
+  58:modules/bluetooth/HC05.c **** }...
+ 228              		.loc 1 58 1 view .LVU58
+ 229 0032 10BD     		pop	{r4, pc}
+ 230              	.L18:
+ 231              		.align	2
+ 232              	.L17:
+ 233 0034 00000000 		.word	hc05_msg
+ 234 0038 00000000 		.word	hc05_usart_instance
+ 235              		.cfi_endproc
+ 236              	.LFE237:
+ 238              		.section	.bss.hc05_init_flag,"aw",%nobits
+ 241              	hc05_init_flag:
+ 242 0000 00       		.space	1
+ 243              		.section	.bss.hc05_usart_instance,"aw",%nobits
+ 244              		.align	2
+ 247              	hc05_usart_instance:
+ 248 0000 00000000 		.space	4
+ 249              		.section	.bss.hc05_msg,"aw",%nobits
+ 250              		.align	2
+ 253              	hc05_msg:
+ 254 0000 00000000 		.space	10
+ 254      00000000 
+ 254      0000
+ 255              		.text
+ 256              	.Letext0:
+ 257              		.file 2 "D:/msys2/mingw64/arm-none-eabi/include/machine/_default_types.h"
+ 258              		.file 3 "D:/msys2/mingw64/arm-none-eabi/include/sys/_stdint.h"
+ 259              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 260              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 261              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 262              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 263              		.file 8 "modules/bluetooth/HC05.h"
+ 264              		.file 9 "bsp/usart/bsp_usart.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 HC05.c
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:21     .text.HC05RxCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:26     .text.HC05RxCallback:00000000 HC05RxCallback
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:81     .text.HC05RxCallback:0000002c $d
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:247    .bss.hc05_usart_instance:00000000 hc05_usart_instance
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:253    .bss.hc05_msg:00000000 hc05_msg
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:88     .text.HC05Init:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:94     .text.HC05Init:00000000 HC05Init
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:147    .text.HC05Init:00000028 $d
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:241    .bss.hc05_init_flag:00000000 hc05_init_flag
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:155    .text.HC05_SendData:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:161    .text.HC05_SendData:00000000 HC05_SendData
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:233    .text.HC05_SendData:00000034 $d
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:242    .bss.hc05_init_flag:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:244    .bss.hc05_usart_instance:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccsr5dtb.s:250    .bss.hc05_msg:00000000 $d
+
+UNDEFINED SYMBOLS
+USARTRegister
+USARTSend

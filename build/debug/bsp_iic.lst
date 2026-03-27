@@ -1,0 +1,859 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_iic.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "bsp/iic/bsp_iic.c"
+  20              		.section	.text.IICRegister,"ax",%progbits
+  21              		.align	1
+  22              		.global	IICRegister
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	IICRegister:
+  28              	.LVL0:
+  29              	.LFB235:
+   1:bsp/iic/bsp_iic.c **** #include "bsp_iic.h"
+   2:bsp/iic/bsp_iic.c **** #include "memory.h"
+   3:bsp/iic/bsp_iic.c **** #include "stdlib.h"
+   4:bsp/iic/bsp_iic.c **** 
+   5:bsp/iic/bsp_iic.c **** static uint8_t idx = 0; // 配合中断以及初始化
+   6:bsp/iic/bsp_iic.c **** static IICInstance *iic_instance[IIC_DEVICE_CNT] = {NULL};
+   7:bsp/iic/bsp_iic.c **** 
+   8:bsp/iic/bsp_iic.c **** IICInstance *IICRegister(IIC_Init_Config_s *conf)
+   9:bsp/iic/bsp_iic.c **** {
+  30              		.loc 1 9 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 9 1 is_stmt 0 view .LVU1
+  35 0000 38B5     		push	{r3, r4, r5, lr}
+  36              		.cfi_def_cfa_offset 16
+  37              		.cfi_offset 3, -16
+  38              		.cfi_offset 4, -12
+  39              		.cfi_offset 5, -8
+  40              		.cfi_offset 14, -4
+  10:bsp/iic/bsp_iic.c ****     if (idx >= MX_IIC_SLAVE_CNT) // 超过最大实例数
+  41              		.loc 1 10 5 is_stmt 1 view .LVU2
+  42              		.loc 1 10 13 is_stmt 0 view .LVU3
+  43 0002 114B     		ldr	r3, .L5
+  44 0004 1D78     		ldrb	r5, [r3]	@ zero_extendqisi2
+  45              		.loc 1 10 8 view .LVU4
+  46 0006 072D     		cmp	r5, #7
+  47 0008 00D9     		bls	.L2
+  48              	.L3:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 2
+
+
+  11:bsp/iic/bsp_iic.c ****         while (1)                // 酌情增加允许的实例上限,也有可能是内存泄漏
+  49              		.loc 1 11 9 is_stmt 1 view .LVU5
+  50              		.loc 1 11 15 view .LVU6
+  51 000a FEE7     		b	.L3
+  52              	.L2:
+  53 000c 0446     		mov	r4, r0
+  12:bsp/iic/bsp_iic.c ****             ;
+  13:bsp/iic/bsp_iic.c ****     // 申请到的空间未必是0, 所以需要手动初始化
+  14:bsp/iic/bsp_iic.c ****     IICInstance *instance = (IICInstance *)malloc(sizeof(IICInstance));
+  54              		.loc 1 14 5 view .LVU7
+  15:bsp/iic/bsp_iic.c ****     instance = (IICInstance *)malloc(sizeof(IICInstance));
+  55              		.loc 1 15 5 view .LVU8
+  56              		.loc 1 15 31 is_stmt 0 view .LVU9
+  57 000e 1820     		movs	r0, #24
+  58              	.LVL1:
+  59              		.loc 1 15 31 view .LVU10
+  60 0010 FFF7FEFF 		bl	malloc
+  61              	.LVL2:
+  16:bsp/iic/bsp_iic.c ****     memset(instance, 0, sizeof(IICInstance));
+  62              		.loc 1 16 5 is_stmt 1 view .LVU11
+  63 0014 0022     		movs	r2, #0
+  64 0016 0260     		str	r2, [r0]	@ unaligned
+  65 0018 4260     		str	r2, [r0, #4]	@ unaligned
+  66 001a 8260     		str	r2, [r0, #8]	@ unaligned
+  67 001c C260     		str	r2, [r0, #12]	@ unaligned
+  68 001e 0261     		str	r2, [r0, #16]	@ unaligned
+  69 0020 4261     		str	r2, [r0, #20]	@ unaligned
+  17:bsp/iic/bsp_iic.c **** 
+  18:bsp/iic/bsp_iic.c ****     instance->dev_address = conf->dev_address << 1; // 地址左移一位,最低位为读写位
+  70              		.loc 1 18 5 view .LVU12
+  71              		.loc 1 18 33 is_stmt 0 view .LVU13
+  72 0022 2279     		ldrb	r2, [r4, #4]	@ zero_extendqisi2
+  73              		.loc 1 18 47 view .LVU14
+  74 0024 5200     		lsls	r2, r2, #1
+  75              		.loc 1 18 27 view .LVU15
+  76 0026 0271     		strb	r2, [r0, #4]
+  19:bsp/iic/bsp_iic.c ****     instance->callback = conf->callback;
+  77              		.loc 1 19 5 is_stmt 1 view .LVU16
+  78              		.loc 1 19 30 is_stmt 0 view .LVU17
+  79 0028 A268     		ldr	r2, [r4, #8]
+  80              		.loc 1 19 24 view .LVU18
+  81 002a 0261     		str	r2, [r0, #16]
+  20:bsp/iic/bsp_iic.c ****     instance->work_mode = conf->work_mode;
+  82              		.loc 1 20 5 is_stmt 1 view .LVU19
+  83              		.loc 1 20 31 is_stmt 0 view .LVU20
+  84 002c 6279     		ldrb	r2, [r4, #5]	@ zero_extendqisi2
+  85              		.loc 1 20 25 view .LVU21
+  86 002e 4271     		strb	r2, [r0, #5]
+  21:bsp/iic/bsp_iic.c ****     instance->handle = conf->handle;
+  87              		.loc 1 21 5 is_stmt 1 view .LVU22
+  88              		.loc 1 21 28 is_stmt 0 view .LVU23
+  89 0030 2268     		ldr	r2, [r4]
+  90              		.loc 1 21 22 view .LVU24
+  91 0032 0260     		str	r2, [r0]
+  22:bsp/iic/bsp_iic.c ****     instance->id = conf->id;
+  92              		.loc 1 22 5 is_stmt 1 view .LVU25
+  93              		.loc 1 22 24 is_stmt 0 view .LVU26
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 3
+
+
+  94 0034 E268     		ldr	r2, [r4, #12]
+  95              		.loc 1 22 18 view .LVU27
+  96 0036 4261     		str	r2, [r0, #20]
+  23:bsp/iic/bsp_iic.c **** 
+  24:bsp/iic/bsp_iic.c ****     iic_instance[idx++] = instance;
+  97              		.loc 1 24 5 is_stmt 1 view .LVU28
+  98              		.loc 1 24 21 is_stmt 0 view .LVU29
+  99 0038 691C     		adds	r1, r5, #1
+ 100 003a 034A     		ldr	r2, .L5
+ 101 003c 1170     		strb	r1, [r2]
+ 102              		.loc 1 24 25 view .LVU30
+ 103 003e 034A     		ldr	r2, .L5+4
+ 104 0040 42F82500 		str	r0, [r2, r5, lsl #2]
+  25:bsp/iic/bsp_iic.c ****     return instance;
+ 105              		.loc 1 25 5 is_stmt 1 view .LVU31
+  26:bsp/iic/bsp_iic.c **** }
+ 106              		.loc 1 26 1 is_stmt 0 view .LVU32
+ 107 0044 38BD     		pop	{r3, r4, r5, pc}
+ 108              	.LVL3:
+ 109              	.L6:
+ 110              		.loc 1 26 1 view .LVU33
+ 111 0046 00BF     		.align	2
+ 112              	.L5:
+ 113 0048 00000000 		.word	idx
+ 114 004c 00000000 		.word	iic_instance
+ 115              		.cfi_endproc
+ 116              	.LFE235:
+ 118              		.section	.text.IICSetMode,"ax",%progbits
+ 119              		.align	1
+ 120              		.global	IICSetMode
+ 121              		.syntax unified
+ 122              		.thumb
+ 123              		.thumb_func
+ 125              	IICSetMode:
+ 126              	.LVL4:
+ 127              	.LFB236:
+  27:bsp/iic/bsp_iic.c **** 
+  28:bsp/iic/bsp_iic.c **** void IICSetMode(IICInstance *iic, IIC_Work_Mode_e mode)
+  29:bsp/iic/bsp_iic.c **** { // HAL自带重入保护,不需要手动终止或等待传输完成
+ 128              		.loc 1 29 1 is_stmt 1 view -0
+ 129              		.cfi_startproc
+ 130              		@ args = 0, pretend = 0, frame = 0
+ 131              		@ frame_needed = 0, uses_anonymous_args = 0
+ 132              		@ link register save eliminated.
+  30:bsp/iic/bsp_iic.c ****     if (iic->work_mode != mode)
+ 133              		.loc 1 30 5 view .LVU35
+ 134              		.loc 1 30 12 is_stmt 0 view .LVU36
+ 135 0000 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 136              		.loc 1 30 8 view .LVU37
+ 137 0002 8B42     		cmp	r3, r1
+ 138 0004 00D0     		beq	.L7
+  31:bsp/iic/bsp_iic.c ****     {
+  32:bsp/iic/bsp_iic.c ****         iic->work_mode = mode; // 如果不同才需要修改
+ 139              		.loc 1 32 9 is_stmt 1 view .LVU38
+ 140              		.loc 1 32 24 is_stmt 0 view .LVU39
+ 141 0006 4171     		strb	r1, [r0, #5]
+ 142              	.L7:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 4
+
+
+  33:bsp/iic/bsp_iic.c ****     }
+  34:bsp/iic/bsp_iic.c **** }
+ 143              		.loc 1 34 1 view .LVU40
+ 144 0008 7047     		bx	lr
+ 145              		.cfi_endproc
+ 146              	.LFE236:
+ 148              		.section	.text.IICTransmit,"ax",%progbits
+ 149              		.align	1
+ 150              		.global	IICTransmit
+ 151              		.syntax unified
+ 152              		.thumb
+ 153              		.thumb_func
+ 155              	IICTransmit:
+ 156              	.LVL5:
+ 157              	.LFB237:
+  35:bsp/iic/bsp_iic.c **** 
+  36:bsp/iic/bsp_iic.c **** void IICTransmit(IICInstance *iic, uint8_t *data, uint16_t size, IIC_Seq_Mode_e seq_mode)
+  37:bsp/iic/bsp_iic.c **** {
+ 158              		.loc 1 37 1 is_stmt 1 view -0
+ 159              		.cfi_startproc
+ 160              		@ args = 0, pretend = 0, frame = 0
+ 161              		@ frame_needed = 0, uses_anonymous_args = 0
+  38:bsp/iic/bsp_iic.c ****     if (seq_mode != IIC_SEQ_RELEASE && seq_mode != IIC_SEQ_HOLDON)
+ 162              		.loc 1 38 5 view .LVU42
+ 163              		.loc 1 38 8 is_stmt 0 view .LVU43
+ 164 0000 03B1     		cbz	r3, .L10
+ 165              	.L11:
+  39:bsp/iic/bsp_iic.c ****         while (1)
+ 166              		.loc 1 39 9 is_stmt 1 view .LVU44
+ 167              		.loc 1 39 15 view .LVU45
+ 168 0002 FEE7     		b	.L11
+ 169              	.L10:
+  37:bsp/iic/bsp_iic.c ****     if (seq_mode != IIC_SEQ_RELEASE && seq_mode != IIC_SEQ_HOLDON)
+ 170              		.loc 1 37 1 is_stmt 0 view .LVU46
+ 171 0004 00B5     		push	{lr}
+ 172              		.cfi_def_cfa_offset 4
+ 173              		.cfi_offset 14, -4
+ 174 0006 83B0     		sub	sp, sp, #12
+ 175              		.cfi_def_cfa_offset 16
+  40:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+  41:bsp/iic/bsp_iic.c **** 
+  42:bsp/iic/bsp_iic.c ****     // 根据不同的工作模式进行不同的传输
+  43:bsp/iic/bsp_iic.c ****     switch (iic->work_mode)
+ 176              		.loc 1 43 5 is_stmt 1 view .LVU47
+ 177              		.loc 1 43 16 is_stmt 0 view .LVU48
+ 178 0008 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 179              	.LVL6:
+ 180              		.loc 1 43 5 view .LVU49
+ 181 000a 012B     		cmp	r3, #1
+ 182 000c 0CD0     		beq	.L12
+ 183 000e 022B     		cmp	r3, #2
+ 184 0010 14D0     		beq	.L13
+ 185 0012 EBB9     		cbnz	r3, .L14
+  44:bsp/iic/bsp_iic.c ****     {
+  45:bsp/iic/bsp_iic.c ****     case IIC_BLOCK_MODE:
+  46:bsp/iic/bsp_iic.c ****         if (seq_mode != IIC_SEQ_RELEASE)
+ 186              		.loc 1 46 9 is_stmt 1 view .LVU50
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 5
+
+
+  47:bsp/iic/bsp_iic.c ****             while (1)
+  48:bsp/iic/bsp_iic.c ****                 ;                                                                // 阻塞模式下
+  49:bsp/iic/bsp_iic.c ****         HAL_I2C_Master_Transmit(iic->handle, iic->dev_address, data, size, 100); // 默认超时时
+ 187              		.loc 1 49 9 view .LVU51
+ 188 0014 6423     		movs	r3, #100
+ 189 0016 0093     		str	r3, [sp]
+ 190 0018 1346     		mov	r3, r2
+ 191 001a 0A46     		mov	r2, r1
+ 192              	.LVL7:
+ 193              		.loc 1 49 9 is_stmt 0 view .LVU52
+ 194 001c 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 195              	.LVL8:
+ 196              		.loc 1 49 9 view .LVU53
+ 197 001e 0068     		ldr	r0, [r0]
+ 198              	.LVL9:
+ 199              		.loc 1 49 9 view .LVU54
+ 200 0020 FFF7FEFF 		bl	HAL_I2C_Master_Transmit
+ 201              	.LVL10:
+  50:bsp/iic/bsp_iic.c ****         break;
+ 202              		.loc 1 50 9 is_stmt 1 view .LVU55
+ 203              	.L9:
+  51:bsp/iic/bsp_iic.c ****     case IIC_IT_MODE:
+  52:bsp/iic/bsp_iic.c ****         if (seq_mode == IIC_SEQ_RELEASE)
+  53:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Transmit_IT(iic->handle, iic->dev_address, data, size, I2C_OTHER_AND
+  54:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+  55:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Transmit_IT(iic->handle, iic->dev_address, data, size, I2C_OTHER_FRA
+  56:bsp/iic/bsp_iic.c ****         break;
+  57:bsp/iic/bsp_iic.c ****     case IIC_DMA_MODE:
+  58:bsp/iic/bsp_iic.c ****         if (seq_mode == IIC_SEQ_RELEASE)
+  59:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Transmit_DMA(iic->handle, iic->dev_address, data, size, I2C_OTHER_AN
+  60:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+  61:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Transmit_DMA(iic->handle, iic->dev_address, data, size, I2C_OTHER_FR
+  62:bsp/iic/bsp_iic.c ****         break;
+  63:bsp/iic/bsp_iic.c ****     default:
+  64:bsp/iic/bsp_iic.c ****         while (1)
+  65:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+  66:bsp/iic/bsp_iic.c ****     }
+  67:bsp/iic/bsp_iic.c **** }
+ 204              		.loc 1 67 1 is_stmt 0 view .LVU56
+ 205 0024 03B0     		add	sp, sp, #12
+ 206              		.cfi_remember_state
+ 207              		.cfi_def_cfa_offset 4
+ 208              		@ sp needed
+ 209 0026 00BD     		pop	{pc}
+ 210              	.LVL11:
+ 211              	.L12:
+ 212              		.cfi_restore_state
+  52:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Transmit_IT(iic->handle, iic->dev_address, data, size, I2C_OTHER_AND
+ 213              		.loc 1 52 9 is_stmt 1 view .LVU57
+  53:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 214              		.loc 1 53 13 view .LVU58
+ 215 0028 4FF02A43 		mov	r3, #-1442840576
+ 216 002c 0093     		str	r3, [sp]
+ 217 002e 1346     		mov	r3, r2
+ 218 0030 0A46     		mov	r2, r1
+ 219              	.LVL12:
+  53:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 6
+
+
+ 220              		.loc 1 53 13 is_stmt 0 view .LVU59
+ 221 0032 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 222              	.LVL13:
+  53:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 223              		.loc 1 53 13 view .LVU60
+ 224 0034 0068     		ldr	r0, [r0]
+ 225              	.LVL14:
+  53:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 226              		.loc 1 53 13 view .LVU61
+ 227 0036 FFF7FEFF 		bl	HAL_I2C_Master_Seq_Transmit_IT
+ 228              	.LVL15:
+  53:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 229              		.loc 1 53 13 view .LVU62
+ 230 003a F3E7     		b	.L9
+ 231              	.LVL16:
+ 232              	.L13:
+  58:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Transmit_DMA(iic->handle, iic->dev_address, data, size, I2C_OTHER_AN
+ 233              		.loc 1 58 9 is_stmt 1 view .LVU63
+  59:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 234              		.loc 1 59 13 view .LVU64
+ 235 003c 4FF02A43 		mov	r3, #-1442840576
+ 236 0040 0093     		str	r3, [sp]
+ 237 0042 1346     		mov	r3, r2
+ 238 0044 0A46     		mov	r2, r1
+ 239              	.LVL17:
+  59:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 240              		.loc 1 59 13 is_stmt 0 view .LVU65
+ 241 0046 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 242              	.LVL18:
+  59:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 243              		.loc 1 59 13 view .LVU66
+ 244 0048 0068     		ldr	r0, [r0]
+ 245              	.LVL19:
+  59:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 246              		.loc 1 59 13 view .LVU67
+ 247 004a FFF7FEFF 		bl	HAL_I2C_Master_Seq_Transmit_DMA
+ 248              	.LVL20:
+  59:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 249              		.loc 1 59 13 view .LVU68
+ 250 004e E9E7     		b	.L9
+ 251              	.LVL21:
+ 252              	.L14:
+  64:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+ 253              		.loc 1 64 9 is_stmt 1 view .LVU69
+  64:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+ 254              		.loc 1 64 15 view .LVU70
+ 255 0050 FEE7     		b	.L14
+ 256              		.cfi_endproc
+ 257              	.LFE237:
+ 259              		.section	.text.IICReceive,"ax",%progbits
+ 260              		.align	1
+ 261              		.global	IICReceive
+ 262              		.syntax unified
+ 263              		.thumb
+ 264              		.thumb_func
+ 266              	IICReceive:
+ 267              	.LVL22:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 7
+
+
+ 268              	.LFB238:
+  68:bsp/iic/bsp_iic.c **** 
+  69:bsp/iic/bsp_iic.c **** void IICReceive(IICInstance *iic, uint8_t *data, uint16_t size, IIC_Seq_Mode_e seq_mode)
+  70:bsp/iic/bsp_iic.c **** {
+ 269              		.loc 1 70 1 view -0
+ 270              		.cfi_startproc
+ 271              		@ args = 0, pretend = 0, frame = 0
+ 272              		@ frame_needed = 0, uses_anonymous_args = 0
+  71:bsp/iic/bsp_iic.c ****     if (seq_mode != IIC_SEQ_RELEASE && seq_mode != IIC_SEQ_HOLDON)
+ 273              		.loc 1 71 5 view .LVU72
+ 274              		.loc 1 71 8 is_stmt 0 view .LVU73
+ 275 0000 03B1     		cbz	r3, .L19
+ 276              	.L20:
+  72:bsp/iic/bsp_iic.c ****         while (1)
+ 277              		.loc 1 72 9 is_stmt 1 view .LVU74
+ 278              		.loc 1 72 15 view .LVU75
+ 279 0002 FEE7     		b	.L20
+ 280              	.L19:
+  70:bsp/iic/bsp_iic.c ****     if (seq_mode != IIC_SEQ_RELEASE && seq_mode != IIC_SEQ_HOLDON)
+ 281              		.loc 1 70 1 is_stmt 0 view .LVU76
+ 282 0004 00B5     		push	{lr}
+ 283              		.cfi_def_cfa_offset 4
+ 284              		.cfi_offset 14, -4
+ 285 0006 83B0     		sub	sp, sp, #12
+ 286              		.cfi_def_cfa_offset 16
+  73:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止,请检查指针越界
+  74:bsp/iic/bsp_iic.c **** 
+  75:bsp/iic/bsp_iic.c ****     // 初始化接收缓冲区地址以及接受长度, 用于中断回调函数
+  76:bsp/iic/bsp_iic.c ****     iic->rx_buffer = data;
+ 287              		.loc 1 76 5 is_stmt 1 view .LVU77
+ 288              		.loc 1 76 20 is_stmt 0 view .LVU78
+ 289 0008 8160     		str	r1, [r0, #8]
+  77:bsp/iic/bsp_iic.c ****     iic->rx_len = size;
+ 290              		.loc 1 77 5 is_stmt 1 view .LVU79
+ 291              		.loc 1 77 17 is_stmt 0 view .LVU80
+ 292 000a 0273     		strb	r2, [r0, #12]
+  78:bsp/iic/bsp_iic.c **** 
+  79:bsp/iic/bsp_iic.c ****     switch (iic->work_mode)
+ 293              		.loc 1 79 5 is_stmt 1 view .LVU81
+ 294              		.loc 1 79 16 is_stmt 0 view .LVU82
+ 295 000c 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 296              	.LVL23:
+ 297              		.loc 1 79 5 view .LVU83
+ 298 000e 012B     		cmp	r3, #1
+ 299 0010 0CD0     		beq	.L21
+ 300              		.loc 1 79 5 view .LVU84
+ 301 0012 022B     		cmp	r3, #2
+ 302 0014 14D0     		beq	.L22
+ 303 0016 EBB9     		cbnz	r3, .L23
+  80:bsp/iic/bsp_iic.c ****     {
+  81:bsp/iic/bsp_iic.c ****     case IIC_BLOCK_MODE:
+  82:bsp/iic/bsp_iic.c ****         if (seq_mode != IIC_SEQ_RELEASE)
+ 304              		.loc 1 82 9 is_stmt 1 view .LVU85
+  83:bsp/iic/bsp_iic.c ****             while (1)
+  84:bsp/iic/bsp_iic.c ****                 ;                                                               // 阻塞模式下�
+  85:bsp/iic/bsp_iic.c ****         HAL_I2C_Master_Receive(iic->handle, iic->dev_address, data, size, 100); // 默认超时时�
+ 305              		.loc 1 85 9 view .LVU86
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 8
+
+
+ 306 0018 6423     		movs	r3, #100
+ 307 001a 0093     		str	r3, [sp]
+ 308 001c 1346     		mov	r3, r2
+ 309 001e 0A46     		mov	r2, r1
+ 310              	.LVL24:
+ 311              		.loc 1 85 9 is_stmt 0 view .LVU87
+ 312 0020 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 313              	.LVL25:
+ 314              		.loc 1 85 9 view .LVU88
+ 315 0022 0068     		ldr	r0, [r0]
+ 316              	.LVL26:
+ 317              		.loc 1 85 9 view .LVU89
+ 318 0024 FFF7FEFF 		bl	HAL_I2C_Master_Receive
+ 319              	.LVL27:
+  86:bsp/iic/bsp_iic.c ****         break;
+ 320              		.loc 1 86 9 is_stmt 1 view .LVU90
+ 321              	.L18:
+  87:bsp/iic/bsp_iic.c ****     case IIC_IT_MODE:
+  88:bsp/iic/bsp_iic.c ****         if (seq_mode == IIC_SEQ_RELEASE)
+  89:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Receive_IT(iic->handle, iic->dev_address, data, size, I2C_OTHER_AND_
+  90:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+  91:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Receive_IT(iic->handle, iic->dev_address, data, size, I2C_OTHER_FRAM
+  92:bsp/iic/bsp_iic.c ****         break;
+  93:bsp/iic/bsp_iic.c ****     case IIC_DMA_MODE:
+  94:bsp/iic/bsp_iic.c ****         if (seq_mode == IIC_SEQ_RELEASE)
+  95:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Receive_DMA(iic->handle, iic->dev_address, data, size, I2C_OTHER_AND
+  96:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+  97:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Receive_DMA(iic->handle, iic->dev_address, data, size, I2C_OTHER_FRA
+  98:bsp/iic/bsp_iic.c ****         break;
+  99:bsp/iic/bsp_iic.c ****     default:
+ 100:bsp/iic/bsp_iic.c ****         while (1)
+ 101:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+ 102:bsp/iic/bsp_iic.c ****         break;
+ 103:bsp/iic/bsp_iic.c ****     }
+ 104:bsp/iic/bsp_iic.c **** }
+ 322              		.loc 1 104 1 is_stmt 0 view .LVU91
+ 323 0028 03B0     		add	sp, sp, #12
+ 324              		.cfi_remember_state
+ 325              		.cfi_def_cfa_offset 4
+ 326              		@ sp needed
+ 327 002a 00BD     		pop	{pc}
+ 328              	.LVL28:
+ 329              	.L21:
+ 330              		.cfi_restore_state
+  88:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Receive_IT(iic->handle, iic->dev_address, data, size, I2C_OTHER_AND_
+ 331              		.loc 1 88 9 is_stmt 1 view .LVU92
+  89:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 332              		.loc 1 89 13 view .LVU93
+ 333 002c 4FF02A43 		mov	r3, #-1442840576
+ 334 0030 0093     		str	r3, [sp]
+ 335 0032 1346     		mov	r3, r2
+ 336 0034 0A46     		mov	r2, r1
+ 337              	.LVL29:
+  89:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 338              		.loc 1 89 13 is_stmt 0 view .LVU94
+ 339 0036 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 340              	.LVL30:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 9
+
+
+  89:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 341              		.loc 1 89 13 view .LVU95
+ 342 0038 0068     		ldr	r0, [r0]
+ 343              	.LVL31:
+  89:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 344              		.loc 1 89 13 view .LVU96
+ 345 003a FFF7FEFF 		bl	HAL_I2C_Master_Seq_Receive_IT
+ 346              	.LVL32:
+  89:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 347              		.loc 1 89 13 view .LVU97
+ 348 003e F3E7     		b	.L18
+ 349              	.LVL33:
+ 350              	.L22:
+  94:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Receive_DMA(iic->handle, iic->dev_address, data, size, I2C_OTHER_AND
+ 351              		.loc 1 94 9 is_stmt 1 view .LVU98
+  95:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 352              		.loc 1 95 13 view .LVU99
+ 353 0040 4FF02A43 		mov	r3, #-1442840576
+ 354 0044 0093     		str	r3, [sp]
+ 355 0046 1346     		mov	r3, r2
+ 356 0048 0A46     		mov	r2, r1
+ 357              	.LVL34:
+  95:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 358              		.loc 1 95 13 is_stmt 0 view .LVU100
+ 359 004a 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 360              	.LVL35:
+  95:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 361              		.loc 1 95 13 view .LVU101
+ 362 004c 0068     		ldr	r0, [r0]
+ 363              	.LVL36:
+  95:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 364              		.loc 1 95 13 view .LVU102
+ 365 004e FFF7FEFF 		bl	HAL_I2C_Master_Seq_Receive_DMA
+ 366              	.LVL37:
+  95:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 367              		.loc 1 95 13 view .LVU103
+ 368 0052 E9E7     		b	.L18
+ 369              	.LVL38:
+ 370              	.L23:
+ 100:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+ 371              		.loc 1 100 9 is_stmt 1 view .LVU104
+ 100:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+ 372              		.loc 1 100 15 view .LVU105
+ 373 0054 FEE7     		b	.L23
+ 374              		.cfi_endproc
+ 375              	.LFE238:
+ 377              		.section	.text.IICAccessMem,"ax",%progbits
+ 378              		.align	1
+ 379              		.global	IICAccessMem
+ 380              		.syntax unified
+ 381              		.thumb
+ 382              		.thumb_func
+ 384              	IICAccessMem:
+ 385              	.LVL39:
+ 386              	.LFB239:
+ 105:bsp/iic/bsp_iic.c **** 
+ 106:bsp/iic/bsp_iic.c **** void IICAccessMem(IICInstance *iic, uint16_t mem_addr, uint8_t *data, uint16_t size, IIC_Mem_Mode_e
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 10
+
+
+ 107:bsp/iic/bsp_iic.c **** {
+ 387              		.loc 1 107 1 view -0
+ 388              		.cfi_startproc
+ 389              		@ args = 8, pretend = 0, frame = 0
+ 390              		@ frame_needed = 0, uses_anonymous_args = 0
+ 391              		.loc 1 107 1 is_stmt 0 view .LVU107
+ 392 0000 00B5     		push	{lr}
+ 393              		.cfi_def_cfa_offset 4
+ 394              		.cfi_offset 14, -4
+ 395 0002 85B0     		sub	sp, sp, #20
+ 396              		.cfi_def_cfa_offset 24
+ 397 0004 8646     		mov	lr, r0
+ 398 0006 9DF81800 		ldrb	r0, [sp, #24]	@ zero_extendqisi2
+ 399              	.LVL40:
+ 400              		.loc 1 107 1 view .LVU108
+ 401 000a 9DF81CC0 		ldrb	ip, [sp, #28]	@ zero_extendqisi2
+ 108:bsp/iic/bsp_iic.c ****     uint16_t bit_flag = mem8bit_flag ? I2C_MEMADD_SIZE_8BIT : I2C_MEMADD_SIZE_16BIT;
+ 402              		.loc 1 108 5 is_stmt 1 view .LVU109
+ 403              		.loc 1 108 14 is_stmt 0 view .LVU110
+ 404 000e BCF1000F 		cmp	ip, #0
+ 405 0012 05D0     		beq	.L32
+ 406              		.loc 1 108 14 discriminator 1 view .LVU111
+ 407 0014 4FF0010C 		mov	ip, #1
+ 408              	.L28:
+ 409              	.LVL41:
+ 109:bsp/iic/bsp_iic.c ****     if (mem_mode == IIC_WRITE_MEM)
+ 410              		.loc 1 109 5 is_stmt 1 view .LVU112
+ 411              		.loc 1 109 8 is_stmt 0 view .LVU113
+ 412 0018 0128     		cmp	r0, #1
+ 413 001a 04D0     		beq	.L34
+ 110:bsp/iic/bsp_iic.c ****     {
+ 111:bsp/iic/bsp_iic.c ****         HAL_I2C_Mem_Write(iic->handle, iic->dev_address, mem_addr, bit_flag, data, size, 100);
+ 112:bsp/iic/bsp_iic.c ****     }
+ 113:bsp/iic/bsp_iic.c ****     else if (mem_mode == IIC_READ_MEM)
+ 414              		.loc 1 113 10 is_stmt 1 view .LVU114
+ 415              		.loc 1 113 13 is_stmt 0 view .LVU115
+ 416 001c 80B1     		cbz	r0, .L35
+ 417              	.L31:
+ 114:bsp/iic/bsp_iic.c ****     {
+ 115:bsp/iic/bsp_iic.c ****         HAL_I2C_Mem_Read(iic->handle, iic->dev_address, mem_addr, bit_flag, data, size, 100);
+ 116:bsp/iic/bsp_iic.c ****     }
+ 117:bsp/iic/bsp_iic.c ****     else
+ 118:bsp/iic/bsp_iic.c ****     {
+ 119:bsp/iic/bsp_iic.c ****         while (1)
+ 418              		.loc 1 119 9 is_stmt 1 view .LVU116
+ 419              		.loc 1 119 15 view .LVU117
+ 420 001e FEE7     		b	.L31
+ 421              	.LVL42:
+ 422              	.L32:
+ 108:bsp/iic/bsp_iic.c ****     if (mem_mode == IIC_WRITE_MEM)
+ 423              		.loc 1 108 14 is_stmt 0 discriminator 2 view .LVU118
+ 424 0020 4FF0100C 		mov	ip, #16
+ 425 0024 F8E7     		b	.L28
+ 426              	.LVL43:
+ 427              	.L34:
+ 111:bsp/iic/bsp_iic.c ****     }
+ 428              		.loc 1 111 9 is_stmt 1 view .LVU119
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 11
+
+
+ 429 0026 6420     		movs	r0, #100
+ 430 0028 0290     		str	r0, [sp, #8]
+ 431 002a 0193     		str	r3, [sp, #4]
+ 432 002c 0092     		str	r2, [sp]
+ 433 002e 6346     		mov	r3, ip
+ 434              	.LVL44:
+ 111:bsp/iic/bsp_iic.c ****     }
+ 435              		.loc 1 111 9 is_stmt 0 view .LVU120
+ 436 0030 0A46     		mov	r2, r1
+ 437              	.LVL45:
+ 111:bsp/iic/bsp_iic.c ****     }
+ 438              		.loc 1 111 9 view .LVU121
+ 439 0032 9EF80410 		ldrb	r1, [lr, #4]	@ zero_extendqisi2
+ 440              	.LVL46:
+ 111:bsp/iic/bsp_iic.c ****     }
+ 441              		.loc 1 111 9 view .LVU122
+ 442 0036 DEF80000 		ldr	r0, [lr]
+ 443 003a FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 444              	.LVL47:
+ 111:bsp/iic/bsp_iic.c ****     }
+ 445              		.loc 1 111 9 view .LVU123
+ 446 003e 0BE0     		b	.L27
+ 447              	.LVL48:
+ 448              	.L35:
+ 115:bsp/iic/bsp_iic.c ****     }
+ 449              		.loc 1 115 9 is_stmt 1 view .LVU124
+ 450 0040 6420     		movs	r0, #100
+ 451 0042 0290     		str	r0, [sp, #8]
+ 452 0044 0193     		str	r3, [sp, #4]
+ 453 0046 0092     		str	r2, [sp]
+ 454 0048 6346     		mov	r3, ip
+ 455              	.LVL49:
+ 115:bsp/iic/bsp_iic.c ****     }
+ 456              		.loc 1 115 9 is_stmt 0 view .LVU125
+ 457 004a 0A46     		mov	r2, r1
+ 458              	.LVL50:
+ 115:bsp/iic/bsp_iic.c ****     }
+ 459              		.loc 1 115 9 view .LVU126
+ 460 004c 9EF80410 		ldrb	r1, [lr, #4]	@ zero_extendqisi2
+ 461              	.LVL51:
+ 115:bsp/iic/bsp_iic.c ****     }
+ 462              		.loc 1 115 9 view .LVU127
+ 463 0050 DEF80000 		ldr	r0, [lr]
+ 464 0054 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 465              	.LVL52:
+ 466              	.L27:
+ 120:bsp/iic/bsp_iic.c ****             ; // 未知模式, 程序停止
+ 121:bsp/iic/bsp_iic.c ****     }
+ 122:bsp/iic/bsp_iic.c **** }
+ 467              		.loc 1 122 1 view .LVU128
+ 468 0058 05B0     		add	sp, sp, #20
+ 469              		.cfi_def_cfa_offset 4
+ 470              		@ sp needed
+ 471 005a 00BD     		pop	{pc}
+ 472              		.loc 1 122 1 view .LVU129
+ 473              		.cfi_endproc
+ 474              	.LFE239:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 12
+
+
+ 476              		.section	.text.HAL_I2C_MasterRxCpltCallback,"ax",%progbits
+ 477              		.align	1
+ 478              		.global	HAL_I2C_MasterRxCpltCallback
+ 479              		.syntax unified
+ 480              		.thumb
+ 481              		.thumb_func
+ 483              	HAL_I2C_MasterRxCpltCallback:
+ 484              	.LVL53:
+ 485              	.LFB240:
+ 123:bsp/iic/bsp_iic.c **** 
+ 124:bsp/iic/bsp_iic.c **** /**
+ 125:bsp/iic/bsp_iic.c ****  * @brief IIC接收完成回调函数
+ 126:bsp/iic/bsp_iic.c ****  *
+ 127:bsp/iic/bsp_iic.c ****  * @param hi2c handle
+ 128:bsp/iic/bsp_iic.c ****  */
+ 129:bsp/iic/bsp_iic.c **** void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
+ 130:bsp/iic/bsp_iic.c **** {
+ 486              		.loc 1 130 1 is_stmt 1 view -0
+ 487              		.cfi_startproc
+ 488              		@ args = 0, pretend = 0, frame = 0
+ 489              		@ frame_needed = 0, uses_anonymous_args = 0
+ 490              		.loc 1 130 1 is_stmt 0 view .LVU131
+ 491 0000 08B5     		push	{r3, lr}
+ 492              		.cfi_def_cfa_offset 8
+ 493              		.cfi_offset 3, -8
+ 494              		.cfi_offset 14, -4
+ 131:bsp/iic/bsp_iic.c ****     // 如果是当前i2c硬件发出的complete,且dev_address和之前发起接收的地址相同
+ 132:bsp/iic/bsp_iic.c ****     for (uint8_t i = 0; i < idx; i++)
+ 495              		.loc 1 132 5 is_stmt 1 view .LVU132
+ 496              	.LBB2:
+ 497              		.loc 1 132 10 view .LVU133
+ 498              	.LVL54:
+ 499              		.loc 1 132 18 is_stmt 0 view .LVU134
+ 500 0002 0023     		movs	r3, #0
+ 501              		.loc 1 132 5 view .LVU135
+ 502 0004 01E0     		b	.L37
+ 503              	.LVL55:
+ 504              	.L38:
+ 505              		.loc 1 132 35 is_stmt 1 discriminator 2 view .LVU136
+ 506 0006 0133     		adds	r3, r3, #1
+ 507              	.LVL56:
+ 508              		.loc 1 132 35 is_stmt 0 discriminator 2 view .LVU137
+ 509 0008 DBB2     		uxtb	r3, r3
+ 510              	.LVL57:
+ 511              	.L37:
+ 512              		.loc 1 132 27 is_stmt 1 discriminator 1 view .LVU138
+ 513 000a 0A4A     		ldr	r2, .L43
+ 514 000c 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 515 000e 9A42     		cmp	r2, r3
+ 516 0010 0ED9     		bls	.L36
+ 133:bsp/iic/bsp_iic.c ****     {
+ 134:bsp/iic/bsp_iic.c ****         if (iic_instance[i]->handle == hi2c && hi2c->Devaddress == iic_instance[i]->dev_address)
+ 517              		.loc 1 134 9 view .LVU139
+ 518              		.loc 1 134 25 is_stmt 0 view .LVU140
+ 519 0012 094A     		ldr	r2, .L43+4
+ 520 0014 52F82320 		ldr	r2, [r2, r3, lsl #2]
+ 521              		.loc 1 134 28 view .LVU141
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 13
+
+
+ 522 0018 1168     		ldr	r1, [r2]
+ 523              		.loc 1 134 12 view .LVU142
+ 524 001a 8142     		cmp	r1, r0
+ 525 001c F3D1     		bne	.L38
+ 526              		.loc 1 134 52 discriminator 1 view .LVU143
+ 527 001e D0F844C0 		ldr	ip, [r0, #68]
+ 528              		.loc 1 134 83 discriminator 1 view .LVU144
+ 529 0022 1179     		ldrb	r1, [r2, #4]	@ zero_extendqisi2
+ 530              		.loc 1 134 45 discriminator 1 view .LVU145
+ 531 0024 8C45     		cmp	ip, r1
+ 532 0026 EED1     		bne	.L38
+ 135:bsp/iic/bsp_iic.c ****         {
+ 136:bsp/iic/bsp_iic.c ****             if (iic_instance[i]->callback != NULL) // 回调函数不为空
+ 533              		.loc 1 136 13 is_stmt 1 view .LVU146
+ 534              		.loc 1 136 32 is_stmt 0 view .LVU147
+ 535 0028 1369     		ldr	r3, [r2, #16]
+ 536              	.LVL58:
+ 537              		.loc 1 136 16 view .LVU148
+ 538 002a 0BB1     		cbz	r3, .L36
+ 137:bsp/iic/bsp_iic.c ****                 iic_instance[i]->callback(iic_instance[i]);
+ 539              		.loc 1 137 17 is_stmt 1 view .LVU149
+ 540 002c 1046     		mov	r0, r2
+ 541              	.LVL59:
+ 542              		.loc 1 137 17 is_stmt 0 view .LVU150
+ 543 002e 9847     		blx	r3
+ 544              	.LVL60:
+ 138:bsp/iic/bsp_iic.c ****             return;
+ 545              		.loc 1 138 13 is_stmt 1 view .LVU151
+ 546              	.L36:
+ 547              		.loc 1 138 13 is_stmt 0 view .LVU152
+ 548              	.LBE2:
+ 139:bsp/iic/bsp_iic.c ****         }
+ 140:bsp/iic/bsp_iic.c ****     }
+ 141:bsp/iic/bsp_iic.c **** }
+ 549              		.loc 1 141 1 view .LVU153
+ 550 0030 08BD     		pop	{r3, pc}
+ 551              	.L44:
+ 552 0032 00BF     		.align	2
+ 553              	.L43:
+ 554 0034 00000000 		.word	idx
+ 555 0038 00000000 		.word	iic_instance
+ 556              		.cfi_endproc
+ 557              	.LFE240:
+ 559              		.section	.text.HAL_I2C_MemRxCpltCallback,"ax",%progbits
+ 560              		.align	1
+ 561              		.global	HAL_I2C_MemRxCpltCallback
+ 562              		.syntax unified
+ 563              		.thumb
+ 564              		.thumb_func
+ 566              	HAL_I2C_MemRxCpltCallback:
+ 567              	.LVL61:
+ 568              	.LFB241:
+ 142:bsp/iic/bsp_iic.c **** 
+ 143:bsp/iic/bsp_iic.c **** /**
+ 144:bsp/iic/bsp_iic.c ****  * @brief 内存访问回调函数,仅做形式上的封装,仍然使用HAL_I2C_MasterRxCpltCallbac
+ 145:bsp/iic/bsp_iic.c ****  *
+ 146:bsp/iic/bsp_iic.c ****  * @param hi2c handle
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 14
+
+
+ 147:bsp/iic/bsp_iic.c ****  */
+ 148:bsp/iic/bsp_iic.c **** void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
+ 149:bsp/iic/bsp_iic.c **** {
+ 569              		.loc 1 149 1 is_stmt 1 view -0
+ 570              		.cfi_startproc
+ 571              		@ args = 0, pretend = 0, frame = 0
+ 572              		@ frame_needed = 0, uses_anonymous_args = 0
+ 573              		.loc 1 149 1 is_stmt 0 view .LVU155
+ 574 0000 08B5     		push	{r3, lr}
+ 575              		.cfi_def_cfa_offset 8
+ 576              		.cfi_offset 3, -8
+ 577              		.cfi_offset 14, -4
+ 150:bsp/iic/bsp_iic.c ****     HAL_I2C_MasterRxCpltCallback(hi2c);
+ 578              		.loc 1 150 5 is_stmt 1 view .LVU156
+ 579 0002 FFF7FEFF 		bl	HAL_I2C_MasterRxCpltCallback
+ 580              	.LVL62:
+ 151:bsp/iic/bsp_iic.c **** }
+ 581              		.loc 1 151 1 is_stmt 0 view .LVU157
+ 582 0006 08BD     		pop	{r3, pc}
+ 583              		.cfi_endproc
+ 584              	.LFE241:
+ 586              		.section	.bss.iic_instance,"aw",%nobits
+ 587              		.align	2
+ 590              	iic_instance:
+ 591 0000 00000000 		.space	8
+ 591      00000000 
+ 592              		.section	.bss.idx,"aw",%nobits
+ 595              	idx:
+ 596 0000 00       		.space	1
+ 597              		.text
+ 598              	.Letext0:
+ 599              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 600              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 601              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 602              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 603              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 604              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h"
+ 605              		.file 8 "bsp/iic/bsp_iic.h"
+ 606              		.file 9 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 607              		.file 10 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s 			page 15
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_iic.c
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:21     .text.IICRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:27     .text.IICRegister:00000000 IICRegister
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:113    .text.IICRegister:00000048 $d
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:595    .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:590    .bss.iic_instance:00000000 iic_instance
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:119    .text.IICSetMode:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:125    .text.IICSetMode:00000000 IICSetMode
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:149    .text.IICTransmit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:155    .text.IICTransmit:00000000 IICTransmit
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:260    .text.IICReceive:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:266    .text.IICReceive:00000000 IICReceive
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:378    .text.IICAccessMem:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:384    .text.IICAccessMem:00000000 IICAccessMem
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:477    .text.HAL_I2C_MasterRxCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:483    .text.HAL_I2C_MasterRxCpltCallback:00000000 HAL_I2C_MasterRxCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:554    .text.HAL_I2C_MasterRxCpltCallback:00000034 $d
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:560    .text.HAL_I2C_MemRxCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:566    .text.HAL_I2C_MemRxCpltCallback:00000000 HAL_I2C_MemRxCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:587    .bss.iic_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccQ2xlqO.s:596    .bss.idx:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc
+HAL_I2C_Master_Transmit
+HAL_I2C_Master_Seq_Transmit_IT
+HAL_I2C_Master_Seq_Transmit_DMA
+HAL_I2C_Master_Receive
+HAL_I2C_Master_Seq_Receive_IT
+HAL_I2C_Master_Seq_Receive_DMA
+HAL_I2C_Mem_Write
+HAL_I2C_Mem_Read

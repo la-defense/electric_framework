@@ -1,0 +1,1026 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_spi.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "bsp/spi/bsp_spi.c"
+  20              		.section	.text.SPIRegister,"ax",%progbits
+  21              		.align	1
+  22              		.global	SPIRegister
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	SPIRegister:
+  28              	.LVL0:
+  29              	.LFB235:
+   1:bsp/spi/bsp_spi.c **** #include "bsp_spi.h"
+   2:bsp/spi/bsp_spi.c **** #include "memory.h"
+   3:bsp/spi/bsp_spi.c **** #include "stdlib.h"
+   4:bsp/spi/bsp_spi.c **** 
+   5:bsp/spi/bsp_spi.c **** /* 所有的spi instance保存于此,用于callback时判断中断来源*/
+   6:bsp/spi/bsp_spi.c **** static SPIInstance *spi_instance[SPI_DEVICE_CNT] = {NULL};
+   7:bsp/spi/bsp_spi.c **** static uint8_t idx = 0;                         // 配合中断以及初始化
+   8:bsp/spi/bsp_spi.c **** uint8_t SPIDeviceOnGoing[SPI_DEVICE_CNT] = {1}; // 用于判断当前spi是否正在传输,防止�
+   9:bsp/spi/bsp_spi.c **** 
+  10:bsp/spi/bsp_spi.c **** SPIInstance *SPIRegister(SPI_Init_Config_s *conf)
+  11:bsp/spi/bsp_spi.c **** {
+  30              		.loc 1 11 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 11 1 is_stmt 0 view .LVU1
+  35 0000 70B5     		push	{r4, r5, r6, lr}
+  36              		.cfi_def_cfa_offset 16
+  37              		.cfi_offset 4, -16
+  38              		.cfi_offset 5, -12
+  39              		.cfi_offset 6, -8
+  40              		.cfi_offset 14, -4
+  12:bsp/spi/bsp_spi.c ****     if (idx >= MX_SPI_BUS_SLAVE_CNT) // 超过最大实例数
+  41              		.loc 1 12 5 is_stmt 1 view .LVU2
+  42              		.loc 1 12 13 is_stmt 0 view .LVU3
+  43 0002 174B     		ldr	r3, .L10
+  44 0004 1E78     		ldrb	r6, [r3]	@ zero_extendqisi2
+  45              		.loc 1 12 8 view .LVU4
+  46 0006 032E     		cmp	r6, #3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 2
+
+
+  47 0008 00D9     		bls	.L2
+  48              	.L3:
+  13:bsp/spi/bsp_spi.c ****         while (1)
+  49              		.loc 1 13 9 is_stmt 1 view .LVU5
+  50              		.loc 1 13 15 view .LVU6
+  51 000a FEE7     		b	.L3
+  52              	.L2:
+  53 000c 0446     		mov	r4, r0
+  14:bsp/spi/bsp_spi.c ****             ;
+  15:bsp/spi/bsp_spi.c ****     SPIInstance *instance = (SPIInstance *)malloc(sizeof(SPIInstance));
+  54              		.loc 1 15 5 view .LVU7
+  55              		.loc 1 15 44 is_stmt 0 view .LVU8
+  56 000e 2020     		movs	r0, #32
+  57              	.LVL1:
+  58              		.loc 1 15 44 view .LVU9
+  59 0010 FFF7FEFF 		bl	malloc
+  60              	.LVL2:
+  61 0014 0546     		mov	r5, r0
+  62              	.LVL3:
+  16:bsp/spi/bsp_spi.c ****     memset(instance, 0, sizeof(SPIInstance));
+  63              		.loc 1 16 5 is_stmt 1 view .LVU10
+  64 0016 2022     		movs	r2, #32
+  65 0018 0021     		movs	r1, #0
+  66 001a FFF7FEFF 		bl	memset
+  67              	.LVL4:
+  17:bsp/spi/bsp_spi.c **** 
+  18:bsp/spi/bsp_spi.c ****     instance->spi_handle = conf->spi_handle;
+  68              		.loc 1 18 5 view .LVU11
+  69              		.loc 1 18 32 is_stmt 0 view .LVU12
+  70 001e 2368     		ldr	r3, [r4]
+  71              		.loc 1 18 26 view .LVU13
+  72 0020 2B60     		str	r3, [r5]
+  19:bsp/spi/bsp_spi.c ****     instance->GPIOx = conf->GPIOx;
+  73              		.loc 1 19 5 is_stmt 1 view .LVU14
+  74              		.loc 1 19 27 is_stmt 0 view .LVU15
+  75 0022 6268     		ldr	r2, [r4, #4]
+  76              		.loc 1 19 21 view .LVU16
+  77 0024 6A60     		str	r2, [r5, #4]
+  20:bsp/spi/bsp_spi.c ****     instance->cs_pin = conf->cs_pin;
+  78              		.loc 1 20 5 is_stmt 1 view .LVU17
+  79              		.loc 1 20 28 is_stmt 0 view .LVU18
+  80 0026 2289     		ldrh	r2, [r4, #8]
+  81              		.loc 1 20 22 view .LVU19
+  82 0028 2A81     		strh	r2, [r5, #8]	@ movhi
+  21:bsp/spi/bsp_spi.c ****     instance->spi_work_mode = conf->spi_work_mode;
+  83              		.loc 1 21 5 is_stmt 1 view .LVU20
+  84              		.loc 1 21 35 is_stmt 0 view .LVU21
+  85 002a A27A     		ldrb	r2, [r4, #10]	@ zero_extendqisi2
+  86              		.loc 1 21 29 view .LVU22
+  87 002c AA72     		strb	r2, [r5, #10]
+  22:bsp/spi/bsp_spi.c ****     instance->callback = conf->callback;
+  88              		.loc 1 22 5 is_stmt 1 view .LVU23
+  89              		.loc 1 22 30 is_stmt 0 view .LVU24
+  90 002e E268     		ldr	r2, [r4, #12]
+  91              		.loc 1 22 24 view .LVU25
+  92 0030 AA61     		str	r2, [r5, #24]
+  23:bsp/spi/bsp_spi.c ****     instance->id = conf->id;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 3
+
+
+  93              		.loc 1 23 5 is_stmt 1 view .LVU26
+  94              		.loc 1 23 24 is_stmt 0 view .LVU27
+  95 0032 2269     		ldr	r2, [r4, #16]
+  96              		.loc 1 23 18 view .LVU28
+  97 0034 EA61     		str	r2, [r5, #28]
+  24:bsp/spi/bsp_spi.c ****     if (instance->spi_handle->Instance == SPI1)
+  98              		.loc 1 24 5 is_stmt 1 view .LVU29
+  99              		.loc 1 24 29 is_stmt 0 view .LVU30
+ 100 0036 1B68     		ldr	r3, [r3]
+ 101              		.loc 1 24 8 view .LVU31
+ 102 0038 0A4A     		ldr	r2, .L10+4
+ 103 003a 9342     		cmp	r3, r2
+ 104 003c 03D0     		beq	.L8
+  25:bsp/spi/bsp_spi.c ****     {
+  26:bsp/spi/bsp_spi.c ****         instance->cs_pin_state = &SPIDeviceOnGoing[0];
+  27:bsp/spi/bsp_spi.c ****     }
+  28:bsp/spi/bsp_spi.c ****     else if (instance->spi_handle->Instance == SPI2)
+ 105              		.loc 1 28 10 is_stmt 1 view .LVU32
+ 106              		.loc 1 28 13 is_stmt 0 view .LVU33
+ 107 003e 0A4A     		ldr	r2, .L10+8
+ 108 0040 9342     		cmp	r3, r2
+ 109 0042 0AD0     		beq	.L9
+ 110              	.L6:
+  29:bsp/spi/bsp_spi.c ****     {
+  30:bsp/spi/bsp_spi.c ****         instance->cs_pin_state = &SPIDeviceOnGoing[1];
+  31:bsp/spi/bsp_spi.c ****     }
+  32:bsp/spi/bsp_spi.c ****     else
+  33:bsp/spi/bsp_spi.c ****     {
+  34:bsp/spi/bsp_spi.c ****         while (1)
+ 111              		.loc 1 34 9 is_stmt 1 view .LVU34
+ 112              		.loc 1 34 15 view .LVU35
+ 113 0044 FEE7     		b	.L6
+ 114              	.L8:
+  26:bsp/spi/bsp_spi.c ****     }
+ 115              		.loc 1 26 9 view .LVU36
+  26:bsp/spi/bsp_spi.c ****     }
+ 116              		.loc 1 26 32 is_stmt 0 view .LVU37
+ 117 0046 094B     		ldr	r3, .L10+12
+ 118 0048 6B61     		str	r3, [r5, #20]
+ 119              	.L5:
+  35:bsp/spi/bsp_spi.c ****             ;
+  36:bsp/spi/bsp_spi.c ****     }
+  37:bsp/spi/bsp_spi.c ****     spi_instance[idx++] = instance;
+ 120              		.loc 1 37 5 is_stmt 1 view .LVU38
+ 121              		.loc 1 37 21 is_stmt 0 view .LVU39
+ 122 004a 721C     		adds	r2, r6, #1
+ 123 004c 044B     		ldr	r3, .L10
+ 124 004e 1A70     		strb	r2, [r3]
+ 125              		.loc 1 37 25 view .LVU40
+ 126 0050 074B     		ldr	r3, .L10+16
+ 127 0052 43F82650 		str	r5, [r3, r6, lsl #2]
+  38:bsp/spi/bsp_spi.c ****     return instance;
+ 128              		.loc 1 38 5 is_stmt 1 view .LVU41
+  39:bsp/spi/bsp_spi.c **** }
+ 129              		.loc 1 39 1 is_stmt 0 view .LVU42
+ 130 0056 2846     		mov	r0, r5
+ 131 0058 70BD     		pop	{r4, r5, r6, pc}
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 4
+
+
+ 132              	.LVL5:
+ 133              	.L9:
+  30:bsp/spi/bsp_spi.c ****     }
+ 134              		.loc 1 30 9 is_stmt 1 view .LVU43
+  30:bsp/spi/bsp_spi.c ****     }
+ 135              		.loc 1 30 32 is_stmt 0 view .LVU44
+ 136 005a 064B     		ldr	r3, .L10+20
+ 137 005c 6B61     		str	r3, [r5, #20]
+ 138 005e F4E7     		b	.L5
+ 139              	.L11:
+ 140              		.align	2
+ 141              	.L10:
+ 142 0060 00000000 		.word	idx
+ 143 0064 00300140 		.word	1073819648
+ 144 0068 00380040 		.word	1073756160
+ 145 006c 00000000 		.word	SPIDeviceOnGoing
+ 146 0070 00000000 		.word	spi_instance
+ 147 0074 01000000 		.word	SPIDeviceOnGoing+1
+ 148              		.cfi_endproc
+ 149              	.LFE235:
+ 151              		.section	.text.SPITransmit,"ax",%progbits
+ 152              		.align	1
+ 153              		.global	SPITransmit
+ 154              		.syntax unified
+ 155              		.thumb
+ 156              		.thumb_func
+ 158              	SPITransmit:
+ 159              	.LVL6:
+ 160              	.LFB236:
+  40:bsp/spi/bsp_spi.c **** 
+  41:bsp/spi/bsp_spi.c **** void SPITransmit(SPIInstance *spi_ins, uint8_t *ptr_data, uint8_t len)
+  42:bsp/spi/bsp_spi.c **** {
+ 161              		.loc 1 42 1 is_stmt 1 view -0
+ 162              		.cfi_startproc
+ 163              		@ args = 0, pretend = 0, frame = 0
+ 164              		@ frame_needed = 0, uses_anonymous_args = 0
+ 165              		.loc 1 42 1 is_stmt 0 view .LVU46
+ 166 0000 70B5     		push	{r4, r5, r6, lr}
+ 167              		.cfi_def_cfa_offset 16
+ 168              		.cfi_offset 4, -16
+ 169              		.cfi_offset 5, -12
+ 170              		.cfi_offset 6, -8
+ 171              		.cfi_offset 14, -4
+ 172 0002 0446     		mov	r4, r0
+ 173 0004 0D46     		mov	r5, r1
+ 174 0006 1646     		mov	r6, r2
+  43:bsp/spi/bsp_spi.c ****     // 拉低片选,开始传输(选中从机)
+  44:bsp/spi/bsp_spi.c ****     HAL_GPIO_WritePin(spi_ins->GPIOx, spi_ins->cs_pin, GPIO_PIN_RESET);
+ 175              		.loc 1 44 5 is_stmt 1 view .LVU47
+ 176 0008 0022     		movs	r2, #0
+ 177              	.LVL7:
+ 178              		.loc 1 44 5 is_stmt 0 view .LVU48
+ 179 000a 0189     		ldrh	r1, [r0, #8]
+ 180              	.LVL8:
+ 181              		.loc 1 44 5 view .LVU49
+ 182 000c 4068     		ldr	r0, [r0, #4]
+ 183              	.LVL9:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 5
+
+
+ 184              		.loc 1 44 5 view .LVU50
+ 185 000e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 186              	.LVL10:
+  45:bsp/spi/bsp_spi.c ****     switch (spi_ins->spi_work_mode)
+ 187              		.loc 1 45 5 is_stmt 1 view .LVU51
+ 188              		.loc 1 45 20 is_stmt 0 view .LVU52
+ 189 0012 A37A     		ldrb	r3, [r4, #10]	@ zero_extendqisi2
+ 190              		.loc 1 45 5 view .LVU53
+ 191 0014 012B     		cmp	r3, #1
+ 192 0016 09D0     		beq	.L13
+ 193 0018 022B     		cmp	r3, #2
+ 194 001a 01D0     		beq	.L14
+ 195 001c 63B1     		cbz	r3, .L15
+ 196              	.L16:
+  46:bsp/spi/bsp_spi.c ****     {
+  47:bsp/spi/bsp_spi.c ****     case SPI_DMA_MODE:
+  48:bsp/spi/bsp_spi.c ****         HAL_SPI_Transmit_DMA(spi_ins->spi_handle, ptr_data, len);
+  49:bsp/spi/bsp_spi.c ****         break;
+  50:bsp/spi/bsp_spi.c ****     case SPI_IT_MODE:
+  51:bsp/spi/bsp_spi.c ****         HAL_SPI_Transmit_IT(spi_ins->spi_handle, ptr_data, len);
+  52:bsp/spi/bsp_spi.c ****         break;
+  53:bsp/spi/bsp_spi.c ****     case SPI_BLOCK_MODE:
+  54:bsp/spi/bsp_spi.c ****         HAL_SPI_Transmit(spi_ins->spi_handle, ptr_data, len, 1000); // 默认50ms超时
+  55:bsp/spi/bsp_spi.c ****         // 阻塞模式不会调用回调函数,传输完成后直接拉高片选结束
+  56:bsp/spi/bsp_spi.c ****         HAL_GPIO_WritePin(spi_ins->GPIOx, spi_ins->cs_pin, GPIO_PIN_SET);
+  57:bsp/spi/bsp_spi.c ****         break;
+  58:bsp/spi/bsp_spi.c ****     default:
+  59:bsp/spi/bsp_spi.c ****         while (1)
+ 197              		.loc 1 59 9 is_stmt 1 view .LVU54
+ 198              		.loc 1 59 15 view .LVU55
+ 199 001e FEE7     		b	.L16
+ 200              	.L14:
+  48:bsp/spi/bsp_spi.c ****         break;
+ 201              		.loc 1 48 9 view .LVU56
+ 202 0020 3246     		mov	r2, r6
+ 203 0022 2946     		mov	r1, r5
+ 204 0024 2068     		ldr	r0, [r4]
+ 205 0026 FFF7FEFF 		bl	HAL_SPI_Transmit_DMA
+ 206              	.LVL11:
+  49:bsp/spi/bsp_spi.c ****     case SPI_IT_MODE:
+ 207              		.loc 1 49 9 view .LVU57
+ 208              	.L12:
+  60:bsp/spi/bsp_spi.c ****             ; // error mode! 请查看是否正确设置模式，或出现指针越界导致模式�
+  61:bsp/spi/bsp_spi.c ****         break;
+  62:bsp/spi/bsp_spi.c ****     }
+  63:bsp/spi/bsp_spi.c **** }
+ 209              		.loc 1 63 1 is_stmt 0 view .LVU58
+ 210 002a 70BD     		pop	{r4, r5, r6, pc}
+ 211              	.LVL12:
+ 212              	.L13:
+  51:bsp/spi/bsp_spi.c ****         break;
+ 213              		.loc 1 51 9 is_stmt 1 view .LVU59
+ 214 002c 3246     		mov	r2, r6
+ 215 002e 2946     		mov	r1, r5
+ 216 0030 2068     		ldr	r0, [r4]
+ 217 0032 FFF7FEFF 		bl	HAL_SPI_Transmit_IT
+ 218              	.LVL13:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 6
+
+
+  52:bsp/spi/bsp_spi.c ****     case SPI_BLOCK_MODE:
+ 219              		.loc 1 52 9 view .LVU60
+ 220 0036 F8E7     		b	.L12
+ 221              	.L15:
+  54:bsp/spi/bsp_spi.c ****         // 阻塞模式不会调用回调函数,传输完成后直接拉高片选结束
+ 222              		.loc 1 54 9 view .LVU61
+ 223 0038 4FF47A73 		mov	r3, #1000
+ 224 003c 3246     		mov	r2, r6
+ 225 003e 2946     		mov	r1, r5
+ 226 0040 2068     		ldr	r0, [r4]
+ 227 0042 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 228              	.LVL14:
+  56:bsp/spi/bsp_spi.c ****         break;
+ 229              		.loc 1 56 9 view .LVU62
+ 230 0046 0122     		movs	r2, #1
+ 231 0048 2189     		ldrh	r1, [r4, #8]
+ 232 004a 6068     		ldr	r0, [r4, #4]
+ 233 004c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 234              	.LVL15:
+  57:bsp/spi/bsp_spi.c ****     default:
+ 235              		.loc 1 57 9 view .LVU63
+ 236 0050 EBE7     		b	.L12
+ 237              		.cfi_endproc
+ 238              	.LFE236:
+ 240              		.section	.text.SPIRecv,"ax",%progbits
+ 241              		.align	1
+ 242              		.global	SPIRecv
+ 243              		.syntax unified
+ 244              		.thumb
+ 245              		.thumb_func
+ 247              	SPIRecv:
+ 248              	.LVL16:
+ 249              	.LFB237:
+  64:bsp/spi/bsp_spi.c **** 
+  65:bsp/spi/bsp_spi.c **** void SPIRecv(SPIInstance *spi_ins, uint8_t *ptr_data, uint8_t len)
+  66:bsp/spi/bsp_spi.c **** {
+ 250              		.loc 1 66 1 view -0
+ 251              		.cfi_startproc
+ 252              		@ args = 0, pretend = 0, frame = 0
+ 253              		@ frame_needed = 0, uses_anonymous_args = 0
+ 254              		.loc 1 66 1 is_stmt 0 view .LVU65
+ 255 0000 70B5     		push	{r4, r5, r6, lr}
+ 256              		.cfi_def_cfa_offset 16
+ 257              		.cfi_offset 4, -16
+ 258              		.cfi_offset 5, -12
+ 259              		.cfi_offset 6, -8
+ 260              		.cfi_offset 14, -4
+ 261 0002 0446     		mov	r4, r0
+ 262 0004 0D46     		mov	r5, r1
+ 263 0006 1646     		mov	r6, r2
+  67:bsp/spi/bsp_spi.c ****     // 用于稍后回调使用
+  68:bsp/spi/bsp_spi.c ****     spi_ins->rx_size = len;
+ 264              		.loc 1 68 5 is_stmt 1 view .LVU66
+ 265              		.loc 1 68 22 is_stmt 0 view .LVU67
+ 266 0008 C272     		strb	r2, [r0, #11]
+  69:bsp/spi/bsp_spi.c ****     spi_ins->rx_buffer = ptr_data;
+ 267              		.loc 1 69 5 is_stmt 1 view .LVU68
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 7
+
+
+ 268              		.loc 1 69 24 is_stmt 0 view .LVU69
+ 269 000a C160     		str	r1, [r0, #12]
+  70:bsp/spi/bsp_spi.c ****     // 拉低片选,开始传输
+  71:bsp/spi/bsp_spi.c ****     HAL_GPIO_WritePin(spi_ins->GPIOx, spi_ins->cs_pin, GPIO_PIN_RESET);
+ 270              		.loc 1 71 5 is_stmt 1 view .LVU70
+ 271 000c 0022     		movs	r2, #0
+ 272              	.LVL17:
+ 273              		.loc 1 71 5 is_stmt 0 view .LVU71
+ 274 000e 0189     		ldrh	r1, [r0, #8]
+ 275              	.LVL18:
+ 276              		.loc 1 71 5 view .LVU72
+ 277 0010 4068     		ldr	r0, [r0, #4]
+ 278              	.LVL19:
+ 279              		.loc 1 71 5 view .LVU73
+ 280 0012 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 281              	.LVL20:
+  72:bsp/spi/bsp_spi.c ****     switch (spi_ins->spi_work_mode)
+ 282              		.loc 1 72 5 is_stmt 1 view .LVU74
+ 283              		.loc 1 72 20 is_stmt 0 view .LVU75
+ 284 0016 A37A     		ldrb	r3, [r4, #10]	@ zero_extendqisi2
+ 285              		.loc 1 72 5 view .LVU76
+ 286 0018 012B     		cmp	r3, #1
+ 287 001a 09D0     		beq	.L20
+ 288 001c 022B     		cmp	r3, #2
+ 289 001e 01D0     		beq	.L21
+ 290 0020 63B1     		cbz	r3, .L22
+ 291              	.L23:
+  73:bsp/spi/bsp_spi.c ****     {
+  74:bsp/spi/bsp_spi.c ****     case SPI_DMA_MODE:
+  75:bsp/spi/bsp_spi.c ****         HAL_SPI_Receive_DMA(spi_ins->spi_handle, ptr_data, len);
+  76:bsp/spi/bsp_spi.c ****         break;
+  77:bsp/spi/bsp_spi.c ****     case SPI_IT_MODE:
+  78:bsp/spi/bsp_spi.c ****         HAL_SPI_Receive_IT(spi_ins->spi_handle, ptr_data, len);
+  79:bsp/spi/bsp_spi.c ****         break;
+  80:bsp/spi/bsp_spi.c ****     case SPI_BLOCK_MODE:
+  81:bsp/spi/bsp_spi.c ****         HAL_SPI_Receive(spi_ins->spi_handle, ptr_data, len, 1000);
+  82:bsp/spi/bsp_spi.c ****         // 阻塞模式不会调用回调函数,传输完成后直接拉高片选结束
+  83:bsp/spi/bsp_spi.c ****         HAL_GPIO_WritePin(spi_ins->GPIOx, spi_ins->cs_pin, GPIO_PIN_SET);
+  84:bsp/spi/bsp_spi.c ****         break;
+  85:bsp/spi/bsp_spi.c ****     default:
+  86:bsp/spi/bsp_spi.c ****         while (1)
+ 292              		.loc 1 86 9 is_stmt 1 view .LVU77
+ 293              		.loc 1 86 15 view .LVU78
+ 294 0022 FEE7     		b	.L23
+ 295              	.L21:
+  75:bsp/spi/bsp_spi.c ****         break;
+ 296              		.loc 1 75 9 view .LVU79
+ 297 0024 3246     		mov	r2, r6
+ 298 0026 2946     		mov	r1, r5
+ 299 0028 2068     		ldr	r0, [r4]
+ 300 002a FFF7FEFF 		bl	HAL_SPI_Receive_DMA
+ 301              	.LVL21:
+  76:bsp/spi/bsp_spi.c ****     case SPI_IT_MODE:
+ 302              		.loc 1 76 9 view .LVU80
+ 303              	.L19:
+  87:bsp/spi/bsp_spi.c ****             ; // error mode! 请查看是否正确设置模式，或出现指针越界导致模式�
+  88:bsp/spi/bsp_spi.c ****         break;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 8
+
+
+  89:bsp/spi/bsp_spi.c ****     }
+  90:bsp/spi/bsp_spi.c **** }
+ 304              		.loc 1 90 1 is_stmt 0 view .LVU81
+ 305 002e 70BD     		pop	{r4, r5, r6, pc}
+ 306              	.LVL22:
+ 307              	.L20:
+  78:bsp/spi/bsp_spi.c ****         break;
+ 308              		.loc 1 78 9 is_stmt 1 view .LVU82
+ 309 0030 3246     		mov	r2, r6
+ 310 0032 2946     		mov	r1, r5
+ 311 0034 2068     		ldr	r0, [r4]
+ 312 0036 FFF7FEFF 		bl	HAL_SPI_Receive_IT
+ 313              	.LVL23:
+  79:bsp/spi/bsp_spi.c ****     case SPI_BLOCK_MODE:
+ 314              		.loc 1 79 9 view .LVU83
+ 315 003a F8E7     		b	.L19
+ 316              	.L22:
+  81:bsp/spi/bsp_spi.c ****         // 阻塞模式不会调用回调函数,传输完成后直接拉高片选结束
+ 317              		.loc 1 81 9 view .LVU84
+ 318 003c 4FF47A73 		mov	r3, #1000
+ 319 0040 3246     		mov	r2, r6
+ 320 0042 2946     		mov	r1, r5
+ 321 0044 2068     		ldr	r0, [r4]
+ 322 0046 FFF7FEFF 		bl	HAL_SPI_Receive
+ 323              	.LVL24:
+  83:bsp/spi/bsp_spi.c ****         break;
+ 324              		.loc 1 83 9 view .LVU85
+ 325 004a 0122     		movs	r2, #1
+ 326 004c 2189     		ldrh	r1, [r4, #8]
+ 327 004e 6068     		ldr	r0, [r4, #4]
+ 328 0050 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 329              	.LVL25:
+  84:bsp/spi/bsp_spi.c ****     default:
+ 330              		.loc 1 84 9 view .LVU86
+ 331 0054 EBE7     		b	.L19
+ 332              		.cfi_endproc
+ 333              	.LFE237:
+ 335              		.section	.text.SPITransRecv,"ax",%progbits
+ 336              		.align	1
+ 337              		.global	SPITransRecv
+ 338              		.syntax unified
+ 339              		.thumb
+ 340              		.thumb_func
+ 342              	SPITransRecv:
+ 343              	.LVL26:
+ 344              	.LFB238:
+  91:bsp/spi/bsp_spi.c **** 
+  92:bsp/spi/bsp_spi.c **** void SPITransRecv(SPIInstance *spi_ins, uint8_t *ptr_data_rx, uint8_t *ptr_data_tx, uint8_t len)
+  93:bsp/spi/bsp_spi.c **** {
+ 345              		.loc 1 93 1 view -0
+ 346              		.cfi_startproc
+ 347              		@ args = 0, pretend = 0, frame = 0
+ 348              		@ frame_needed = 0, uses_anonymous_args = 0
+ 349              		.loc 1 93 1 is_stmt 0 view .LVU88
+ 350 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 351              		.cfi_def_cfa_offset 20
+ 352              		.cfi_offset 4, -20
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 9
+
+
+ 353              		.cfi_offset 5, -16
+ 354              		.cfi_offset 6, -12
+ 355              		.cfi_offset 7, -8
+ 356              		.cfi_offset 14, -4
+ 357 0002 83B0     		sub	sp, sp, #12
+ 358              		.cfi_def_cfa_offset 32
+ 359 0004 0446     		mov	r4, r0
+ 360 0006 0D46     		mov	r5, r1
+ 361 0008 1746     		mov	r7, r2
+ 362 000a 1E46     		mov	r6, r3
+  94:bsp/spi/bsp_spi.c **** 
+  95:bsp/spi/bsp_spi.c ****     // 用于稍后回调使用,请保证ptr_data_rx在回调函数被调用之前仍然在作用�
+  96:bsp/spi/bsp_spi.c ****     spi_ins->rx_size = len;
+ 363              		.loc 1 96 5 is_stmt 1 view .LVU89
+ 364              		.loc 1 96 22 is_stmt 0 view .LVU90
+ 365 000c C372     		strb	r3, [r0, #11]
+  97:bsp/spi/bsp_spi.c ****     spi_ins->rx_buffer = ptr_data_rx;
+ 366              		.loc 1 97 5 is_stmt 1 view .LVU91
+ 367              		.loc 1 97 24 is_stmt 0 view .LVU92
+ 368 000e C160     		str	r1, [r0, #12]
+  98:bsp/spi/bsp_spi.c ****     // 等待上一次传输完成
+  99:bsp/spi/bsp_spi.c ****     if (spi_ins->spi_handle->Instance == SPI1)
+ 369              		.loc 1 99 5 is_stmt 1 view .LVU93
+ 370              		.loc 1 99 16 is_stmt 0 view .LVU94
+ 371 0010 0368     		ldr	r3, [r0]
+ 372              	.LVL27:
+ 373              		.loc 1 99 28 view .LVU95
+ 374 0012 1B68     		ldr	r3, [r3]
+ 375              		.loc 1 99 8 view .LVU96
+ 376 0014 234A     		ldr	r2, .L37
+ 377              	.LVL28:
+ 378              		.loc 1 99 8 view .LVU97
+ 379 0016 9342     		cmp	r3, r2
+ 380 0018 15D0     		beq	.L28
+ 100:bsp/spi/bsp_spi.c ****     {
+ 101:bsp/spi/bsp_spi.c ****         while (!SPIDeviceOnGoing[0])
+ 102:bsp/spi/bsp_spi.c ****         {
+ 103:bsp/spi/bsp_spi.c ****         };
+ 104:bsp/spi/bsp_spi.c ****     }
+ 105:bsp/spi/bsp_spi.c ****     else if (spi_ins->spi_handle->Instance == SPI2)
+ 381              		.loc 1 105 10 is_stmt 1 view .LVU98
+ 382              		.loc 1 105 13 is_stmt 0 view .LVU99
+ 383 001a 234A     		ldr	r2, .L37+4
+ 384 001c 9342     		cmp	r3, r2
+ 385 001e 17D0     		beq	.L30
+ 386              	.LVL29:
+ 387              	.L29:
+ 106:bsp/spi/bsp_spi.c ****     {
+ 107:bsp/spi/bsp_spi.c ****         while (!SPIDeviceOnGoing[1])
+ 108:bsp/spi/bsp_spi.c ****         {
+ 109:bsp/spi/bsp_spi.c ****         };
+ 388              		.loc 1 109 10 is_stmt 1 view .LVU100
+ 110:bsp/spi/bsp_spi.c ****     }
+ 111:bsp/spi/bsp_spi.c ****     // 拉低片选,开始传输
+ 112:bsp/spi/bsp_spi.c ****     HAL_GPIO_WritePin(spi_ins->GPIOx, spi_ins->cs_pin, GPIO_PIN_RESET);
+ 389              		.loc 1 112 5 view .LVU101
+ 390 0020 0022     		movs	r2, #0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 10
+
+
+ 391 0022 2189     		ldrh	r1, [r4, #8]
+ 392              	.LVL30:
+ 393              		.loc 1 112 5 is_stmt 0 view .LVU102
+ 394 0024 6068     		ldr	r0, [r4, #4]
+ 395 0026 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 396              	.LVL31:
+ 113:bsp/spi/bsp_spi.c ****     *spi_ins->cs_pin_state =
+ 397              		.loc 1 113 5 is_stmt 1 view .LVU103
+ 114:bsp/spi/bsp_spi.c ****         spi_ins->CS_State =
+ 115:bsp/spi/bsp_spi.c ****             HAL_GPIO_ReadPin(spi_ins->GPIOx, spi_ins->cs_pin);
+ 398              		.loc 1 115 13 is_stmt 0 view .LVU104
+ 399 002a 2189     		ldrh	r1, [r4, #8]
+ 400 002c 6068     		ldr	r0, [r4, #4]
+ 401 002e FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 402              	.LVL32:
+ 114:bsp/spi/bsp_spi.c ****         spi_ins->CS_State =
+ 403              		.loc 1 114 27 view .LVU105
+ 404 0032 2074     		strb	r0, [r4, #16]
+ 113:bsp/spi/bsp_spi.c ****     *spi_ins->cs_pin_state =
+ 405              		.loc 1 113 13 view .LVU106
+ 406 0034 6369     		ldr	r3, [r4, #20]
+ 113:bsp/spi/bsp_spi.c ****     *spi_ins->cs_pin_state =
+ 407              		.loc 1 113 28 view .LVU107
+ 408 0036 1870     		strb	r0, [r3]
+ 116:bsp/spi/bsp_spi.c ****     switch (spi_ins->spi_work_mode)
+ 409              		.loc 1 116 5 is_stmt 1 view .LVU108
+ 410              		.loc 1 116 20 is_stmt 0 view .LVU109
+ 411 0038 A37A     		ldrb	r3, [r4, #10]	@ zero_extendqisi2
+ 412              		.loc 1 116 5 view .LVU110
+ 413 003a 012B     		cmp	r3, #1
+ 414 003c 15D0     		beq	.L31
+ 415 003e 022B     		cmp	r3, #2
+ 416 0040 0BD0     		beq	.L32
+ 417 0042 CBB1     		cbz	r3, .L33
+ 418              	.L34:
+ 117:bsp/spi/bsp_spi.c ****     {
+ 118:bsp/spi/bsp_spi.c ****     case SPI_DMA_MODE:
+ 119:bsp/spi/bsp_spi.c ****         HAL_SPI_TransmitReceive_DMA(spi_ins->spi_handle, ptr_data_tx, ptr_data_rx, len);
+ 120:bsp/spi/bsp_spi.c ****         break;
+ 121:bsp/spi/bsp_spi.c ****     case SPI_IT_MODE:
+ 122:bsp/spi/bsp_spi.c ****         HAL_SPI_TransmitReceive_IT(spi_ins->spi_handle, ptr_data_tx, ptr_data_rx, len);
+ 123:bsp/spi/bsp_spi.c ****         break;
+ 124:bsp/spi/bsp_spi.c ****     case SPI_BLOCK_MODE:
+ 125:bsp/spi/bsp_spi.c ****         HAL_SPI_TransmitReceive(spi_ins->spi_handle, ptr_data_tx, ptr_data_rx, len, 1000); // 默�
+ 126:bsp/spi/bsp_spi.c ****         // 阻塞模式不会调用回调函数,传输完成后直接拉高片选结束
+ 127:bsp/spi/bsp_spi.c ****         HAL_GPIO_WritePin(spi_ins->GPIOx, spi_ins->cs_pin, GPIO_PIN_SET);
+ 128:bsp/spi/bsp_spi.c ****         *spi_ins->cs_pin_state =
+ 129:bsp/spi/bsp_spi.c ****             spi_ins->CS_State =
+ 130:bsp/spi/bsp_spi.c ****                 HAL_GPIO_ReadPin(spi_ins->GPIOx, spi_ins->cs_pin);
+ 131:bsp/spi/bsp_spi.c ****         break;
+ 132:bsp/spi/bsp_spi.c ****     default:
+ 133:bsp/spi/bsp_spi.c ****         while (1)
+ 419              		.loc 1 133 9 is_stmt 1 view .LVU111
+ 420              		.loc 1 133 15 view .LVU112
+ 421 0044 FEE7     		b	.L34
+ 422              	.LVL33:
+ 423              	.L28:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 11
+
+
+ 103:bsp/spi/bsp_spi.c ****     }
+ 424              		.loc 1 103 9 view .LVU113
+ 101:bsp/spi/bsp_spi.c ****         {
+ 425              		.loc 1 101 16 discriminator 1 view .LVU114
+ 101:bsp/spi/bsp_spi.c ****         {
+ 426              		.loc 1 101 33 is_stmt 0 discriminator 1 view .LVU115
+ 427 0046 1948     		ldr	r0, .L37+8
+ 428 0048 0078     		ldrb	r0, [r0]	@ zero_extendqisi2
+ 101:bsp/spi/bsp_spi.c ****         {
+ 429              		.loc 1 101 16 discriminator 1 view .LVU116
+ 430 004a 0028     		cmp	r0, #0
+ 431 004c FBD0     		beq	.L28
+ 432 004e E7E7     		b	.L29
+ 433              	.LVL34:
+ 434              	.L30:
+ 109:bsp/spi/bsp_spi.c ****     }
+ 435              		.loc 1 109 9 is_stmt 1 view .LVU117
+ 107:bsp/spi/bsp_spi.c ****         {
+ 436              		.loc 1 107 16 discriminator 1 view .LVU118
+ 107:bsp/spi/bsp_spi.c ****         {
+ 437              		.loc 1 107 33 is_stmt 0 discriminator 1 view .LVU119
+ 438 0050 164B     		ldr	r3, .L37+8
+ 439 0052 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 107:bsp/spi/bsp_spi.c ****         {
+ 440              		.loc 1 107 16 discriminator 1 view .LVU120
+ 441 0054 002B     		cmp	r3, #0
+ 442 0056 FBD0     		beq	.L30
+ 443 0058 E2E7     		b	.L29
+ 444              	.LVL35:
+ 445              	.L32:
+ 119:bsp/spi/bsp_spi.c ****         break;
+ 446              		.loc 1 119 9 is_stmt 1 view .LVU121
+ 447 005a 3346     		mov	r3, r6
+ 448 005c 2A46     		mov	r2, r5
+ 449 005e 3946     		mov	r1, r7
+ 450 0060 2068     		ldr	r0, [r4]
+ 451 0062 FFF7FEFF 		bl	HAL_SPI_TransmitReceive_DMA
+ 452              	.LVL36:
+ 120:bsp/spi/bsp_spi.c ****     case SPI_IT_MODE:
+ 453              		.loc 1 120 9 view .LVU122
+ 454              	.L26:
+ 134:bsp/spi/bsp_spi.c ****             ; // error mode! 请查看是否正确设置模式，或出现指针越界导致模式�
+ 135:bsp/spi/bsp_spi.c ****         break;
+ 136:bsp/spi/bsp_spi.c ****     }
+ 137:bsp/spi/bsp_spi.c **** }
+ 455              		.loc 1 137 1 is_stmt 0 view .LVU123
+ 456 0066 03B0     		add	sp, sp, #12
+ 457              		.cfi_remember_state
+ 458              		.cfi_def_cfa_offset 20
+ 459              		@ sp needed
+ 460 0068 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 461              	.LVL37:
+ 462              	.L31:
+ 463              		.cfi_restore_state
+ 122:bsp/spi/bsp_spi.c ****         break;
+ 464              		.loc 1 122 9 is_stmt 1 view .LVU124
+ 465 006a 3346     		mov	r3, r6
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 12
+
+
+ 466 006c 2A46     		mov	r2, r5
+ 467 006e 3946     		mov	r1, r7
+ 468 0070 2068     		ldr	r0, [r4]
+ 469 0072 FFF7FEFF 		bl	HAL_SPI_TransmitReceive_IT
+ 470              	.LVL38:
+ 123:bsp/spi/bsp_spi.c ****     case SPI_BLOCK_MODE:
+ 471              		.loc 1 123 9 view .LVU125
+ 472 0076 F6E7     		b	.L26
+ 473              	.L33:
+ 125:bsp/spi/bsp_spi.c ****         // 阻塞模式不会调用回调函数,传输完成后直接拉高片选结束
+ 474              		.loc 1 125 9 view .LVU126
+ 475 0078 4FF47A73 		mov	r3, #1000
+ 476 007c 0093     		str	r3, [sp]
+ 477 007e 3346     		mov	r3, r6
+ 478 0080 2A46     		mov	r2, r5
+ 479 0082 3946     		mov	r1, r7
+ 480 0084 2068     		ldr	r0, [r4]
+ 481 0086 FFF7FEFF 		bl	HAL_SPI_TransmitReceive
+ 482              	.LVL39:
+ 127:bsp/spi/bsp_spi.c ****         *spi_ins->cs_pin_state =
+ 483              		.loc 1 127 9 view .LVU127
+ 484 008a 0122     		movs	r2, #1
+ 485 008c 2189     		ldrh	r1, [r4, #8]
+ 486 008e 6068     		ldr	r0, [r4, #4]
+ 487 0090 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 488              	.LVL40:
+ 128:bsp/spi/bsp_spi.c ****             spi_ins->CS_State =
+ 489              		.loc 1 128 9 view .LVU128
+ 130:bsp/spi/bsp_spi.c ****         break;
+ 490              		.loc 1 130 17 is_stmt 0 view .LVU129
+ 491 0094 2189     		ldrh	r1, [r4, #8]
+ 492 0096 6068     		ldr	r0, [r4, #4]
+ 493 0098 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 494              	.LVL41:
+ 129:bsp/spi/bsp_spi.c ****                 HAL_GPIO_ReadPin(spi_ins->GPIOx, spi_ins->cs_pin);
+ 495              		.loc 1 129 31 view .LVU130
+ 496 009c 2074     		strb	r0, [r4, #16]
+ 128:bsp/spi/bsp_spi.c ****             spi_ins->CS_State =
+ 497              		.loc 1 128 17 view .LVU131
+ 498 009e 6369     		ldr	r3, [r4, #20]
+ 128:bsp/spi/bsp_spi.c ****             spi_ins->CS_State =
+ 499              		.loc 1 128 32 view .LVU132
+ 500 00a0 1870     		strb	r0, [r3]
+ 131:bsp/spi/bsp_spi.c ****     default:
+ 501              		.loc 1 131 9 is_stmt 1 view .LVU133
+ 502 00a2 E0E7     		b	.L26
+ 503              	.L38:
+ 504              		.align	2
+ 505              	.L37:
+ 506 00a4 00300140 		.word	1073819648
+ 507 00a8 00380040 		.word	1073756160
+ 508 00ac 00000000 		.word	SPIDeviceOnGoing
+ 509              		.cfi_endproc
+ 510              	.LFE238:
+ 512              		.section	.text.SPISetMode,"ax",%progbits
+ 513              		.align	1
+ 514              		.global	SPISetMode
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 13
+
+
+ 515              		.syntax unified
+ 516              		.thumb
+ 517              		.thumb_func
+ 519              	SPISetMode:
+ 520              	.LVL42:
+ 521              	.LFB239:
+ 138:bsp/spi/bsp_spi.c **** 
+ 139:bsp/spi/bsp_spi.c **** void SPISetMode(SPIInstance *spi_ins, SPI_TXRX_MODE_e spi_mode)
+ 140:bsp/spi/bsp_spi.c **** {
+ 522              		.loc 1 140 1 view -0
+ 523              		.cfi_startproc
+ 524              		@ args = 0, pretend = 0, frame = 0
+ 525              		@ frame_needed = 0, uses_anonymous_args = 0
+ 526              		@ link register save eliminated.
+ 141:bsp/spi/bsp_spi.c ****     if (spi_mode != SPI_DMA_MODE && spi_mode != SPI_IT_MODE && spi_mode != SPI_BLOCK_MODE)
+ 527              		.loc 1 141 5 view .LVU135
+ 528              		.loc 1 141 8 is_stmt 0 view .LVU136
+ 529 0000 0229     		cmp	r1, #2
+ 530 0002 00D9     		bls	.L40
+ 531              	.L41:
+ 142:bsp/spi/bsp_spi.c ****         while (1)
+ 532              		.loc 1 142 9 is_stmt 1 view .LVU137
+ 533              		.loc 1 142 15 view .LVU138
+ 534 0004 FEE7     		b	.L41
+ 535              	.L40:
+ 143:bsp/spi/bsp_spi.c ****             ; // error mode! 请查看是否正确设置模式，或出现指针越界导致模式�
+ 144:bsp/spi/bsp_spi.c **** 
+ 145:bsp/spi/bsp_spi.c ****     if (spi_ins->spi_work_mode != spi_mode)
+ 536              		.loc 1 145 5 view .LVU139
+ 537              		.loc 1 145 16 is_stmt 0 view .LVU140
+ 538 0006 837A     		ldrb	r3, [r0, #10]	@ zero_extendqisi2
+ 539              		.loc 1 145 8 view .LVU141
+ 540 0008 8B42     		cmp	r3, r1
+ 541 000a 00D0     		beq	.L39
+ 146:bsp/spi/bsp_spi.c ****     {
+ 147:bsp/spi/bsp_spi.c ****         spi_ins->spi_work_mode = spi_mode;
+ 542              		.loc 1 147 9 is_stmt 1 view .LVU142
+ 543              		.loc 1 147 32 is_stmt 0 view .LVU143
+ 544 000c 8172     		strb	r1, [r0, #10]
+ 545              	.L39:
+ 148:bsp/spi/bsp_spi.c ****     }
+ 149:bsp/spi/bsp_spi.c **** }
+ 546              		.loc 1 149 1 view .LVU144
+ 547 000e 7047     		bx	lr
+ 548              		.cfi_endproc
+ 549              	.LFE239:
+ 551              		.section	.text.HAL_SPI_RxCpltCallback,"ax",%progbits
+ 552              		.align	1
+ 553              		.global	HAL_SPI_RxCpltCallback
+ 554              		.syntax unified
+ 555              		.thumb
+ 556              		.thumb_func
+ 558              	HAL_SPI_RxCpltCallback:
+ 559              	.LVL43:
+ 560              	.LFB240:
+ 150:bsp/spi/bsp_spi.c **** 
+ 151:bsp/spi/bsp_spi.c **** /**
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 14
+
+
+ 152:bsp/spi/bsp_spi.c ****  * @brief 当SPI接收完成,将会调用此回调函数,可以进行协议解析或其他必须的
+ 153:bsp/spi/bsp_spi.c ****  *
+ 154:bsp/spi/bsp_spi.c ****  * @param hspi spi handle
+ 155:bsp/spi/bsp_spi.c ****  */
+ 156:bsp/spi/bsp_spi.c **** void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+ 157:bsp/spi/bsp_spi.c **** {
+ 561              		.loc 1 157 1 is_stmt 1 view -0
+ 562              		.cfi_startproc
+ 563              		@ args = 0, pretend = 0, frame = 0
+ 564              		@ frame_needed = 0, uses_anonymous_args = 0
+ 565              		.loc 1 157 1 is_stmt 0 view .LVU146
+ 566 0000 70B5     		push	{r4, r5, r6, lr}
+ 567              		.cfi_def_cfa_offset 16
+ 568              		.cfi_offset 4, -16
+ 569              		.cfi_offset 5, -12
+ 570              		.cfi_offset 6, -8
+ 571              		.cfi_offset 14, -4
+ 572 0002 0546     		mov	r5, r0
+ 158:bsp/spi/bsp_spi.c ****     for (size_t i = 0; i < idx; i++)
+ 573              		.loc 1 158 5 is_stmt 1 view .LVU147
+ 574              	.LBB2:
+ 575              		.loc 1 158 10 view .LVU148
+ 576              	.LVL44:
+ 577              		.loc 1 158 17 is_stmt 0 view .LVU149
+ 578 0004 0024     		movs	r4, #0
+ 579              		.loc 1 158 5 view .LVU150
+ 580 0006 00E0     		b	.L44
+ 581              	.LVL45:
+ 582              	.L45:
+ 583              		.loc 1 158 34 is_stmt 1 discriminator 2 view .LVU151
+ 584 0008 0134     		adds	r4, r4, #1
+ 585              	.LVL46:
+ 586              	.L44:
+ 587              		.loc 1 158 26 discriminator 1 view .LVU152
+ 588 000a 144B     		ldr	r3, .L50
+ 589 000c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 590 000e A342     		cmp	r3, r4
+ 591 0010 22D9     		bls	.L43
+ 159:bsp/spi/bsp_spi.c ****     {
+ 160:bsp/spi/bsp_spi.c ****         // 如果是当前spi硬件发出的complete,且cs_pin为低电平(说明正在传输),则�
+ 161:bsp/spi/bsp_spi.c ****         if (spi_instance[i]->spi_handle == hspi && // 显然同一时间一条总线只能有一个
+ 592              		.loc 1 161 9 view .LVU153
+ 593              		.loc 1 161 25 is_stmt 0 view .LVU154
+ 594 0012 134B     		ldr	r3, .L50+4
+ 595 0014 53F82430 		ldr	r3, [r3, r4, lsl #2]
+ 596              		.loc 1 161 28 view .LVU155
+ 597 0018 1A68     		ldr	r2, [r3]
+ 598              		.loc 1 161 12 view .LVU156
+ 599 001a AA42     		cmp	r2, r5
+ 600 001c F4D1     		bne	.L45
+ 162:bsp/spi/bsp_spi.c ****             HAL_GPIO_ReadPin(spi_instance[i]->GPIOx, spi_instance[i]->cs_pin) == GPIO_PIN_RESET)
+ 601              		.loc 1 162 13 view .LVU157
+ 602 001e 1989     		ldrh	r1, [r3, #8]
+ 603 0020 5868     		ldr	r0, [r3, #4]
+ 604 0022 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 605              	.LVL47:
+ 161:bsp/spi/bsp_spi.c ****             HAL_GPIO_ReadPin(spi_instance[i]->GPIOx, spi_instance[i]->cs_pin) == GPIO_PIN_RESET)
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 15
+
+
+ 606              		.loc 1 161 49 discriminator 1 view .LVU158
+ 607 0026 0028     		cmp	r0, #0
+ 608 0028 EED1     		bne	.L45
+ 163:bsp/spi/bsp_spi.c ****         {
+ 164:bsp/spi/bsp_spi.c ****             // 先拉高片选,结束传输,在判断是否有回调函数,如果有则调用回调
+ 165:bsp/spi/bsp_spi.c ****             HAL_GPIO_WritePin(spi_instance[i]->GPIOx, spi_instance[i]->cs_pin, GPIO_PIN_SET);
+ 609              		.loc 1 165 13 is_stmt 1 view .LVU159
+ 610              		.loc 1 165 43 is_stmt 0 view .LVU160
+ 611 002a 0D4D     		ldr	r5, .L50+4
+ 612              	.LVL48:
+ 613              		.loc 1 165 43 view .LVU161
+ 614 002c 55F82430 		ldr	r3, [r5, r4, lsl #2]
+ 615              		.loc 1 165 13 view .LVU162
+ 616 0030 0122     		movs	r2, #1
+ 617 0032 1989     		ldrh	r1, [r3, #8]
+ 618 0034 5868     		ldr	r0, [r3, #4]
+ 619 0036 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 620              	.LVL49:
+ 166:bsp/spi/bsp_spi.c ****             *spi_instance[i]->cs_pin_state =
+ 621              		.loc 1 166 13 is_stmt 1 view .LVU163
+ 167:bsp/spi/bsp_spi.c ****                 spi_instance[i]->CS_State =
+ 168:bsp/spi/bsp_spi.c ****                     HAL_GPIO_ReadPin(spi_instance[i]->GPIOx, spi_instance[i]->cs_pin);
+ 622              		.loc 1 168 50 is_stmt 0 view .LVU164
+ 623 003a 55F82460 		ldr	r6, [r5, r4, lsl #2]
+ 624              		.loc 1 168 21 view .LVU165
+ 625 003e 3189     		ldrh	r1, [r6, #8]
+ 626 0040 7068     		ldr	r0, [r6, #4]
+ 627 0042 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 628              	.LVL50:
+ 629 0046 0346     		mov	r3, r0
+ 167:bsp/spi/bsp_spi.c ****                 spi_instance[i]->CS_State =
+ 630              		.loc 1 167 43 view .LVU166
+ 631 0048 3074     		strb	r0, [r6, #16]
+ 166:bsp/spi/bsp_spi.c ****             *spi_instance[i]->cs_pin_state =
+ 632              		.loc 1 166 26 view .LVU167
+ 633 004a 55F82400 		ldr	r0, [r5, r4, lsl #2]
+ 166:bsp/spi/bsp_spi.c ****             *spi_instance[i]->cs_pin_state =
+ 634              		.loc 1 166 29 view .LVU168
+ 635 004e 4269     		ldr	r2, [r0, #20]
+ 166:bsp/spi/bsp_spi.c ****             *spi_instance[i]->cs_pin_state =
+ 636              		.loc 1 166 44 view .LVU169
+ 637 0050 1370     		strb	r3, [r2]
+ 169:bsp/spi/bsp_spi.c ****             // @todo 后续添加holdon模式,由用户自行决定何时释放片选,允许进行�
+ 170:bsp/spi/bsp_spi.c ****             if (spi_instance[i]->callback != NULL) // 回调函数不为空, 则调用回调函数
+ 638              		.loc 1 170 13 is_stmt 1 view .LVU170
+ 639              		.loc 1 170 32 is_stmt 0 view .LVU171
+ 640 0052 8369     		ldr	r3, [r0, #24]
+ 641              		.loc 1 170 16 view .LVU172
+ 642 0054 03B1     		cbz	r3, .L43
+ 171:bsp/spi/bsp_spi.c ****                 spi_instance[i]->callback(spi_instance[i]);
+ 643              		.loc 1 171 17 is_stmt 1 view .LVU173
+ 644 0056 9847     		blx	r3
+ 645              	.LVL51:
+ 172:bsp/spi/bsp_spi.c ****             return;
+ 646              		.loc 1 172 13 view .LVU174
+ 647              	.L43:
+ 648              		.loc 1 172 13 is_stmt 0 view .LVU175
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 16
+
+
+ 649              	.LBE2:
+ 173:bsp/spi/bsp_spi.c ****         }
+ 174:bsp/spi/bsp_spi.c ****     }
+ 175:bsp/spi/bsp_spi.c **** }
+ 650              		.loc 1 175 1 view .LVU176
+ 651 0058 70BD     		pop	{r4, r5, r6, pc}
+ 652              	.LVL52:
+ 653              	.L51:
+ 654              		.loc 1 175 1 view .LVU177
+ 655 005a 00BF     		.align	2
+ 656              	.L50:
+ 657 005c 00000000 		.word	idx
+ 658 0060 00000000 		.word	spi_instance
+ 659              		.cfi_endproc
+ 660              	.LFE240:
+ 662              		.section	.text.HAL_SPI_TxRxCpltCallback,"ax",%progbits
+ 663              		.align	1
+ 664              		.global	HAL_SPI_TxRxCpltCallback
+ 665              		.syntax unified
+ 666              		.thumb
+ 667              		.thumb_func
+ 669              	HAL_SPI_TxRxCpltCallback:
+ 670              	.LVL53:
+ 671              	.LFB241:
+ 176:bsp/spi/bsp_spi.c **** 
+ 177:bsp/spi/bsp_spi.c **** /**
+ 178:bsp/spi/bsp_spi.c ****  * @brief 和RxCpltCallback共用解析即可,这里只是形式上封装一下,不用重复写
+ 179:bsp/spi/bsp_spi.c ****  *        这是对HAL库的__weak函数的重写,传输使用IT或DMA模式,在传输完成时会�
+ 180:bsp/spi/bsp_spi.c ****  * @param hspi spi handle
+ 181:bsp/spi/bsp_spi.c ****  */
+ 182:bsp/spi/bsp_spi.c **** void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
+ 183:bsp/spi/bsp_spi.c **** {
+ 672              		.loc 1 183 1 is_stmt 1 view -0
+ 673              		.cfi_startproc
+ 674              		@ args = 0, pretend = 0, frame = 0
+ 675              		@ frame_needed = 0, uses_anonymous_args = 0
+ 676              		.loc 1 183 1 is_stmt 0 view .LVU179
+ 677 0000 08B5     		push	{r3, lr}
+ 678              		.cfi_def_cfa_offset 8
+ 679              		.cfi_offset 3, -8
+ 680              		.cfi_offset 14, -4
+ 184:bsp/spi/bsp_spi.c ****     HAL_SPI_RxCpltCallback(hspi); // 直接调用接收完成的回调函数
+ 681              		.loc 1 184 5 is_stmt 1 view .LVU180
+ 682 0002 FFF7FEFF 		bl	HAL_SPI_RxCpltCallback
+ 683              	.LVL54:
+ 185:bsp/spi/bsp_spi.c **** }
+ 684              		.loc 1 185 1 is_stmt 0 view .LVU181
+ 685 0006 08BD     		pop	{r3, pc}
+ 686              		.cfi_endproc
+ 687              	.LFE241:
+ 689              		.global	SPIDeviceOnGoing
+ 690              		.section	.data.SPIDeviceOnGoing,"aw"
+ 691              		.align	2
+ 694              	SPIDeviceOnGoing:
+ 695 0000 0100     		.ascii	"\001\000"
+ 696              		.section	.bss.idx,"aw",%nobits
+ 699              	idx:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 17
+
+
+ 700 0000 00       		.space	1
+ 701              		.section	.bss.spi_instance,"aw",%nobits
+ 702              		.align	2
+ 705              	spi_instance:
+ 706 0000 00000000 		.space	8
+ 706      00000000 
+ 707              		.text
+ 708              	.Letext0:
+ 709              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 710              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 711              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 712              		.file 5 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 713              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 714              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 715              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 716              		.file 9 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h"
+ 717              		.file 10 "bsp/spi/bsp_spi.h"
+ 718              		.file 11 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 719              		.file 12 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 720              		.file 13 "<built-in>"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s 			page 18
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_spi.c
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:21     .text.SPIRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:27     .text.SPIRegister:00000000 SPIRegister
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:142    .text.SPIRegister:00000060 $d
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:699    .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:694    .data.SPIDeviceOnGoing:00000000 SPIDeviceOnGoing
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:705    .bss.spi_instance:00000000 spi_instance
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:152    .text.SPITransmit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:158    .text.SPITransmit:00000000 SPITransmit
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:241    .text.SPIRecv:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:247    .text.SPIRecv:00000000 SPIRecv
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:336    .text.SPITransRecv:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:342    .text.SPITransRecv:00000000 SPITransRecv
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:506    .text.SPITransRecv:000000a4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:513    .text.SPISetMode:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:519    .text.SPISetMode:00000000 SPISetMode
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:552    .text.HAL_SPI_RxCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:558    .text.HAL_SPI_RxCpltCallback:00000000 HAL_SPI_RxCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:657    .text.HAL_SPI_RxCpltCallback:0000005c $d
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:663    .text.HAL_SPI_TxRxCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:669    .text.HAL_SPI_TxRxCpltCallback:00000000 HAL_SPI_TxRxCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:691    .data.SPIDeviceOnGoing:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:700    .bss.idx:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccAC4wY3.s:702    .bss.spi_instance:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc
+memset
+HAL_GPIO_WritePin
+HAL_SPI_Transmit_DMA
+HAL_SPI_Transmit_IT
+HAL_SPI_Transmit
+HAL_SPI_Receive_DMA
+HAL_SPI_Receive_IT
+HAL_SPI_Receive
+HAL_GPIO_ReadPin
+HAL_SPI_TransmitReceive_DMA
+HAL_SPI_TransmitReceive_IT
+HAL_SPI_TransmitReceive

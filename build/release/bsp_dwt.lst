@@ -1,0 +1,547 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_dwt.c"
+  16              		.text
+  17              		.section	.text.DWT_CNT_Update,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	DWT_CNT_Update:
+  24              		@ args = 0, pretend = 0, frame = 8
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 0E4B     		ldr	r3, .L8
+  28 0002 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  29 0004 C3B9     		cbnz	r3, .L5
+  30 0006 82B0     		sub	sp, sp, #8
+  31 0008 0C4B     		ldr	r3, .L8
+  32 000a 0122     		movs	r2, #1
+  33 000c 1A70     		strb	r2, [r3]
+  34 000e 0C4B     		ldr	r3, .L8+4
+  35 0010 5B68     		ldr	r3, [r3, #4]
+  36 0012 0193     		str	r3, [sp, #4]
+  37 0014 019A     		ldr	r2, [sp, #4]
+  38 0016 0B4B     		ldr	r3, .L8+8
+  39 0018 1B68     		ldr	r3, [r3]
+  40 001a 9A42     		cmp	r2, r3
+  41 001c 03D2     		bcs	.L3
+  42 001e 0A4A     		ldr	r2, .L8+12
+  43 0020 1368     		ldr	r3, [r2]
+  44 0022 0133     		adds	r3, r3, #1
+  45 0024 1360     		str	r3, [r2]
+  46              	.L3:
+  47 0026 064B     		ldr	r3, .L8+4
+  48 0028 5A68     		ldr	r2, [r3, #4]
+  49 002a 064B     		ldr	r3, .L8+8
+  50 002c 1A60     		str	r2, [r3]
+  51 002e 034B     		ldr	r3, .L8
+  52 0030 0022     		movs	r2, #0
+  53 0032 1A70     		strb	r2, [r3]
+  54 0034 02B0     		add	sp, sp, #8
+  55              		@ sp needed
+  56 0036 7047     		bx	lr
+  57              	.L5:
+  58 0038 7047     		bx	lr
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s 			page 2
+
+
+  59              	.L9:
+  60 003a 00BF     		.align	2
+  61              	.L8:
+  62 003c 00000000 		.word	bit_locker.3
+  63 0040 001000E0 		.word	-536866816
+  64 0044 00000000 		.word	CYCCNT_LAST
+  65 0048 00000000 		.word	CYCCNT_RountCount
+  67              		.section	.text.DWT_Init,"ax",%progbits
+  68              		.align	1
+  69              		.global	DWT_Init
+  70              		.syntax unified
+  71              		.thumb
+  72              		.thumb_func
+  74              	DWT_Init:
+  75              		@ args = 0, pretend = 0, frame = 0
+  76              		@ frame_needed = 0, uses_anonymous_args = 0
+  77 0000 08B5     		push	{r3, lr}
+  78 0002 124A     		ldr	r2, .L12
+  79 0004 D2F8FC30 		ldr	r3, [r2, #252]
+  80 0008 43F08073 		orr	r3, r3, #16777216
+  81 000c C2F8FC30 		str	r3, [r2, #252]
+  82 0010 0F4B     		ldr	r3, .L12+4
+  83 0012 0021     		movs	r1, #0
+  84 0014 5960     		str	r1, [r3, #4]
+  85 0016 1A68     		ldr	r2, [r3]
+  86 0018 42F00102 		orr	r2, r2, #1
+  87 001c 1A60     		str	r2, [r3]
+  88 001e 0D4B     		ldr	r3, .L12+8
+  89 0020 03FB00F0 		mul	r0, r3, r0
+  90 0024 0C4B     		ldr	r3, .L12+12
+  91 0026 1860     		str	r0, [r3]
+  92 0028 0C4B     		ldr	r3, .L12+16
+  93 002a A3FB0023 		umull	r2, r3, r3, r0
+  94 002e 9B09     		lsrs	r3, r3, #6
+  95 0030 0B4A     		ldr	r2, .L12+20
+  96 0032 1360     		str	r3, [r2]
+  97 0034 0B4B     		ldr	r3, .L12+24
+  98 0036 A3FB0030 		umull	r3, r0, r3, r0
+  99 003a 800C     		lsrs	r0, r0, #18
+ 100 003c 0A4B     		ldr	r3, .L12+28
+ 101 003e 1860     		str	r0, [r3]
+ 102 0040 0A4B     		ldr	r3, .L12+32
+ 103 0042 1960     		str	r1, [r3]
+ 104 0044 FFF7FEFF 		bl	DWT_CNT_Update
+ 105 0048 08BD     		pop	{r3, pc}
+ 106              	.L13:
+ 107 004a 00BF     		.align	2
+ 108              	.L12:
+ 109 004c 00ED00E0 		.word	-536810240
+ 110 0050 001000E0 		.word	-536866816
+ 111 0054 40420F00 		.word	1000000
+ 112 0058 00000000 		.word	CPU_FREQ_Hz
+ 113 005c D34D6210 		.word	274877907
+ 114 0060 00000000 		.word	CPU_FREQ_Hz_ms
+ 115 0064 83DE1B43 		.word	1125899907
+ 116 0068 00000000 		.word	CPU_FREQ_Hz_us
+ 117 006c 00000000 		.word	CYCCNT_RountCount
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s 			page 3
+
+
+ 119              		.section	.text.DWT_GetDeltaT,"ax",%progbits
+ 120              		.align	1
+ 121              		.global	DWT_GetDeltaT
+ 122              		.syntax unified
+ 123              		.thumb
+ 124              		.thumb_func
+ 126              	DWT_GetDeltaT:
+ 127              		@ args = 0, pretend = 0, frame = 8
+ 128              		@ frame_needed = 0, uses_anonymous_args = 0
+ 129 0000 00B5     		push	{lr}
+ 130 0002 2DED028B 		vpush.64	{d8}
+ 131 0006 83B0     		sub	sp, sp, #12
+ 132 0008 0E4B     		ldr	r3, .L16
+ 133 000a 5B68     		ldr	r3, [r3, #4]
+ 134 000c 0193     		str	r3, [sp, #4]
+ 135 000e 019B     		ldr	r3, [sp, #4]
+ 136 0010 0268     		ldr	r2, [r0]
+ 137 0012 9B1A     		subs	r3, r3, r2
+ 138 0014 07EE903A 		vmov	s15, r3	@ int
+ 139 0018 F8EE677A 		vcvt.f32.u32	s15, s15
+ 140 001c 0A4B     		ldr	r3, .L16+4
+ 141 001e 93ED007A 		vldr.32	s14, [r3]	@ int
+ 142 0022 B8EE477A 		vcvt.f32.u32	s14, s14
+ 143 0026 C7EE877A 		vdiv.f32	s15, s15, s14
+ 144 002a B0EE678A 		vmov.f32	s16, s15
+ 145 002e 019B     		ldr	r3, [sp, #4]
+ 146 0030 0360     		str	r3, [r0]
+ 147 0032 FFF7FEFF 		bl	DWT_CNT_Update
+ 148 0036 B0EE480A 		vmov.f32	s0, s16
+ 149 003a 03B0     		add	sp, sp, #12
+ 150              		@ sp needed
+ 151 003c BDEC028B 		vldm	sp!, {d8}
+ 152 0040 00BD     		pop	{pc}
+ 153              	.L17:
+ 154 0042 00BF     		.align	2
+ 155              	.L16:
+ 156 0044 001000E0 		.word	-536866816
+ 157 0048 00000000 		.word	CPU_FREQ_Hz
+ 159              		.section	.text.DWT_GetDeltaT64,"ax",%progbits
+ 160              		.align	1
+ 161              		.global	DWT_GetDeltaT64
+ 162              		.syntax unified
+ 163              		.thumb
+ 164              		.thumb_func
+ 166              	DWT_GetDeltaT64:
+ 167              		@ args = 0, pretend = 0, frame = 8
+ 168              		@ frame_needed = 0, uses_anonymous_args = 0
+ 169 0000 70B5     		push	{r4, r5, r6, lr}
+ 170 0002 2DED028B 		vpush.64	{d8}
+ 171 0006 82B0     		sub	sp, sp, #8
+ 172 0008 0446     		mov	r4, r0
+ 173 000a 114B     		ldr	r3, .L20
+ 174 000c 5B68     		ldr	r3, [r3, #4]
+ 175 000e 0193     		str	r3, [sp, #4]
+ 176 0010 0198     		ldr	r0, [sp, #4]
+ 177 0012 2368     		ldr	r3, [r4]
+ 178 0014 C01A     		subs	r0, r0, r3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s 			page 4
+
+
+ 179 0016 FFF7FEFF 		bl	__aeabi_ui2d
+ 180 001a 0546     		mov	r5, r0
+ 181 001c 0E46     		mov	r6, r1
+ 182 001e 0D4B     		ldr	r3, .L20+4
+ 183 0020 1868     		ldr	r0, [r3]
+ 184 0022 FFF7FEFF 		bl	__aeabi_ui2d
+ 185 0026 0246     		mov	r2, r0
+ 186 0028 0B46     		mov	r3, r1
+ 187 002a 2846     		mov	r0, r5
+ 188 002c 3146     		mov	r1, r6
+ 189 002e FFF7FEFF 		bl	__aeabi_ddiv
+ 190 0032 41EC180B 		vmov	d8, r0, r1
+ 191 0036 019B     		ldr	r3, [sp, #4]
+ 192 0038 2360     		str	r3, [r4]
+ 193 003a FFF7FEFF 		bl	DWT_CNT_Update
+ 194 003e B0EE480A 		vmov.f32	s0, s16
+ 195 0042 F0EE680A 		vmov.f32	s1, s17
+ 196 0046 02B0     		add	sp, sp, #8
+ 197              		@ sp needed
+ 198 0048 BDEC028B 		vldm	sp!, {d8}
+ 199 004c 70BD     		pop	{r4, r5, r6, pc}
+ 200              	.L21:
+ 201 004e 00BF     		.align	2
+ 202              	.L20:
+ 203 0050 001000E0 		.word	-536866816
+ 204 0054 00000000 		.word	CPU_FREQ_Hz
+ 206              		.section	.text.DWT_SysTimeUpdate,"ax",%progbits
+ 207              		.align	1
+ 208              		.global	DWT_SysTimeUpdate
+ 209              		.syntax unified
+ 210              		.thumb
+ 211              		.thumb_func
+ 213              	DWT_SysTimeUpdate:
+ 214              		@ args = 0, pretend = 0, frame = 8
+ 215              		@ frame_needed = 0, uses_anonymous_args = 0
+ 216 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 217 0004 82B0     		sub	sp, sp, #8
+ 218 0006 294B     		ldr	r3, .L24
+ 219 0008 5B68     		ldr	r3, [r3, #4]
+ 220 000a 0193     		str	r3, [sp, #4]
+ 221 000c FFF7FEFF 		bl	DWT_CNT_Update
+ 222 0010 274B     		ldr	r3, .L24+4
+ 223 0012 1C68     		ldr	r4, [r3]
+ 224 0014 0026     		movs	r6, #0
+ 225 0016 6508     		lsrs	r5, r4, #1
+ 226 0018 E307     		lsls	r3, r4, #31
+ 227 001a 1B1B     		subs	r3, r3, r4
+ 228 001c 65F10005 		sbc	r5, r5, #0
+ 229 0020 DB18     		adds	r3, r3, r3
+ 230 0022 6D41     		adcs	r5, r5, r5
+ 231 0024 1C19     		adds	r4, r3, r4
+ 232 0026 45F10005 		adc	r5, r5, #0
+ 233 002a 019B     		ldr	r3, [sp, #4]
+ 234 002c E418     		adds	r4, r4, r3
+ 235 002e 45F10005 		adc	r5, r5, #0
+ 236 0032 204B     		ldr	r3, .L24+8
+ 237 0034 1C60     		str	r4, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s 			page 5
+
+
+ 238 0036 5D60     		str	r5, [r3, #4]
+ 239 0038 1F4B     		ldr	r3, .L24+12
+ 240 003a D3F80080 		ldr	r8, [r3]
+ 241 003e 4246     		mov	r2, r8
+ 242 0040 3346     		mov	r3, r6
+ 243 0042 2046     		mov	r0, r4
+ 244 0044 2946     		mov	r1, r5
+ 245 0046 FFF7FEFF 		bl	__aeabi_uldivmod
+ 246 004a 0746     		mov	r7, r0
+ 247 004c 1B4B     		ldr	r3, .L24+16
+ 248 004e 1860     		str	r0, [r3]
+ 249 0050 5960     		str	r1, [r3, #4]
+ 250 0052 4246     		mov	r2, r8
+ 251 0054 3346     		mov	r3, r6
+ 252 0056 2046     		mov	r0, r4
+ 253 0058 2946     		mov	r1, r5
+ 254 005a FFF7FEFF 		bl	__aeabi_uldivmod
+ 255 005e 1046     		mov	r0, r2
+ 256 0060 1C46     		mov	r4, r3
+ 257 0062 1546     		mov	r5, r2
+ 258 0064 164B     		ldr	r3, .L24+20
+ 259 0066 1A60     		str	r2, [r3]
+ 260 0068 5C60     		str	r4, [r3, #4]
+ 261 006a DFF86480 		ldr	r8, .L24+36
+ 262 006e C8F80070 		str	r7, [r8]
+ 263 0072 144B     		ldr	r3, .L24+24
+ 264 0074 1F68     		ldr	r7, [r3]
+ 265 0076 3A46     		mov	r2, r7
+ 266 0078 3346     		mov	r3, r6
+ 267 007a 2146     		mov	r1, r4
+ 268 007c FFF7FEFF 		bl	__aeabi_uldivmod
+ 269 0080 80B2     		uxth	r0, r0
+ 270 0082 A8F80400 		strh	r0, [r8, #4]	@ movhi
+ 271 0086 00FB07F7 		mul	r7, r0, r7
+ 272 008a E81B     		subs	r0, r5, r7
+ 273 008c 64F10001 		sbc	r1, r4, #0
+ 274 0090 0D4B     		ldr	r3, .L24+28
+ 275 0092 1860     		str	r0, [r3]
+ 276 0094 5960     		str	r1, [r3, #4]
+ 277 0096 0D4B     		ldr	r3, .L24+32
+ 278 0098 1A68     		ldr	r2, [r3]
+ 279 009a 3346     		mov	r3, r6
+ 280 009c FFF7FEFF 		bl	__aeabi_uldivmod
+ 281 00a0 A8F80600 		strh	r0, [r8, #6]	@ movhi
+ 282 00a4 02B0     		add	sp, sp, #8
+ 283              		@ sp needed
+ 284 00a6 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 285              	.L25:
+ 286 00aa 00BF     		.align	2
+ 287              	.L24:
+ 288 00ac 001000E0 		.word	-536866816
+ 289 00b0 00000000 		.word	CYCCNT_RountCount
+ 290 00b4 00000000 		.word	CYCCNT64
+ 291 00b8 00000000 		.word	CPU_FREQ_Hz
+ 292 00bc 00000000 		.word	CNT_TEMP1.2
+ 293 00c0 00000000 		.word	CNT_TEMP2.1
+ 294 00c4 00000000 		.word	CPU_FREQ_Hz_ms
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s 			page 6
+
+
+ 295 00c8 00000000 		.word	CNT_TEMP3.0
+ 296 00cc 00000000 		.word	CPU_FREQ_Hz_us
+ 297 00d0 00000000 		.word	SysTime
+ 299              		.section	.text.DWT_GetTimeline_s,"ax",%progbits
+ 300              		.align	1
+ 301              		.global	DWT_GetTimeline_s
+ 302              		.syntax unified
+ 303              		.thumb
+ 304              		.thumb_func
+ 306              	DWT_GetTimeline_s:
+ 307              		@ args = 0, pretend = 0, frame = 0
+ 308              		@ frame_needed = 0, uses_anonymous_args = 0
+ 309 0000 08B5     		push	{r3, lr}
+ 310 0002 FFF7FEFF 		bl	DWT_SysTimeUpdate
+ 311 0006 0E4B     		ldr	r3, .L28
+ 312 0008 9A88     		ldrh	r2, [r3, #4]
+ 313 000a 07EE902A 		vmov	s15, r2	@ int
+ 314 000e F8EEE77A 		vcvt.f32.s32	s15, s15
+ 315 0012 9FED0C7A 		vldr.32	s14, .L28+4
+ 316 0016 67EE877A 		vmul.f32	s15, s15, s14
+ 317 001a 93ED007A 		vldr.32	s14, [r3]	@ int
+ 318 001e B8EE470A 		vcvt.f32.u32	s0, s14
+ 319 0022 30EE270A 		vadd.f32	s0, s0, s15
+ 320 0026 DB88     		ldrh	r3, [r3, #6]
+ 321 0028 07EE903A 		vmov	s15, r3	@ int
+ 322 002c F8EEE77A 		vcvt.f32.s32	s15, s15
+ 323 0030 9FED057A 		vldr.32	s14, .L28+8
+ 324 0034 67EE877A 		vmul.f32	s15, s15, s14
+ 325 0038 30EE270A 		vadd.f32	s0, s0, s15
+ 326 003c 08BD     		pop	{r3, pc}
+ 327              	.L29:
+ 328 003e 00BF     		.align	2
+ 329              	.L28:
+ 330 0040 00000000 		.word	SysTime
+ 331 0044 6F12833A 		.word	981668463
+ 332 0048 BD378635 		.word	897988541
+ 334              		.section	.text.DWT_GetTimeline_ms,"ax",%progbits
+ 335              		.align	1
+ 336              		.global	DWT_GetTimeline_ms
+ 337              		.syntax unified
+ 338              		.thumb
+ 339              		.thumb_func
+ 341              	DWT_GetTimeline_ms:
+ 342              		@ args = 0, pretend = 0, frame = 0
+ 343              		@ frame_needed = 0, uses_anonymous_args = 0
+ 344 0000 08B5     		push	{r3, lr}
+ 345 0002 FFF7FEFF 		bl	DWT_SysTimeUpdate
+ 346 0006 0B4A     		ldr	r2, .L32
+ 347 0008 1168     		ldr	r1, [r2]
+ 348 000a 9388     		ldrh	r3, [r2, #4]
+ 349 000c 4FF47A70 		mov	r0, #1000
+ 350 0010 00FB0133 		mla	r3, r0, r1, r3
+ 351 0014 00EE103A 		vmov	s0, r3	@ int
+ 352 0018 B8EE400A 		vcvt.f32.u32	s0, s0
+ 353 001c D388     		ldrh	r3, [r2, #6]
+ 354 001e 07EE903A 		vmov	s15, r3	@ int
+ 355 0022 F8EEE77A 		vcvt.f32.s32	s15, s15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s 			page 7
+
+
+ 356 0026 9FED047A 		vldr.32	s14, .L32+4
+ 357 002a 67EE877A 		vmul.f32	s15, s15, s14
+ 358 002e 30EE270A 		vadd.f32	s0, s0, s15
+ 359 0032 08BD     		pop	{r3, pc}
+ 360              	.L33:
+ 361              		.align	2
+ 362              	.L32:
+ 363 0034 00000000 		.word	SysTime
+ 364 0038 6F12833A 		.word	981668463
+ 366              		.section	.text.DWT_GetTimeline_us,"ax",%progbits
+ 367              		.align	1
+ 368              		.global	DWT_GetTimeline_us
+ 369              		.syntax unified
+ 370              		.thumb
+ 371              		.thumb_func
+ 373              	DWT_GetTimeline_us:
+ 374              		@ args = 0, pretend = 0, frame = 0
+ 375              		@ frame_needed = 0, uses_anonymous_args = 0
+ 376 0000 08B5     		push	{r3, lr}
+ 377 0002 FFF7FEFF 		bl	DWT_SysTimeUpdate
+ 378 0006 074A     		ldr	r2, .L36
+ 379 0008 1168     		ldr	r1, [r2]
+ 380 000a 9388     		ldrh	r3, [r2, #4]
+ 381 000c 4FF47A70 		mov	r0, #1000
+ 382 0010 00FB03F3 		mul	r3, r0, r3
+ 383 0014 0448     		ldr	r0, .L36+4
+ 384 0016 00FB0133 		mla	r3, r0, r1, r3
+ 385 001a D088     		ldrh	r0, [r2, #6]
+ 386 001c 1844     		add	r0, r0, r3
+ 387 001e 0021     		movs	r1, #0
+ 388 0020 08BD     		pop	{r3, pc}
+ 389              	.L37:
+ 390 0022 00BF     		.align	2
+ 391              	.L36:
+ 392 0024 00000000 		.word	SysTime
+ 393 0028 40420F00 		.word	1000000
+ 395              		.section	.text.DWT_Delay,"ax",%progbits
+ 396              		.align	1
+ 397              		.global	DWT_Delay
+ 398              		.syntax unified
+ 399              		.thumb
+ 400              		.thumb_func
+ 402              	DWT_Delay:
+ 403              		@ args = 0, pretend = 0, frame = 0
+ 404              		@ frame_needed = 0, uses_anonymous_args = 0
+ 405              		@ link register save eliminated.
+ 406 0000 0A4B     		ldr	r3, .L40
+ 407 0002 5968     		ldr	r1, [r3, #4]
+ 408              	.L39:
+ 409 0004 094B     		ldr	r3, .L40
+ 410 0006 5B68     		ldr	r3, [r3, #4]
+ 411 0008 5B1A     		subs	r3, r3, r1
+ 412 000a 094A     		ldr	r2, .L40+4
+ 413 000c D2ED007A 		vldr.32	s15, [r2]	@ int
+ 414 0010 F8EE677A 		vcvt.f32.u32	s15, s15
+ 415 0014 67EE807A 		vmul.f32	s15, s15, s0
+ 416 0018 07EE103A 		vmov	s14, r3	@ int
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s 			page 8
+
+
+ 417 001c B8EE477A 		vcvt.f32.u32	s14, s14
+ 418 0020 B4EEE77A 		vcmpe.f32	s14, s15
+ 419 0024 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 420 0028 ECD4     		bmi	.L39
+ 421 002a 7047     		bx	lr
+ 422              	.L41:
+ 423              		.align	2
+ 424              	.L40:
+ 425 002c 001000E0 		.word	-536866816
+ 426 0030 00000000 		.word	CPU_FREQ_Hz
+ 428              		.section	.bss.CNT_TEMP3.0,"aw",%nobits
+ 429              		.align	3
+ 432              	CNT_TEMP3.0:
+ 433 0000 00000000 		.space	8
+ 433      00000000 
+ 434              		.section	.bss.CNT_TEMP2.1,"aw",%nobits
+ 435              		.align	3
+ 438              	CNT_TEMP2.1:
+ 439 0000 00000000 		.space	8
+ 439      00000000 
+ 440              		.section	.bss.CNT_TEMP1.2,"aw",%nobits
+ 441              		.align	3
+ 444              	CNT_TEMP1.2:
+ 445 0000 00000000 		.space	8
+ 445      00000000 
+ 446              		.section	.bss.bit_locker.3,"aw",%nobits
+ 449              	bit_locker.3:
+ 450 0000 00       		.space	1
+ 451              		.section	.bss.CYCCNT64,"aw",%nobits
+ 452              		.align	3
+ 455              	CYCCNT64:
+ 456 0000 00000000 		.space	8
+ 456      00000000 
+ 457              		.section	.bss.CYCCNT_LAST,"aw",%nobits
+ 458              		.align	2
+ 461              	CYCCNT_LAST:
+ 462 0000 00000000 		.space	4
+ 463              		.section	.bss.CYCCNT_RountCount,"aw",%nobits
+ 464              		.align	2
+ 467              	CYCCNT_RountCount:
+ 468 0000 00000000 		.space	4
+ 469              		.section	.bss.CPU_FREQ_Hz_us,"aw",%nobits
+ 470              		.align	2
+ 473              	CPU_FREQ_Hz_us:
+ 474 0000 00000000 		.space	4
+ 475              		.section	.bss.CPU_FREQ_Hz_ms,"aw",%nobits
+ 476              		.align	2
+ 479              	CPU_FREQ_Hz_ms:
+ 480 0000 00000000 		.space	4
+ 481              		.section	.bss.CPU_FREQ_Hz,"aw",%nobits
+ 482              		.align	2
+ 485              	CPU_FREQ_Hz:
+ 486 0000 00000000 		.space	4
+ 487              		.section	.bss.SysTime,"aw",%nobits
+ 488              		.align	2
+ 491              	SysTime:
+ 492 0000 00000000 		.space	8
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s 			page 9
+
+
+ 492      00000000 
+ 493              		.global	__aeabi_uldivmod
+ 494              		.global	__aeabi_ddiv
+ 495              		.global	__aeabi_ui2d
+ 496              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_dwt.c
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:18     .text.DWT_CNT_Update:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:23     .text.DWT_CNT_Update:00000000 DWT_CNT_Update
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:62     .text.DWT_CNT_Update:0000003c $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:449    .bss.bit_locker.3:00000000 bit_locker.3
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:461    .bss.CYCCNT_LAST:00000000 CYCCNT_LAST
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:467    .bss.CYCCNT_RountCount:00000000 CYCCNT_RountCount
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:68     .text.DWT_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:74     .text.DWT_Init:00000000 DWT_Init
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:109    .text.DWT_Init:0000004c $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:485    .bss.CPU_FREQ_Hz:00000000 CPU_FREQ_Hz
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:479    .bss.CPU_FREQ_Hz_ms:00000000 CPU_FREQ_Hz_ms
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:473    .bss.CPU_FREQ_Hz_us:00000000 CPU_FREQ_Hz_us
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:120    .text.DWT_GetDeltaT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:126    .text.DWT_GetDeltaT:00000000 DWT_GetDeltaT
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:156    .text.DWT_GetDeltaT:00000044 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:160    .text.DWT_GetDeltaT64:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:166    .text.DWT_GetDeltaT64:00000000 DWT_GetDeltaT64
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:203    .text.DWT_GetDeltaT64:00000050 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:207    .text.DWT_SysTimeUpdate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:213    .text.DWT_SysTimeUpdate:00000000 DWT_SysTimeUpdate
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:288    .text.DWT_SysTimeUpdate:000000ac $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:455    .bss.CYCCNT64:00000000 CYCCNT64
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:444    .bss.CNT_TEMP1.2:00000000 CNT_TEMP1.2
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:438    .bss.CNT_TEMP2.1:00000000 CNT_TEMP2.1
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:432    .bss.CNT_TEMP3.0:00000000 CNT_TEMP3.0
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:491    .bss.SysTime:00000000 SysTime
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:300    .text.DWT_GetTimeline_s:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:306    .text.DWT_GetTimeline_s:00000000 DWT_GetTimeline_s
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:330    .text.DWT_GetTimeline_s:00000040 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:335    .text.DWT_GetTimeline_ms:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:341    .text.DWT_GetTimeline_ms:00000000 DWT_GetTimeline_ms
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:363    .text.DWT_GetTimeline_ms:00000034 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:367    .text.DWT_GetTimeline_us:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:373    .text.DWT_GetTimeline_us:00000000 DWT_GetTimeline_us
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:392    .text.DWT_GetTimeline_us:00000024 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:396    .text.DWT_Delay:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:402    .text.DWT_Delay:00000000 DWT_Delay
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:425    .text.DWT_Delay:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:429    .bss.CNT_TEMP3.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:435    .bss.CNT_TEMP2.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:441    .bss.CNT_TEMP1.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:450    .bss.bit_locker.3:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:452    .bss.CYCCNT64:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:458    .bss.CYCCNT_LAST:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:464    .bss.CYCCNT_RountCount:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:470    .bss.CPU_FREQ_Hz_us:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:476    .bss.CPU_FREQ_Hz_ms:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:482    .bss.CPU_FREQ_Hz:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYL2zsg.s:488    .bss.SysTime:00000000 $d
+
+UNDEFINED SYMBOLS
+__aeabi_ui2d
+__aeabi_ddiv
+__aeabi_uldivmod

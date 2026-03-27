@@ -1,0 +1,138 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctmejte.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"rng.c"
+  16              		.text
+  17              		.section	.text.MX_RNG_Init,"ax",%progbits
+  18              		.align	1
+  19              		.global	MX_RNG_Init
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	MX_RNG_Init:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 08B5     		push	{r3, lr}
+  28 0002 0548     		ldr	r0, .L5
+  29 0004 054B     		ldr	r3, .L5+4
+  30 0006 0360     		str	r3, [r0]
+  31 0008 FFF7FEFF 		bl	HAL_RNG_Init
+  32 000c 00B9     		cbnz	r0, .L4
+  33              	.L1:
+  34 000e 08BD     		pop	{r3, pc}
+  35              	.L4:
+  36 0010 FFF7FEFF 		bl	Error_Handler
+  37 0014 FBE7     		b	.L1
+  38              	.L6:
+  39 0016 00BF     		.align	2
+  40              	.L5:
+  41 0018 00000000 		.word	hrng
+  42 001c 00080650 		.word	1342572544
+  44              		.section	.text.HAL_RNG_MspInit,"ax",%progbits
+  45              		.align	1
+  46              		.global	HAL_RNG_MspInit
+  47              		.syntax unified
+  48              		.thumb
+  49              		.thumb_func
+  51              	HAL_RNG_MspInit:
+  52              		@ args = 0, pretend = 0, frame = 8
+  53              		@ frame_needed = 0, uses_anonymous_args = 0
+  54              		@ link register save eliminated.
+  55 0000 0268     		ldr	r2, [r0]
+  56 0002 094B     		ldr	r3, .L14
+  57 0004 9A42     		cmp	r2, r3
+  58 0006 00D0     		beq	.L13
+  59 0008 7047     		bx	lr
+  60              	.L13:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctmejte.s 			page 2
+
+
+  61 000a 82B0     		sub	sp, sp, #8
+  62 000c 0023     		movs	r3, #0
+  63 000e 0193     		str	r3, [sp, #4]
+  64 0010 064B     		ldr	r3, .L14+4
+  65 0012 5A6B     		ldr	r2, [r3, #52]
+  66 0014 42F04002 		orr	r2, r2, #64
+  67 0018 5A63     		str	r2, [r3, #52]
+  68 001a 5B6B     		ldr	r3, [r3, #52]
+  69 001c 03F04003 		and	r3, r3, #64
+  70 0020 0193     		str	r3, [sp, #4]
+  71 0022 019B     		ldr	r3, [sp, #4]
+  72 0024 02B0     		add	sp, sp, #8
+  73              		@ sp needed
+  74 0026 7047     		bx	lr
+  75              	.L15:
+  76              		.align	2
+  77              	.L14:
+  78 0028 00080650 		.word	1342572544
+  79 002c 00380240 		.word	1073887232
+  81              		.section	.text.HAL_RNG_MspDeInit,"ax",%progbits
+  82              		.align	1
+  83              		.global	HAL_RNG_MspDeInit
+  84              		.syntax unified
+  85              		.thumb
+  86              		.thumb_func
+  88              	HAL_RNG_MspDeInit:
+  89              		@ args = 0, pretend = 0, frame = 0
+  90              		@ frame_needed = 0, uses_anonymous_args = 0
+  91              		@ link register save eliminated.
+  92 0000 0268     		ldr	r2, [r0]
+  93 0002 054B     		ldr	r3, .L19
+  94 0004 9A42     		cmp	r2, r3
+  95 0006 00D0     		beq	.L18
+  96              	.L16:
+  97 0008 7047     		bx	lr
+  98              	.L18:
+  99 000a 044A     		ldr	r2, .L19+4
+ 100 000c 536B     		ldr	r3, [r2, #52]
+ 101 000e 23F04003 		bic	r3, r3, #64
+ 102 0012 5363     		str	r3, [r2, #52]
+ 103 0014 F8E7     		b	.L16
+ 104              	.L20:
+ 105 0016 00BF     		.align	2
+ 106              	.L19:
+ 107 0018 00080650 		.word	1342572544
+ 108 001c 00380240 		.word	1073887232
+ 110              		.global	hrng
+ 111              		.section	.bss.hrng,"aw",%nobits
+ 112              		.align	2
+ 115              	hrng:
+ 116 0000 00000000 		.space	16
+ 116      00000000 
+ 116      00000000 
+ 116      00000000 
+ 117              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctmejte.s 			page 3
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 rng.c
+C:\Users\Administrator\AppData\Local\Temp\cctmejte.s:18     .text.MX_RNG_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cctmejte.s:24     .text.MX_RNG_Init:00000000 MX_RNG_Init
+C:\Users\Administrator\AppData\Local\Temp\cctmejte.s:41     .text.MX_RNG_Init:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\cctmejte.s:115    .bss.hrng:00000000 hrng
+C:\Users\Administrator\AppData\Local\Temp\cctmejte.s:45     .text.HAL_RNG_MspInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cctmejte.s:51     .text.HAL_RNG_MspInit:00000000 HAL_RNG_MspInit
+C:\Users\Administrator\AppData\Local\Temp\cctmejte.s:78     .text.HAL_RNG_MspInit:00000028 $d
+C:\Users\Administrator\AppData\Local\Temp\cctmejte.s:82     .text.HAL_RNG_MspDeInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cctmejte.s:88     .text.HAL_RNG_MspDeInit:00000000 HAL_RNG_MspDeInit
+C:\Users\Administrator\AppData\Local\Temp\cctmejte.s:107    .text.HAL_RNG_MspDeInit:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\cctmejte.s:112    .bss.hrng:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_RNG_Init
+Error_Handler

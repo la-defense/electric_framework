@@ -1,0 +1,730 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"referee_task.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/referee/referee_task.c"
+  20              		.section	.text.DeterminRobotID,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	DeterminRobotID:
+  27              	.LFB276:
+   1:modules/referee/referee_task.c **** /**
+   2:modules/referee/referee_task.c ****  * @file referee.C
+   3:modules/referee/referee_task.c ****  * @author kidneygood (you@domain.com)
+   4:modules/referee/referee_task.c ****  * @brief
+   5:modules/referee/referee_task.c ****  * @version 0.1
+   6:modules/referee/referee_task.c ****  * @date 2022-11-18
+   7:modules/referee/referee_task.c ****  *
+   8:modules/referee/referee_task.c ****  * @copyright Copyright (c) 2022
+   9:modules/referee/referee_task.c ****  *
+  10:modules/referee/referee_task.c ****  */
+  11:modules/referee/referee_task.c **** #include "referee_task.h"
+  12:modules/referee/referee_task.c **** #include "robot_def.h"
+  13:modules/referee/referee_task.c **** #include "rm_referee.h"
+  14:modules/referee/referee_task.c **** #include "referee_UI.h"
+  15:modules/referee/referee_task.c **** #include "string.h"
+  16:modules/referee/referee_task.c **** #include "cmsis_os.h"
+  17:modules/referee/referee_task.c **** 
+  18:modules/referee/referee_task.c **** #include "infantry_config.h"
+  19:modules/referee/referee_task.c **** 
+  20:modules/referee/referee_task.c **** static Referee_Interactive_info_t *Interactive_data; // UI绘制需要的机器人状态数据
+  21:modules/referee/referee_task.c **** static referee_info_t *referee_recv_info;            // 接收到的裁判系统数据
+  22:modules/referee/referee_task.c **** uint8_t UI_Seq;                                      // 包序号，供整个referee文件使用
+  23:modules/referee/referee_task.c **** // @todo 不应该使用全局变量
+  24:modules/referee/referee_task.c **** 
+  25:modules/referee/referee_task.c **** /**
+  26:modules/referee/referee_task.c ****  * @brief  判断各种ID，选择客户端ID
+  27:modules/referee/referee_task.c ****  * @param  referee_info_t *referee_recv_info
+  28:modules/referee/referee_task.c ****  * @retval none
+  29:modules/referee/referee_task.c ****  * @attention
+  30:modules/referee/referee_task.c ****  */
+  31:modules/referee/referee_task.c **** static void DeterminRobotID()
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 2
+
+
+  32:modules/referee/referee_task.c **** {
+  28              		.loc 1 32 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33:modules/referee/referee_task.c ****     // id小于7是红色,大于7是蓝色,0为红色，1为蓝色   #define Robot_Red 0    #define
+  34:modules/referee/referee_task.c ****     referee_recv_info->referee_id.Robot_Color = referee_recv_info->GameRobotState.robot_id > 7 ? Ro
+  33              		.loc 1 34 5 view .LVU1
+  34              		.loc 1 34 66 is_stmt 0 view .LVU2
+  35 0000 094B     		ldr	r3, .L2
+  36 0002 1B68     		ldr	r3, [r3]
+  37              		.loc 1 34 82 view .LVU3
+  38 0004 93F84220 		ldrb	r2, [r3, #66]	@ zero_extendqisi2
+  39              		.loc 1 34 109 view .LVU4
+  40 0008 072A     		cmp	r2, #7
+  41 000a 94BF     		ite	ls
+  42 000c 0021     		movls	r1, #0
+  43 000e 0121     		movhi	r1, #1
+  44              		.loc 1 34 47 view .LVU5
+  45 0010 1970     		strb	r1, [r3]
+  35:modules/referee/referee_task.c ****     referee_recv_info->referee_id.Robot_ID = referee_recv_info->GameRobotState.robot_id;
+  46              		.loc 1 35 5 is_stmt 1 view .LVU6
+  47              		.loc 1 35 44 is_stmt 0 view .LVU7
+  48 0012 A3F80120 		strh	r2, [r3, #1]	@ unaligned
+  36:modules/referee/referee_task.c ****     referee_recv_info->referee_id.Cilent_ID = 0x0100 + referee_recv_info->referee_id.Robot_ID; // �
+  49              		.loc 1 36 5 is_stmt 1 view .LVU8
+  50              		.loc 1 36 54 is_stmt 0 view .LVU9
+  51 0016 02F58072 		add	r2, r2, #256
+  52              		.loc 1 36 45 view .LVU10
+  53 001a A3F80320 		strh	r2, [r3, #3]	@ unaligned
+  37:modules/referee/referee_task.c ****     referee_recv_info->referee_id.Receiver_Robot_ID = 0;
+  54              		.loc 1 37 5 is_stmt 1 view .LVU11
+  55              		.loc 1 37 53 is_stmt 0 view .LVU12
+  56 001e 0022     		movs	r2, #0
+  57 0020 5A71     		strb	r2, [r3, #5]
+  58 0022 9A71     		strb	r2, [r3, #6]
+  38:modules/referee/referee_task.c **** }
+  59              		.loc 1 38 1 view .LVU13
+  60 0024 7047     		bx	lr
+  61              	.L3:
+  62 0026 00BF     		.align	2
+  63              	.L2:
+  64 0028 00000000 		.word	referee_recv_info
+  65              		.cfi_endproc
+  66              	.LFE276:
+  68              		.section	.text.UIChangeCheck,"ax",%progbits
+  69              		.align	1
+  70              		.syntax unified
+  71              		.thumb
+  72              		.thumb_func
+  74              	UIChangeCheck:
+  75              	.LVL0:
+  76              	.LFB282:
+  39:modules/referee/referee_task.c **** 
+  40:modules/referee/referee_task.c **** static void MyUIRefresh(referee_info_t *referee_recv_info, Referee_Interactive_info_t *_Interactive
+  41:modules/referee/referee_task.c **** static void UIChangeCheck(Referee_Interactive_info_t *_Interactive_data); // 模式切换检测
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 3
+
+
+  42:modules/referee/referee_task.c **** static void RobotModeTest(Referee_Interactive_info_t *_Interactive_data); // 测试用函数，实�
+  43:modules/referee/referee_task.c **** 
+  44:modules/referee/referee_task.c **** referee_info_t *UITaskInit(UART_HandleTypeDef *referee_usart_handle, Referee_Interactive_info_t *UI
+  45:modules/referee/referee_task.c **** {
+  46:modules/referee/referee_task.c ****     referee_recv_info = RefereeInit(referee_usart_handle); // 初始化裁判系统的串口,并返
+  47:modules/referee/referee_task.c ****     Interactive_data = UI_data;                            // 获取UI绘制需要的机器人状�
+  48:modules/referee/referee_task.c ****     referee_recv_info->init_flag = 1;
+  49:modules/referee/referee_task.c ****     return referee_recv_info;
+  50:modules/referee/referee_task.c **** }
+  51:modules/referee/referee_task.c **** 
+  52:modules/referee/referee_task.c **** 
+  53:modules/referee/referee_task.c **** void UITask()
+  54:modules/referee/referee_task.c **** {
+  55:modules/referee/referee_task.c ****     // RobotModeTest(Interactive_data); // 测试用函数，实现模式自动变化,用于检查�
+  56:modules/referee/referee_task.c ****     MyUIRefresh(referee_recv_info, Interactive_data);
+  57:modules/referee/referee_task.c **** }
+  58:modules/referee/referee_task.c **** 
+  59:modules/referee/referee_task.c **** void MyUIInit()
+  60:modules/referee/referee_task.c **** {
+  61:modules/referee/referee_task.c ****     if (!referee_recv_info->init_flag)
+  62:modules/referee/referee_task.c ****         vTaskDelete(NULL); // 如果没有初始化裁判系统则直接删除ui任务
+  63:modules/referee/referee_task.c ****     while (referee_recv_info->GameRobotState.robot_id == 0)
+  64:modules/referee/referee_task.c ****         osDelay(100); // 若还未收到裁判系统数据,等待一段时间后再检查
+  65:modules/referee/referee_task.c **** 
+  66:modules/referee/referee_task.c ****     DeterminRobotID();                                            // 确定ui要发送到的目标�
+  67:modules/referee/referee_task.c ****     UIDelete(&referee_recv_info->referee_id, UI_Data_Del_ALL, 0); // 清空UI
+  68:modules/referee/referee_task.c **** 
+  69:modules/referee/referee_task.c ****     InfantryStaticUI(referee_recv_info);
+  70:modules/referee/referee_task.c **** }
+  71:modules/referee/referee_task.c **** 
+  72:modules/referee/referee_task.c **** 
+  73:modules/referee/referee_task.c **** // 测试用函数，实现模式自动变化,用于检查该任务和裁判系统是否连接正�
+  74:modules/referee/referee_task.c **** static uint8_t count = 0;
+  75:modules/referee/referee_task.c **** static uint16_t count1 = 0;
+  76:modules/referee/referee_task.c **** static void RobotModeTest(Referee_Interactive_info_t *_Interactive_data) // 测试用函数，实�
+  77:modules/referee/referee_task.c **** {
+  78:modules/referee/referee_task.c ****     count++;
+  79:modules/referee/referee_task.c ****     if (count >= 50)
+  80:modules/referee/referee_task.c ****     {
+  81:modules/referee/referee_task.c ****         count = 0;
+  82:modules/referee/referee_task.c ****         count1++;
+  83:modules/referee/referee_task.c ****     }
+  84:modules/referee/referee_task.c ****     switch (count1 % 4)
+  85:modules/referee/referee_task.c ****     {
+  86:modules/referee/referee_task.c ****     case 0:
+  87:modules/referee/referee_task.c ****     {
+  88:modules/referee/referee_task.c ****         _Interactive_data->chassis_mode = CHASSIS_ZERO_FORCE;
+  89:modules/referee/referee_task.c ****         _Interactive_data->gimbal_mode = GIMBAL_ZERO_FORCE;
+  90:modules/referee/referee_task.c ****         _Interactive_data->shoot_mode = SHOOT_ON;
+  91:modules/referee/referee_task.c ****         _Interactive_data->friction_mode = FRICTION_ON;
+  92:modules/referee/referee_task.c ****         _Interactive_data->lid_mode = LID_OPEN;
+  93:modules/referee/referee_task.c ****         _Interactive_data->Chassis_Power_Data.chassis_power_mx += 3.5;
+  94:modules/referee/referee_task.c ****         if (_Interactive_data->Chassis_Power_Data.chassis_power_mx >= 18)
+  95:modules/referee/referee_task.c ****             _Interactive_data->Chassis_Power_Data.chassis_power_mx = 0;
+  96:modules/referee/referee_task.c ****         break;
+  97:modules/referee/referee_task.c ****     }
+  98:modules/referee/referee_task.c ****     case 1:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 4
+
+
+  99:modules/referee/referee_task.c ****     {
+ 100:modules/referee/referee_task.c ****         _Interactive_data->chassis_mode = CHASSIS_ROTATE;
+ 101:modules/referee/referee_task.c ****         _Interactive_data->gimbal_mode = GIMBAL_GYRO_MODE;
+ 102:modules/referee/referee_task.c ****         _Interactive_data->shoot_mode = SHOOT_OFF;
+ 103:modules/referee/referee_task.c ****         _Interactive_data->friction_mode = FRICTION_OFF;
+ 104:modules/referee/referee_task.c ****         _Interactive_data->lid_mode = LID_CLOSE;
+ 105:modules/referee/referee_task.c ****         break;
+ 106:modules/referee/referee_task.c ****     }
+ 107:modules/referee/referee_task.c ****     case 2:
+ 108:modules/referee/referee_task.c ****     {
+ 109:modules/referee/referee_task.c ****         _Interactive_data->chassis_mode = CHASSIS_NO_FOLLOW;
+ 110:modules/referee/referee_task.c ****         _Interactive_data->gimbal_mode = GIMBAL_GYRO_MODE;
+ 111:modules/referee/referee_task.c ****         _Interactive_data->shoot_mode = SHOOT_ON;
+ 112:modules/referee/referee_task.c ****         _Interactive_data->friction_mode = FRICTION_ON;
+ 113:modules/referee/referee_task.c ****         _Interactive_data->lid_mode = LID_OPEN;
+ 114:modules/referee/referee_task.c ****         break;
+ 115:modules/referee/referee_task.c ****     }
+ 116:modules/referee/referee_task.c ****     case 3:
+ 117:modules/referee/referee_task.c ****     {
+ 118:modules/referee/referee_task.c ****         _Interactive_data->chassis_mode = CHASSIS_FOLLOW_GIMBAL_YAW;
+ 119:modules/referee/referee_task.c ****         _Interactive_data->gimbal_mode = GIMBAL_ZERO_FORCE;
+ 120:modules/referee/referee_task.c ****         _Interactive_data->shoot_mode = SHOOT_OFF;
+ 121:modules/referee/referee_task.c ****         _Interactive_data->friction_mode = FRICTION_OFF;
+ 122:modules/referee/referee_task.c ****         _Interactive_data->lid_mode = LID_CLOSE;
+ 123:modules/referee/referee_task.c ****         break;
+ 124:modules/referee/referee_task.c ****     }
+ 125:modules/referee/referee_task.c ****     default:
+ 126:modules/referee/referee_task.c ****         break;
+ 127:modules/referee/referee_task.c ****     }
+ 128:modules/referee/referee_task.c **** }
+ 129:modules/referee/referee_task.c **** 
+ 130:modules/referee/referee_task.c **** static void MyUIRefresh(referee_info_t *referee_recv_info, Referee_Interactive_info_t *_Interactive
+ 131:modules/referee/referee_task.c **** {
+ 132:modules/referee/referee_task.c ****     UIChangeCheck(_Interactive_data);
+ 133:modules/referee/referee_task.c **** 
+ 134:modules/referee/referee_task.c ****     // 更新静态UI
+ 135:modules/referee/referee_task.c ****     if (Interactive_data->Referee_Interactive_Flag.refresh_flag == 1) 
+ 136:modules/referee/referee_task.c ****     {
+ 137:modules/referee/referee_task.c ****         InfantryStaticUI(referee_recv_info);
+ 138:modules/referee/referee_task.c ****         // switch (referee_recv_info->GameRobotState.robot_id)
+ 139:modules/referee/referee_task.c ****         // {
+ 140:modules/referee/referee_task.c ****         // case HERO_ROBOT:
+ 141:modules/referee/referee_task.c ****         //     break;
+ 142:modules/referee/referee_task.c ****         // case INFANTRY_ROBOT_3:
+ 143:modules/referee/referee_task.c ****         // case INFANTRY_ROBOT_4:
+ 144:modules/referee/referee_task.c ****         // case INFANTRY_ROBOT_5:
+ 145:modules/referee/referee_task.c ****         //     InfantryStaticUI(referee_recv_info);
+ 146:modules/referee/referee_task.c ****         //     Interactive_data->Referee_Interactive_Flag.refresh_flag++;
+ 147:modules/referee/referee_task.c ****         //     break;
+ 148:modules/referee/referee_task.c ****         // default:
+ 149:modules/referee/referee_task.c ****         //     break;
+ 150:modules/referee/referee_task.c ****         // }
+ 151:modules/referee/referee_task.c ****     }
+ 152:modules/referee/referee_task.c **** 
+ 153:modules/referee/referee_task.c ****     // 更新动态UI
+ 154:modules/referee/referee_task.c ****     InfantryDynamciscUI(referee_recv_info, Interactive_data);
+ 155:modules/referee/referee_task.c **** }
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 5
+
+
+ 156:modules/referee/referee_task.c **** 
+ 157:modules/referee/referee_task.c **** /**
+ 158:modules/referee/referee_task.c ****  * @brief  模式切换检测,模式发生切换时，对flag置位
+ 159:modules/referee/referee_task.c ****  * @param  Referee_Interactive_info_t *_Interactive_data
+ 160:modules/referee/referee_task.c ****  * @retval none
+ 161:modules/referee/referee_task.c ****  * @attention
+ 162:modules/referee/referee_task.c ****  */
+ 163:modules/referee/referee_task.c **** static void UIChangeCheck(Referee_Interactive_info_t *_Interactive_data)
+ 164:modules/referee/referee_task.c **** {
+  77              		.loc 1 164 1 is_stmt 1 view -0
+  78              		.cfi_startproc
+  79              		@ args = 0, pretend = 0, frame = 0
+  80              		@ frame_needed = 0, uses_anonymous_args = 0
+  81              		@ link register save eliminated.
+ 165:modules/referee/referee_task.c ****     if (_Interactive_data->chassis_mode != _Interactive_data->chassis_last_mode)
+  82              		.loc 1 165 5 view .LVU15
+  83              		.loc 1 165 26 is_stmt 0 view .LVU16
+  84 0000 4378     		ldrb	r3, [r0, #1]	@ zero_extendqisi2
+  85              		.loc 1 165 61 view .LVU17
+  86 0002 827A     		ldrb	r2, [r0, #10]	@ zero_extendqisi2
+  87              		.loc 1 165 8 view .LVU18
+  88 0004 9342     		cmp	r3, r2
+  89 0006 04D0     		beq	.L5
+ 166:modules/referee/referee_task.c ****     {
+ 167:modules/referee/referee_task.c ****         _Interactive_data->Referee_Interactive_Flag.chassis_flag = 1;
+  90              		.loc 1 167 9 is_stmt 1 view .LVU19
+  91              		.loc 1 167 66 is_stmt 0 view .LVU20
+  92 0008 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+  93 000a 42F00102 		orr	r2, r2, #1
+  94 000e 0270     		strb	r2, [r0]
+ 168:modules/referee/referee_task.c ****         _Interactive_data->chassis_last_mode = _Interactive_data->chassis_mode;
+  95              		.loc 1 168 9 is_stmt 1 view .LVU21
+  96              		.loc 1 168 46 is_stmt 0 view .LVU22
+  97 0010 8372     		strb	r3, [r0, #10]
+  98              	.L5:
+ 169:modules/referee/referee_task.c ****     }
+ 170:modules/referee/referee_task.c **** 
+ 171:modules/referee/referee_task.c ****     if (_Interactive_data->gimbal_mode != _Interactive_data->gimbal_last_mode)
+  99              		.loc 1 171 5 is_stmt 1 view .LVU23
+ 100              		.loc 1 171 26 is_stmt 0 view .LVU24
+ 101 0012 8378     		ldrb	r3, [r0, #2]	@ zero_extendqisi2
+ 102              		.loc 1 171 60 view .LVU25
+ 103 0014 C27A     		ldrb	r2, [r0, #11]	@ zero_extendqisi2
+ 104              		.loc 1 171 8 view .LVU26
+ 105 0016 9342     		cmp	r3, r2
+ 106 0018 04D0     		beq	.L6
+ 172:modules/referee/referee_task.c ****     {
+ 173:modules/referee/referee_task.c ****         _Interactive_data->Referee_Interactive_Flag.gimbal_flag = 1;
+ 107              		.loc 1 173 9 is_stmt 1 view .LVU27
+ 108              		.loc 1 173 65 is_stmt 0 view .LVU28
+ 109 001a 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+ 110 001c 42F00202 		orr	r2, r2, #2
+ 111 0020 0270     		strb	r2, [r0]
+ 174:modules/referee/referee_task.c ****         _Interactive_data->gimbal_last_mode = _Interactive_data->gimbal_mode;
+ 112              		.loc 1 174 9 is_stmt 1 view .LVU29
+ 113              		.loc 1 174 45 is_stmt 0 view .LVU30
+ 114 0022 C372     		strb	r3, [r0, #11]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 6
+
+
+ 115              	.L6:
+ 175:modules/referee/referee_task.c ****     }
+ 176:modules/referee/referee_task.c **** 
+ 177:modules/referee/referee_task.c ****     if (_Interactive_data->shoot_mode != _Interactive_data->shoot_last_mode)
+ 116              		.loc 1 177 5 is_stmt 1 view .LVU31
+ 117              		.loc 1 177 26 is_stmt 0 view .LVU32
+ 118 0024 C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+ 119              		.loc 1 177 59 view .LVU33
+ 120 0026 027B     		ldrb	r2, [r0, #12]	@ zero_extendqisi2
+ 121              		.loc 1 177 8 view .LVU34
+ 122 0028 9342     		cmp	r3, r2
+ 123 002a 04D0     		beq	.L7
+ 178:modules/referee/referee_task.c ****     {
+ 179:modules/referee/referee_task.c ****         _Interactive_data->Referee_Interactive_Flag.shoot_flag = 1;
+ 124              		.loc 1 179 9 is_stmt 1 view .LVU35
+ 125              		.loc 1 179 64 is_stmt 0 view .LVU36
+ 126 002c 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+ 127 002e 42F00402 		orr	r2, r2, #4
+ 128 0032 0270     		strb	r2, [r0]
+ 180:modules/referee/referee_task.c ****         _Interactive_data->shoot_last_mode = _Interactive_data->shoot_mode;
+ 129              		.loc 1 180 9 is_stmt 1 view .LVU37
+ 130              		.loc 1 180 44 is_stmt 0 view .LVU38
+ 131 0034 0373     		strb	r3, [r0, #12]
+ 132              	.L7:
+ 181:modules/referee/referee_task.c ****     }
+ 182:modules/referee/referee_task.c **** 
+ 183:modules/referee/referee_task.c ****     if (_Interactive_data->friction_mode != _Interactive_data->friction_last_mode)
+ 133              		.loc 1 183 5 is_stmt 1 view .LVU39
+ 134              		.loc 1 183 26 is_stmt 0 view .LVU40
+ 135 0036 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 136              		.loc 1 183 62 view .LVU41
+ 137 0038 427B     		ldrb	r2, [r0, #13]	@ zero_extendqisi2
+ 138              		.loc 1 183 8 view .LVU42
+ 139 003a 9342     		cmp	r3, r2
+ 140 003c 04D0     		beq	.L8
+ 184:modules/referee/referee_task.c ****     {
+ 185:modules/referee/referee_task.c ****         _Interactive_data->Referee_Interactive_Flag.friction_flag = 1;
+ 141              		.loc 1 185 9 is_stmt 1 view .LVU43
+ 142              		.loc 1 185 67 is_stmt 0 view .LVU44
+ 143 003e 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+ 144 0040 42F01002 		orr	r2, r2, #16
+ 145 0044 0270     		strb	r2, [r0]
+ 186:modules/referee/referee_task.c ****         _Interactive_data->friction_last_mode = _Interactive_data->friction_mode;
+ 146              		.loc 1 186 9 is_stmt 1 view .LVU45
+ 147              		.loc 1 186 47 is_stmt 0 view .LVU46
+ 148 0046 4373     		strb	r3, [r0, #13]
+ 149              	.L8:
+ 187:modules/referee/referee_task.c ****     }
+ 188:modules/referee/referee_task.c **** 
+ 189:modules/referee/referee_task.c ****     if (_Interactive_data->lid_mode != _Interactive_data->lid_last_mode)
+ 150              		.loc 1 189 5 is_stmt 1 view .LVU47
+ 151              		.loc 1 189 26 is_stmt 0 view .LVU48
+ 152 0048 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 153              		.loc 1 189 57 view .LVU49
+ 154 004a 827B     		ldrb	r2, [r0, #14]	@ zero_extendqisi2
+ 155              		.loc 1 189 8 view .LVU50
+ 156 004c 9342     		cmp	r3, r2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 7
+
+
+ 157 004e 04D0     		beq	.L9
+ 190:modules/referee/referee_task.c ****     {
+ 191:modules/referee/referee_task.c ****         _Interactive_data->Referee_Interactive_Flag.lid_flag = 1;
+ 158              		.loc 1 191 9 is_stmt 1 view .LVU51
+ 159              		.loc 1 191 62 is_stmt 0 view .LVU52
+ 160 0050 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+ 161 0052 42F00802 		orr	r2, r2, #8
+ 162 0056 0270     		strb	r2, [r0]
+ 192:modules/referee/referee_task.c ****         _Interactive_data->lid_last_mode = _Interactive_data->lid_mode;
+ 163              		.loc 1 192 9 is_stmt 1 view .LVU53
+ 164              		.loc 1 192 42 is_stmt 0 view .LVU54
+ 165 0058 8373     		strb	r3, [r0, #14]
+ 166              	.L9:
+ 193:modules/referee/referee_task.c ****     }
+ 194:modules/referee/referee_task.c **** 
+ 195:modules/referee/referee_task.c ****     if (_Interactive_data->Chassis_Power_Data.chassis_power_mx != _Interactive_data->Chassis_last_P
+ 167              		.loc 1 195 5 is_stmt 1 view .LVU55
+ 168              		.loc 1 195 46 is_stmt 0 view .LVU56
+ 169 005a D0F80630 		ldr	r3, [r0, #6]	@ unaligned
+ 170              		.loc 1 195 109 view .LVU57
+ 171 005e D0F80F20 		ldr	r2, [r0, #15]	@ unaligned
+ 172              		.loc 1 195 8 view .LVU58
+ 173 0062 07EE903A 		vmov	s15, r3
+ 174 0066 07EE102A 		vmov	s14, r2
+ 175 006a F4EE477A 		vcmp.f32	s15, s14
+ 176 006e F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 177 0072 05D0     		beq	.L4
+ 196:modules/referee/referee_task.c ****     {
+ 197:modules/referee/referee_task.c ****         _Interactive_data->Referee_Interactive_Flag.Power_flag = 1;
+ 178              		.loc 1 197 9 is_stmt 1 view .LVU59
+ 179              		.loc 1 197 64 is_stmt 0 view .LVU60
+ 180 0074 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+ 181 0076 42F02002 		orr	r2, r2, #32
+ 182 007a 0270     		strb	r2, [r0]
+ 198:modules/referee/referee_task.c ****         _Interactive_data->Chassis_last_Power_Data.chassis_power_mx = _Interactive_data->Chassis_Po
+ 183              		.loc 1 198 9 is_stmt 1 view .LVU61
+ 184              		.loc 1 198 69 is_stmt 0 view .LVU62
+ 185 007c C0F80F30 		str	r3, [r0, #15]	@ unaligned
+ 186              	.L4:
+ 199:modules/referee/referee_task.c ****     }
+ 200:modules/referee/referee_task.c **** }
+ 187              		.loc 1 200 1 view .LVU63
+ 188 0080 7047     		bx	lr
+ 189              		.cfi_endproc
+ 190              	.LFE282:
+ 192              		.section	.text.MyUIRefresh,"ax",%progbits
+ 193              		.align	1
+ 194              		.syntax unified
+ 195              		.thumb
+ 196              		.thumb_func
+ 198              	MyUIRefresh:
+ 199              	.LVL1:
+ 200              	.LFB281:
+ 131:modules/referee/referee_task.c ****     UIChangeCheck(_Interactive_data);
+ 201              		.loc 1 131 1 is_stmt 1 view -0
+ 202              		.cfi_startproc
+ 203              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 8
+
+
+ 204              		@ frame_needed = 0, uses_anonymous_args = 0
+ 131:modules/referee/referee_task.c ****     UIChangeCheck(_Interactive_data);
+ 205              		.loc 1 131 1 is_stmt 0 view .LVU65
+ 206 0000 10B5     		push	{r4, lr}
+ 207              		.cfi_def_cfa_offset 8
+ 208              		.cfi_offset 4, -8
+ 209              		.cfi_offset 14, -4
+ 210 0002 0446     		mov	r4, r0
+ 132:modules/referee/referee_task.c **** 
+ 211              		.loc 1 132 5 is_stmt 1 view .LVU66
+ 212 0004 0846     		mov	r0, r1
+ 213              	.LVL2:
+ 132:modules/referee/referee_task.c **** 
+ 214              		.loc 1 132 5 is_stmt 0 view .LVU67
+ 215 0006 FFF7FEFF 		bl	UIChangeCheck
+ 216              	.LVL3:
+ 135:modules/referee/referee_task.c ****     {
+ 217              		.loc 1 135 5 is_stmt 1 view .LVU68
+ 135:modules/referee/referee_task.c ****     {
+ 218              		.loc 1 135 25 is_stmt 0 view .LVU69
+ 219 000a 084B     		ldr	r3, .L15
+ 220 000c 1B68     		ldr	r3, [r3]
+ 135:modules/referee/referee_task.c ****     {
+ 221              		.loc 1 135 65 view .LVU70
+ 222 000e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 223 0010 03F0C003 		and	r3, r3, #192
+ 135:modules/referee/referee_task.c ****     {
+ 224              		.loc 1 135 8 view .LVU71
+ 225 0014 402B     		cmp	r3, #64
+ 226 0016 05D0     		beq	.L14
+ 227              	.L12:
+ 154:modules/referee/referee_task.c **** }
+ 228              		.loc 1 154 5 is_stmt 1 view .LVU72
+ 229 0018 044B     		ldr	r3, .L15
+ 230 001a 1968     		ldr	r1, [r3]
+ 231 001c 2046     		mov	r0, r4
+ 232 001e FFF7FEFF 		bl	InfantryDynamciscUI
+ 233              	.LVL4:
+ 155:modules/referee/referee_task.c **** 
+ 234              		.loc 1 155 1 is_stmt 0 view .LVU73
+ 235 0022 10BD     		pop	{r4, pc}
+ 236              	.LVL5:
+ 237              	.L14:
+ 137:modules/referee/referee_task.c ****         // switch (referee_recv_info->GameRobotState.robot_id)
+ 238              		.loc 1 137 9 is_stmt 1 view .LVU74
+ 239 0024 2046     		mov	r0, r4
+ 240 0026 FFF7FEFF 		bl	InfantryStaticUI
+ 241              	.LVL6:
+ 242 002a F5E7     		b	.L12
+ 243              	.L16:
+ 244              		.align	2
+ 245              	.L15:
+ 246 002c 00000000 		.word	Interactive_data
+ 247              		.cfi_endproc
+ 248              	.LFE281:
+ 250              		.section	.text.UITaskInit,"ax",%progbits
+ 251              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 9
+
+
+ 252              		.global	UITaskInit
+ 253              		.syntax unified
+ 254              		.thumb
+ 255              		.thumb_func
+ 257              	UITaskInit:
+ 258              	.LVL7:
+ 259              	.LFB277:
+  45:modules/referee/referee_task.c ****     referee_recv_info = RefereeInit(referee_usart_handle); // 初始化裁判系统的串口,并返
+ 260              		.loc 1 45 1 view -0
+ 261              		.cfi_startproc
+ 262              		@ args = 0, pretend = 0, frame = 0
+ 263              		@ frame_needed = 0, uses_anonymous_args = 0
+  45:modules/referee/referee_task.c ****     referee_recv_info = RefereeInit(referee_usart_handle); // 初始化裁判系统的串口,并返
+ 264              		.loc 1 45 1 is_stmt 0 view .LVU76
+ 265 0000 10B5     		push	{r4, lr}
+ 266              		.cfi_def_cfa_offset 8
+ 267              		.cfi_offset 4, -8
+ 268              		.cfi_offset 14, -4
+ 269 0002 0C46     		mov	r4, r1
+  46:modules/referee/referee_task.c ****     Interactive_data = UI_data;                            // 获取UI绘制需要的机器人状�
+ 270              		.loc 1 46 5 is_stmt 1 view .LVU77
+  46:modules/referee/referee_task.c ****     Interactive_data = UI_data;                            // 获取UI绘制需要的机器人状�
+ 271              		.loc 1 46 25 is_stmt 0 view .LVU78
+ 272 0004 FFF7FEFF 		bl	RefereeInit
+ 273              	.LVL8:
+  46:modules/referee/referee_task.c ****     Interactive_data = UI_data;                            // 获取UI绘制需要的机器人状�
+ 274              		.loc 1 46 23 discriminator 1 view .LVU79
+ 275 0008 034A     		ldr	r2, .L19
+ 276 000a 1060     		str	r0, [r2]
+  47:modules/referee/referee_task.c ****     referee_recv_info->init_flag = 1;
+ 277              		.loc 1 47 5 is_stmt 1 view .LVU80
+  47:modules/referee/referee_task.c ****     referee_recv_info->init_flag = 1;
+ 278              		.loc 1 47 22 is_stmt 0 view .LVU81
+ 279 000c 034A     		ldr	r2, .L19+4
+ 280 000e 1460     		str	r4, [r2]
+  48:modules/referee/referee_task.c ****     return referee_recv_info;
+ 281              		.loc 1 48 5 is_stmt 1 view .LVU82
+  48:modules/referee/referee_task.c ****     return referee_recv_info;
+ 282              		.loc 1 48 34 is_stmt 0 view .LVU83
+ 283 0010 0122     		movs	r2, #1
+ 284 0012 80F88A20 		strb	r2, [r0, #138]
+  49:modules/referee/referee_task.c **** }
+ 285              		.loc 1 49 5 is_stmt 1 view .LVU84
+  50:modules/referee/referee_task.c **** 
+ 286              		.loc 1 50 1 is_stmt 0 view .LVU85
+ 287 0016 10BD     		pop	{r4, pc}
+ 288              	.LVL9:
+ 289              	.L20:
+  50:modules/referee/referee_task.c **** 
+ 290              		.loc 1 50 1 view .LVU86
+ 291              		.align	2
+ 292              	.L19:
+ 293 0018 00000000 		.word	referee_recv_info
+ 294 001c 00000000 		.word	Interactive_data
+ 295              		.cfi_endproc
+ 296              	.LFE277:
+ 298              		.section	.text.UITask,"ax",%progbits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 10
+
+
+ 299              		.align	1
+ 300              		.global	UITask
+ 301              		.syntax unified
+ 302              		.thumb
+ 303              		.thumb_func
+ 305              	UITask:
+ 306              	.LFB278:
+  54:modules/referee/referee_task.c ****     // RobotModeTest(Interactive_data); // 测试用函数，实现模式自动变化,用于检查�
+ 307              		.loc 1 54 1 is_stmt 1 view -0
+ 308              		.cfi_startproc
+ 309              		@ args = 0, pretend = 0, frame = 0
+ 310              		@ frame_needed = 0, uses_anonymous_args = 0
+ 311 0000 08B5     		push	{r3, lr}
+ 312              		.cfi_def_cfa_offset 8
+ 313              		.cfi_offset 3, -8
+ 314              		.cfi_offset 14, -4
+  56:modules/referee/referee_task.c **** }
+ 315              		.loc 1 56 5 view .LVU88
+ 316 0002 034B     		ldr	r3, .L23
+ 317 0004 1968     		ldr	r1, [r3]
+ 318 0006 034B     		ldr	r3, .L23+4
+ 319 0008 1868     		ldr	r0, [r3]
+ 320 000a FFF7FEFF 		bl	MyUIRefresh
+ 321              	.LVL10:
+  57:modules/referee/referee_task.c **** 
+ 322              		.loc 1 57 1 is_stmt 0 view .LVU89
+ 323 000e 08BD     		pop	{r3, pc}
+ 324              	.L24:
+ 325              		.align	2
+ 326              	.L23:
+ 327 0010 00000000 		.word	Interactive_data
+ 328 0014 00000000 		.word	referee_recv_info
+ 329              		.cfi_endproc
+ 330              	.LFE278:
+ 332              		.section	.text.MyUIInit,"ax",%progbits
+ 333              		.align	1
+ 334              		.global	MyUIInit
+ 335              		.syntax unified
+ 336              		.thumb
+ 337              		.thumb_func
+ 339              	MyUIInit:
+ 340              	.LFB279:
+  60:modules/referee/referee_task.c ****     if (!referee_recv_info->init_flag)
+ 341              		.loc 1 60 1 is_stmt 1 view -0
+ 342              		.cfi_startproc
+ 343              		@ args = 0, pretend = 0, frame = 0
+ 344              		@ frame_needed = 0, uses_anonymous_args = 0
+ 345 0000 10B5     		push	{r4, lr}
+ 346              		.cfi_def_cfa_offset 8
+ 347              		.cfi_offset 4, -8
+ 348              		.cfi_offset 14, -4
+  61:modules/referee/referee_task.c ****         vTaskDelete(NULL); // 如果没有初始化裁判系统则直接删除ui任务
+ 349              		.loc 1 61 5 view .LVU91
+  61:modules/referee/referee_task.c ****         vTaskDelete(NULL); // 如果没有初始化裁判系统则直接删除ui任务
+ 350              		.loc 1 61 27 is_stmt 0 view .LVU92
+ 351 0002 0F4B     		ldr	r3, .L30
+ 352 0004 1B68     		ldr	r3, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 11
+
+
+ 353 0006 93F88A30 		ldrb	r3, [r3, #138]	@ zero_extendqisi2
+  61:modules/referee/referee_task.c ****         vTaskDelete(NULL); // 如果没有初始化裁判系统则直接删除ui任务
+ 354              		.loc 1 61 8 view .LVU93
+ 355 000a 33B9     		cbnz	r3, .L27
+  62:modules/referee/referee_task.c ****     while (referee_recv_info->GameRobotState.robot_id == 0)
+ 356              		.loc 1 62 9 is_stmt 1 view .LVU94
+ 357 000c 1846     		mov	r0, r3
+ 358 000e FFF7FEFF 		bl	vTaskDelete
+ 359              	.LVL11:
+ 360 0012 02E0     		b	.L27
+ 361              	.L28:
+  64:modules/referee/referee_task.c **** 
+ 362              		.loc 1 64 9 view .LVU95
+ 363 0014 6420     		movs	r0, #100
+ 364 0016 FFF7FEFF 		bl	osDelay
+ 365              	.LVL12:
+ 366              	.L27:
+  63:modules/referee/referee_task.c ****         osDelay(100); // 若还未收到裁判系统数据,等待一段时间后再检查
+ 367              		.loc 1 63 55 view .LVU96
+  63:modules/referee/referee_task.c ****         osDelay(100); // 若还未收到裁判系统数据,等待一段时间后再检查
+ 368              		.loc 1 63 29 is_stmt 0 view .LVU97
+ 369 001a 094B     		ldr	r3, .L30
+ 370 001c 1B68     		ldr	r3, [r3]
+  63:modules/referee/referee_task.c ****         osDelay(100); // 若还未收到裁判系统数据,等待一段时间后再检查
+ 371              		.loc 1 63 45 view .LVU98
+ 372 001e 93F84230 		ldrb	r3, [r3, #66]	@ zero_extendqisi2
+  63:modules/referee/referee_task.c ****         osDelay(100); // 若还未收到裁判系统数据,等待一段时间后再检查
+ 373              		.loc 1 63 55 view .LVU99
+ 374 0022 002B     		cmp	r3, #0
+ 375 0024 F6D0     		beq	.L28
+  66:modules/referee/referee_task.c ****     UIDelete(&referee_recv_info->referee_id, UI_Data_Del_ALL, 0); // 清空UI
+ 376              		.loc 1 66 5 is_stmt 1 view .LVU100
+ 377 0026 FFF7FEFF 		bl	DeterminRobotID
+ 378              	.LVL13:
+  67:modules/referee/referee_task.c **** 
+ 379              		.loc 1 67 5 view .LVU101
+  67:modules/referee/referee_task.c **** 
+ 380              		.loc 1 67 32 is_stmt 0 view .LVU102
+ 381 002a 054C     		ldr	r4, .L30
+  67:modules/referee/referee_task.c **** 
+ 382              		.loc 1 67 5 view .LVU103
+ 383 002c 0022     		movs	r2, #0
+ 384 002e 0221     		movs	r1, #2
+ 385 0030 2068     		ldr	r0, [r4]
+ 386 0032 FFF7FEFF 		bl	UIDelete
+ 387              	.LVL14:
+  69:modules/referee/referee_task.c **** }
+ 388              		.loc 1 69 5 is_stmt 1 view .LVU104
+ 389 0036 2068     		ldr	r0, [r4]
+ 390 0038 FFF7FEFF 		bl	InfantryStaticUI
+ 391              	.LVL15:
+  70:modules/referee/referee_task.c **** 
+ 392              		.loc 1 70 1 is_stmt 0 view .LVU105
+ 393 003c 10BD     		pop	{r4, pc}
+ 394              	.L31:
+ 395 003e 00BF     		.align	2
+ 396              	.L30:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 12
+
+
+ 397 0040 00000000 		.word	referee_recv_info
+ 398              		.cfi_endproc
+ 399              	.LFE279:
+ 401              		.global	UI_Seq
+ 402              		.section	.bss.UI_Seq,"aw",%nobits
+ 405              	UI_Seq:
+ 406 0000 00       		.space	1
+ 407              		.section	.bss.referee_recv_info,"aw",%nobits
+ 408              		.align	2
+ 411              	referee_recv_info:
+ 412 0000 00000000 		.space	4
+ 413              		.section	.bss.Interactive_data,"aw",%nobits
+ 414              		.align	2
+ 417              	Interactive_data:
+ 418 0000 00000000 		.space	4
+ 419              		.text
+ 420              	.Letext0:
+ 421              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 422              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 423              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 424              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 425              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 426              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 427              		.file 8 "modules/referee/referee_protocol.h"
+ 428              		.file 9 "modules/master_machine/master_process.h"
+ 429              		.file 10 "application/robot_def.h"
+ 430              		.file 11 "modules/referee/rm_referee.h"
+ 431              		.file 12 "Middlewares/Third_Party/FreeRTOS/Source/include/task.h"
+ 432              		.file 13 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h"
+ 433              		.file 14 "modules/referee/referee_UI.h"
+ 434              		.file 15 "application/config/infantry_robot/infantry_config.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 referee_task.c
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:21     .text.DeterminRobotID:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:26     .text.DeterminRobotID:00000000 DeterminRobotID
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:64     .text.DeterminRobotID:00000028 $d
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:411    .bss.referee_recv_info:00000000 referee_recv_info
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:69     .text.UIChangeCheck:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:74     .text.UIChangeCheck:00000000 UIChangeCheck
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:193    .text.MyUIRefresh:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:198    .text.MyUIRefresh:00000000 MyUIRefresh
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:246    .text.MyUIRefresh:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:417    .bss.Interactive_data:00000000 Interactive_data
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:251    .text.UITaskInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:257    .text.UITaskInit:00000000 UITaskInit
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:293    .text.UITaskInit:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:299    .text.UITask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:305    .text.UITask:00000000 UITask
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:327    .text.UITask:00000010 $d
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:333    .text.MyUIInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:339    .text.MyUIInit:00000000 MyUIInit
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:397    .text.MyUIInit:00000040 $d
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:405    .bss.UI_Seq:00000000 UI_Seq
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:406    .bss.UI_Seq:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:408    .bss.referee_recv_info:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccfiSTZe.s:414    .bss.Interactive_data:00000000 $d
+
+UNDEFINED SYMBOLS
+InfantryDynamciscUI
+InfantryStaticUI
+RefereeInit
+vTaskDelete
+osDelay
+UIDelete

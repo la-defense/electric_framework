@@ -1,0 +1,189 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"dac.c"
+  16              		.text
+  17              		.section	.text.MX_DAC_Init,"ax",%progbits
+  18              		.align	1
+  19              		.global	MX_DAC_Init
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	MX_DAC_Init:
+  25              		@ args = 0, pretend = 0, frame = 8
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 00B5     		push	{lr}
+  28 0002 83B0     		sub	sp, sp, #12
+  29 0004 0023     		movs	r3, #0
+  30 0006 0093     		str	r3, [sp]
+  31 0008 0193     		str	r3, [sp, #4]
+  32 000a 0B48     		ldr	r0, .L7
+  33 000c 0B4B     		ldr	r3, .L7+4
+  34 000e 0360     		str	r3, [r0]
+  35 0010 FFF7FEFF 		bl	HAL_DAC_Init
+  36 0014 50B9     		cbnz	r0, .L5
+  37              	.L2:
+  38 0016 0023     		movs	r3, #0
+  39 0018 0093     		str	r3, [sp]
+  40 001a 0193     		str	r3, [sp, #4]
+  41 001c 1022     		movs	r2, #16
+  42 001e 6946     		mov	r1, sp
+  43 0020 0548     		ldr	r0, .L7
+  44 0022 FFF7FEFF 		bl	HAL_DAC_ConfigChannel
+  45 0026 20B9     		cbnz	r0, .L6
+  46              	.L1:
+  47 0028 03B0     		add	sp, sp, #12
+  48              		@ sp needed
+  49 002a 00BD     		pop	{pc}
+  50              	.L5:
+  51 002c FFF7FEFF 		bl	Error_Handler
+  52 0030 F1E7     		b	.L2
+  53              	.L6:
+  54 0032 FFF7FEFF 		bl	Error_Handler
+  55 0036 F7E7     		b	.L1
+  56              	.L8:
+  57              		.align	2
+  58              	.L7:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s 			page 2
+
+
+  59 0038 00000000 		.word	hdac
+  60 003c 00740040 		.word	1073771520
+  62              		.section	.text.HAL_DAC_MspInit,"ax",%progbits
+  63              		.align	1
+  64              		.global	HAL_DAC_MspInit
+  65              		.syntax unified
+  66              		.thumb
+  67              		.thumb_func
+  69              	HAL_DAC_MspInit:
+  70              		@ args = 0, pretend = 0, frame = 32
+  71              		@ frame_needed = 0, uses_anonymous_args = 0
+  72 0000 00B5     		push	{lr}
+  73 0002 89B0     		sub	sp, sp, #36
+  74 0004 0023     		movs	r3, #0
+  75 0006 0393     		str	r3, [sp, #12]
+  76 0008 0493     		str	r3, [sp, #16]
+  77 000a 0593     		str	r3, [sp, #20]
+  78 000c 0693     		str	r3, [sp, #24]
+  79 000e 0793     		str	r3, [sp, #28]
+  80 0010 0268     		ldr	r2, [r0]
+  81 0012 124B     		ldr	r3, .L13
+  82 0014 9A42     		cmp	r2, r3
+  83 0016 01D0     		beq	.L12
+  84              	.L9:
+  85 0018 09B0     		add	sp, sp, #36
+  86              		@ sp needed
+  87 001a 00BD     		pop	{pc}
+  88              	.L12:
+  89 001c 0021     		movs	r1, #0
+  90 001e 0191     		str	r1, [sp, #4]
+  91 0020 03F5E233 		add	r3, r3, #115712
+  92 0024 1A6C     		ldr	r2, [r3, #64]
+  93 0026 42F00052 		orr	r2, r2, #536870912
+  94 002a 1A64     		str	r2, [r3, #64]
+  95 002c 1A6C     		ldr	r2, [r3, #64]
+  96 002e 02F00052 		and	r2, r2, #536870912
+  97 0032 0192     		str	r2, [sp, #4]
+  98 0034 019A     		ldr	r2, [sp, #4]
+  99 0036 0291     		str	r1, [sp, #8]
+ 100 0038 1A6B     		ldr	r2, [r3, #48]
+ 101 003a 42F00102 		orr	r2, r2, #1
+ 102 003e 1A63     		str	r2, [r3, #48]
+ 103 0040 1B6B     		ldr	r3, [r3, #48]
+ 104 0042 03F00103 		and	r3, r3, #1
+ 105 0046 0293     		str	r3, [sp, #8]
+ 106 0048 029B     		ldr	r3, [sp, #8]
+ 107 004a 2023     		movs	r3, #32
+ 108 004c 0393     		str	r3, [sp, #12]
+ 109 004e 0323     		movs	r3, #3
+ 110 0050 0493     		str	r3, [sp, #16]
+ 111 0052 03A9     		add	r1, sp, #12
+ 112 0054 0248     		ldr	r0, .L13+4
+ 113 0056 FFF7FEFF 		bl	HAL_GPIO_Init
+ 114 005a DDE7     		b	.L9
+ 115              	.L14:
+ 116              		.align	2
+ 117              	.L13:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s 			page 3
+
+
+ 118 005c 00740040 		.word	1073771520
+ 119 0060 00000240 		.word	1073872896
+ 121              		.section	.text.HAL_DAC_MspDeInit,"ax",%progbits
+ 122              		.align	1
+ 123              		.global	HAL_DAC_MspDeInit
+ 124              		.syntax unified
+ 125              		.thumb
+ 126              		.thumb_func
+ 128              	HAL_DAC_MspDeInit:
+ 129              		@ args = 0, pretend = 0, frame = 0
+ 130              		@ frame_needed = 0, uses_anonymous_args = 0
+ 131 0000 08B5     		push	{r3, lr}
+ 132 0002 0268     		ldr	r2, [r0]
+ 133 0004 064B     		ldr	r3, .L19
+ 134 0006 9A42     		cmp	r2, r3
+ 135 0008 00D0     		beq	.L18
+ 136              	.L15:
+ 137 000a 08BD     		pop	{r3, pc}
+ 138              	.L18:
+ 139 000c 054A     		ldr	r2, .L19+4
+ 140 000e 136C     		ldr	r3, [r2, #64]
+ 141 0010 23F00053 		bic	r3, r3, #536870912
+ 142 0014 1364     		str	r3, [r2, #64]
+ 143 0016 2021     		movs	r1, #32
+ 144 0018 0348     		ldr	r0, .L19+8
+ 145 001a FFF7FEFF 		bl	HAL_GPIO_DeInit
+ 146 001e F4E7     		b	.L15
+ 147              	.L20:
+ 148              		.align	2
+ 149              	.L19:
+ 150 0020 00740040 		.word	1073771520
+ 151 0024 00380240 		.word	1073887232
+ 152 0028 00000240 		.word	1073872896
+ 154              		.global	hdac
+ 155              		.section	.bss.hdac,"aw",%nobits
+ 156              		.align	2
+ 159              	hdac:
+ 160 0000 00000000 		.space	20
+ 160      00000000 
+ 160      00000000 
+ 160      00000000 
+ 160      00000000 
+ 161              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 dac.c
+C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s:18     .text.MX_DAC_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s:24     .text.MX_DAC_Init:00000000 MX_DAC_Init
+C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s:59     .text.MX_DAC_Init:00000038 $d
+C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s:159    .bss.hdac:00000000 hdac
+C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s:63     .text.HAL_DAC_MspInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s:69     .text.HAL_DAC_MspInit:00000000 HAL_DAC_MspInit
+C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s:118    .text.HAL_DAC_MspInit:0000005c $d
+C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s:122    .text.HAL_DAC_MspDeInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s:128    .text.HAL_DAC_MspDeInit:00000000 HAL_DAC_MspDeInit
+C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s:150    .text.HAL_DAC_MspDeInit:00000020 $d
+C:\Users\Administrator\AppData\Local\Temp\ccL8brBu.s:156    .bss.hdac:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_DAC_Init
+HAL_DAC_ConfigChannel
+Error_Handler
+HAL_GPIO_Init
+HAL_GPIO_DeInit

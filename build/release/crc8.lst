@@ -1,0 +1,163 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccJDLeki.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"crc8.c"
+  16              		.text
+  17              		.section	.text.crc_8,"ax",%progbits
+  18              		.align	1
+  19              		.global	crc_8
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	crc_8:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27              		@ link register save eliminated.
+  28 0000 0346     		mov	r3, r0
+  29 0002 10B1     		cbz	r0, .L6
+  30 0004 0020     		movs	r0, #0
+  31 0006 0246     		mov	r2, r0
+  32 0008 09E0     		b	.L2
+  33              	.L6:
+  34 000a 7047     		bx	lr
+  35              	.L4:
+  36 000c 13F801CB 		ldrb	ip, [r3], #1	@ zero_extendqisi2
+  37 0010 8CEA000C 		eor	ip, ip, r0
+  38 0014 0348     		ldr	r0, .L7
+  39 0016 10F80C00 		ldrb	r0, [r0, ip]	@ zero_extendqisi2
+  40 001a 0132     		adds	r2, r2, #1
+  41 001c 92B2     		uxth	r2, r2
+  42              	.L2:
+  43 001e 8A42     		cmp	r2, r1
+  44 0020 F4D3     		bcc	.L4
+  45 0022 7047     		bx	lr
+  46              	.L8:
+  47              		.align	2
+  48              	.L7:
+  49 0024 00000000 		.word	sht75_crc_table
+  51              		.section	.text.update_crc_8,"ax",%progbits
+  52              		.align	1
+  53              		.global	update_crc_8
+  54              		.syntax unified
+  55              		.thumb
+  56              		.thumb_func
+  58              	update_crc_8:
+  59              		@ args = 0, pretend = 0, frame = 0
+  60              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccJDLeki.s 			page 2
+
+
+  61              		@ link register save eliminated.
+  62 0000 4140     		eors	r1, r1, r0
+  63 0002 014B     		ldr	r3, .L10
+  64 0004 585C     		ldrb	r0, [r3, r1]	@ zero_extendqisi2
+  65 0006 7047     		bx	lr
+  66              	.L11:
+  67              		.align	2
+  68              	.L10:
+  69 0008 00000000 		.word	sht75_crc_table
+  71              		.section	.rodata.sht75_crc_table,"a"
+  72              		.align	2
+  75              	sht75_crc_table:
+  76 0000 00316253 		.ascii	"\0001bS\304\365\246\227\271\210\333\352}L\037.Cr!\020"
+  76      C4F5A697 
+  76      B988DBEA 
+  76      7D4C1F2E 
+  76      43722110 
+  77 0014 87B6E5D4 		.ascii	"\207\266\345\324\372\313\230\251>\017\\m\206\267\344"
+  77      FACB98A9 
+  77      3E0F5C6D 
+  77      86B7E4
+  78 0023 D5427320 		.ascii	"\325Bs \021?\016]l\373\312\231\250\305\364\247\226\001"
+  78      113F0E5D 
+  78      6CFBCA99 
+  78      A8C5F4A7 
+  78      9601
+  79 0035 3063527C 		.ascii	"0cR|M\036/\270\211\332\353=\014_n\371\310\233\252\204"
+  79      4D1E2FB8 
+  79      89DAEB3D 
+  79      0C5F6EF9 
+  79      C89BAA84 
+  80 0049 B5E6D740 		.ascii	"\265\346\327@q\"\023~O\034-\272\213\330\351\307\366"
+  80      7122137E 
+  80      4F1C2DBA 
+  80      8BD8E9C7 
+  80      F6
+  81 005a A5940332 		.ascii	"\245\224\0032aP\273\212\331\350\177N\035,\0023`Q\306"
+  81      6150BB8A 
+  81      D9E87F4E 
+  81      1D2C0233 
+  81      6051C6
+  82 006d F7A495F8 		.ascii	"\367\244\225\370\311\232\253<\015^oAp#\022\205\264\347"
+  82      C99AAB3C 
+  82      0D5E6F41 
+  82      70231285 
+  82      B4E7
+  83 007f D67A4B18 		.ascii	"\326zK\030)\276\217\334\355\303\362\241\220\0076eT9"
+  83      29BE8FDC 
+  83      EDC3F2A1 
+  83      90073665 
+  83      5439
+  84 0091 085B6AFD 		.ascii	"\010[j\375\314\237\256\200\261\342\323Du&\027\374\315"
+  84      CC9FAE80 
+  84      B1E2D344 
+  84      752617FC 
+  84      CD
+  85 00a2 9EAF3809 		.ascii	"\236\2578\011ZkEt'\026\201\260\343\322\277\216\335\354"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccJDLeki.s 			page 3
+
+
+  85      5A6B4574 
+  85      271681B0 
+  85      E3D2BF8E 
+  85      DDEC
+  86 00b4 7B4A1928 		.ascii	"{J\031(\0067dU\302\363\240\221Gv%\024\203\262\341\320"
+  86      06376455 
+  86      C2F3A091 
+  86      47762514 
+  86      83B2E1D0 
+  87 00c8 FECF9CAD 		.ascii	"\376\317\234\255:\013Xi\0045fW\300\361\242\223\275\214"
+  87      3A0B5869 
+  87      04356657 
+  87      C0F1A293 
+  87      BD8C
+  88 00da DFEE7948 		.ascii	"\337\356yH\033*\301\360\243\222\0054gVxI\032+\274\215"
+  88      1B2AC1F0 
+  88      A3920534 
+  88      67567849 
+  88      1A2BBC8D 
+  89 00ee DEEF82B3 		.ascii	"\336\357\202\263\340\321Fw$\025;\012Yh\377\316\235\254"
+  89      E0D14677 
+  89      24153B0A 
+  89      5968FFCE 
+  89      9DAC
+  90              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccJDLeki.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 crc8.c
+C:\Users\Administrator\AppData\Local\Temp\ccJDLeki.s:18     .text.crc_8:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccJDLeki.s:24     .text.crc_8:00000000 crc_8
+C:\Users\Administrator\AppData\Local\Temp\ccJDLeki.s:49     .text.crc_8:00000024 $d
+C:\Users\Administrator\AppData\Local\Temp\ccJDLeki.s:75     .rodata.sht75_crc_table:00000000 sht75_crc_table
+C:\Users\Administrator\AppData\Local\Temp\ccJDLeki.s:52     .text.update_crc_8:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccJDLeki.s:58     .text.update_crc_8:00000000 update_crc_8
+C:\Users\Administrator\AppData\Local\Temp\ccJDLeki.s:69     .text.update_crc_8:00000008 $d
+C:\Users\Administrator\AppData\Local\Temp\ccJDLeki.s:72     .rodata.sht75_crc_table:00000000 $d
+
+NO UNDEFINED SYMBOLS

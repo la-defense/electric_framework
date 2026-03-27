@@ -1,0 +1,157 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"freertos.c"
+  16              		.text
+  17              		.section	.text.StartDefaultTask,"ax",%progbits
+  18              		.align	1
+  19              		.global	StartDefaultTask
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	StartDefaultTask:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 08B5     		push	{r3, lr}
+  28 0002 FFF7FEFF 		bl	MX_USB_DEVICE_Init
+  29 0006 0020     		movs	r0, #0
+  30 0008 FFF7FEFF 		bl	osThreadTerminate
+  31 000c 08BD     		pop	{r3, pc}
+  33              		.section	.text.vApplicationGetIdleTaskMemory,"ax",%progbits
+  34              		.align	1
+  35              		.global	vApplicationGetIdleTaskMemory
+  36              		.syntax unified
+  37              		.thumb
+  38              		.thumb_func
+  40              	vApplicationGetIdleTaskMemory:
+  41              		@ args = 0, pretend = 0, frame = 0
+  42              		@ frame_needed = 0, uses_anonymous_args = 0
+  43              		@ link register save eliminated.
+  44 0000 034B     		ldr	r3, .L4
+  45 0002 0360     		str	r3, [r0]
+  46 0004 034B     		ldr	r3, .L4+4
+  47 0006 0B60     		str	r3, [r1]
+  48 0008 8023     		movs	r3, #128
+  49 000a 1360     		str	r3, [r2]
+  50 000c 7047     		bx	lr
+  51              	.L5:
+  52 000e 00BF     		.align	2
+  53              	.L4:
+  54 0010 00000000 		.word	xIdleTaskTCBBuffer
+  55 0014 00000000 		.word	xIdleStack
+  57              		.section	.text.MX_FREERTOS_Init,"ax",%progbits
+  58              		.align	1
+  59              		.global	MX_FREERTOS_Init
+  60              		.syntax unified
+  61              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s 			page 2
+
+
+  62              		.thumb_func
+  64              	MX_FREERTOS_Init:
+  65              		@ args = 0, pretend = 0, frame = 32
+  66              		@ frame_needed = 0, uses_anonymous_args = 0
+  67 0000 00B5     		push	{lr}
+  68 0002 89B0     		sub	sp, sp, #36
+  69 0004 0DF1040C 		add	ip, sp, #4
+  70 0008 DFF824E0 		ldr	lr, .L8+4
+  71 000c BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+  72 0010 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+  73 0014 9EE80700 		ldm	lr, {r0, r1, r2}
+  74 0018 8CE80700 		stm	ip, {r0, r1, r2}
+  75 001c 0021     		movs	r1, #0
+  76 001e 01A8     		add	r0, sp, #4
+  77 0020 FFF7FEFF 		bl	osThreadCreate
+  78 0024 014B     		ldr	r3, .L8
+  79 0026 1860     		str	r0, [r3]
+  80 0028 09B0     		add	sp, sp, #36
+  81              		@ sp needed
+  82 002a 00BD     		pop	{pc}
+  83              	.L9:
+  84              		.align	2
+  85              	.L8:
+  86 002c 00000000 		.word	defaultTaskHandle
+  87 0030 00000000 		.word	.LANCHOR0
+  89              		.section	.rodata.str1.4,"aMS",%progbits,1
+  90              		.align	2
+  91              	.LC0:
+  92 0000 64656661 		.ascii	"defaultTask\000"
+  92      756C7454 
+  92      61736B00 
+  93              		.section	.bss.xIdleStack,"aw",%nobits
+  94              		.align	2
+  97              	xIdleStack:
+  98 0000 00000000 		.space	512
+  98      00000000 
+  98      00000000 
+  98      00000000 
+  98      00000000 
+  99              		.section	.bss.xIdleTaskTCBBuffer,"aw",%nobits
+ 100              		.align	2
+ 103              	xIdleTaskTCBBuffer:
+ 104 0000 00000000 		.space	100
+ 104      00000000 
+ 104      00000000 
+ 104      00000000 
+ 104      00000000 
+ 105              		.global	defaultTaskHandle
+ 106              		.section	.bss.defaultTaskHandle,"aw",%nobits
+ 107              		.align	2
+ 110              	defaultTaskHandle:
+ 111 0000 00000000 		.space	4
+ 112              		.section	.rodata
+ 113              		.align	2
+ 114              		.set	.LANCHOR0,. + 0
+ 115              	.LC2:
+ 116 0000 00000000 		.word	.LC0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s 			page 3
+
+
+ 117 0004 00000000 		.word	StartDefaultTask
+ 118 0008 0000     		.short	0
+ 119 000a 0000     		.space	2
+ 120 000c 00000000 		.word	0
+ 121 0010 80000000 		.word	128
+ 122 0014 00000000 		.word	0
+ 123 0018 00000000 		.word	0
+ 124              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 freertos.c
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:18     .text.StartDefaultTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:24     .text.StartDefaultTask:00000000 StartDefaultTask
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:34     .text.vApplicationGetIdleTaskMemory:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:40     .text.vApplicationGetIdleTaskMemory:00000000 vApplicationGetIdleTaskMemory
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:54     .text.vApplicationGetIdleTaskMemory:00000010 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:103    .bss.xIdleTaskTCBBuffer:00000000 xIdleTaskTCBBuffer
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:97     .bss.xIdleStack:00000000 xIdleStack
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:58     .text.MX_FREERTOS_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:64     .text.MX_FREERTOS_Init:00000000 MX_FREERTOS_Init
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:86     .text.MX_FREERTOS_Init:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:110    .bss.defaultTaskHandle:00000000 defaultTaskHandle
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:90     .rodata.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:94     .bss.xIdleStack:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:100    .bss.xIdleTaskTCBBuffer:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:107    .bss.defaultTaskHandle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3zuveU.s:113    .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+MX_USB_DEVICE_Init
+osThreadTerminate
+osThreadCreate

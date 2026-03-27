@@ -1,0 +1,765 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"gimbal.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "application/gimbal/gimbal.c"
+  20              		.section	.rodata.GimbalInit.str1.4,"aMS",%progbits,1
+  21              		.align	2
+  22              	.LC0:
+  23 0000 67696D62 		.ascii	"gimbal_feed\000"
+  23      616C5F66 
+  23      65656400 
+  24              		.align	2
+  25              	.LC1:
+  26 000c 67696D62 		.ascii	"gimbal_cmd\000"
+  26      616C5F63 
+  26      6D6400
+  27              		.section	.text.GimbalInit,"ax",%progbits
+  28              		.align	1
+  29              		.global	GimbalInit
+  30              		.syntax unified
+  31              		.thumb
+  32              		.thumb_func
+  34              	GimbalInit:
+  35              	.LFB271:
+   1:application/gimbal/gimbal.c **** #include "gimbal.h"
+   2:application/gimbal/gimbal.c **** #include "robot_def.h"
+   3:application/gimbal/gimbal.c **** 
+   4:application/gimbal/gimbal.c **** #include "dji_motor.h"
+   5:application/gimbal/gimbal.c **** #include "xmmotor.h"
+   6:application/gimbal/gimbal.c **** 
+   7:application/gimbal/gimbal.c **** #include "ins_task.h"
+   8:application/gimbal/gimbal.c **** #include "message_center.h"
+   9:application/gimbal/gimbal.c **** #include "general_def.h"
+  10:application/gimbal/gimbal.c **** #include "bmi088.h"
+  11:application/gimbal/gimbal.c **** 
+  12:application/gimbal/gimbal.c **** static Gimbal_Config_s *gimbal_config;
+  13:application/gimbal/gimbal.c **** 
+  14:application/gimbal/gimbal.c **** static attitude_t *gimba_IMU_data; // 云台IMU数据
+  15:application/gimbal/gimbal.c **** static DJIMotorInstance *yaw_motor, *mini_yaw_motor, *pitch_motor;
+  16:application/gimbal/gimbal.c **** static XMMotorInstance *pitch_xmmotor;
+  17:application/gimbal/gimbal.c **** //static gimbal_mode_e last_mode;
+  18:application/gimbal/gimbal.c **** 
+  19:application/gimbal/gimbal.c **** static Publisher_t *gimbal_pub;                   // 云台应用消息发布者(云台反馈给cmd
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 2
+
+
+  20:application/gimbal/gimbal.c **** static Subscriber_t *gimbal_sub;                  // cmd控制消息订阅者
+  21:application/gimbal/gimbal.c **** static Gimbal_Upload_Data_s gimbal_feedback_data; // 回传给cmd的云台状态信息
+  22:application/gimbal/gimbal.c **** static Gimbal_Ctrl_Cmd_s gimbal_cmd_recv;         // 来自cmd的控制信息
+  23:application/gimbal/gimbal.c **** 
+  24:application/gimbal/gimbal.c **** static BMI088Instance *bmi088; // 云台IMU
+  25:application/gimbal/gimbal.c **** void GimbalInit()
+  26:application/gimbal/gimbal.c **** {   
+  36              		.loc 1 26 1 view -0
+  37              		.cfi_startproc
+  38              		@ args = 0, pretend = 0, frame = 0
+  39              		@ frame_needed = 0, uses_anonymous_args = 0
+  40 0000 38B5     		push	{r3, r4, r5, lr}
+  41              	.LCFI0:
+  42              		.cfi_def_cfa_offset 16
+  43              		.cfi_offset 3, -16
+  44              		.cfi_offset 4, -12
+  45              		.cfi_offset 5, -8
+  46              		.cfi_offset 14, -4
+  27:application/gimbal/gimbal.c ****     gimba_IMU_data = INS_Init(); // IMU先初始化,获取姿态数据指针赋给yaw电机的其�
+  47              		.loc 1 27 5 view .LVU1
+  48              		.loc 1 27 22 is_stmt 0 view .LVU2
+  49 0002 FFF7FEFF 		bl	INS_Init
+  50              	.LVL0:
+  51              		.loc 1 27 20 discriminator 1 view .LVU3
+  52 0006 1F4D     		ldr	r5, .L8
+  53 0008 2860     		str	r0, [r5]
+  28:application/gimbal/gimbal.c **** 
+  29:application/gimbal/gimbal.c ****     gimbal_config = GimbalConfigFeed();
+  54              		.loc 1 29 5 is_stmt 1 view .LVU4
+  55              		.loc 1 29 21 is_stmt 0 view .LVU5
+  56 000a FFF7FEFF 		bl	GimbalConfigFeed
+  57              	.LVL1:
+  58              		.loc 1 29 19 discriminator 1 view .LVU6
+  59 000e 1E4C     		ldr	r4, .L8+4
+  60 0010 2060     		str	r0, [r4]
+  30:application/gimbal/gimbal.c ****   
+  31:application/gimbal/gimbal.c ****     // yaw轴初始化
+  32:application/gimbal/gimbal.c ****     gimbal_config->yaw_motor_config.controller_param_init_config.other_angle_feedback_ptr = &gimba_
+  61              		.loc 1 32 5 is_stmt 1 view .LVU7
+  62              		.loc 1 32 108 is_stmt 0 view .LVU8
+  63 0012 2B68     		ldr	r3, [r5]
+  64              		.loc 1 32 93 view .LVU9
+  65 0014 03F12402 		add	r2, r3, #36
+  66              		.loc 1 32 91 view .LVU10
+  67 0018 4261     		str	r2, [r0, #20]
+  33:application/gimbal/gimbal.c ****     gimbal_config->yaw_motor_config.controller_param_init_config.other_speed_feedback_ptr = &gimba_
+  68              		.loc 1 33 5 is_stmt 1 view .LVU11
+  69              		.loc 1 33 93 is_stmt 0 view .LVU12
+  70 001a 0833     		adds	r3, r3, #8
+  71              		.loc 1 33 91 view .LVU13
+  72 001c 8361     		str	r3, [r0, #24]
+  34:application/gimbal/gimbal.c ****     yaw_motor = DJIMotorInit(&gimbal_config->yaw_motor_config);
+  73              		.loc 1 34 5 is_stmt 1 view .LVU14
+  74              		.loc 1 34 17 is_stmt 0 view .LVU15
+  75 001e 1430     		adds	r0, r0, #20
+  76 0020 FFF7FEFF 		bl	DJIMotorInit
+  77              	.LVL2:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 3
+
+
+  78              		.loc 1 34 15 discriminator 1 view .LVU16
+  79 0024 194B     		ldr	r3, .L8+8
+  80 0026 1860     		str	r0, [r3]
+  35:application/gimbal/gimbal.c ****     
+  36:application/gimbal/gimbal.c ****     // 小yaw轴初始化
+  37:application/gimbal/gimbal.c ****     if (gimbal_config->gimbal_type == MINI_GIMBAL)
+  81              		.loc 1 37 5 is_stmt 1 view .LVU17
+  82              		.loc 1 37 22 is_stmt 0 view .LVU18
+  83 0028 2068     		ldr	r0, [r4]
+  84 002a 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+  85              		.loc 1 37 8 view .LVU19
+  86 002c 012B     		cmp	r3, #1
+  87 002e 10D0     		beq	.L7
+  88              	.L2:
+  38:application/gimbal/gimbal.c ****    //     mini_yaw_motor = DJIMotorInit(&gimbal_config->mini_yaw_motor_config);
+  39:application/gimbal/gimbal.c ****     
+  40:application/gimbal/gimbal.c **** #ifdef _IS_IMU_ROLL
+  41:application/gimbal/gimbal.c ****     // PITCH
+  42:application/gimbal/gimbal.c ****     gimbal_config->pitch_motor_config.controller_param_init_config.other_angle_feedback_ptr = &gimb
+  43:application/gimbal/gimbal.c ****     gimbal_config->pitch_motor_config.controller_param_init_config.other_speed_feedback_ptr = &gimb
+  44:application/gimbal/gimbal.c **** #else
+  45:application/gimbal/gimbal.c ****     // PITCH
+  46:application/gimbal/gimbal.c ****     gimbal_config->pitch_motor_config.controller_param_init_config.other_angle_feedback_ptr = &gimb
+  47:application/gimbal/gimbal.c ****     gimbal_config->pitch_motor_config.controller_param_init_config.other_speed_feedback_ptr = &gimb
+  89              		.loc 1 47 5 is_stmt 1 view .LVU20
+  90              		.loc 1 47 110 is_stmt 0 view .LVU21
+  91 0030 144B     		ldr	r3, .L8
+  92 0032 1B68     		ldr	r3, [r3]
+  93              		.loc 1 47 93 view .LVU22
+  94 0034 C0F89031 		str	r3, [r0, #400]
+  48:application/gimbal/gimbal.c **** #endif
+  49:application/gimbal/gimbal.c **** 
+  50:application/gimbal/gimbal.c ****     // 电机对total_angle闭环,上电时为零,会保持静止,收到遥控器数据再动
+  51:application/gimbal/gimbal.c ****     switch (gimbal_config->pitch_motor_config.motor_type)
+  95              		.loc 1 51 5 is_stmt 1 view .LVU23
+  96              		.loc 1 51 46 is_stmt 0 view .LVU24
+  97 0038 90F82832 		ldrb	r3, [r0, #552]	@ zero_extendqisi2
+  98              		.loc 1 51 5 view .LVU25
+  99 003c 012B     		cmp	r3, #1
+ 100 003e 0DD0     		beq	.L3
+ 101 0040 072B     		cmp	r3, #7
+ 102 0042 11D1     		bne	.L5
+  52:application/gimbal/gimbal.c ****     {
+  53:application/gimbal/gimbal.c ****     case GM6020:
+  54:application/gimbal/gimbal.c ****         pitch_motor = DJIMotorInit(&gimbal_config->pitch_motor_config);
+  55:application/gimbal/gimbal.c ****         break;
+  56:application/gimbal/gimbal.c ****     case XMCY:
+  57:application/gimbal/gimbal.c ****         pitch_xmmotor = XMMotorInit(&gimbal_config->pitch_motor_config);
+ 103              		.loc 1 57 9 is_stmt 1 view .LVU26
+ 104              		.loc 1 57 25 is_stmt 0 view .LVU27
+ 105 0044 00F5C670 		add	r0, r0, #396
+ 106 0048 FFF7FEFF 		bl	XMMotorInit
+ 107              	.LVL3:
+ 108              		.loc 1 57 23 discriminator 1 view .LVU28
+ 109 004c 104B     		ldr	r3, .L8+12
+ 110 004e 1860     		str	r0, [r3]
+  58:application/gimbal/gimbal.c ****         break;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 4
+
+
+ 111              		.loc 1 58 9 is_stmt 1 view .LVU29
+ 112 0050 0AE0     		b	.L5
+ 113              	.L7:
+  46:application/gimbal/gimbal.c ****     gimbal_config->pitch_motor_config.controller_param_init_config.other_speed_feedback_ptr = &gimb
+ 114              		.loc 1 46 5 view .LVU30
+  46:application/gimbal/gimbal.c ****     gimbal_config->pitch_motor_config.controller_param_init_config.other_speed_feedback_ptr = &gimb
+ 115              		.loc 1 46 110 is_stmt 0 view .LVU31
+ 116 0052 2B68     		ldr	r3, [r5]
+  46:application/gimbal/gimbal.c ****     gimbal_config->pitch_motor_config.controller_param_init_config.other_speed_feedback_ptr = &gimb
+ 117              		.loc 1 46 95 view .LVU32
+ 118 0054 1C33     		adds	r3, r3, #28
+  46:application/gimbal/gimbal.c ****     gimbal_config->pitch_motor_config.controller_param_init_config.other_speed_feedback_ptr = &gimb
+ 119              		.loc 1 46 93 view .LVU33
+ 120 0056 C0F88C31 		str	r3, [r0, #396]
+ 121 005a E9E7     		b	.L2
+ 122              	.L3:
+  54:application/gimbal/gimbal.c ****         break;
+ 123              		.loc 1 54 9 is_stmt 1 view .LVU34
+  54:application/gimbal/gimbal.c ****         break;
+ 124              		.loc 1 54 23 is_stmt 0 view .LVU35
+ 125 005c 00F5C670 		add	r0, r0, #396
+ 126 0060 FFF7FEFF 		bl	DJIMotorInit
+ 127              	.LVL4:
+  54:application/gimbal/gimbal.c ****         break;
+ 128              		.loc 1 54 21 discriminator 1 view .LVU36
+ 129 0064 0B4B     		ldr	r3, .L8+16
+ 130 0066 1860     		str	r0, [r3]
+  55:application/gimbal/gimbal.c ****     case XMCY:
+ 131              		.loc 1 55 9 is_stmt 1 view .LVU37
+ 132              	.L5:
+  59:application/gimbal/gimbal.c ****     default:
+  60:application/gimbal/gimbal.c ****         break;
+  61:application/gimbal/gimbal.c ****     }
+  62:application/gimbal/gimbal.c **** 
+  63:application/gimbal/gimbal.c ****     gimbal_pub = PubRegister("gimbal_feed", sizeof(Gimbal_Upload_Data_s));
+ 133              		.loc 1 63 5 view .LVU38
+ 134              		.loc 1 63 18 is_stmt 0 view .LVU39
+ 135 0068 2C21     		movs	r1, #44
+ 136 006a 0B48     		ldr	r0, .L8+20
+ 137 006c FFF7FEFF 		bl	PubRegister
+ 138              	.LVL5:
+ 139              		.loc 1 63 16 discriminator 1 view .LVU40
+ 140 0070 0A4B     		ldr	r3, .L8+24
+ 141 0072 1860     		str	r0, [r3]
+  64:application/gimbal/gimbal.c ****     gimbal_sub = SubRegister("gimbal_cmd", sizeof(Gimbal_Ctrl_Cmd_s));
+ 142              		.loc 1 64 5 is_stmt 1 view .LVU41
+ 143              		.loc 1 64 18 is_stmt 0 view .LVU42
+ 144 0074 1221     		movs	r1, #18
+ 145 0076 0A48     		ldr	r0, .L8+28
+ 146 0078 FFF7FEFF 		bl	SubRegister
+ 147              	.LVL6:
+ 148              		.loc 1 64 16 discriminator 1 view .LVU43
+ 149 007c 094B     		ldr	r3, .L8+32
+ 150 007e 1860     		str	r0, [r3]
+  65:application/gimbal/gimbal.c **** }
+ 151              		.loc 1 65 1 view .LVU44
+ 152 0080 38BD     		pop	{r3, r4, r5, pc}
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 5
+
+
+ 153              	.L9:
+ 154 0082 00BF     		.align	2
+ 155              	.L8:
+ 156 0084 00000000 		.word	gimba_IMU_data
+ 157 0088 00000000 		.word	gimbal_config
+ 158 008c 00000000 		.word	yaw_motor
+ 159 0090 00000000 		.word	pitch_xmmotor
+ 160 0094 00000000 		.word	pitch_motor
+ 161 0098 00000000 		.word	.LC0
+ 162 009c 00000000 		.word	gimbal_pub
+ 163 00a0 0C000000 		.word	.LC1
+ 164 00a4 00000000 		.word	gimbal_sub
+ 165              		.cfi_endproc
+ 166              	.LFE271:
+ 168              		.section	.text.GimbalTask,"ax",%progbits
+ 169              		.align	1
+ 170              		.global	GimbalTask
+ 171              		.syntax unified
+ 172              		.thumb
+ 173              		.thumb_func
+ 175              	GimbalTask:
+ 176              	.LFB272:
+  66:application/gimbal/gimbal.c **** 
+  67:application/gimbal/gimbal.c **** /* 机器人云台控制核心任务,后续考虑只保留IMU控制,不再需要电机的反馈 */
+  68:application/gimbal/gimbal.c **** void GimbalTask()
+  69:application/gimbal/gimbal.c **** {
+ 177              		.loc 1 69 1 is_stmt 1 view -0
+ 178              		.cfi_startproc
+ 179              		@ args = 0, pretend = 0, frame = 0
+ 180              		@ frame_needed = 0, uses_anonymous_args = 0
+ 181 0000 10B5     		push	{r4, lr}
+ 182              	.LCFI1:
+ 183              		.cfi_def_cfa_offset 8
+ 184              		.cfi_offset 4, -8
+ 185              		.cfi_offset 14, -4
+  70:application/gimbal/gimbal.c ****     // 获取云台控制数据
+  71:application/gimbal/gimbal.c ****     // 后续增加未收到数据的处理
+  72:application/gimbal/gimbal.c ****     SubGetMessage(gimbal_sub, &gimbal_cmd_recv);
+ 186              		.loc 1 72 5 view .LVU46
+ 187 0002 4F4C     		ldr	r4, .L23
+ 188 0004 2146     		mov	r1, r4
+ 189 0006 4F4B     		ldr	r3, .L23+4
+ 190 0008 1868     		ldr	r0, [r3]
+ 191 000a FFF7FEFF 		bl	SubGetMessage
+ 192              	.LVL7:
+  73:application/gimbal/gimbal.c **** 
+  74:application/gimbal/gimbal.c ****       // 只要是从无力模式切回控制模式，强制同步目标值
+  75:application/gimbal/gimbal.c ****     // if (gimbal_cmd_recv.last_mode == GIMBAL_ZERO_FORCE && gimbal_cmd_recv.gimbal_mode == GIMBAL_
+  76:application/gimbal/gimbal.c ****     // {
+  77:application/gimbal/gimbal.c ****     //     gimbal_cmd_recv.pitch = gimba_IMU_data->Pitch; // 目标 = 当前实际位置
+  78:application/gimbal/gimbal.c ****     // }
+  79:application/gimbal/gimbal.c **** 
+  80:application/gimbal/gimbal.c ****     // gimbal_cmd_recv.last_mode = gimbal_cmd_recv.gimbal_mode;
+  81:application/gimbal/gimbal.c ****     // 根据控制模式进行电机反馈切换和过渡,视觉模式在robot_cmd模块就已经�
+  82:application/gimbal/gimbal.c ****     switch (gimbal_cmd_recv.gimbal_mode)
+ 193              		.loc 1 82 5 view .LVU47
+ 194              		.loc 1 82 28 is_stmt 0 view .LVU48
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 6
+
+
+ 195 000e 237C     		ldrb	r3, [r4, #16]	@ zero_extendqisi2
+ 196              		.loc 1 82 5 view .LVU49
+ 197 0010 0BB3     		cbz	r3, .L11
+ 198 0012 012B     		cmp	r3, #1
+ 199 0014 3ED0     		beq	.L12
+ 200              	.L13:
+  83:application/gimbal/gimbal.c ****     {
+  84:application/gimbal/gimbal.c ****     // 停止
+  85:application/gimbal/gimbal.c ****     case GIMBAL_ZERO_FORCE:
+  86:application/gimbal/gimbal.c ****         DJIMotorStop(yaw_motor);
+  87:application/gimbal/gimbal.c **** 
+  88:application/gimbal/gimbal.c ****         if (gimbal_config->gimbal_type == MINI_GIMBAL)
+  89:application/gimbal/gimbal.c ****             DJIMotorStop(mini_yaw_motor);
+  90:application/gimbal/gimbal.c **** 
+  91:application/gimbal/gimbal.c ****         switch (gimbal_config->pitch_motor_config.motor_type)
+  92:application/gimbal/gimbal.c ****         {
+  93:application/gimbal/gimbal.c ****         case GM6020:
+  94:application/gimbal/gimbal.c ****             DJIMotorStop(pitch_motor);
+  95:application/gimbal/gimbal.c ****             break;
+  96:application/gimbal/gimbal.c ****         case XMCY:
+  97:application/gimbal/gimbal.c ****             XMMotorStop(pitch_xmmotor);
+  98:application/gimbal/gimbal.c ****             break;
+  99:application/gimbal/gimbal.c ****         default:
+ 100:application/gimbal/gimbal.c ****             break;
+ 101:application/gimbal/gimbal.c ****         }
+ 102:application/gimbal/gimbal.c ****         break;
+ 103:application/gimbal/gimbal.c ****     // 使用陀螺仪的反馈,底盘根据yaw电机的offset跟随云台或视觉模式采用
+ 104:application/gimbal/gimbal.c ****     case GIMBAL_GYRO_MODE: 
+ 105:application/gimbal/gimbal.c ****         DJIMotorEnable(yaw_motor);
+ 106:application/gimbal/gimbal.c ****         DJIMotorChangeFeed(yaw_motor, ANGLE_LOOP, OTHER_FEED);
+ 107:application/gimbal/gimbal.c ****         DJIMotorChangeFeed(yaw_motor, SPEED_LOOP, OTHER_FEED);
+ 108:application/gimbal/gimbal.c ****         DJIMotorSetRef(yaw_motor, gimbal_cmd_recv.yaw); // yaw和pitch会在robot_cmd中处理好�
+ 109:application/gimbal/gimbal.c **** 
+ 110:application/gimbal/gimbal.c ****         if (gimbal_config->gimbal_type == MINI_GIMBAL)
+ 111:application/gimbal/gimbal.c ****         {
+ 112:application/gimbal/gimbal.c ****             DJIMotorEnable(mini_yaw_motor);
+ 113:application/gimbal/gimbal.c ****             DJIMotorSetRef(mini_yaw_motor, gimbal_cmd_recv.mini_yaw); 
+ 114:application/gimbal/gimbal.c ****         }
+ 115:application/gimbal/gimbal.c ****     
+ 116:application/gimbal/gimbal.c ****         switch (gimbal_config->pitch_motor_config.motor_type)
+ 117:application/gimbal/gimbal.c ****         {
+ 118:application/gimbal/gimbal.c ****         case GM6020:
+ 119:application/gimbal/gimbal.c ****             DJIMotorEnable(pitch_motor);
+ 120:application/gimbal/gimbal.c ****             DJIMotorChangeFeed(pitch_motor, ANGLE_LOOP, OTHER_FEED);
+ 121:application/gimbal/gimbal.c ****             DJIMotorChangeFeed(pitch_motor, SPEED_LOOP, OTHER_FEED);
+ 122:application/gimbal/gimbal.c ****             DJIMotorSetRef(pitch_motor, gimbal_cmd_recv.pitch);
+ 123:application/gimbal/gimbal.c ****             break;
+ 124:application/gimbal/gimbal.c ****         case XMCY:
+ 125:application/gimbal/gimbal.c ****             XMMotorEnable(pitch_xmmotor);
+ 126:application/gimbal/gimbal.c ****             XMMotorChangeFeed(pitch_xmmotor, ANGLE_LOOP, OTHER_FEED);
+ 127:application/gimbal/gimbal.c ****             XMMotorChangeFeed(pitch_xmmotor, SPEED_LOOP, OTHER_FEED);
+ 128:application/gimbal/gimbal.c ****             XMMotorSetRef(pitch_xmmotor, gimbal_cmd_recv.pitch);
+ 129:application/gimbal/gimbal.c ****             break;
+ 130:application/gimbal/gimbal.c ****         default:
+ 131:application/gimbal/gimbal.c ****             break;
+ 132:application/gimbal/gimbal.c ****         }
+ 133:application/gimbal/gimbal.c ****         break;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 7
+
+
+ 134:application/gimbal/gimbal.c ****     default:
+ 135:application/gimbal/gimbal.c ****         break;
+ 136:application/gimbal/gimbal.c ****     }
+ 137:application/gimbal/gimbal.c ****     
+ 138:application/gimbal/gimbal.c ****     // 在合适的地方添加pitch重力补偿前馈力矩
+ 139:application/gimbal/gimbal.c ****     // 根据IMU姿态/pitch电机角度反馈计算出当前配重下的重力矩
+ 140:application/gimbal/gimbal.c ****     // ...
+ 141:application/gimbal/gimbal.c **** 
+ 142:application/gimbal/gimbal.c ****     // 设置反馈数据,主要是imu和yaw的ecd,还有云台电机状态
+ 143:application/gimbal/gimbal.c ****     gimbal_feedback_data.gimbal_imu_data = *gimba_IMU_data;
+ 201              		.loc 1 143 5 is_stmt 1 view .LVU50
+ 202              		.loc 1 143 42 is_stmt 0 view .LVU51
+ 203 0016 4C4C     		ldr	r4, .L23+8
+ 204 0018 A446     		mov	ip, r4
+ 205 001a 4C4B     		ldr	r3, .L23+12
+ 206 001c D3F800E0 		ldr	lr, [r3]
+ 207 0020 BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 208 0024 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 209 0028 BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 210 002c ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 211 0030 9EE80300 		ldm	lr, {r0, r1}
+ 212 0034 8CE80300 		stm	ip, {r0, r1}
+ 144:application/gimbal/gimbal.c ****     gimbal_feedback_data.yaw_motor_single_round_angle = yaw_motor->measure.angle_single_round;
+ 213              		.loc 1 144 5 is_stmt 1 view .LVU52
+ 214              		.loc 1 144 66 is_stmt 0 view .LVU53
+ 215 0038 454B     		ldr	r3, .L23+16
+ 216 003a 1B68     		ldr	r3, [r3]
+ 217              		.loc 1 144 75 view .LVU54
+ 218 003c D3ED017A 		vldr.32	s15, [r3, #4]
+ 219              		.loc 1 144 55 view .LVU55
+ 220 0040 FCEEE77A 		vcvt.u32.f32	s15, s15
+ 221 0044 17EE903A 		vmov	r3, s15	@ int
+ 222 0048 2385     		strh	r3, [r4, #40]	@ movhi
+ 145:application/gimbal/gimbal.c **** 
+ 146:application/gimbal/gimbal.c ****     // 根据电机状态反馈是否离线
+ 147:application/gimbal/gimbal.c ****     // DJIMotorIsOnline(yaw_motor);
+ 148:application/gimbal/gimbal.c ****     // DJIMotorIsOnline(pitch_motor);
+ 149:application/gimbal/gimbal.c ****     // // 反馈电机离线数量
+ 150:application/gimbal/gimbal.c ****     // if (yaw_motor->online_flag == MOTOR_OFFLINE || pitch_motor->online_flag == MOTOR_OFFLINE)
+ 151:application/gimbal/gimbal.c ****     // {
+ 152:application/gimbal/gimbal.c ****     //     gimbal_feedback_data.motor_offline_count = 1;
+ 153:application/gimbal/gimbal.c ****     //     gimbal_feedback_data.motor_state = GIMBAL_MOTOR_OFFLINE;
+ 154:application/gimbal/gimbal.c ****     // }
+ 155:application/gimbal/gimbal.c ****     // else if(yaw_motor->online_flag == MOTOR_OFFLINE && pitch_motor->online_flag == MOTOR_OFFLINE
+ 156:application/gimbal/gimbal.c ****     // {
+ 157:application/gimbal/gimbal.c ****     //     gimbal_feedback_data.motor_offline_count = 2;
+ 158:application/gimbal/gimbal.c ****     //     gimbal_feedback_data.motor_state = GIMBAL_MOTOR_OFFLINE;
+ 159:application/gimbal/gimbal.c ****     // }
+ 160:application/gimbal/gimbal.c ****     // else 
+ 161:application/gimbal/gimbal.c ****     // {
+ 162:application/gimbal/gimbal.c ****     //     gimbal_feedback_data.motor_offline_count = 0;
+ 163:application/gimbal/gimbal.c ****     //     gimbal_feedback_data.motor_state = GIMBAL_MOTOR_ONLINE;
+ 164:application/gimbal/gimbal.c ****     // }
+ 165:application/gimbal/gimbal.c **** 
+ 166:application/gimbal/gimbal.c ****     // 推送消息
+ 167:application/gimbal/gimbal.c ****     PubPushMessage(gimbal_pub, (void *)&gimbal_feedback_data);
+ 223              		.loc 1 167 5 is_stmt 1 view .LVU56
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 8
+
+
+ 224 004a 2146     		mov	r1, r4
+ 225 004c 414B     		ldr	r3, .L23+20
+ 226 004e 1868     		ldr	r0, [r3]
+ 227 0050 FFF7FEFF 		bl	PubPushMessage
+ 228              	.LVL8:
+ 168:application/gimbal/gimbal.c **** }...
+ 229              		.loc 1 168 1 is_stmt 0 view .LVU57
+ 230 0054 10BD     		pop	{r4, pc}
+ 231              	.L11:
+  86:application/gimbal/gimbal.c ****         DJIMotorStop(yaw_motor);
+ 232              		.loc 1 86 9 is_stmt 1 view .LVU58
+ 233 0056 3E4B     		ldr	r3, .L23+16
+ 234 0058 1868     		ldr	r0, [r3]
+ 235 005a FFF7FEFF 		bl	DJIMotorStop
+ 236              	.LVL9:
+  88:application/gimbal/gimbal.c ****         if (gimbal_config->gimbal_type == MINI_GIMBAL)
+ 237              		.loc 1 88 9 view .LVU59
+  88:application/gimbal/gimbal.c ****         if (gimbal_config->gimbal_type == MINI_GIMBAL)
+ 238              		.loc 1 88 26 is_stmt 0 view .LVU60
+ 239 005e 3E4B     		ldr	r3, .L23+24
+ 240 0060 1B68     		ldr	r3, [r3]
+ 241 0062 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  88:application/gimbal/gimbal.c ****         if (gimbal_config->gimbal_type == MINI_GIMBAL)
+ 242              		.loc 1 88 12 view .LVU61
+ 243 0064 012B     		cmp	r3, #1
+ 244 0066 0CD0     		beq	.L21
+ 245              	.L14:
+  91:application/gimbal/gimbal.c ****         switch (gimbal_config->pitch_motor_config.motor_type)
+ 246              		.loc 1 91 9 is_stmt 1 view .LVU62
+  91:application/gimbal/gimbal.c ****         switch (gimbal_config->pitch_motor_config.motor_type)
+ 247              		.loc 1 91 30 is_stmt 0 view .LVU63
+ 248 0068 3B4B     		ldr	r3, .L23+24
+ 249 006a 1B68     		ldr	r3, [r3]
+  91:application/gimbal/gimbal.c ****         switch (gimbal_config->pitch_motor_config.motor_type)
+ 250              		.loc 1 91 50 view .LVU64
+ 251 006c 93F82832 		ldrb	r3, [r3, #552]	@ zero_extendqisi2
+  91:application/gimbal/gimbal.c ****         switch (gimbal_config->pitch_motor_config.motor_type)
+ 252              		.loc 1 91 9 view .LVU65
+ 253 0070 012B     		cmp	r3, #1
+ 254 0072 0AD0     		beq	.L15
+ 255 0074 072B     		cmp	r3, #7
+ 256 0076 CED1     		bne	.L13
+  97:application/gimbal/gimbal.c ****             XMMotorStop(pitch_xmmotor);
+ 257              		.loc 1 97 13 is_stmt 1 view .LVU66
+ 258 0078 384B     		ldr	r3, .L23+28
+ 259 007a 1868     		ldr	r0, [r3]
+ 260 007c FFF7FEFF 		bl	XMMotorStop
+ 261              	.LVL10:
+  98:application/gimbal/gimbal.c ****             break;
+ 262              		.loc 1 98 13 view .LVU67
+ 263 0080 C9E7     		b	.L13
+ 264              	.L21:
+  89:application/gimbal/gimbal.c ****             DJIMotorStop(mini_yaw_motor);
+ 265              		.loc 1 89 13 view .LVU68
+ 266 0082 0020     		movs	r0, #0
+ 267 0084 FFF7FEFF 		bl	DJIMotorStop
+ 268              	.LVL11:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 9
+
+
+ 269 0088 EEE7     		b	.L14
+ 270              	.L15:
+  94:application/gimbal/gimbal.c ****             DJIMotorStop(pitch_motor);
+ 271              		.loc 1 94 13 view .LVU69
+ 272 008a 354B     		ldr	r3, .L23+32
+ 273 008c 1868     		ldr	r0, [r3]
+ 274 008e FFF7FEFF 		bl	DJIMotorStop
+ 275              	.LVL12:
+  95:application/gimbal/gimbal.c ****             break;
+ 276              		.loc 1 95 13 view .LVU70
+ 277 0092 C0E7     		b	.L13
+ 278              	.L12:
+ 105:application/gimbal/gimbal.c ****         DJIMotorEnable(yaw_motor);
+ 279              		.loc 1 105 9 view .LVU71
+ 280 0094 2E4C     		ldr	r4, .L23+16
+ 281 0096 2068     		ldr	r0, [r4]
+ 282 0098 FFF7FEFF 		bl	DJIMotorEnable
+ 283              	.LVL13:
+ 106:application/gimbal/gimbal.c ****         DJIMotorChangeFeed(yaw_motor, ANGLE_LOOP, OTHER_FEED);
+ 284              		.loc 1 106 9 view .LVU72
+ 285 009c 0122     		movs	r2, #1
+ 286 009e 0421     		movs	r1, #4
+ 287 00a0 2068     		ldr	r0, [r4]
+ 288 00a2 FFF7FEFF 		bl	DJIMotorChangeFeed
+ 289              	.LVL14:
+ 107:application/gimbal/gimbal.c ****         DJIMotorChangeFeed(yaw_motor, SPEED_LOOP, OTHER_FEED);
+ 290              		.loc 1 107 9 view .LVU73
+ 291 00a6 0122     		movs	r2, #1
+ 292 00a8 0221     		movs	r1, #2
+ 293 00aa 2068     		ldr	r0, [r4]
+ 294 00ac FFF7FEFF 		bl	DJIMotorChangeFeed
+ 295              	.LVL15:
+ 108:application/gimbal/gimbal.c ****         DJIMotorSetRef(yaw_motor, gimbal_cmd_recv.yaw); // yaw和pitch会在robot_cmd中处理好�
+ 296              		.loc 1 108 9 view .LVU74
+ 297 00b0 234B     		ldr	r3, .L23
+ 298 00b2 93ED010A 		vldr.32	s0, [r3, #4]
+ 299 00b6 2068     		ldr	r0, [r4]
+ 300 00b8 FFF7FEFF 		bl	DJIMotorSetRef
+ 301              	.LVL16:
+ 110:application/gimbal/gimbal.c ****         if (gimbal_config->gimbal_type == MINI_GIMBAL)
+ 302              		.loc 1 110 9 view .LVU75
+ 110:application/gimbal/gimbal.c ****         if (gimbal_config->gimbal_type == MINI_GIMBAL)
+ 303              		.loc 1 110 26 is_stmt 0 view .LVU76
+ 304 00bc 264B     		ldr	r3, .L23+24
+ 305 00be 1B68     		ldr	r3, [r3]
+ 306 00c0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 110:application/gimbal/gimbal.c ****         if (gimbal_config->gimbal_type == MINI_GIMBAL)
+ 307              		.loc 1 110 12 view .LVU77
+ 308 00c2 012B     		cmp	r3, #1
+ 309 00c4 1CD0     		beq	.L22
+ 310              	.L17:
+ 116:application/gimbal/gimbal.c ****         switch (gimbal_config->pitch_motor_config.motor_type)
+ 311              		.loc 1 116 9 is_stmt 1 view .LVU78
+ 116:application/gimbal/gimbal.c ****         switch (gimbal_config->pitch_motor_config.motor_type)
+ 312              		.loc 1 116 30 is_stmt 0 view .LVU79
+ 313 00c6 244B     		ldr	r3, .L23+24
+ 314 00c8 1B68     		ldr	r3, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 10
+
+
+ 116:application/gimbal/gimbal.c ****         switch (gimbal_config->pitch_motor_config.motor_type)
+ 315              		.loc 1 116 50 view .LVU80
+ 316 00ca 93F82832 		ldrb	r3, [r3, #552]	@ zero_extendqisi2
+ 116:application/gimbal/gimbal.c ****         switch (gimbal_config->pitch_motor_config.motor_type)
+ 317              		.loc 1 116 9 view .LVU81
+ 318 00ce 012B     		cmp	r3, #1
+ 319 00d0 20D0     		beq	.L18
+ 320 00d2 072B     		cmp	r3, #7
+ 321 00d4 9FD1     		bne	.L13
+ 125:application/gimbal/gimbal.c ****             XMMotorEnable(pitch_xmmotor);
+ 322              		.loc 1 125 13 is_stmt 1 view .LVU82
+ 323 00d6 214C     		ldr	r4, .L23+28
+ 324 00d8 2068     		ldr	r0, [r4]
+ 325 00da FFF7FEFF 		bl	XMMotorEnable
+ 326              	.LVL17:
+ 126:application/gimbal/gimbal.c ****             XMMotorChangeFeed(pitch_xmmotor, ANGLE_LOOP, OTHER_FEED);
+ 327              		.loc 1 126 13 view .LVU83
+ 328 00de 0122     		movs	r2, #1
+ 329 00e0 0421     		movs	r1, #4
+ 330 00e2 2068     		ldr	r0, [r4]
+ 331 00e4 FFF7FEFF 		bl	XMMotorChangeFeed
+ 332              	.LVL18:
+ 127:application/gimbal/gimbal.c ****             XMMotorChangeFeed(pitch_xmmotor, SPEED_LOOP, OTHER_FEED);
+ 333              		.loc 1 127 13 view .LVU84
+ 334 00e8 0122     		movs	r2, #1
+ 335 00ea 0221     		movs	r1, #2
+ 336 00ec 2068     		ldr	r0, [r4]
+ 337 00ee FFF7FEFF 		bl	XMMotorChangeFeed
+ 338              	.LVL19:
+ 128:application/gimbal/gimbal.c ****             XMMotorSetRef(pitch_xmmotor, gimbal_cmd_recv.pitch);
+ 339              		.loc 1 128 13 view .LVU85
+ 340 00f2 134B     		ldr	r3, .L23
+ 341 00f4 93ED020A 		vldr.32	s0, [r3, #8]
+ 342 00f8 2068     		ldr	r0, [r4]
+ 343 00fa FFF7FEFF 		bl	XMMotorSetRef
+ 344              	.LVL20:
+ 129:application/gimbal/gimbal.c ****             break;
+ 345              		.loc 1 129 13 view .LVU86
+ 346 00fe 8AE7     		b	.L13
+ 347              	.L22:
+ 112:application/gimbal/gimbal.c ****             DJIMotorEnable(mini_yaw_motor);
+ 348              		.loc 1 112 13 view .LVU87
+ 349 0100 0020     		movs	r0, #0
+ 350 0102 FFF7FEFF 		bl	DJIMotorEnable
+ 351              	.LVL21:
+ 113:application/gimbal/gimbal.c ****             DJIMotorSetRef(mini_yaw_motor, gimbal_cmd_recv.mini_yaw); 
+ 352              		.loc 1 113 13 view .LVU88
+ 353 0106 0E4B     		ldr	r3, .L23
+ 354 0108 93ED000A 		vldr.32	s0, [r3]
+ 355 010c 0020     		movs	r0, #0
+ 356 010e FFF7FEFF 		bl	DJIMotorSetRef
+ 357              	.LVL22:
+ 358 0112 D8E7     		b	.L17
+ 359              	.L18:
+ 119:application/gimbal/gimbal.c ****             DJIMotorEnable(pitch_motor);
+ 360              		.loc 1 119 13 view .LVU89
+ 361 0114 124C     		ldr	r4, .L23+32
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 11
+
+
+ 362 0116 2068     		ldr	r0, [r4]
+ 363 0118 FFF7FEFF 		bl	DJIMotorEnable
+ 364              	.LVL23:
+ 120:application/gimbal/gimbal.c ****             DJIMotorChangeFeed(pitch_motor, ANGLE_LOOP, OTHER_FEED);
+ 365              		.loc 1 120 13 view .LVU90
+ 366 011c 0122     		movs	r2, #1
+ 367 011e 0421     		movs	r1, #4
+ 368 0120 2068     		ldr	r0, [r4]
+ 369 0122 FFF7FEFF 		bl	DJIMotorChangeFeed
+ 370              	.LVL24:
+ 121:application/gimbal/gimbal.c ****             DJIMotorChangeFeed(pitch_motor, SPEED_LOOP, OTHER_FEED);
+ 371              		.loc 1 121 13 view .LVU91
+ 372 0126 0122     		movs	r2, #1
+ 373 0128 0221     		movs	r1, #2
+ 374 012a 2068     		ldr	r0, [r4]
+ 375 012c FFF7FEFF 		bl	DJIMotorChangeFeed
+ 376              	.LVL25:
+ 122:application/gimbal/gimbal.c ****             DJIMotorSetRef(pitch_motor, gimbal_cmd_recv.pitch);
+ 377              		.loc 1 122 13 view .LVU92
+ 378 0130 034B     		ldr	r3, .L23
+ 379 0132 93ED020A 		vldr.32	s0, [r3, #8]
+ 380 0136 2068     		ldr	r0, [r4]
+ 381 0138 FFF7FEFF 		bl	DJIMotorSetRef
+ 382              	.LVL26:
+ 123:application/gimbal/gimbal.c ****             break;
+ 383              		.loc 1 123 13 view .LVU93
+ 384 013c 6BE7     		b	.L13
+ 385              	.L24:
+ 386 013e 00BF     		.align	2
+ 387              	.L23:
+ 388 0140 00000000 		.word	gimbal_cmd_recv
+ 389 0144 00000000 		.word	gimbal_sub
+ 390 0148 00000000 		.word	gimbal_feedback_data
+ 391 014c 00000000 		.word	gimba_IMU_data
+ 392 0150 00000000 		.word	yaw_motor
+ 393 0154 00000000 		.word	gimbal_pub
+ 394 0158 00000000 		.word	gimbal_config
+ 395 015c 00000000 		.word	pitch_xmmotor
+ 396 0160 00000000 		.word	pitch_motor
+ 397              		.cfi_endproc
+ 398              	.LFE272:
+ 400              		.section	.bss.gimbal_cmd_recv,"aw",%nobits
+ 401              		.align	2
+ 404              	gimbal_cmd_recv:
+ 405 0000 00000000 		.space	18
+ 405      00000000 
+ 405      00000000 
+ 405      00000000 
+ 405      0000
+ 406              		.section	.bss.gimbal_feedback_data,"aw",%nobits
+ 407              		.align	2
+ 410              	gimbal_feedback_data:
+ 411 0000 00000000 		.space	44
+ 411      00000000 
+ 411      00000000 
+ 411      00000000 
+ 411      00000000 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 12
+
+
+ 412              		.section	.bss.gimbal_sub,"aw",%nobits
+ 413              		.align	2
+ 416              	gimbal_sub:
+ 417 0000 00000000 		.space	4
+ 418              		.section	.bss.gimbal_pub,"aw",%nobits
+ 419              		.align	2
+ 422              	gimbal_pub:
+ 423 0000 00000000 		.space	4
+ 424              		.section	.bss.pitch_xmmotor,"aw",%nobits
+ 425              		.align	2
+ 428              	pitch_xmmotor:
+ 429 0000 00000000 		.space	4
+ 430              		.section	.bss.pitch_motor,"aw",%nobits
+ 431              		.align	2
+ 434              	pitch_motor:
+ 435 0000 00000000 		.space	4
+ 436              		.section	.bss.yaw_motor,"aw",%nobits
+ 437              		.align	2
+ 440              	yaw_motor:
+ 441 0000 00000000 		.space	4
+ 442              		.section	.bss.gimba_IMU_data,"aw",%nobits
+ 443              		.align	2
+ 446              	gimba_IMU_data:
+ 447 0000 00000000 		.space	4
+ 448              		.section	.bss.gimbal_config,"aw",%nobits
+ 449              		.align	2
+ 452              	gimbal_config:
+ 453 0000 00000000 		.space	4
+ 454              		.text
+ 455              	.Letext0:
+ 456              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 457              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 458              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 459              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 460              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 461              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 462              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 463              		.file 9 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h"
+ 464              		.file 10 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h"
+ 465              		.file 11 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h"
+ 466              		.file 12 "modules/imu/ins_task.h"
+ 467              		.file 13 "bsp/can/bsp_can.h"
+ 468              		.file 14 "modules/algorithm/controller.h"
+ 469              		.file 15 "modules/motor/motor_def.h"
+ 470              		.file 16 "application/config/config.h"
+ 471              		.file 17 "application/robot_def.h"
+ 472              		.file 18 "modules/daemon/daemon.h"
+ 473              		.file 19 "modules/motor/DJImotor/dji_motor.h"
+ 474              		.file 20 "modules/motor/XMmotor/xmmotor.h"
+ 475              		.file 21 "modules/message_center/message_center.h"
+ 476              		.file 22 "bsp/spi/bsp_spi.h"
+ 477              		.file 23 "bsp/gpio/bsp_gpio.h"
+ 478              		.file 24 "bsp/pwm/bsp_pwm.h"
+ 479              		.file 25 "modules/BMI088/bmi088.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 gimbal.c
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:21     .rodata.GimbalInit.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:28     .text.GimbalInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:34     .text.GimbalInit:00000000 GimbalInit
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:156    .text.GimbalInit:00000084 $d
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:446    .bss.gimba_IMU_data:00000000 gimba_IMU_data
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:452    .bss.gimbal_config:00000000 gimbal_config
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:440    .bss.yaw_motor:00000000 yaw_motor
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:428    .bss.pitch_xmmotor:00000000 pitch_xmmotor
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:434    .bss.pitch_motor:00000000 pitch_motor
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:422    .bss.gimbal_pub:00000000 gimbal_pub
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:416    .bss.gimbal_sub:00000000 gimbal_sub
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:169    .text.GimbalTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:175    .text.GimbalTask:00000000 GimbalTask
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:388    .text.GimbalTask:00000140 $d
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:404    .bss.gimbal_cmd_recv:00000000 gimbal_cmd_recv
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:410    .bss.gimbal_feedback_data:00000000 gimbal_feedback_data
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:401    .bss.gimbal_cmd_recv:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:407    .bss.gimbal_feedback_data:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:413    .bss.gimbal_sub:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:419    .bss.gimbal_pub:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:425    .bss.pitch_xmmotor:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:431    .bss.pitch_motor:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:437    .bss.yaw_motor:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:443    .bss.gimba_IMU_data:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc7dhJ71.s:449    .bss.gimbal_config:00000000 $d
+
+UNDEFINED SYMBOLS
+INS_Init
+GimbalConfigFeed
+DJIMotorInit
+XMMotorInit
+PubRegister
+SubRegister
+SubGetMessage
+PubPushMessage
+DJIMotorStop
+XMMotorStop
+DJIMotorEnable
+DJIMotorChangeFeed
+DJIMotorSetRef
+XMMotorEnable
+XMMotorChangeFeed
+XMMotorSetRef

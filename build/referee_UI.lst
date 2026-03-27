@@ -1,0 +1,2621 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"referee_UI.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/referee/referee_UI.c"
+  20              		.section	.text.UIDelete,"ax",%progbits
+  21              		.align	1
+  22              		.global	UIDelete
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	UIDelete:
+  28              	.LVL0:
+  29              	.LFB276:
+   1:modules/referee/referee_UI.c **** /**
+   2:modules/referee/referee_UI.c ****  * @file referee_UI.C
+   3:modules/referee/referee_UI.c ****  * @author kidneygood (you@domain.com)
+   4:modules/referee/referee_UI.c ****  * @brief
+   5:modules/referee/referee_UI.c ****  * @version 0.1
+   6:modules/referee/referee_UI.c ****  * @date 2023-1-18
+   7:modules/referee/referee_UI.c ****  *
+   8:modules/referee/referee_UI.c ****  * @copyright Copyright (c) 2022
+   9:modules/referee/referee_UI.c ****  *
+  10:modules/referee/referee_UI.c ****  */
+  11:modules/referee/referee_UI.c **** #include "referee_UI.h"
+  12:modules/referee/referee_UI.c **** #include "string.h"
+  13:modules/referee/referee_UI.c **** #include "crc_ref.h"
+  14:modules/referee/referee_UI.c **** #include "stdio.h"
+  15:modules/referee/referee_UI.c **** #include "rm_referee.h"
+  16:modules/referee/referee_UI.c **** 
+  17:modules/referee/referee_UI.c **** // 包序号
+  18:modules/referee/referee_UI.c **** /********************************************删除操作*************************************
+  19:modules/referee/referee_UI.c **** **参数：_id 对应的id结构体
+  20:modules/referee/referee_UI.c **** 		Del_Operate  对应头文件删除操作
+  21:modules/referee/referee_UI.c **** 		Del_Layer    要删除的层 取值0-9
+  22:modules/referee/referee_UI.c **** *****************************************************************************************/
+  23:modules/referee/referee_UI.c **** void UIDelete(referee_id_t *_id, uint8_t Del_Operate, uint8_t Del_Layer)
+  24:modules/referee/referee_UI.c **** {
+  30              		.loc 1 24 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 24 1 is_stmt 0 view .LVU1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 2
+
+
+  35 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 32
+  38              		.cfi_offset 3, -32
+  39              		.cfi_offset 4, -28
+  40              		.cfi_offset 5, -24
+  41              		.cfi_offset 6, -20
+  42              		.cfi_offset 7, -16
+  43              		.cfi_offset 8, -12
+  44              		.cfi_offset 9, -8
+  45              		.cfi_offset 14, -4
+  46 0004 0546     		mov	r5, r0
+  47 0006 8946     		mov	r9, r1
+  48 0008 9046     		mov	r8, r2
+  25:modules/referee/referee_UI.c **** 	static UI_delete_t UI_delete_data;
+  49              		.loc 1 25 2 is_stmt 1 view .LVU2
+  26:modules/referee/referee_UI.c **** 	uint8_t temp_datalength = Interactive_Data_LEN_Head + UI_Operate_LEN_Del; // 计算交互数据长
+  50              		.loc 1 26 2 view .LVU3
+  51              	.LVL1:
+  27:modules/referee/referee_UI.c **** 
+  28:modules/referee/referee_UI.c **** 	UI_delete_data.FrameHeader.SOF = REFEREE_SOF;
+  52              		.loc 1 28 2 view .LVU4
+  53              		.loc 1 28 33 is_stmt 0 view .LVU5
+  54 000a 194C     		ldr	r4, .L3
+  55 000c A523     		movs	r3, #165
+  56 000e 2370     		strb	r3, [r4]
+  29:modules/referee/referee_UI.c **** 	UI_delete_data.FrameHeader.DataLength = temp_datalength;
+  57              		.loc 1 29 2 is_stmt 1 view .LVU6
+  58              		.loc 1 29 40 is_stmt 0 view .LVU7
+  59 0010 0027     		movs	r7, #0
+  60 0012 0823     		movs	r3, #8
+  61 0014 6370     		strb	r3, [r4, #1]
+  62 0016 A770     		strb	r7, [r4, #2]
+  30:modules/referee/referee_UI.c **** 	UI_delete_data.FrameHeader.Seq = UI_Seq;
+  63              		.loc 1 30 2 is_stmt 1 view .LVU8
+  64              		.loc 1 30 33 is_stmt 0 view .LVU9
+  65 0018 164E     		ldr	r6, .L3+4
+  66 001a 3378     		ldrb	r3, [r6]	@ zero_extendqisi2
+  67 001c E370     		strb	r3, [r4, #3]
+  31:modules/referee/referee_UI.c **** 	UI_delete_data.FrameHeader.CRC8 = Get_CRC8_Check_Sum((uint8_t *)&UI_delete_data, LEN_CRC8, 0xFF);
+  68              		.loc 1 31 2 is_stmt 1 view .LVU10
+  69              		.loc 1 31 36 is_stmt 0 view .LVU11
+  70 001e FF22     		movs	r2, #255
+  71              	.LVL2:
+  72              		.loc 1 31 36 view .LVU12
+  73 0020 0421     		movs	r1, #4
+  74              	.LVL3:
+  75              		.loc 1 31 36 view .LVU13
+  76 0022 2046     		mov	r0, r4
+  77              	.LVL4:
+  78              		.loc 1 31 36 view .LVU14
+  79 0024 FFF7FEFF 		bl	Get_CRC8_Check_Sum
+  80              	.LVL5:
+  81              		.loc 1 31 34 discriminator 1 view .LVU15
+  82 0028 2071     		strb	r0, [r4, #4]
+  32:modules/referee/referee_UI.c **** 
+  33:modules/referee/referee_UI.c **** 	UI_delete_data.CmdID = ID_student_interactive;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 3
+
+
+  83              		.loc 1 33 2 is_stmt 1 view .LVU16
+  84              		.loc 1 33 23 is_stmt 0 view .LVU17
+  85 002a 0123     		movs	r3, #1
+  86 002c 6371     		strb	r3, [r4, #5]
+  87 002e 0322     		movs	r2, #3
+  88 0030 A271     		strb	r2, [r4, #6]
+  34:modules/referee/referee_UI.c **** 
+  35:modules/referee/referee_UI.c **** 	UI_delete_data.datahead.data_cmd_id = UI_Data_ID_Del;
+  89              		.loc 1 35 2 is_stmt 1 view .LVU18
+  90              		.loc 1 35 38 is_stmt 0 view .LVU19
+  91 0032 E771     		strb	r7, [r4, #7]
+  92 0034 2372     		strb	r3, [r4, #8]
+  36:modules/referee/referee_UI.c **** 	UI_delete_data.datahead.receiver_ID = _id->Cilent_ID;
+  93              		.loc 1 36 2 is_stmt 1 view .LVU20
+  94              		.loc 1 36 43 is_stmt 0 view .LVU21
+  95 0036 B5F80330 		ldrh	r3, [r5, #3]	@ unaligned
+  96              		.loc 1 36 38 view .LVU22
+  97 003a A4F80B30 		strh	r3, [r4, #11]	@ unaligned
+  37:modules/referee/referee_UI.c **** 	UI_delete_data.datahead.sender_ID = _id->Robot_ID;
+  98              		.loc 1 37 2 is_stmt 1 view .LVU23
+  99              		.loc 1 37 41 is_stmt 0 view .LVU24
+ 100 003e B5F80130 		ldrh	r3, [r5, #1]	@ unaligned
+ 101              		.loc 1 37 36 view .LVU25
+ 102 0042 A4F80930 		strh	r3, [r4, #9]	@ unaligned
+  38:modules/referee/referee_UI.c **** 
+  39:modules/referee/referee_UI.c **** 	UI_delete_data.Delete_Operate = Del_Operate; // 删除操作
+ 103              		.loc 1 39 2 is_stmt 1 view .LVU26
+ 104              		.loc 1 39 32 is_stmt 0 view .LVU27
+ 105 0046 84F80D90 		strb	r9, [r4, #13]
+  40:modules/referee/referee_UI.c **** 	UI_delete_data.Layer = Del_Layer;
+ 106              		.loc 1 40 2 is_stmt 1 view .LVU28
+ 107              		.loc 1 40 23 is_stmt 0 view .LVU29
+ 108 004a 84F80E80 		strb	r8, [r4, #14]
+  41:modules/referee/referee_UI.c **** 
+  42:modules/referee/referee_UI.c **** 	UI_delete_data.frametail = Get_CRC16_Check_Sum((uint8_t *)&UI_delete_data, LEN_HEADER + LEN_CMDID 
+ 109              		.loc 1 42 2 is_stmt 1 view .LVU30
+ 110              		.loc 1 42 29 is_stmt 0 view .LVU31
+ 111 004e 4FF6FF72 		movw	r2, #65535
+ 112 0052 0F21     		movs	r1, #15
+ 113 0054 2046     		mov	r0, r4
+ 114 0056 FFF7FEFF 		bl	Get_CRC16_Check_Sum
+ 115              	.LVL6:
+ 116              		.loc 1 42 27 discriminator 1 view .LVU32
+ 117 005a A4F80F00 		strh	r0, [r4, #15]	@ unaligned
+  43:modules/referee/referee_UI.c **** 	/* 填入0xFFFF,关于crc校验 */
+  44:modules/referee/referee_UI.c **** 
+  45:modules/referee/referee_UI.c **** 	RefereeSend((uint8_t *)&UI_delete_data, LEN_HEADER + LEN_CMDID + temp_datalength + LEN_TAIL); // �
+ 118              		.loc 1 45 2 is_stmt 1 view .LVU33
+ 119 005e 1121     		movs	r1, #17
+ 120 0060 2046     		mov	r0, r4
+ 121 0062 FFF7FEFF 		bl	RefereeSend
+ 122              	.LVL7:
+  46:modules/referee/referee_UI.c **** 
+  47:modules/referee/referee_UI.c **** 	UI_Seq++; // 包序号+1
+ 123              		.loc 1 47 2 view .LVU34
+ 124              		.loc 1 47 8 is_stmt 0 view .LVU35
+ 125 0066 3378     		ldrb	r3, [r6]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 4
+
+
+ 126 0068 0133     		adds	r3, r3, #1
+ 127 006a 3370     		strb	r3, [r6]
+  48:modules/referee/referee_UI.c **** }
+ 128              		.loc 1 48 1 view .LVU36
+ 129 006c BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 130              	.LVL8:
+ 131              	.L4:
+ 132              		.loc 1 48 1 view .LVU37
+ 133              		.align	2
+ 134              	.L3:
+ 135 0070 00000000 		.word	UI_delete_data.2
+ 136 0074 00000000 		.word	UI_Seq
+ 137              		.cfi_endproc
+ 138              	.LFE276:
+ 140              		.section	.text.UILineDraw,"ax",%progbits
+ 141              		.align	1
+ 142              		.global	UILineDraw
+ 143              		.syntax unified
+ 144              		.thumb
+ 145              		.thumb_func
+ 147              	UILineDraw:
+ 148              	.LVL9:
+ 149              	.LFB277:
+  49:modules/referee/referee_UI.c **** /************************************************绘制直线**************************************
+  50:modules/referee/referee_UI.c **** **参数：*graph Graph_Data类型变量指针，用于存放图形数据
+  51:modules/referee/referee_UI.c **** 		graphname[3]   图片名称，用于标识更改
+  52:modules/referee/referee_UI.c **** 		Graph_Operate   图片操作，见头文件
+  53:modules/referee/referee_UI.c **** 		Graph_Layer    图层0-9
+  54:modules/referee/referee_UI.c **** 		Graph_Color    图形颜色
+  55:modules/referee/referee_UI.c **** 		Graph_Width    图形线宽
+  56:modules/referee/referee_UI.c **** 		Start_x、Start_y  起点xy坐标
+  57:modules/referee/referee_UI.c **** 		End_x、End_y   终点xy坐标
+  58:modules/referee/referee_UI.c **** ***************************************************************************************************
+  59:modules/referee/referee_UI.c **** 
+  60:modules/referee/referee_UI.c **** void UILineDraw(Graph_Data_t *graph, char graphname[3], uint32_t Graph_Operate, uint32_t Graph_Laye
+  61:modules/referee/referee_UI.c **** 				uint32_t Graph_Width, uint32_t Start_x, uint32_t Start_y, uint32_t End_x, uint32_t End_y)
+  62:modules/referee/referee_UI.c **** {
+ 150              		.loc 1 62 1 is_stmt 1 view -0
+ 151              		.cfi_startproc
+ 152              		@ args = 24, pretend = 0, frame = 0
+ 153              		@ frame_needed = 0, uses_anonymous_args = 0
+ 154              		.loc 1 62 1 is_stmt 0 view .LVU39
+ 155 0000 30B5     		push	{r4, r5, lr}
+ 156              	.LCFI1:
+ 157              		.cfi_def_cfa_offset 12
+ 158              		.cfi_offset 4, -12
+ 159              		.cfi_offset 5, -8
+ 160              		.cfi_offset 14, -4
+ 161 0002 0C46     		mov	r4, r1
+ 162 0004 9E46     		mov	lr, r3
+ 163 0006 0799     		ldr	r1, [sp, #28]
+ 164              	.LVL10:
+  63:modules/referee/referee_UI.c **** 	int i;
+ 165              		.loc 1 63 2 is_stmt 1 view .LVU40
+  64:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++) // 填充至‘0’为止
+ 166              		.loc 1 64 2 view .LVU41
+ 167              		.loc 1 64 9 is_stmt 0 view .LVU42
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 5
+
+
+ 168 0008 4FF0000C 		mov	ip, #0
+ 169              		.loc 1 64 2 view .LVU43
+ 170 000c 04E0     		b	.L6
+ 171              	.LVL11:
+ 172              	.L8:
+  65:modules/referee/referee_UI.c **** 	{
+  66:modules/referee/referee_UI.c **** 		graph->graphic_name[2 - i] = graphname[i]; // 按内存地址增大方向填充，所以会有i�
+ 173              		.loc 1 66 3 is_stmt 1 view .LVU44
+ 174              		.loc 1 66 25 is_stmt 0 view .LVU45
+ 175 000e CCF10205 		rsb	r5, ip, #2
+ 176              		.loc 1 66 30 view .LVU46
+ 177 0012 4355     		strb	r3, [r0, r5]
+  64:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++) // 填充至‘0’为止
+ 178              		.loc 1 64 46 is_stmt 1 discriminator 4 view .LVU47
+ 179 0014 0CF1010C 		add	ip, ip, #1
+ 180              	.LVL12:
+ 181              	.L6:
+  64:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++) // 填充至‘0’为止
+ 182              		.loc 1 64 20 discriminator 1 view .LVU48
+ 183 0018 BCF1020F 		cmp	ip, #2
+ 184 001c 03DC     		bgt	.L7
+  64:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++) // 填充至‘0’为止
+ 185              		.loc 1 64 32 is_stmt 0 discriminator 3 view .LVU49
+ 186 001e 14F80C30 		ldrb	r3, [r4, ip]	@ zero_extendqisi2
+  64:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++) // 填充至‘0’为止
+ 187              		.loc 1 64 20 discriminator 3 view .LVU50
+ 188 0022 002B     		cmp	r3, #0
+ 189 0024 F3D1     		bne	.L8
+ 190              	.L7:
+  67:modules/referee/referee_UI.c **** 	}
+  68:modules/referee/referee_UI.c **** 
+  69:modules/referee/referee_UI.c **** 	graph->operate_tpye = Graph_Operate;
+ 191              		.loc 1 69 2 is_stmt 1 view .LVU51
+ 192              		.loc 1 69 22 is_stmt 0 view .LVU52
+ 193 0026 C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+ 194 0028 62F30203 		bfi	r3, r2, #0, #3
+ 195 002c C370     		strb	r3, [r0, #3]
+  70:modules/referee/referee_UI.c **** 	graph->graphic_tpye = UI_Graph_Line;
+ 196              		.loc 1 70 2 is_stmt 1 view .LVU53
+ 197              		.loc 1 70 22 is_stmt 0 view .LVU54
+ 198 002e DBB2     		uxtb	r3, r3
+ 199 0030 23F03803 		bic	r3, r3, #56
+ 200 0034 C370     		strb	r3, [r0, #3]
+  71:modules/referee/referee_UI.c **** 	graph->layer = Graph_Layer;
+ 201              		.loc 1 71 2 is_stmt 1 view .LVU55
+ 202              		.loc 1 71 15 is_stmt 0 view .LVU56
+ 203 0036 0EF00304 		and	r4, lr, #3
+ 204              	.LVL13:
+ 205              		.loc 1 71 15 view .LVU57
+ 206 003a DBB2     		uxtb	r3, r3
+ 207 003c 03F03F03 		and	r3, r3, #63
+ 208 0040 43EA8413 		orr	r3, r3, r4, lsl #6
+ 209 0044 C370     		strb	r3, [r0, #3]
+ 210              	.LVL14:
+ 211              		.loc 1 71 15 view .LVU58
+ 212 0046 CEF3810E 		ubfx	lr, lr, #2, #2
+ 213              	.LVL15:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 6
+
+
+ 214              		.loc 1 71 15 view .LVU59
+ 215 004a 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 216 004c 23F00303 		bic	r3, r3, #3
+ 217 0050 43EA0E0E 		orr	lr, r3, lr
+ 218 0054 80F804E0 		strb	lr, [r0, #4]
+  72:modules/referee/referee_UI.c **** 	graph->color = Graph_Color;
+ 219              		.loc 1 72 2 is_stmt 1 view .LVU60
+ 220              		.loc 1 72 15 is_stmt 0 view .LVU61
+ 221 0058 5FFA8EF3 		uxtb	r3, lr
+ 222 005c 039C     		ldr	r4, [sp, #12]
+ 223 005e 64F38503 		bfi	r3, r4, #2, #4
+ 224              	.LVL16:
+ 225              		.loc 1 72 15 view .LVU62
+ 226 0062 0371     		strb	r3, [r0, #4]
+  73:modules/referee/referee_UI.c **** 
+  74:modules/referee/referee_UI.c **** 	graph->start_angle = 0;
+ 227              		.loc 1 74 2 is_stmt 1 view .LVU63
+ 228              		.loc 1 74 21 is_stmt 0 view .LVU64
+ 229 0064 DBB2     		uxtb	r3, r3
+ 230 0066 03F03F03 		and	r3, r3, #63
+ 231 006a 0371     		strb	r3, [r0, #4]
+ 232 006c 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 233 006e 23F07F03 		bic	r3, r3, #127
+ 234 0072 4371     		strb	r3, [r0, #5]
+  75:modules/referee/referee_UI.c **** 	graph->end_angle = 0;
+ 235              		.loc 1 75 2 is_stmt 1 view .LVU65
+ 236              		.loc 1 75 19 is_stmt 0 view .LVU66
+ 237 0074 DBB2     		uxtb	r3, r3
+ 238 0076 03F07F03 		and	r3, r3, #127
+ 239 007a 4371     		strb	r3, [r0, #5]
+ 240 007c 4FF0000C 		mov	ip, #0
+ 241              	.LVL17:
+ 242              		.loc 1 75 19 view .LVU67
+ 243 0080 80F806C0 		strb	ip, [r0, #6]
+  76:modules/referee/referee_UI.c **** 	graph->width = Graph_Width;
+ 244              		.loc 1 76 2 is_stmt 1 view .LVU68
+ 245              		.loc 1 76 15 is_stmt 0 view .LVU69
+ 246 0084 049B     		ldr	r3, [sp, #16]
+ 247 0086 C371     		strb	r3, [r0, #7]
+ 248 0088 C3F30124 		ubfx	r4, r3, #8, #2
+ 249 008c 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 250 008e 23F00303 		bic	r3, r3, #3
+ 251 0092 2343     		orrs	r3, r3, r4
+ 252 0094 0372     		strb	r3, [r0, #8]
+  77:modules/referee/referee_UI.c **** 	graph->start_x = Start_x;
+ 253              		.loc 1 77 2 is_stmt 1 view .LVU70
+ 254              		.loc 1 77 17 is_stmt 0 view .LVU71
+ 255 0096 059B     		ldr	r3, [sp, #20]
+ 256 0098 03F03F04 		and	r4, r3, #63
+ 257 009c 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 258 009e 03F00303 		and	r3, r3, #3
+ 259 00a2 43EA8403 		orr	r3, r3, r4, lsl #2
+ 260 00a6 0372     		strb	r3, [r0, #8]
+ 261 00a8 059B     		ldr	r3, [sp, #20]
+ 262 00aa C3F38414 		ubfx	r4, r3, #6, #5
+ 263 00ae 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 264 00b0 23F01F03 		bic	r3, r3, #31
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 7
+
+
+ 265 00b4 2343     		orrs	r3, r3, r4
+ 266 00b6 4372     		strb	r3, [r0, #9]
+  78:modules/referee/referee_UI.c **** 	graph->start_y = Start_y;
+ 267              		.loc 1 78 2 is_stmt 1 view .LVU72
+ 268              		.loc 1 78 17 is_stmt 0 view .LVU73
+ 269 00b8 069B     		ldr	r3, [sp, #24]
+ 270 00ba 03F00704 		and	r4, r3, #7
+ 271 00be 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 272 00c0 03F01F03 		and	r3, r3, #31
+ 273 00c4 43EA4413 		orr	r3, r3, r4, lsl #5
+ 274 00c8 4372     		strb	r3, [r0, #9]
+ 275 00ca 069B     		ldr	r3, [sp, #24]
+ 276 00cc C3F3C703 		ubfx	r3, r3, #3, #8
+ 277 00d0 8372     		strb	r3, [r0, #10]
+  79:modules/referee/referee_UI.c **** 	graph->radius = 0;
+ 278              		.loc 1 79 2 is_stmt 1 view .LVU74
+ 279              		.loc 1 79 16 is_stmt 0 view .LVU75
+ 280 00d2 80F80BC0 		strb	ip, [r0, #11]
+ 281 00d6 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 282 00d8 23F00303 		bic	r3, r3, #3
+ 283 00dc 0373     		strb	r3, [r0, #12]
+  80:modules/referee/referee_UI.c **** 	graph->end_x = End_x;
+ 284              		.loc 1 80 2 is_stmt 1 view .LVU76
+ 285              		.loc 1 80 15 is_stmt 0 view .LVU77
+ 286 00de 01F03F04 		and	r4, r1, #63
+ 287 00e2 DBB2     		uxtb	r3, r3
+ 288 00e4 03F00303 		and	r3, r3, #3
+ 289 00e8 43EA8403 		orr	r3, r3, r4, lsl #2
+ 290 00ec 0373     		strb	r3, [r0, #12]
+ 291 00ee C1F38411 		ubfx	r1, r1, #6, #5
+ 292 00f2 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 293 00f4 23F01F03 		bic	r3, r3, #31
+ 294 00f8 0B43     		orrs	r3, r3, r1
+ 295 00fa 4373     		strb	r3, [r0, #13]
+  81:modules/referee/referee_UI.c **** 	graph->end_y = End_y;
+ 296              		.loc 1 81 2 is_stmt 1 view .LVU78
+ 297              		.loc 1 81 15 is_stmt 0 view .LVU79
+ 298 00fc 089B     		ldr	r3, [sp, #32]
+ 299 00fe 03F00701 		and	r1, r3, #7
+ 300 0102 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 301 0104 03F01F03 		and	r3, r3, #31
+ 302 0108 43EA4113 		orr	r3, r3, r1, lsl #5
+ 303 010c 4373     		strb	r3, [r0, #13]
+ 304 010e 089B     		ldr	r3, [sp, #32]
+ 305 0110 C3F3C702 		ubfx	r2, r3, #3, #8
+ 306              	.LVL18:
+ 307              		.loc 1 81 15 view .LVU80
+ 308 0114 8273     		strb	r2, [r0, #14]
+  82:modules/referee/referee_UI.c **** }
+ 309              		.loc 1 82 1 view .LVU81
+ 310 0116 30BD     		pop	{r4, r5, pc}
+ 311              		.cfi_endproc
+ 312              	.LFE277:
+ 314              		.section	.text.UIRectangleDraw,"ax",%progbits
+ 315              		.align	1
+ 316              		.global	UIRectangleDraw
+ 317              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 8
+
+
+ 318              		.thumb
+ 319              		.thumb_func
+ 321              	UIRectangleDraw:
+ 322              	.LVL19:
+ 323              	.LFB278:
+  83:modules/referee/referee_UI.c **** 
+  84:modules/referee/referee_UI.c **** /************************************************绘制矩形**************************************
+  85:modules/referee/referee_UI.c **** **参数：*graph Graph_Data类型变量指针，用于存放图形数据
+  86:modules/referee/referee_UI.c **** 		graphname[3]   图片名称，用于标识更改
+  87:modules/referee/referee_UI.c **** 		Graph_Operate   图片操作，见头文件
+  88:modules/referee/referee_UI.c **** 		Graph_Layer    图层0-9
+  89:modules/referee/referee_UI.c **** 		Graph_Color    图形颜色
+  90:modules/referee/referee_UI.c **** 		Graph_Width    图形线宽
+  91:modules/referee/referee_UI.c **** 		Start_x、Start_y    起点xy坐标
+  92:modules/referee/referee_UI.c **** 		End_x、End_y        对角顶点xy坐标
+  93:modules/referee/referee_UI.c **** ***************************************************************************************************
+  94:modules/referee/referee_UI.c **** void UIRectangleDraw(Graph_Data_t *graph, char graphname[3], uint32_t Graph_Operate, uint32_t Graph
+  95:modules/referee/referee_UI.c **** 					 uint32_t Graph_Width, uint32_t Start_x, uint32_t Start_y, uint32_t End_x, uint32_t End_y)
+  96:modules/referee/referee_UI.c **** {
+ 324              		.loc 1 96 1 is_stmt 1 view -0
+ 325              		.cfi_startproc
+ 326              		@ args = 24, pretend = 0, frame = 0
+ 327              		@ frame_needed = 0, uses_anonymous_args = 0
+ 328              		.loc 1 96 1 is_stmt 0 view .LVU83
+ 329 0000 30B5     		push	{r4, r5, lr}
+ 330              	.LCFI2:
+ 331              		.cfi_def_cfa_offset 12
+ 332              		.cfi_offset 4, -12
+ 333              		.cfi_offset 5, -8
+ 334              		.cfi_offset 14, -4
+ 335 0002 0C46     		mov	r4, r1
+ 336 0004 9E46     		mov	lr, r3
+ 337 0006 0799     		ldr	r1, [sp, #28]
+ 338              	.LVL20:
+  97:modules/referee/referee_UI.c **** 	int i;
+ 339              		.loc 1 97 2 is_stmt 1 view .LVU84
+  98:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 340              		.loc 1 98 2 view .LVU85
+ 341              		.loc 1 98 9 is_stmt 0 view .LVU86
+ 342 0008 4FF0000C 		mov	ip, #0
+ 343              		.loc 1 98 2 view .LVU87
+ 344 000c 04E0     		b	.L11
+ 345              	.LVL21:
+ 346              	.L13:
+  99:modules/referee/referee_UI.c **** 	{
+ 100:modules/referee/referee_UI.c **** 		graph->graphic_name[2 - i] = graphname[i];
+ 347              		.loc 1 100 3 is_stmt 1 view .LVU88
+ 348              		.loc 1 100 25 is_stmt 0 view .LVU89
+ 349 000e CCF10205 		rsb	r5, ip, #2
+ 350              		.loc 1 100 30 view .LVU90
+ 351 0012 4355     		strb	r3, [r0, r5]
+  98:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 352              		.loc 1 98 46 is_stmt 1 discriminator 4 view .LVU91
+ 353 0014 0CF1010C 		add	ip, ip, #1
+ 354              	.LVL22:
+ 355              	.L11:
+  98:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 9
+
+
+ 356              		.loc 1 98 20 discriminator 1 view .LVU92
+ 357 0018 BCF1020F 		cmp	ip, #2
+ 358 001c 03DC     		bgt	.L12
+  98:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 359              		.loc 1 98 32 is_stmt 0 discriminator 3 view .LVU93
+ 360 001e 14F80C30 		ldrb	r3, [r4, ip]	@ zero_extendqisi2
+  98:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 361              		.loc 1 98 20 discriminator 3 view .LVU94
+ 362 0022 002B     		cmp	r3, #0
+ 363 0024 F3D1     		bne	.L13
+ 364              	.L12:
+ 101:modules/referee/referee_UI.c **** 	}
+ 102:modules/referee/referee_UI.c **** 
+ 103:modules/referee/referee_UI.c **** 	graph->graphic_tpye = UI_Graph_Rectangle;
+ 365              		.loc 1 103 2 is_stmt 1 view .LVU95
+ 366              		.loc 1 103 22 is_stmt 0 view .LVU96
+ 367 0026 C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+ 368 0028 0124     		movs	r4, #1
+ 369              	.LVL23:
+ 370              		.loc 1 103 22 view .LVU97
+ 371 002a 64F3C503 		bfi	r3, r4, #3, #3
+ 372 002e C370     		strb	r3, [r0, #3]
+ 104:modules/referee/referee_UI.c **** 	graph->operate_tpye = Graph_Operate;
+ 373              		.loc 1 104 2 is_stmt 1 view .LVU98
+ 374              		.loc 1 104 22 is_stmt 0 view .LVU99
+ 375 0030 DBB2     		uxtb	r3, r3
+ 376 0032 62F30203 		bfi	r3, r2, #0, #3
+ 377 0036 C370     		strb	r3, [r0, #3]
+ 105:modules/referee/referee_UI.c **** 	graph->layer = Graph_Layer;
+ 378              		.loc 1 105 2 is_stmt 1 view .LVU100
+ 379              		.loc 1 105 15 is_stmt 0 view .LVU101
+ 380 0038 0EF00304 		and	r4, lr, #3
+ 381 003c DBB2     		uxtb	r3, r3
+ 382 003e 03F03F03 		and	r3, r3, #63
+ 383 0042 43EA8413 		orr	r3, r3, r4, lsl #6
+ 384 0046 C370     		strb	r3, [r0, #3]
+ 385              	.LVL24:
+ 386              		.loc 1 105 15 view .LVU102
+ 387 0048 CEF3810E 		ubfx	lr, lr, #2, #2
+ 388              	.LVL25:
+ 389              		.loc 1 105 15 view .LVU103
+ 390 004c 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 391 004e 23F00303 		bic	r3, r3, #3
+ 392 0052 43EA0E0E 		orr	lr, r3, lr
+ 393 0056 80F804E0 		strb	lr, [r0, #4]
+ 106:modules/referee/referee_UI.c **** 	graph->color = Graph_Color;
+ 394              		.loc 1 106 2 is_stmt 1 view .LVU104
+ 395              		.loc 1 106 15 is_stmt 0 view .LVU105
+ 396 005a 5FFA8EF3 		uxtb	r3, lr
+ 397 005e 039C     		ldr	r4, [sp, #12]
+ 398 0060 64F38503 		bfi	r3, r4, #2, #4
+ 399              	.LVL26:
+ 400              		.loc 1 106 15 view .LVU106
+ 401 0064 0371     		strb	r3, [r0, #4]
+ 107:modules/referee/referee_UI.c **** 
+ 108:modules/referee/referee_UI.c **** 	graph->start_angle = 0;
+ 402              		.loc 1 108 2 is_stmt 1 view .LVU107
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 10
+
+
+ 403              		.loc 1 108 21 is_stmt 0 view .LVU108
+ 404 0066 DBB2     		uxtb	r3, r3
+ 405 0068 03F03F03 		and	r3, r3, #63
+ 406 006c 0371     		strb	r3, [r0, #4]
+ 407 006e 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 408 0070 23F07F03 		bic	r3, r3, #127
+ 409 0074 4371     		strb	r3, [r0, #5]
+ 109:modules/referee/referee_UI.c **** 	graph->end_angle = 0;
+ 410              		.loc 1 109 2 is_stmt 1 view .LVU109
+ 411              		.loc 1 109 19 is_stmt 0 view .LVU110
+ 412 0076 DBB2     		uxtb	r3, r3
+ 413 0078 03F07F03 		and	r3, r3, #127
+ 414 007c 4371     		strb	r3, [r0, #5]
+ 415 007e 4FF0000C 		mov	ip, #0
+ 416              	.LVL27:
+ 417              		.loc 1 109 19 view .LVU111
+ 418 0082 80F806C0 		strb	ip, [r0, #6]
+ 110:modules/referee/referee_UI.c **** 	graph->width = Graph_Width;
+ 419              		.loc 1 110 2 is_stmt 1 view .LVU112
+ 420              		.loc 1 110 15 is_stmt 0 view .LVU113
+ 421 0086 049B     		ldr	r3, [sp, #16]
+ 422 0088 C371     		strb	r3, [r0, #7]
+ 423 008a C3F30124 		ubfx	r4, r3, #8, #2
+ 424 008e 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 425 0090 23F00303 		bic	r3, r3, #3
+ 426 0094 2343     		orrs	r3, r3, r4
+ 427 0096 0372     		strb	r3, [r0, #8]
+ 111:modules/referee/referee_UI.c **** 	graph->start_x = Start_x;
+ 428              		.loc 1 111 2 is_stmt 1 view .LVU114
+ 429              		.loc 1 111 17 is_stmt 0 view .LVU115
+ 430 0098 059B     		ldr	r3, [sp, #20]
+ 431 009a 03F03F04 		and	r4, r3, #63
+ 432 009e 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 433 00a0 03F00303 		and	r3, r3, #3
+ 434 00a4 43EA8403 		orr	r3, r3, r4, lsl #2
+ 435 00a8 0372     		strb	r3, [r0, #8]
+ 436 00aa 059B     		ldr	r3, [sp, #20]
+ 437 00ac C3F38414 		ubfx	r4, r3, #6, #5
+ 438 00b0 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 439 00b2 23F01F03 		bic	r3, r3, #31
+ 440 00b6 2343     		orrs	r3, r3, r4
+ 441 00b8 4372     		strb	r3, [r0, #9]
+ 112:modules/referee/referee_UI.c **** 	graph->start_y = Start_y;
+ 442              		.loc 1 112 2 is_stmt 1 view .LVU116
+ 443              		.loc 1 112 17 is_stmt 0 view .LVU117
+ 444 00ba 069B     		ldr	r3, [sp, #24]
+ 445 00bc 03F00704 		and	r4, r3, #7
+ 446 00c0 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 447 00c2 03F01F03 		and	r3, r3, #31
+ 448 00c6 43EA4413 		orr	r3, r3, r4, lsl #5
+ 449 00ca 4372     		strb	r3, [r0, #9]
+ 450 00cc 069B     		ldr	r3, [sp, #24]
+ 451 00ce C3F3C703 		ubfx	r3, r3, #3, #8
+ 452 00d2 8372     		strb	r3, [r0, #10]
+ 113:modules/referee/referee_UI.c **** 	graph->radius = 0;
+ 453              		.loc 1 113 2 is_stmt 1 view .LVU118
+ 454              		.loc 1 113 16 is_stmt 0 view .LVU119
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 11
+
+
+ 455 00d4 80F80BC0 		strb	ip, [r0, #11]
+ 456 00d8 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 457 00da 23F00303 		bic	r3, r3, #3
+ 458 00de 0373     		strb	r3, [r0, #12]
+ 114:modules/referee/referee_UI.c **** 	graph->end_x = End_x;
+ 459              		.loc 1 114 2 is_stmt 1 view .LVU120
+ 460              		.loc 1 114 15 is_stmt 0 view .LVU121
+ 461 00e0 01F03F04 		and	r4, r1, #63
+ 462 00e4 DBB2     		uxtb	r3, r3
+ 463 00e6 03F00303 		and	r3, r3, #3
+ 464 00ea 43EA8403 		orr	r3, r3, r4, lsl #2
+ 465 00ee 0373     		strb	r3, [r0, #12]
+ 466 00f0 C1F38411 		ubfx	r1, r1, #6, #5
+ 467 00f4 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 468 00f6 23F01F03 		bic	r3, r3, #31
+ 469 00fa 0B43     		orrs	r3, r3, r1
+ 470 00fc 4373     		strb	r3, [r0, #13]
+ 115:modules/referee/referee_UI.c **** 	graph->end_y = End_y;
+ 471              		.loc 1 115 2 is_stmt 1 view .LVU122
+ 472              		.loc 1 115 15 is_stmt 0 view .LVU123
+ 473 00fe 089B     		ldr	r3, [sp, #32]
+ 474 0100 03F00701 		and	r1, r3, #7
+ 475 0104 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 476 0106 03F01F03 		and	r3, r3, #31
+ 477 010a 43EA4113 		orr	r3, r3, r1, lsl #5
+ 478 010e 4373     		strb	r3, [r0, #13]
+ 479 0110 089B     		ldr	r3, [sp, #32]
+ 480 0112 C3F3C702 		ubfx	r2, r3, #3, #8
+ 481              	.LVL28:
+ 482              		.loc 1 115 15 view .LVU124
+ 483 0116 8273     		strb	r2, [r0, #14]
+ 116:modules/referee/referee_UI.c **** }
+ 484              		.loc 1 116 1 view .LVU125
+ 485 0118 30BD     		pop	{r4, r5, pc}
+ 486              		.cfi_endproc
+ 487              	.LFE278:
+ 489              		.section	.text.UICircleDraw,"ax",%progbits
+ 490              		.align	1
+ 491              		.global	UICircleDraw
+ 492              		.syntax unified
+ 493              		.thumb
+ 494              		.thumb_func
+ 496              	UICircleDraw:
+ 497              	.LVL29:
+ 498              	.LFB279:
+ 117:modules/referee/referee_UI.c **** 
+ 118:modules/referee/referee_UI.c **** /************************************************绘制整圆**************************************
+ 119:modules/referee/referee_UI.c **** **参数：*graph Graph_Data类型变量指针，用于存放图形数据
+ 120:modules/referee/referee_UI.c **** 		graphname[3]   图片名称，用于标识更改
+ 121:modules/referee/referee_UI.c **** 		Graph_Operate   图片操作，见头文件
+ 122:modules/referee/referee_UI.c **** 		Graph_Layer    图层0-9
+ 123:modules/referee/referee_UI.c **** 		Graph_Color    图形颜色
+ 124:modules/referee/referee_UI.c **** 		Graph_Width    图形线宽
+ 125:modules/referee/referee_UI.c **** 		Start_x、Start_y    圆心xy坐标
+ 126:modules/referee/referee_UI.c **** 		Graph_Radius  圆形半径
+ 127:modules/referee/referee_UI.c **** ***************************************************************************************************
+ 128:modules/referee/referee_UI.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 12
+
+
+ 129:modules/referee/referee_UI.c **** void UICircleDraw(Graph_Data_t *graph, char graphname[3], uint32_t Graph_Operate, uint32_t Graph_La
+ 130:modules/referee/referee_UI.c **** 				  uint32_t Graph_Width, uint32_t Start_x, uint32_t Start_y, uint32_t Graph_Radius)
+ 131:modules/referee/referee_UI.c **** {
+ 499              		.loc 1 131 1 is_stmt 1 view -0
+ 500              		.cfi_startproc
+ 501              		@ args = 20, pretend = 0, frame = 0
+ 502              		@ frame_needed = 0, uses_anonymous_args = 0
+ 503              		.loc 1 131 1 is_stmt 0 view .LVU127
+ 504 0000 30B5     		push	{r4, r5, lr}
+ 505              	.LCFI3:
+ 506              		.cfi_def_cfa_offset 12
+ 507              		.cfi_offset 4, -12
+ 508              		.cfi_offset 5, -8
+ 509              		.cfi_offset 14, -4
+ 510 0002 0C46     		mov	r4, r1
+ 511 0004 9E46     		mov	lr, r3
+ 512 0006 0699     		ldr	r1, [sp, #24]
+ 513              	.LVL30:
+ 132:modules/referee/referee_UI.c **** 	int i;
+ 514              		.loc 1 132 2 is_stmt 1 view .LVU128
+ 133:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 515              		.loc 1 133 2 view .LVU129
+ 516              		.loc 1 133 9 is_stmt 0 view .LVU130
+ 517 0008 4FF0000C 		mov	ip, #0
+ 518              		.loc 1 133 2 view .LVU131
+ 519 000c 04E0     		b	.L16
+ 520              	.LVL31:
+ 521              	.L18:
+ 134:modules/referee/referee_UI.c **** 	{
+ 135:modules/referee/referee_UI.c **** 		graph->graphic_name[2 - i] = graphname[i];
+ 522              		.loc 1 135 3 is_stmt 1 view .LVU132
+ 523              		.loc 1 135 25 is_stmt 0 view .LVU133
+ 524 000e CCF10205 		rsb	r5, ip, #2
+ 525              		.loc 1 135 30 view .LVU134
+ 526 0012 4355     		strb	r3, [r0, r5]
+ 133:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 527              		.loc 1 133 46 is_stmt 1 discriminator 4 view .LVU135
+ 528 0014 0CF1010C 		add	ip, ip, #1
+ 529              	.LVL32:
+ 530              	.L16:
+ 133:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 531              		.loc 1 133 20 discriminator 1 view .LVU136
+ 532 0018 BCF1020F 		cmp	ip, #2
+ 533 001c 03DC     		bgt	.L17
+ 133:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 534              		.loc 1 133 32 is_stmt 0 discriminator 3 view .LVU137
+ 535 001e 14F80C30 		ldrb	r3, [r4, ip]	@ zero_extendqisi2
+ 133:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 536              		.loc 1 133 20 discriminator 3 view .LVU138
+ 537 0022 002B     		cmp	r3, #0
+ 538 0024 F3D1     		bne	.L18
+ 539              	.L17:
+ 136:modules/referee/referee_UI.c **** 	}
+ 137:modules/referee/referee_UI.c **** 
+ 138:modules/referee/referee_UI.c **** 	graph->graphic_tpye = UI_Graph_Circle;
+ 540              		.loc 1 138 2 is_stmt 1 view .LVU139
+ 541              		.loc 1 138 22 is_stmt 0 view .LVU140
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 13
+
+
+ 542 0026 C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+ 543 0028 0224     		movs	r4, #2
+ 544              	.LVL33:
+ 545              		.loc 1 138 22 view .LVU141
+ 546 002a 64F3C503 		bfi	r3, r4, #3, #3
+ 547 002e C370     		strb	r3, [r0, #3]
+ 139:modules/referee/referee_UI.c **** 	graph->operate_tpye = Graph_Operate;
+ 548              		.loc 1 139 2 is_stmt 1 view .LVU142
+ 549              		.loc 1 139 22 is_stmt 0 view .LVU143
+ 550 0030 DBB2     		uxtb	r3, r3
+ 551 0032 62F30203 		bfi	r3, r2, #0, #3
+ 552 0036 C370     		strb	r3, [r0, #3]
+ 140:modules/referee/referee_UI.c **** 	graph->layer = Graph_Layer;
+ 553              		.loc 1 140 2 is_stmt 1 view .LVU144
+ 554              		.loc 1 140 15 is_stmt 0 view .LVU145
+ 555 0038 0EF00304 		and	r4, lr, #3
+ 556 003c DBB2     		uxtb	r3, r3
+ 557 003e 03F03F03 		and	r3, r3, #63
+ 558 0042 43EA8413 		orr	r3, r3, r4, lsl #6
+ 559 0046 C370     		strb	r3, [r0, #3]
+ 560              	.LVL34:
+ 561              		.loc 1 140 15 view .LVU146
+ 562 0048 CEF3810E 		ubfx	lr, lr, #2, #2
+ 563              	.LVL35:
+ 564              		.loc 1 140 15 view .LVU147
+ 565 004c 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 566 004e 23F00303 		bic	r3, r3, #3
+ 567 0052 43EA0E0E 		orr	lr, r3, lr
+ 568 0056 80F804E0 		strb	lr, [r0, #4]
+ 141:modules/referee/referee_UI.c **** 	graph->color = Graph_Color;
+ 569              		.loc 1 141 2 is_stmt 1 view .LVU148
+ 570              		.loc 1 141 15 is_stmt 0 view .LVU149
+ 571 005a 5FFA8EF3 		uxtb	r3, lr
+ 572 005e 039C     		ldr	r4, [sp, #12]
+ 573 0060 64F38503 		bfi	r3, r4, #2, #4
+ 574              	.LVL36:
+ 575              		.loc 1 141 15 view .LVU150
+ 576 0064 0371     		strb	r3, [r0, #4]
+ 142:modules/referee/referee_UI.c **** 
+ 143:modules/referee/referee_UI.c **** 	graph->start_angle = 0;
+ 577              		.loc 1 143 2 is_stmt 1 view .LVU151
+ 578              		.loc 1 143 21 is_stmt 0 view .LVU152
+ 579 0066 DBB2     		uxtb	r3, r3
+ 580 0068 03F03F03 		and	r3, r3, #63
+ 581 006c 0371     		strb	r3, [r0, #4]
+ 582 006e 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 583 0070 23F07F03 		bic	r3, r3, #127
+ 584 0074 4371     		strb	r3, [r0, #5]
+ 144:modules/referee/referee_UI.c **** 	graph->end_angle = 0;
+ 585              		.loc 1 144 2 is_stmt 1 view .LVU153
+ 586              		.loc 1 144 19 is_stmt 0 view .LVU154
+ 587 0076 DBB2     		uxtb	r3, r3
+ 588 0078 03F07F03 		and	r3, r3, #127
+ 589 007c 4371     		strb	r3, [r0, #5]
+ 590 007e 4FF0000C 		mov	ip, #0
+ 591              	.LVL37:
+ 592              		.loc 1 144 19 view .LVU155
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 14
+
+
+ 593 0082 80F806C0 		strb	ip, [r0, #6]
+ 145:modules/referee/referee_UI.c **** 	graph->width = Graph_Width;
+ 594              		.loc 1 145 2 is_stmt 1 view .LVU156
+ 595              		.loc 1 145 15 is_stmt 0 view .LVU157
+ 596 0086 049B     		ldr	r3, [sp, #16]
+ 597 0088 C371     		strb	r3, [r0, #7]
+ 598 008a C3F30124 		ubfx	r4, r3, #8, #2
+ 599 008e 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 600 0090 23F00303 		bic	r3, r3, #3
+ 601 0094 2343     		orrs	r3, r3, r4
+ 602 0096 0372     		strb	r3, [r0, #8]
+ 146:modules/referee/referee_UI.c **** 	graph->start_x = Start_x;
+ 603              		.loc 1 146 2 is_stmt 1 view .LVU158
+ 604              		.loc 1 146 17 is_stmt 0 view .LVU159
+ 605 0098 059B     		ldr	r3, [sp, #20]
+ 606 009a 03F03F04 		and	r4, r3, #63
+ 607 009e 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 608 00a0 03F00303 		and	r3, r3, #3
+ 609 00a4 43EA8403 		orr	r3, r3, r4, lsl #2
+ 610 00a8 0372     		strb	r3, [r0, #8]
+ 611 00aa 059B     		ldr	r3, [sp, #20]
+ 612 00ac C3F38414 		ubfx	r4, r3, #6, #5
+ 613 00b0 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 614 00b2 23F01F03 		bic	r3, r3, #31
+ 615 00b6 2343     		orrs	r3, r3, r4
+ 616 00b8 4372     		strb	r3, [r0, #9]
+ 147:modules/referee/referee_UI.c **** 	graph->start_y = Start_y;
+ 617              		.loc 1 147 2 is_stmt 1 view .LVU160
+ 618              		.loc 1 147 17 is_stmt 0 view .LVU161
+ 619 00ba 01F00704 		and	r4, r1, #7
+ 620 00be DBB2     		uxtb	r3, r3
+ 621 00c0 03F01F03 		and	r3, r3, #31
+ 622 00c4 43EA4413 		orr	r3, r3, r4, lsl #5
+ 623 00c8 4372     		strb	r3, [r0, #9]
+ 624 00ca C1F3C701 		ubfx	r1, r1, #3, #8
+ 625 00ce 8172     		strb	r1, [r0, #10]
+ 148:modules/referee/referee_UI.c **** 	graph->radius = Graph_Radius;
+ 626              		.loc 1 148 2 is_stmt 1 view .LVU162
+ 627              		.loc 1 148 16 is_stmt 0 view .LVU163
+ 628 00d0 079B     		ldr	r3, [sp, #28]
+ 629 00d2 C372     		strb	r3, [r0, #11]
+ 630 00d4 C3F30122 		ubfx	r2, r3, #8, #2
+ 631              	.LVL38:
+ 632              		.loc 1 148 16 view .LVU164
+ 633 00d8 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 634 00da 23F00303 		bic	r3, r3, #3
+ 635 00de 1343     		orrs	r3, r3, r2
+ 636 00e0 0373     		strb	r3, [r0, #12]
+ 149:modules/referee/referee_UI.c **** 	graph->end_x = 0;
+ 637              		.loc 1 149 2 is_stmt 1 view .LVU165
+ 638              		.loc 1 149 15 is_stmt 0 view .LVU166
+ 639 00e2 DBB2     		uxtb	r3, r3
+ 640 00e4 03F00303 		and	r3, r3, #3
+ 641 00e8 0373     		strb	r3, [r0, #12]
+ 642 00ea 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 643 00ec 23F01F03 		bic	r3, r3, #31
+ 644 00f0 4373     		strb	r3, [r0, #13]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 15
+
+
+ 150:modules/referee/referee_UI.c **** 	graph->end_y = 0;
+ 645              		.loc 1 150 2 is_stmt 1 view .LVU167
+ 646              		.loc 1 150 15 is_stmt 0 view .LVU168
+ 647 00f2 DBB2     		uxtb	r3, r3
+ 648 00f4 03F01F03 		and	r3, r3, #31
+ 649 00f8 4373     		strb	r3, [r0, #13]
+ 650 00fa 80F80EC0 		strb	ip, [r0, #14]
+ 151:modules/referee/referee_UI.c **** }
+ 651              		.loc 1 151 1 view .LVU169
+ 652 00fe 30BD     		pop	{r4, r5, pc}
+ 653              		.cfi_endproc
+ 654              	.LFE279:
+ 656              		.section	.text.UIOvalDraw,"ax",%progbits
+ 657              		.align	1
+ 658              		.global	UIOvalDraw
+ 659              		.syntax unified
+ 660              		.thumb
+ 661              		.thumb_func
+ 663              	UIOvalDraw:
+ 664              	.LVL39:
+ 665              	.LFB280:
+ 152:modules/referee/referee_UI.c **** /************************************************绘制椭圆**************************************
+ 153:modules/referee/referee_UI.c **** **参数：*graph Graph_Data类型变量指针，用于存放图形数据
+ 154:modules/referee/referee_UI.c **** 		graphname[3]   图片名称，用于标识更改
+ 155:modules/referee/referee_UI.c **** 		Graph_Operate   图片操作，见头文件
+ 156:modules/referee/referee_UI.c **** 		Graph_Layer    图层0-9
+ 157:modules/referee/referee_UI.c **** 		Graph_Color    图形颜色
+ 158:modules/referee/referee_UI.c **** 		Graph_Width    图形线宽
+ 159:modules/referee/referee_UI.c **** 		Start_x、Start_y    圆心xy坐标
+ 160:modules/referee/referee_UI.c **** 		End_x、End_y        xy半轴长度
+ 161:modules/referee/referee_UI.c **** ***************************************************************************************************
+ 162:modules/referee/referee_UI.c **** void UIOvalDraw(Graph_Data_t *graph, char graphname[3], uint32_t Graph_Operate, uint32_t Graph_Laye
+ 163:modules/referee/referee_UI.c **** 				uint32_t Graph_Width, uint32_t Start_x, uint32_t Start_y, uint32_t end_x, uint32_t end_y)
+ 164:modules/referee/referee_UI.c **** {
+ 666              		.loc 1 164 1 is_stmt 1 view -0
+ 667              		.cfi_startproc
+ 668              		@ args = 24, pretend = 0, frame = 0
+ 669              		@ frame_needed = 0, uses_anonymous_args = 0
+ 670              		.loc 1 164 1 is_stmt 0 view .LVU171
+ 671 0000 30B5     		push	{r4, r5, lr}
+ 672              	.LCFI4:
+ 673              		.cfi_def_cfa_offset 12
+ 674              		.cfi_offset 4, -12
+ 675              		.cfi_offset 5, -8
+ 676              		.cfi_offset 14, -4
+ 677 0002 0C46     		mov	r4, r1
+ 678 0004 9E46     		mov	lr, r3
+ 679 0006 0799     		ldr	r1, [sp, #28]
+ 680              	.LVL40:
+ 165:modules/referee/referee_UI.c **** 	int i;
+ 681              		.loc 1 165 2 is_stmt 1 view .LVU172
+ 166:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 682              		.loc 1 166 2 view .LVU173
+ 683              		.loc 1 166 9 is_stmt 0 view .LVU174
+ 684 0008 4FF0000C 		mov	ip, #0
+ 685              		.loc 1 166 2 view .LVU175
+ 686 000c 04E0     		b	.L21
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 16
+
+
+ 687              	.LVL41:
+ 688              	.L23:
+ 167:modules/referee/referee_UI.c **** 	{
+ 168:modules/referee/referee_UI.c **** 		graph->graphic_name[2 - i] = graphname[i];
+ 689              		.loc 1 168 3 is_stmt 1 view .LVU176
+ 690              		.loc 1 168 25 is_stmt 0 view .LVU177
+ 691 000e CCF10205 		rsb	r5, ip, #2
+ 692              		.loc 1 168 30 view .LVU178
+ 693 0012 4355     		strb	r3, [r0, r5]
+ 166:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 694              		.loc 1 166 46 is_stmt 1 discriminator 4 view .LVU179
+ 695 0014 0CF1010C 		add	ip, ip, #1
+ 696              	.LVL42:
+ 697              	.L21:
+ 166:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 698              		.loc 1 166 20 discriminator 1 view .LVU180
+ 699 0018 BCF1020F 		cmp	ip, #2
+ 700 001c 03DC     		bgt	.L22
+ 166:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 701              		.loc 1 166 32 is_stmt 0 discriminator 3 view .LVU181
+ 702 001e 14F80C30 		ldrb	r3, [r4, ip]	@ zero_extendqisi2
+ 166:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 703              		.loc 1 166 20 discriminator 3 view .LVU182
+ 704 0022 002B     		cmp	r3, #0
+ 705 0024 F3D1     		bne	.L23
+ 706              	.L22:
+ 169:modules/referee/referee_UI.c **** 	}
+ 170:modules/referee/referee_UI.c **** 
+ 171:modules/referee/referee_UI.c **** 	graph->graphic_tpye = UI_Graph_Ellipse;
+ 707              		.loc 1 171 2 is_stmt 1 view .LVU183
+ 708              		.loc 1 171 22 is_stmt 0 view .LVU184
+ 709 0026 C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+ 710 0028 0324     		movs	r4, #3
+ 711              	.LVL43:
+ 712              		.loc 1 171 22 view .LVU185
+ 713 002a 64F3C503 		bfi	r3, r4, #3, #3
+ 714 002e C370     		strb	r3, [r0, #3]
+ 172:modules/referee/referee_UI.c **** 	graph->operate_tpye = Graph_Operate;
+ 715              		.loc 1 172 2 is_stmt 1 view .LVU186
+ 716              		.loc 1 172 22 is_stmt 0 view .LVU187
+ 717 0030 DBB2     		uxtb	r3, r3
+ 718 0032 62F30203 		bfi	r3, r2, #0, #3
+ 719 0036 C370     		strb	r3, [r0, #3]
+ 173:modules/referee/referee_UI.c **** 	graph->layer = Graph_Layer;
+ 720              		.loc 1 173 2 is_stmt 1 view .LVU188
+ 721              		.loc 1 173 15 is_stmt 0 view .LVU189
+ 722 0038 0EEA0404 		and	r4, lr, r4
+ 723 003c DBB2     		uxtb	r3, r3
+ 724 003e 03F03F03 		and	r3, r3, #63
+ 725 0042 43EA8413 		orr	r3, r3, r4, lsl #6
+ 726 0046 C370     		strb	r3, [r0, #3]
+ 727              	.LVL44:
+ 728              		.loc 1 173 15 view .LVU190
+ 729 0048 CEF3810E 		ubfx	lr, lr, #2, #2
+ 730              	.LVL45:
+ 731              		.loc 1 173 15 view .LVU191
+ 732 004c 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 17
+
+
+ 733 004e 23F00303 		bic	r3, r3, #3
+ 734 0052 43EA0E0E 		orr	lr, r3, lr
+ 735 0056 80F804E0 		strb	lr, [r0, #4]
+ 174:modules/referee/referee_UI.c **** 	graph->color = Graph_Color;
+ 736              		.loc 1 174 2 is_stmt 1 view .LVU192
+ 737              		.loc 1 174 15 is_stmt 0 view .LVU193
+ 738 005a 5FFA8EF3 		uxtb	r3, lr
+ 739 005e 039C     		ldr	r4, [sp, #12]
+ 740 0060 64F38503 		bfi	r3, r4, #2, #4
+ 741              	.LVL46:
+ 742              		.loc 1 174 15 view .LVU194
+ 743 0064 0371     		strb	r3, [r0, #4]
+ 175:modules/referee/referee_UI.c **** 	graph->width = Graph_Width;
+ 744              		.loc 1 175 2 is_stmt 1 view .LVU195
+ 745              		.loc 1 175 15 is_stmt 0 view .LVU196
+ 746 0066 4FF0000C 		mov	ip, #0
+ 747              	.LVL47:
+ 748              		.loc 1 175 15 view .LVU197
+ 749 006a 049B     		ldr	r3, [sp, #16]
+ 750 006c C371     		strb	r3, [r0, #7]
+ 751 006e C3F30124 		ubfx	r4, r3, #8, #2
+ 752 0072 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 753 0074 23F00303 		bic	r3, r3, #3
+ 754 0078 2343     		orrs	r3, r3, r4
+ 755 007a 0372     		strb	r3, [r0, #8]
+ 176:modules/referee/referee_UI.c **** 
+ 177:modules/referee/referee_UI.c **** 	graph->start_angle = 0;
+ 756              		.loc 1 177 2 is_stmt 1 view .LVU198
+ 757              		.loc 1 177 21 is_stmt 0 view .LVU199
+ 758 007c 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 759 007e 03F03F03 		and	r3, r3, #63
+ 760 0082 0371     		strb	r3, [r0, #4]
+ 761 0084 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 762 0086 23F07F03 		bic	r3, r3, #127
+ 763 008a 4371     		strb	r3, [r0, #5]
+ 178:modules/referee/referee_UI.c **** 	graph->end_angle = 0;
+ 764              		.loc 1 178 2 is_stmt 1 view .LVU200
+ 765              		.loc 1 178 19 is_stmt 0 view .LVU201
+ 766 008c DBB2     		uxtb	r3, r3
+ 767 008e 03F07F03 		and	r3, r3, #127
+ 768 0092 4371     		strb	r3, [r0, #5]
+ 769 0094 80F806C0 		strb	ip, [r0, #6]
+ 179:modules/referee/referee_UI.c **** 	graph->width = Graph_Width;
+ 770              		.loc 1 179 2 is_stmt 1 view .LVU202
+ 180:modules/referee/referee_UI.c **** 	graph->start_x = Start_x;
+ 771              		.loc 1 180 2 view .LVU203
+ 772              		.loc 1 180 17 is_stmt 0 view .LVU204
+ 773 0098 059B     		ldr	r3, [sp, #20]
+ 774 009a 03F03F04 		and	r4, r3, #63
+ 775 009e 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 776 00a0 03F00303 		and	r3, r3, #3
+ 777 00a4 43EA8403 		orr	r3, r3, r4, lsl #2
+ 778 00a8 0372     		strb	r3, [r0, #8]
+ 779 00aa 059B     		ldr	r3, [sp, #20]
+ 780 00ac C3F38414 		ubfx	r4, r3, #6, #5
+ 781 00b0 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 782 00b2 23F01F03 		bic	r3, r3, #31
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 18
+
+
+ 783 00b6 2343     		orrs	r3, r3, r4
+ 784 00b8 4372     		strb	r3, [r0, #9]
+ 181:modules/referee/referee_UI.c **** 	graph->start_y = Start_y;
+ 785              		.loc 1 181 2 is_stmt 1 view .LVU205
+ 786              		.loc 1 181 17 is_stmt 0 view .LVU206
+ 787 00ba 069B     		ldr	r3, [sp, #24]
+ 788 00bc 03F00704 		and	r4, r3, #7
+ 789 00c0 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 790 00c2 03F01F03 		and	r3, r3, #31
+ 791 00c6 43EA4413 		orr	r3, r3, r4, lsl #5
+ 792 00ca 4372     		strb	r3, [r0, #9]
+ 793 00cc 069B     		ldr	r3, [sp, #24]
+ 794 00ce C3F3C703 		ubfx	r3, r3, #3, #8
+ 795 00d2 8372     		strb	r3, [r0, #10]
+ 182:modules/referee/referee_UI.c **** 	graph->radius = 0;
+ 796              		.loc 1 182 2 is_stmt 1 view .LVU207
+ 797              		.loc 1 182 16 is_stmt 0 view .LVU208
+ 798 00d4 80F80BC0 		strb	ip, [r0, #11]
+ 799 00d8 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 800 00da 23F00303 		bic	r3, r3, #3
+ 801 00de 0373     		strb	r3, [r0, #12]
+ 183:modules/referee/referee_UI.c **** 	graph->end_x = end_x;
+ 802              		.loc 1 183 2 is_stmt 1 view .LVU209
+ 803              		.loc 1 183 15 is_stmt 0 view .LVU210
+ 804 00e0 01F03F04 		and	r4, r1, #63
+ 805 00e4 DBB2     		uxtb	r3, r3
+ 806 00e6 03F00303 		and	r3, r3, #3
+ 807 00ea 43EA8403 		orr	r3, r3, r4, lsl #2
+ 808 00ee 0373     		strb	r3, [r0, #12]
+ 809 00f0 C1F38411 		ubfx	r1, r1, #6, #5
+ 810 00f4 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 811 00f6 23F01F03 		bic	r3, r3, #31
+ 812 00fa 0B43     		orrs	r3, r3, r1
+ 813 00fc 4373     		strb	r3, [r0, #13]
+ 184:modules/referee/referee_UI.c **** 	graph->end_y = end_y;
+ 814              		.loc 1 184 2 is_stmt 1 view .LVU211
+ 815              		.loc 1 184 15 is_stmt 0 view .LVU212
+ 816 00fe 089B     		ldr	r3, [sp, #32]
+ 817 0100 03F00701 		and	r1, r3, #7
+ 818 0104 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 819 0106 03F01F03 		and	r3, r3, #31
+ 820 010a 43EA4113 		orr	r3, r3, r1, lsl #5
+ 821 010e 4373     		strb	r3, [r0, #13]
+ 822 0110 089B     		ldr	r3, [sp, #32]
+ 823 0112 C3F3C702 		ubfx	r2, r3, #3, #8
+ 824              	.LVL48:
+ 825              		.loc 1 184 15 view .LVU213
+ 826 0116 8273     		strb	r2, [r0, #14]
+ 185:modules/referee/referee_UI.c **** }
+ 827              		.loc 1 185 1 view .LVU214
+ 828 0118 30BD     		pop	{r4, r5, pc}
+ 829              		.cfi_endproc
+ 830              	.LFE280:
+ 832              		.section	.text.UIArcDraw,"ax",%progbits
+ 833              		.align	1
+ 834              		.global	UIArcDraw
+ 835              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 19
+
+
+ 836              		.thumb
+ 837              		.thumb_func
+ 839              	UIArcDraw:
+ 840              	.LVL49:
+ 841              	.LFB281:
+ 186:modules/referee/referee_UI.c **** 
+ 187:modules/referee/referee_UI.c **** /************************************************绘制圆弧**************************************
+ 188:modules/referee/referee_UI.c **** **参数：*graph Graph_Data类型变量指针，用于存放图形数据
+ 189:modules/referee/referee_UI.c **** 		graphname[3]   图片名称，用于标识更改
+ 190:modules/referee/referee_UI.c **** 		Graph_Operate   图片操作，见头文件
+ 191:modules/referee/referee_UI.c **** 		Graph_Layer    图层0-9
+ 192:modules/referee/referee_UI.c **** 		Graph_Color    图形颜色
+ 193:modules/referee/referee_UI.c **** 		Graph_StartAngle,Graph_EndAngle    起始终止角度
+ 194:modules/referee/referee_UI.c **** 		Graph_Width    图形线宽
+ 195:modules/referee/referee_UI.c **** 		Start_y,Start_y    圆心xy坐标
+ 196:modules/referee/referee_UI.c **** 		x_Length,y_Length   xy半轴长度
+ 197:modules/referee/referee_UI.c **** ***************************************************************************************************
+ 198:modules/referee/referee_UI.c **** 
+ 199:modules/referee/referee_UI.c **** void UIArcDraw(Graph_Data_t *graph, char graphname[3], uint32_t Graph_Operate, uint32_t Graph_Layer
+ 200:modules/referee/referee_UI.c **** 			   uint32_t Graph_StartAngle, uint32_t Graph_EndAngle, uint32_t Graph_Width, uint32_t Start_x, u
+ 201:modules/referee/referee_UI.c **** 			   uint32_t end_x, uint32_t end_y)
+ 202:modules/referee/referee_UI.c **** {
+ 842              		.loc 1 202 1 is_stmt 1 view -0
+ 843              		.cfi_startproc
+ 844              		@ args = 32, pretend = 0, frame = 0
+ 845              		@ frame_needed = 0, uses_anonymous_args = 0
+ 846              		.loc 1 202 1 is_stmt 0 view .LVU216
+ 847 0000 30B5     		push	{r4, r5, lr}
+ 848              	.LCFI5:
+ 849              		.cfi_def_cfa_offset 12
+ 850              		.cfi_offset 4, -12
+ 851              		.cfi_offset 5, -8
+ 852              		.cfi_offset 14, -4
+ 853 0002 0C46     		mov	r4, r1
+ 854 0004 9E46     		mov	lr, r3
+ 855 0006 0999     		ldr	r1, [sp, #36]
+ 856              	.LVL50:
+ 203:modules/referee/referee_UI.c **** 	int i;
+ 857              		.loc 1 203 2 is_stmt 1 view .LVU217
+ 204:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 858              		.loc 1 204 2 view .LVU218
+ 859              		.loc 1 204 9 is_stmt 0 view .LVU219
+ 860 0008 4FF0000C 		mov	ip, #0
+ 861              		.loc 1 204 2 view .LVU220
+ 862 000c 04E0     		b	.L26
+ 863              	.LVL51:
+ 864              	.L28:
+ 205:modules/referee/referee_UI.c **** 	{
+ 206:modules/referee/referee_UI.c **** 		graph->graphic_name[2 - i] = graphname[i];
+ 865              		.loc 1 206 3 is_stmt 1 view .LVU221
+ 866              		.loc 1 206 25 is_stmt 0 view .LVU222
+ 867 000e CCF10205 		rsb	r5, ip, #2
+ 868              		.loc 1 206 30 view .LVU223
+ 869 0012 4355     		strb	r3, [r0, r5]
+ 204:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 870              		.loc 1 204 46 is_stmt 1 discriminator 4 view .LVU224
+ 871 0014 0CF1010C 		add	ip, ip, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 20
+
+
+ 872              	.LVL52:
+ 873              	.L26:
+ 204:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 874              		.loc 1 204 20 discriminator 1 view .LVU225
+ 875 0018 BCF1020F 		cmp	ip, #2
+ 876 001c 03DC     		bgt	.L27
+ 204:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 877              		.loc 1 204 32 is_stmt 0 discriminator 3 view .LVU226
+ 878 001e 14F80C30 		ldrb	r3, [r4, ip]	@ zero_extendqisi2
+ 204:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 879              		.loc 1 204 20 discriminator 3 view .LVU227
+ 880 0022 002B     		cmp	r3, #0
+ 881 0024 F3D1     		bne	.L28
+ 882              	.L27:
+ 207:modules/referee/referee_UI.c **** 	}
+ 208:modules/referee/referee_UI.c **** 
+ 209:modules/referee/referee_UI.c **** 	graph->graphic_tpye = UI_Graph_Arc;
+ 883              		.loc 1 209 2 is_stmt 1 view .LVU228
+ 884              		.loc 1 209 22 is_stmt 0 view .LVU229
+ 885 0026 C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+ 886 0028 0424     		movs	r4, #4
+ 887              	.LVL53:
+ 888              		.loc 1 209 22 view .LVU230
+ 889 002a 64F3C503 		bfi	r3, r4, #3, #3
+ 890 002e C370     		strb	r3, [r0, #3]
+ 210:modules/referee/referee_UI.c **** 	graph->operate_tpye = Graph_Operate;
+ 891              		.loc 1 210 2 is_stmt 1 view .LVU231
+ 892              		.loc 1 210 22 is_stmt 0 view .LVU232
+ 893 0030 DBB2     		uxtb	r3, r3
+ 894 0032 62F30203 		bfi	r3, r2, #0, #3
+ 895 0036 C370     		strb	r3, [r0, #3]
+ 211:modules/referee/referee_UI.c **** 	graph->layer = Graph_Layer;
+ 896              		.loc 1 211 2 is_stmt 1 view .LVU233
+ 897              		.loc 1 211 15 is_stmt 0 view .LVU234
+ 898 0038 0EF00304 		and	r4, lr, #3
+ 899 003c DBB2     		uxtb	r3, r3
+ 900 003e 03F03F03 		and	r3, r3, #63
+ 901 0042 43EA8413 		orr	r3, r3, r4, lsl #6
+ 902 0046 C370     		strb	r3, [r0, #3]
+ 903              	.LVL54:
+ 904              		.loc 1 211 15 view .LVU235
+ 905 0048 CEF3810E 		ubfx	lr, lr, #2, #2
+ 906              	.LVL55:
+ 907              		.loc 1 211 15 view .LVU236
+ 908 004c 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 909 004e 23F00303 		bic	r3, r3, #3
+ 910 0052 43EA0E0E 		orr	lr, r3, lr
+ 911 0056 80F804E0 		strb	lr, [r0, #4]
+ 212:modules/referee/referee_UI.c **** 	graph->color = Graph_Color;
+ 912              		.loc 1 212 2 is_stmt 1 view .LVU237
+ 913              		.loc 1 212 15 is_stmt 0 view .LVU238
+ 914 005a 5FFA8EF4 		uxtb	r4, lr
+ 915 005e 039B     		ldr	r3, [sp, #12]
+ 916 0060 63F38504 		bfi	r4, r3, #2, #4
+ 917              	.LVL56:
+ 918              		.loc 1 212 15 view .LVU239
+ 919 0064 0471     		strb	r4, [r0, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 21
+
+
+ 213:modules/referee/referee_UI.c **** 
+ 214:modules/referee/referee_UI.c **** 	graph->start_angle = Graph_StartAngle;
+ 920              		.loc 1 214 2 is_stmt 1 view .LVU240
+ 921              		.loc 1 214 21 is_stmt 0 view .LVU241
+ 922 0066 049B     		ldr	r3, [sp, #16]
+ 923 0068 03F00304 		and	r4, r3, #3
+ 924 006c 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 925 006e 03F03F03 		and	r3, r3, #63
+ 926 0072 43EA8413 		orr	r3, r3, r4, lsl #6
+ 927 0076 0371     		strb	r3, [r0, #4]
+ 928 0078 049B     		ldr	r3, [sp, #16]
+ 929 007a C3F38604 		ubfx	r4, r3, #2, #7
+ 930 007e 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 931 0080 23F07F03 		bic	r3, r3, #127
+ 932 0084 2343     		orrs	r3, r3, r4
+ 933 0086 4371     		strb	r3, [r0, #5]
+ 215:modules/referee/referee_UI.c **** 	graph->end_angle = Graph_EndAngle;
+ 934              		.loc 1 215 2 is_stmt 1 view .LVU242
+ 935              		.loc 1 215 19 is_stmt 0 view .LVU243
+ 936 0088 059B     		ldr	r3, [sp, #20]
+ 937 008a 03F00104 		and	r4, r3, #1
+ 938 008e 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 939 0090 03F07F03 		and	r3, r3, #127
+ 940 0094 43EAC413 		orr	r3, r3, r4, lsl #7
+ 941 0098 4371     		strb	r3, [r0, #5]
+ 942 009a 059B     		ldr	r3, [sp, #20]
+ 943 009c C3F34703 		ubfx	r3, r3, #1, #8
+ 944 00a0 8371     		strb	r3, [r0, #6]
+ 216:modules/referee/referee_UI.c **** 	graph->width = Graph_Width;
+ 945              		.loc 1 216 2 is_stmt 1 view .LVU244
+ 946              		.loc 1 216 15 is_stmt 0 view .LVU245
+ 947 00a2 069B     		ldr	r3, [sp, #24]
+ 948 00a4 C371     		strb	r3, [r0, #7]
+ 949 00a6 C3F30124 		ubfx	r4, r3, #8, #2
+ 950 00aa 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 951 00ac 23F00303 		bic	r3, r3, #3
+ 952 00b0 2343     		orrs	r3, r3, r4
+ 953 00b2 0372     		strb	r3, [r0, #8]
+ 217:modules/referee/referee_UI.c **** 	graph->start_x = Start_x;
+ 954              		.loc 1 217 2 is_stmt 1 view .LVU246
+ 955              		.loc 1 217 17 is_stmt 0 view .LVU247
+ 956 00b4 079B     		ldr	r3, [sp, #28]
+ 957 00b6 03F03F04 		and	r4, r3, #63
+ 958 00ba 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 959 00bc 03F00303 		and	r3, r3, #3
+ 960 00c0 43EA8403 		orr	r3, r3, r4, lsl #2
+ 961 00c4 0372     		strb	r3, [r0, #8]
+ 962 00c6 079B     		ldr	r3, [sp, #28]
+ 963 00c8 C3F38414 		ubfx	r4, r3, #6, #5
+ 964 00cc 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 965 00ce 23F01F03 		bic	r3, r3, #31
+ 966 00d2 2343     		orrs	r3, r3, r4
+ 967 00d4 4372     		strb	r3, [r0, #9]
+ 218:modules/referee/referee_UI.c **** 	graph->start_y = Start_y;
+ 968              		.loc 1 218 2 is_stmt 1 view .LVU248
+ 969              		.loc 1 218 17 is_stmt 0 view .LVU249
+ 970 00d6 089B     		ldr	r3, [sp, #32]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 22
+
+
+ 971 00d8 03F00704 		and	r4, r3, #7
+ 972 00dc 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 973 00de 03F01F03 		and	r3, r3, #31
+ 974 00e2 43EA4413 		orr	r3, r3, r4, lsl #5
+ 975 00e6 4372     		strb	r3, [r0, #9]
+ 976 00e8 089B     		ldr	r3, [sp, #32]
+ 977 00ea C3F3C703 		ubfx	r3, r3, #3, #8
+ 978 00ee 8372     		strb	r3, [r0, #10]
+ 219:modules/referee/referee_UI.c **** 	graph->radius = 0;
+ 979              		.loc 1 219 2 is_stmt 1 view .LVU250
+ 980              		.loc 1 219 16 is_stmt 0 view .LVU251
+ 981 00f0 0023     		movs	r3, #0
+ 982 00f2 C372     		strb	r3, [r0, #11]
+ 983 00f4 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 984 00f6 23F00303 		bic	r3, r3, #3
+ 985 00fa 0373     		strb	r3, [r0, #12]
+ 220:modules/referee/referee_UI.c **** 	graph->end_x = end_x;
+ 986              		.loc 1 220 2 is_stmt 1 view .LVU252
+ 987              		.loc 1 220 15 is_stmt 0 view .LVU253
+ 988 00fc 01F03F04 		and	r4, r1, #63
+ 989 0100 DBB2     		uxtb	r3, r3
+ 990 0102 03F00303 		and	r3, r3, #3
+ 991 0106 43EA8403 		orr	r3, r3, r4, lsl #2
+ 992 010a 0373     		strb	r3, [r0, #12]
+ 993 010c C1F38411 		ubfx	r1, r1, #6, #5
+ 994 0110 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 995 0112 23F01F03 		bic	r3, r3, #31
+ 996 0116 0B43     		orrs	r3, r3, r1
+ 997 0118 4373     		strb	r3, [r0, #13]
+ 221:modules/referee/referee_UI.c **** 	graph->end_y = end_y;
+ 998              		.loc 1 221 2 is_stmt 1 view .LVU254
+ 999              		.loc 1 221 15 is_stmt 0 view .LVU255
+ 1000 011a 0A9B     		ldr	r3, [sp, #40]
+ 1001 011c 03F00701 		and	r1, r3, #7
+ 1002 0120 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 1003 0122 03F01F03 		and	r3, r3, #31
+ 1004 0126 43EA4113 		orr	r3, r3, r1, lsl #5
+ 1005 012a 4373     		strb	r3, [r0, #13]
+ 1006 012c 0A9B     		ldr	r3, [sp, #40]
+ 1007 012e C3F3C702 		ubfx	r2, r3, #3, #8
+ 1008              	.LVL57:
+ 1009              		.loc 1 221 15 view .LVU256
+ 1010 0132 8273     		strb	r2, [r0, #14]
+ 222:modules/referee/referee_UI.c **** }
+ 1011              		.loc 1 222 1 view .LVU257
+ 1012 0134 30BD     		pop	{r4, r5, pc}
+ 1013              		.cfi_endproc
+ 1014              	.LFE281:
+ 1016              		.section	.text.UIFloatDraw,"ax",%progbits
+ 1017              		.align	1
+ 1018              		.global	UIFloatDraw
+ 1019              		.syntax unified
+ 1020              		.thumb
+ 1021              		.thumb_func
+ 1023              	UIFloatDraw:
+ 1024              	.LVL58:
+ 1025              	.LFB282:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 23
+
+
+ 223:modules/referee/referee_UI.c **** 
+ 224:modules/referee/referee_UI.c **** /************************************************绘制浮点型数据*****************************
+ 225:modules/referee/referee_UI.c **** **参数：*graph Graph_Data类型变量指针，用于存放图形数据
+ 226:modules/referee/referee_UI.c **** 		graphname[3]   图片名称，用于标识更改
+ 227:modules/referee/referee_UI.c **** 		Graph_Operate   图片操作，见头文件
+ 228:modules/referee/referee_UI.c **** 		Graph_Layer    图层0-9
+ 229:modules/referee/referee_UI.c **** 		Graph_Color    图形颜色
+ 230:modules/referee/referee_UI.c **** 		Graph_Size     字号
+ 231:modules/referee/referee_UI.c **** 		Graph_Digit    小数位数
+ 232:modules/referee/referee_UI.c **** 		Graph_Width    图形线宽
+ 233:modules/referee/referee_UI.c **** 		Start_x、Start_y    开始坐标
+ 234:modules/referee/referee_UI.c **** 		radius=a&0x3FF;   a为浮点数乘以1000后的32位整型数
+ 235:modules/referee/referee_UI.c **** 		end_x=(a>>10)&0x7FF;
+ 236:modules/referee/referee_UI.c **** 		end_y=(a>>21)&0x7FF;
+ 237:modules/referee/referee_UI.c **** ***************************************************************************************************
+ 238:modules/referee/referee_UI.c **** 
+ 239:modules/referee/referee_UI.c **** void UIFloatDraw(Graph_Data_t *graph, char graphname[3], uint32_t Graph_Operate, uint32_t Graph_Lay
+ 240:modules/referee/referee_UI.c **** 				 uint32_t Graph_Size, uint32_t Graph_Digit, uint32_t Graph_Width, uint32_t Start_x, uint32_t St
+ 241:modules/referee/referee_UI.c **** {
+ 1026              		.loc 1 241 1 is_stmt 1 view -0
+ 1027              		.cfi_startproc
+ 1028              		@ args = 28, pretend = 0, frame = 0
+ 1029              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1030              		.loc 1 241 1 is_stmt 0 view .LVU259
+ 1031 0000 30B5     		push	{r4, r5, lr}
+ 1032              	.LCFI6:
+ 1033              		.cfi_def_cfa_offset 12
+ 1034              		.cfi_offset 4, -12
+ 1035              		.cfi_offset 5, -8
+ 1036              		.cfi_offset 14, -4
+ 1037 0002 0C46     		mov	r4, r1
+ 1038 0004 1146     		mov	r1, r2
+ 1039              	.LVL59:
+ 1040              		.loc 1 241 1 view .LVU260
+ 1041 0006 9E46     		mov	lr, r3
+ 1042 0008 099B     		ldr	r3, [sp, #36]
+ 1043              	.LVL60:
+ 242:modules/referee/referee_UI.c **** 
+ 243:modules/referee/referee_UI.c **** 	int i;
+ 1044              		.loc 1 243 2 is_stmt 1 view .LVU261
+ 244:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1045              		.loc 1 244 2 view .LVU262
+ 1046              		.loc 1 244 9 is_stmt 0 view .LVU263
+ 1047 000a 4FF0000C 		mov	ip, #0
+ 1048              		.loc 1 244 2 view .LVU264
+ 1049 000e 04E0     		b	.L31
+ 1050              	.LVL61:
+ 1051              	.L33:
+ 245:modules/referee/referee_UI.c **** 	{
+ 246:modules/referee/referee_UI.c **** 		graph->graphic_name[2 - i] = graphname[i];
+ 1052              		.loc 1 246 3 is_stmt 1 view .LVU265
+ 1053              		.loc 1 246 25 is_stmt 0 view .LVU266
+ 1054 0010 CCF10205 		rsb	r5, ip, #2
+ 1055              		.loc 1 246 30 view .LVU267
+ 1056 0014 4255     		strb	r2, [r0, r5]
+ 244:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1057              		.loc 1 244 46 is_stmt 1 discriminator 4 view .LVU268
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 24
+
+
+ 1058 0016 0CF1010C 		add	ip, ip, #1
+ 1059              	.LVL62:
+ 1060              	.L31:
+ 244:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1061              		.loc 1 244 20 discriminator 1 view .LVU269
+ 1062 001a BCF1020F 		cmp	ip, #2
+ 1063 001e 03DC     		bgt	.L32
+ 244:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1064              		.loc 1 244 32 is_stmt 0 discriminator 3 view .LVU270
+ 1065 0020 14F80C20 		ldrb	r2, [r4, ip]	@ zero_extendqisi2
+ 244:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1066              		.loc 1 244 20 discriminator 3 view .LVU271
+ 1067 0024 002A     		cmp	r2, #0
+ 1068 0026 F3D1     		bne	.L33
+ 1069              	.L32:
+ 247:modules/referee/referee_UI.c **** 	}
+ 248:modules/referee/referee_UI.c **** 	graph->graphic_tpye = UI_Graph_Float;
+ 1070              		.loc 1 248 2 is_stmt 1 view .LVU272
+ 1071              		.loc 1 248 22 is_stmt 0 view .LVU273
+ 1072 0028 C278     		ldrb	r2, [r0, #3]	@ zero_extendqisi2
+ 1073 002a 0524     		movs	r4, #5
+ 1074              	.LVL63:
+ 1075              		.loc 1 248 22 view .LVU274
+ 1076 002c 64F3C502 		bfi	r2, r4, #3, #3
+ 1077 0030 C270     		strb	r2, [r0, #3]
+ 249:modules/referee/referee_UI.c **** 	graph->operate_tpye = Graph_Operate;
+ 1078              		.loc 1 249 2 is_stmt 1 view .LVU275
+ 1079              		.loc 1 249 22 is_stmt 0 view .LVU276
+ 1080 0032 D2B2     		uxtb	r2, r2
+ 1081 0034 61F30202 		bfi	r2, r1, #0, #3
+ 1082 0038 C270     		strb	r2, [r0, #3]
+ 250:modules/referee/referee_UI.c **** 	graph->layer = Graph_Layer;
+ 1083              		.loc 1 250 2 is_stmt 1 view .LVU277
+ 1084              		.loc 1 250 15 is_stmt 0 view .LVU278
+ 1085 003a 0EF00304 		and	r4, lr, #3
+ 1086 003e D2B2     		uxtb	r2, r2
+ 1087 0040 02F03F02 		and	r2, r2, #63
+ 1088 0044 42EA8412 		orr	r2, r2, r4, lsl #6
+ 1089 0048 C270     		strb	r2, [r0, #3]
+ 1090              	.LVL64:
+ 1091              		.loc 1 250 15 view .LVU279
+ 1092 004a CEF3810E 		ubfx	lr, lr, #2, #2
+ 1093              	.LVL65:
+ 1094              		.loc 1 250 15 view .LVU280
+ 1095 004e 0279     		ldrb	r2, [r0, #4]	@ zero_extendqisi2
+ 1096 0050 22F00302 		bic	r2, r2, #3
+ 1097 0054 42EA0E0E 		orr	lr, r2, lr
+ 1098 0058 80F804E0 		strb	lr, [r0, #4]
+ 251:modules/referee/referee_UI.c **** 	graph->color = Graph_Color;
+ 1099              		.loc 1 251 2 is_stmt 1 view .LVU281
+ 1100              		.loc 1 251 15 is_stmt 0 view .LVU282
+ 1101 005c 5FFA8EF4 		uxtb	r4, lr
+ 1102 0060 039A     		ldr	r2, [sp, #12]
+ 1103 0062 62F38504 		bfi	r4, r2, #2, #4
+ 1104              	.LVL66:
+ 1105              		.loc 1 251 15 view .LVU283
+ 1106 0066 0471     		strb	r4, [r0, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 25
+
+
+ 252:modules/referee/referee_UI.c **** 
+ 253:modules/referee/referee_UI.c **** 	graph->width = Graph_Width;
+ 1107              		.loc 1 253 2 is_stmt 1 view .LVU284
+ 1108              		.loc 1 253 15 is_stmt 0 view .LVU285
+ 1109 0068 069A     		ldr	r2, [sp, #24]
+ 1110 006a C271     		strb	r2, [r0, #7]
+ 1111 006c C2F30124 		ubfx	r4, r2, #8, #2
+ 1112 0070 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 1113 0072 22F00302 		bic	r2, r2, #3
+ 1114 0076 2243     		orrs	r2, r2, r4
+ 1115 0078 0272     		strb	r2, [r0, #8]
+ 254:modules/referee/referee_UI.c **** 	graph->start_x = Start_x;
+ 1116              		.loc 1 254 2 is_stmt 1 view .LVU286
+ 1117              		.loc 1 254 17 is_stmt 0 view .LVU287
+ 1118 007a 079A     		ldr	r2, [sp, #28]
+ 1119 007c 02F03F04 		and	r4, r2, #63
+ 1120 0080 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 1121 0082 02F00302 		and	r2, r2, #3
+ 1122 0086 42EA8402 		orr	r2, r2, r4, lsl #2
+ 1123 008a 0272     		strb	r2, [r0, #8]
+ 1124 008c 079A     		ldr	r2, [sp, #28]
+ 1125 008e C2F38414 		ubfx	r4, r2, #6, #5
+ 1126 0092 427A     		ldrb	r2, [r0, #9]	@ zero_extendqisi2
+ 1127 0094 22F01F02 		bic	r2, r2, #31
+ 1128 0098 2243     		orrs	r2, r2, r4
+ 1129 009a 4272     		strb	r2, [r0, #9]
+ 255:modules/referee/referee_UI.c **** 	graph->start_y = Start_y;
+ 1130              		.loc 1 255 2 is_stmt 1 view .LVU288
+ 1131              		.loc 1 255 17 is_stmt 0 view .LVU289
+ 1132 009c 089A     		ldr	r2, [sp, #32]
+ 1133 009e 02F00704 		and	r4, r2, #7
+ 1134 00a2 427A     		ldrb	r2, [r0, #9]	@ zero_extendqisi2
+ 1135 00a4 02F01F02 		and	r2, r2, #31
+ 1136 00a8 42EA4412 		orr	r2, r2, r4, lsl #5
+ 1137 00ac 4272     		strb	r2, [r0, #9]
+ 1138 00ae 089A     		ldr	r2, [sp, #32]
+ 1139 00b0 C2F3C702 		ubfx	r2, r2, #3, #8
+ 1140 00b4 8272     		strb	r2, [r0, #10]
+ 256:modules/referee/referee_UI.c **** 	graph->start_angle = Graph_Size;
+ 1141              		.loc 1 256 2 is_stmt 1 view .LVU290
+ 1142              		.loc 1 256 21 is_stmt 0 view .LVU291
+ 1143 00b6 049A     		ldr	r2, [sp, #16]
+ 1144 00b8 02F00304 		and	r4, r2, #3
+ 1145 00bc 0279     		ldrb	r2, [r0, #4]	@ zero_extendqisi2
+ 1146 00be 02F03F02 		and	r2, r2, #63
+ 1147 00c2 42EA8412 		orr	r2, r2, r4, lsl #6
+ 1148 00c6 0271     		strb	r2, [r0, #4]
+ 1149 00c8 049A     		ldr	r2, [sp, #16]
+ 1150 00ca C2F38604 		ubfx	r4, r2, #2, #7
+ 1151 00ce 4279     		ldrb	r2, [r0, #5]	@ zero_extendqisi2
+ 1152 00d0 22F07F02 		bic	r2, r2, #127
+ 1153 00d4 2243     		orrs	r2, r2, r4
+ 1154 00d6 4271     		strb	r2, [r0, #5]
+ 257:modules/referee/referee_UI.c **** 	graph->end_angle = Graph_Digit;
+ 1155              		.loc 1 257 2 is_stmt 1 view .LVU292
+ 1156              		.loc 1 257 19 is_stmt 0 view .LVU293
+ 1157 00d8 059A     		ldr	r2, [sp, #20]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 26
+
+
+ 1158 00da 02F00104 		and	r4, r2, #1
+ 1159 00de 4279     		ldrb	r2, [r0, #5]	@ zero_extendqisi2
+ 1160 00e0 02F07F02 		and	r2, r2, #127
+ 1161 00e4 42EAC412 		orr	r2, r2, r4, lsl #7
+ 1162 00e8 4271     		strb	r2, [r0, #5]
+ 1163 00ea 059A     		ldr	r2, [sp, #20]
+ 1164 00ec C2F34701 		ubfx	r1, r2, #1, #8
+ 1165              	.LVL67:
+ 1166              		.loc 1 257 19 view .LVU294
+ 1167 00f0 8171     		strb	r1, [r0, #6]
+ 258:modules/referee/referee_UI.c **** 
+ 259:modules/referee/referee_UI.c **** 	graph->radius = Graph_Float & 0x3FF;
+ 1168              		.loc 1 259 2 is_stmt 1 view .LVU295
+ 1169              		.loc 1 259 16 is_stmt 0 view .LVU296
+ 1170 00f2 C372     		strb	r3, [r0, #11]
+ 1171 00f4 C3F30121 		ubfx	r1, r3, #8, #2
+ 1172 00f8 027B     		ldrb	r2, [r0, #12]	@ zero_extendqisi2
+ 1173 00fa 22F00302 		bic	r2, r2, #3
+ 1174 00fe 0A43     		orrs	r2, r2, r1
+ 1175 0100 0273     		strb	r2, [r0, #12]
+ 260:modules/referee/referee_UI.c **** 	graph->end_x = (Graph_Float >> 10) & 0x7FF;
+ 1176              		.loc 1 260 2 is_stmt 1 view .LVU297
+ 1177              		.loc 1 260 15 is_stmt 0 view .LVU298
+ 1178 0102 C3F38521 		ubfx	r1, r3, #10, #6
+ 1179 0106 D2B2     		uxtb	r2, r2
+ 1180 0108 02F00302 		and	r2, r2, #3
+ 1181 010c 42EA8102 		orr	r2, r2, r1, lsl #2
+ 1182 0110 0273     		strb	r2, [r0, #12]
+ 1183 0112 C3F30441 		ubfx	r1, r3, #16, #5
+ 1184 0116 427B     		ldrb	r2, [r0, #13]	@ zero_extendqisi2
+ 1185 0118 22F01F02 		bic	r2, r2, #31
+ 1186 011c 0A43     		orrs	r2, r2, r1
+ 1187 011e 4273     		strb	r2, [r0, #13]
+ 261:modules/referee/referee_UI.c **** 	graph->end_y = (Graph_Float >> 21) & 0x7FF;
+ 1188              		.loc 1 261 2 is_stmt 1 view .LVU299
+ 1189              		.loc 1 261 15 is_stmt 0 view .LVU300
+ 1190 0120 C3F34251 		ubfx	r1, r3, #21, #3
+ 1191 0124 D2B2     		uxtb	r2, r2
+ 1192 0126 02F01F02 		and	r2, r2, #31
+ 1193 012a 42EA4112 		orr	r2, r2, r1, lsl #5
+ 1194 012e 4273     		strb	r2, [r0, #13]
+ 1195 0130 1B0E     		lsrs	r3, r3, #24
+ 1196 0132 8373     		strb	r3, [r0, #14]
+ 262:modules/referee/referee_UI.c **** }
+ 1197              		.loc 1 262 1 view .LVU301
+ 1198 0134 30BD     		pop	{r4, r5, pc}
+ 1199              		.cfi_endproc
+ 1200              	.LFE282:
+ 1202              		.section	.text.UIIntDraw,"ax",%progbits
+ 1203              		.align	1
+ 1204              		.global	UIIntDraw
+ 1205              		.syntax unified
+ 1206              		.thumb
+ 1207              		.thumb_func
+ 1209              	UIIntDraw:
+ 1210              	.LVL68:
+ 1211              	.LFB283:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 27
+
+
+ 263:modules/referee/referee_UI.c **** 
+ 264:modules/referee/referee_UI.c **** /************************************************绘制整型数据********************************
+ 265:modules/referee/referee_UI.c **** **参数：*graph Graph_Data类型变量指针，用于存放图形数据
+ 266:modules/referee/referee_UI.c **** 		graphname[3]   图片名称，用于标识更改
+ 267:modules/referee/referee_UI.c **** 		Graph_Operate   图片操作，见头文件
+ 268:modules/referee/referee_UI.c **** 		Graph_Layer    图层0-9
+ 269:modules/referee/referee_UI.c **** 		Graph_Color    图形颜色
+ 270:modules/referee/referee_UI.c **** 		Graph_Size     字号
+ 271:modules/referee/referee_UI.c **** 		Graph_Width    图形线宽
+ 272:modules/referee/referee_UI.c **** 		Start_x、Start_y    开始坐标
+ 273:modules/referee/referee_UI.c **** 		radius=a&0x3FF;   a为32位整型数
+ 274:modules/referee/referee_UI.c **** 		end_x=(a>>10)&0x7FF;
+ 275:modules/referee/referee_UI.c **** 		end_y=(a>>21)&0x7FF;
+ 276:modules/referee/referee_UI.c **** ***************************************************************************************************
+ 277:modules/referee/referee_UI.c **** void UIIntDraw(Graph_Data_t *graph, char graphname[3], uint32_t Graph_Operate, uint32_t Graph_Layer
+ 278:modules/referee/referee_UI.c **** 			   uint32_t Graph_Size, uint32_t Graph_Width, uint32_t Start_x, uint32_t Start_y, int32_t Graph_
+ 279:modules/referee/referee_UI.c **** {
+ 1212              		.loc 1 279 1 is_stmt 1 view -0
+ 1213              		.cfi_startproc
+ 1214              		@ args = 24, pretend = 0, frame = 0
+ 1215              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1216              		.loc 1 279 1 is_stmt 0 view .LVU303
+ 1217 0000 30B5     		push	{r4, r5, lr}
+ 1218              	.LCFI7:
+ 1219              		.cfi_def_cfa_offset 12
+ 1220              		.cfi_offset 4, -12
+ 1221              		.cfi_offset 5, -8
+ 1222              		.cfi_offset 14, -4
+ 1223 0002 0C46     		mov	r4, r1
+ 1224 0004 1146     		mov	r1, r2
+ 1225              	.LVL69:
+ 1226              		.loc 1 279 1 view .LVU304
+ 1227 0006 9E46     		mov	lr, r3
+ 1228 0008 089B     		ldr	r3, [sp, #32]
+ 1229              	.LVL70:
+ 280:modules/referee/referee_UI.c **** 	int i;
+ 1230              		.loc 1 280 2 is_stmt 1 view .LVU305
+ 281:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1231              		.loc 1 281 2 view .LVU306
+ 1232              		.loc 1 281 9 is_stmt 0 view .LVU307
+ 1233 000a 4FF0000C 		mov	ip, #0
+ 1234              		.loc 1 281 2 view .LVU308
+ 1235 000e 04E0     		b	.L36
+ 1236              	.LVL71:
+ 1237              	.L38:
+ 282:modules/referee/referee_UI.c **** 	{
+ 283:modules/referee/referee_UI.c **** 		graph->graphic_name[2 - i] = graphname[i];
+ 1238              		.loc 1 283 3 is_stmt 1 view .LVU309
+ 1239              		.loc 1 283 25 is_stmt 0 view .LVU310
+ 1240 0010 CCF10205 		rsb	r5, ip, #2
+ 1241              		.loc 1 283 30 view .LVU311
+ 1242 0014 4255     		strb	r2, [r0, r5]
+ 281:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1243              		.loc 1 281 46 is_stmt 1 discriminator 4 view .LVU312
+ 1244 0016 0CF1010C 		add	ip, ip, #1
+ 1245              	.LVL72:
+ 1246              	.L36:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 28
+
+
+ 281:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1247              		.loc 1 281 20 discriminator 1 view .LVU313
+ 1248 001a BCF1020F 		cmp	ip, #2
+ 1249 001e 03DC     		bgt	.L37
+ 281:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1250              		.loc 1 281 32 is_stmt 0 discriminator 3 view .LVU314
+ 1251 0020 14F80C20 		ldrb	r2, [r4, ip]	@ zero_extendqisi2
+ 281:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1252              		.loc 1 281 20 discriminator 3 view .LVU315
+ 1253 0024 002A     		cmp	r2, #0
+ 1254 0026 F3D1     		bne	.L38
+ 1255              	.L37:
+ 284:modules/referee/referee_UI.c **** 	}
+ 285:modules/referee/referee_UI.c **** 	graph->graphic_tpye = UI_Graph_Int;
+ 1256              		.loc 1 285 2 is_stmt 1 view .LVU316
+ 1257              		.loc 1 285 22 is_stmt 0 view .LVU317
+ 1258 0028 C278     		ldrb	r2, [r0, #3]	@ zero_extendqisi2
+ 1259 002a 0624     		movs	r4, #6
+ 1260              	.LVL73:
+ 1261              		.loc 1 285 22 view .LVU318
+ 1262 002c 64F3C502 		bfi	r2, r4, #3, #3
+ 1263 0030 C270     		strb	r2, [r0, #3]
+ 286:modules/referee/referee_UI.c **** 	graph->operate_tpye = Graph_Operate;
+ 1264              		.loc 1 286 2 is_stmt 1 view .LVU319
+ 1265              		.loc 1 286 22 is_stmt 0 view .LVU320
+ 1266 0032 D2B2     		uxtb	r2, r2
+ 1267 0034 61F30202 		bfi	r2, r1, #0, #3
+ 1268 0038 C270     		strb	r2, [r0, #3]
+ 287:modules/referee/referee_UI.c **** 	graph->layer = Graph_Layer;
+ 1269              		.loc 1 287 2 is_stmt 1 view .LVU321
+ 1270              		.loc 1 287 15 is_stmt 0 view .LVU322
+ 1271 003a 0EF00304 		and	r4, lr, #3
+ 1272 003e D2B2     		uxtb	r2, r2
+ 1273 0040 02F03F02 		and	r2, r2, #63
+ 1274 0044 42EA8412 		orr	r2, r2, r4, lsl #6
+ 1275 0048 C270     		strb	r2, [r0, #3]
+ 1276              	.LVL74:
+ 1277              		.loc 1 287 15 view .LVU323
+ 1278 004a CEF3810E 		ubfx	lr, lr, #2, #2
+ 1279              	.LVL75:
+ 1280              		.loc 1 287 15 view .LVU324
+ 1281 004e 0279     		ldrb	r2, [r0, #4]	@ zero_extendqisi2
+ 1282 0050 22F00302 		bic	r2, r2, #3
+ 1283 0054 42EA0E0E 		orr	lr, r2, lr
+ 1284 0058 80F804E0 		strb	lr, [r0, #4]
+ 288:modules/referee/referee_UI.c **** 	graph->color = Graph_Color;
+ 1285              		.loc 1 288 2 is_stmt 1 view .LVU325
+ 1286              		.loc 1 288 15 is_stmt 0 view .LVU326
+ 1287 005c 5FFA8EF2 		uxtb	r2, lr
+ 1288 0060 039C     		ldr	r4, [sp, #12]
+ 1289 0062 64F38502 		bfi	r2, r4, #2, #4
+ 1290              	.LVL76:
+ 1291              		.loc 1 288 15 view .LVU327
+ 1292 0066 0271     		strb	r2, [r0, #4]
+ 289:modules/referee/referee_UI.c **** 
+ 290:modules/referee/referee_UI.c **** 	graph->start_angle = Graph_Size;
+ 1293              		.loc 1 290 2 is_stmt 1 view .LVU328
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 29
+
+
+ 1294              		.loc 1 290 21 is_stmt 0 view .LVU329
+ 1295 0068 049A     		ldr	r2, [sp, #16]
+ 1296 006a 02F00304 		and	r4, r2, #3
+ 1297 006e 0279     		ldrb	r2, [r0, #4]	@ zero_extendqisi2
+ 1298 0070 02F03F02 		and	r2, r2, #63
+ 1299 0074 42EA8412 		orr	r2, r2, r4, lsl #6
+ 1300 0078 0271     		strb	r2, [r0, #4]
+ 1301 007a 049A     		ldr	r2, [sp, #16]
+ 1302 007c C2F38604 		ubfx	r4, r2, #2, #7
+ 1303 0080 4279     		ldrb	r2, [r0, #5]	@ zero_extendqisi2
+ 1304 0082 22F07F02 		bic	r2, r2, #127
+ 1305 0086 2243     		orrs	r2, r2, r4
+ 1306 0088 4271     		strb	r2, [r0, #5]
+ 291:modules/referee/referee_UI.c **** 	graph->end_angle = 0;
+ 1307              		.loc 1 291 2 is_stmt 1 view .LVU330
+ 1308              		.loc 1 291 19 is_stmt 0 view .LVU331
+ 1309 008a D2B2     		uxtb	r2, r2
+ 1310 008c 02F07F02 		and	r2, r2, #127
+ 1311 0090 4271     		strb	r2, [r0, #5]
+ 1312 0092 0022     		movs	r2, #0
+ 1313 0094 8271     		strb	r2, [r0, #6]
+ 292:modules/referee/referee_UI.c **** 	graph->width = Graph_Width;
+ 1314              		.loc 1 292 2 is_stmt 1 view .LVU332
+ 1315              		.loc 1 292 15 is_stmt 0 view .LVU333
+ 1316 0096 059A     		ldr	r2, [sp, #20]
+ 1317 0098 C271     		strb	r2, [r0, #7]
+ 1318 009a C2F30124 		ubfx	r4, r2, #8, #2
+ 1319 009e 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 1320 00a0 22F00302 		bic	r2, r2, #3
+ 1321 00a4 2243     		orrs	r2, r2, r4
+ 1322 00a6 0272     		strb	r2, [r0, #8]
+ 293:modules/referee/referee_UI.c **** 	graph->start_x = Start_x;
+ 1323              		.loc 1 293 2 is_stmt 1 view .LVU334
+ 1324              		.loc 1 293 17 is_stmt 0 view .LVU335
+ 1325 00a8 069A     		ldr	r2, [sp, #24]
+ 1326 00aa 02F03F04 		and	r4, r2, #63
+ 1327 00ae 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 1328 00b0 02F00302 		and	r2, r2, #3
+ 1329 00b4 42EA8402 		orr	r2, r2, r4, lsl #2
+ 1330 00b8 0272     		strb	r2, [r0, #8]
+ 1331 00ba 069A     		ldr	r2, [sp, #24]
+ 1332 00bc C2F38414 		ubfx	r4, r2, #6, #5
+ 1333 00c0 427A     		ldrb	r2, [r0, #9]	@ zero_extendqisi2
+ 1334 00c2 22F01F02 		bic	r2, r2, #31
+ 1335 00c6 2243     		orrs	r2, r2, r4
+ 1336 00c8 4272     		strb	r2, [r0, #9]
+ 294:modules/referee/referee_UI.c **** 	graph->start_y = Start_y;
+ 1337              		.loc 1 294 2 is_stmt 1 view .LVU336
+ 1338              		.loc 1 294 17 is_stmt 0 view .LVU337
+ 1339 00ca 079A     		ldr	r2, [sp, #28]
+ 1340 00cc 02F00704 		and	r4, r2, #7
+ 1341 00d0 427A     		ldrb	r2, [r0, #9]	@ zero_extendqisi2
+ 1342 00d2 02F01F02 		and	r2, r2, #31
+ 1343 00d6 42EA4412 		orr	r2, r2, r4, lsl #5
+ 1344 00da 4272     		strb	r2, [r0, #9]
+ 1345 00dc 079A     		ldr	r2, [sp, #28]
+ 1346 00de C2F3C701 		ubfx	r1, r2, #3, #8
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 30
+
+
+ 1347              	.LVL77:
+ 1348              		.loc 1 294 17 view .LVU338
+ 1349 00e2 8172     		strb	r1, [r0, #10]
+ 295:modules/referee/referee_UI.c **** 	graph->radius = Graph_Integer & 0x3FF;
+ 1350              		.loc 1 295 2 is_stmt 1 view .LVU339
+ 1351              		.loc 1 295 16 is_stmt 0 view .LVU340
+ 1352 00e4 C372     		strb	r3, [r0, #11]
+ 1353 00e6 C3F30121 		ubfx	r1, r3, #8, #2
+ 1354 00ea 027B     		ldrb	r2, [r0, #12]	@ zero_extendqisi2
+ 1355 00ec 22F00302 		bic	r2, r2, #3
+ 1356 00f0 0A43     		orrs	r2, r2, r1
+ 1357 00f2 0273     		strb	r2, [r0, #12]
+ 296:modules/referee/referee_UI.c **** 	graph->end_x = (Graph_Integer >> 10) & 0x7FF;
+ 1358              		.loc 1 296 2 is_stmt 1 view .LVU341
+ 1359              		.loc 1 296 15 is_stmt 0 view .LVU342
+ 1360 00f4 C3F38521 		ubfx	r1, r3, #10, #6
+ 1361 00f8 D2B2     		uxtb	r2, r2
+ 1362 00fa 02F00302 		and	r2, r2, #3
+ 1363 00fe 42EA8102 		orr	r2, r2, r1, lsl #2
+ 1364 0102 0273     		strb	r2, [r0, #12]
+ 1365 0104 C3F30441 		ubfx	r1, r3, #16, #5
+ 1366 0108 427B     		ldrb	r2, [r0, #13]	@ zero_extendqisi2
+ 1367 010a 22F01F02 		bic	r2, r2, #31
+ 1368 010e 0A43     		orrs	r2, r2, r1
+ 1369 0110 4273     		strb	r2, [r0, #13]
+ 297:modules/referee/referee_UI.c **** 	graph->end_y = (Graph_Integer >> 21) & 0x7FF;
+ 1370              		.loc 1 297 2 is_stmt 1 view .LVU343
+ 1371              		.loc 1 297 15 is_stmt 0 view .LVU344
+ 1372 0112 C3F34251 		ubfx	r1, r3, #21, #3
+ 1373 0116 D2B2     		uxtb	r2, r2
+ 1374 0118 02F01F02 		and	r2, r2, #31
+ 1375 011c 42EA4112 		orr	r2, r2, r1, lsl #5
+ 1376 0120 4273     		strb	r2, [r0, #13]
+ 1377 0122 1B0E     		lsrs	r3, r3, #24
+ 1378 0124 8373     		strb	r3, [r0, #14]
+ 298:modules/referee/referee_UI.c **** }
+ 1379              		.loc 1 298 1 view .LVU345
+ 1380 0126 30BD     		pop	{r4, r5, pc}
+ 1381              		.cfi_endproc
+ 1382              	.LFE283:
+ 1384              		.section	.text.UICharDraw,"ax",%progbits
+ 1385              		.align	1
+ 1386              		.global	UICharDraw
+ 1387              		.syntax unified
+ 1388              		.thumb
+ 1389              		.thumb_func
+ 1391              	UICharDraw:
+ 1392              	.LVL78:
+ 1393              	.LFB284:
+ 299:modules/referee/referee_UI.c **** 
+ 300:modules/referee/referee_UI.c **** /************************************************绘制字符型数据*****************************
+ 301:modules/referee/referee_UI.c **** **参数：*graph Graph_Data类型变量指针，用于存放图形数据
+ 302:modules/referee/referee_UI.c **** 		graphname[3]   图片名称，用于标识更改
+ 303:modules/referee/referee_UI.c **** 		Graph_Operate   图片操作，见头文件
+ 304:modules/referee/referee_UI.c **** 		Graph_Layer    图层0-9
+ 305:modules/referee/referee_UI.c **** 		Graph_Color    图形颜色
+ 306:modules/referee/referee_UI.c **** 		Graph_Size     字号
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 31
+
+
+ 307:modules/referee/referee_UI.c **** 		Graph_Width    图形线宽
+ 308:modules/referee/referee_UI.c **** 		Start_x、Start_y    开始坐标
+ 309:modules/referee/referee_UI.c **** 
+ 310:modules/referee/referee_UI.c **** **参数：*graph Graph_Data类型变量指针，用于存放图形数据
+ 311:modules/referee/referee_UI.c **** 		fmt需要显示的字符串
+ 312:modules/referee/referee_UI.c **** 		此函数的实现和具体使用类似于printf函数
+ 313:modules/referee/referee_UI.c **** ***************************************************************************************************
+ 314:modules/referee/referee_UI.c **** void UICharDraw(String_Data_t *graph, char graphname[3], uint32_t Graph_Operate, uint32_t Graph_Lay
+ 315:modules/referee/referee_UI.c **** 				uint32_t Graph_Size, uint32_t Graph_Width, uint32_t Start_x, uint32_t Start_y, char *fmt, ...)
+ 316:modules/referee/referee_UI.c **** {
+ 1394              		.loc 1 316 1 is_stmt 1 view -0
+ 1395              		.cfi_startproc
+ 1396              		@ args = 24, pretend = 0, frame = 8
+ 1397              		@ frame_needed = 0, uses_anonymous_args = 1
+ 1398              		.loc 1 316 1 is_stmt 0 view .LVU347
+ 1399 0000 30B5     		push	{r4, r5, lr}
+ 1400              	.LCFI8:
+ 1401              		.cfi_def_cfa_offset 12
+ 1402              		.cfi_offset 4, -12
+ 1403              		.cfi_offset 5, -8
+ 1404              		.cfi_offset 14, -4
+ 1405 0002 83B0     		sub	sp, sp, #12
+ 1406              	.LCFI9:
+ 1407              		.cfi_def_cfa_offset 24
+ 1408 0004 0446     		mov	r4, r0
+ 1409 0006 9C46     		mov	ip, r3
+ 1410 0008 DDF828E0 		ldr	lr, [sp, #40]
+ 317:modules/referee/referee_UI.c **** 	int i;
+ 1411              		.loc 1 317 2 is_stmt 1 view .LVU348
+ 318:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1412              		.loc 1 318 2 view .LVU349
+ 1413              	.LVL79:
+ 1414              		.loc 1 318 9 is_stmt 0 view .LVU350
+ 1415 000c 0020     		movs	r0, #0
+ 1416              	.LVL80:
+ 1417              		.loc 1 318 2 view .LVU351
+ 1418 000e 03E0     		b	.L41
+ 1419              	.LVL81:
+ 1420              	.L43:
+ 319:modules/referee/referee_UI.c **** 	{
+ 320:modules/referee/referee_UI.c **** 		graph->Graph_Control.graphic_name[2 - i] = graphname[i];
+ 1421              		.loc 1 320 3 is_stmt 1 view .LVU352
+ 1422              		.loc 1 320 39 is_stmt 0 view .LVU353
+ 1423 0010 C0F10205 		rsb	r5, r0, #2
+ 1424              		.loc 1 320 44 view .LVU354
+ 1425 0014 6355     		strb	r3, [r4, r5]
+ 318:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1426              		.loc 1 318 46 is_stmt 1 discriminator 4 view .LVU355
+ 1427 0016 0130     		adds	r0, r0, #1
+ 1428              	.LVL82:
+ 1429              	.L41:
+ 318:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1430              		.loc 1 318 20 discriminator 1 view .LVU356
+ 1431 0018 0228     		cmp	r0, #2
+ 1432 001a 02DC     		bgt	.L42
+ 318:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1433              		.loc 1 318 32 is_stmt 0 discriminator 3 view .LVU357
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 32
+
+
+ 1434 001c 0B5C     		ldrb	r3, [r1, r0]	@ zero_extendqisi2
+ 318:modules/referee/referee_UI.c **** 	for (i = 0; i < 3 && graphname[i] != '\0'; i++)
+ 1435              		.loc 1 318 20 discriminator 3 view .LVU358
+ 1436 001e 002B     		cmp	r3, #0
+ 1437 0020 F6D1     		bne	.L43
+ 1438              	.L42:
+ 321:modules/referee/referee_UI.c **** 	}
+ 322:modules/referee/referee_UI.c **** 
+ 323:modules/referee/referee_UI.c **** 	graph->Graph_Control.graphic_tpye = UI_Graph_Char;
+ 1439              		.loc 1 323 2 is_stmt 1 view .LVU359
+ 1440              		.loc 1 323 36 is_stmt 0 view .LVU360
+ 1441 0022 E378     		ldrb	r3, [r4, #3]	@ zero_extendqisi2
+ 1442 0024 43F03803 		orr	r3, r3, #56
+ 1443 0028 E370     		strb	r3, [r4, #3]
+ 324:modules/referee/referee_UI.c **** 	graph->Graph_Control.operate_tpye = Graph_Operate;
+ 1444              		.loc 1 324 2 is_stmt 1 view .LVU361
+ 1445              		.loc 1 324 36 is_stmt 0 view .LVU362
+ 1446 002a DBB2     		uxtb	r3, r3
+ 1447 002c 62F30203 		bfi	r3, r2, #0, #3
+ 1448 0030 E370     		strb	r3, [r4, #3]
+ 325:modules/referee/referee_UI.c **** 	graph->Graph_Control.layer = Graph_Layer;
+ 1449              		.loc 1 325 2 is_stmt 1 view .LVU363
+ 1450              		.loc 1 325 29 is_stmt 0 view .LVU364
+ 1451 0032 0CF00301 		and	r1, ip, #3
+ 1452              	.LVL83:
+ 1453              		.loc 1 325 29 view .LVU365
+ 1454 0036 DBB2     		uxtb	r3, r3
+ 1455 0038 03F03F03 		and	r3, r3, #63
+ 1456 003c 43EA8113 		orr	r3, r3, r1, lsl #6
+ 1457 0040 E370     		strb	r3, [r4, #3]
+ 1458              	.LVL84:
+ 1459              		.loc 1 325 29 view .LVU366
+ 1460 0042 CCF3810C 		ubfx	ip, ip, #2, #2
+ 1461              	.LVL85:
+ 1462              		.loc 1 325 29 view .LVU367
+ 1463 0046 2379     		ldrb	r3, [r4, #4]	@ zero_extendqisi2
+ 1464 0048 23F00303 		bic	r3, r3, #3
+ 1465 004c 43EA0C0C 		orr	ip, r3, ip
+ 1466 0050 84F804C0 		strb	ip, [r4, #4]
+ 326:modules/referee/referee_UI.c **** 	graph->Graph_Control.color = Graph_Color;
+ 1467              		.loc 1 326 2 is_stmt 1 view .LVU368
+ 1468              		.loc 1 326 29 is_stmt 0 view .LVU369
+ 1469 0054 5FFA8CF3 		uxtb	r3, ip
+ 1470 0058 0699     		ldr	r1, [sp, #24]
+ 1471 005a 61F38503 		bfi	r3, r1, #2, #4
+ 1472              	.LVL86:
+ 1473              		.loc 1 326 29 view .LVU370
+ 1474 005e 2371     		strb	r3, [r4, #4]
+ 327:modules/referee/referee_UI.c **** 
+ 328:modules/referee/referee_UI.c **** 	graph->Graph_Control.width = Graph_Width;
+ 1475              		.loc 1 328 2 is_stmt 1 view .LVU371
+ 1476              		.loc 1 328 29 is_stmt 0 view .LVU372
+ 1477 0060 0021     		movs	r1, #0
+ 1478 0062 089B     		ldr	r3, [sp, #32]
+ 1479 0064 E371     		strb	r3, [r4, #7]
+ 1480 0066 C3F30120 		ubfx	r0, r3, #8, #2
+ 1481              	.LVL87:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 33
+
+
+ 1482              		.loc 1 328 29 view .LVU373
+ 1483 006a 237A     		ldrb	r3, [r4, #8]	@ zero_extendqisi2
+ 1484 006c 23F00303 		bic	r3, r3, #3
+ 1485 0070 0343     		orrs	r3, r3, r0
+ 1486 0072 2372     		strb	r3, [r4, #8]
+ 329:modules/referee/referee_UI.c **** 	graph->Graph_Control.start_x = Start_x;
+ 1487              		.loc 1 329 2 is_stmt 1 view .LVU374
+ 1488              		.loc 1 329 31 is_stmt 0 view .LVU375
+ 1489 0074 099B     		ldr	r3, [sp, #36]
+ 1490 0076 03F03F00 		and	r0, r3, #63
+ 1491 007a 237A     		ldrb	r3, [r4, #8]	@ zero_extendqisi2
+ 1492 007c 03F00303 		and	r3, r3, #3
+ 1493 0080 43EA8003 		orr	r3, r3, r0, lsl #2
+ 1494 0084 2372     		strb	r3, [r4, #8]
+ 1495 0086 099B     		ldr	r3, [sp, #36]
+ 1496 0088 C3F38410 		ubfx	r0, r3, #6, #5
+ 1497 008c 637A     		ldrb	r3, [r4, #9]	@ zero_extendqisi2
+ 1498 008e 23F01F03 		bic	r3, r3, #31
+ 1499 0092 0343     		orrs	r3, r3, r0
+ 1500 0094 6372     		strb	r3, [r4, #9]
+ 330:modules/referee/referee_UI.c **** 	graph->Graph_Control.start_y = Start_y;
+ 1501              		.loc 1 330 2 is_stmt 1 view .LVU376
+ 1502              		.loc 1 330 31 is_stmt 0 view .LVU377
+ 1503 0096 0EF00700 		and	r0, lr, #7
+ 1504 009a DBB2     		uxtb	r3, r3
+ 1505 009c 03F01F03 		and	r3, r3, #31
+ 1506 00a0 43EA4013 		orr	r3, r3, r0, lsl #5
+ 1507 00a4 6372     		strb	r3, [r4, #9]
+ 1508 00a6 CEF3C70E 		ubfx	lr, lr, #3, #8
+ 1509 00aa 84F80AE0 		strb	lr, [r4, #10]
+ 331:modules/referee/referee_UI.c **** 	graph->Graph_Control.start_angle = Graph_Size;
+ 1510              		.loc 1 331 2 is_stmt 1 view .LVU378
+ 1511              		.loc 1 331 35 is_stmt 0 view .LVU379
+ 1512 00ae 079B     		ldr	r3, [sp, #28]
+ 1513 00b0 03F00300 		and	r0, r3, #3
+ 1514 00b4 2379     		ldrb	r3, [r4, #4]	@ zero_extendqisi2
+ 1515 00b6 03F03F03 		and	r3, r3, #63
+ 1516 00ba 43EA8013 		orr	r3, r3, r0, lsl #6
+ 1517 00be 2371     		strb	r3, [r4, #4]
+ 1518 00c0 079B     		ldr	r3, [sp, #28]
+ 1519 00c2 C3F38602 		ubfx	r2, r3, #2, #7
+ 1520              	.LVL88:
+ 1521              		.loc 1 331 35 view .LVU380
+ 1522 00c6 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 1523 00c8 23F07F03 		bic	r3, r3, #127
+ 1524 00cc 1343     		orrs	r3, r3, r2
+ 1525 00ce 6371     		strb	r3, [r4, #5]
+ 332:modules/referee/referee_UI.c **** 	graph->Graph_Control.radius = 0;
+ 1526              		.loc 1 332 2 is_stmt 1 view .LVU381
+ 1527              		.loc 1 332 30 is_stmt 0 view .LVU382
+ 1528 00d0 E172     		strb	r1, [r4, #11]
+ 1529 00d2 237B     		ldrb	r3, [r4, #12]	@ zero_extendqisi2
+ 1530 00d4 23F00303 		bic	r3, r3, #3
+ 1531 00d8 2373     		strb	r3, [r4, #12]
+ 333:modules/referee/referee_UI.c **** 	graph->Graph_Control.end_x = 0;
+ 1532              		.loc 1 333 2 is_stmt 1 view .LVU383
+ 1533              		.loc 1 333 29 is_stmt 0 view .LVU384
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 34
+
+
+ 1534 00da DBB2     		uxtb	r3, r3
+ 1535 00dc 03F00303 		and	r3, r3, #3
+ 1536 00e0 2373     		strb	r3, [r4, #12]
+ 1537 00e2 637B     		ldrb	r3, [r4, #13]	@ zero_extendqisi2
+ 1538 00e4 23F01F03 		bic	r3, r3, #31
+ 1539 00e8 6373     		strb	r3, [r4, #13]
+ 334:modules/referee/referee_UI.c **** 	graph->Graph_Control.end_y = 0;
+ 1540              		.loc 1 334 2 is_stmt 1 view .LVU385
+ 1541              		.loc 1 334 29 is_stmt 0 view .LVU386
+ 1542 00ea DBB2     		uxtb	r3, r3
+ 1543 00ec 03F01F03 		and	r3, r3, #31
+ 1544 00f0 6373     		strb	r3, [r4, #13]
+ 1545 00f2 A173     		strb	r1, [r4, #14]
+ 335:modules/referee/referee_UI.c **** 
+ 336:modules/referee/referee_UI.c **** 	va_list ap;
+ 1546              		.loc 1 336 2 is_stmt 1 view .LVU387
+ 337:modules/referee/referee_UI.c **** 	va_start(ap, fmt);
+ 1547              		.loc 1 337 2 view .LVU388
+ 1548 00f4 0CAA     		add	r2, sp, #48
+ 1549 00f6 0192     		str	r2, [sp, #4]
+ 338:modules/referee/referee_UI.c **** 	vsprintf((char *)graph->show_Data, fmt, ap); // 使用参数列表进行格式化并输出到字�
+ 1550              		.loc 1 338 2 view .LVU389
+ 1551              		.loc 1 338 19 is_stmt 0 view .LVU390
+ 1552 00f8 04F10F05 		add	r5, r4, #15
+ 1553              		.loc 1 338 2 view .LVU391
+ 1554 00fc 0B99     		ldr	r1, [sp, #44]
+ 1555 00fe 2846     		mov	r0, r5
+ 1556 0100 FFF7FEFF 		bl	vsprintf
+ 1557              	.LVL89:
+ 339:modules/referee/referee_UI.c **** 	va_end(ap);
+ 1558              		.loc 1 339 2 is_stmt 1 view .LVU392
+ 340:modules/referee/referee_UI.c **** 	graph->Graph_Control.end_angle = strlen((const char *)graph->show_Data);
+ 1559              		.loc 1 340 2 view .LVU393
+ 1560              		.loc 1 340 35 is_stmt 0 view .LVU394
+ 1561 0104 2846     		mov	r0, r5
+ 1562 0106 FFF7FEFF 		bl	strlen
+ 1563              	.LVL90:
+ 1564              		.loc 1 340 33 discriminator 1 view .LVU395
+ 1565 010a 00F00102 		and	r2, r0, #1
+ 1566 010e 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 1567 0110 03F07F03 		and	r3, r3, #127
+ 1568 0114 43EAC213 		orr	r3, r3, r2, lsl #7
+ 1569 0118 6371     		strb	r3, [r4, #5]
+ 1570 011a C0F34700 		ubfx	r0, r0, #1, #8
+ 1571 011e A071     		strb	r0, [r4, #6]
+ 341:modules/referee/referee_UI.c **** }
+ 1572              		.loc 1 341 1 view .LVU396
+ 1573 0120 03B0     		add	sp, sp, #12
+ 1574              	.LCFI10:
+ 1575              		.cfi_def_cfa_offset 12
+ 1576              		@ sp needed
+ 1577 0122 30BD     		pop	{r4, r5, pc}
+ 1578              		.loc 1 341 1 view .LVU397
+ 1579              		.cfi_endproc
+ 1580              	.LFE284:
+ 1582              		.section	.text.UIGraphRefresh,"ax",%progbits
+ 1583              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 35
+
+
+ 1584              		.global	UIGraphRefresh
+ 1585              		.syntax unified
+ 1586              		.thumb
+ 1587              		.thumb_func
+ 1589              	UIGraphRefresh:
+ 1590              	.LVL91:
+ 1591              	.LFB285:
+ 342:modules/referee/referee_UI.c **** 
+ 343:modules/referee/referee_UI.c **** /* UI推送函数（使更改生效）
+ 344:modules/referee/referee_UI.c ****    参数： cnt   图形个数
+ 345:modules/referee/referee_UI.c **** 			...   图形变量参数
+ 346:modules/referee/referee_UI.c ****    Tips：：该函数只能推送1，2，5，7个图形，其他数目协议未涉及
+ 347:modules/referee/referee_UI.c ****  */
+ 348:modules/referee/referee_UI.c **** void UIGraphRefresh(referee_id_t *_id, int cnt, ...)
+ 349:modules/referee/referee_UI.c **** {
+ 1592              		.loc 1 349 1 is_stmt 1 view -0
+ 1593              		.cfi_startproc
+ 1594              		@ args = 4, pretend = 12, frame = 40
+ 1595              		@ frame_needed = 0, uses_anonymous_args = 1
+ 1596              		.loc 1 349 1 is_stmt 0 view .LVU399
+ 1597 0000 0EB4     		push	{r1, r2, r3}
+ 1598              	.LCFI11:
+ 1599              		.cfi_def_cfa_offset 12
+ 1600              		.cfi_offset 1, -12
+ 1601              		.cfi_offset 2, -8
+ 1602              		.cfi_offset 3, -4
+ 1603 0002 F0B5     		push	{r4, r5, r6, r7, lr}
+ 1604              	.LCFI12:
+ 1605              		.cfi_def_cfa_offset 32
+ 1606              		.cfi_offset 4, -32
+ 1607              		.cfi_offset 5, -28
+ 1608              		.cfi_offset 6, -24
+ 1609              		.cfi_offset 7, -20
+ 1610              		.cfi_offset 14, -16
+ 1611 0004 8AB0     		sub	sp, sp, #40
+ 1612              	.LCFI13:
+ 1613              		.cfi_def_cfa_offset 72
+ 1614 0006 0446     		mov	r4, r0
+ 1615 0008 0FAB     		add	r3, sp, #60
+ 1616 000a 53F8045B 		ldr	r5, [r3], #4
+ 350:modules/referee/referee_UI.c **** 	UI_GraphReFresh_t UI_GraphReFresh_data;
+ 1617              		.loc 1 350 2 is_stmt 1 view .LVU400
+ 351:modules/referee/referee_UI.c **** 	Graph_Data_t graphData;
+ 1618              		.loc 1 351 2 view .LVU401
+ 352:modules/referee/referee_UI.c **** 
+ 353:modules/referee/referee_UI.c **** 	uint8_t temp_datalength = LEN_HEADER + LEN_CMDID + Interactive_Data_LEN_Head + UI_Operate_LEN_PerD
+ 1619              		.loc 1 353 2 view .LVU402
+ 1620              		.loc 1 353 110 is_stmt 0 view .LVU403
+ 1621 000e 6E1C     		adds	r6, r5, #1
+ 1622              		.loc 1 353 10 view .LVU404
+ 1623 0010 C6EB0616 		rsb	r6, r6, r6, lsl #4
+ 1624 0014 F6B2     		uxtb	r6, r6
+ 1625              	.LVL92:
+ 354:modules/referee/referee_UI.c **** 
+ 355:modules/referee/referee_UI.c **** 	static uint8_t buffer[512]; // 交互数据缓存
+ 1626              		.loc 1 355 2 is_stmt 1 view .LVU405
+ 356:modules/referee/referee_UI.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 36
+
+
+ 357:modules/referee/referee_UI.c **** 	va_list ap;		   // 创建一个 va_list 类型变量
+ 1627              		.loc 1 357 2 view .LVU406
+ 358:modules/referee/referee_UI.c **** 	va_start(ap, cnt); // 初始化 va_list 变量为一个参数列表
+ 1628              		.loc 1 358 2 view .LVU407
+ 1629 0016 0193     		str	r3, [sp, #4]
+ 359:modules/referee/referee_UI.c **** 
+ 360:modules/referee/referee_UI.c **** 	UI_GraphReFresh_data.FrameHeader.SOF = REFEREE_SOF;
+ 1630              		.loc 1 360 2 view .LVU408
+ 1631              		.loc 1 360 39 is_stmt 0 view .LVU409
+ 1632 0018 A523     		movs	r3, #165
+ 1633 001a 8DF81830 		strb	r3, [sp, #24]
+ 361:modules/referee/referee_UI.c **** 	UI_GraphReFresh_data.FrameHeader.DataLength = Interactive_Data_LEN_Head + cnt * UI_Operate_LEN_Per
+ 1634              		.loc 1 361 2 is_stmt 1 view .LVU410
+ 1635              		.loc 1 361 74 is_stmt 0 view .LVU411
+ 1636 001e C5EB0513 		rsb	r3, r5, r5, lsl #4
+ 1637 0022 0633     		adds	r3, r3, #6
+ 1638              		.loc 1 361 46 view .LVU412
+ 1639 0024 ADF81930 		strh	r3, [sp, #25]	@ unaligned
+ 362:modules/referee/referee_UI.c **** 	UI_GraphReFresh_data.FrameHeader.Seq = UI_Seq;
+ 1640              		.loc 1 362 2 is_stmt 1 view .LVU413
+ 1641              		.loc 1 362 39 is_stmt 0 view .LVU414
+ 1642 0028 3C4B     		ldr	r3, .L55
+ 1643 002a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1644 002c 8DF81B30 		strb	r3, [sp, #27]
+ 363:modules/referee/referee_UI.c **** 	UI_GraphReFresh_data.FrameHeader.CRC8 = Get_CRC8_Check_Sum((uint8_t *)&UI_GraphReFresh_data, LEN_C
+ 1645              		.loc 1 363 2 is_stmt 1 view .LVU415
+ 1646              		.loc 1 363 42 is_stmt 0 view .LVU416
+ 1647 0030 FF22     		movs	r2, #255
+ 1648 0032 0421     		movs	r1, #4
+ 1649 0034 06A8     		add	r0, sp, #24
+ 1650              	.LVL93:
+ 1651              		.loc 1 363 42 view .LVU417
+ 1652 0036 FFF7FEFF 		bl	Get_CRC8_Check_Sum
+ 1653              	.LVL94:
+ 1654              		.loc 1 363 40 discriminator 1 view .LVU418
+ 1655 003a 8DF81C00 		strb	r0, [sp, #28]
+ 364:modules/referee/referee_UI.c **** 
+ 365:modules/referee/referee_UI.c **** 	UI_GraphReFresh_data.CmdID = ID_student_interactive;
+ 1656              		.loc 1 365 2 is_stmt 1 view .LVU419
+ 1657              		.loc 1 365 29 is_stmt 0 view .LVU420
+ 1658 003e 0123     		movs	r3, #1
+ 1659 0040 8DF81D30 		strb	r3, [sp, #29]
+ 1660 0044 0323     		movs	r3, #3
+ 1661 0046 8DF81E30 		strb	r3, [sp, #30]
+ 366:modules/referee/referee_UI.c **** 
+ 367:modules/referee/referee_UI.c **** 	switch (cnt)
+ 1662              		.loc 1 367 2 is_stmt 1 view .LVU421
+ 1663 004a 052D     		cmp	r5, #5
+ 1664 004c 2AD0     		beq	.L46
+ 1665 004e 0ADC     		bgt	.L47
+ 1666 0050 012D     		cmp	r5, #1
+ 1667 0052 11D0     		beq	.L48
+ 1668 0054 022D     		cmp	r5, #2
+ 1669 0056 14D1     		bne	.L50
+ 368:modules/referee/referee_UI.c **** 	{
+ 369:modules/referee/referee_UI.c **** 	case 1:
+ 370:modules/referee/referee_UI.c **** 		UI_GraphReFresh_data.datahead.data_cmd_id = UI_Data_ID_Draw1;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 37
+
+
+ 371:modules/referee/referee_UI.c **** 		break;
+ 372:modules/referee/referee_UI.c **** 	case 2:
+ 373:modules/referee/referee_UI.c **** 		UI_GraphReFresh_data.datahead.data_cmd_id = UI_Data_ID_Draw2;
+ 1670              		.loc 1 373 3 view .LVU422
+ 1671              		.loc 1 373 45 is_stmt 0 view .LVU423
+ 1672 0058 0223     		movs	r3, #2
+ 1673 005a 8DF81F30 		strb	r3, [sp, #31]
+ 1674 005e 0123     		movs	r3, #1
+ 1675 0060 8DF82030 		strb	r3, [sp, #32]
+ 374:modules/referee/referee_UI.c **** 		break;
+ 1676              		.loc 1 374 3 is_stmt 1 view .LVU424
+ 1677 0064 0DE0     		b	.L50
+ 1678              	.L47:
+ 367:modules/referee/referee_UI.c **** 	{
+ 1679              		.loc 1 367 2 is_stmt 0 view .LVU425
+ 1680 0066 072D     		cmp	r5, #7
+ 1681 0068 0BD1     		bne	.L50
+ 375:modules/referee/referee_UI.c **** 	case 5:
+ 376:modules/referee/referee_UI.c **** 		UI_GraphReFresh_data.datahead.data_cmd_id = UI_Data_ID_Draw5;
+ 377:modules/referee/referee_UI.c **** 		break;
+ 378:modules/referee/referee_UI.c **** 	case 7:
+ 379:modules/referee/referee_UI.c **** 		UI_GraphReFresh_data.datahead.data_cmd_id = UI_Data_ID_Draw7;
+ 1682              		.loc 1 379 3 is_stmt 1 view .LVU426
+ 1683              		.loc 1 379 45 is_stmt 0 view .LVU427
+ 1684 006a 0423     		movs	r3, #4
+ 1685 006c 8DF81F30 		strb	r3, [sp, #31]
+ 1686 0070 0123     		movs	r3, #1
+ 1687 0072 8DF82030 		strb	r3, [sp, #32]
+ 380:modules/referee/referee_UI.c **** 		break;
+ 1688              		.loc 1 380 3 is_stmt 1 view .LVU428
+ 1689 0076 04E0     		b	.L50
+ 1690              	.L48:
+ 370:modules/referee/referee_UI.c **** 		break;
+ 1691              		.loc 1 370 3 view .LVU429
+ 370:modules/referee/referee_UI.c **** 		break;
+ 1692              		.loc 1 370 45 is_stmt 0 view .LVU430
+ 1693 0078 0123     		movs	r3, #1
+ 1694 007a 8DF81F30 		strb	r3, [sp, #31]
+ 1695 007e 8DF82030 		strb	r3, [sp, #32]
+ 371:modules/referee/referee_UI.c **** 	case 2:
+ 1696              		.loc 1 371 3 is_stmt 1 view .LVU431
+ 1697              	.L50:
+ 381:modules/referee/referee_UI.c **** 	}
+ 382:modules/referee/referee_UI.c **** 
+ 383:modules/referee/referee_UI.c **** 	UI_GraphReFresh_data.datahead.receiver_ID = _id->Cilent_ID;
+ 1698              		.loc 1 383 2 view .LVU432
+ 1699              		.loc 1 383 49 is_stmt 0 view .LVU433
+ 1700 0082 B4F80330 		ldrh	r3, [r4, #3]	@ unaligned
+ 1701              		.loc 1 383 44 view .LVU434
+ 1702 0086 ADF82330 		strh	r3, [sp, #35]	@ unaligned
+ 384:modules/referee/referee_UI.c **** 	UI_GraphReFresh_data.datahead.sender_ID = _id->Robot_ID;
+ 1703              		.loc 1 384 2 is_stmt 1 view .LVU435
+ 1704              		.loc 1 384 47 is_stmt 0 view .LVU436
+ 1705 008a B4F80130 		ldrh	r3, [r4, #1]	@ unaligned
+ 1706              		.loc 1 384 42 view .LVU437
+ 1707 008e ADF82130 		strh	r3, [sp, #33]	@ unaligned
+ 385:modules/referee/referee_UI.c **** 	memcpy(buffer, (uint8_t *)&UI_GraphReFresh_data, LEN_HEADER + LEN_CMDID + Interactive_Data_LEN_Hea
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 38
+
+
+ 1708              		.loc 1 385 2 is_stmt 1 view .LVU438
+ 1709 0092 234C     		ldr	r4, .L55+4
+ 1710              	.LVL95:
+ 1711              		.loc 1 385 2 is_stmt 0 view .LVU439
+ 1712 0094 0AAB     		add	r3, sp, #40
+ 1713 0096 13E90F00 		ldmdb	r3, {r0, r1, r2, r3}
+ 1714 009a 07C4     		stmia	r4!, {r0, r1, r2}
+ 1715 009c 2370     		strb	r3, [r4]
+ 386:modules/referee/referee_UI.c **** 
+ 387:modules/referee/referee_UI.c **** 	for (uint8_t i = 0; i < cnt; i++) // 发送交互数据的数据帧，并计算CRC16校验值
+ 1716              		.loc 1 387 2 is_stmt 1 view .LVU440
+ 1717              	.LBB2:
+ 1718              		.loc 1 387 7 view .LVU441
+ 1719              	.LVL96:
+ 1720              		.loc 1 387 15 is_stmt 0 view .LVU442
+ 1721 009e 4FF0000C 		mov	ip, #0
+ 1722              		.loc 1 387 2 view .LVU443
+ 1723 00a2 2AE0     		b	.L52
+ 1724              	.LVL97:
+ 1725              	.L46:
+ 1726              		.loc 1 387 2 view .LVU444
+ 1727              	.LBE2:
+ 376:modules/referee/referee_UI.c **** 		break;
+ 1728              		.loc 1 376 3 is_stmt 1 view .LVU445
+ 376:modules/referee/referee_UI.c **** 		break;
+ 1729              		.loc 1 376 45 is_stmt 0 view .LVU446
+ 1730 00a4 0323     		movs	r3, #3
+ 1731 00a6 8DF81F30 		strb	r3, [sp, #31]
+ 1732 00aa 0123     		movs	r3, #1
+ 1733 00ac 8DF82030 		strb	r3, [sp, #32]
+ 377:modules/referee/referee_UI.c **** 	case 7:
+ 1734              		.loc 1 377 3 is_stmt 1 view .LVU447
+ 1735 00b0 E7E7     		b	.L50
+ 1736              	.LVL98:
+ 1737              	.L53:
+ 1738              	.LBB3:
+ 388:modules/referee/referee_UI.c **** 	{
+ 389:modules/referee/referee_UI.c **** 		graphData = va_arg(ap, Graph_Data_t); // 访问参数列表中的每个项,第二个参数是你�
+ 1739              		.loc 1 389 3 view .LVU448
+ 1740              		.loc 1 389 13 is_stmt 0 view .LVU449
+ 1741 00b2 019C     		ldr	r4, [sp, #4]
+ 1742 00b4 04F11003 		add	r3, r4, #16
+ 1743 00b8 0193     		str	r3, [sp, #4]
+ 1744 00ba 02AB     		add	r3, sp, #8
+ 1745 00bc 2068     		ldr	r0, [r4]	@ unaligned
+ 1746 00be 6168     		ldr	r1, [r4, #4]	@ unaligned
+ 1747 00c0 A268     		ldr	r2, [r4, #8]	@ unaligned
+ 1748 00c2 07C3     		stmia	r3!, {r0, r1, r2}
+ 1749 00c4 A189     		ldrh	r1, [r4, #12]	@ unaligned
+ 1750 00c6 A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+ 1751 00c8 1980     		strh	r1, [r3]	@ unaligned
+ 1752 00ca 9A70     		strb	r2, [r3, #2]
+ 390:modules/referee/referee_UI.c **** 		memcpy(buffer + (LEN_HEADER + LEN_CMDID + Interactive_Data_LEN_Head + UI_Operate_LEN_PerDraw * i)
+ 1753              		.loc 1 390 3 is_stmt 1 view .LVU450
+ 1754              		.loc 1 390 96 is_stmt 0 view .LVU451
+ 1755 00cc CCEB0C14 		rsb	r4, ip, ip, lsl #4
+ 1756              		.loc 1 390 71 view .LVU452
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 39
+
+
+ 1757 00d0 0D34     		adds	r4, r4, #13
+ 1758              		.loc 1 390 3 view .LVU453
+ 1759 00d2 134F     		ldr	r7, .L55+4
+ 1760 00d4 04EB070E 		add	lr, r4, r7
+ 1761 00d8 02AB     		add	r3, sp, #8
+ 1762 00da 07CB     		ldmia	r3!, {r0, r1, r2}
+ 1763 00dc 3851     		str	r0, [r7, r4]	@ unaligned
+ 1764 00de CEF80410 		str	r1, [lr, #4]	@ unaligned
+ 1765 00e2 CEF80820 		str	r2, [lr, #8]	@ unaligned
+ 1766 00e6 1A88     		ldrh	r2, [r3]	@ unaligned
+ 1767 00e8 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 1768 00ea AEF80C20 		strh	r2, [lr, #12]	@ unaligned
+ 1769 00ee 8EF80E30 		strb	r3, [lr, #14]
+ 387:modules/referee/referee_UI.c **** 	{
+ 1770              		.loc 1 387 32 is_stmt 1 discriminator 3 view .LVU454
+ 1771 00f2 0CF1010C 		add	ip, ip, #1
+ 1772              	.LVL99:
+ 387:modules/referee/referee_UI.c **** 	{
+ 1773              		.loc 1 387 32 is_stmt 0 discriminator 3 view .LVU455
+ 1774 00f6 5FFA8CFC 		uxtb	ip, ip
+ 1775              	.LVL100:
+ 1776              	.L52:
+ 387:modules/referee/referee_UI.c **** 	{
+ 1777              		.loc 1 387 24 is_stmt 1 discriminator 1 view .LVU456
+ 1778 00fa AC45     		cmp	ip, r5
+ 1779 00fc D9DB     		blt	.L53
+ 1780              	.LBE3:
+ 391:modules/referee/referee_UI.c **** 	}
+ 392:modules/referee/referee_UI.c **** 	Append_CRC16_Check_Sum(buffer, temp_datalength);
+ 1781              		.loc 1 392 2 view .LVU457
+ 1782 00fe 084C     		ldr	r4, .L55+4
+ 1783 0100 3146     		mov	r1, r6
+ 1784 0102 2046     		mov	r0, r4
+ 1785 0104 FFF7FEFF 		bl	Append_CRC16_Check_Sum
+ 1786              	.LVL101:
+ 393:modules/referee/referee_UI.c **** 	RefereeSend(buffer, temp_datalength);
+ 1787              		.loc 1 393 2 view .LVU458
+ 1788 0108 3146     		mov	r1, r6
+ 1789 010a 2046     		mov	r0, r4
+ 1790 010c FFF7FEFF 		bl	RefereeSend
+ 1791              	.LVL102:
+ 394:modules/referee/referee_UI.c **** 
+ 395:modules/referee/referee_UI.c **** 	va_end(ap); // 结束可变参数的获取
+ 1792              		.loc 1 395 2 view .LVU459
+ 396:modules/referee/referee_UI.c **** }
+ 1793              		.loc 1 396 1 is_stmt 0 view .LVU460
+ 1794 0110 0AB0     		add	sp, sp, #40
+ 1795              	.LCFI14:
+ 1796              		.cfi_def_cfa_offset 32
+ 1797              		@ sp needed
+ 1798 0112 BDE8F040 		pop	{r4, r5, r6, r7, lr}
+ 1799              	.LCFI15:
+ 1800              		.cfi_restore 14
+ 1801              		.cfi_restore 7
+ 1802              		.cfi_restore 6
+ 1803              		.cfi_restore 5
+ 1804              		.cfi_restore 4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 40
+
+
+ 1805              		.cfi_def_cfa_offset 12
+ 1806              	.LVL103:
+ 1807              		.loc 1 396 1 view .LVU461
+ 1808 0116 03B0     		add	sp, sp, #12
+ 1809              	.LCFI16:
+ 1810              		.cfi_restore 3
+ 1811              		.cfi_restore 2
+ 1812              		.cfi_restore 1
+ 1813              		.cfi_def_cfa_offset 0
+ 1814 0118 7047     		bx	lr
+ 1815              	.L56:
+ 1816 011a 00BF     		.align	2
+ 1817              	.L55:
+ 1818 011c 00000000 		.word	UI_Seq
+ 1819 0120 00000000 		.word	buffer.1
+ 1820              		.cfi_endproc
+ 1821              	.LFE285:
+ 1823              		.section	.text.UICharRefresh,"ax",%progbits
+ 1824              		.align	1
+ 1825              		.global	UICharRefresh
+ 1826              		.syntax unified
+ 1827              		.thumb
+ 1828              		.thumb_func
+ 1830              	UICharRefresh:
+ 1831              	.LVL104:
+ 1832              	.LFB286:
+ 397:modules/referee/referee_UI.c **** 
+ 398:modules/referee/referee_UI.c **** /************************************************UI推送字符（使更改生效）***************
+ 399:modules/referee/referee_UI.c **** void UICharRefresh(referee_id_t *_id, String_Data_t string_Data)
+ 400:modules/referee/referee_UI.c **** {
+ 1833              		.loc 1 400 1 is_stmt 1 view -0
+ 1834              		.cfi_startproc
+ 1835              		@ args = 52, pretend = 16, frame = 0
+ 1836              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1837              		.loc 1 400 1 is_stmt 0 view .LVU463
+ 1838 0000 84B0     		sub	sp, sp, #16
+ 1839              	.LCFI17:
+ 1840              		.cfi_def_cfa_offset 16
+ 1841 0002 70B5     		push	{r4, r5, r6, lr}
+ 1842              	.LCFI18:
+ 1843              		.cfi_def_cfa_offset 32
+ 1844              		.cfi_offset 4, -32
+ 1845              		.cfi_offset 5, -28
+ 1846              		.cfi_offset 6, -24
+ 1847              		.cfi_offset 14, -20
+ 1848 0004 0646     		mov	r6, r0
+ 1849 0006 05AD     		add	r5, sp, #20
+ 1850 0008 85E80E00 		stm	r5, {r1, r2, r3}
+ 401:modules/referee/referee_UI.c **** 	static UI_CharReFresh_t UI_CharReFresh_data;
+ 1851              		.loc 1 401 2 is_stmt 1 view .LVU464
+ 402:modules/referee/referee_UI.c **** 
+ 403:modules/referee/referee_UI.c **** 	uint8_t temp_datalength = Interactive_Data_LEN_Head + UI_Operate_LEN_DrawChar; // 计算交互数�
+ 1852              		.loc 1 403 2 view .LVU465
+ 1853              	.LVL105:
+ 404:modules/referee/referee_UI.c **** 
+ 405:modules/referee/referee_UI.c **** 	UI_CharReFresh_data.FrameHeader.SOF = REFEREE_SOF;
+ 1854              		.loc 1 405 2 view .LVU466
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 41
+
+
+ 1855              		.loc 1 405 38 is_stmt 0 view .LVU467
+ 1856 000c 234C     		ldr	r4, .L60
+ 1857 000e A523     		movs	r3, #165
+ 1858 0010 2370     		strb	r3, [r4]
+ 406:modules/referee/referee_UI.c **** 	UI_CharReFresh_data.FrameHeader.DataLength = temp_datalength;
+ 1859              		.loc 1 406 2 is_stmt 1 view .LVU468
+ 1860              		.loc 1 406 45 is_stmt 0 view .LVU469
+ 1861 0012 3323     		movs	r3, #51
+ 1862 0014 6370     		strb	r3, [r4, #1]
+ 1863 0016 0023     		movs	r3, #0
+ 1864 0018 A370     		strb	r3, [r4, #2]
+ 407:modules/referee/referee_UI.c **** 	UI_CharReFresh_data.FrameHeader.Seq = UI_Seq;
+ 1865              		.loc 1 407 2 is_stmt 1 view .LVU470
+ 1866              		.loc 1 407 38 is_stmt 0 view .LVU471
+ 1867 001a 214B     		ldr	r3, .L60+4
+ 1868 001c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1869 001e E370     		strb	r3, [r4, #3]
+ 408:modules/referee/referee_UI.c **** 	UI_CharReFresh_data.FrameHeader.CRC8 = Get_CRC8_Check_Sum((uint8_t *)&UI_CharReFresh_data, LEN_CRC
+ 1870              		.loc 1 408 2 is_stmt 1 view .LVU472
+ 1871              		.loc 1 408 41 is_stmt 0 view .LVU473
+ 1872 0020 FF22     		movs	r2, #255
+ 1873 0022 0421     		movs	r1, #4
+ 1874 0024 2046     		mov	r0, r4
+ 1875              	.LVL106:
+ 1876              		.loc 1 408 41 view .LVU474
+ 1877 0026 FFF7FEFF 		bl	Get_CRC8_Check_Sum
+ 1878              	.LVL107:
+ 1879              		.loc 1 408 39 discriminator 1 view .LVU475
+ 1880 002a 2071     		strb	r0, [r4, #4]
+ 409:modules/referee/referee_UI.c **** 
+ 410:modules/referee/referee_UI.c **** 	UI_CharReFresh_data.CmdID = ID_student_interactive;
+ 1881              		.loc 1 410 2 is_stmt 1 view .LVU476
+ 1882              		.loc 1 410 28 is_stmt 0 view .LVU477
+ 1883 002c 0123     		movs	r3, #1
+ 1884 002e 6371     		strb	r3, [r4, #5]
+ 1885 0030 0322     		movs	r2, #3
+ 1886 0032 A271     		strb	r2, [r4, #6]
+ 411:modules/referee/referee_UI.c **** 
+ 412:modules/referee/referee_UI.c **** 	UI_CharReFresh_data.datahead.data_cmd_id = UI_Data_ID_DrawChar;
+ 1887              		.loc 1 412 2 is_stmt 1 view .LVU478
+ 1888              		.loc 1 412 43 is_stmt 0 view .LVU479
+ 1889 0034 1022     		movs	r2, #16
+ 1890 0036 E271     		strb	r2, [r4, #7]
+ 1891 0038 2372     		strb	r3, [r4, #8]
+ 413:modules/referee/referee_UI.c **** 
+ 414:modules/referee/referee_UI.c **** 	UI_CharReFresh_data.datahead.receiver_ID = _id->Cilent_ID;
+ 1892              		.loc 1 414 2 is_stmt 1 view .LVU480
+ 1893              		.loc 1 414 48 is_stmt 0 view .LVU481
+ 1894 003a B6F80330 		ldrh	r3, [r6, #3]	@ unaligned
+ 1895              		.loc 1 414 43 view .LVU482
+ 1896 003e A4F80B30 		strh	r3, [r4, #11]	@ unaligned
+ 415:modules/referee/referee_UI.c **** 	UI_CharReFresh_data.datahead.sender_ID = _id->Robot_ID;
+ 1897              		.loc 1 415 2 is_stmt 1 view .LVU483
+ 1898              		.loc 1 415 46 is_stmt 0 view .LVU484
+ 1899 0042 B6F80130 		ldrh	r3, [r6, #1]	@ unaligned
+ 1900              		.loc 1 415 41 view .LVU485
+ 1901 0046 A4F80930 		strh	r3, [r4, #9]	@ unaligned
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 42
+
+
+ 416:modules/referee/referee_UI.c **** 
+ 417:modules/referee/referee_UI.c **** 	UI_CharReFresh_data.String_Data = string_Data;
+ 1902              		.loc 1 417 2 is_stmt 1 view .LVU486
+ 1903              		.loc 1 417 34 is_stmt 0 view .LVU487
+ 1904 004a AC46     		mov	ip, r5
+ 1905 004c 0D34     		adds	r4, r4, #13
+ 1906 004e 0DAE     		add	r6, sp, #52
+ 1907              	.LVL108:
+ 1908              	.L58:
+ 1909              		.loc 1 417 34 view .LVU488
+ 1910 0050 6546     		mov	r5, ip
+ 1911 0052 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 1912 0054 2060     		str	r0, [r4]	@ unaligned
+ 1913 0056 6160     		str	r1, [r4, #4]	@ unaligned
+ 1914 0058 A260     		str	r2, [r4, #8]	@ unaligned
+ 1915 005a E360     		str	r3, [r4, #12]	@ unaligned
+ 1916 005c AC46     		mov	ip, r5
+ 1917 005e 1034     		adds	r4, r4, #16
+ 1918 0060 B542     		cmp	r5, r6
+ 1919 0062 F5D1     		bne	.L58
+ 1920 0064 BCE80700 		ldmia	ip!, {r0, r1, r2}
+ 1921 0068 2060     		str	r0, [r4]	@ unaligned
+ 1922 006a 6160     		str	r1, [r4, #4]	@ unaligned
+ 1923 006c A260     		str	r2, [r4, #8]	@ unaligned
+ 1924 006e 9CF80030 		ldrb	r3, [ip]	@ zero_extendqisi2
+ 1925 0072 2373     		strb	r3, [r4, #12]
+ 418:modules/referee/referee_UI.c **** 
+ 419:modules/referee/referee_UI.c **** 	UI_CharReFresh_data.frametail = Get_CRC16_Check_Sum((uint8_t *)&UI_CharReFresh_data, LEN_HEADER + 
+ 1926              		.loc 1 419 2 is_stmt 1 view .LVU489
+ 1927              		.loc 1 419 34 is_stmt 0 view .LVU490
+ 1928 0074 094C     		ldr	r4, .L60
+ 1929 0076 4FF6FF72 		movw	r2, #65535
+ 1930 007a 3A21     		movs	r1, #58
+ 1931 007c 2046     		mov	r0, r4
+ 1932 007e FFF7FEFF 		bl	Get_CRC16_Check_Sum
+ 1933              	.LVL109:
+ 1934              		.loc 1 419 32 discriminator 1 view .LVU491
+ 1935 0082 6087     		strh	r0, [r4, #58]	@ movhi
+ 420:modules/referee/referee_UI.c **** 
+ 421:modules/referee/referee_UI.c **** 	RefereeSend((uint8_t *)&UI_CharReFresh_data, LEN_HEADER + LEN_CMDID + temp_datalength + LEN_TAIL);
+ 1936              		.loc 1 421 2 is_stmt 1 view .LVU492
+ 1937 0084 3C21     		movs	r1, #60
+ 1938 0086 2046     		mov	r0, r4
+ 1939 0088 FFF7FEFF 		bl	RefereeSend
+ 1940              	.LVL110:
+ 422:modules/referee/referee_UI.c **** 
+ 423:modules/referee/referee_UI.c **** 	UI_Seq++; // 包序号+1
+ 1941              		.loc 1 423 2 view .LVU493
+ 1942              		.loc 1 423 8 is_stmt 0 view .LVU494
+ 1943 008c 044A     		ldr	r2, .L60+4
+ 1944 008e 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 1945 0090 0133     		adds	r3, r3, #1
+ 1946 0092 1370     		strb	r3, [r2]
+ 424:modules/referee/referee_UI.c **** }
+ 1947              		.loc 1 424 1 view .LVU495
+ 1948 0094 BDE87040 		pop	{r4, r5, r6, lr}
+ 1949              	.LCFI19:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 43
+
+
+ 1950              		.cfi_restore 14
+ 1951              		.cfi_restore 6
+ 1952              		.cfi_restore 5
+ 1953              		.cfi_restore 4
+ 1954              		.cfi_def_cfa_offset 16
+ 1955 0098 04B0     		add	sp, sp, #16
+ 1956              	.LCFI20:
+ 1957              		.cfi_def_cfa_offset 0
+ 1958 009a 7047     		bx	lr
+ 1959              	.L61:
+ 1960              		.align	2
+ 1961              	.L60:
+ 1962 009c 00000000 		.word	UI_CharReFresh_data.0
+ 1963 00a0 00000000 		.word	UI_Seq
+ 1964              		.cfi_endproc
+ 1965              	.LFE286:
+ 1967              		.section	.bss.UI_CharReFresh_data.0,"aw",%nobits
+ 1968              		.align	2
+ 1971              	UI_CharReFresh_data.0:
+ 1972 0000 00000000 		.space	60
+ 1972      00000000 
+ 1972      00000000 
+ 1972      00000000 
+ 1972      00000000 
+ 1973              		.section	.bss.buffer.1,"aw",%nobits
+ 1974              		.align	2
+ 1977              	buffer.1:
+ 1978 0000 00000000 		.space	512
+ 1978      00000000 
+ 1978      00000000 
+ 1978      00000000 
+ 1978      00000000 
+ 1979              		.section	.bss.UI_delete_data.2,"aw",%nobits
+ 1980              		.align	2
+ 1983              	UI_delete_data.2:
+ 1984 0000 00000000 		.space	17
+ 1984      00000000 
+ 1984      00000000 
+ 1984      00000000 
+ 1984      00
+ 1985              		.text
+ 1986              	.Letext0:
+ 1987              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1988              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1989              		.file 4 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1990              		.file 5 "modules/referee/referee_protocol.h"
+ 1991              		.file 6 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1992              		.file 7 "modules/referee/rm_referee.h"
+ 1993              		.file 8 "modules/referee/referee_UI.h"
+ 1994              		.file 9 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1995              		.file 10 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 1996              		.file 11 "modules/referee/crc_ref.h"
+ 1997              		.file 12 "<built-in>"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s 			page 44
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 referee_UI.c
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:21     .text.UIDelete:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:27     .text.UIDelete:00000000 UIDelete
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:135    .text.UIDelete:00000070 $d
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1983   .bss.UI_delete_data.2:00000000 UI_delete_data.2
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:141    .text.UILineDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:147    .text.UILineDraw:00000000 UILineDraw
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:315    .text.UIRectangleDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:321    .text.UIRectangleDraw:00000000 UIRectangleDraw
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:490    .text.UICircleDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:496    .text.UICircleDraw:00000000 UICircleDraw
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:657    .text.UIOvalDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:663    .text.UIOvalDraw:00000000 UIOvalDraw
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:833    .text.UIArcDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:839    .text.UIArcDraw:00000000 UIArcDraw
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1017   .text.UIFloatDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1023   .text.UIFloatDraw:00000000 UIFloatDraw
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1203   .text.UIIntDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1209   .text.UIIntDraw:00000000 UIIntDraw
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1385   .text.UICharDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1391   .text.UICharDraw:00000000 UICharDraw
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1583   .text.UIGraphRefresh:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1589   .text.UIGraphRefresh:00000000 UIGraphRefresh
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1818   .text.UIGraphRefresh:0000011c $d
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1977   .bss.buffer.1:00000000 buffer.1
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1824   .text.UICharRefresh:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1830   .text.UICharRefresh:00000000 UICharRefresh
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1962   .text.UICharRefresh:0000009c $d
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1971   .bss.UI_CharReFresh_data.0:00000000 UI_CharReFresh_data.0
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1968   .bss.UI_CharReFresh_data.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1974   .bss.buffer.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccUvo1p7.s:1980   .bss.UI_delete_data.2:00000000 $d
+
+UNDEFINED SYMBOLS
+Get_CRC8_Check_Sum
+Get_CRC16_Check_Sum
+RefereeSend
+UI_Seq
+vsprintf
+strlen
+Append_CRC16_Check_Sum

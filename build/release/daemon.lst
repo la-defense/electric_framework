@@ -1,0 +1,172 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"daemon.c"
+  16              		.text
+  17              		.section	.text.DaemonRegister,"ax",%progbits
+  18              		.align	1
+  19              		.global	DaemonRegister
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	DaemonRegister:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 10B5     		push	{r4, lr}
+  28 0002 0446     		mov	r4, r0
+  29 0004 1020     		movs	r0, #16
+  30 0006 FFF7FEFF 		bl	malloc
+  31 000a 0023     		movs	r3, #0
+  32 000c 0360     		str	r3, [r0]	@ unaligned
+  33 000e 4360     		str	r3, [r0, #4]	@ unaligned
+  34 0010 8360     		str	r3, [r0, #8]	@ unaligned
+  35 0012 C360     		str	r3, [r0, #12]	@ unaligned
+  36 0014 A368     		ldr	r3, [r4, #8]
+  37 0016 C360     		str	r3, [r0, #12]
+  38 0018 2388     		ldrh	r3, [r4]
+  39 001a 03B9     		cbnz	r3, .L2
+  40 001c 6423     		movs	r3, #100
+  41              	.L2:
+  42 001e 0380     		strh	r3, [r0]	@ movhi
+  43 0020 6368     		ldr	r3, [r4, #4]
+  44 0022 4360     		str	r3, [r0, #4]
+  45 0024 6388     		ldrh	r3, [r4, #2]
+  46 0026 03B9     		cbnz	r3, .L3
+  47 0028 6423     		movs	r3, #100
+  48              	.L3:
+  49 002a 0381     		strh	r3, [r0, #8]	@ movhi
+  50 002c 2388     		ldrh	r3, [r4]
+  51 002e 0381     		strh	r3, [r0, #8]	@ movhi
+  52 0030 034A     		ldr	r2, .L5
+  53 0032 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+  54 0034 591C     		adds	r1, r3, #1
+  55 0036 1170     		strb	r1, [r2]
+  56 0038 024A     		ldr	r2, .L5+4
+  57 003a 42F82300 		str	r0, [r2, r3, lsl #2]
+  58 003e 10BD     		pop	{r4, pc}
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s 			page 2
+
+
+  59              	.L6:
+  60              		.align	2
+  61              	.L5:
+  62 0040 00000000 		.word	idx
+  63 0044 00000000 		.word	daemon_instances
+  65              		.section	.text.DaemonReload,"ax",%progbits
+  66              		.align	1
+  67              		.global	DaemonReload
+  68              		.syntax unified
+  69              		.thumb
+  70              		.thumb_func
+  72              	DaemonReload:
+  73              		@ args = 0, pretend = 0, frame = 0
+  74              		@ frame_needed = 0, uses_anonymous_args = 0
+  75              		@ link register save eliminated.
+  76 0000 0388     		ldrh	r3, [r0]
+  77 0002 0381     		strh	r3, [r0, #8]	@ movhi
+  78 0004 7047     		bx	lr
+  80              		.section	.text.DaemonIsOnline,"ax",%progbits
+  81              		.align	1
+  82              		.global	DaemonIsOnline
+  83              		.syntax unified
+  84              		.thumb
+  85              		.thumb_func
+  87              	DaemonIsOnline:
+  88              		@ args = 0, pretend = 0, frame = 0
+  89              		@ frame_needed = 0, uses_anonymous_args = 0
+  90              		@ link register save eliminated.
+  91 0000 0089     		ldrh	r0, [r0, #8]
+  92 0002 0038     		subs	r0, r0, #0
+  93 0004 18BF     		it	ne
+  94 0006 0120     		movne	r0, #1
+  95 0008 7047     		bx	lr
+  97              		.section	.text.DaemonTask,"ax",%progbits
+  98              		.align	1
+  99              		.global	DaemonTask
+ 100              		.syntax unified
+ 101              		.thumb
+ 102              		.thumb_func
+ 104              	DaemonTask:
+ 105              		@ args = 0, pretend = 0, frame = 0
+ 106              		@ frame_needed = 0, uses_anonymous_args = 0
+ 107 0000 10B5     		push	{r4, lr}
+ 108 0002 0024     		movs	r4, #0
+ 109 0004 04E0     		b	.L10
+ 110              	.L11:
+ 111 0006 5368     		ldr	r3, [r2, #4]
+ 112 0008 0BB1     		cbz	r3, .L12
+ 113 000a D068     		ldr	r0, [r2, #12]
+ 114 000c 9847     		blx	r3
+ 115              	.L12:
+ 116 000e 0134     		adds	r4, r4, #1
+ 117              	.L10:
+ 118 0010 064B     		ldr	r3, .L16
+ 119 0012 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 120 0014 A342     		cmp	r3, r4
+ 121 0016 08D9     		bls	.L15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s 			page 3
+
+
+ 122 0018 054B     		ldr	r3, .L16+4
+ 123 001a 53F82420 		ldr	r2, [r3, r4, lsl #2]
+ 124 001e 1389     		ldrh	r3, [r2, #8]
+ 125 0020 002B     		cmp	r3, #0
+ 126 0022 F0D0     		beq	.L11
+ 127 0024 013B     		subs	r3, r3, #1
+ 128 0026 1381     		strh	r3, [r2, #8]	@ movhi
+ 129 0028 F1E7     		b	.L12
+ 130              	.L15:
+ 131 002a 10BD     		pop	{r4, pc}
+ 132              	.L17:
+ 133              		.align	2
+ 134              	.L16:
+ 135 002c 00000000 		.word	idx
+ 136 0030 00000000 		.word	daemon_instances
+ 138              		.section	.bss.idx,"aw",%nobits
+ 141              	idx:
+ 142 0000 00       		.space	1
+ 143              		.section	.bss.daemon_instances,"aw",%nobits
+ 144              		.align	2
+ 147              	daemon_instances:
+ 148 0000 00000000 		.space	256
+ 148      00000000 
+ 148      00000000 
+ 148      00000000 
+ 148      00000000 
+ 149              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 daemon.c
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:18     .text.DaemonRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:24     .text.DaemonRegister:00000000 DaemonRegister
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:62     .text.DaemonRegister:00000040 $d
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:141    .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:147    .bss.daemon_instances:00000000 daemon_instances
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:66     .text.DaemonReload:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:72     .text.DaemonReload:00000000 DaemonReload
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:81     .text.DaemonIsOnline:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:87     .text.DaemonIsOnline:00000000 DaemonIsOnline
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:98     .text.DaemonTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:104    .text.DaemonTask:00000000 DaemonTask
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:135    .text.DaemonTask:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:142    .bss.idx:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccTm5nOv.s:144    .bss.daemon_instances:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc

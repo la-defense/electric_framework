@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define PROTOCOL_CMD_ID 0XA5
+#define PROTOCOL_CMD_ID 0Xff
 #define OFFSET_BYTE 8 // 出数据段外，其他部分所占字节数
 
 typedef struct

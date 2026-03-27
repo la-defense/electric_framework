@@ -1,0 +1,737 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"stm32f4xx_hal_cortex.c"
+  16              		.text
+  17              		.section	.text.__NVIC_DisableIRQ,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	__NVIC_DisableIRQ:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 0028     		cmp	r0, #0
+  28 0002 0CDB     		blt	.L1
+  29 0004 00F01F02 		and	r2, r0, #31
+  30 0008 4009     		lsrs	r0, r0, #5
+  31 000a 0123     		movs	r3, #1
+  32 000c 9340     		lsls	r3, r3, r2
+  33 000e 2030     		adds	r0, r0, #32
+  34 0010 034A     		ldr	r2, .L3
+  35 0012 42F82030 		str	r3, [r2, r0, lsl #2]
+  36              		.syntax unified
+  37              	@ 879 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+  38 0016 BFF34F8F 		dsb 0xF
+  39              	@ 0 "" 2
+  40              	@ 868 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+  41 001a BFF36F8F 		isb 0xF
+  42              	@ 0 "" 2
+  43              		.thumb
+  44              		.syntax unified
+  45              	.L1:
+  46 001e 7047     		bx	lr
+  47              	.L4:
+  48              		.align	2
+  49              	.L3:
+  50 0020 00E100E0 		.word	-536813312
+  52              		.section	.text.__NVIC_SetPriority,"ax",%progbits
+  53              		.align	1
+  54              		.syntax unified
+  55              		.thumb
+  56              		.thumb_func
+  58              	__NVIC_SetPriority:
+  59              		@ args = 0, pretend = 0, frame = 0
+  60              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 2
+
+
+  61              		@ link register save eliminated.
+  62 0000 0028     		cmp	r0, #0
+  63 0002 08DB     		blt	.L6
+  64 0004 0901     		lsls	r1, r1, #4
+  65 0006 C9B2     		uxtb	r1, r1
+  66 0008 00F16040 		add	r0, r0, #-536870912
+  67 000c 00F56140 		add	r0, r0, #57600
+  68 0010 80F80013 		strb	r1, [r0, #768]
+  69 0014 7047     		bx	lr
+  70              	.L6:
+  71 0016 00F00F00 		and	r0, r0, #15
+  72 001a 0901     		lsls	r1, r1, #4
+  73 001c C9B2     		uxtb	r1, r1
+  74 001e 014B     		ldr	r3, .L8
+  75 0020 1954     		strb	r1, [r3, r0]
+  76 0022 7047     		bx	lr
+  77              	.L9:
+  78              		.align	2
+  79              	.L8:
+  80 0024 14ED00E0 		.word	-536810220
+  82              		.section	.text.__NVIC_GetPriority,"ax",%progbits
+  83              		.align	1
+  84              		.syntax unified
+  85              		.thumb
+  86              		.thumb_func
+  88              	__NVIC_GetPriority:
+  89              		@ args = 0, pretend = 0, frame = 0
+  90              		@ frame_needed = 0, uses_anonymous_args = 0
+  91              		@ link register save eliminated.
+  92 0000 0028     		cmp	r0, #0
+  93 0002 07DB     		blt	.L11
+  94 0004 00F16040 		add	r0, r0, #-536870912
+  95 0008 00F56140 		add	r0, r0, #57600
+  96 000c 90F80003 		ldrb	r0, [r0, #768]	@ zero_extendqisi2
+  97 0010 0009     		lsrs	r0, r0, #4
+  98 0012 7047     		bx	lr
+  99              	.L11:
+ 100 0014 00F00F00 		and	r0, r0, #15
+ 101 0018 014B     		ldr	r3, .L13
+ 102 001a 185C     		ldrb	r0, [r3, r0]	@ zero_extendqisi2
+ 103 001c 0009     		lsrs	r0, r0, #4
+ 104 001e 7047     		bx	lr
+ 105              	.L14:
+ 106              		.align	2
+ 107              	.L13:
+ 108 0020 14ED00E0 		.word	-536810220
+ 110              		.section	.text.NVIC_EncodePriority,"ax",%progbits
+ 111              		.align	1
+ 112              		.syntax unified
+ 113              		.thumb
+ 114              		.thumb_func
+ 116              	NVIC_EncodePriority:
+ 117              		@ args = 0, pretend = 0, frame = 0
+ 118              		@ frame_needed = 0, uses_anonymous_args = 0
+ 119 0000 00B5     		push	{lr}
+ 120 0002 00F00700 		and	r0, r0, #7
+ 121 0006 A0F1030C 		sub	ip, r0, #3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 3
+
+
+ 122 000a BCF1040F 		cmp	ip, #4
+ 123 000e 07D8     		bhi	.L17
+ 124 0010 C0F1070E 		rsb	lr, r0, #7
+ 125 0014 0430     		adds	r0, r0, #4
+ 126 0016 0628     		cmp	r0, #6
+ 127 0018 06D8     		bhi	.L16
+ 128 001a 4FF0000C 		mov	ip, #0
+ 129 001e 03E0     		b	.L16
+ 130              	.L17:
+ 131 0020 4FF0040E 		mov	lr, #4
+ 132 0024 4FF0000C 		mov	ip, #0
+ 133              	.L16:
+ 134 0028 4FF0FF33 		mov	r3, #-1
+ 135 002c 03FA0EF0 		lsl	r0, r3, lr
+ 136 0030 21EA0001 		bic	r1, r1, r0
+ 137 0034 01FA0CF1 		lsl	r1, r1, ip
+ 138 0038 03FA0CF3 		lsl	r3, r3, ip
+ 139 003c 22EA0302 		bic	r2, r2, r3
+ 140 0040 41EA0200 		orr	r0, r1, r2
+ 141 0044 00BD     		pop	{pc}
+ 143              		.section	.text.NVIC_DecodePriority,"ax",%progbits
+ 144              		.align	1
+ 145              		.syntax unified
+ 146              		.thumb
+ 147              		.thumb_func
+ 149              	NVIC_DecodePriority:
+ 150              		@ args = 0, pretend = 0, frame = 0
+ 151              		@ frame_needed = 0, uses_anonymous_args = 0
+ 152 0000 10B5     		push	{r4, lr}
+ 153 0002 01F00701 		and	r1, r1, #7
+ 154 0006 A1F1030C 		sub	ip, r1, #3
+ 155 000a BCF1040F 		cmp	ip, #4
+ 156 000e 07D8     		bhi	.L21
+ 157 0010 C1F10704 		rsb	r4, r1, #7
+ 158 0014 0431     		adds	r1, r1, #4
+ 159 0016 0629     		cmp	r1, #6
+ 160 0018 05D8     		bhi	.L20
+ 161 001a 4FF0000C 		mov	ip, #0
+ 162 001e 02E0     		b	.L20
+ 163              	.L21:
+ 164 0020 0424     		movs	r4, #4
+ 165 0022 4FF0000C 		mov	ip, #0
+ 166              	.L20:
+ 167 0026 20FA0CFE 		lsr	lr, r0, ip
+ 168 002a 4FF0FF31 		mov	r1, #-1
+ 169 002e 01FA04F4 		lsl	r4, r1, r4
+ 170 0032 2EEA0404 		bic	r4, lr, r4
+ 171 0036 1460     		str	r4, [r2]
+ 172 0038 01FA0CF1 		lsl	r1, r1, ip
+ 173 003c 20EA0100 		bic	r0, r0, r1
+ 174 0040 1860     		str	r0, [r3]
+ 175 0042 10BD     		pop	{r4, pc}
+ 177              		.section	.text.__NVIC_SystemReset,"ax",%progbits
+ 178              		.align	1
+ 179              		.syntax unified
+ 180              		.thumb
+ 181              		.thumb_func
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 4
+
+
+ 183              	__NVIC_SystemReset:
+ 184              		@ Volatile: function does not return.
+ 185              		@ args = 0, pretend = 0, frame = 0
+ 186              		@ frame_needed = 0, uses_anonymous_args = 0
+ 187              		@ link register save eliminated.
+ 188              		.syntax unified
+ 189              	@ 879 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 190 0000 BFF34F8F 		dsb 0xF
+ 191              	@ 0 "" 2
+ 192              		.thumb
+ 193              		.syntax unified
+ 194 0004 0549     		ldr	r1, .L25
+ 195 0006 CA68     		ldr	r2, [r1, #12]
+ 196 0008 02F4E062 		and	r2, r2, #1792
+ 197 000c 044B     		ldr	r3, .L25+4
+ 198 000e 1343     		orrs	r3, r3, r2
+ 199 0010 CB60     		str	r3, [r1, #12]
+ 200              		.syntax unified
+ 201              	@ 879 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 202 0012 BFF34F8F 		dsb 0xF
+ 203              	@ 0 "" 2
+ 204              		.thumb
+ 205              		.syntax unified
+ 206              	.L24:
+ 207              		.syntax unified
+ 208              	@ 1950 "Drivers/CMSIS/Include/core_cm4.h" 1
+ 209 0016 00BF     		nop
+ 210              	@ 0 "" 2
+ 211              		.thumb
+ 212              		.syntax unified
+ 213 0018 FDE7     		b	.L24
+ 214              	.L26:
+ 215 001a 00BF     		.align	2
+ 216              	.L25:
+ 217 001c 00ED00E0 		.word	-536810240
+ 218 0020 0400FA05 		.word	100270084
+ 220              		.section	.text.HAL_NVIC_SetPriorityGrouping,"ax",%progbits
+ 221              		.align	1
+ 222              		.global	HAL_NVIC_SetPriorityGrouping
+ 223              		.syntax unified
+ 224              		.thumb
+ 225              		.thumb_func
+ 227              	HAL_NVIC_SetPriorityGrouping:
+ 228              		@ args = 0, pretend = 0, frame = 0
+ 229              		@ frame_needed = 0, uses_anonymous_args = 0
+ 230              		@ link register save eliminated.
+ 231 0000 074A     		ldr	r2, .L28
+ 232 0002 D368     		ldr	r3, [r2, #12]
+ 233 0004 23F4E063 		bic	r3, r3, #1792
+ 234 0008 1B04     		lsls	r3, r3, #16
+ 235 000a 1B0C     		lsrs	r3, r3, #16
+ 236 000c 0002     		lsls	r0, r0, #8
+ 237 000e 00F4E060 		and	r0, r0, #1792
+ 238 0012 0343     		orrs	r3, r3, r0
+ 239 0014 43F0BF63 		orr	r3, r3, #100139008
+ 240 0018 43F40033 		orr	r3, r3, #131072
+ 241 001c D360     		str	r3, [r2, #12]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 5
+
+
+ 242 001e 7047     		bx	lr
+ 243              	.L29:
+ 244              		.align	2
+ 245              	.L28:
+ 246 0020 00ED00E0 		.word	-536810240
+ 248              		.section	.text.HAL_NVIC_SetPriority,"ax",%progbits
+ 249              		.align	1
+ 250              		.global	HAL_NVIC_SetPriority
+ 251              		.syntax unified
+ 252              		.thumb
+ 253              		.thumb_func
+ 255              	HAL_NVIC_SetPriority:
+ 256              		@ args = 0, pretend = 0, frame = 0
+ 257              		@ frame_needed = 0, uses_anonymous_args = 0
+ 258 0000 10B5     		push	{r4, lr}
+ 259 0002 0446     		mov	r4, r0
+ 260 0004 054B     		ldr	r3, .L32
+ 261 0006 D868     		ldr	r0, [r3, #12]
+ 262 0008 C0F30220 		ubfx	r0, r0, #8, #3
+ 263 000c FFF7FEFF 		bl	NVIC_EncodePriority
+ 264 0010 0146     		mov	r1, r0
+ 265 0012 2046     		mov	r0, r4
+ 266 0014 FFF7FEFF 		bl	__NVIC_SetPriority
+ 267 0018 10BD     		pop	{r4, pc}
+ 268              	.L33:
+ 269 001a 00BF     		.align	2
+ 270              	.L32:
+ 271 001c 00ED00E0 		.word	-536810240
+ 273              		.section	.text.HAL_NVIC_EnableIRQ,"ax",%progbits
+ 274              		.align	1
+ 275              		.global	HAL_NVIC_EnableIRQ
+ 276              		.syntax unified
+ 277              		.thumb
+ 278              		.thumb_func
+ 280              	HAL_NVIC_EnableIRQ:
+ 281              		@ args = 0, pretend = 0, frame = 0
+ 282              		@ frame_needed = 0, uses_anonymous_args = 0
+ 283              		@ link register save eliminated.
+ 284 0000 0028     		cmp	r0, #0
+ 285 0002 07DB     		blt	.L34
+ 286 0004 00F01F02 		and	r2, r0, #31
+ 287 0008 4009     		lsrs	r0, r0, #5
+ 288 000a 0123     		movs	r3, #1
+ 289 000c 9340     		lsls	r3, r3, r2
+ 290 000e 024A     		ldr	r2, .L36
+ 291 0010 42F82030 		str	r3, [r2, r0, lsl #2]
+ 292              	.L34:
+ 293 0014 7047     		bx	lr
+ 294              	.L37:
+ 295 0016 00BF     		.align	2
+ 296              	.L36:
+ 297 0018 00E100E0 		.word	-536813312
+ 299              		.section	.text.HAL_NVIC_DisableIRQ,"ax",%progbits
+ 300              		.align	1
+ 301              		.global	HAL_NVIC_DisableIRQ
+ 302              		.syntax unified
+ 303              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 6
+
+
+ 304              		.thumb_func
+ 306              	HAL_NVIC_DisableIRQ:
+ 307              		@ args = 0, pretend = 0, frame = 0
+ 308              		@ frame_needed = 0, uses_anonymous_args = 0
+ 309 0000 08B5     		push	{r3, lr}
+ 310 0002 FFF7FEFF 		bl	__NVIC_DisableIRQ
+ 311 0006 08BD     		pop	{r3, pc}
+ 313              		.section	.text.HAL_NVIC_SystemReset,"ax",%progbits
+ 314              		.align	1
+ 315              		.global	HAL_NVIC_SystemReset
+ 316              		.syntax unified
+ 317              		.thumb
+ 318              		.thumb_func
+ 320              	HAL_NVIC_SystemReset:
+ 321              		@ Volatile: function does not return.
+ 322              		@ args = 0, pretend = 0, frame = 0
+ 323              		@ frame_needed = 0, uses_anonymous_args = 0
+ 324 0000 08B5     		push	{r3, lr}
+ 325 0002 FFF7FEFF 		bl	__NVIC_SystemReset
+ 327              		.section	.text.HAL_SYSTICK_Config,"ax",%progbits
+ 328              		.align	1
+ 329              		.global	HAL_SYSTICK_Config
+ 330              		.syntax unified
+ 331              		.thumb
+ 332              		.thumb_func
+ 334              	HAL_SYSTICK_Config:
+ 335              		@ args = 0, pretend = 0, frame = 0
+ 336              		@ frame_needed = 0, uses_anonymous_args = 0
+ 337              		@ link register save eliminated.
+ 338 0000 0138     		subs	r0, r0, #1
+ 339 0002 B0F1807F 		cmp	r0, #16777216
+ 340 0006 0BD2     		bcs	.L44
+ 341 0008 4FF0E023 		mov	r3, #-536813568
+ 342 000c 5861     		str	r0, [r3, #20]
+ 343 000e 054A     		ldr	r2, .L45
+ 344 0010 F021     		movs	r1, #240
+ 345 0012 82F82310 		strb	r1, [r2, #35]
+ 346 0016 0020     		movs	r0, #0
+ 347 0018 9861     		str	r0, [r3, #24]
+ 348 001a 0722     		movs	r2, #7
+ 349 001c 1A61     		str	r2, [r3, #16]
+ 350 001e 7047     		bx	lr
+ 351              	.L44:
+ 352 0020 0120     		movs	r0, #1
+ 353 0022 7047     		bx	lr
+ 354              	.L46:
+ 355              		.align	2
+ 356              	.L45:
+ 357 0024 00ED00E0 		.word	-536810240
+ 359              		.section	.text.HAL_MPU_Disable,"ax",%progbits
+ 360              		.align	1
+ 361              		.global	HAL_MPU_Disable
+ 362              		.syntax unified
+ 363              		.thumb
+ 364              		.thumb_func
+ 366              	HAL_MPU_Disable:
+ 367              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 7
+
+
+ 368              		@ frame_needed = 0, uses_anonymous_args = 0
+ 369              		@ link register save eliminated.
+ 370              		.syntax unified
+ 371              	@ 890 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 372 0000 BFF35F8F 		dmb 0xF
+ 373              	@ 0 "" 2
+ 374              		.thumb
+ 375              		.syntax unified
+ 376 0004 044B     		ldr	r3, .L48
+ 377 0006 5A6A     		ldr	r2, [r3, #36]
+ 378 0008 22F48032 		bic	r2, r2, #65536
+ 379 000c 5A62     		str	r2, [r3, #36]
+ 380 000e 0022     		movs	r2, #0
+ 381 0010 C3F89420 		str	r2, [r3, #148]
+ 382 0014 7047     		bx	lr
+ 383              	.L49:
+ 384 0016 00BF     		.align	2
+ 385              	.L48:
+ 386 0018 00ED00E0 		.word	-536810240
+ 388              		.section	.text.HAL_MPU_Enable,"ax",%progbits
+ 389              		.align	1
+ 390              		.global	HAL_MPU_Enable
+ 391              		.syntax unified
+ 392              		.thumb
+ 393              		.thumb_func
+ 395              	HAL_MPU_Enable:
+ 396              		@ args = 0, pretend = 0, frame = 0
+ 397              		@ frame_needed = 0, uses_anonymous_args = 0
+ 398              		@ link register save eliminated.
+ 399 0000 40F00100 		orr	r0, r0, #1
+ 400 0004 054B     		ldr	r3, .L51
+ 401 0006 C3F89400 		str	r0, [r3, #148]
+ 402 000a 5A6A     		ldr	r2, [r3, #36]
+ 403 000c 42F48032 		orr	r2, r2, #65536
+ 404 0010 5A62     		str	r2, [r3, #36]
+ 405              		.syntax unified
+ 406              	@ 879 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 407 0012 BFF34F8F 		dsb 0xF
+ 408              	@ 0 "" 2
+ 409              	@ 868 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 410 0016 BFF36F8F 		isb 0xF
+ 411              	@ 0 "" 2
+ 412              		.thumb
+ 413              		.syntax unified
+ 414 001a 7047     		bx	lr
+ 415              	.L52:
+ 416              		.align	2
+ 417              	.L51:
+ 418 001c 00ED00E0 		.word	-536810240
+ 420              		.section	.text.HAL_MPU_ConfigRegion,"ax",%progbits
+ 421              		.align	1
+ 422              		.global	HAL_MPU_ConfigRegion
+ 423              		.syntax unified
+ 424              		.thumb
+ 425              		.thumb_func
+ 427              	HAL_MPU_ConfigRegion:
+ 428              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 8
+
+
+ 429              		@ frame_needed = 0, uses_anonymous_args = 0
+ 430              		@ link register save eliminated.
+ 431 0000 4278     		ldrb	r2, [r0, #1]	@ zero_extendqisi2
+ 432 0002 164B     		ldr	r3, .L56
+ 433 0004 C3F89820 		str	r2, [r3, #152]
+ 434 0008 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 435 000a FBB1     		cbz	r3, .L54
+ 436 000c 4368     		ldr	r3, [r0, #4]
+ 437 000e 134A     		ldr	r2, .L56
+ 438 0010 C2F89C30 		str	r3, [r2, #156]
+ 439 0014 017B     		ldrb	r1, [r0, #12]	@ zero_extendqisi2
+ 440 0016 C37A     		ldrb	r3, [r0, #11]	@ zero_extendqisi2
+ 441 0018 1B06     		lsls	r3, r3, #24
+ 442 001a 43EA0173 		orr	r3, r3, r1, lsl #28
+ 443 001e 817A     		ldrb	r1, [r0, #10]	@ zero_extendqisi2
+ 444 0020 43EAC143 		orr	r3, r3, r1, lsl #19
+ 445 0024 417B     		ldrb	r1, [r0, #13]	@ zero_extendqisi2
+ 446 0026 43EA8143 		orr	r3, r3, r1, lsl #18
+ 447 002a 817B     		ldrb	r1, [r0, #14]	@ zero_extendqisi2
+ 448 002c 43EA4143 		orr	r3, r3, r1, lsl #17
+ 449 0030 C17B     		ldrb	r1, [r0, #15]	@ zero_extendqisi2
+ 450 0032 43EA0143 		orr	r3, r3, r1, lsl #16
+ 451 0036 417A     		ldrb	r1, [r0, #9]	@ zero_extendqisi2
+ 452 0038 43EA0123 		orr	r3, r3, r1, lsl #8
+ 453 003c 017A     		ldrb	r1, [r0, #8]	@ zero_extendqisi2
+ 454 003e 43EA4103 		orr	r3, r3, r1, lsl #1
+ 455 0042 0178     		ldrb	r1, [r0]	@ zero_extendqisi2
+ 456 0044 0B43     		orrs	r3, r3, r1
+ 457 0046 C2F8A030 		str	r3, [r2, #160]
+ 458 004a 7047     		bx	lr
+ 459              	.L54:
+ 460 004c 034B     		ldr	r3, .L56
+ 461 004e 0022     		movs	r2, #0
+ 462 0050 C3F89C20 		str	r2, [r3, #156]
+ 463 0054 C3F8A020 		str	r2, [r3, #160]
+ 464 0058 7047     		bx	lr
+ 465              	.L57:
+ 466 005a 00BF     		.align	2
+ 467              	.L56:
+ 468 005c 00ED00E0 		.word	-536810240
+ 470              		.section	.text.HAL_NVIC_GetPriorityGrouping,"ax",%progbits
+ 471              		.align	1
+ 472              		.global	HAL_NVIC_GetPriorityGrouping
+ 473              		.syntax unified
+ 474              		.thumb
+ 475              		.thumb_func
+ 477              	HAL_NVIC_GetPriorityGrouping:
+ 478              		@ args = 0, pretend = 0, frame = 0
+ 479              		@ frame_needed = 0, uses_anonymous_args = 0
+ 480              		@ link register save eliminated.
+ 481 0000 024B     		ldr	r3, .L59
+ 482 0002 D868     		ldr	r0, [r3, #12]
+ 483 0004 C0F30220 		ubfx	r0, r0, #8, #3
+ 484 0008 7047     		bx	lr
+ 485              	.L60:
+ 486 000a 00BF     		.align	2
+ 487              	.L59:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 9
+
+
+ 488 000c 00ED00E0 		.word	-536810240
+ 490              		.section	.text.HAL_NVIC_GetPriority,"ax",%progbits
+ 491              		.align	1
+ 492              		.global	HAL_NVIC_GetPriority
+ 493              		.syntax unified
+ 494              		.thumb
+ 495              		.thumb_func
+ 497              	HAL_NVIC_GetPriority:
+ 498              		@ args = 0, pretend = 0, frame = 0
+ 499              		@ frame_needed = 0, uses_anonymous_args = 0
+ 500 0000 70B5     		push	{r4, r5, r6, lr}
+ 501 0002 0E46     		mov	r6, r1
+ 502 0004 1546     		mov	r5, r2
+ 503 0006 1C46     		mov	r4, r3
+ 504 0008 FFF7FEFF 		bl	__NVIC_GetPriority
+ 505 000c 2346     		mov	r3, r4
+ 506 000e 2A46     		mov	r2, r5
+ 507 0010 3146     		mov	r1, r6
+ 508 0012 FFF7FEFF 		bl	NVIC_DecodePriority
+ 509 0016 70BD     		pop	{r4, r5, r6, pc}
+ 511              		.section	.text.HAL_NVIC_SetPendingIRQ,"ax",%progbits
+ 512              		.align	1
+ 513              		.global	HAL_NVIC_SetPendingIRQ
+ 514              		.syntax unified
+ 515              		.thumb
+ 516              		.thumb_func
+ 518              	HAL_NVIC_SetPendingIRQ:
+ 519              		@ args = 0, pretend = 0, frame = 0
+ 520              		@ frame_needed = 0, uses_anonymous_args = 0
+ 521              		@ link register save eliminated.
+ 522 0000 0028     		cmp	r0, #0
+ 523 0002 08DB     		blt	.L63
+ 524 0004 00F01F02 		and	r2, r0, #31
+ 525 0008 4009     		lsrs	r0, r0, #5
+ 526 000a 0123     		movs	r3, #1
+ 527 000c 9340     		lsls	r3, r3, r2
+ 528 000e 4030     		adds	r0, r0, #64
+ 529 0010 014A     		ldr	r2, .L65
+ 530 0012 42F82030 		str	r3, [r2, r0, lsl #2]
+ 531              	.L63:
+ 532 0016 7047     		bx	lr
+ 533              	.L66:
+ 534              		.align	2
+ 535              	.L65:
+ 536 0018 00E100E0 		.word	-536813312
+ 538              		.section	.text.HAL_NVIC_GetPendingIRQ,"ax",%progbits
+ 539              		.align	1
+ 540              		.global	HAL_NVIC_GetPendingIRQ
+ 541              		.syntax unified
+ 542              		.thumb
+ 543              		.thumb_func
+ 545              	HAL_NVIC_GetPendingIRQ:
+ 546              		@ args = 0, pretend = 0, frame = 0
+ 547              		@ frame_needed = 0, uses_anonymous_args = 0
+ 548              		@ link register save eliminated.
+ 549 0000 0028     		cmp	r0, #0
+ 550 0002 0BDB     		blt	.L69
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 10
+
+
+ 551 0004 4309     		lsrs	r3, r0, #5
+ 552 0006 4033     		adds	r3, r3, #64
+ 553 0008 054A     		ldr	r2, .L70
+ 554 000a 52F82330 		ldr	r3, [r2, r3, lsl #2]
+ 555 000e 00F01F00 		and	r0, r0, #31
+ 556 0012 23FA00F0 		lsr	r0, r3, r0
+ 557 0016 00F00100 		and	r0, r0, #1
+ 558 001a 7047     		bx	lr
+ 559              	.L69:
+ 560 001c 0020     		movs	r0, #0
+ 561 001e 7047     		bx	lr
+ 562              	.L71:
+ 563              		.align	2
+ 564              	.L70:
+ 565 0020 00E100E0 		.word	-536813312
+ 567              		.section	.text.HAL_NVIC_ClearPendingIRQ,"ax",%progbits
+ 568              		.align	1
+ 569              		.global	HAL_NVIC_ClearPendingIRQ
+ 570              		.syntax unified
+ 571              		.thumb
+ 572              		.thumb_func
+ 574              	HAL_NVIC_ClearPendingIRQ:
+ 575              		@ args = 0, pretend = 0, frame = 0
+ 576              		@ frame_needed = 0, uses_anonymous_args = 0
+ 577              		@ link register save eliminated.
+ 578 0000 0028     		cmp	r0, #0
+ 579 0002 08DB     		blt	.L72
+ 580 0004 00F01F02 		and	r2, r0, #31
+ 581 0008 4009     		lsrs	r0, r0, #5
+ 582 000a 0123     		movs	r3, #1
+ 583 000c 9340     		lsls	r3, r3, r2
+ 584 000e 6030     		adds	r0, r0, #96
+ 585 0010 014A     		ldr	r2, .L74
+ 586 0012 42F82030 		str	r3, [r2, r0, lsl #2]
+ 587              	.L72:
+ 588 0016 7047     		bx	lr
+ 589              	.L75:
+ 590              		.align	2
+ 591              	.L74:
+ 592 0018 00E100E0 		.word	-536813312
+ 594              		.section	.text.HAL_NVIC_GetActive,"ax",%progbits
+ 595              		.align	1
+ 596              		.global	HAL_NVIC_GetActive
+ 597              		.syntax unified
+ 598              		.thumb
+ 599              		.thumb_func
+ 601              	HAL_NVIC_GetActive:
+ 602              		@ args = 0, pretend = 0, frame = 0
+ 603              		@ frame_needed = 0, uses_anonymous_args = 0
+ 604              		@ link register save eliminated.
+ 605 0000 0028     		cmp	r0, #0
+ 606 0002 0BDB     		blt	.L78
+ 607 0004 4309     		lsrs	r3, r0, #5
+ 608 0006 8033     		adds	r3, r3, #128
+ 609 0008 054A     		ldr	r2, .L79
+ 610 000a 52F82330 		ldr	r3, [r2, r3, lsl #2]
+ 611 000e 00F01F00 		and	r0, r0, #31
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 11
+
+
+ 612 0012 23FA00F0 		lsr	r0, r3, r0
+ 613 0016 00F00100 		and	r0, r0, #1
+ 614 001a 7047     		bx	lr
+ 615              	.L78:
+ 616 001c 0020     		movs	r0, #0
+ 617 001e 7047     		bx	lr
+ 618              	.L80:
+ 619              		.align	2
+ 620              	.L79:
+ 621 0020 00E100E0 		.word	-536813312
+ 623              		.section	.text.HAL_SYSTICK_CLKSourceConfig,"ax",%progbits
+ 624              		.align	1
+ 625              		.global	HAL_SYSTICK_CLKSourceConfig
+ 626              		.syntax unified
+ 627              		.thumb
+ 628              		.thumb_func
+ 630              	HAL_SYSTICK_CLKSourceConfig:
+ 631              		@ args = 0, pretend = 0, frame = 0
+ 632              		@ frame_needed = 0, uses_anonymous_args = 0
+ 633              		@ link register save eliminated.
+ 634 0000 0428     		cmp	r0, #4
+ 635 0002 06D0     		beq	.L84
+ 636 0004 4FF0E022 		mov	r2, #-536813568
+ 637 0008 1369     		ldr	r3, [r2, #16]
+ 638 000a 23F00403 		bic	r3, r3, #4
+ 639 000e 1361     		str	r3, [r2, #16]
+ 640 0010 7047     		bx	lr
+ 641              	.L84:
+ 642 0012 4FF0E022 		mov	r2, #-536813568
+ 643 0016 1369     		ldr	r3, [r2, #16]
+ 644 0018 43F00403 		orr	r3, r3, #4
+ 645 001c 1361     		str	r3, [r2, #16]
+ 646 001e 7047     		bx	lr
+ 648              		.section	.text.HAL_SYSTICK_Callback,"ax",%progbits
+ 649              		.align	1
+ 650              		.weak	HAL_SYSTICK_Callback
+ 651              		.syntax unified
+ 652              		.thumb
+ 653              		.thumb_func
+ 655              	HAL_SYSTICK_Callback:
+ 656              		@ args = 0, pretend = 0, frame = 0
+ 657              		@ frame_needed = 0, uses_anonymous_args = 0
+ 658              		@ link register save eliminated.
+ 659 0000 7047     		bx	lr
+ 661              		.section	.text.HAL_SYSTICK_IRQHandler,"ax",%progbits
+ 662              		.align	1
+ 663              		.global	HAL_SYSTICK_IRQHandler
+ 664              		.syntax unified
+ 665              		.thumb
+ 666              		.thumb_func
+ 668              	HAL_SYSTICK_IRQHandler:
+ 669              		@ args = 0, pretend = 0, frame = 0
+ 670              		@ frame_needed = 0, uses_anonymous_args = 0
+ 671 0000 08B5     		push	{r3, lr}
+ 672 0002 FFF7FEFF 		bl	HAL_SYSTICK_Callback
+ 673 0006 08BD     		pop	{r3, pc}
+ 675              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 12
+
+
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f4xx_hal_cortex.c
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:18     .text.__NVIC_DisableIRQ:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:23     .text.__NVIC_DisableIRQ:00000000 __NVIC_DisableIRQ
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:50     .text.__NVIC_DisableIRQ:00000020 $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:53     .text.__NVIC_SetPriority:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:58     .text.__NVIC_SetPriority:00000000 __NVIC_SetPriority
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:80     .text.__NVIC_SetPriority:00000024 $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:83     .text.__NVIC_GetPriority:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:88     .text.__NVIC_GetPriority:00000000 __NVIC_GetPriority
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:108    .text.__NVIC_GetPriority:00000020 $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:111    .text.NVIC_EncodePriority:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:116    .text.NVIC_EncodePriority:00000000 NVIC_EncodePriority
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:144    .text.NVIC_DecodePriority:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:149    .text.NVIC_DecodePriority:00000000 NVIC_DecodePriority
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:178    .text.__NVIC_SystemReset:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:183    .text.__NVIC_SystemReset:00000000 __NVIC_SystemReset
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:217    .text.__NVIC_SystemReset:0000001c $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:221    .text.HAL_NVIC_SetPriorityGrouping:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:227    .text.HAL_NVIC_SetPriorityGrouping:00000000 HAL_NVIC_SetPriorityGrouping
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:246    .text.HAL_NVIC_SetPriorityGrouping:00000020 $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:249    .text.HAL_NVIC_SetPriority:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:255    .text.HAL_NVIC_SetPriority:00000000 HAL_NVIC_SetPriority
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:271    .text.HAL_NVIC_SetPriority:0000001c $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:274    .text.HAL_NVIC_EnableIRQ:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:280    .text.HAL_NVIC_EnableIRQ:00000000 HAL_NVIC_EnableIRQ
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:297    .text.HAL_NVIC_EnableIRQ:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:300    .text.HAL_NVIC_DisableIRQ:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:306    .text.HAL_NVIC_DisableIRQ:00000000 HAL_NVIC_DisableIRQ
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:314    .text.HAL_NVIC_SystemReset:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:320    .text.HAL_NVIC_SystemReset:00000000 HAL_NVIC_SystemReset
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:328    .text.HAL_SYSTICK_Config:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:334    .text.HAL_SYSTICK_Config:00000000 HAL_SYSTICK_Config
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:357    .text.HAL_SYSTICK_Config:00000024 $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:360    .text.HAL_MPU_Disable:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:366    .text.HAL_MPU_Disable:00000000 HAL_MPU_Disable
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:386    .text.HAL_MPU_Disable:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:389    .text.HAL_MPU_Enable:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:395    .text.HAL_MPU_Enable:00000000 HAL_MPU_Enable
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:418    .text.HAL_MPU_Enable:0000001c $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:421    .text.HAL_MPU_ConfigRegion:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:427    .text.HAL_MPU_ConfigRegion:00000000 HAL_MPU_ConfigRegion
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:468    .text.HAL_MPU_ConfigRegion:0000005c $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:471    .text.HAL_NVIC_GetPriorityGrouping:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:477    .text.HAL_NVIC_GetPriorityGrouping:00000000 HAL_NVIC_GetPriorityGrouping
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:488    .text.HAL_NVIC_GetPriorityGrouping:0000000c $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:491    .text.HAL_NVIC_GetPriority:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:497    .text.HAL_NVIC_GetPriority:00000000 HAL_NVIC_GetPriority
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:512    .text.HAL_NVIC_SetPendingIRQ:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:518    .text.HAL_NVIC_SetPendingIRQ:00000000 HAL_NVIC_SetPendingIRQ
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:536    .text.HAL_NVIC_SetPendingIRQ:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:539    .text.HAL_NVIC_GetPendingIRQ:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:545    .text.HAL_NVIC_GetPendingIRQ:00000000 HAL_NVIC_GetPendingIRQ
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:565    .text.HAL_NVIC_GetPendingIRQ:00000020 $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:568    .text.HAL_NVIC_ClearPendingIRQ:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:574    .text.HAL_NVIC_ClearPendingIRQ:00000000 HAL_NVIC_ClearPendingIRQ
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:592    .text.HAL_NVIC_ClearPendingIRQ:00000018 $d
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s 			page 14
+
+
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:595    .text.HAL_NVIC_GetActive:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:601    .text.HAL_NVIC_GetActive:00000000 HAL_NVIC_GetActive
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:621    .text.HAL_NVIC_GetActive:00000020 $d
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:624    .text.HAL_SYSTICK_CLKSourceConfig:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:630    .text.HAL_SYSTICK_CLKSourceConfig:00000000 HAL_SYSTICK_CLKSourceConfig
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:649    .text.HAL_SYSTICK_Callback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:655    .text.HAL_SYSTICK_Callback:00000000 HAL_SYSTICK_Callback
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:662    .text.HAL_SYSTICK_IRQHandler:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccTHG3qa.s:668    .text.HAL_SYSTICK_IRQHandler:00000000 HAL_SYSTICK_IRQHandler
+
+NO UNDEFINED SYMBOLS

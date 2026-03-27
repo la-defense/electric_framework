@@ -1,0 +1,563 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"buzzer.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/alarm/buzzer/buzzer.c"
+  20              		.section	.text.BuzzerInit,"ax",%progbits
+  21              		.align	1
+  22              		.global	BuzzerInit
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	BuzzerInit:
+  28              	.LFB238:
+   1:modules/alarm/buzzer/buzzer.c **** #include "bsp_pwm.h"
+   2:modules/alarm/buzzer/buzzer.c **** #include "buzzer.h"
+   3:modules/alarm/buzzer/buzzer.c **** #include "bsp_dwt.h"
+   4:modules/alarm/buzzer/buzzer.c **** #include "string.h"
+   5:modules/alarm/buzzer/buzzer.c **** 
+   6:modules/alarm/buzzer/buzzer.c **** static PWMInstance *buzzer;
+   7:modules/alarm/buzzer/buzzer.c **** // static uint8_t idx;
+   8:modules/alarm/buzzer/buzzer.c **** static BuzzzerInstance *buzzer_list[BUZZER_DEVICE_CNT] = {0};
+   9:modules/alarm/buzzer/buzzer.c **** 
+  10:modules/alarm/buzzer/buzzer.c **** /**
+  11:modules/alarm/buzzer/buzzer.c ****  * @brief 蜂鸣器初始化
+  12:modules/alarm/buzzer/buzzer.c ****  *
+  13:modules/alarm/buzzer/buzzer.c ****  */
+  14:modules/alarm/buzzer/buzzer.c **** void BuzzerInit()
+  15:modules/alarm/buzzer/buzzer.c **** {
+  29              		.loc 1 15 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 24
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33 0000 00B5     		push	{lr}
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 14, -4
+  36 0002 87B0     		sub	sp, sp, #28
+  37              		.cfi_def_cfa_offset 32
+  16:modules/alarm/buzzer/buzzer.c ****     PWM_Init_Config_s buzzer_config = {
+  38              		.loc 1 16 5 view .LVU1
+  39              		.loc 1 16 23 is_stmt 0 view .LVU2
+  40 0004 6846     		mov	r0, sp
+  41 0006 0023     		movs	r3, #0
+  42 0008 0093     		str	r3, [sp]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s 			page 2
+
+
+  43 000a 0193     		str	r3, [sp, #4]
+  44 000c 0293     		str	r3, [sp, #8]
+  45 000e 0393     		str	r3, [sp, #12]
+  46 0010 0493     		str	r3, [sp, #16]
+  47 0012 0593     		str	r3, [sp, #20]
+  48 0014 054B     		ldr	r3, .L3
+  49 0016 0093     		str	r3, [sp]
+  50 0018 0823     		movs	r3, #8
+  51 001a 0193     		str	r3, [sp, #4]
+  52 001c 044B     		ldr	r3, .L3+4
+  53 001e 0293     		str	r3, [sp, #8]	@ float
+  17:modules/alarm/buzzer/buzzer.c ****         .htim = &htim4,
+  18:modules/alarm/buzzer/buzzer.c ****         .channel = TIM_CHANNEL_3,
+  19:modules/alarm/buzzer/buzzer.c ****         .dutyratio = 0,
+  20:modules/alarm/buzzer/buzzer.c ****         .period = 0.001,
+  21:modules/alarm/buzzer/buzzer.c ****     };
+  22:modules/alarm/buzzer/buzzer.c ****     buzzer = PWMRegister(&buzzer_config);
+  54              		.loc 1 22 5 is_stmt 1 view .LVU3
+  55              		.loc 1 22 14 is_stmt 0 view .LVU4
+  56 0020 FFF7FEFF 		bl	PWMRegister
+  57              	.LVL0:
+  58              		.loc 1 22 12 discriminator 1 view .LVU5
+  59 0024 034B     		ldr	r3, .L3+8
+  60 0026 1860     		str	r0, [r3]
+  23:modules/alarm/buzzer/buzzer.c **** }
+  61              		.loc 1 23 1 view .LVU6
+  62 0028 07B0     		add	sp, sp, #28
+  63              		.cfi_def_cfa_offset 4
+  64              		@ sp needed
+  65 002a 00BD     		pop	{pc}
+  66              	.L4:
+  67              		.align	2
+  68              	.L3:
+  69 002c 00000000 		.word	htim4
+  70 0030 6F12833A 		.word	981668463
+  71 0034 00000000 		.word	buzzer
+  72              		.cfi_endproc
+  73              	.LFE238:
+  75              		.section	.text.BuzzerRegister,"ax",%progbits
+  76              		.align	1
+  77              		.global	BuzzerRegister
+  78              		.syntax unified
+  79              		.thumb
+  80              		.thumb_func
+  82              	BuzzerRegister:
+  83              	.LVL1:
+  84              	.LFB239:
+  24:modules/alarm/buzzer/buzzer.c **** 
+  25:modules/alarm/buzzer/buzzer.c **** BuzzzerInstance *BuzzerRegister(Buzzer_config_s *config)
+  26:modules/alarm/buzzer/buzzer.c **** {
+  85              		.loc 1 26 1 is_stmt 1 view -0
+  86              		.cfi_startproc
+  87              		@ args = 0, pretend = 0, frame = 0
+  88              		@ frame_needed = 0, uses_anonymous_args = 0
+  27:modules/alarm/buzzer/buzzer.c ****     if (config->alarm_level > BUZZER_DEVICE_CNT) // 超过最大实例数,考虑增加或查看是�
+  89              		.loc 1 27 5 view .LVU8
+  90              		.loc 1 27 15 is_stmt 0 view .LVU9
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s 			page 3
+
+
+  91 0000 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+  92              		.loc 1 27 8 view .LVU10
+  93 0002 052B     		cmp	r3, #5
+  94 0004 00D9     		bls	.L6
+  95              	.L7:
+  28:modules/alarm/buzzer/buzzer.c ****         while (1)
+  96              		.loc 1 28 9 is_stmt 1 view .LVU11
+  97              		.loc 1 28 15 view .LVU12
+  98 0006 FEE7     		b	.L7
+  99              	.L6:
+  26:modules/alarm/buzzer/buzzer.c ****     if (config->alarm_level > BUZZER_DEVICE_CNT) // 超过最大实例数,考虑增加或查看是�
+ 100              		.loc 1 26 1 is_stmt 0 view .LVU13
+ 101 0008 10B5     		push	{r4, lr}
+ 102              		.cfi_def_cfa_offset 8
+ 103              		.cfi_offset 4, -8
+ 104              		.cfi_offset 14, -4
+ 105 000a 0446     		mov	r4, r0
+  29:modules/alarm/buzzer/buzzer.c ****             ;
+  30:modules/alarm/buzzer/buzzer.c ****     BuzzzerInstance *buzzer_temp = (BuzzzerInstance *)malloc(sizeof(BuzzzerInstance));
+ 106              		.loc 1 30 5 is_stmt 1 view .LVU14
+ 107              		.loc 1 30 55 is_stmt 0 view .LVU15
+ 108 000c 0820     		movs	r0, #8
+ 109              	.LVL2:
+ 110              		.loc 1 30 55 view .LVU16
+ 111 000e FFF7FEFF 		bl	malloc
+ 112              	.LVL3:
+  31:modules/alarm/buzzer/buzzer.c ****     memset(buzzer_temp, 0, sizeof(BuzzzerInstance));
+ 113              		.loc 1 31 5 is_stmt 1 view .LVU17
+ 114 0012 0022     		movs	r2, #0
+ 115 0014 0260     		str	r2, [r0]	@ unaligned
+ 116 0016 4260     		str	r2, [r0, #4]	@ unaligned
+  32:modules/alarm/buzzer/buzzer.c **** 
+  33:modules/alarm/buzzer/buzzer.c ****     buzzer_temp->alarm_level = config->alarm_level;
+ 117              		.loc 1 33 5 view .LVU18
+ 118              		.loc 1 33 38 is_stmt 0 view .LVU19
+ 119 0018 2278     		ldrb	r2, [r4]	@ zero_extendqisi2
+ 120              		.loc 1 33 30 view .LVU20
+ 121 001a 4271     		strb	r2, [r0, #5]
+  34:modules/alarm/buzzer/buzzer.c ****     buzzer_temp->loudness = config->loudness;
+ 122              		.loc 1 34 5 is_stmt 1 view .LVU21
+ 123              		.loc 1 34 35 is_stmt 0 view .LVU22
+ 124 001c 6168     		ldr	r1, [r4, #4]	@ float
+ 125              		.loc 1 34 27 view .LVU23
+ 126 001e 0160     		str	r1, [r0]	@ float
+  35:modules/alarm/buzzer/buzzer.c ****     buzzer_temp->octave = config->octave;
+ 127              		.loc 1 35 5 is_stmt 1 view .LVU24
+ 128              		.loc 1 35 33 is_stmt 0 view .LVU25
+ 129 0020 6178     		ldrb	r1, [r4, #1]	@ zero_extendqisi2
+ 130              		.loc 1 35 25 view .LVU26
+ 131 0022 0171     		strb	r1, [r0, #4]
+  36:modules/alarm/buzzer/buzzer.c ****     buzzer_temp->alarm_state = ALARM_OFF;
+ 132              		.loc 1 36 5 is_stmt 1 view .LVU27
+  37:modules/alarm/buzzer/buzzer.c **** 
+  38:modules/alarm/buzzer/buzzer.c ****     buzzer_list[config->alarm_level] = buzzer_temp;
+ 133              		.loc 1 38 5 view .LVU28
+ 134              		.loc 1 38 38 is_stmt 0 view .LVU29
+ 135 0024 0149     		ldr	r1, .L10
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s 			page 4
+
+
+ 136 0026 41F82200 		str	r0, [r1, r2, lsl #2]
+  39:modules/alarm/buzzer/buzzer.c ****     return buzzer_temp;
+ 137              		.loc 1 39 5 is_stmt 1 view .LVU30
+  40:modules/alarm/buzzer/buzzer.c **** }
+ 138              		.loc 1 40 1 is_stmt 0 view .LVU31
+ 139 002a 10BD     		pop	{r4, pc}
+ 140              	.LVL4:
+ 141              	.L11:
+ 142              		.loc 1 40 1 view .LVU32
+ 143              		.align	2
+ 144              	.L10:
+ 145 002c 00000000 		.word	buzzer_list
+ 146              		.cfi_endproc
+ 147              	.LFE239:
+ 149              		.section	.text.BuzzerSetStatus,"ax",%progbits
+ 150              		.align	1
+ 151              		.global	BuzzerSetStatus
+ 152              		.syntax unified
+ 153              		.thumb
+ 154              		.thumb_func
+ 156              	BuzzerSetStatus:
+ 157              	.LVL5:
+ 158              	.LFB240:
+  41:modules/alarm/buzzer/buzzer.c **** 
+  42:modules/alarm/buzzer/buzzer.c **** void BuzzerSetStatus(BuzzzerInstance *buzzer, AlarmState_e state)
+  43:modules/alarm/buzzer/buzzer.c **** {
+ 159              		.loc 1 43 1 is_stmt 1 view -0
+ 160              		.cfi_startproc
+ 161              		@ args = 0, pretend = 0, frame = 0
+ 162              		@ frame_needed = 0, uses_anonymous_args = 0
+ 163              		@ link register save eliminated.
+  44:modules/alarm/buzzer/buzzer.c ****     buzzer->alarm_state = state;
+ 164              		.loc 1 44 5 view .LVU34
+ 165              		.loc 1 44 25 is_stmt 0 view .LVU35
+ 166 0000 8171     		strb	r1, [r0, #6]
+  45:modules/alarm/buzzer/buzzer.c **** }
+ 167              		.loc 1 45 1 view .LVU36
+ 168 0002 7047     		bx	lr
+ 169              		.cfi_endproc
+ 170              	.LFE240:
+ 172              		.section	.text.BuzzerSetOctave,"ax",%progbits
+ 173              		.align	1
+ 174              		.global	BuzzerSetOctave
+ 175              		.syntax unified
+ 176              		.thumb
+ 177              		.thumb_func
+ 179              	BuzzerSetOctave:
+ 180              	.LVL6:
+ 181              	.LFB241:
+  46:modules/alarm/buzzer/buzzer.c **** 
+  47:modules/alarm/buzzer/buzzer.c **** void BuzzerSetOctave(BuzzzerInstance *buzzer, octave_e octave)
+  48:modules/alarm/buzzer/buzzer.c **** {
+ 182              		.loc 1 48 1 is_stmt 1 view -0
+ 183              		.cfi_startproc
+ 184              		@ args = 0, pretend = 0, frame = 0
+ 185              		@ frame_needed = 0, uses_anonymous_args = 0
+ 186              		@ link register save eliminated.
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s 			page 5
+
+
+  49:modules/alarm/buzzer/buzzer.c ****     buzzer->octave = octave;
+ 187              		.loc 1 49 5 view .LVU38
+ 188              		.loc 1 49 20 is_stmt 0 view .LVU39
+ 189 0000 0171     		strb	r1, [r0, #4]
+  50:modules/alarm/buzzer/buzzer.c **** }
+ 190              		.loc 1 50 1 view .LVU40
+ 191 0002 7047     		bx	lr
+ 192              		.cfi_endproc
+ 193              	.LFE241:
+ 195              		.section	.text.BuzzerTask,"ax",%progbits
+ 196              		.align	1
+ 197              		.global	BuzzerTask
+ 198              		.syntax unified
+ 199              		.thumb
+ 200              		.thumb_func
+ 202              	BuzzerTask:
+ 203              	.LFB242:
+  51:modules/alarm/buzzer/buzzer.c **** 
+  52:modules/alarm/buzzer/buzzer.c **** void BuzzerTask()
+  53:modules/alarm/buzzer/buzzer.c **** {
+ 204              		.loc 1 53 1 is_stmt 1 view -0
+ 205              		.cfi_startproc
+ 206              		@ args = 0, pretend = 0, frame = 0
+ 207              		@ frame_needed = 0, uses_anonymous_args = 0
+ 208 0000 38B5     		push	{r3, r4, r5, lr}
+ 209              		.cfi_def_cfa_offset 16
+ 210              		.cfi_offset 3, -16
+ 211              		.cfi_offset 4, -12
+ 212              		.cfi_offset 5, -8
+ 213              		.cfi_offset 14, -4
+  54:modules/alarm/buzzer/buzzer.c ****     BuzzzerInstance *buzz;
+ 214              		.loc 1 54 5 view .LVU42
+  55:modules/alarm/buzzer/buzzer.c ****     for (size_t i = 0; i < BUZZER_DEVICE_CNT; ++i)
+ 215              		.loc 1 55 5 view .LVU43
+ 216              	.LBB2:
+ 217              		.loc 1 55 10 view .LVU44
+ 218              	.LVL7:
+ 219              		.loc 1 55 17 is_stmt 0 view .LVU45
+ 220 0002 0024     		movs	r4, #0
+ 221              		.loc 1 55 5 view .LVU46
+ 222 0004 46E0     		b	.L15
+ 223              	.LVL8:
+ 224              	.L17:
+  56:modules/alarm/buzzer/buzzer.c ****     {
+  57:modules/alarm/buzzer/buzzer.c ****         buzz = buzzer_list[i];
+  58:modules/alarm/buzzer/buzzer.c ****         if (buzz->alarm_level > ALARM_LEVEL_LOW)
+  59:modules/alarm/buzzer/buzzer.c ****         {
+  60:modules/alarm/buzzer/buzzer.c ****             continue;
+  61:modules/alarm/buzzer/buzzer.c ****         }
+  62:modules/alarm/buzzer/buzzer.c ****         if (buzz->alarm_state == ALARM_OFF)
+  63:modules/alarm/buzzer/buzzer.c ****         {
+  64:modules/alarm/buzzer/buzzer.c ****             PWMSetDutyRatio(buzzer, 0);
+  65:modules/alarm/buzzer/buzzer.c ****         }
+  66:modules/alarm/buzzer/buzzer.c ****         else
+  67:modules/alarm/buzzer/buzzer.c ****         {
+  68:modules/alarm/buzzer/buzzer.c ****             PWMSetDutyRatio(buzzer, buzz->loudness);
+ 225              		.loc 1 68 13 is_stmt 1 view .LVU47
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s 			page 6
+
+
+ 226 0006 95ED000A 		vldr.32	s0, [r5]
+ 227 000a 2B4B     		ldr	r3, .L29
+ 228 000c 1868     		ldr	r0, [r3]
+ 229 000e FFF7FEFF 		bl	PWMSetDutyRatio
+ 230              	.LVL9:
+  69:modules/alarm/buzzer/buzzer.c ****             switch (buzz->octave)
+ 231              		.loc 1 69 13 view .LVU48
+ 232              		.loc 1 69 25 is_stmt 0 view .LVU49
+ 233 0012 2B79     		ldrb	r3, [r5, #4]	@ zero_extendqisi2
+ 234              		.loc 1 69 13 view .LVU50
+ 235 0014 032B     		cmp	r3, #3
+ 236 0016 27D0     		beq	.L18
+ 237              		.loc 1 69 13 view .LVU51
+ 238 0018 0BD8     		bhi	.L19
+ 239 001a 012B     		cmp	r3, #1
+ 240 001c 16D0     		beq	.L20
+ 241 001e 022B     		cmp	r3, #2
+ 242 0020 1BD0     		beq	.L21
+ 243 0022 2BB9     		cbnz	r3, .L14
+  70:modules/alarm/buzzer/buzzer.c ****             {
+  71:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_1:
+  72:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / DoFreq);
+ 244              		.loc 1 72 17 is_stmt 1 view .LVU52
+ 245 0024 9FED250A 		vldr.32	s0, .L29+4
+ 246 0028 234B     		ldr	r3, .L29
+ 247 002a 1868     		ldr	r0, [r3]
+ 248 002c FFF7FEFF 		bl	PWMSetPeriod
+ 249              	.LVL10:
+  73:modules/alarm/buzzer/buzzer.c ****                 break;
+ 250              		.loc 1 73 17 view .LVU53
+ 251              	.L14:
+ 252              		.loc 1 73 17 is_stmt 0 view .LVU54
+ 253              	.LBE2:
+  74:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_2:
+  75:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / ReFreq);
+  76:modules/alarm/buzzer/buzzer.c ****                 break;
+  77:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_3:
+  78:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / MiFreq);
+  79:modules/alarm/buzzer/buzzer.c ****                 break;
+  80:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_4:
+  81:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / FaFreq);
+  82:modules/alarm/buzzer/buzzer.c ****                 break;
+  83:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_5:
+  84:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / SoFreq);
+  85:modules/alarm/buzzer/buzzer.c ****                 break;
+  86:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_6:
+  87:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / LaFreq);
+  88:modules/alarm/buzzer/buzzer.c ****                 break;
+  89:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_7:
+  90:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / SiFreq);
+  91:modules/alarm/buzzer/buzzer.c ****                 break;
+  92:modules/alarm/buzzer/buzzer.c ****             default:
+  93:modules/alarm/buzzer/buzzer.c ****                 break;
+  94:modules/alarm/buzzer/buzzer.c ****             }
+  95:modules/alarm/buzzer/buzzer.c ****             break;
+  96:modules/alarm/buzzer/buzzer.c ****         }
+  97:modules/alarm/buzzer/buzzer.c ****     }
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s 			page 7
+
+
+  98:modules/alarm/buzzer/buzzer.c **** }
+ 254              		.loc 1 98 1 view .LVU55
+ 255 0030 38BD     		pop	{r3, r4, r5, pc}
+ 256              	.LVL11:
+ 257              	.L19:
+ 258              	.LBB3:
+  69:modules/alarm/buzzer/buzzer.c ****             {
+ 259              		.loc 1 69 13 view .LVU56
+ 260 0032 052B     		cmp	r3, #5
+ 261 0034 1FD0     		beq	.L24
+ 262 0036 062B     		cmp	r3, #6
+ 263 0038 24D0     		beq	.L25
+ 264 003a 042B     		cmp	r3, #4
+ 265 003c F8D1     		bne	.L14
+  84:modules/alarm/buzzer/buzzer.c ****                 break;
+ 266              		.loc 1 84 17 is_stmt 1 view .LVU57
+ 267 003e 9FED200A 		vldr.32	s0, .L29+8
+ 268 0042 1D4B     		ldr	r3, .L29
+ 269 0044 1868     		ldr	r0, [r3]
+ 270 0046 FFF7FEFF 		bl	PWMSetPeriod
+ 271              	.LVL12:
+  85:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_6:
+ 272              		.loc 1 85 17 view .LVU58
+ 273 004a F1E7     		b	.L14
+ 274              	.L20:
+  75:modules/alarm/buzzer/buzzer.c ****                 break;
+ 275              		.loc 1 75 17 view .LVU59
+ 276 004c 9FED1D0A 		vldr.32	s0, .L29+12
+ 277 0050 194B     		ldr	r3, .L29
+ 278 0052 1868     		ldr	r0, [r3]
+ 279 0054 FFF7FEFF 		bl	PWMSetPeriod
+ 280              	.LVL13:
+  76:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_3:
+ 281              		.loc 1 76 17 view .LVU60
+ 282 0058 EAE7     		b	.L14
+ 283              	.L21:
+  78:modules/alarm/buzzer/buzzer.c ****                 break;
+ 284              		.loc 1 78 17 view .LVU61
+ 285 005a 9FED1B0A 		vldr.32	s0, .L29+16
+ 286 005e 164B     		ldr	r3, .L29
+ 287 0060 1868     		ldr	r0, [r3]
+ 288 0062 FFF7FEFF 		bl	PWMSetPeriod
+ 289              	.LVL14:
+  79:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_4:
+ 290              		.loc 1 79 17 view .LVU62
+ 291 0066 E3E7     		b	.L14
+ 292              	.L18:
+  81:modules/alarm/buzzer/buzzer.c ****                 break;
+ 293              		.loc 1 81 17 view .LVU63
+ 294 0068 9FED180A 		vldr.32	s0, .L29+20
+ 295 006c 124B     		ldr	r3, .L29
+ 296 006e 1868     		ldr	r0, [r3]
+ 297 0070 FFF7FEFF 		bl	PWMSetPeriod
+ 298              	.LVL15:
+  82:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_5:
+ 299              		.loc 1 82 17 view .LVU64
+ 300 0074 DCE7     		b	.L14
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s 			page 8
+
+
+ 301              	.L24:
+  87:modules/alarm/buzzer/buzzer.c ****                 break;
+ 302              		.loc 1 87 17 view .LVU65
+ 303 0076 9FED160A 		vldr.32	s0, .L29+24
+ 304 007a 0F4B     		ldr	r3, .L29
+ 305 007c 1868     		ldr	r0, [r3]
+ 306 007e FFF7FEFF 		bl	PWMSetPeriod
+ 307              	.LVL16:
+  88:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_7:
+ 308              		.loc 1 88 17 view .LVU66
+ 309 0082 D5E7     		b	.L14
+ 310              	.L25:
+  90:modules/alarm/buzzer/buzzer.c ****                 break;
+ 311              		.loc 1 90 17 view .LVU67
+ 312 0084 9FED130A 		vldr.32	s0, .L29+28
+ 313 0088 0B4B     		ldr	r3, .L29
+ 314 008a 1868     		ldr	r0, [r3]
+ 315 008c FFF7FEFF 		bl	PWMSetPeriod
+ 316              	.LVL17:
+  91:modules/alarm/buzzer/buzzer.c ****             default:
+ 317              		.loc 1 91 17 view .LVU68
+ 318 0090 CEE7     		b	.L14
+ 319              	.L16:
+  55:modules/alarm/buzzer/buzzer.c ****     {
+ 320              		.loc 1 55 47 discriminator 2 view .LVU69
+ 321 0092 0134     		adds	r4, r4, #1
+ 322              	.LVL18:
+ 323              	.L15:
+  55:modules/alarm/buzzer/buzzer.c ****     {
+ 324              		.loc 1 55 26 discriminator 1 view .LVU70
+ 325 0094 042C     		cmp	r4, #4
+ 326 0096 CBD8     		bhi	.L14
+  57:modules/alarm/buzzer/buzzer.c ****         if (buzz->alarm_level > ALARM_LEVEL_LOW)
+ 327              		.loc 1 57 9 view .LVU71
+  57:modules/alarm/buzzer/buzzer.c ****         if (buzz->alarm_level > ALARM_LEVEL_LOW)
+ 328              		.loc 1 57 14 is_stmt 0 view .LVU72
+ 329 0098 0F4B     		ldr	r3, .L29+32
+ 330 009a 53F82450 		ldr	r5, [r3, r4, lsl #2]
+ 331              	.LVL19:
+  58:modules/alarm/buzzer/buzzer.c ****         {
+ 332              		.loc 1 58 9 is_stmt 1 view .LVU73
+  58:modules/alarm/buzzer/buzzer.c ****         {
+ 333              		.loc 1 58 17 is_stmt 0 view .LVU74
+ 334 009e 6B79     		ldrb	r3, [r5, #5]	@ zero_extendqisi2
+  58:modules/alarm/buzzer/buzzer.c ****         {
+ 335              		.loc 1 58 12 view .LVU75
+ 336 00a0 042B     		cmp	r3, #4
+ 337 00a2 F6D8     		bhi	.L16
+  62:modules/alarm/buzzer/buzzer.c ****         {
+ 338              		.loc 1 62 9 is_stmt 1 view .LVU76
+  62:modules/alarm/buzzer/buzzer.c ****         {
+ 339              		.loc 1 62 17 is_stmt 0 view .LVU77
+ 340 00a4 AB79     		ldrb	r3, [r5, #6]	@ zero_extendqisi2
+  62:modules/alarm/buzzer/buzzer.c ****         {
+ 341              		.loc 1 62 12 view .LVU78
+ 342 00a6 002B     		cmp	r3, #0
+ 343 00a8 ADD1     		bne	.L17
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s 			page 9
+
+
+  64:modules/alarm/buzzer/buzzer.c ****         }
+ 344              		.loc 1 64 13 is_stmt 1 view .LVU79
+ 345 00aa 9FED0C0A 		vldr.32	s0, .L29+36
+ 346 00ae 024B     		ldr	r3, .L29
+ 347 00b0 1868     		ldr	r0, [r3]
+ 348 00b2 FFF7FEFF 		bl	PWMSetDutyRatio
+ 349              	.LVL20:
+ 350 00b6 ECE7     		b	.L16
+ 351              	.L30:
+ 352              		.align	2
+ 353              	.L29:
+ 354 00b8 00000000 		.word	buzzer
+ 355 00bc 9D9DFA3A 		.word	989502877
+ 356 00c0 052FA73A 		.word	984035077
+ 357 00c4 934ADF3A 		.word	987712147
+ 358 00c8 32E5C63A 		.word	986113330
+ 359 00cc 41C8BB3A 		.word	985385025
+ 360 00d0 09F2943A 		.word	982839817
+ 361 00d4 FAA9843A 		.word	981772794
+ 362 00d8 00000000 		.word	buzzer_list
+ 363 00dc 00000000 		.word	0
+ 364              	.LBE3:
+ 365              		.cfi_endproc
+ 366              	.LFE242:
+ 368              		.section	.bss.buzzer_list,"aw",%nobits
+ 369              		.align	2
+ 372              	buzzer_list:
+ 373 0000 00000000 		.space	20
+ 373      00000000 
+ 373      00000000 
+ 373      00000000 
+ 373      00000000 
+ 374              		.section	.bss.buzzer,"aw",%nobits
+ 375              		.align	2
+ 378              	buzzer:
+ 379 0000 00000000 		.space	4
+ 380              		.text
+ 381              	.Letext0:
+ 382              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 383              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 384              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 385              		.file 5 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 386              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 387              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 388              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h"
+ 389              		.file 9 "bsp/pwm/bsp_pwm.h"
+ 390              		.file 10 "modules/alarm/alarm_def.h"
+ 391              		.file 11 "modules/alarm/buzzer/buzzer.h"
+ 392              		.file 12 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 393              		.file 13 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 394              		.file 14 "Inc/tim.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 buzzer.c
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:21     .text.BuzzerInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:27     .text.BuzzerInit:00000000 BuzzerInit
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:69     .text.BuzzerInit:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:378    .bss.buzzer:00000000 buzzer
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:76     .text.BuzzerRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:82     .text.BuzzerRegister:00000000 BuzzerRegister
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:145    .text.BuzzerRegister:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:372    .bss.buzzer_list:00000000 buzzer_list
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:150    .text.BuzzerSetStatus:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:156    .text.BuzzerSetStatus:00000000 BuzzerSetStatus
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:173    .text.BuzzerSetOctave:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:179    .text.BuzzerSetOctave:00000000 BuzzerSetOctave
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:196    .text.BuzzerTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:202    .text.BuzzerTask:00000000 BuzzerTask
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:354    .text.BuzzerTask:000000b8 $d
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:369    .bss.buzzer_list:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccqZdZdh.s:375    .bss.buzzer:00000000 $d
+
+UNDEFINED SYMBOLS
+PWMRegister
+htim4
+malloc
+PWMSetDutyRatio
+PWMSetPeriod

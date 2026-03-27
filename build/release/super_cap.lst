@@ -1,0 +1,148 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"super_cap.c"
+  16              		.text
+  17              		.section	.text.SuperCapRxCallback,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	SuperCapRxCallback:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 0B4B     		ldr	r3, .L2
+  28 0002 1B68     		ldr	r3, [r3]
+  29 0004 90F82C10 		ldrb	r1, [r0, #44]	@ zero_extendqisi2
+  30 0008 90F82D20 		ldrb	r2, [r0, #45]	@ zero_extendqisi2
+  31 000c 42EA0122 		orr	r2, r2, r1, lsl #8
+  32 0010 9A80     		strh	r2, [r3, #4]	@ unaligned
+  33 0012 90F82E10 		ldrb	r1, [r0, #46]	@ zero_extendqisi2
+  34 0016 90F82F20 		ldrb	r2, [r0, #47]	@ zero_extendqisi2
+  35 001a 42EA0122 		orr	r2, r2, r1, lsl #8
+  36 001e DA80     		strh	r2, [r3, #6]	@ unaligned
+  37 0020 90F83010 		ldrb	r1, [r0, #48]	@ zero_extendqisi2
+  38 0024 90F83120 		ldrb	r2, [r0, #49]	@ zero_extendqisi2
+  39 0028 42EA0122 		orr	r2, r2, r1, lsl #8
+  40 002c 1A81     		strh	r2, [r3, #8]	@ unaligned
+  41 002e 7047     		bx	lr
+  42              	.L3:
+  43              		.align	2
+  44              	.L2:
+  45 0030 00000000 		.word	super_cap_instance
+  47              		.section	.text.SuperCapInit,"ax",%progbits
+  48              		.align	1
+  49              		.global	SuperCapInit
+  50              		.syntax unified
+  51              		.thumb
+  52              		.thumb_func
+  54              	SuperCapInit:
+  55              		@ args = 0, pretend = 0, frame = 0
+  56              		@ frame_needed = 0, uses_anonymous_args = 0
+  57 0000 70B5     		push	{r4, r5, r6, lr}
+  58 0002 0546     		mov	r5, r0
+  59 0004 0C20     		movs	r0, #12
+  60 0006 FFF7FEFF 		bl	malloc
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s 			page 2
+
+
+  61 000a 0446     		mov	r4, r0
+  62 000c 064E     		ldr	r6, .L6
+  63 000e 3060     		str	r0, [r6]
+  64 0010 0023     		movs	r3, #0
+  65 0012 0360     		str	r3, [r0]	@ unaligned
+  66 0014 4360     		str	r3, [r0, #4]	@ unaligned
+  67 0016 8360     		str	r3, [r0, #8]	@ unaligned
+  68 0018 044B     		ldr	r3, .L6+4
+  69 001a 6B61     		str	r3, [r5, #20]
+  70 001c 2846     		mov	r0, r5
+  71 001e FFF7FEFF 		bl	CANRegister
+  72 0022 2060     		str	r0, [r4]
+  73 0024 3068     		ldr	r0, [r6]
+  74 0026 70BD     		pop	{r4, r5, r6, pc}
+  75              	.L7:
+  76              		.align	2
+  77              	.L6:
+  78 0028 00000000 		.word	super_cap_instance
+  79 002c 00000000 		.word	SuperCapRxCallback
+  81              		.section	.text.SuperCapSend,"ax",%progbits
+  82              		.align	1
+  83              		.global	SuperCapSend
+  84              		.syntax unified
+  85              		.thumb
+  86              		.thumb_func
+  88              	SuperCapSend:
+  89              		@ args = 0, pretend = 0, frame = 0
+  90              		@ frame_needed = 0, uses_anonymous_args = 0
+  91 0000 08B5     		push	{r3, lr}
+  92 0002 0368     		ldr	r3, [r0]
+  93 0004 D1F800C0 		ldr	ip, [r1]	@ unaligned
+  94 0008 4A68     		ldr	r2, [r1, #4]	@ unaligned
+  95 000a C3F824C0 		str	ip, [r3, #36]	@ unaligned
+  96 000e 9A62     		str	r2, [r3, #40]	@ unaligned
+  97 0010 B7EE000A 		vmov.f32	s0, #1.0e+0
+  98 0014 0068     		ldr	r0, [r0]
+  99 0016 FFF7FEFF 		bl	CANTransmit
+ 100 001a 08BD     		pop	{r3, pc}
+ 102              		.section	.text.SuperCapGet,"ax",%progbits
+ 103              		.align	1
+ 104              		.global	SuperCapGet
+ 105              		.syntax unified
+ 106              		.thumb
+ 107              		.thumb_func
+ 109              	SuperCapGet:
+ 110              		@ args = 0, pretend = 0, frame = 0
+ 111              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112              		@ link register save eliminated.
+ 113 0000 0346     		mov	r3, r0
+ 114 0002 4868     		ldr	r0, [r1, #4]
+ 115 0004 1860     		str	r0, [r3]	@ unaligned
+ 116 0006 0A89     		ldrh	r2, [r1, #8]	@ unaligned
+ 117 0008 9A80     		strh	r2, [r3, #4]	@ unaligned
+ 118 000a 1846     		mov	r0, r3
+ 119 000c 7047     		bx	lr
+ 121              		.section	.bss.super_cap_instance,"aw",%nobits
+ 122              		.align	2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s 			page 3
+
+
+ 125              	super_cap_instance:
+ 126 0000 00000000 		.space	4
+ 127              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 super_cap.c
+C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s:18     .text.SuperCapRxCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s:23     .text.SuperCapRxCallback:00000000 SuperCapRxCallback
+C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s:45     .text.SuperCapRxCallback:00000030 $d
+C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s:125    .bss.super_cap_instance:00000000 super_cap_instance
+C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s:48     .text.SuperCapInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s:54     .text.SuperCapInit:00000000 SuperCapInit
+C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s:78     .text.SuperCapInit:00000028 $d
+C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s:82     .text.SuperCapSend:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s:88     .text.SuperCapSend:00000000 SuperCapSend
+C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s:103    .text.SuperCapGet:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s:109    .text.SuperCapGet:00000000 SuperCapGet
+C:\Users\Administrator\AppData\Local\Temp\cctxHGlU.s:122    .bss.super_cap_instance:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc
+CANRegister
+CANTransmit

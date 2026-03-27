@@ -12,8 +12,13 @@
 #include "referee_task.h"
 #include "master_process.h"
 #include "daemon.h"
+
 #include "HT04.h"
+#include "drmotor.h"
+#include "xmmotor.h"
+
 #include "buzzer.h"
+#include "led.h"
 
 #include "bsp_log.h"
 
@@ -51,7 +56,11 @@ void OSTaskInit()
     osThreadDef(uitask, StartUITASK, osPriorityNormal, 0, 512);
     uiTaskHandle = osThreadCreate(osThread(uitask), NULL);
 
-    HTMotorControlInit(); // 没有注册HT电机则不会执行
+    // HTMotorControlInit(); // 没有注册HT电机则不会执行
+
+    // DRMotorControlInit();   // 只能注册一个电机任务
+
+    XMMotorControlInit();
 }
 
 __attribute__((noreturn)) void StartINSTASK(void const *argument)
@@ -94,6 +103,7 @@ __attribute__((noreturn)) void StartDAEMONTASK(void const *argument)
     static float daemon_dt;
     static float daemon_start;
     BuzzerInit();
+    LEDInit();
     LOGINFO("[freeRTOS] Daemon Task Start");
     for (;;)
     {
@@ -101,6 +111,7 @@ __attribute__((noreturn)) void StartDAEMONTASK(void const *argument)
         daemon_start = DWT_GetTimeline_ms();
         DaemonTask();
         BuzzerTask();
+        LEDTask();
         daemon_dt = DWT_GetTimeline_ms() - daemon_start;
         if (daemon_dt > 10)
             LOGERROR("[freeRTOS] Daemon Task is being DELAY! dt = [%f]", &daemon_dt);

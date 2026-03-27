@@ -1,0 +1,567 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"buzzer.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/alarm/buzzer/buzzer.c"
+  20              		.section	.text.BuzzerInit,"ax",%progbits
+  21              		.align	1
+  22              		.global	BuzzerInit
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	BuzzerInit:
+  28              	.LFB238:
+   1:modules/alarm/buzzer/buzzer.c **** #include "bsp_pwm.h"
+   2:modules/alarm/buzzer/buzzer.c **** #include "buzzer.h"
+   3:modules/alarm/buzzer/buzzer.c **** #include "bsp_dwt.h"
+   4:modules/alarm/buzzer/buzzer.c **** #include "string.h"
+   5:modules/alarm/buzzer/buzzer.c **** 
+   6:modules/alarm/buzzer/buzzer.c **** static PWMInstance *buzzer;
+   7:modules/alarm/buzzer/buzzer.c **** // static uint8_t idx;
+   8:modules/alarm/buzzer/buzzer.c **** static BuzzzerInstance *buzzer_list[BUZZER_DEVICE_CNT] = {0};
+   9:modules/alarm/buzzer/buzzer.c **** 
+  10:modules/alarm/buzzer/buzzer.c **** /**
+  11:modules/alarm/buzzer/buzzer.c ****  * @brief 蜂鸣器初始化
+  12:modules/alarm/buzzer/buzzer.c ****  *
+  13:modules/alarm/buzzer/buzzer.c ****  */
+  14:modules/alarm/buzzer/buzzer.c **** void BuzzerInit()
+  15:modules/alarm/buzzer/buzzer.c **** {
+  29              		.loc 1 15 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 24
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33 0000 00B5     		push	{lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 4
+  36              		.cfi_offset 14, -4
+  37 0002 87B0     		sub	sp, sp, #28
+  38              	.LCFI1:
+  39              		.cfi_def_cfa_offset 32
+  16:modules/alarm/buzzer/buzzer.c ****     PWM_Init_Config_s buzzer_config = {
+  40              		.loc 1 16 5 view .LVU1
+  41              		.loc 1 16 23 is_stmt 0 view .LVU2
+  42 0004 0023     		movs	r3, #0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s 			page 2
+
+
+  43 0006 0093     		str	r3, [sp]
+  44 0008 0193     		str	r3, [sp, #4]
+  45 000a 0293     		str	r3, [sp, #8]
+  46 000c 0393     		str	r3, [sp, #12]
+  47 000e 0493     		str	r3, [sp, #16]
+  48 0010 0593     		str	r3, [sp, #20]
+  49 0012 074B     		ldr	r3, .L3
+  50 0014 0093     		str	r3, [sp]
+  51 0016 0823     		movs	r3, #8
+  52 0018 0193     		str	r3, [sp, #4]
+  53 001a 064B     		ldr	r3, .L3+4
+  54 001c 0293     		str	r3, [sp, #8]	@ float
+  17:modules/alarm/buzzer/buzzer.c ****         .htim = &htim4,
+  18:modules/alarm/buzzer/buzzer.c ****         .channel = TIM_CHANNEL_3,
+  19:modules/alarm/buzzer/buzzer.c ****         .dutyratio = 0,
+  20:modules/alarm/buzzer/buzzer.c ****         .period = 0.001,
+  21:modules/alarm/buzzer/buzzer.c ****     };
+  22:modules/alarm/buzzer/buzzer.c ****     buzzer = PWMRegister(&buzzer_config);
+  55              		.loc 1 22 5 is_stmt 1 view .LVU3
+  56              		.loc 1 22 14 is_stmt 0 view .LVU4
+  57 001e 6846     		mov	r0, sp
+  58 0020 FFF7FEFF 		bl	PWMRegister
+  59              	.LVL0:
+  60              		.loc 1 22 12 discriminator 1 view .LVU5
+  61 0024 044B     		ldr	r3, .L3+8
+  62 0026 1860     		str	r0, [r3]
+  23:modules/alarm/buzzer/buzzer.c **** }
+  63              		.loc 1 23 1 view .LVU6
+  64 0028 07B0     		add	sp, sp, #28
+  65              	.LCFI2:
+  66              		.cfi_def_cfa_offset 4
+  67              		@ sp needed
+  68 002a 5DF804FB 		ldr	pc, [sp], #4
+  69              	.L4:
+  70 002e 00BF     		.align	2
+  71              	.L3:
+  72 0030 00000000 		.word	htim4
+  73 0034 6F12833A 		.word	981668463
+  74 0038 00000000 		.word	buzzer
+  75              		.cfi_endproc
+  76              	.LFE238:
+  78              		.section	.text.BuzzerRegister,"ax",%progbits
+  79              		.align	1
+  80              		.global	BuzzerRegister
+  81              		.syntax unified
+  82              		.thumb
+  83              		.thumb_func
+  85              	BuzzerRegister:
+  86              	.LVL1:
+  87              	.LFB239:
+  24:modules/alarm/buzzer/buzzer.c **** 
+  25:modules/alarm/buzzer/buzzer.c **** BuzzzerInstance *BuzzerRegister(Buzzer_config_s *config)
+  26:modules/alarm/buzzer/buzzer.c **** {
+  88              		.loc 1 26 1 is_stmt 1 view -0
+  89              		.cfi_startproc
+  90              		@ args = 0, pretend = 0, frame = 0
+  91              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s 			page 3
+
+
+  27:modules/alarm/buzzer/buzzer.c ****     if (config->alarm_level > BUZZER_DEVICE_CNT) // 超过最大实例数,考虑增加或查看是�
+  92              		.loc 1 27 5 view .LVU8
+  93              		.loc 1 27 15 is_stmt 0 view .LVU9
+  94 0000 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+  95              		.loc 1 27 8 view .LVU10
+  96 0002 052B     		cmp	r3, #5
+  97 0004 00D9     		bls	.L6
+  98              	.L7:
+  28:modules/alarm/buzzer/buzzer.c ****         while (1)
+  99              		.loc 1 28 9 is_stmt 1 view .LVU11
+ 100              		.loc 1 28 15 view .LVU12
+ 101 0006 FEE7     		b	.L7
+ 102              	.L6:
+  26:modules/alarm/buzzer/buzzer.c ****     if (config->alarm_level > BUZZER_DEVICE_CNT) // 超过最大实例数,考虑增加或查看是�
+ 103              		.loc 1 26 1 is_stmt 0 view .LVU13
+ 104 0008 10B5     		push	{r4, lr}
+ 105              	.LCFI3:
+ 106              		.cfi_def_cfa_offset 8
+ 107              		.cfi_offset 4, -8
+ 108              		.cfi_offset 14, -4
+ 109 000a 0446     		mov	r4, r0
+  29:modules/alarm/buzzer/buzzer.c ****             ;
+  30:modules/alarm/buzzer/buzzer.c ****     BuzzzerInstance *buzzer_temp = (BuzzzerInstance *)malloc(sizeof(BuzzzerInstance));
+ 110              		.loc 1 30 5 is_stmt 1 view .LVU14
+ 111              		.loc 1 30 55 is_stmt 0 view .LVU15
+ 112 000c 0820     		movs	r0, #8
+ 113              	.LVL2:
+ 114              		.loc 1 30 55 view .LVU16
+ 115 000e FFF7FEFF 		bl	malloc
+ 116              	.LVL3:
+  31:modules/alarm/buzzer/buzzer.c ****     memset(buzzer_temp, 0, sizeof(BuzzzerInstance));
+ 117              		.loc 1 31 5 is_stmt 1 view .LVU17
+ 118 0012 0022     		movs	r2, #0
+ 119 0014 0260     		str	r2, [r0]	@ unaligned
+ 120 0016 4260     		str	r2, [r0, #4]	@ unaligned
+  32:modules/alarm/buzzer/buzzer.c **** 
+  33:modules/alarm/buzzer/buzzer.c ****     buzzer_temp->alarm_level = config->alarm_level;
+ 121              		.loc 1 33 5 view .LVU18
+ 122              		.loc 1 33 38 is_stmt 0 view .LVU19
+ 123 0018 2278     		ldrb	r2, [r4]	@ zero_extendqisi2
+ 124              		.loc 1 33 30 view .LVU20
+ 125 001a 4271     		strb	r2, [r0, #5]
+  34:modules/alarm/buzzer/buzzer.c ****     buzzer_temp->loudness = config->loudness;
+ 126              		.loc 1 34 5 is_stmt 1 view .LVU21
+ 127              		.loc 1 34 35 is_stmt 0 view .LVU22
+ 128 001c 6168     		ldr	r1, [r4, #4]	@ float
+ 129              		.loc 1 34 27 view .LVU23
+ 130 001e 0160     		str	r1, [r0]	@ float
+  35:modules/alarm/buzzer/buzzer.c ****     buzzer_temp->octave = config->octave;
+ 131              		.loc 1 35 5 is_stmt 1 view .LVU24
+ 132              		.loc 1 35 33 is_stmt 0 view .LVU25
+ 133 0020 6178     		ldrb	r1, [r4, #1]	@ zero_extendqisi2
+ 134              		.loc 1 35 25 view .LVU26
+ 135 0022 0171     		strb	r1, [r0, #4]
+  36:modules/alarm/buzzer/buzzer.c ****     buzzer_temp->alarm_state = ALARM_OFF;
+ 136              		.loc 1 36 5 is_stmt 1 view .LVU27
+  37:modules/alarm/buzzer/buzzer.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s 			page 4
+
+
+  38:modules/alarm/buzzer/buzzer.c ****     buzzer_list[config->alarm_level] = buzzer_temp;
+ 137              		.loc 1 38 5 view .LVU28
+ 138              		.loc 1 38 38 is_stmt 0 view .LVU29
+ 139 0024 0149     		ldr	r1, .L10
+ 140 0026 41F82200 		str	r0, [r1, r2, lsl #2]
+  39:modules/alarm/buzzer/buzzer.c ****     return buzzer_temp;
+ 141              		.loc 1 39 5 is_stmt 1 view .LVU30
+  40:modules/alarm/buzzer/buzzer.c **** }
+ 142              		.loc 1 40 1 is_stmt 0 view .LVU31
+ 143 002a 10BD     		pop	{r4, pc}
+ 144              	.LVL4:
+ 145              	.L11:
+ 146              		.loc 1 40 1 view .LVU32
+ 147              		.align	2
+ 148              	.L10:
+ 149 002c 00000000 		.word	buzzer_list
+ 150              		.cfi_endproc
+ 151              	.LFE239:
+ 153              		.section	.text.BuzzerSetStatus,"ax",%progbits
+ 154              		.align	1
+ 155              		.global	BuzzerSetStatus
+ 156              		.syntax unified
+ 157              		.thumb
+ 158              		.thumb_func
+ 160              	BuzzerSetStatus:
+ 161              	.LVL5:
+ 162              	.LFB240:
+  41:modules/alarm/buzzer/buzzer.c **** 
+  42:modules/alarm/buzzer/buzzer.c **** void BuzzerSetStatus(BuzzzerInstance *buzzer, AlarmState_e state)
+  43:modules/alarm/buzzer/buzzer.c **** {
+ 163              		.loc 1 43 1 is_stmt 1 view -0
+ 164              		.cfi_startproc
+ 165              		@ args = 0, pretend = 0, frame = 0
+ 166              		@ frame_needed = 0, uses_anonymous_args = 0
+ 167              		@ link register save eliminated.
+  44:modules/alarm/buzzer/buzzer.c ****     buzzer->alarm_state = state;
+ 168              		.loc 1 44 5 view .LVU34
+ 169              		.loc 1 44 25 is_stmt 0 view .LVU35
+ 170 0000 8171     		strb	r1, [r0, #6]
+  45:modules/alarm/buzzer/buzzer.c **** }
+ 171              		.loc 1 45 1 view .LVU36
+ 172 0002 7047     		bx	lr
+ 173              		.cfi_endproc
+ 174              	.LFE240:
+ 176              		.section	.text.BuzzerSetOctave,"ax",%progbits
+ 177              		.align	1
+ 178              		.global	BuzzerSetOctave
+ 179              		.syntax unified
+ 180              		.thumb
+ 181              		.thumb_func
+ 183              	BuzzerSetOctave:
+ 184              	.LVL6:
+ 185              	.LFB241:
+  46:modules/alarm/buzzer/buzzer.c **** 
+  47:modules/alarm/buzzer/buzzer.c **** void BuzzerSetOctave(BuzzzerInstance *buzzer, octave_e octave)
+  48:modules/alarm/buzzer/buzzer.c **** {
+ 186              		.loc 1 48 1 is_stmt 1 view -0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s 			page 5
+
+
+ 187              		.cfi_startproc
+ 188              		@ args = 0, pretend = 0, frame = 0
+ 189              		@ frame_needed = 0, uses_anonymous_args = 0
+ 190              		@ link register save eliminated.
+  49:modules/alarm/buzzer/buzzer.c ****     buzzer->octave = octave;
+ 191              		.loc 1 49 5 view .LVU38
+ 192              		.loc 1 49 20 is_stmt 0 view .LVU39
+ 193 0000 0171     		strb	r1, [r0, #4]
+  50:modules/alarm/buzzer/buzzer.c **** }
+ 194              		.loc 1 50 1 view .LVU40
+ 195 0002 7047     		bx	lr
+ 196              		.cfi_endproc
+ 197              	.LFE241:
+ 199              		.section	.text.BuzzerTask,"ax",%progbits
+ 200              		.align	1
+ 201              		.global	BuzzerTask
+ 202              		.syntax unified
+ 203              		.thumb
+ 204              		.thumb_func
+ 206              	BuzzerTask:
+ 207              	.LFB242:
+  51:modules/alarm/buzzer/buzzer.c **** 
+  52:modules/alarm/buzzer/buzzer.c **** void BuzzerTask()
+  53:modules/alarm/buzzer/buzzer.c **** {
+ 208              		.loc 1 53 1 is_stmt 1 view -0
+ 209              		.cfi_startproc
+ 210              		@ args = 0, pretend = 0, frame = 0
+ 211              		@ frame_needed = 0, uses_anonymous_args = 0
+ 212 0000 38B5     		push	{r3, r4, r5, lr}
+ 213              	.LCFI4:
+ 214              		.cfi_def_cfa_offset 16
+ 215              		.cfi_offset 3, -16
+ 216              		.cfi_offset 4, -12
+ 217              		.cfi_offset 5, -8
+ 218              		.cfi_offset 14, -4
+  54:modules/alarm/buzzer/buzzer.c ****     BuzzzerInstance *buzz;
+ 219              		.loc 1 54 5 view .LVU42
+  55:modules/alarm/buzzer/buzzer.c ****     for (size_t i = 0; i < BUZZER_DEVICE_CNT; ++i)
+ 220              		.loc 1 55 5 view .LVU43
+ 221              	.LBB2:
+ 222              		.loc 1 55 10 view .LVU44
+ 223              	.LVL7:
+ 224              		.loc 1 55 17 is_stmt 0 view .LVU45
+ 225 0002 0024     		movs	r4, #0
+ 226              		.loc 1 55 5 view .LVU46
+ 227 0004 40E0     		b	.L15
+ 228              	.LVL8:
+ 229              	.L17:
+  56:modules/alarm/buzzer/buzzer.c ****     {
+  57:modules/alarm/buzzer/buzzer.c ****         buzz = buzzer_list[i];
+  58:modules/alarm/buzzer/buzzer.c ****         if (buzz->alarm_level > ALARM_LEVEL_LOW)
+  59:modules/alarm/buzzer/buzzer.c ****         {
+  60:modules/alarm/buzzer/buzzer.c ****             continue;
+  61:modules/alarm/buzzer/buzzer.c ****         }
+  62:modules/alarm/buzzer/buzzer.c ****         if (buzz->alarm_state == ALARM_OFF)
+  63:modules/alarm/buzzer/buzzer.c ****         {
+  64:modules/alarm/buzzer/buzzer.c ****             PWMSetDutyRatio(buzzer, 0);
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s 			page 6
+
+
+  65:modules/alarm/buzzer/buzzer.c ****         }
+  66:modules/alarm/buzzer/buzzer.c ****         else
+  67:modules/alarm/buzzer/buzzer.c ****         {
+  68:modules/alarm/buzzer/buzzer.c ****             PWMSetDutyRatio(buzzer, buzz->loudness);
+ 230              		.loc 1 68 13 is_stmt 1 view .LVU47
+ 231 0006 95ED000A 		vldr.32	s0, [r5]
+ 232 000a 284B     		ldr	r3, .L30
+ 233 000c 1868     		ldr	r0, [r3]
+ 234 000e FFF7FEFF 		bl	PWMSetDutyRatio
+ 235              	.LVL9:
+  69:modules/alarm/buzzer/buzzer.c ****             switch (buzz->octave)
+ 236              		.loc 1 69 13 view .LVU48
+ 237              		.loc 1 69 25 is_stmt 0 view .LVU49
+ 238 0012 2B79     		ldrb	r3, [r5, #4]	@ zero_extendqisi2
+ 239              		.loc 1 69 13 view .LVU50
+ 240 0014 062B     		cmp	r3, #6
+ 241 0016 0BD8     		bhi	.L14
+ 242 0018 DFE803F0 		tbb	[pc, r3]
+ 243              	.L20:
+ 244 001c 04       		.byte	(.L26-.L20)/2
+ 245 001d 0B       		.byte	(.L25-.L20)/2
+ 246 001e 12       		.byte	(.L24-.L20)/2
+ 247 001f 19       		.byte	(.L23-.L20)/2
+ 248 0020 20       		.byte	(.L22-.L20)/2
+ 249 0021 27       		.byte	(.L21-.L20)/2
+ 250 0022 2E       		.byte	(.L19-.L20)/2
+ 251 0023 00       		.p2align 1
+ 252              	.L26:
+  70:modules/alarm/buzzer/buzzer.c ****             {
+  71:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_1:
+  72:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / DoFreq);
+ 253              		.loc 1 72 17 is_stmt 1 view .LVU51
+ 254 0024 9FED220A 		vldr.32	s0, .L30+4
+ 255 0028 204B     		ldr	r3, .L30
+ 256 002a 1868     		ldr	r0, [r3]
+ 257 002c FFF7FEFF 		bl	PWMSetPeriod
+ 258              	.LVL10:
+  73:modules/alarm/buzzer/buzzer.c ****                 break;
+ 259              		.loc 1 73 17 view .LVU52
+ 260              	.L14:
+ 261              		.loc 1 73 17 is_stmt 0 view .LVU53
+ 262              	.LBE2:
+  74:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_2:
+  75:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / ReFreq);
+  76:modules/alarm/buzzer/buzzer.c ****                 break;
+  77:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_3:
+  78:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / MiFreq);
+  79:modules/alarm/buzzer/buzzer.c ****                 break;
+  80:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_4:
+  81:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / FaFreq);
+  82:modules/alarm/buzzer/buzzer.c ****                 break;
+  83:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_5:
+  84:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / SoFreq);
+  85:modules/alarm/buzzer/buzzer.c ****                 break;
+  86:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_6:
+  87:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / LaFreq);
+  88:modules/alarm/buzzer/buzzer.c ****                 break;
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s 			page 7
+
+
+  89:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_7:
+  90:modules/alarm/buzzer/buzzer.c ****                 PWMSetPeriod(buzzer, (float)1 / SiFreq);
+  91:modules/alarm/buzzer/buzzer.c ****                 break;
+  92:modules/alarm/buzzer/buzzer.c ****             default:
+  93:modules/alarm/buzzer/buzzer.c ****                 break;
+  94:modules/alarm/buzzer/buzzer.c ****             }
+  95:modules/alarm/buzzer/buzzer.c ****             break;
+  96:modules/alarm/buzzer/buzzer.c ****         }
+  97:modules/alarm/buzzer/buzzer.c ****     }
+  98:modules/alarm/buzzer/buzzer.c **** }
+ 263              		.loc 1 98 1 view .LVU54
+ 264 0030 38BD     		pop	{r3, r4, r5, pc}
+ 265              	.LVL11:
+ 266              	.L25:
+ 267              	.LBB3:
+  75:modules/alarm/buzzer/buzzer.c ****                 break;
+ 268              		.loc 1 75 17 is_stmt 1 view .LVU55
+ 269 0032 9FED200A 		vldr.32	s0, .L30+8
+ 270 0036 1D4B     		ldr	r3, .L30
+ 271 0038 1868     		ldr	r0, [r3]
+ 272 003a FFF7FEFF 		bl	PWMSetPeriod
+ 273              	.LVL12:
+  76:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_3:
+ 274              		.loc 1 76 17 view .LVU56
+ 275 003e F7E7     		b	.L14
+ 276              	.L24:
+  78:modules/alarm/buzzer/buzzer.c ****                 break;
+ 277              		.loc 1 78 17 view .LVU57
+ 278 0040 9FED1D0A 		vldr.32	s0, .L30+12
+ 279 0044 194B     		ldr	r3, .L30
+ 280 0046 1868     		ldr	r0, [r3]
+ 281 0048 FFF7FEFF 		bl	PWMSetPeriod
+ 282              	.LVL13:
+  79:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_4:
+ 283              		.loc 1 79 17 view .LVU58
+ 284 004c F0E7     		b	.L14
+ 285              	.L23:
+  81:modules/alarm/buzzer/buzzer.c ****                 break;
+ 286              		.loc 1 81 17 view .LVU59
+ 287 004e 9FED1B0A 		vldr.32	s0, .L30+16
+ 288 0052 164B     		ldr	r3, .L30
+ 289 0054 1868     		ldr	r0, [r3]
+ 290 0056 FFF7FEFF 		bl	PWMSetPeriod
+ 291              	.LVL14:
+  82:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_5:
+ 292              		.loc 1 82 17 view .LVU60
+ 293 005a E9E7     		b	.L14
+ 294              	.L22:
+  84:modules/alarm/buzzer/buzzer.c ****                 break;
+ 295              		.loc 1 84 17 view .LVU61
+ 296 005c 9FED180A 		vldr.32	s0, .L30+20
+ 297 0060 124B     		ldr	r3, .L30
+ 298 0062 1868     		ldr	r0, [r3]
+ 299 0064 FFF7FEFF 		bl	PWMSetPeriod
+ 300              	.LVL15:
+  85:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_6:
+ 301              		.loc 1 85 17 view .LVU62
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s 			page 8
+
+
+ 302 0068 E2E7     		b	.L14
+ 303              	.L21:
+  87:modules/alarm/buzzer/buzzer.c ****                 break;
+ 304              		.loc 1 87 17 view .LVU63
+ 305 006a 9FED160A 		vldr.32	s0, .L30+24
+ 306 006e 0F4B     		ldr	r3, .L30
+ 307 0070 1868     		ldr	r0, [r3]
+ 308 0072 FFF7FEFF 		bl	PWMSetPeriod
+ 309              	.LVL16:
+  88:modules/alarm/buzzer/buzzer.c ****             case OCTAVE_7:
+ 310              		.loc 1 88 17 view .LVU64
+ 311 0076 DBE7     		b	.L14
+ 312              	.L19:
+  90:modules/alarm/buzzer/buzzer.c ****                 break;
+ 313              		.loc 1 90 17 view .LVU65
+ 314 0078 9FED130A 		vldr.32	s0, .L30+28
+ 315 007c 0B4B     		ldr	r3, .L30
+ 316 007e 1868     		ldr	r0, [r3]
+ 317 0080 FFF7FEFF 		bl	PWMSetPeriod
+ 318              	.LVL17:
+  91:modules/alarm/buzzer/buzzer.c ****             default:
+ 319              		.loc 1 91 17 view .LVU66
+ 320 0084 D4E7     		b	.L14
+ 321              	.L16:
+  55:modules/alarm/buzzer/buzzer.c ****     {
+ 322              		.loc 1 55 47 discriminator 2 view .LVU67
+ 323 0086 0134     		adds	r4, r4, #1
+ 324              	.LVL18:
+ 325              	.L15:
+  55:modules/alarm/buzzer/buzzer.c ****     {
+ 326              		.loc 1 55 26 discriminator 1 view .LVU68
+ 327 0088 042C     		cmp	r4, #4
+ 328 008a D1D8     		bhi	.L14
+  57:modules/alarm/buzzer/buzzer.c ****         if (buzz->alarm_level > ALARM_LEVEL_LOW)
+ 329              		.loc 1 57 9 view .LVU69
+  57:modules/alarm/buzzer/buzzer.c ****         if (buzz->alarm_level > ALARM_LEVEL_LOW)
+ 330              		.loc 1 57 14 is_stmt 0 view .LVU70
+ 331 008c 0F4B     		ldr	r3, .L30+32
+ 332 008e 53F82450 		ldr	r5, [r3, r4, lsl #2]
+ 333              	.LVL19:
+  58:modules/alarm/buzzer/buzzer.c ****         {
+ 334              		.loc 1 58 9 is_stmt 1 view .LVU71
+  58:modules/alarm/buzzer/buzzer.c ****         {
+ 335              		.loc 1 58 17 is_stmt 0 view .LVU72
+ 336 0092 6B79     		ldrb	r3, [r5, #5]	@ zero_extendqisi2
+  58:modules/alarm/buzzer/buzzer.c ****         {
+ 337              		.loc 1 58 12 view .LVU73
+ 338 0094 042B     		cmp	r3, #4
+ 339 0096 F6D8     		bhi	.L16
+  62:modules/alarm/buzzer/buzzer.c ****         {
+ 340              		.loc 1 62 9 is_stmt 1 view .LVU74
+  62:modules/alarm/buzzer/buzzer.c ****         {
+ 341              		.loc 1 62 17 is_stmt 0 view .LVU75
+ 342 0098 AB79     		ldrb	r3, [r5, #6]	@ zero_extendqisi2
+  62:modules/alarm/buzzer/buzzer.c ****         {
+ 343              		.loc 1 62 12 view .LVU76
+ 344 009a 002B     		cmp	r3, #0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s 			page 9
+
+
+ 345 009c B3D1     		bne	.L17
+  64:modules/alarm/buzzer/buzzer.c ****         }
+ 346              		.loc 1 64 13 is_stmt 1 view .LVU77
+ 347 009e 9FED0C0A 		vldr.32	s0, .L30+36
+ 348 00a2 024B     		ldr	r3, .L30
+ 349 00a4 1868     		ldr	r0, [r3]
+ 350 00a6 FFF7FEFF 		bl	PWMSetDutyRatio
+ 351              	.LVL20:
+ 352 00aa ECE7     		b	.L16
+ 353              	.L31:
+ 354              		.align	2
+ 355              	.L30:
+ 356 00ac 00000000 		.word	buzzer
+ 357 00b0 9D9DFA3A 		.word	989502877
+ 358 00b4 934ADF3A 		.word	987712147
+ 359 00b8 32E5C63A 		.word	986113330
+ 360 00bc 41C8BB3A 		.word	985385025
+ 361 00c0 052FA73A 		.word	984035077
+ 362 00c4 09F2943A 		.word	982839817
+ 363 00c8 FAA9843A 		.word	981772794
+ 364 00cc 00000000 		.word	buzzer_list
+ 365 00d0 00000000 		.word	0
+ 366              	.LBE3:
+ 367              		.cfi_endproc
+ 368              	.LFE242:
+ 370              		.section	.bss.buzzer_list,"aw",%nobits
+ 371              		.align	2
+ 374              	buzzer_list:
+ 375 0000 00000000 		.space	20
+ 375      00000000 
+ 375      00000000 
+ 375      00000000 
+ 375      00000000 
+ 376              		.section	.bss.buzzer,"aw",%nobits
+ 377              		.align	2
+ 380              	buzzer:
+ 381 0000 00000000 		.space	4
+ 382              		.text
+ 383              	.Letext0:
+ 384              		.file 2 "D:/msys2/mingw64/arm-none-eabi/include/machine/_default_types.h"
+ 385              		.file 3 "D:/msys2/mingw64/arm-none-eabi/include/sys/_stdint.h"
+ 386              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 387              		.file 5 "D:/msys2/mingw64/lib/gcc/arm-none-eabi/13.3.0/include/stddef.h"
+ 388              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 389              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 390              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h"
+ 391              		.file 9 "bsp/pwm/bsp_pwm.h"
+ 392              		.file 10 "modules/alarm/alarm_def.h"
+ 393              		.file 11 "modules/alarm/buzzer/buzzer.h"
+ 394              		.file 12 "D:/msys2/mingw64/arm-none-eabi/include/string.h"
+ 395              		.file 13 "D:/msys2/mingw64/arm-none-eabi/include/stdlib.h"
+ 396              		.file 14 "Inc/tim.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 buzzer.c
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:21     .text.BuzzerInit:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:27     .text.BuzzerInit:00000000 BuzzerInit
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:72     .text.BuzzerInit:00000030 $d
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:380    .bss.buzzer:00000000 buzzer
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:79     .text.BuzzerRegister:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:85     .text.BuzzerRegister:00000000 BuzzerRegister
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:149    .text.BuzzerRegister:0000002c $d
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:374    .bss.buzzer_list:00000000 buzzer_list
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:154    .text.BuzzerSetStatus:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:160    .text.BuzzerSetStatus:00000000 BuzzerSetStatus
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:177    .text.BuzzerSetOctave:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:183    .text.BuzzerSetOctave:00000000 BuzzerSetOctave
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:200    .text.BuzzerTask:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:206    .text.BuzzerTask:00000000 BuzzerTask
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:244    .text.BuzzerTask:0000001c $d
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:356    .text.BuzzerTask:000000ac $d
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:371    .bss.buzzer_list:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:377    .bss.buzzer:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:251    .text.BuzzerTask:00000023 $d
+C:\Users\lenovo\AppData\Local\Temp\ccHAXCli.s:251    .text.BuzzerTask:00000024 $t
+
+UNDEFINED SYMBOLS
+PWMRegister
+htim4
+malloc
+PWMSetDutyRatio
+PWMSetPeriod

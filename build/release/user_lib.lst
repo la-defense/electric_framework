@@ -1,0 +1,559 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"user_lib.c"
+  16              		.text
+  17              		.section	.text.zmalloc,"ax",%progbits
+  18              		.align	1
+  19              		.global	zmalloc
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	zmalloc:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 38B5     		push	{r3, r4, r5, lr}
+  28 0002 0546     		mov	r5, r0
+  29 0004 FFF7FEFF 		bl	malloc
+  30 0008 0446     		mov	r4, r0
+  31 000a 2A46     		mov	r2, r5
+  32 000c 0021     		movs	r1, #0
+  33 000e FFF7FEFF 		bl	memset
+  34 0012 2046     		mov	r0, r4
+  35 0014 38BD     		pop	{r3, r4, r5, pc}
+  37              		.section	.text.Sqrt,"ax",%progbits
+  38              		.align	1
+  39              		.global	Sqrt
+  40              		.syntax unified
+  41              		.thumb
+  42              		.thumb_func
+  44              	Sqrt:
+  45              		@ args = 0, pretend = 0, frame = 0
+  46              		@ frame_needed = 0, uses_anonymous_args = 0
+  47              		@ link register save eliminated.
+  48 0000 F0EE405A 		vmov.f32	s11, s0
+  49 0004 B5EEC00A 		vcmpe.f32	s0, #0
+  50 0008 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  51 000c 1ED9     		bls	.L6
+  52 000e F6EE007A 		vmov.f32	s15, #5.0e-1
+  53 0012 20EE270A 		vmul.f32	s0, s0, s15
+  54 0016 9FED0F6A 		vldr.32	s12, .L7
+  55 001a 25EE866A 		vmul.f32	s12, s11, s12
+  56              	.L5:
+  57 001e 60EE007A 		vmul.f32	s15, s0, s0
+  58 0022 77EEE57A 		vsub.f32	s15, s15, s11
+  59 0026 70EE006A 		vadd.f32	s13, s0, s0
+  60 002a 87EEA67A 		vdiv.f32	s14, s15, s13
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s 			page 2
+
+
+  61 002e 30EE470A 		vsub.f32	s0, s0, s14
+  62 0032 B4EEE76A 		vcmpe.f32	s12, s15
+  63 0036 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  64 003a F0D4     		bmi	.L5
+  65 003c B1EE467A 		vneg.f32	s14, s12
+  66 0040 B4EEE77A 		vcmpe.f32	s14, s15
+  67 0044 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  68 0048 E9DC     		bgt	.L5
+  69 004a 7047     		bx	lr
+  70              	.L6:
+  71 004c 9FED020A 		vldr.32	s0, .L7+4
+  72 0050 7047     		bx	lr
+  73              	.L8:
+  74 0052 00BF     		.align	2
+  75              	.L7:
+  76 0054 6F12833A 		.word	981668463
+  77 0058 00000000 		.word	0
+  79              		.section	.text.abs_limit,"ax",%progbits
+  80              		.align	1
+  81              		.global	abs_limit
+  82              		.syntax unified
+  83              		.thumb
+  84              		.thumb_func
+  86              	abs_limit:
+  87              		@ args = 0, pretend = 0, frame = 0
+  88              		@ frame_needed = 0, uses_anonymous_args = 0
+  89              		@ link register save eliminated.
+  90 0000 F0EE407A 		vmov.f32	s15, s0
+  91 0004 B0EE600A 		vmov.f32	s0, s1
+  92 0008 F4EEE07A 		vcmpe.f32	s15, s1
+  93 000c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  94 0010 08DC     		bgt	.L10
+  95 0012 B1EE600A 		vneg.f32	s0, s1
+  96 0016 B4EEE70A 		vcmpe.f32	s0, s15
+  97 001a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  98 001e 01DC     		bgt	.L10
+  99 0020 B0EE670A 		vmov.f32	s0, s15
+ 100              	.L10:
+ 101 0024 7047     		bx	lr
+ 103              		.section	.text.sign,"ax",%progbits
+ 104              		.align	1
+ 105              		.global	sign
+ 106              		.syntax unified
+ 107              		.thumb
+ 108              		.thumb_func
+ 110              	sign:
+ 111              		@ args = 0, pretend = 0, frame = 0
+ 112              		@ frame_needed = 0, uses_anonymous_args = 0
+ 113              		@ link register save eliminated.
+ 114 0000 B5EEC00A 		vcmpe.f32	s0, #0
+ 115 0004 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 116 0008 02DB     		blt	.L16
+ 117 000a B7EE000A 		vmov.f32	s0, #1.0e+0
+ 118 000e 7047     		bx	lr
+ 119              	.L16:
+ 120 0010 BFEE000A 		vmov.f32	s0, #-1.0e+0
+ 121 0014 7047     		bx	lr
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s 			page 3
+
+
+ 123              		.section	.text.float_deadband,"ax",%progbits
+ 124              		.align	1
+ 125              		.global	float_deadband
+ 126              		.syntax unified
+ 127              		.thumb
+ 128              		.thumb_func
+ 130              	float_deadband:
+ 131              		@ args = 0, pretend = 0, frame = 0
+ 132              		@ frame_needed = 0, uses_anonymous_args = 0
+ 133              		@ link register save eliminated.
+ 134 0000 B4EEC01A 		vcmpe.f32	s2, s0
+ 135 0004 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 136 0008 06DD     		ble	.L18
+ 137 000a B4EEE00A 		vcmpe.f32	s0, s1
+ 138 000e F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 139 0012 01DD     		ble	.L18
+ 140 0014 9FED010A 		vldr.32	s0, .L22
+ 141              	.L18:
+ 142 0018 7047     		bx	lr
+ 143              	.L23:
+ 144 001a 00BF     		.align	2
+ 145              	.L22:
+ 146 001c 00000000 		.word	0
+ 148              		.section	.text.floatEqual,"ax",%progbits
+ 149              		.align	1
+ 150              		.global	floatEqual
+ 151              		.syntax unified
+ 152              		.thumb
+ 153              		.thumb_func
+ 155              	floatEqual:
+ 156              		@ args = 0, pretend = 0, frame = 0
+ 157              		@ frame_needed = 0, uses_anonymous_args = 0
+ 158              		@ link register save eliminated.
+ 159 0000 DFED0E7A 		vldr.32	s15, .L31
+ 160 0004 70EEA77A 		vadd.f32	s15, s1, s15
+ 161 0008 F4EEC07A 		vcmpe.f32	s15, s0
+ 162 000c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 163 0010 0BDB     		blt	.L30
+ 164 0012 DFED0A7A 		vldr.32	s15, .L31
+ 165 0016 70EEE70A 		vsub.f32	s1, s1, s15
+ 166 001a F4EEC00A 		vcmpe.f32	s1, s0
+ 167 001e F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 168 0022 07D9     		bls	.L28
+ 169 0024 9FED060A 		vldr.32	s0, .L31+4	@ int
+ 170 0028 01E0     		b	.L25
+ 171              	.L30:
+ 172 002a 9FED050A 		vldr.32	s0, .L31+4	@ int
+ 173              	.L25:
+ 174 002e B8EEC00A 		vcvt.f32.s32	s0, s0
+ 175 0032 7047     		bx	lr
+ 176              	.L28:
+ 177 0034 9FED030A 		vldr.32	s0, .L31+8	@ int
+ 178 0038 F9E7     		b	.L25
+ 179              	.L32:
+ 180 003a 00BF     		.align	2
+ 181              	.L31:
+ 182 003c 00000034 		.word	872415232
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s 			page 4
+
+
+ 183 0040 00000000 		.word	0
+ 184 0044 01000000 		.word	1
+ 186              		.section	.text.float_constrain,"ax",%progbits
+ 187              		.align	1
+ 188              		.global	float_constrain
+ 189              		.syntax unified
+ 190              		.thumb
+ 191              		.thumb_func
+ 193              	float_constrain:
+ 194              		@ args = 0, pretend = 0, frame = 0
+ 195              		@ frame_needed = 0, uses_anonymous_args = 0
+ 196              		@ link register save eliminated.
+ 197 0000 B4EEE00A 		vcmpe.f32	s0, s1
+ 198 0004 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 199 0008 07D4     		bmi	.L36
+ 200 000a B4EEC10A 		vcmpe.f32	s0, s2
+ 201 000e F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 202 0012 04DD     		ble	.L33
+ 203 0014 B0EE410A 		vmov.f32	s0, s2
+ 204 0018 7047     		bx	lr
+ 205              	.L36:
+ 206 001a B0EE600A 		vmov.f32	s0, s1
+ 207              	.L33:
+ 208 001e 7047     		bx	lr
+ 210              		.section	.text.int16_constrain,"ax",%progbits
+ 211              		.align	1
+ 212              		.global	int16_constrain
+ 213              		.syntax unified
+ 214              		.thumb
+ 215              		.thumb_func
+ 217              	int16_constrain:
+ 218              		@ args = 0, pretend = 0, frame = 0
+ 219              		@ frame_needed = 0, uses_anonymous_args = 0
+ 220              		@ link register save eliminated.
+ 221 0000 8842     		cmp	r0, r1
+ 222 0002 03DB     		blt	.L42
+ 223 0004 9042     		cmp	r0, r2
+ 224 0006 02DD     		ble	.L41
+ 225 0008 1046     		mov	r0, r2
+ 226 000a 7047     		bx	lr
+ 227              	.L42:
+ 228 000c 0846     		mov	r0, r1
+ 229              	.L41:
+ 230 000e 7047     		bx	lr
+ 232              		.section	.text.loop_float_constrain,"ax",%progbits
+ 233              		.align	1
+ 234              		.global	loop_float_constrain
+ 235              		.syntax unified
+ 236              		.thumb
+ 237              		.thumb_func
+ 239              	loop_float_constrain:
+ 240              		@ args = 0, pretend = 0, frame = 0
+ 241              		@ frame_needed = 0, uses_anonymous_args = 0
+ 242              		@ link register save eliminated.
+ 243 0000 B4EEE01A 		vcmpe.f32	s2, s1
+ 244 0004 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 245 0008 1ED4     		bmi	.L45
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s 			page 5
+
+
+ 246 000a B4EEC01A 		vcmpe.f32	s2, s0
+ 247 000e F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 248 0012 0AD5     		bpl	.L55
+ 249 0014 71EE600A 		vsub.f32	s1, s2, s1
+ 250 0018 01E0     		b	.L48
+ 251              	.L49:
+ 252 001a 30EE600A 		vsub.f32	s0, s0, s1
+ 253              	.L48:
+ 254 001e B4EEC10A 		vcmpe.f32	s0, s2
+ 255 0022 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 256 0026 F8DC     		bgt	.L49
+ 257 0028 7047     		bx	lr
+ 258              	.L55:
+ 259 002a F4EEC00A 		vcmpe.f32	s1, s0
+ 260 002e F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 261 0032 09DD     		ble	.L45
+ 262 0034 31EE601A 		vsub.f32	s2, s2, s1
+ 263 0038 01E0     		b	.L51
+ 264              	.L52:
+ 265 003a 30EE010A 		vadd.f32	s0, s0, s2
+ 266              	.L51:
+ 267 003e B4EEE00A 		vcmpe.f32	s0, s1
+ 268 0042 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 269 0046 F8D4     		bmi	.L52
+ 270              	.L45:
+ 271 0048 7047     		bx	lr
+ 273              		.section	.text.theta_format,"ax",%progbits
+ 274              		.align	1
+ 275              		.global	theta_format
+ 276              		.syntax unified
+ 277              		.thumb
+ 278              		.thumb_func
+ 280              	theta_format:
+ 281              		@ args = 0, pretend = 0, frame = 0
+ 282              		@ frame_needed = 0, uses_anonymous_args = 0
+ 283 0000 08B5     		push	{r3, lr}
+ 284 0002 9FED031A 		vldr.32	s2, .L58
+ 285 0006 DFED030A 		vldr.32	s1, .L58+4
+ 286 000a FFF7FEFF 		bl	loop_float_constrain
+ 287 000e 08BD     		pop	{r3, pc}
+ 288              	.L59:
+ 289              		.align	2
+ 290              	.L58:
+ 291 0010 00003443 		.word	1127481344
+ 292 0014 000034C3 		.word	-1020002304
+ 294              		.section	.text.float_rounding,"ax",%progbits
+ 295              		.align	1
+ 296              		.global	float_rounding
+ 297              		.syntax unified
+ 298              		.thumb
+ 299              		.thumb_func
+ 301              	float_rounding:
+ 302              		@ args = 0, pretend = 0, frame = 0
+ 303              		@ frame_needed = 0, uses_anonymous_args = 0
+ 304              		@ link register save eliminated.
+ 305 0000 FDEEC07A 		vcvt.s32.f32	s15, s0
+ 306 0004 0C4B     		ldr	r3, .L64
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s 			page 6
+
+
+ 307 0006 C3ED007A 		vstr.32	s15, [r3]	@ int
+ 308 000a B8EEE77A 		vcvt.f32.s32	s14, s15
+ 309 000e 30EE470A 		vsub.f32	s0, s0, s14
+ 310 0012 0A4B     		ldr	r3, .L64+4
+ 311 0014 83ED000A 		vstr.32	s0, [r3]
+ 312 0018 B6EE007A 		vmov.f32	s14, #5.0e-1
+ 313 001c B4EEC70A 		vcmpe.f32	s0, s14
+ 314 0020 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 315 0024 04DD     		ble	.L61
+ 316 0026 17EE903A 		vmov	r3, s15	@ int
+ 317 002a 0133     		adds	r3, r3, #1
+ 318 002c 024A     		ldr	r2, .L64
+ 319 002e 1360     		str	r3, [r2]
+ 320              	.L61:
+ 321 0030 014B     		ldr	r3, .L64
+ 322 0032 1868     		ldr	r0, [r3]
+ 323 0034 7047     		bx	lr
+ 324              	.L65:
+ 325 0036 00BF     		.align	2
+ 326              	.L64:
+ 327 0038 00000000 		.word	integer.1
+ 328 003c 00000000 		.word	decimal.0
+ 330              		.section	.text.Norm3d,"ax",%progbits
+ 331              		.align	1
+ 332              		.global	Norm3d
+ 333              		.syntax unified
+ 334              		.thumb
+ 335              		.thumb_func
+ 337              	Norm3d:
+ 338              		@ args = 0, pretend = 0, frame = 0
+ 339              		@ frame_needed = 0, uses_anonymous_args = 0
+ 340 0000 10B5     		push	{r4, lr}
+ 341 0002 2DED048B 		vpush.64	{d8, d9}
+ 342 0006 0446     		mov	r4, r0
+ 343 0008 90ED009A 		vldr.32	s18, [r0]
+ 344 000c 69EE097A 		vmul.f32	s15, s18, s18
+ 345 0010 D0ED018A 		vldr.32	s17, [r0, #4]
+ 346 0014 28EEA87A 		vmul.f32	s14, s17, s17
+ 347 0018 77EE877A 		vadd.f32	s15, s15, s14
+ 348 001c 90ED028A 		vldr.32	s16, [r0, #8]
+ 349 0020 28EE080A 		vmul.f32	s0, s16, s16
+ 350 0024 37EE800A 		vadd.f32	s0, s15, s0
+ 351 0028 FFF7FEFF 		bl	Sqrt
+ 352 002c C9EE007A 		vdiv.f32	s15, s18, s0
+ 353 0030 C4ED007A 		vstr.32	s15, [r4]
+ 354 0034 C8EE807A 		vdiv.f32	s15, s17, s0
+ 355 0038 C4ED017A 		vstr.32	s15, [r4, #4]
+ 356 003c C8EE007A 		vdiv.f32	s15, s16, s0
+ 357 0040 C4ED027A 		vstr.32	s15, [r4, #8]
+ 358 0044 2046     		mov	r0, r4
+ 359 0046 BDEC048B 		vldm	sp!, {d8-d9}
+ 360 004a 10BD     		pop	{r4, pc}
+ 362              		.section	.text.NormOf3d,"ax",%progbits
+ 363              		.align	1
+ 364              		.global	NormOf3d
+ 365              		.syntax unified
+ 366              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s 			page 7
+
+
+ 367              		.thumb_func
+ 369              	NormOf3d:
+ 370              		@ args = 0, pretend = 0, frame = 0
+ 371              		@ frame_needed = 0, uses_anonymous_args = 0
+ 372 0000 08B5     		push	{r3, lr}
+ 373 0002 90ED000A 		vldr.32	s0, [r0]
+ 374 0006 20EE000A 		vmul.f32	s0, s0, s0
+ 375 000a D0ED017A 		vldr.32	s15, [r0, #4]
+ 376 000e 67EEA77A 		vmul.f32	s15, s15, s15
+ 377 0012 70EE277A 		vadd.f32	s15, s0, s15
+ 378 0016 90ED020A 		vldr.32	s0, [r0, #8]
+ 379 001a 20EE000A 		vmul.f32	s0, s0, s0
+ 380 001e 37EE800A 		vadd.f32	s0, s15, s0
+ 381 0022 FFF7FEFF 		bl	Sqrt
+ 382 0026 08BD     		pop	{r3, pc}
+ 384              		.section	.text.Cross3d,"ax",%progbits
+ 385              		.align	1
+ 386              		.global	Cross3d
+ 387              		.syntax unified
+ 388              		.thumb
+ 389              		.thumb_func
+ 391              	Cross3d:
+ 392              		@ args = 0, pretend = 0, frame = 0
+ 393              		@ frame_needed = 0, uses_anonymous_args = 0
+ 394              		@ link register save eliminated.
+ 395 0000 D0ED017A 		vldr.32	s15, [r0, #4]
+ 396 0004 91ED027A 		vldr.32	s14, [r1, #8]
+ 397 0008 67EE877A 		vmul.f32	s15, s15, s14
+ 398 000c 90ED027A 		vldr.32	s14, [r0, #8]
+ 399 0010 D1ED016A 		vldr.32	s13, [r1, #4]
+ 400 0014 27EE267A 		vmul.f32	s14, s14, s13
+ 401 0018 77EEC77A 		vsub.f32	s15, s15, s14
+ 402 001c C2ED007A 		vstr.32	s15, [r2]
+ 403 0020 D0ED027A 		vldr.32	s15, [r0, #8]
+ 404 0024 91ED007A 		vldr.32	s14, [r1]
+ 405 0028 67EE877A 		vmul.f32	s15, s15, s14
+ 406 002c 90ED007A 		vldr.32	s14, [r0]
+ 407 0030 D1ED026A 		vldr.32	s13, [r1, #8]
+ 408 0034 27EE267A 		vmul.f32	s14, s14, s13
+ 409 0038 77EEC77A 		vsub.f32	s15, s15, s14
+ 410 003c C2ED017A 		vstr.32	s15, [r2, #4]
+ 411 0040 D0ED007A 		vldr.32	s15, [r0]
+ 412 0044 91ED017A 		vldr.32	s14, [r1, #4]
+ 413 0048 67EE877A 		vmul.f32	s15, s15, s14
+ 414 004c 90ED017A 		vldr.32	s14, [r0, #4]
+ 415 0050 D1ED006A 		vldr.32	s13, [r1]
+ 416 0054 27EE267A 		vmul.f32	s14, s14, s13
+ 417 0058 77EEC77A 		vsub.f32	s15, s15, s14
+ 418 005c C2ED027A 		vstr.32	s15, [r2, #8]
+ 419 0060 7047     		bx	lr
+ 421              		.section	.text.Dot3d,"ax",%progbits
+ 422              		.align	1
+ 423              		.global	Dot3d
+ 424              		.syntax unified
+ 425              		.thumb
+ 426              		.thumb_func
+ 428              	Dot3d:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s 			page 8
+
+
+ 429              		@ args = 0, pretend = 0, frame = 0
+ 430              		@ frame_needed = 0, uses_anonymous_args = 0
+ 431              		@ link register save eliminated.
+ 432 0000 D0ED007A 		vldr.32	s15, [r0]
+ 433 0004 91ED007A 		vldr.32	s14, [r1]
+ 434 0008 67EE877A 		vmul.f32	s15, s15, s14
+ 435 000c 90ED017A 		vldr.32	s14, [r0, #4]
+ 436 0010 D1ED016A 		vldr.32	s13, [r1, #4]
+ 437 0014 27EE267A 		vmul.f32	s14, s14, s13
+ 438 0018 77EE877A 		vadd.f32	s15, s15, s14
+ 439 001c 90ED020A 		vldr.32	s0, [r0, #8]
+ 440 0020 91ED027A 		vldr.32	s14, [r1, #8]
+ 441 0024 20EE070A 		vmul.f32	s0, s0, s14
+ 442 0028 37EE800A 		vadd.f32	s0, s15, s0
+ 443 002c 7047     		bx	lr
+ 445              		.section	.text.AverageFilter,"ax",%progbits
+ 446              		.align	1
+ 447              		.global	AverageFilter
+ 448              		.syntax unified
+ 449              		.thumb
+ 450              		.thumb_func
+ 452              	AverageFilter:
+ 453              		@ args = 0, pretend = 0, frame = 0
+ 454              		@ frame_needed = 0, uses_anonymous_args = 0
+ 455              		@ link register save eliminated.
+ 456 0000 0023     		movs	r3, #0
+ 457 0002 9FED117A 		vldr.32	s14, .L75
+ 458 0006 0BE0     		b	.L73
+ 459              	.L74:
+ 460 0008 5A1C     		adds	r2, r3, #1
+ 461 000a 00EB8303 		add	r3, r0, r3, lsl #2
+ 462 000e 00EB820C 		add	ip, r0, r2, lsl #2
+ 463 0012 DCED007A 		vldr.32	s15, [ip]
+ 464 0016 C3ED007A 		vstr.32	s15, [r3]
+ 465 001a 37EE277A 		vadd.f32	s14, s14, s15
+ 466 001e D3B2     		uxtb	r3, r2
+ 467              	.L73:
+ 468 0020 4A1E     		subs	r2, r1, #1
+ 469 0022 9342     		cmp	r3, r2
+ 470 0024 F0DB     		blt	.L74
+ 471 0026 01F18043 		add	r3, r1, #1073741824
+ 472 002a 013B     		subs	r3, r3, #1
+ 473 002c 00EB8300 		add	r0, r0, r3, lsl #2
+ 474 0030 80ED000A 		vstr.32	s0, [r0]
+ 475 0034 37EE007A 		vadd.f32	s14, s14, s0
+ 476 0038 07EE901A 		vmov	s15, r1	@ int
+ 477 003c B8EEE70A 		vcvt.f32.s32	s0, s15
+ 478 0040 87EE000A 		vdiv.f32	s0, s14, s0
+ 479 0044 7047     		bx	lr
+ 480              	.L76:
+ 481 0046 00BF     		.align	2
+ 482              	.L75:
+ 483 0048 00000000 		.word	0
+ 485              		.section	.text.MatInit,"ax",%progbits
+ 486              		.align	1
+ 487              		.global	MatInit
+ 488              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s 			page 9
+
+
+ 489              		.thumb
+ 490              		.thumb_func
+ 492              	MatInit:
+ 493              		@ args = 0, pretend = 0, frame = 0
+ 494              		@ frame_needed = 0, uses_anonymous_args = 0
+ 495 0000 10B5     		push	{r4, lr}
+ 496 0002 0446     		mov	r4, r0
+ 497 0004 4280     		strh	r2, [r0, #2]	@ movhi
+ 498 0006 0180     		strh	r1, [r0]	@ movhi
+ 499 0008 02FB01F1 		mul	r1, r2, r1
+ 500 000c 8800     		lsls	r0, r1, #2
+ 501 000e FFF7FEFF 		bl	zmalloc
+ 502 0012 6060     		str	r0, [r4, #4]
+ 503 0014 10BD     		pop	{r4, pc}
+ 505              		.section	.bss.decimal.0,"aw",%nobits
+ 506              		.align	2
+ 509              	decimal.0:
+ 510 0000 00000000 		.space	4
+ 511              		.section	.bss.integer.1,"aw",%nobits
+ 512              		.align	2
+ 515              	integer.1:
+ 516 0000 00000000 		.space	4
+ 517              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 user_lib.c
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:18     .text.zmalloc:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:24     .text.zmalloc:00000000 zmalloc
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:38     .text.Sqrt:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:44     .text.Sqrt:00000000 Sqrt
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:76     .text.Sqrt:00000054 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:80     .text.abs_limit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:86     .text.abs_limit:00000000 abs_limit
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:104    .text.sign:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:110    .text.sign:00000000 sign
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:124    .text.float_deadband:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:130    .text.float_deadband:00000000 float_deadband
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:146    .text.float_deadband:0000001c $d
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:149    .text.floatEqual:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:155    .text.floatEqual:00000000 floatEqual
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:182    .text.floatEqual:0000003c $d
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:187    .text.float_constrain:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:193    .text.float_constrain:00000000 float_constrain
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:211    .text.int16_constrain:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:217    .text.int16_constrain:00000000 int16_constrain
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:233    .text.loop_float_constrain:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:239    .text.loop_float_constrain:00000000 loop_float_constrain
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:274    .text.theta_format:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:280    .text.theta_format:00000000 theta_format
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:291    .text.theta_format:00000010 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:295    .text.float_rounding:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:301    .text.float_rounding:00000000 float_rounding
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:327    .text.float_rounding:00000038 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:515    .bss.integer.1:00000000 integer.1
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:509    .bss.decimal.0:00000000 decimal.0
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:331    .text.Norm3d:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:337    .text.Norm3d:00000000 Norm3d
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:363    .text.NormOf3d:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:369    .text.NormOf3d:00000000 NormOf3d
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:385    .text.Cross3d:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:391    .text.Cross3d:00000000 Cross3d
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:422    .text.Dot3d:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:428    .text.Dot3d:00000000 Dot3d
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:446    .text.AverageFilter:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:452    .text.AverageFilter:00000000 AverageFilter
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:483    .text.AverageFilter:00000048 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:486    .text.MatInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:492    .text.MatInit:00000000 MatInit
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:506    .bss.decimal.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYcDu3D.s:512    .bss.integer.1:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc
+memset

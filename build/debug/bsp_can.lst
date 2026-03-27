@@ -1,0 +1,1250 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_can.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "bsp/can/bsp_can.c"
+  20              		.section	.text.CANServiceInit,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	CANServiceInit:
+  27              	.LFB239:
+   1:bsp/can/bsp_can.c **** #include "bsp_can.h"
+   2:bsp/can/bsp_can.c **** #include "main.h"
+   3:bsp/can/bsp_can.c **** #include "memory.h"
+   4:bsp/can/bsp_can.c **** #include "stdlib.h"
+   5:bsp/can/bsp_can.c **** #include "bsp_dwt.h"
+   6:bsp/can/bsp_can.c **** #include "bsp_log.h"
+   7:bsp/can/bsp_can.c **** 
+   8:bsp/can/bsp_can.c **** /* can instance ptrs storage, used for recv callback */
+   9:bsp/can/bsp_can.c **** // 在CAN产生接收中断会遍历数组,选出hcan和rxid与发生中断的实例相同的那个
+  10:bsp/can/bsp_can.c **** // @todo: 后续为每个CAN总线单独添加一个can_instance指针数组,提高回调查找的�
+  11:bsp/can/bsp_can.c **** static CANInstance *can_instance[CAN_MX_REGISTER_CNT] = {NULL};
+  12:bsp/can/bsp_can.c **** static uint8_t idx; // 全局CAN实例索引,每次有新的模块注册会自增
+  13:bsp/can/bsp_can.c **** 
+  14:bsp/can/bsp_can.c **** /* ----------------two static function called by CANRegister()-------------------- */
+  15:bsp/can/bsp_can.c **** 
+  16:bsp/can/bsp_can.c **** /**
+  17:bsp/can/bsp_can.c ****  * @brief 添加过滤器以实现对特定id的报文的接收,会被CANRegister()调用
+  18:bsp/can/bsp_can.c ****  *        给CAN添加过滤器后,BxCAN会根据接收到的报文的id进行消息过滤,符合�
+  19:bsp/can/bsp_can.c ****  *
+  20:bsp/can/bsp_can.c ****  * @note f407的bxCAN有28个过滤器,这里将其配置为前14个过滤器给CAN1使用,后14个
+  21:bsp/can/bsp_can.c ****  *       初始化时,奇数id的模块会被分配到FIFO0,偶数id的模块会被分配到FIFO1
+  22:bsp/can/bsp_can.c ****  *       注册到CAN1的模块使用过滤器0-13,CAN2使用过滤器14-27
+  23:bsp/can/bsp_can.c ****  *
+  24:bsp/can/bsp_can.c ****  * @attention 你不需要完全理解这个函数的作用,因为它主要是用于初始化,在�
+  25:bsp/can/bsp_can.c ****  *            享受开发的乐趣吧!如果你真的想知道这个函数在干什么,请联系�
+  26:bsp/can/bsp_can.c ****  *
+  27:bsp/can/bsp_can.c ****  * @param _instance can instance owned by specific module
+  28:bsp/can/bsp_can.c ****  */
+  29:bsp/can/bsp_can.c **** static void CANAddFilter(CANInstance *_instance)
+  30:bsp/can/bsp_can.c **** {
+  31:bsp/can/bsp_can.c ****     CAN_FilterTypeDef can_filter_conf;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 2
+
+
+  32:bsp/can/bsp_can.c ****     static uint8_t can1_filter_idx = 0, can2_filter_idx = 14; // 0-13给can1用,14-27给can2用
+  33:bsp/can/bsp_can.c **** 
+  34:bsp/can/bsp_can.c ****     can_filter_conf.FilterMode = (_instance->txconf.IDE && CAN_ID_EXT) ? CAN_FILTERMODE_IDLIST : CA
+  35:bsp/can/bsp_can.c ****     can_filter_conf.FilterScale = (_instance->txconf.IDE && CAN_ID_EXT) ? CAN_FILTERSCALE_16BIT : C
+  36:bsp/can/bsp_can.c ****     can_filter_conf.FilterFIFOAssignment = (_instance->tx_id & 1) ? CAN_RX_FIFO0 : CAN_RX_FIFO1;   
+  37:bsp/can/bsp_can.c ****     can_filter_conf.SlaveStartFilterBank = 14;                                                     
+  38:bsp/can/bsp_can.c ****     can_filter_conf.FilterIdLow = (_instance->txconf.IDE && CAN_ID_EXT) ? (_instance->rx_id << 5) :
+  39:bsp/can/bsp_can.c ****     can_filter_conf.FilterIdHigh = 0x0000;
+  40:bsp/can/bsp_can.c ****     can_filter_conf.FilterMaskIdHigh = 0x0000;
+  41:bsp/can/bsp_can.c ****     can_filter_conf.FilterMaskIdLow = 0x0000;                                                      
+  42:bsp/can/bsp_can.c ****     can_filter_conf.FilterBank = _instance->can_handle == &hcan1 ? (can1_filter_idx++) : (can2_filt
+  43:bsp/can/bsp_can.c ****     can_filter_conf.FilterActivation = CAN_FILTER_ENABLE;                                          
+  44:bsp/can/bsp_can.c **** 
+  45:bsp/can/bsp_can.c ****     HAL_CAN_ConfigFilter(_instance->can_handle, &can_filter_conf);
+  46:bsp/can/bsp_can.c **** }
+  47:bsp/can/bsp_can.c **** 
+  48:bsp/can/bsp_can.c **** /**
+  49:bsp/can/bsp_can.c ****  * @brief 在第一个CAN实例初始化的时候会自动调用此函数,启动CAN服务
+  50:bsp/can/bsp_can.c ****  *
+  51:bsp/can/bsp_can.c ****  * @note 此函数会启动CAN1和CAN2,开启CAN1和CAN2的FIFO0 & FIFO1溢出通知
+  52:bsp/can/bsp_can.c ****  *
+  53:bsp/can/bsp_can.c ****  */
+  54:bsp/can/bsp_can.c **** static void CANServiceInit()
+  55:bsp/can/bsp_can.c **** {
+  28              		.loc 1 55 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32 0000 10B5     		push	{r4, lr}
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 4, -8
+  35              		.cfi_offset 14, -4
+  56:bsp/can/bsp_can.c ****     HAL_CAN_Start(&hcan1);
+  36              		.loc 1 56 5 view .LVU1
+  37 0002 0C4C     		ldr	r4, .L3
+  38 0004 2046     		mov	r0, r4
+  39 0006 FFF7FEFF 		bl	HAL_CAN_Start
+  40              	.LVL0:
+  57:bsp/can/bsp_can.c ****     HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+  41              		.loc 1 57 5 view .LVU2
+  42 000a 0221     		movs	r1, #2
+  43 000c 2046     		mov	r0, r4
+  44 000e FFF7FEFF 		bl	HAL_CAN_ActivateNotification
+  45              	.LVL1:
+  58:bsp/can/bsp_can.c ****     HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO1_MSG_PENDING);
+  46              		.loc 1 58 5 view .LVU3
+  47 0012 1021     		movs	r1, #16
+  48 0014 2046     		mov	r0, r4
+  49 0016 FFF7FEFF 		bl	HAL_CAN_ActivateNotification
+  50              	.LVL2:
+  59:bsp/can/bsp_can.c ****     HAL_CAN_Start(&hcan2);
+  51              		.loc 1 59 5 view .LVU4
+  52 001a 074C     		ldr	r4, .L3+4
+  53 001c 2046     		mov	r0, r4
+  54 001e FFF7FEFF 		bl	HAL_CAN_Start
+  55              	.LVL3:
+  60:bsp/can/bsp_can.c ****     HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING);
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 3
+
+
+  56              		.loc 1 60 5 view .LVU5
+  57 0022 0221     		movs	r1, #2
+  58 0024 2046     		mov	r0, r4
+  59 0026 FFF7FEFF 		bl	HAL_CAN_ActivateNotification
+  60              	.LVL4:
+  61:bsp/can/bsp_can.c ****     HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO1_MSG_PENDING);
+  61              		.loc 1 61 5 view .LVU6
+  62 002a 1021     		movs	r1, #16
+  63 002c 2046     		mov	r0, r4
+  64 002e FFF7FEFF 		bl	HAL_CAN_ActivateNotification
+  65              	.LVL5:
+  62:bsp/can/bsp_can.c **** }
+  66              		.loc 1 62 1 is_stmt 0 view .LVU7
+  67 0032 10BD     		pop	{r4, pc}
+  68              	.L4:
+  69              		.align	2
+  70              	.L3:
+  71 0034 00000000 		.word	hcan1
+  72 0038 00000000 		.word	hcan2
+  73              		.cfi_endproc
+  74              	.LFE239:
+  76              		.section	.text.CANAddFilter,"ax",%progbits
+  77              		.align	1
+  78              		.syntax unified
+  79              		.thumb
+  80              		.thumb_func
+  82              	CANAddFilter:
+  83              	.LVL6:
+  84              	.LFB238:
+  30:bsp/can/bsp_can.c ****     CAN_FilterTypeDef can_filter_conf;
+  85              		.loc 1 30 1 is_stmt 1 view -0
+  86              		.cfi_startproc
+  87              		@ args = 0, pretend = 0, frame = 40
+  88              		@ frame_needed = 0, uses_anonymous_args = 0
+  30:bsp/can/bsp_can.c ****     CAN_FilterTypeDef can_filter_conf;
+  89              		.loc 1 30 1 is_stmt 0 view .LVU9
+  90 0000 00B5     		push	{lr}
+  91              		.cfi_def_cfa_offset 4
+  92              		.cfi_offset 14, -4
+  93 0002 8BB0     		sub	sp, sp, #44
+  94              		.cfi_def_cfa_offset 48
+  31:bsp/can/bsp_can.c ****     static uint8_t can1_filter_idx = 0, can2_filter_idx = 14; // 0-13给can1用,14-27给can2用
+  95              		.loc 1 31 5 is_stmt 1 view .LVU10
+  32:bsp/can/bsp_can.c **** 
+  96              		.loc 1 32 5 view .LVU11
+  34:bsp/can/bsp_can.c ****     can_filter_conf.FilterScale = (_instance->txconf.IDE && CAN_ID_EXT) ? CAN_FILTERSCALE_16BIT : C
+  97              		.loc 1 34 5 view .LVU12
+  34:bsp/can/bsp_can.c ****     can_filter_conf.FilterScale = (_instance->txconf.IDE && CAN_ID_EXT) ? CAN_FILTERSCALE_16BIT : C
+  98              		.loc 1 34 52 is_stmt 0 view .LVU13
+  99 0004 C368     		ldr	r3, [r0, #12]	@ unaligned
+  34:bsp/can/bsp_can.c ****     can_filter_conf.FilterScale = (_instance->txconf.IDE && CAN_ID_EXT) ? CAN_FILTERSCALE_16BIT : C
+ 100              		.loc 1 34 96 view .LVU14
+ 101 0006 03B1     		cbz	r3, .L6
+  34:bsp/can/bsp_can.c ****     can_filter_conf.FilterScale = (_instance->txconf.IDE && CAN_ID_EXT) ? CAN_FILTERSCALE_16BIT : C
+ 102              		.loc 1 34 96 discriminator 1 view .LVU15
+ 103 0008 0123     		movs	r3, #1
+ 104              	.L6:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 4
+
+
+  34:bsp/can/bsp_can.c ****     can_filter_conf.FilterScale = (_instance->txconf.IDE && CAN_ID_EXT) ? CAN_FILTERSCALE_16BIT : C
+ 105              		.loc 1 34 32 discriminator 4 view .LVU16
+ 106 000a 0693     		str	r3, [sp, #24]
+  35:bsp/can/bsp_can.c ****     can_filter_conf.FilterFIFOAssignment = (_instance->tx_id & 1) ? CAN_RX_FIFO0 : CAN_RX_FIFO1;   
+ 107              		.loc 1 35 5 is_stmt 1 view .LVU17
+  35:bsp/can/bsp_can.c ****     can_filter_conf.FilterFIFOAssignment = (_instance->tx_id & 1) ? CAN_RX_FIFO0 : CAN_RX_FIFO1;   
+ 108              		.loc 1 35 53 is_stmt 0 view .LVU18
+ 109 000c C368     		ldr	r3, [r0, #12]	@ unaligned
+  35:bsp/can/bsp_can.c ****     can_filter_conf.FilterFIFOAssignment = (_instance->tx_id & 1) ? CAN_RX_FIFO0 : CAN_RX_FIFO1;   
+ 110              		.loc 1 35 97 view .LVU19
+ 111 000e 002B     		cmp	r3, #0
+ 112 0010 0CBF     		ite	eq
+ 113 0012 0122     		moveq	r2, #1
+ 114 0014 0022     		movne	r2, #0
+  35:bsp/can/bsp_can.c ****     can_filter_conf.FilterFIFOAssignment = (_instance->tx_id & 1) ? CAN_RX_FIFO0 : CAN_RX_FIFO1;   
+ 115              		.loc 1 35 33 view .LVU20
+ 116 0016 0792     		str	r2, [sp, #28]
+  36:bsp/can/bsp_can.c ****     can_filter_conf.SlaveStartFilterBank = 14;                                                     
+ 117              		.loc 1 36 5 is_stmt 1 view .LVU21
+  36:bsp/can/bsp_can.c ****     can_filter_conf.SlaveStartFilterBank = 14;                                                     
+ 118              		.loc 1 36 54 is_stmt 0 view .LVU22
+ 119 0018 C269     		ldr	r2, [r0, #28]	@ unaligned
+  36:bsp/can/bsp_can.c ****     can_filter_conf.SlaveStartFilterBank = 14;                                                     
+ 120              		.loc 1 36 82 view .LVU23
+ 121 001a 6FEA0202 		mvn	r2, r2
+ 122 001e 02F00102 		and	r2, r2, #1
+  36:bsp/can/bsp_can.c ****     can_filter_conf.SlaveStartFilterBank = 14;                                                     
+ 123              		.loc 1 36 42 view .LVU24
+ 124 0022 0492     		str	r2, [sp, #16]
+  37:bsp/can/bsp_can.c ****     can_filter_conf.FilterIdLow = (_instance->txconf.IDE && CAN_ID_EXT) ? (_instance->rx_id << 5) :
+ 125              		.loc 1 37 5 is_stmt 1 view .LVU25
+  37:bsp/can/bsp_can.c ****     can_filter_conf.FilterIdLow = (_instance->txconf.IDE && CAN_ID_EXT) ? (_instance->rx_id << 5) :
+ 126              		.loc 1 37 42 is_stmt 0 view .LVU26
+ 127 0024 4FF00E02 		mov	r2, #14
+ 128 0028 0992     		str	r2, [sp, #36]
+  38:bsp/can/bsp_can.c ****     can_filter_conf.FilterIdHigh = 0x0000;
+ 129              		.loc 1 38 5 is_stmt 1 view .LVU27
+  38:bsp/can/bsp_can.c ****     can_filter_conf.FilterIdHigh = 0x0000;
+ 130              		.loc 1 38 99 is_stmt 0 view .LVU28
+ 131 002a 01D0     		beq	.L7
+  38:bsp/can/bsp_can.c ****     can_filter_conf.FilterIdHigh = 0x0000;
+ 132              		.loc 1 38 85 discriminator 1 view .LVU29
+ 133 002c 436B     		ldr	r3, [r0, #52]	@ unaligned
+  38:bsp/can/bsp_can.c ****     can_filter_conf.FilterIdHigh = 0x0000;
+ 134              		.loc 1 38 99 discriminator 1 view .LVU30
+ 135 002e 5B01     		lsls	r3, r3, #5
+ 136              	.L7:
+  38:bsp/can/bsp_can.c ****     can_filter_conf.FilterIdHigh = 0x0000;
+ 137              		.loc 1 38 33 discriminator 4 view .LVU31
+ 138 0030 0193     		str	r3, [sp, #4]
+  39:bsp/can/bsp_can.c ****     can_filter_conf.FilterMaskIdHigh = 0x0000;
+ 139              		.loc 1 39 5 is_stmt 1 view .LVU32
+  39:bsp/can/bsp_can.c ****     can_filter_conf.FilterMaskIdHigh = 0x0000;
+ 140              		.loc 1 39 34 is_stmt 0 view .LVU33
+ 141 0032 0023     		movs	r3, #0
+ 142 0034 0093     		str	r3, [sp]
+  40:bsp/can/bsp_can.c ****     can_filter_conf.FilterMaskIdLow = 0x0000;                                                      
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 5
+
+
+ 143              		.loc 1 40 5 is_stmt 1 view .LVU34
+  40:bsp/can/bsp_can.c ****     can_filter_conf.FilterMaskIdLow = 0x0000;                                                      
+ 144              		.loc 1 40 38 is_stmt 0 view .LVU35
+ 145 0036 0293     		str	r3, [sp, #8]
+  41:bsp/can/bsp_can.c ****     can_filter_conf.FilterBank = _instance->can_handle == &hcan1 ? (can1_filter_idx++) : (can2_filt
+ 146              		.loc 1 41 5 is_stmt 1 view .LVU36
+  41:bsp/can/bsp_can.c ****     can_filter_conf.FilterBank = _instance->can_handle == &hcan1 ? (can1_filter_idx++) : (can2_filt
+ 147              		.loc 1 41 37 is_stmt 0 view .LVU37
+ 148 0038 0393     		str	r3, [sp, #12]
+  42:bsp/can/bsp_can.c ****     can_filter_conf.FilterActivation = CAN_FILTER_ENABLE;                                          
+ 149              		.loc 1 42 5 is_stmt 1 view .LVU38
+  42:bsp/can/bsp_can.c ****     can_filter_conf.FilterActivation = CAN_FILTER_ENABLE;                                          
+ 150              		.loc 1 42 43 is_stmt 0 view .LVU39
+ 151 003a 0268     		ldr	r2, [r0]	@ unaligned
+  42:bsp/can/bsp_can.c ****     can_filter_conf.FilterActivation = CAN_FILTER_ENABLE;                                          
+ 152              		.loc 1 42 88 view .LVU40
+ 153 003c 0A4B     		ldr	r3, .L12
+ 154 003e 9A42     		cmp	r2, r3
+ 155 0040 0CD0     		beq	.L11
+  42:bsp/can/bsp_can.c ****     can_filter_conf.FilterActivation = CAN_FILTER_ENABLE;                                          
+ 156              		.loc 1 42 106 discriminator 2 view .LVU41
+ 157 0042 0A4A     		ldr	r2, .L12+4
+ 158 0044 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 159 0046 591C     		adds	r1, r3, #1
+ 160 0048 1170     		strb	r1, [r2]
+ 161              	.L9:
+  42:bsp/can/bsp_can.c ****     can_filter_conf.FilterActivation = CAN_FILTER_ENABLE;                                          
+ 162              		.loc 1 42 32 discriminator 4 view .LVU42
+ 163 004a 0593     		str	r3, [sp, #20]
+  43:bsp/can/bsp_can.c **** 
+ 164              		.loc 1 43 5 is_stmt 1 view .LVU43
+  43:bsp/can/bsp_can.c **** 
+ 165              		.loc 1 43 38 is_stmt 0 view .LVU44
+ 166 004c 0123     		movs	r3, #1
+ 167 004e 0893     		str	r3, [sp, #32]
+  45:bsp/can/bsp_can.c **** }
+ 168              		.loc 1 45 5 is_stmt 1 view .LVU45
+ 169 0050 6946     		mov	r1, sp
+ 170 0052 0068     		ldr	r0, [r0]	@ unaligned
+ 171              	.LVL7:
+  45:bsp/can/bsp_can.c **** }
+ 172              		.loc 1 45 5 is_stmt 0 view .LVU46
+ 173 0054 FFF7FEFF 		bl	HAL_CAN_ConfigFilter
+ 174              	.LVL8:
+  46:bsp/can/bsp_can.c **** 
+ 175              		.loc 1 46 1 view .LVU47
+ 176 0058 0BB0     		add	sp, sp, #44
+ 177              		.cfi_remember_state
+ 178              		.cfi_def_cfa_offset 4
+ 179              		@ sp needed
+ 180 005a 00BD     		pop	{pc}
+ 181              	.LVL9:
+ 182              	.L11:
+ 183              		.cfi_restore_state
+  42:bsp/can/bsp_can.c ****     can_filter_conf.FilterActivation = CAN_FILTER_ENABLE;                                          
+ 184              		.loc 1 42 84 discriminator 1 view .LVU48
+ 185 005c 044A     		ldr	r2, .L12+8
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 6
+
+
+ 186 005e 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 187 0060 591C     		adds	r1, r3, #1
+ 188 0062 1170     		strb	r1, [r2]
+ 189 0064 F1E7     		b	.L9
+ 190              	.L13:
+ 191 0066 00BF     		.align	2
+ 192              	.L12:
+ 193 0068 00000000 		.word	hcan1
+ 194 006c 00000000 		.word	can2_filter_idx.3
+ 195 0070 00000000 		.word	can1_filter_idx.4
+ 196              		.cfi_endproc
+ 197              	.LFE238:
+ 199              		.section	.text.CANFIFOxCallback,"ax",%progbits
+ 200              		.align	1
+ 201              		.syntax unified
+ 202              		.thumb
+ 203              		.thumb_func
+ 205              	CANFIFOxCallback:
+ 206              	.LVL10:
+ 207              	.LFB243:
+  63:bsp/can/bsp_can.c **** 
+  64:bsp/can/bsp_can.c **** /* ----------------------- two extern callable function -----------------------*/
+  65:bsp/can/bsp_can.c **** 
+  66:bsp/can/bsp_can.c **** CANInstance *CANRegister(CAN_Init_Config_s *config)
+  67:bsp/can/bsp_can.c **** {
+  68:bsp/can/bsp_can.c ****     if (!idx)
+  69:bsp/can/bsp_can.c ****     {
+  70:bsp/can/bsp_can.c ****         CANServiceInit(); // 第一次注册,先进行硬件初始化
+  71:bsp/can/bsp_can.c ****         LOGINFO("[bsp_can] CAN Service Init");
+  72:bsp/can/bsp_can.c ****     }
+  73:bsp/can/bsp_can.c ****     if (idx >= CAN_MX_REGISTER_CNT) // 超过最大实例数
+  74:bsp/can/bsp_can.c ****     {
+  75:bsp/can/bsp_can.c ****         while (1)
+  76:bsp/can/bsp_can.c ****             LOGERROR("[bsp_can] CAN instance exceeded MAX num, consider balance the load of CAN bus
+  77:bsp/can/bsp_can.c ****     }
+  78:bsp/can/bsp_can.c ****     for (size_t i = 0; i < idx; i++)
+  79:bsp/can/bsp_can.c ****     { // 重复注册 | id重复
+  80:bsp/can/bsp_can.c ****         if (can_instance[i]->tx_id == config->tx_id && can_instance[i]->rx_id == config->rx_id && c
+  81:bsp/can/bsp_can.c ****         {
+  82:bsp/can/bsp_can.c ****             while (1)
+  83:bsp/can/bsp_can.c ****                 LOGERROR("[}bsp_can] CAN id crash ,tx [%d] or rx [%d] already registered", &config-
+  84:bsp/can/bsp_can.c ****         }
+  85:bsp/can/bsp_can.c ****     }
+  86:bsp/can/bsp_can.c ****     
+  87:bsp/can/bsp_can.c ****     CANInstance *instance = (CANInstance *)malloc(sizeof(CANInstance)); // 分配空间
+  88:bsp/can/bsp_can.c ****     memset(instance, 0, sizeof(CANInstance));                           // 分配的空间未必是
+  89:bsp/can/bsp_can.c ****     // 进行发送报文的配置
+  90:bsp/can/bsp_can.c ****     instance->txconf.StdId = config->tx_id; // 发送id
+  91:bsp/can/bsp_can.c ****     instance->txconf.IDE = config->mode;    // 标准id使用CAN_ID_STD,扩展id则使用CAN_ID_EXT
+  92:bsp/can/bsp_can.c ****     instance->txconf.RTR = CAN_RTR_DATA;    // 发送数据帧
+  93:bsp/can/bsp_can.c ****     instance->txconf.DLC = 0x08;            // 默认发送长度为8
+  94:bsp/can/bsp_can.c **** 
+  95:bsp/can/bsp_can.c ****     // 设置回调函数和接收发送id
+  96:bsp/can/bsp_can.c ****     instance->can_handle = config->can_handle;
+  97:bsp/can/bsp_can.c ****     instance->tx_id = config->tx_id; 
+  98:bsp/can/bsp_can.c ****     instance->rx_id = config->rx_id;
+  99:bsp/can/bsp_can.c ****     instance->ext_id = config->ext_id;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 7
+
+
+ 100:bsp/can/bsp_can.c ****     instance->can_module_callback = config->can_module_callback;
+ 101:bsp/can/bsp_can.c ****     instance->id = config->id;
+ 102:bsp/can/bsp_can.c **** 
+ 103:bsp/can/bsp_can.c ****     CANAddFilter(instance);         // 添加CAN过滤器规则
+ 104:bsp/can/bsp_can.c ****     can_instance[idx++] = instance; // 将实例保存到can_instance中
+ 105:bsp/can/bsp_can.c **** 
+ 106:bsp/can/bsp_can.c ****     return instance; // 返回can实例指针
+ 107:bsp/can/bsp_can.c **** }
+ 108:bsp/can/bsp_can.c **** 
+ 109:bsp/can/bsp_can.c **** /* @todo 目前似乎封装过度,应该添加一个指向tx_buff的指针,tx_buff不应该由CAN i
+ 110:bsp/can/bsp_can.c **** /* 如果让CANinstance保存txbuff,会增加一次复制的开销 */
+ 111:bsp/can/bsp_can.c **** uint8_t CANTransmit(CANInstance *_instance, float timeout)
+ 112:bsp/can/bsp_can.c **** {
+ 113:bsp/can/bsp_can.c ****     uint32_t TxMailbox;
+ 114:bsp/can/bsp_can.c ****     static uint32_t busy_count;
+ 115:bsp/can/bsp_can.c ****     static volatile float wait_time __attribute__((unused)); // for cancel warning
+ 116:bsp/can/bsp_can.c ****     float dwt_start = DWT_GetTimeline_ms();
+ 117:bsp/can/bsp_can.c ****     while (HAL_CAN_GetTxMailboxesFreeLevel(_instance->can_handle) == 0) // 等待邮箱空闲
+ 118:bsp/can/bsp_can.c ****     {
+ 119:bsp/can/bsp_can.c ****         if (DWT_GetTimeline_ms() - dwt_start > timeout) // 超时
+ 120:bsp/can/bsp_can.c ****         {
+ 121:bsp/can/bsp_can.c ****             LOGWARNING("[bsp_can] CAN MAILbox full! failed to add msg to mailbox. Cnt [%d]", busy_c
+ 122:bsp/can/bsp_can.c ****             busy_count++;
+ 123:bsp/can/bsp_can.c ****             return 0;
+ 124:bsp/can/bsp_can.c ****         }
+ 125:bsp/can/bsp_can.c ****     }
+ 126:bsp/can/bsp_can.c ****     wait_time = DWT_GetTimeline_ms() - dwt_start;
+ 127:bsp/can/bsp_can.c ****     // tx_mailbox会保存实际填入了这一帧消息的邮箱,但是知道是哪个邮箱发的
+ 128:bsp/can/bsp_can.c ****     if (HAL_CAN_AddTxMessage(_instance->can_handle, &_instance->txconf, _instance->tx_buff, &TxMail
+ 129:bsp/can/bsp_can.c ****     {
+ 130:bsp/can/bsp_can.c ****         LOGWARNING("[bsp_can] CAN bus BUS! cnt:%d", busy_count);
+ 131:bsp/can/bsp_can.c ****         busy_count++;
+ 132:bsp/can/bsp_can.c ****         return 0;
+ 133:bsp/can/bsp_can.c ****     }
+ 134:bsp/can/bsp_can.c ****     return 1; // 发送成功
+ 135:bsp/can/bsp_can.c **** }
+ 136:bsp/can/bsp_can.c **** 
+ 137:bsp/can/bsp_can.c **** void CANSetDLC(CANInstance *_instance, uint8_t length)
+ 138:bsp/can/bsp_can.c **** {
+ 139:bsp/can/bsp_can.c ****     // 发送长度错误!检查调用参数是否出错,或出现野指针/越界访问
+ 140:bsp/can/bsp_can.c ****     if (length > 8 || length == 0) // 安全检查
+ 141:bsp/can/bsp_can.c ****         while (1)
+ 142:bsp/can/bsp_can.c ****             LOGERROR("[bsp_can] CAN DLC error! check your code or wild pointer");
+ 143:bsp/can/bsp_can.c ****     _instance->txconf.DLC = length;
+ 144:bsp/can/bsp_can.c **** }
+ 145:bsp/can/bsp_can.c **** 
+ 146:bsp/can/bsp_can.c **** /* -----------------------belows are callback definitions--------------------------*/
+ 147:bsp/can/bsp_can.c **** 
+ 148:bsp/can/bsp_can.c **** /**
+ 149:bsp/can/bsp_can.c ****  * @brief 此函数会被下面两个函数调用,用于处理FIFO0和FIFO1溢出中断(说明收�
+ 150:bsp/can/bsp_can.c ****  *        所有的实例都会被遍历,找到can_handle和rx_id相等的实例时,调用该实例
+ 151:bsp/can/bsp_can.c ****  *
+ 152:bsp/can/bsp_can.c ****  * @param _hcan
+ 153:bsp/can/bsp_can.c ****  * @param fifox passed to HAL_CAN_GetRxMessage() to get mesg from a specific fifo
+ 154:bsp/can/bsp_can.c ****  */
+ 155:bsp/can/bsp_can.c **** static void CANFIFOxCallback(CAN_HandleTypeDef *_hcan, uint32_t fifox)
+ 156:bsp/can/bsp_can.c **** {
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 8
+
+
+ 208              		.loc 1 156 1 is_stmt 1 view -0
+ 209              		.cfi_startproc
+ 210              		@ args = 0, pretend = 0, frame = 8
+ 211              		@ frame_needed = 0, uses_anonymous_args = 0
+ 212              		.loc 1 156 1 is_stmt 0 view .LVU50
+ 213 0000 70B5     		push	{r4, r5, r6, lr}
+ 214              		.cfi_def_cfa_offset 16
+ 215              		.cfi_offset 4, -16
+ 216              		.cfi_offset 5, -12
+ 217              		.cfi_offset 6, -8
+ 218              		.cfi_offset 14, -4
+ 219 0002 82B0     		sub	sp, sp, #8
+ 220              		.cfi_def_cfa_offset 24
+ 221 0004 0546     		mov	r5, r0
+ 222 0006 0E46     		mov	r6, r1
+ 157:bsp/can/bsp_can.c ****     static CAN_RxHeaderTypeDef rxconf; // 同上
+ 223              		.loc 1 157 5 is_stmt 1 view .LVU51
+ 158:bsp/can/bsp_can.c ****     uint8_t can_rx_buff[8];
+ 224              		.loc 1 158 5 view .LVU52
+ 159:bsp/can/bsp_can.c ****     while (HAL_CAN_GetRxFifoFillLevel(_hcan, fifox)) // FIFO不为空,有可能在其他中断时�
+ 225              		.loc 1 159 5 view .LVU53
+ 226              	.LVL11:
+ 227              	.L15:
+ 228              		.loc 1 159 12 view .LVU54
+ 229 0008 3146     		mov	r1, r6
+ 230 000a 2846     		mov	r0, r5
+ 231 000c FFF7FEFF 		bl	HAL_CAN_GetRxFifoFillLevel
+ 232              	.LVL12:
+ 233              		.loc 1 159 12 is_stmt 0 discriminator 1 view .LVU55
+ 234 0010 68B3     		cbz	r0, .L14
+ 160:bsp/can/bsp_can.c ****     {
+ 161:bsp/can/bsp_can.c ****         HAL_CAN_GetRxMessage(_hcan, fifox, &rxconf, can_rx_buff); // 从FIFO中获取数据
+ 235              		.loc 1 161 9 is_stmt 1 view .LVU56
+ 236 0012 6B46     		mov	r3, sp
+ 237 0014 174A     		ldr	r2, .L23
+ 238 0016 3146     		mov	r1, r6
+ 239 0018 2846     		mov	r0, r5
+ 240 001a FFF7FEFF 		bl	HAL_CAN_GetRxMessage
+ 241              	.LVL13:
+ 162:bsp/can/bsp_can.c ****         for (size_t i = 0; i < idx; ++i)
+ 242              		.loc 1 162 9 view .LVU57
+ 243              	.LBB2:
+ 244              		.loc 1 162 14 view .LVU58
+ 245              		.loc 1 162 21 is_stmt 0 view .LVU59
+ 246 001e 0024     		movs	r4, #0
+ 247              		.loc 1 162 9 view .LVU60
+ 248 0020 00E0     		b	.L16
+ 249              	.LVL14:
+ 250              	.L17:
+ 251              		.loc 1 162 37 is_stmt 1 discriminator 2 view .LVU61
+ 252 0022 0134     		adds	r4, r4, #1
+ 253              	.LVL15:
+ 254              	.L16:
+ 255              		.loc 1 162 30 discriminator 1 view .LVU62
+ 256 0024 144B     		ldr	r3, .L23+4
+ 257 0026 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 258 0028 9C42     		cmp	r4, r3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 9
+
+
+ 259 002a EDD2     		bcs	.L15
+ 163:bsp/can/bsp_can.c ****         { // 两者相等说明这是要找的实例
+ 164:bsp/can/bsp_can.c ****             if (_hcan == can_instance[i]->can_handle && rxconf.StdId == can_instance[i]->rx_id)
+ 260              		.loc 1 164 13 view .LVU63
+ 261              		.loc 1 164 38 is_stmt 0 view .LVU64
+ 262 002c 134B     		ldr	r3, .L23+8
+ 263 002e 53F82430 		ldr	r3, [r3, r4, lsl #2]
+ 264              		.loc 1 164 41 view .LVU65
+ 265 0032 1A68     		ldr	r2, [r3]	@ unaligned
+ 266              		.loc 1 164 16 view .LVU66
+ 267 0034 AA42     		cmp	r2, r5
+ 268 0036 F4D1     		bne	.L17
+ 269              		.loc 1 164 63 discriminator 1 view .LVU67
+ 270 0038 0E4A     		ldr	r2, .L23
+ 271 003a 1168     		ldr	r1, [r2]
+ 272              		.loc 1 164 88 discriminator 1 view .LVU68
+ 273 003c 5A6B     		ldr	r2, [r3, #52]	@ unaligned
+ 274              		.loc 1 164 54 discriminator 1 view .LVU69
+ 275 003e 9142     		cmp	r1, r2
+ 276 0040 EFD1     		bne	.L17
+ 165:bsp/can/bsp_can.c ****             { 
+ 166:bsp/can/bsp_can.c ****                 if (can_instance[i]->can_module_callback != NULL) // 回调函数不为空就调用
+ 277              		.loc 1 166 17 is_stmt 1 view .LVU70
+ 278              		.loc 1 166 36 is_stmt 0 view .LVU71
+ 279 0042 D3F83D20 		ldr	r2, [r3, #61]	@ unaligned
+ 280              		.loc 1 166 20 view .LVU72
+ 281 0046 72B1     		cbz	r2, .L18
+ 167:bsp/can/bsp_can.c ****                 {
+ 168:bsp/can/bsp_can.c ****                     can_instance[i]->rx_len = rxconf.DLC;                      // 保存接收到�
+ 282              		.loc 1 168 21 is_stmt 1 view .LVU73
+ 283              		.loc 1 168 53 is_stmt 0 view .LVU74
+ 284 0048 0A4A     		ldr	r2, .L23
+ 285 004a 1269     		ldr	r2, [r2, #16]
+ 286              		.loc 1 168 45 view .LVU75
+ 287 004c 83F83820 		strb	r2, [r3, #56]
+ 169:bsp/can/bsp_can.c ****                     memcpy(can_instance[i]->rx_buff, can_rx_buff, rxconf.DLC); // 消息拷贝到�
+ 288              		.loc 1 169 21 is_stmt 1 view .LVU76
+ 289              		.loc 1 169 40 is_stmt 0 view .LVU77
+ 290 0050 0A4D     		ldr	r5, .L23+8
+ 291              	.LVL16:
+ 292              		.loc 1 169 40 view .LVU78
+ 293 0052 1846     		mov	r0, r3
+ 294              		.loc 1 169 21 view .LVU79
+ 295 0054 6946     		mov	r1, sp
+ 296 0056 2C30     		adds	r0, r0, #44
+ 297 0058 FFF7FEFF 		bl	memcpy
+ 298              	.LVL17:
+ 170:bsp/can/bsp_can.c ****                     can_instance[i]->can_module_callback(can_instance[i]);     // 触发回调进�
+ 299              		.loc 1 170 21 is_stmt 1 view .LVU80
+ 300              		.loc 1 170 33 is_stmt 0 view .LVU81
+ 301 005c 55F82400 		ldr	r0, [r5, r4, lsl #2]
+ 302              		.loc 1 170 36 view .LVU82
+ 303 0060 D0F83D30 		ldr	r3, [r0, #61]	@ unaligned
+ 304              		.loc 1 170 21 view .LVU83
+ 305 0064 9847     		blx	r3
+ 306              	.LVL18:
+ 307              	.L18:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 10
+
+
+ 171:bsp/can/bsp_can.c ****                 }
+ 172:bsp/can/bsp_can.c ****                 rxconf.ExtId = 0;   // 清空接收配置避免覆盖
+ 308              		.loc 1 172 17 is_stmt 1 view .LVU84
+ 309              		.loc 1 172 30 is_stmt 0 view .LVU85
+ 310 0066 034B     		ldr	r3, .L23
+ 311 0068 0022     		movs	r2, #0
+ 312 006a 5A60     		str	r2, [r3, #4]
+ 173:bsp/can/bsp_can.c ****                 rxconf.StdId = 0;
+ 313              		.loc 1 173 17 is_stmt 1 view .LVU86
+ 314              		.loc 1 173 30 is_stmt 0 view .LVU87
+ 315 006c 1A60     		str	r2, [r3]
+ 174:bsp/can/bsp_can.c ****                 return;          
+ 316              		.loc 1 174 17 is_stmt 1 view .LVU88
+ 317              	.LVL19:
+ 318              	.L14:
+ 319              		.loc 1 174 17 is_stmt 0 view .LVU89
+ 320              	.LBE2:
+ 175:bsp/can/bsp_can.c **** 
+ 176:bsp/can/bsp_can.c ****                 if (((rxconf.ExtId & 0xFFFF) >> 8) == can_instance[i]->ext_id) // 验证拓展帧
+ 177:bsp/can/bsp_can.c ****                 {
+ 178:bsp/can/bsp_can.c ****                     if (can_instance[i]->can_module_callback != NULL) // 回调函数不为空就�
+ 179:bsp/can/bsp_can.c ****                     {
+ 180:bsp/can/bsp_can.c ****                         can_instance[i]->rx_len = rxconf.DLC;                      // 保存接收�
+ 181:bsp/can/bsp_can.c ****                         memcpy(can_instance[i]->rx_buff, can_rx_buff, rxconf.DLC); // 消息拷贝�
+ 182:bsp/can/bsp_can.c ****                         can_instance[i]->can_module_callback(can_instance[i]);     // 触发回调�
+ 183:bsp/can/bsp_can.c ****                     }
+ 184:bsp/can/bsp_can.c ****                     return;
+ 185:bsp/can/bsp_can.c ****                 }        
+ 186:bsp/can/bsp_can.c ****             }
+ 187:bsp/can/bsp_can.c ****         }
+ 188:bsp/can/bsp_can.c ****     }
+ 189:bsp/can/bsp_can.c **** }
+ 321              		.loc 1 189 1 view .LVU90
+ 322 006e 02B0     		add	sp, sp, #8
+ 323              		.cfi_def_cfa_offset 16
+ 324              		@ sp needed
+ 325 0070 70BD     		pop	{r4, r5, r6, pc}
+ 326              	.LVL20:
+ 327              	.L24:
+ 328              		.loc 1 189 1 view .LVU91
+ 329 0072 00BF     		.align	2
+ 330              	.L23:
+ 331 0074 00000000 		.word	rxconf.0
+ 332 0078 00000000 		.word	idx
+ 333 007c 00000000 		.word	can_instance
+ 334              		.cfi_endproc
+ 335              	.LFE243:
+ 337              		.section	.text.CANRegister,"ax",%progbits
+ 338              		.align	1
+ 339              		.global	CANRegister
+ 340              		.syntax unified
+ 341              		.thumb
+ 342              		.thumb_func
+ 344              	CANRegister:
+ 345              	.LVL21:
+ 346              	.LFB240:
+  67:bsp/can/bsp_can.c ****     if (!idx)
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 11
+
+
+ 347              		.loc 1 67 1 is_stmt 1 view -0
+ 348              		.cfi_startproc
+ 349              		@ args = 0, pretend = 0, frame = 0
+ 350              		@ frame_needed = 0, uses_anonymous_args = 0
+  67:bsp/can/bsp_can.c ****     if (!idx)
+ 351              		.loc 1 67 1 is_stmt 0 view .LVU93
+ 352 0000 38B5     		push	{r3, r4, r5, lr}
+ 353              		.cfi_def_cfa_offset 16
+ 354              		.cfi_offset 3, -16
+ 355              		.cfi_offset 4, -12
+ 356              		.cfi_offset 5, -8
+ 357              		.cfi_offset 14, -4
+ 358 0002 0446     		mov	r4, r0
+  68:bsp/can/bsp_can.c ****     {
+ 359              		.loc 1 68 5 is_stmt 1 view .LVU94
+  68:bsp/can/bsp_can.c ****     {
+ 360              		.loc 1 68 9 is_stmt 0 view .LVU95
+ 361 0004 264B     		ldr	r3, .L36
+ 362 0006 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  68:bsp/can/bsp_can.c ****     {
+ 363              		.loc 1 68 8 view .LVU96
+ 364 0008 33B1     		cbz	r3, .L34
+ 365              	.LVL22:
+ 366              	.L26:
+  71:bsp/can/bsp_can.c ****     }
+ 367              		.loc 1 71 46 is_stmt 1 view .LVU97
+  73:bsp/can/bsp_can.c ****     {
+ 368              		.loc 1 73 5 view .LVU98
+  73:bsp/can/bsp_can.c ****     {
+ 369              		.loc 1 73 13 is_stmt 0 view .LVU99
+ 370 000a 254B     		ldr	r3, .L36
+ 371 000c 93F800C0 		ldrb	ip, [r3]	@ zero_extendqisi2
+  73:bsp/can/bsp_can.c ****     {
+ 372              		.loc 1 73 8 view .LVU100
+ 373 0010 BCF10F0F 		cmp	ip, #15
+ 374 0014 16D9     		bls	.L32
+ 375              	.L28:
+  75:bsp/can/bsp_can.c ****             LOGERROR("[bsp_can] CAN instance exceeded MAX num, consider balance the load of CAN bus
+ 376              		.loc 1 75 9 is_stmt 1 view .LVU101
+  75:bsp/can/bsp_can.c ****             LOGERROR("[bsp_can] CAN instance exceeded MAX num, consider balance the load of CAN bus
+ 377              		.loc 1 75 15 view .LVU102
+ 378 0016 FEE7     		b	.L28
+ 379              	.LVL23:
+ 380              	.L34:
+  70:bsp/can/bsp_can.c ****         LOGINFO("[bsp_can] CAN Service Init");
+ 381              		.loc 1 70 9 view .LVU103
+ 382 0018 FFF7FEFF 		bl	CANServiceInit
+ 383              	.LVL24:
+  70:bsp/can/bsp_can.c ****         LOGINFO("[bsp_can] CAN Service Init");
+ 384              		.loc 1 70 9 is_stmt 0 view .LVU104
+ 385 001c F5E7     		b	.L26
+ 386              	.LVL25:
+ 387              	.L29:
+ 388              	.LBB3:
+  78:bsp/can/bsp_can.c ****     { // 重复注册 | id重复
+ 389              		.loc 1 78 34 is_stmt 1 discriminator 2 view .LVU105
+ 390 001e 0133     		adds	r3, r3, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 12
+
+
+ 391              	.LVL26:
+ 392              	.L27:
+  78:bsp/can/bsp_can.c ****     { // 重复注册 | id重复
+ 393              		.loc 1 78 26 discriminator 1 view .LVU106
+ 394 0020 9C45     		cmp	ip, r3
+ 395 0022 11D9     		bls	.L35
+  80:bsp/can/bsp_can.c ****         {
+ 396              		.loc 1 80 9 view .LVU107
+  80:bsp/can/bsp_can.c ****         {
+ 397              		.loc 1 80 25 is_stmt 0 view .LVU108
+ 398 0024 1F4A     		ldr	r2, .L36+4
+ 399 0026 52F82320 		ldr	r2, [r2, r3, lsl #2]
+  80:bsp/can/bsp_can.c ****         {
+ 400              		.loc 1 80 28 view .LVU109
+ 401 002a D069     		ldr	r0, [r2, #28]	@ unaligned
+  80:bsp/can/bsp_can.c ****         {
+ 402              		.loc 1 80 45 view .LVU110
+ 403 002c 6168     		ldr	r1, [r4, #4]
+  80:bsp/can/bsp_can.c ****         {
+ 404              		.loc 1 80 12 view .LVU111
+ 405 002e 8842     		cmp	r0, r1
+ 406 0030 F5D1     		bne	.L29
+  80:bsp/can/bsp_can.c ****         {
+ 407              		.loc 1 80 71 discriminator 1 view .LVU112
+ 408 0032 506B     		ldr	r0, [r2, #52]	@ unaligned
+  80:bsp/can/bsp_can.c ****         {
+ 409              		.loc 1 80 88 discriminator 1 view .LVU113
+ 410 0034 A168     		ldr	r1, [r4, #8]
+  80:bsp/can/bsp_can.c ****         {
+ 411              		.loc 1 80 53 discriminator 1 view .LVU114
+ 412 0036 8842     		cmp	r0, r1
+ 413 0038 F1D1     		bne	.L29
+  80:bsp/can/bsp_can.c ****         {
+ 414              		.loc 1 80 114 discriminator 2 view .LVU115
+ 415 003a 1168     		ldr	r1, [r2]	@ unaligned
+  80:bsp/can/bsp_can.c ****         {
+ 416              		.loc 1 80 136 discriminator 2 view .LVU116
+ 417 003c 2268     		ldr	r2, [r4]
+  80:bsp/can/bsp_can.c ****         {
+ 418              		.loc 1 80 96 discriminator 2 view .LVU117
+ 419 003e 9142     		cmp	r1, r2
+ 420 0040 EDD1     		bne	.L29
+ 421              	.L30:
+  82:bsp/can/bsp_can.c ****                 LOGERROR("[}bsp_can] CAN id crash ,tx [%d] or rx [%d] already registered", &config-
+ 422              		.loc 1 82 13 is_stmt 1 view .LVU118
+  82:bsp/can/bsp_can.c ****                 LOGERROR("[}bsp_can] CAN id crash ,tx [%d] or rx [%d] already registered", &config-
+ 423              		.loc 1 82 19 view .LVU119
+ 424 0042 FEE7     		b	.L30
+ 425              	.LVL27:
+ 426              	.L32:
+  78:bsp/can/bsp_can.c ****     { // 重复注册 | id重复
+ 427              		.loc 1 78 17 is_stmt 0 view .LVU120
+ 428 0044 0023     		movs	r3, #0
+ 429 0046 EBE7     		b	.L27
+ 430              	.LVL28:
+ 431              	.L35:
+  78:bsp/can/bsp_can.c ****     { // 重复注册 | id重复
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 13
+
+
+ 432              		.loc 1 78 17 view .LVU121
+ 433              	.LBE3:
+  87:bsp/can/bsp_can.c ****     memset(instance, 0, sizeof(CANInstance));                           // 分配的空间未必是
+ 434              		.loc 1 87 5 is_stmt 1 view .LVU122
+  87:bsp/can/bsp_can.c ****     memset(instance, 0, sizeof(CANInstance));                           // 分配的空间未必是
+ 435              		.loc 1 87 44 is_stmt 0 view .LVU123
+ 436 0048 4520     		movs	r0, #69
+ 437 004a FFF7FEFF 		bl	malloc
+ 438              	.LVL29:
+  87:bsp/can/bsp_can.c ****     memset(instance, 0, sizeof(CANInstance));                           // 分配的空间未必是
+ 439              		.loc 1 87 44 view .LVU124
+ 440 004e 0546     		mov	r5, r0
+ 441              	.LVL30:
+  88:bsp/can/bsp_can.c ****     // 进行发送报文的配置
+ 442              		.loc 1 88 5 is_stmt 1 view .LVU125
+ 443 0050 4522     		movs	r2, #69
+ 444 0052 0021     		movs	r1, #0
+ 445 0054 FFF7FEFF 		bl	memset
+ 446              	.LVL31:
+  90:bsp/can/bsp_can.c ****     instance->txconf.IDE = config->mode;    // 标准id使用CAN_ID_STD,扩展id则使用CAN_ID_EXT
+ 447              		.loc 1 90 5 view .LVU126
+  90:bsp/can/bsp_can.c ****     instance->txconf.IDE = config->mode;    // 标准id使用CAN_ID_STD,扩展id则使用CAN_ID_EXT
+ 448              		.loc 1 90 36 is_stmt 0 view .LVU127
+ 449 0058 6268     		ldr	r2, [r4, #4]
+  90:bsp/can/bsp_can.c ****     instance->txconf.IDE = config->mode;    // 标准id使用CAN_ID_STD,扩展id则使用CAN_ID_EXT
+ 450              		.loc 1 90 28 view .LVU128
+ 451 005a 6A60     		str	r2, [r5, #4]	@ unaligned
+  91:bsp/can/bsp_can.c ****     instance->txconf.RTR = CAN_RTR_DATA;    // 发送数据帧
+ 452              		.loc 1 91 5 is_stmt 1 view .LVU129
+  91:bsp/can/bsp_can.c ****     instance->txconf.RTR = CAN_RTR_DATA;    // 发送数据帧
+ 453              		.loc 1 91 34 is_stmt 0 view .LVU130
+ 454 005c 2369     		ldr	r3, [r4, #16]
+  91:bsp/can/bsp_can.c ****     instance->txconf.RTR = CAN_RTR_DATA;    // 发送数据帧
+ 455              		.loc 1 91 26 view .LVU131
+ 456 005e EB60     		str	r3, [r5, #12]	@ unaligned
+  92:bsp/can/bsp_can.c ****     instance->txconf.DLC = 0x08;            // 默认发送长度为8
+ 457              		.loc 1 92 5 is_stmt 1 view .LVU132
+  93:bsp/can/bsp_can.c **** 
+ 458              		.loc 1 93 5 view .LVU133
+  93:bsp/can/bsp_can.c **** 
+ 459              		.loc 1 93 26 is_stmt 0 view .LVU134
+ 460 0060 0023     		movs	r3, #0
+ 461 0062 0821     		movs	r1, #8
+ 462 0064 2975     		strb	r1, [r5, #20]
+ 463 0066 6B75     		strb	r3, [r5, #21]
+ 464 0068 AB75     		strb	r3, [r5, #22]
+ 465 006a EB75     		strb	r3, [r5, #23]
+  96:bsp/can/bsp_can.c ****     instance->tx_id = config->tx_id; 
+ 466              		.loc 1 96 5 is_stmt 1 view .LVU135
+  96:bsp/can/bsp_can.c ****     instance->tx_id = config->tx_id; 
+ 467              		.loc 1 96 34 is_stmt 0 view .LVU136
+ 468 006c 2368     		ldr	r3, [r4]
+  96:bsp/can/bsp_can.c ****     instance->tx_id = config->tx_id; 
+ 469              		.loc 1 96 26 view .LVU137
+ 470 006e 2B60     		str	r3, [r5]	@ unaligned
+  97:bsp/can/bsp_can.c ****     instance->rx_id = config->rx_id;
+ 471              		.loc 1 97 5 is_stmt 1 view .LVU138
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 14
+
+
+  97:bsp/can/bsp_can.c ****     instance->rx_id = config->rx_id;
+ 472              		.loc 1 97 21 is_stmt 0 view .LVU139
+ 473 0070 EA61     		str	r2, [r5, #28]	@ unaligned
+  98:bsp/can/bsp_can.c ****     instance->ext_id = config->ext_id;
+ 474              		.loc 1 98 5 is_stmt 1 view .LVU140
+  98:bsp/can/bsp_can.c ****     instance->ext_id = config->ext_id;
+ 475              		.loc 1 98 29 is_stmt 0 view .LVU141
+ 476 0072 A368     		ldr	r3, [r4, #8]
+  98:bsp/can/bsp_can.c ****     instance->ext_id = config->ext_id;
+ 477              		.loc 1 98 21 view .LVU142
+ 478 0074 6B63     		str	r3, [r5, #52]	@ unaligned
+  99:bsp/can/bsp_can.c ****     instance->can_module_callback = config->can_module_callback;
+ 479              		.loc 1 99 5 is_stmt 1 view .LVU143
+  99:bsp/can/bsp_can.c ****     instance->can_module_callback = config->can_module_callback;
+ 480              		.loc 1 99 30 is_stmt 0 view .LVU144
+ 481 0076 E368     		ldr	r3, [r4, #12]
+  99:bsp/can/bsp_can.c ****     instance->can_module_callback = config->can_module_callback;
+ 482              		.loc 1 99 22 view .LVU145
+ 483 0078 C5F83930 		str	r3, [r5, #57]	@ unaligned
+ 100:bsp/can/bsp_can.c ****     instance->id = config->id;
+ 484              		.loc 1 100 5 is_stmt 1 view .LVU146
+ 100:bsp/can/bsp_can.c ****     instance->id = config->id;
+ 485              		.loc 1 100 43 is_stmt 0 view .LVU147
+ 486 007c 6369     		ldr	r3, [r4, #20]
+ 100:bsp/can/bsp_can.c ****     instance->id = config->id;
+ 487              		.loc 1 100 35 view .LVU148
+ 488 007e C5F83D30 		str	r3, [r5, #61]	@ unaligned
+ 101:bsp/can/bsp_can.c **** 
+ 489              		.loc 1 101 5 is_stmt 1 view .LVU149
+ 101:bsp/can/bsp_can.c **** 
+ 490              		.loc 1 101 26 is_stmt 0 view .LVU150
+ 491 0082 A369     		ldr	r3, [r4, #24]
+ 101:bsp/can/bsp_can.c **** 
+ 492              		.loc 1 101 18 view .LVU151
+ 493 0084 C5F84130 		str	r3, [r5, #65]	@ unaligned
+ 103:bsp/can/bsp_can.c ****     can_instance[idx++] = instance; // 将实例保存到can_instance中
+ 494              		.loc 1 103 5 is_stmt 1 view .LVU152
+ 495 0088 2846     		mov	r0, r5
+ 496 008a FFF7FEFF 		bl	CANAddFilter
+ 497              	.LVL32:
+ 104:bsp/can/bsp_can.c **** 
+ 498              		.loc 1 104 5 view .LVU153
+ 104:bsp/can/bsp_can.c **** 
+ 499              		.loc 1 104 21 is_stmt 0 view .LVU154
+ 500 008e 044A     		ldr	r2, .L36
+ 501 0090 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 502 0092 591C     		adds	r1, r3, #1
+ 503 0094 1170     		strb	r1, [r2]
+ 104:bsp/can/bsp_can.c **** 
+ 504              		.loc 1 104 25 view .LVU155
+ 505 0096 034A     		ldr	r2, .L36+4
+ 506 0098 42F82350 		str	r5, [r2, r3, lsl #2]
+ 106:bsp/can/bsp_can.c **** }
+ 507              		.loc 1 106 5 is_stmt 1 view .LVU156
+ 107:bsp/can/bsp_can.c **** 
+ 508              		.loc 1 107 1 is_stmt 0 view .LVU157
+ 509 009c 2846     		mov	r0, r5
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 15
+
+
+ 510 009e 38BD     		pop	{r3, r4, r5, pc}
+ 511              	.LVL33:
+ 512              	.L37:
+ 107:bsp/can/bsp_can.c **** 
+ 513              		.loc 1 107 1 view .LVU158
+ 514              		.align	2
+ 515              	.L36:
+ 516 00a0 00000000 		.word	idx
+ 517 00a4 00000000 		.word	can_instance
+ 518              		.cfi_endproc
+ 519              	.LFE240:
+ 521              		.section	.text.CANTransmit,"ax",%progbits
+ 522              		.align	1
+ 523              		.global	CANTransmit
+ 524              		.syntax unified
+ 525              		.thumb
+ 526              		.thumb_func
+ 528              	CANTransmit:
+ 529              	.LVL34:
+ 530              	.LFB241:
+ 112:bsp/can/bsp_can.c ****     uint32_t TxMailbox;
+ 531              		.loc 1 112 1 is_stmt 1 view -0
+ 532              		.cfi_startproc
+ 533              		@ args = 0, pretend = 0, frame = 8
+ 534              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112:bsp/can/bsp_can.c ****     uint32_t TxMailbox;
+ 535              		.loc 1 112 1 is_stmt 0 view .LVU160
+ 536 0000 10B5     		push	{r4, lr}
+ 537              		.cfi_def_cfa_offset 8
+ 538              		.cfi_offset 4, -8
+ 539              		.cfi_offset 14, -4
+ 540 0002 2DED028B 		vpush.64	{d8}
+ 541              		.cfi_def_cfa_offset 16
+ 542              		.cfi_offset 80, -16
+ 543              		.cfi_offset 81, -12
+ 544 0006 82B0     		sub	sp, sp, #8
+ 545              		.cfi_def_cfa_offset 24
+ 546 0008 0446     		mov	r4, r0
+ 547 000a F0EE408A 		vmov.f32	s17, s0
+ 113:bsp/can/bsp_can.c ****     static uint32_t busy_count;
+ 548              		.loc 1 113 5 is_stmt 1 view .LVU161
+ 114:bsp/can/bsp_can.c ****     static volatile float wait_time __attribute__((unused)); // for cancel warning
+ 549              		.loc 1 114 5 view .LVU162
+ 115:bsp/can/bsp_can.c ****     float dwt_start = DWT_GetTimeline_ms();
+ 550              		.loc 1 115 5 view .LVU163
+ 116:bsp/can/bsp_can.c ****     while (HAL_CAN_GetTxMailboxesFreeLevel(_instance->can_handle) == 0) // 等待邮箱空闲
+ 551              		.loc 1 116 5 view .LVU164
+ 116:bsp/can/bsp_can.c ****     while (HAL_CAN_GetTxMailboxesFreeLevel(_instance->can_handle) == 0) // 等待邮箱空闲
+ 552              		.loc 1 116 23 is_stmt 0 view .LVU165
+ 553 000e FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 554              	.LVL35:
+ 116:bsp/can/bsp_can.c ****     while (HAL_CAN_GetTxMailboxesFreeLevel(_instance->can_handle) == 0) // 等待邮箱空闲
+ 555              		.loc 1 116 23 view .LVU166
+ 556 0012 B0EE408A 		vmov.f32	s16, s0
+ 557              	.LVL36:
+ 117:bsp/can/bsp_can.c ****     {
+ 558              		.loc 1 117 5 is_stmt 1 view .LVU167
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 16
+
+
+ 559              	.L39:
+ 117:bsp/can/bsp_can.c ****     {
+ 560              		.loc 1 117 67 view .LVU168
+ 117:bsp/can/bsp_can.c ****     {
+ 561              		.loc 1 117 12 is_stmt 0 view .LVU169
+ 562 0016 2068     		ldr	r0, [r4]	@ unaligned
+ 563 0018 FFF7FEFF 		bl	HAL_CAN_GetTxMailboxesFreeLevel
+ 564              	.LVL37:
+ 117:bsp/can/bsp_can.c ****     {
+ 565              		.loc 1 117 67 discriminator 1 view .LVU170
+ 566 001c 88B9     		cbnz	r0, .L46
+ 119:bsp/can/bsp_can.c ****         {
+ 567              		.loc 1 119 9 is_stmt 1 view .LVU171
+ 119:bsp/can/bsp_can.c ****         {
+ 568              		.loc 1 119 13 is_stmt 0 view .LVU172
+ 569 001e FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 570              	.LVL38:
+ 119:bsp/can/bsp_can.c ****         {
+ 571              		.loc 1 119 34 discriminator 1 view .LVU173
+ 572 0022 30EE480A 		vsub.f32	s0, s0, s16
+ 119:bsp/can/bsp_can.c ****         {
+ 573              		.loc 1 119 12 discriminator 1 view .LVU174
+ 574 0026 B4EEE80A 		vcmpe.f32	s0, s17
+ 575 002a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 576 002e F2DD     		ble	.L39
+ 121:bsp/can/bsp_can.c ****             busy_count++;
+ 577              		.loc 1 121 105 is_stmt 1 view .LVU175
+ 122:bsp/can/bsp_can.c ****             return 0;
+ 578              		.loc 1 122 13 view .LVU176
+ 122:bsp/can/bsp_can.c ****             return 0;
+ 579              		.loc 1 122 23 is_stmt 0 view .LVU177
+ 580 0030 104A     		ldr	r2, .L48
+ 581 0032 1368     		ldr	r3, [r2]
+ 582 0034 0133     		adds	r3, r3, #1
+ 583 0036 1360     		str	r3, [r2]
+ 123:bsp/can/bsp_can.c ****         }
+ 584              		.loc 1 123 13 is_stmt 1 view .LVU178
+ 123:bsp/can/bsp_can.c ****         }
+ 585              		.loc 1 123 20 is_stmt 0 view .LVU179
+ 586 0038 0020     		movs	r0, #0
+ 587              	.L41:
+ 135:bsp/can/bsp_can.c **** 
+ 588              		.loc 1 135 1 view .LVU180
+ 589 003a 02B0     		add	sp, sp, #8
+ 590              		.cfi_remember_state
+ 591              		.cfi_def_cfa_offset 16
+ 592              		@ sp needed
+ 593 003c BDEC028B 		vldm	sp!, {d8}
+ 594              		.cfi_restore 80
+ 595              		.cfi_restore 81
+ 596              		.cfi_def_cfa_offset 8
+ 597              	.LVL39:
+ 135:bsp/can/bsp_can.c **** 
+ 598              		.loc 1 135 1 view .LVU181
+ 599 0040 10BD     		pop	{r4, pc}
+ 600              	.LVL40:
+ 601              	.L46:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 17
+
+
+ 602              		.cfi_restore_state
+ 126:bsp/can/bsp_can.c ****     // tx_mailbox会保存实际填入了这一帧消息的邮箱,但是知道是哪个邮箱发的
+ 603              		.loc 1 126 5 is_stmt 1 view .LVU182
+ 126:bsp/can/bsp_can.c ****     // tx_mailbox会保存实际填入了这一帧消息的邮箱,但是知道是哪个邮箱发的
+ 604              		.loc 1 126 17 is_stmt 0 view .LVU183
+ 605 0042 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 606              	.LVL41:
+ 126:bsp/can/bsp_can.c ****     // tx_mailbox会保存实际填入了这一帧消息的邮箱,但是知道是哪个邮箱发的
+ 607              		.loc 1 126 38 discriminator 1 view .LVU184
+ 608 0046 30EE480A 		vsub.f32	s0, s0, s16
+ 126:bsp/can/bsp_can.c ****     // tx_mailbox会保存实际填入了这一帧消息的邮箱,但是知道是哪个邮箱发的
+ 609              		.loc 1 126 15 discriminator 1 view .LVU185
+ 610 004a 0B4B     		ldr	r3, .L48+4
+ 611 004c 83ED000A 		vstr.32	s0, [r3]
+ 128:bsp/can/bsp_can.c ****     {
+ 612              		.loc 1 128 5 is_stmt 1 view .LVU186
+ 128:bsp/can/bsp_can.c ****     {
+ 613              		.loc 1 128 9 is_stmt 0 view .LVU187
+ 614 0050 2146     		mov	r1, r4
+ 615 0052 51F8040B 		ldr	r0, [r1], #4	@ unaligned
+ 616 0056 01AB     		add	r3, sp, #4
+ 617 0058 04F12402 		add	r2, r4, #36
+ 618 005c FFF7FEFF 		bl	HAL_CAN_AddTxMessage
+ 619              	.LVL42:
+ 128:bsp/can/bsp_can.c ****     {
+ 620              		.loc 1 128 8 discriminator 1 view .LVU188
+ 621 0060 08B9     		cbnz	r0, .L47
+ 134:bsp/can/bsp_can.c **** }
+ 622              		.loc 1 134 12 view .LVU189
+ 623 0062 0120     		movs	r0, #1
+ 624 0064 E9E7     		b	.L41
+ 625              	.L47:
+ 130:bsp/can/bsp_can.c ****         busy_count++;
+ 626              		.loc 1 130 64 is_stmt 1 view .LVU190
+ 131:bsp/can/bsp_can.c ****         return 0;
+ 627              		.loc 1 131 9 view .LVU191
+ 131:bsp/can/bsp_can.c ****         return 0;
+ 628              		.loc 1 131 19 is_stmt 0 view .LVU192
+ 629 0066 034A     		ldr	r2, .L48
+ 630 0068 1368     		ldr	r3, [r2]
+ 631 006a 0133     		adds	r3, r3, #1
+ 632 006c 1360     		str	r3, [r2]
+ 132:bsp/can/bsp_can.c ****     }
+ 633              		.loc 1 132 9 is_stmt 1 view .LVU193
+ 132:bsp/can/bsp_can.c ****     }
+ 634              		.loc 1 132 16 is_stmt 0 view .LVU194
+ 635 006e 0020     		movs	r0, #0
+ 636 0070 E3E7     		b	.L41
+ 637              	.L49:
+ 638 0072 00BF     		.align	2
+ 639              	.L48:
+ 640 0074 00000000 		.word	busy_count.2
+ 641 0078 00000000 		.word	wait_time.1
+ 642              		.cfi_endproc
+ 643              	.LFE241:
+ 645              		.section	.text.CANSetDLC,"ax",%progbits
+ 646              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 18
+
+
+ 647              		.global	CANSetDLC
+ 648              		.syntax unified
+ 649              		.thumb
+ 650              		.thumb_func
+ 652              	CANSetDLC:
+ 653              	.LVL43:
+ 654              	.LFB242:
+ 138:bsp/can/bsp_can.c ****     // 发送长度错误!检查调用参数是否出错,或出现野指针/越界访问
+ 655              		.loc 1 138 1 is_stmt 1 view -0
+ 656              		.cfi_startproc
+ 657              		@ args = 0, pretend = 0, frame = 0
+ 658              		@ frame_needed = 0, uses_anonymous_args = 0
+ 659              		@ link register save eliminated.
+ 140:bsp/can/bsp_can.c ****         while (1)
+ 660              		.loc 1 140 5 view .LVU196
+ 140:bsp/can/bsp_can.c ****         while (1)
+ 661              		.loc 1 140 20 is_stmt 0 view .LVU197
+ 662 0000 4B1E     		subs	r3, r1, #1
+ 663 0002 DBB2     		uxtb	r3, r3
+ 140:bsp/can/bsp_can.c ****         while (1)
+ 664              		.loc 1 140 8 view .LVU198
+ 665 0004 072B     		cmp	r3, #7
+ 666 0006 00D9     		bls	.L51
+ 667              	.L52:
+ 141:bsp/can/bsp_can.c ****             LOGERROR("[bsp_can] CAN DLC error! check your code or wild pointer");
+ 668              		.loc 1 141 9 is_stmt 1 view .LVU199
+ 141:bsp/can/bsp_can.c ****             LOGERROR("[bsp_can] CAN DLC error! check your code or wild pointer");
+ 669              		.loc 1 141 15 view .LVU200
+ 670 0008 FEE7     		b	.L52
+ 671              	.L51:
+ 143:bsp/can/bsp_can.c **** }
+ 672              		.loc 1 143 5 view .LVU201
+ 143:bsp/can/bsp_can.c **** }
+ 673              		.loc 1 143 27 is_stmt 0 view .LVU202
+ 674 000a 4161     		str	r1, [r0, #20]	@ unaligned
+ 144:bsp/can/bsp_can.c **** 
+ 675              		.loc 1 144 1 view .LVU203
+ 676 000c 7047     		bx	lr
+ 677              		.cfi_endproc
+ 678              	.LFE242:
+ 680              		.section	.text.HAL_CAN_RxFifo0MsgPendingCallback,"ax",%progbits
+ 681              		.align	1
+ 682              		.global	HAL_CAN_RxFifo0MsgPendingCallback
+ 683              		.syntax unified
+ 684              		.thumb
+ 685              		.thumb_func
+ 687              	HAL_CAN_RxFifo0MsgPendingCallback:
+ 688              	.LVL44:
+ 689              	.LFB244:
+ 190:bsp/can/bsp_can.c **** 
+ 191:bsp/can/bsp_can.c **** /**
+ 192:bsp/can/bsp_can.c ****  * @brief 注意,STM32的两个CAN设备共享两个FIFO
+ 193:bsp/can/bsp_can.c ****  * 下面两个函数是HAL库中的回调函数,他们被HAL声明为__weak,这里对他们进行�
+ 194:bsp/can/bsp_can.c ****  * 当FIFO0或FIFO1溢出时会调用这两个函数
+ 195:bsp/can/bsp_can.c ****  */
+ 196:bsp/can/bsp_can.c **** // 下面的函数会调用CANFIFOxCallback()来进一步处理来自特定CAN设备的消息
+ 197:bsp/can/bsp_can.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 19
+
+
+ 198:bsp/can/bsp_can.c **** /**
+ 199:bsp/can/bsp_can.c ****  * @brief rx fifo callback. Once FIFO_0 is full,this func would be called
+ 200:bsp/can/bsp_can.c ****  *
+ 201:bsp/can/bsp_can.c ****  * @param hcan CAN handle indicate which device the oddest mesg in FIFO_0 comes from
+ 202:bsp/can/bsp_can.c ****  */
+ 203:bsp/can/bsp_can.c **** void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+ 204:bsp/can/bsp_can.c **** {
+ 690              		.loc 1 204 1 is_stmt 1 view -0
+ 691              		.cfi_startproc
+ 692              		@ args = 0, pretend = 0, frame = 0
+ 693              		@ frame_needed = 0, uses_anonymous_args = 0
+ 694              		.loc 1 204 1 is_stmt 0 view .LVU205
+ 695 0000 08B5     		push	{r3, lr}
+ 696              		.cfi_def_cfa_offset 8
+ 697              		.cfi_offset 3, -8
+ 698              		.cfi_offset 14, -4
+ 205:bsp/can/bsp_can.c ****     CANFIFOxCallback(hcan, CAN_RX_FIFO0); // 调用我们自己写的函数来处理消息
+ 699              		.loc 1 205 5 is_stmt 1 view .LVU206
+ 700 0002 0021     		movs	r1, #0
+ 701 0004 FFF7FEFF 		bl	CANFIFOxCallback
+ 702              	.LVL45:
+ 206:bsp/can/bsp_can.c **** }
+ 703              		.loc 1 206 1 is_stmt 0 view .LVU207
+ 704 0008 08BD     		pop	{r3, pc}
+ 705              		.cfi_endproc
+ 706              	.LFE244:
+ 708              		.section	.text.HAL_CAN_RxFifo1MsgPendingCallback,"ax",%progbits
+ 709              		.align	1
+ 710              		.global	HAL_CAN_RxFifo1MsgPendingCallback
+ 711              		.syntax unified
+ 712              		.thumb
+ 713              		.thumb_func
+ 715              	HAL_CAN_RxFifo1MsgPendingCallback:
+ 716              	.LVL46:
+ 717              	.LFB245:
+ 207:bsp/can/bsp_can.c **** 
+ 208:bsp/can/bsp_can.c **** /**
+ 209:bsp/can/bsp_can.c ****  * @brief rx fifo callback. Once FIFO_1 is full,this func would be called
+ 210:bsp/can/bsp_can.c ****  *
+ 211:bsp/can/bsp_can.c ****  * @param hcan CAN handle indicate which device the oddest mesg in FIFO_1 comes from
+ 212:bsp/can/bsp_can.c ****  */
+ 213:bsp/can/bsp_can.c **** void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
+ 214:bsp/can/bsp_can.c **** {
+ 718              		.loc 1 214 1 is_stmt 1 view -0
+ 719              		.cfi_startproc
+ 720              		@ args = 0, pretend = 0, frame = 0
+ 721              		@ frame_needed = 0, uses_anonymous_args = 0
+ 722              		.loc 1 214 1 is_stmt 0 view .LVU209
+ 723 0000 08B5     		push	{r3, lr}
+ 724              		.cfi_def_cfa_offset 8
+ 725              		.cfi_offset 3, -8
+ 726              		.cfi_offset 14, -4
+ 215:bsp/can/bsp_can.c ****     CANFIFOxCallback(hcan, CAN_RX_FIFO1); // 调用我们自己写的函数来处理消息
+ 727              		.loc 1 215 5 is_stmt 1 view .LVU210
+ 728 0002 0121     		movs	r1, #1
+ 729 0004 FFF7FEFF 		bl	CANFIFOxCallback
+ 730              	.LVL47:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 20
+
+
+ 216:bsp/can/bsp_can.c **** }
+ 731              		.loc 1 216 1 is_stmt 0 view .LVU211
+ 732 0008 08BD     		pop	{r3, pc}
+ 733              		.cfi_endproc
+ 734              	.LFE245:
+ 736              		.section	.bss.rxconf.0,"aw",%nobits
+ 737              		.align	2
+ 740              	rxconf.0:
+ 741 0000 00000000 		.space	28
+ 741      00000000 
+ 741      00000000 
+ 741      00000000 
+ 741      00000000 
+ 742              		.section	.bss.wait_time.1,"aw",%nobits
+ 743              		.align	2
+ 746              	wait_time.1:
+ 747 0000 00000000 		.space	4
+ 748              		.section	.bss.busy_count.2,"aw",%nobits
+ 749              		.align	2
+ 752              	busy_count.2:
+ 753 0000 00000000 		.space	4
+ 754              		.section	.data.can2_filter_idx.3,"aw"
+ 757              	can2_filter_idx.3:
+ 758 0000 0E       		.byte	14
+ 759              		.section	.bss.can1_filter_idx.4,"aw",%nobits
+ 762              	can1_filter_idx.4:
+ 763 0000 00       		.space	1
+ 764              		.section	.bss.idx,"aw",%nobits
+ 767              	idx:
+ 768 0000 00       		.space	1
+ 769              		.section	.bss.can_instance,"aw",%nobits
+ 770              		.align	2
+ 773              	can_instance:
+ 774 0000 00000000 		.space	64
+ 774      00000000 
+ 774      00000000 
+ 774      00000000 
+ 774      00000000 
+ 775              		.text
+ 776              	.Letext0:
+ 777              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 778              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 779              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 780              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 781              		.file 6 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 782              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 783              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h"
+ 784              		.file 9 "Inc/can.h"
+ 785              		.file 10 "bsp/can/bsp_can.h"
+ 786              		.file 11 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 787              		.file 12 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 788              		.file 13 "<built-in>"
+ 789              		.file 14 "bsp/dwt/bsp_dwt.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s 			page 21
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_can.c
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:21     .text.CANServiceInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:26     .text.CANServiceInit:00000000 CANServiceInit
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:71     .text.CANServiceInit:00000034 $d
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:77     .text.CANAddFilter:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:82     .text.CANAddFilter:00000000 CANAddFilter
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:193    .text.CANAddFilter:00000068 $d
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:757    .data.can2_filter_idx.3:00000000 can2_filter_idx.3
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:762    .bss.can1_filter_idx.4:00000000 can1_filter_idx.4
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:200    .text.CANFIFOxCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:205    .text.CANFIFOxCallback:00000000 CANFIFOxCallback
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:331    .text.CANFIFOxCallback:00000074 $d
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:740    .bss.rxconf.0:00000000 rxconf.0
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:767    .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:773    .bss.can_instance:00000000 can_instance
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:338    .text.CANRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:344    .text.CANRegister:00000000 CANRegister
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:516    .text.CANRegister:000000a0 $d
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:522    .text.CANTransmit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:528    .text.CANTransmit:00000000 CANTransmit
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:640    .text.CANTransmit:00000074 $d
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:752    .bss.busy_count.2:00000000 busy_count.2
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:746    .bss.wait_time.1:00000000 wait_time.1
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:646    .text.CANSetDLC:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:652    .text.CANSetDLC:00000000 CANSetDLC
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:681    .text.HAL_CAN_RxFifo0MsgPendingCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:687    .text.HAL_CAN_RxFifo0MsgPendingCallback:00000000 HAL_CAN_RxFifo0MsgPendingCallback
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:709    .text.HAL_CAN_RxFifo1MsgPendingCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:715    .text.HAL_CAN_RxFifo1MsgPendingCallback:00000000 HAL_CAN_RxFifo1MsgPendingCallback
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:737    .bss.rxconf.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:743    .bss.wait_time.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:749    .bss.busy_count.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:763    .bss.can1_filter_idx.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:768    .bss.idx:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccgOcD7z.s:770    .bss.can_instance:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_CAN_Start
+HAL_CAN_ActivateNotification
+hcan1
+hcan2
+HAL_CAN_ConfigFilter
+HAL_CAN_GetRxFifoFillLevel
+HAL_CAN_GetRxMessage
+memcpy
+malloc
+memset
+DWT_GetTimeline_ms
+HAL_CAN_GetTxMailboxesFreeLevel
+HAL_CAN_AddTxMessage

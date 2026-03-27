@@ -1,0 +1,1650 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"xmmotor.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/motor/XMmotor/xmmotor.c"
+  20              		.section	.text.uint16_to_float,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	uint16_to_float:
+  27              	.LVL0:
+  28              	.LFB277:
+   1:modules/motor/XMmotor/xmmotor.c **** #include "xmmotor.h"
+   2:modules/motor/XMmotor/xmmotor.c **** #include "memory.h"
+   3:modules/motor/XMmotor/xmmotor.c **** #include "general_def.h"
+   4:modules/motor/XMmotor/xmmotor.c **** #include "user_lib.h"
+   5:modules/motor/XMmotor/xmmotor.c **** #include "cmsis_os.h"
+   6:modules/motor/XMmotor/xmmotor.c **** #include "string.h"
+   7:modules/motor/XMmotor/xmmotor.c **** #include "daemon.h"
+   8:modules/motor/XMmotor/xmmotor.c **** #include "stdlib.h"
+   9:modules/motor/XMmotor/xmmotor.c **** #include "bsp_log.h"
+  10:modules/motor/XMmotor/xmmotor.c **** 
+  11:modules/motor/XMmotor/xmmotor.c **** static uint8_t idx;
+  12:modules/motor/XMmotor/xmmotor.c **** static XMMotorInstance *xm_motor_instance[XM_MOTOR_CNT];
+  13:modules/motor/XMmotor/xmmotor.c **** static osThreadId xm_task_handle[XM_MOTOR_CNT];
+  14:modules/motor/XMmotor/xmmotor.c **** /* 两个用于将uint值和float值进行映射的函数,在设定发送值和解析反馈值时�
+  15:modules/motor/XMmotor/xmmotor.c **** static uint16_t float_to_uint(float x, float x_min, float x_max, uint8_t bits)
+  16:modules/motor/XMmotor/xmmotor.c **** {
+  17:modules/motor/XMmotor/xmmotor.c ****     float span = x_max - x_min;
+  18:modules/motor/XMmotor/xmmotor.c ****     float offset = x_min;
+  19:modules/motor/XMmotor/xmmotor.c ****     return (uint16_t)((x - offset) * ((float)((1 << bits) - 1)) / span);
+  20:modules/motor/XMmotor/xmmotor.c **** }
+  21:modules/motor/XMmotor/xmmotor.c **** static float uint16_to_float(uint16_t x_int, float x_min, float x_max, int bits)
+  22:modules/motor/XMmotor/xmmotor.c **** {
+  29              		.loc 1 22 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+  34              		.loc 1 22 1 is_stmt 0 view .LVU1
+  35 0000 07EE900A 		vmov	s15, r0	@ int
+  23:modules/motor/XMmotor/xmmotor.c ****     uint32_t span = (1 << bits) - 1;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 2
+
+
+  36              		.loc 1 23 5 is_stmt 1 view .LVU2
+  37              		.loc 1 23 24 is_stmt 0 view .LVU3
+  38 0004 0123     		movs	r3, #1
+  39 0006 8B40     		lsls	r3, r3, r1
+  40              		.loc 1 23 33 view .LVU4
+  41 0008 013B     		subs	r3, r3, #1
+  42              	.LVL1:
+  24:modules/motor/XMmotor/xmmotor.c ****     float offset = x_max - x_min;
+  43              		.loc 1 24 5 is_stmt 1 view .LVU5
+  44              		.loc 1 24 11 is_stmt 0 view .LVU6
+  45 000a 70EEC00A 		vsub.f32	s1, s1, s0
+  46              	.LVL2:
+  25:modules/motor/XMmotor/xmmotor.c ****     return offset * x_int / span + x_min;
+  47              		.loc 1 25 5 is_stmt 1 view .LVU7
+  48              		.loc 1 25 19 is_stmt 0 view .LVU8
+  49 000e F8EEE77A 		vcvt.f32.s32	s15, s15
+  50 0012 27EEA07A 		vmul.f32	s14, s15, s1
+  51              		.loc 1 25 27 view .LVU9
+  52 0016 07EE903A 		vmov	s15, r3	@ int
+  53 001a F8EE677A 		vcvt.f32.u32	s15, s15
+  54 001e C7EE276A 		vdiv.f32	s13, s14, s15
+  26:modules/motor/XMmotor/xmmotor.c **** }
+  55              		.loc 1 26 1 view .LVU10
+  56 0022 36EE800A 		vadd.f32	s0, s13, s0
+  57              	.LVL3:
+  58              		.loc 1 26 1 view .LVU11
+  59 0026 7047     		bx	lr
+  60              		.cfi_endproc
+  61              	.LFE277:
+  63              		.section	.text.XMMotorLostCallback,"ax",%progbits
+  64              		.align	1
+  65              		.syntax unified
+  66              		.thumb
+  67              		.thumb_func
+  69              	XMMotorLostCallback:
+  70              	.LVL4:
+  71              	.LFB280:
+  27:modules/motor/XMmotor/xmmotor.c **** 
+  28:modules/motor/XMmotor/xmmotor.c **** static void XMMotorSetMode(XMMotor_Mode_e cmd, XMMotorInstance *motor)
+  29:modules/motor/XMmotor/xmmotor.c **** {
+  30:modules/motor/XMmotor/xmmotor.c ****     // memset(motor->motor_can_instace->tx_buff, 0, 8);  
+  31:modules/motor/XMmotor/xmmotor.c **** 
+  32:modules/motor/XMmotor/xmmotor.c ****     if (cmd == XM_CMD_MOTOR_MODE)
+  33:modules/motor/XMmotor/xmmotor.c ****     {
+  34:modules/motor/XMmotor/xmmotor.c ****         memset(motor->motor_can_instace->tx_buff, 0, 8);  
+  35:modules/motor/XMmotor/xmmotor.c ****         // motor->motor_can_instace->txconf.ExtId = 0x03 << 24 | 0x0 << 8 | motor->motor_can_instac
+  36:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->txconf.ExtId = 0x0300007f; 
+  37:modules/motor/XMmotor/xmmotor.c ****         // motor->motor_can_instace->txconf.ExtId = 0; 
+  38:modules/motor/XMmotor/xmmotor.c ****     }
+  39:modules/motor/XMmotor/xmmotor.c ****     else if (cmd == XM_CMD_CURRENT_MODE)
+  40:modules/motor/XMmotor/xmmotor.c ****     {
+  41:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->txconf.ExtId = 0x12 << 24 | 0x0 << 8 | motor->motor_can_instace->
+  42:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->txconf.ExtId = 0x1200007f; 
+  43:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[0] = (uint8_t)0x05;
+  44:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[1] = (uint8_t)0x70;
+  45:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[4] = (uint8_t)0x03;
+  46:modules/motor/XMmotor/xmmotor.c ****     }
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 3
+
+
+  47:modules/motor/XMmotor/xmmotor.c **** 
+  48:modules/motor/XMmotor/xmmotor.c ****     CANTransmit(motor->motor_can_instace, 1);
+  49:modules/motor/XMmotor/xmmotor.c **** }
+  50:modules/motor/XMmotor/xmmotor.c **** 
+  51:modules/motor/XMmotor/xmmotor.c **** 
+  52:modules/motor/XMmotor/xmmotor.c **** static void XMMotorDecode(CANInstance *motor_can)
+  53:modules/motor/XMmotor/xmmotor.c **** {
+  54:modules/motor/XMmotor/xmmotor.c ****     uint16_t tmp; // 用于暂存解析值,稍后转换成float数据,避免多次创建临时变�
+  55:modules/motor/XMmotor/xmmotor.c ****     uint8_t *rxbuff = motor_can->rx_buff;
+  56:modules/motor/XMmotor/xmmotor.c ****     XMMotorInstance *motor = (XMMotorInstance *)motor_can->id;
+  57:modules/motor/XMmotor/xmmotor.c ****     XM_Motor_Measure_s *measure = &(motor->measure); // 将can实例中保存的id转换成电机�
+  58:modules/motor/XMmotor/xmmotor.c **** 
+  59:modules/motor/XMmotor/xmmotor.c ****     DaemonReload(motor->motor_daemon);
+  60:modules/motor/XMmotor/xmmotor.c **** 
+  61:modules/motor/XMmotor/xmmotor.c ****     measure->last_position = measure->position;
+  62:modules/motor/XMmotor/xmmotor.c ****     tmp = (uint16_t)(rxbuff[0] << 8 | rxbuff[1]);
+  63:modules/motor/XMmotor/xmmotor.c ****     measure->position = uint16_to_float(tmp, XM_P_MIN, XM_P_MAX, 16);
+  64:modules/motor/XMmotor/xmmotor.c **** 
+  65:modules/motor/XMmotor/xmmotor.c ****     tmp = (uint16_t)(rxbuff[2] << 8 | rxbuff[3]);
+  66:modules/motor/XMmotor/xmmotor.c ****     measure->velocity = uint16_to_float(tmp, XM_V_MIN, XM_V_MAX, 16);
+  67:modules/motor/XMmotor/xmmotor.c **** 
+  68:modules/motor/XMmotor/xmmotor.c ****     tmp = (uint16_t)(rxbuff[4] << 8 | rxbuff[5]);
+  69:modules/motor/XMmotor/xmmotor.c ****     measure->torque = uint16_to_float(tmp, XM_T_MIN, XM_T_MAX, 16);
+  70:modules/motor/XMmotor/xmmotor.c **** 
+  71:modules/motor/XMmotor/xmmotor.c ****     measure->temperature = (float)((rxbuff[6] << 8) | rxbuff[7]) * 0.1;
+  72:modules/motor/XMmotor/xmmotor.c **** }
+  73:modules/motor/XMmotor/xmmotor.c **** 
+  74:modules/motor/XMmotor/xmmotor.c **** static void XMMotorLostCallback(void *motor_ptr)
+  75:modules/motor/XMmotor/xmmotor.c **** {
+  72              		.loc 1 75 1 is_stmt 1 view -0
+  73              		.cfi_startproc
+  74              		@ args = 0, pretend = 0, frame = 0
+  75              		@ frame_needed = 0, uses_anonymous_args = 0
+  76              		@ link register save eliminated.
+  76:modules/motor/XMmotor/xmmotor.c **** }
+  77              		.loc 1 76 1 view .LVU13
+  78 0000 7047     		bx	lr
+  79              		.cfi_endproc
+  80              	.LFE280:
+  82              		.section	.text.XMMotorDecode,"ax",%progbits
+  83              		.align	1
+  84              		.syntax unified
+  85              		.thumb
+  86              		.thumb_func
+  88              	XMMotorDecode:
+  89              	.LVL5:
+  90              	.LFB279:
+  53:modules/motor/XMmotor/xmmotor.c ****     uint16_t tmp; // 用于暂存解析值,稍后转换成float数据,避免多次创建临时变�
+  91              		.loc 1 53 1 view -0
+  92              		.cfi_startproc
+  93              		@ args = 0, pretend = 0, frame = 0
+  94              		@ frame_needed = 0, uses_anonymous_args = 0
+  53:modules/motor/XMmotor/xmmotor.c ****     uint16_t tmp; // 用于暂存解析值,稍后转换成float数据,避免多次创建临时变�
+  95              		.loc 1 53 1 is_stmt 0 view .LVU15
+  96 0000 38B5     		push	{r3, r4, r5, lr}
+  97              		.cfi_def_cfa_offset 16
+  98              		.cfi_offset 3, -16
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 4
+
+
+  99              		.cfi_offset 4, -12
+ 100              		.cfi_offset 5, -8
+ 101              		.cfi_offset 14, -4
+ 102 0002 0446     		mov	r4, r0
+  54:modules/motor/XMmotor/xmmotor.c ****     uint8_t *rxbuff = motor_can->rx_buff;
+ 103              		.loc 1 54 5 is_stmt 1 view .LVU16
+  55:modules/motor/XMmotor/xmmotor.c ****     XMMotorInstance *motor = (XMMotorInstance *)motor_can->id;
+ 104              		.loc 1 55 5 view .LVU17
+ 105              	.LVL6:
+  56:modules/motor/XMmotor/xmmotor.c ****     XM_Motor_Measure_s *measure = &(motor->measure); // 将can实例中保存的id转换成电机�
+ 106              		.loc 1 56 5 view .LVU18
+  56:modules/motor/XMmotor/xmmotor.c ****     XM_Motor_Measure_s *measure = &(motor->measure); // 将can实例中保存的id转换成电机�
+ 107              		.loc 1 56 22 is_stmt 0 view .LVU19
+ 108 0004 D0F84150 		ldr	r5, [r0, #65]	@ unaligned
+ 109              	.LVL7:
+  57:modules/motor/XMmotor/xmmotor.c **** 
+ 110              		.loc 1 57 5 is_stmt 1 view .LVU20
+  59:modules/motor/XMmotor/xmmotor.c **** 
+ 111              		.loc 1 59 5 view .LVU21
+ 112 0008 D5F8B801 		ldr	r0, [r5, #440]
+ 113              	.LVL8:
+  59:modules/motor/XMmotor/xmmotor.c **** 
+ 114              		.loc 1 59 5 is_stmt 0 view .LVU22
+ 115 000c FFF7FEFF 		bl	DaemonReload
+ 116              	.LVL9:
+  61:modules/motor/XMmotor/xmmotor.c ****     tmp = (uint16_t)(rxbuff[0] << 8 | rxbuff[1]);
+ 117              		.loc 1 61 5 is_stmt 1 view .LVU23
+  61:modules/motor/XMmotor/xmmotor.c ****     tmp = (uint16_t)(rxbuff[0] << 8 | rxbuff[1]);
+ 118              		.loc 1 61 37 is_stmt 0 view .LVU24
+ 119 0010 EB68     		ldr	r3, [r5, #12]	@ float
+  61:modules/motor/XMmotor/xmmotor.c ****     tmp = (uint16_t)(rxbuff[0] << 8 | rxbuff[1]);
+ 120              		.loc 1 61 28 view .LVU25
+ 121 0012 AB60     		str	r3, [r5, #8]	@ float
+  62:modules/motor/XMmotor/xmmotor.c ****     measure->position = uint16_to_float(tmp, XM_P_MIN, XM_P_MAX, 16);
+ 122              		.loc 1 62 5 is_stmt 1 view .LVU26
+  62:modules/motor/XMmotor/xmmotor.c ****     measure->position = uint16_to_float(tmp, XM_P_MIN, XM_P_MAX, 16);
+ 123              		.loc 1 62 28 is_stmt 0 view .LVU27
+ 124 0014 94F82C00 		ldrb	r0, [r4, #44]	@ zero_extendqisi2
+  62:modules/motor/XMmotor/xmmotor.c ****     measure->position = uint16_to_float(tmp, XM_P_MIN, XM_P_MAX, 16);
+ 125              		.loc 1 62 45 view .LVU28
+ 126 0018 94F82D30 		ldrb	r3, [r4, #45]	@ zero_extendqisi2
+ 127              	.LVL10:
+  63:modules/motor/XMmotor/xmmotor.c **** 
+ 128              		.loc 1 63 5 is_stmt 1 view .LVU29
+  63:modules/motor/XMmotor/xmmotor.c **** 
+ 129              		.loc 1 63 25 is_stmt 0 view .LVU30
+ 130 001c 1021     		movs	r1, #16
+ 131 001e DFED220A 		vldr.32	s1, .L5+8
+ 132 0022 9FED220A 		vldr.32	s0, .L5+12
+ 133 0026 43EA0020 		orr	r0, r3, r0, lsl #8
+ 134              	.LVL11:
+  63:modules/motor/XMmotor/xmmotor.c **** 
+ 135              		.loc 1 63 25 view .LVU31
+ 136 002a FFF7FEFF 		bl	uint16_to_float
+ 137              	.LVL12:
+  63:modules/motor/XMmotor/xmmotor.c **** 
+ 138              		.loc 1 63 23 discriminator 1 view .LVU32
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 5
+
+
+ 139 002e 85ED030A 		vstr.32	s0, [r5, #12]
+  65:modules/motor/XMmotor/xmmotor.c ****     measure->velocity = uint16_to_float(tmp, XM_V_MIN, XM_V_MAX, 16);
+ 140              		.loc 1 65 5 is_stmt 1 view .LVU33
+  65:modules/motor/XMmotor/xmmotor.c ****     measure->velocity = uint16_to_float(tmp, XM_V_MIN, XM_V_MAX, 16);
+ 141              		.loc 1 65 28 is_stmt 0 view .LVU34
+ 142 0032 94F82E00 		ldrb	r0, [r4, #46]	@ zero_extendqisi2
+  65:modules/motor/XMmotor/xmmotor.c ****     measure->velocity = uint16_to_float(tmp, XM_V_MIN, XM_V_MAX, 16);
+ 143              		.loc 1 65 45 view .LVU35
+ 144 0036 94F82F30 		ldrb	r3, [r4, #47]	@ zero_extendqisi2
+ 145              	.LVL13:
+  66:modules/motor/XMmotor/xmmotor.c **** 
+ 146              		.loc 1 66 5 is_stmt 1 view .LVU36
+  66:modules/motor/XMmotor/xmmotor.c **** 
+ 147              		.loc 1 66 25 is_stmt 0 view .LVU37
+ 148 003a 1021     		movs	r1, #16
+ 149 003c F3EE0E0A 		vmov.f32	s1, #3.0e+1
+ 150 0040 BBEE0E0A 		vmov.f32	s0, #-3.0e+1
+ 151 0044 43EA0020 		orr	r0, r3, r0, lsl #8
+ 152              	.LVL14:
+  66:modules/motor/XMmotor/xmmotor.c **** 
+ 153              		.loc 1 66 25 view .LVU38
+ 154 0048 FFF7FEFF 		bl	uint16_to_float
+ 155              	.LVL15:
+  66:modules/motor/XMmotor/xmmotor.c **** 
+ 156              		.loc 1 66 23 discriminator 1 view .LVU39
+ 157 004c 85ED010A 		vstr.32	s0, [r5, #4]
+  68:modules/motor/XMmotor/xmmotor.c ****     measure->torque = uint16_to_float(tmp, XM_T_MIN, XM_T_MAX, 16);
+ 158              		.loc 1 68 5 is_stmt 1 view .LVU40
+  68:modules/motor/XMmotor/xmmotor.c ****     measure->torque = uint16_to_float(tmp, XM_T_MIN, XM_T_MAX, 16);
+ 159              		.loc 1 68 28 is_stmt 0 view .LVU41
+ 160 0050 94F83000 		ldrb	r0, [r4, #48]	@ zero_extendqisi2
+  68:modules/motor/XMmotor/xmmotor.c ****     measure->torque = uint16_to_float(tmp, XM_T_MIN, XM_T_MAX, 16);
+ 161              		.loc 1 68 45 view .LVU42
+ 162 0054 94F83130 		ldrb	r3, [r4, #49]	@ zero_extendqisi2
+ 163              	.LVL16:
+  69:modules/motor/XMmotor/xmmotor.c **** 
+ 164              		.loc 1 69 5 is_stmt 1 view .LVU43
+  69:modules/motor/XMmotor/xmmotor.c **** 
+ 165              		.loc 1 69 23 is_stmt 0 view .LVU44
+ 166 0058 1021     		movs	r1, #16
+ 167 005a F2EE080A 		vmov.f32	s1, #1.2e+1
+ 168 005e BAEE080A 		vmov.f32	s0, #-1.2e+1
+ 169 0062 43EA0020 		orr	r0, r3, r0, lsl #8
+ 170              	.LVL17:
+  69:modules/motor/XMmotor/xmmotor.c **** 
+ 171              		.loc 1 69 23 view .LVU45
+ 172 0066 FFF7FEFF 		bl	uint16_to_float
+ 173              	.LVL18:
+  69:modules/motor/XMmotor/xmmotor.c **** 
+ 174              		.loc 1 69 21 discriminator 1 view .LVU46
+ 175 006a 85ED040A 		vstr.32	s0, [r5, #16]
+  71:modules/motor/XMmotor/xmmotor.c **** }
+ 176              		.loc 1 71 5 is_stmt 1 view .LVU47
+  71:modules/motor/XMmotor/xmmotor.c **** }
+ 177              		.loc 1 71 43 is_stmt 0 view .LVU48
+ 178 006e 94F83230 		ldrb	r3, [r4, #50]	@ zero_extendqisi2
+  71:modules/motor/XMmotor/xmmotor.c **** }
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 6
+
+
+ 179              		.loc 1 71 61 view .LVU49
+ 180 0072 94F83300 		ldrb	r0, [r4, #51]	@ zero_extendqisi2
+  71:modules/motor/XMmotor/xmmotor.c **** }
+ 181              		.loc 1 71 53 view .LVU50
+ 182 0076 40EA0320 		orr	r0, r0, r3, lsl #8
+  71:modules/motor/XMmotor/xmmotor.c **** }
+ 183              		.loc 1 71 28 view .LVU51
+ 184 007a 07EE900A 		vmov	s15, r0	@ int
+ 185 007e F8EEE77A 		vcvt.f32.s32	s15, s15
+ 186 0082 17EE900A 		vmov	r0, s15
+ 187 0086 FFF7FEFF 		bl	__aeabi_f2d
+ 188              	.LVL19:
+  71:modules/motor/XMmotor/xmmotor.c **** }
+ 189              		.loc 1 71 66 view .LVU52
+ 190 008a 05A3     		adr	r3, .L5
+ 191 008c D3E90023 		ldrd	r2, [r3]
+ 192 0090 FFF7FEFF 		bl	__aeabi_dmul
+ 193              	.LVL20:
+ 194 0094 FFF7FEFF 		bl	__aeabi_d2f
+ 195              	.LVL21:
+  71:modules/motor/XMmotor/xmmotor.c **** }
+ 196              		.loc 1 71 26 view .LVU53
+ 197 0098 E861     		str	r0, [r5, #28]	@ float
+  72:modules/motor/XMmotor/xmmotor.c **** 
+ 198              		.loc 1 72 1 view .LVU54
+ 199 009a 38BD     		pop	{r3, r4, r5, pc}
+ 200              	.LVL22:
+ 201              	.L6:
+  72:modules/motor/XMmotor/xmmotor.c **** 
+ 202              		.loc 1 72 1 view .LVU55
+ 203 009c AFF30080 		.align	3
+ 204              	.L5:
+ 205 00a0 9A999999 		.word	-1717986918
+ 206 00a4 9999B93F 		.word	1069128089
+ 207 00a8 00003444 		.word	1144258560
+ 208 00ac 000034C4 		.word	-1003225088
+ 209              		.cfi_endproc
+ 210              	.LFE279:
+ 212              		.section	.text.XMMotorSetMode,"ax",%progbits
+ 213              		.align	1
+ 214              		.syntax unified
+ 215              		.thumb
+ 216              		.thumb_func
+ 218              	XMMotorSetMode:
+ 219              	.LVL23:
+ 220              	.LFB278:
+  29:modules/motor/XMmotor/xmmotor.c ****     // memset(motor->motor_can_instace->tx_buff, 0, 8);  
+ 221              		.loc 1 29 1 is_stmt 1 view -0
+ 222              		.cfi_startproc
+ 223              		@ args = 0, pretend = 0, frame = 0
+ 224              		@ frame_needed = 0, uses_anonymous_args = 0
+  29:modules/motor/XMmotor/xmmotor.c ****     // memset(motor->motor_can_instace->tx_buff, 0, 8);  
+ 225              		.loc 1 29 1 is_stmt 0 view .LVU57
+ 226 0000 08B5     		push	{r3, lr}
+ 227              		.cfi_def_cfa_offset 8
+ 228              		.cfi_offset 3, -8
+ 229              		.cfi_offset 14, -4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 7
+
+
+  32:modules/motor/XMmotor/xmmotor.c ****     {
+ 230              		.loc 1 32 5 is_stmt 1 view .LVU58
+  32:modules/motor/XMmotor/xmmotor.c ****     {
+ 231              		.loc 1 32 8 is_stmt 0 view .LVU59
+ 232 0002 0328     		cmp	r0, #3
+ 233 0004 08D0     		beq	.L11
+  39:modules/motor/XMmotor/xmmotor.c ****     {
+ 234              		.loc 1 39 10 is_stmt 1 view .LVU60
+  39:modules/motor/XMmotor/xmmotor.c ****     {
+ 235              		.loc 1 39 13 is_stmt 0 view .LVU61
+ 236 0006 1228     		cmp	r0, #18
+ 237 0008 14D0     		beq	.L12
+ 238              	.LVL24:
+ 239              	.L9:
+  48:modules/motor/XMmotor/xmmotor.c **** }
+ 240              		.loc 1 48 5 is_stmt 1 view .LVU62
+ 241 000a B7EE000A 		vmov.f32	s0, #1.0e+0
+ 242 000e D1F8B401 		ldr	r0, [r1, #436]
+ 243 0012 FFF7FEFF 		bl	CANTransmit
+ 244              	.LVL25:
+  49:modules/motor/XMmotor/xmmotor.c **** 
+ 245              		.loc 1 49 1 is_stmt 0 view .LVU63
+ 246 0016 08BD     		pop	{r3, pc}
+ 247              	.LVL26:
+ 248              	.L11:
+  34:modules/motor/XMmotor/xmmotor.c ****         // motor->motor_can_instace->txconf.ExtId = 0x03 << 24 | 0x0 << 8 | motor->motor_can_instac
+ 249              		.loc 1 34 9 is_stmt 1 view .LVU64
+  34:modules/motor/XMmotor/xmmotor.c ****         // motor->motor_can_instace->txconf.ExtId = 0x03 << 24 | 0x0 << 8 | motor->motor_can_instac
+ 250              		.loc 1 34 21 is_stmt 0 view .LVU65
+ 251 0018 D1F8B431 		ldr	r3, [r1, #436]
+  34:modules/motor/XMmotor/xmmotor.c ****         // motor->motor_can_instace->txconf.ExtId = 0x03 << 24 | 0x0 << 8 | motor->motor_can_instac
+ 252              		.loc 1 34 9 view .LVU66
+ 253 001c 0022     		movs	r2, #0
+ 254 001e 5A62     		str	r2, [r3, #36]	@ unaligned
+ 255 0020 9A62     		str	r2, [r3, #40]	@ unaligned
+  36:modules/motor/XMmotor/xmmotor.c ****         // motor->motor_can_instace->txconf.ExtId = 0; 
+ 256              		.loc 1 36 9 is_stmt 1 view .LVU67
+  36:modules/motor/XMmotor/xmmotor.c ****         // motor->motor_can_instace->txconf.ExtId = 0; 
+ 257              		.loc 1 36 14 is_stmt 0 view .LVU68
+ 258 0022 D1F8B431 		ldr	r3, [r1, #436]
+  36:modules/motor/XMmotor/xmmotor.c ****         // motor->motor_can_instace->txconf.ExtId = 0; 
+ 259              		.loc 1 36 48 view .LVU69
+ 260 0026 7F20     		movs	r0, #127
+ 261              	.LVL27:
+  36:modules/motor/XMmotor/xmmotor.c ****         // motor->motor_can_instace->txconf.ExtId = 0; 
+ 262              		.loc 1 36 48 view .LVU70
+ 263 0028 1872     		strb	r0, [r3, #8]
+ 264 002a 5A72     		strb	r2, [r3, #9]
+ 265 002c 9A72     		strb	r2, [r3, #10]
+ 266 002e 0322     		movs	r2, #3
+ 267 0030 DA72     		strb	r2, [r3, #11]
+ 268 0032 EAE7     		b	.L9
+ 269              	.LVL28:
+ 270              	.L12:
+  41:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->txconf.ExtId = 0x1200007f; 
+ 271              		.loc 1 41 9 is_stmt 1 view .LVU71
+  41:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->txconf.ExtId = 0x1200007f; 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 8
+
+
+ 272              		.loc 1 41 79 is_stmt 0 view .LVU72
+ 273 0034 D1F8B421 		ldr	r2, [r1, #436]
+  41:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->txconf.ExtId = 0x1200007f; 
+ 274              		.loc 1 41 98 view .LVU73
+ 275 0038 D369     		ldr	r3, [r2, #28]	@ unaligned
+  41:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->txconf.ExtId = 0x1200007f; 
+ 276              		.loc 1 41 72 view .LVU74
+ 277 003a 43F09053 		orr	r3, r3, #301989888
+  41:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->txconf.ExtId = 0x1200007f; 
+ 278              		.loc 1 41 48 view .LVU75
+ 279 003e 9360     		str	r3, [r2, #8]	@ unaligned
+  42:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[0] = (uint8_t)0x05;
+ 280              		.loc 1 42 9 is_stmt 1 view .LVU76
+  42:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[0] = (uint8_t)0x05;
+ 281              		.loc 1 42 14 is_stmt 0 view .LVU77
+ 282 0040 D1F8B431 		ldr	r3, [r1, #436]
+  42:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[0] = (uint8_t)0x05;
+ 283              		.loc 1 42 48 view .LVU78
+ 284 0044 0022     		movs	r2, #0
+ 285 0046 7F20     		movs	r0, #127
+ 286              	.LVL29:
+  42:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[0] = (uint8_t)0x05;
+ 287              		.loc 1 42 48 view .LVU79
+ 288 0048 1872     		strb	r0, [r3, #8]
+ 289 004a 5A72     		strb	r2, [r3, #9]
+ 290 004c 9A72     		strb	r2, [r3, #10]
+ 291 004e 1222     		movs	r2, #18
+ 292 0050 DA72     		strb	r2, [r3, #11]
+  43:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[1] = (uint8_t)0x70;
+ 293              		.loc 1 43 9 is_stmt 1 view .LVU80
+  43:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[1] = (uint8_t)0x70;
+ 294              		.loc 1 43 14 is_stmt 0 view .LVU81
+ 295 0052 D1F8B431 		ldr	r3, [r1, #436]
+  43:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[1] = (uint8_t)0x70;
+ 296              		.loc 1 43 46 view .LVU82
+ 297 0056 0522     		movs	r2, #5
+ 298 0058 83F82420 		strb	r2, [r3, #36]
+  44:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[4] = (uint8_t)0x03;
+ 299              		.loc 1 44 9 is_stmt 1 view .LVU83
+  44:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[4] = (uint8_t)0x03;
+ 300              		.loc 1 44 14 is_stmt 0 view .LVU84
+ 301 005c D1F8B431 		ldr	r3, [r1, #436]
+  44:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[4] = (uint8_t)0x03;
+ 302              		.loc 1 44 46 view .LVU85
+ 303 0060 7022     		movs	r2, #112
+ 304 0062 83F82520 		strb	r2, [r3, #37]
+  45:modules/motor/XMmotor/xmmotor.c ****     }
+ 305              		.loc 1 45 9 is_stmt 1 view .LVU86
+  45:modules/motor/XMmotor/xmmotor.c ****     }
+ 306              		.loc 1 45 14 is_stmt 0 view .LVU87
+ 307 0066 D1F8B431 		ldr	r3, [r1, #436]
+  45:modules/motor/XMmotor/xmmotor.c ****     }
+ 308              		.loc 1 45 46 view .LVU88
+ 309 006a 0322     		movs	r2, #3
+ 310 006c 83F82820 		strb	r2, [r3, #40]
+ 311 0070 CBE7     		b	.L9
+ 312              		.cfi_endproc
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 9
+
+
+ 313              	.LFE278:
+ 315              		.section	.text.XMMotorTask,"ax",%progbits
+ 316              		.align	1
+ 317              		.global	XMMotorTask
+ 318              		.syntax unified
+ 319              		.thumb
+ 320              		.thumb_func
+ 322              	XMMotorTask:
+ 323              	.LVL30:
+ 324              	.LFB288:
+  77:modules/motor/XMmotor/xmmotor.c **** 
+  78:modules/motor/XMmotor/xmmotor.c **** void XMMotorCaliEncoder(XMMotorInstance *motor)
+  79:modules/motor/XMmotor/xmmotor.c **** {
+  80:modules/motor/XMmotor/xmmotor.c ****     // XMMotorSetMode(DM_CMD_ZERO_POSITION, motor);
+  81:modules/motor/XMmotor/xmmotor.c ****     // DWT_Delay(0.1);
+  82:modules/motor/XMmotor/xmmotor.c **** }
+  83:modules/motor/XMmotor/xmmotor.c **** XMMotorInstance *XMMotorInit(Motor_Init_Config_s *config)
+  84:modules/motor/XMmotor/xmmotor.c **** {
+  85:modules/motor/XMmotor/xmmotor.c ****     XMMotorInstance *motor = (XMMotorInstance *)malloc(sizeof(XMMotorInstance));
+  86:modules/motor/XMmotor/xmmotor.c ****     memset(motor, 0, sizeof(XMMotorInstance));
+  87:modules/motor/XMmotor/xmmotor.c ****     
+  88:modules/motor/XMmotor/xmmotor.c ****     motor->motor_settings = config->controller_setting_init_config;
+  89:modules/motor/XMmotor/xmmotor.c ****     PIDInit(&motor->motor_controller.current_PID, &config->controller_param_init_config.current_PID
+  90:modules/motor/XMmotor/xmmotor.c ****     PIDInit(&motor->motor_controller.speed_PID, &config->controller_param_init_config.speed_PID);
+  91:modules/motor/XMmotor/xmmotor.c ****     PIDInit(&motor->motor_controller.angle_PID, &config->controller_param_init_config.angle_PID);
+  92:modules/motor/XMmotor/xmmotor.c ****     motor->motor_controller.other_angle_feedback_ptr = config->controller_param_init_config.other_a
+  93:modules/motor/XMmotor/xmmotor.c ****     motor->motor_controller.other_speed_feedback_ptr = config->controller_param_init_config.other_s
+  94:modules/motor/XMmotor/xmmotor.c **** 
+  95:modules/motor/XMmotor/xmmotor.c ****     config->can_init_config.can_module_callback = XMMotorDecode;
+  96:modules/motor/XMmotor/xmmotor.c ****     config->can_init_config.id = motor;
+  97:modules/motor/XMmotor/xmmotor.c ****     config->can_init_config.mode = CAN_ID_EXT; // 开启拓展帧
+  98:modules/motor/XMmotor/xmmotor.c ****     motor->motor_can_instace = CANRegister(&config->can_init_config);
+  99:modules/motor/XMmotor/xmmotor.c **** 
+ 100:modules/motor/XMmotor/xmmotor.c ****     XMMotorEnable(motor);
+ 101:modules/motor/XMmotor/xmmotor.c **** 
+ 102:modules/motor/XMmotor/xmmotor.c ****     XMMotorSetMode(XM_CMD_CURRENT_MODE, motor);     // 设置电流环模式
+ 103:modules/motor/XMmotor/xmmotor.c ****     DWT_Delay(0.1);
+ 104:modules/motor/XMmotor/xmmotor.c ****     XMMotorSetMode(XM_CMD_MOTOR_MODE, motor);       // 使能电机    
+ 105:modules/motor/XMmotor/xmmotor.c ****     DWT_Delay(0.1);
+ 106:modules/motor/XMmotor/xmmotor.c **** 
+ 107:modules/motor/XMmotor/xmmotor.c ****     Daemon_Init_Config_s conf = {
+ 108:modules/motor/XMmotor/xmmotor.c ****         .callback = XMMotorLostCallback,   
+ 109:modules/motor/XMmotor/xmmotor.c ****         .owner_id = motor,
+ 110:modules/motor/XMmotor/xmmotor.c ****         .reload_count = 5, // 50ms
+ 111:modules/motor/XMmotor/xmmotor.c ****     };
+ 112:modules/motor/XMmotor/xmmotor.c ****     motor->motor_daemon = DaemonRegister(&conf);
+ 113:modules/motor/XMmotor/xmmotor.c **** 
+ 114:modules/motor/XMmotor/xmmotor.c ****     xm_motor_instance[idx++] = motor;
+ 115:modules/motor/XMmotor/xmmotor.c ****     return motor;
+ 116:modules/motor/XMmotor/xmmotor.c **** }
+ 117:modules/motor/XMmotor/xmmotor.c **** 
+ 118:modules/motor/XMmotor/xmmotor.c **** void XMMotorSetRef(XMMotorInstance *motor, float ref)
+ 119:modules/motor/XMmotor/xmmotor.c **** {
+ 120:modules/motor/XMmotor/xmmotor.c ****     motor->motor_controller.pid_ref = ref;
+ 121:modules/motor/XMmotor/xmmotor.c **** }
+ 122:modules/motor/XMmotor/xmmotor.c **** 
+ 123:modules/motor/XMmotor/xmmotor.c **** void XMMotorChangeFeed(XMMotorInstance *motor, Closeloop_Type_e loop, Feedback_Source_e type)
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 10
+
+
+ 124:modules/motor/XMmotor/xmmotor.c **** {
+ 125:modules/motor/XMmotor/xmmotor.c ****     if (loop == ANGLE_LOOP)
+ 126:modules/motor/XMmotor/xmmotor.c ****         motor->motor_settings.angle_feedback_source = type;
+ 127:modules/motor/XMmotor/xmmotor.c ****     else if (loop == SPEED_LOOP)
+ 128:modules/motor/XMmotor/xmmotor.c ****         motor->motor_settings.speed_feedback_source = type;
+ 129:modules/motor/XMmotor/xmmotor.c ****     else
+ 130:modules/motor/XMmotor/xmmotor.c ****         LOGERROR("[dji_motor] loop type error, check memory access and func param"); // 检查是�
+ 131:modules/motor/XMmotor/xmmotor.c **** }
+ 132:modules/motor/XMmotor/xmmotor.c **** 
+ 133:modules/motor/XMmotor/xmmotor.c **** 
+ 134:modules/motor/XMmotor/xmmotor.c **** void XMMotorEnable(XMMotorInstance *motor)
+ 135:modules/motor/XMmotor/xmmotor.c **** {
+ 136:modules/motor/XMmotor/xmmotor.c ****     motor->stop_flag = MOTOR_ENALBED;
+ 137:modules/motor/XMmotor/xmmotor.c **** }
+ 138:modules/motor/XMmotor/xmmotor.c **** 
+ 139:modules/motor/XMmotor/xmmotor.c **** void XMMotorStop(XMMotorInstance *motor)//不使用使能模式是因为需要收到反馈
+ 140:modules/motor/XMmotor/xmmotor.c **** {
+ 141:modules/motor/XMmotor/xmmotor.c ****     motor->stop_flag = MOTOR_STOP;
+ 142:modules/motor/XMmotor/xmmotor.c **** }
+ 143:modules/motor/XMmotor/xmmotor.c **** 
+ 144:modules/motor/XMmotor/xmmotor.c **** void XMMotorOuterLoop(XMMotorInstance *motor, Closeloop_Type_e type)
+ 145:modules/motor/XMmotor/xmmotor.c **** {
+ 146:modules/motor/XMmotor/xmmotor.c ****     motor->motor_settings.outer_loop_type = type;
+ 147:modules/motor/XMmotor/xmmotor.c **** }
+ 148:modules/motor/XMmotor/xmmotor.c **** 
+ 149:modules/motor/XMmotor/xmmotor.c **** //@Todo: 目前不使用自带控制模式，通过电流反馈进行PID控制 
+ 150:modules/motor/XMmotor/xmmotor.c **** void XMMotorTask(void const *argument)
+ 151:modules/motor/XMmotor/xmmotor.c **** {
+ 325              		.loc 1 151 1 is_stmt 1 view -0
+ 326              		.cfi_startproc
+ 327              		@ args = 0, pretend = 0, frame = 0
+ 328              		@ frame_needed = 0, uses_anonymous_args = 0
+ 329              		.loc 1 151 1 is_stmt 0 view .LVU90
+ 330 0000 10B5     		push	{r4, lr}
+ 331              		.cfi_def_cfa_offset 8
+ 332              		.cfi_offset 4, -8
+ 333              		.cfi_offset 14, -4
+ 334 0002 0446     		mov	r4, r0
+ 152:modules/motor/XMmotor/xmmotor.c ****     XMMotorInstance *motor = (XMMotorInstance *)argument;
+ 335              		.loc 1 152 5 is_stmt 1 view .LVU91
+ 336              	.LVL31:
+ 337              		.loc 1 152 5 is_stmt 0 view .LVU92
+ 338 0004 69E0     		b	.L26
+ 339              	.LVL32:
+ 340              	.L32:
+ 153:modules/motor/XMmotor/xmmotor.c ****     Motor_Control_Setting_s *motor_setting; // 电机控制参数
+ 154:modules/motor/XMmotor/xmmotor.c ****     Motor_Controller_s *motor_controller;   // 电机控制器
+ 155:modules/motor/XMmotor/xmmotor.c ****     XM_Motor_Measure_s *measure;
+ 156:modules/motor/XMmotor/xmmotor.c ****     float pid_ref, pid_measure, set;
+ 157:modules/motor/XMmotor/xmmotor.c ****     while (1)
+ 158:modules/motor/XMmotor/xmmotor.c ****     {
+ 159:modules/motor/XMmotor/xmmotor.c ****         XMMotorSetMode(XM_CMD_CURRENT_MODE, motor);     // 设置电流环模式
+ 160:modules/motor/XMmotor/xmmotor.c ****         XMMotorSetMode(XM_CMD_MOTOR_MODE, motor);       // 使能电机    
+ 161:modules/motor/XMmotor/xmmotor.c **** 
+ 162:modules/motor/XMmotor/xmmotor.c ****         motor_setting = &motor->motor_settings;
+ 163:modules/motor/XMmotor/xmmotor.c ****         motor_controller = &motor->motor_controller;
+ 164:modules/motor/XMmotor/xmmotor.c ****         measure = &motor->measure;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 11
+
+
+ 165:modules/motor/XMmotor/xmmotor.c ****         pid_ref = motor_controller->pid_ref;
+ 166:modules/motor/XMmotor/xmmotor.c **** 
+ 167:modules/motor/XMmotor/xmmotor.c ****         if (motor_setting->motor_reverse_flag == MOTOR_DIRECTION_REVERSE && (motor_setting->outer_l
+ 341              		.loc 1 167 91 discriminator 1 view .LVU93
+ 342 0006 94F82430 		ldrb	r3, [r4, #36]	@ zero_extendqisi2
+ 343              		.loc 1 167 74 discriminator 1 view .LVU94
+ 344 000a 13F0060F 		tst	r3, #6
+ 345 000e 72D0     		beq	.L14
+ 168:modules/motor/XMmotor/xmmotor.c ****             pid_ref *= -1; // 设置反转
+ 346              		.loc 1 168 13 is_stmt 1 view .LVU95
+ 347              		.loc 1 168 21 is_stmt 0 view .LVU96
+ 348 0010 F1EE600A 		vneg.f32	s1, s1
+ 349              	.LVL33:
+ 350              		.loc 1 168 21 view .LVU97
+ 351 0014 6FE0     		b	.L14
+ 352              	.LVL34:
+ 353              	.L33:
+ 169:modules/motor/XMmotor/xmmotor.c **** 
+ 170:modules/motor/XMmotor/xmmotor.c ****         // pid_ref会顺次通过被启用的闭环充当数据的载体
+ 171:modules/motor/XMmotor/xmmotor.c ****         // 计算位置环,只有启用位置环且外层闭环为位置时会计算速度环输出
+ 172:modules/motor/XMmotor/xmmotor.c ****         if ((motor_setting->close_loop_type & ANGLE_LOOP) && motor_setting->outer_loop_type == ANGL
+ 173:modules/motor/XMmotor/xmmotor.c ****         {
+ 174:modules/motor/XMmotor/xmmotor.c ****             if (motor_setting->angle_feedback_source == OTHER_FEED)
+ 354              		.loc 1 174 13 is_stmt 1 view .LVU98
+ 355              		.loc 1 174 30 is_stmt 0 view .LVU99
+ 356 0016 94F82830 		ldrb	r3, [r4, #40]	@ zero_extendqisi2
+ 357              		.loc 1 174 16 view .LVU100
+ 358 001a 012B     		cmp	r3, #1
+ 359 001c 0AD0     		beq	.L31
+ 175:modules/motor/XMmotor/xmmotor.c ****                 pid_measure = *motor_controller->other_angle_feedback_ptr;
+ 176:modules/motor/XMmotor/xmmotor.c ****             else
+ 177:modules/motor/XMmotor/xmmotor.c ****                 pid_measure = measure->total_round; // MOTOR_FEED,对total_round闭环,防止在边
+ 360              		.loc 1 177 17 is_stmt 1 view .LVU101
+ 361              		.loc 1 177 29 is_stmt 0 view .LVU102
+ 362 001e D4ED087A 		vldr.32	s15, [r4, #32]	@ int
+ 363 0022 B8EEE70A 		vcvt.f32.s32	s0, s15
+ 364              	.L17:
+ 365              	.LVL35:
+ 178:modules/motor/XMmotor/xmmotor.c ****             // 更新pid_ref进入下一个环
+ 179:modules/motor/XMmotor/xmmotor.c ****             pid_ref = PIDCalculate(&motor_controller->angle_PID, pid_measure, pid_ref);
+ 366              		.loc 1 179 13 is_stmt 1 view .LVU103
+ 367              		.loc 1 179 23 is_stmt 0 view .LVU104
+ 368 0026 04F59870 		add	r0, r4, #304
+ 369 002a FFF7FEFF 		bl	PIDCalculate
+ 370              	.LVL36:
+ 371              		.loc 1 179 23 view .LVU105
+ 372 002e F0EE400A 		vmov.f32	s1, s0
+ 373 0032 69E0     		b	.L15
+ 374              	.LVL37:
+ 375              	.L31:
+ 175:modules/motor/XMmotor/xmmotor.c ****                 pid_measure = *motor_controller->other_angle_feedback_ptr;
+ 376              		.loc 1 175 17 is_stmt 1 view .LVU106
+ 175:modules/motor/XMmotor/xmmotor.c ****                 pid_measure = *motor_controller->other_angle_feedback_ptr;
+ 377              		.loc 1 175 48 is_stmt 0 view .LVU107
+ 378 0034 236B     		ldr	r3, [r4, #48]
+ 175:modules/motor/XMmotor/xmmotor.c ****                 pid_measure = *motor_controller->other_angle_feedback_ptr;
+ 379              		.loc 1 175 29 view .LVU108
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 12
+
+
+ 380 0036 93ED000A 		vldr.32	s0, [r3]
+ 381              	.LVL38:
+ 175:modules/motor/XMmotor/xmmotor.c ****                 pid_measure = *motor_controller->other_angle_feedback_ptr;
+ 382              		.loc 1 175 29 view .LVU109
+ 383 003a F4E7     		b	.L17
+ 384              	.LVL39:
+ 385              	.L34:
+ 180:modules/motor/XMmotor/xmmotor.c ****         }
+ 181:modules/motor/XMmotor/xmmotor.c **** 
+ 182:modules/motor/XMmotor/xmmotor.c ****         // 计算速度环,(外层闭环为速度或位置)且(启用速度环)时会计算速度�
+ 183:modules/motor/XMmotor/xmmotor.c ****         if ((motor_setting->close_loop_type & SPEED_LOOP) && (motor_setting->outer_loop_type & (ANG
+ 184:modules/motor/XMmotor/xmmotor.c ****         {
+ 185:modules/motor/XMmotor/xmmotor.c ****             if (motor_setting->feedforward_flag & SPEED_FEEDFORWARD)
+ 186:modules/motor/XMmotor/xmmotor.c ****                 pid_ref += *motor_controller->speed_feedforward_ptr;
+ 187:modules/motor/XMmotor/xmmotor.c **** 
+ 188:modules/motor/XMmotor/xmmotor.c ****             if (motor_setting->speed_feedback_source == OTHER_FEED)
+ 189:modules/motor/XMmotor/xmmotor.c ****                 pid_measure = *motor_controller->other_speed_feedback_ptr;
+ 386              		.loc 1 189 17 is_stmt 1 view .LVU110
+ 387              		.loc 1 189 48 is_stmt 0 view .LVU111
+ 388 003c 636B     		ldr	r3, [r4, #52]
+ 389              		.loc 1 189 29 view .LVU112
+ 390 003e 93ED000A 		vldr.32	s0, [r3]
+ 391              	.LVL40:
+ 392              		.loc 1 189 29 view .LVU113
+ 393 0042 7BE0     		b	.L21
+ 394              	.LVL41:
+ 395              	.L35:
+ 190:modules/motor/XMmotor/xmmotor.c ****             else // MOTOR_FEED
+ 191:modules/motor/XMmotor/xmmotor.c ****                 pid_measure = measure->velocity;
+ 192:modules/motor/XMmotor/xmmotor.c ****             // 更新pid_ref
+ 193:modules/motor/XMmotor/xmmotor.c ****             pid_ref = PIDCalculate(&motor_controller->speed_PID, pid_measure, pid_ref);
+ 194:modules/motor/XMmotor/xmmotor.c ****         }
+ 195:modules/motor/XMmotor/xmmotor.c **** 
+ 196:modules/motor/XMmotor/xmmotor.c ****         if (motor_setting->feedback_reverse_flag == FEEDBACK_DIRECTION_REVERSE && (motor_setting->o
+ 396              		.loc 1 196 97 discriminator 1 view .LVU114
+ 397 0044 94F82430 		ldrb	r3, [r4, #36]	@ zero_extendqisi2
+ 398              		.loc 1 196 80 discriminator 1 view .LVU115
+ 399 0048 13F0060F 		tst	r3, #6
+ 400 004c 00F08180 		beq	.L22
+ 197:modules/motor/XMmotor/xmmotor.c ****             pid_ref *= -1;
+ 401              		.loc 1 197 13 is_stmt 1 view .LVU116
+ 402              		.loc 1 197 21 is_stmt 0 view .LVU117
+ 403 0050 F1EE600A 		vneg.f32	s1, s1
+ 404              	.LVL42:
+ 405              		.loc 1 197 21 view .LVU118
+ 406 0054 7DE0     		b	.L22
+ 407              	.LVL43:
+ 408              	.L27:
+ 198:modules/motor/XMmotor/xmmotor.c **** 
+ 199:modules/motor/XMmotor/xmmotor.c ****         // 获取最终输出,功率限制时直接输出电流值
+ 200:modules/motor/XMmotor/xmmotor.c ****         set = pid_ref;
+ 201:modules/motor/XMmotor/xmmotor.c ****         
+ 202:modules/motor/XMmotor/xmmotor.c ****         LIMIT_MIN_MAX(set, XM_I_MIN, XM_I_MAX); 
+ 409              		.loc 1 202 9 discriminator 1 view .LVU119
+ 410 0056 FAEE040A 		vmov.f32	s1, #-1.0e+1
+ 411              	.LVL44:
+ 412              	.L23:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 13
+
+
+ 203:modules/motor/XMmotor/xmmotor.c **** 
+ 204:modules/motor/XMmotor/xmmotor.c ****         if (motor->stop_flag == MOTOR_STOP)
+ 413              		.loc 1 204 9 is_stmt 1 view .LVU120
+ 414              		.loc 1 204 18 is_stmt 0 view .LVU121
+ 415 005a 94F8B031 		ldrb	r3, [r4, #432]	@ zero_extendqisi2
+ 416              		.loc 1 204 12 view .LVU122
+ 417 005e 0BB9     		cbnz	r3, .L25
+ 205:modules/motor/XMmotor/xmmotor.c ****             set = 0;
+ 418              		.loc 1 205 17 view .LVU123
+ 419 0060 DFED450A 		vldr.32	s1, .L36
+ 420              	.LVL45:
+ 421              	.L25:
+ 206:modules/motor/XMmotor/xmmotor.c **** 
+ 207:modules/motor/XMmotor/xmmotor.c ****         // 拓展帧
+ 208:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->txconf.ExtId = 0x12 << 24 | 0x0 << 8 | motor->motor_can_instace->
+ 422              		.loc 1 208 9 is_stmt 1 view .LVU124
+ 423              		.loc 1 208 79 is_stmt 0 view .LVU125
+ 424 0064 D4F8B421 		ldr	r2, [r4, #436]
+ 425              		.loc 1 208 98 view .LVU126
+ 426 0068 D369     		ldr	r3, [r2, #28]	@ unaligned
+ 427              		.loc 1 208 72 view .LVU127
+ 428 006a 43F09053 		orr	r3, r3, #301989888
+ 429              		.loc 1 208 48 view .LVU128
+ 430 006e 9360     		str	r3, [r2, #8]	@ unaligned
+ 209:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->txconf.StdId = 0; 
+ 431              		.loc 1 209 9 is_stmt 1 view .LVU129
+ 432              		.loc 1 209 14 is_stmt 0 view .LVU130
+ 433 0070 D4F8B421 		ldr	r2, [r4, #436]
+ 434              		.loc 1 209 48 view .LVU131
+ 435 0074 0023     		movs	r3, #0
+ 436 0076 1371     		strb	r3, [r2, #4]
+ 437 0078 5371     		strb	r3, [r2, #5]
+ 438 007a 9371     		strb	r3, [r2, #6]
+ 439 007c D371     		strb	r3, [r2, #7]
+ 210:modules/motor/XMmotor/xmmotor.c **** 
+ 211:modules/motor/XMmotor/xmmotor.c ****         memset(motor->motor_can_instace->tx_buff, 0, 8);  
+ 440              		.loc 1 211 9 is_stmt 1 view .LVU132
+ 441              		.loc 1 211 21 is_stmt 0 view .LVU133
+ 442 007e D4F8B421 		ldr	r2, [r4, #436]
+ 443              		.loc 1 211 9 view .LVU134
+ 444 0082 5362     		str	r3, [r2, #36]	@ unaligned
+ 445 0084 9362     		str	r3, [r2, #40]	@ unaligned
+ 212:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[0] = (uint8_t)(0x06);
+ 446              		.loc 1 212 9 is_stmt 1 view .LVU135
+ 447              		.loc 1 212 14 is_stmt 0 view .LVU136
+ 448 0086 D4F8B431 		ldr	r3, [r4, #436]
+ 449              		.loc 1 212 46 view .LVU137
+ 450 008a 0622     		movs	r2, #6
+ 451 008c 83F82420 		strb	r2, [r3, #36]
+ 213:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[1] = (uint8_t)(0x70);
+ 452              		.loc 1 213 9 is_stmt 1 view .LVU138
+ 453              		.loc 1 213 14 is_stmt 0 view .LVU139
+ 454 0090 D4F8B431 		ldr	r3, [r4, #436]
+ 455              		.loc 1 213 46 view .LVU140
+ 456 0094 7022     		movs	r2, #112
+ 457 0096 83F82520 		strb	r2, [r3, #37]
+ 214:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[4] = (uint8_t)((*(unsigned long*)&set & 0x000000FF));
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 14
+
+
+ 458              		.loc 1 214 9 is_stmt 1 view .LVU141
+ 459              		.loc 1 214 59 is_stmt 0 view .LVU142
+ 460 009a 10EE903A 		vmov	r3, s1	@ int
+ 461              		.loc 1 214 14 view .LVU143
+ 462 009e D4F8B421 		ldr	r2, [r4, #436]
+ 463              		.loc 1 214 46 view .LVU144
+ 464 00a2 82F82830 		strb	r3, [r2, #40]
+ 215:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[5] = (uint8_t)((*(unsigned long*)&set & 0x0000FF00) >> 8)
+ 465              		.loc 1 215 9 is_stmt 1 view .LVU145
+ 466              		.loc 1 215 14 is_stmt 0 view .LVU146
+ 467 00a6 D4F8B421 		ldr	r2, [r4, #436]
+ 468              		.loc 1 215 48 view .LVU147
+ 469 00aa C3F30721 		ubfx	r1, r3, #8, #8
+ 470              		.loc 1 215 46 view .LVU148
+ 471 00ae 82F82910 		strb	r1, [r2, #41]
+ 216:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[6] = (uint8_t)((*(unsigned long*)&set & 0x00FF0000) >> 16
+ 472              		.loc 1 216 9 is_stmt 1 view .LVU149
+ 473              		.loc 1 216 14 is_stmt 0 view .LVU150
+ 474 00b2 D4F8B421 		ldr	r2, [r4, #436]
+ 475              		.loc 1 216 48 view .LVU151
+ 476 00b6 C3F30741 		ubfx	r1, r3, #16, #8
+ 477              		.loc 1 216 46 view .LVU152
+ 478 00ba 82F82A10 		strb	r1, [r2, #42]
+ 217:modules/motor/XMmotor/xmmotor.c ****         motor->motor_can_instace->tx_buff[7] = (uint8_t)((*(unsigned long*)&set & 0xFF000000) >> 24
+ 479              		.loc 1 217 9 is_stmt 1 view .LVU153
+ 480              		.loc 1 217 14 is_stmt 0 view .LVU154
+ 481 00be D4F8B421 		ldr	r2, [r4, #436]
+ 482              		.loc 1 217 48 view .LVU155
+ 483 00c2 1B0E     		lsrs	r3, r3, #24
+ 484              		.loc 1 217 46 view .LVU156
+ 485 00c4 82F82B30 		strb	r3, [r2, #43]
+ 218:modules/motor/XMmotor/xmmotor.c **** 
+ 219:modules/motor/XMmotor/xmmotor.c ****         CANTransmit(motor->motor_can_instace, 1);
+ 486              		.loc 1 219 9 is_stmt 1 view .LVU157
+ 487 00c8 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 488 00cc D4F8B401 		ldr	r0, [r4, #436]
+ 489 00d0 FFF7FEFF 		bl	CANTransmit
+ 490              	.LVL46:
+ 220:modules/motor/XMmotor/xmmotor.c **** 
+ 221:modules/motor/XMmotor/xmmotor.c ****         osDelay(2);
+ 491              		.loc 1 221 9 view .LVU158
+ 492 00d4 0220     		movs	r0, #2
+ 493 00d6 FFF7FEFF 		bl	osDelay
+ 494              	.LVL47:
+ 157:modules/motor/XMmotor/xmmotor.c ****     {
+ 495              		.loc 1 157 11 view .LVU159
+ 496              	.L26:
+ 153:modules/motor/XMmotor/xmmotor.c ****     Motor_Controller_s *motor_controller;   // 电机控制器
+ 497              		.loc 1 153 5 view .LVU160
+ 154:modules/motor/XMmotor/xmmotor.c ****     XM_Motor_Measure_s *measure;
+ 498              		.loc 1 154 5 view .LVU161
+ 155:modules/motor/XMmotor/xmmotor.c ****     float pid_ref, pid_measure, set;
+ 499              		.loc 1 155 5 view .LVU162
+ 156:modules/motor/XMmotor/xmmotor.c ****     while (1)
+ 500              		.loc 1 156 5 view .LVU163
+ 157:modules/motor/XMmotor/xmmotor.c ****     {
+ 501              		.loc 1 157 5 view .LVU164
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 15
+
+
+ 159:modules/motor/XMmotor/xmmotor.c ****         XMMotorSetMode(XM_CMD_MOTOR_MODE, motor);       // 使能电机    
+ 502              		.loc 1 159 9 view .LVU165
+ 503 00da 2146     		mov	r1, r4
+ 504 00dc 1220     		movs	r0, #18
+ 505 00de FFF7FEFF 		bl	XMMotorSetMode
+ 506              	.LVL48:
+ 160:modules/motor/XMmotor/xmmotor.c **** 
+ 507              		.loc 1 160 9 view .LVU166
+ 508 00e2 2146     		mov	r1, r4
+ 509 00e4 0320     		movs	r0, #3
+ 510 00e6 FFF7FEFF 		bl	XMMotorSetMode
+ 511              	.LVL49:
+ 162:modules/motor/XMmotor/xmmotor.c ****         motor_controller = &motor->motor_controller;
+ 512              		.loc 1 162 9 view .LVU167
+ 163:modules/motor/XMmotor/xmmotor.c ****         measure = &motor->measure;
+ 513              		.loc 1 163 9 view .LVU168
+ 164:modules/motor/XMmotor/xmmotor.c ****         pid_ref = motor_controller->pid_ref;
+ 514              		.loc 1 164 9 view .LVU169
+ 165:modules/motor/XMmotor/xmmotor.c **** 
+ 515              		.loc 1 165 9 view .LVU170
+ 165:modules/motor/XMmotor/xmmotor.c **** 
+ 516              		.loc 1 165 17 is_stmt 0 view .LVU171
+ 517 00ea D4ED6A0A 		vldr.32	s1, [r4, #424]
+ 518              	.LVL50:
+ 167:modules/motor/XMmotor/xmmotor.c ****             pid_ref *= -1; // 设置反转
+ 519              		.loc 1 167 9 is_stmt 1 view .LVU172
+ 167:modules/motor/XMmotor/xmmotor.c ****             pid_ref *= -1; // 设置反转
+ 520              		.loc 1 167 26 is_stmt 0 view .LVU173
+ 521 00ee 94F82630 		ldrb	r3, [r4, #38]	@ zero_extendqisi2
+ 167:modules/motor/XMmotor/xmmotor.c ****             pid_ref *= -1; // 设置反转
+ 522              		.loc 1 167 12 view .LVU174
+ 523 00f2 012B     		cmp	r3, #1
+ 524 00f4 87D0     		beq	.L32
+ 525              	.LVL51:
+ 526              	.L14:
+ 172:modules/motor/XMmotor/xmmotor.c ****         {
+ 527              		.loc 1 172 9 is_stmt 1 view .LVU175
+ 172:modules/motor/XMmotor/xmmotor.c ****         {
+ 528              		.loc 1 172 27 is_stmt 0 view .LVU176
+ 529 00f6 94F82530 		ldrb	r3, [r4, #37]	@ zero_extendqisi2
+ 172:modules/motor/XMmotor/xmmotor.c ****         {
+ 530              		.loc 1 172 12 view .LVU177
+ 531 00fa 13F0040F 		tst	r3, #4
+ 532 00fe 03D0     		beq	.L15
+ 172:modules/motor/XMmotor/xmmotor.c ****         {
+ 533              		.loc 1 172 75 discriminator 1 view .LVU178
+ 534 0100 94F82430 		ldrb	r3, [r4, #36]	@ zero_extendqisi2
+ 172:modules/motor/XMmotor/xmmotor.c ****         {
+ 535              		.loc 1 172 59 discriminator 1 view .LVU179
+ 536 0104 042B     		cmp	r3, #4
+ 537 0106 86D0     		beq	.L33
+ 538              	.LVL52:
+ 539              	.L15:
+ 183:modules/motor/XMmotor/xmmotor.c ****         {
+ 540              		.loc 1 183 9 is_stmt 1 view .LVU180
+ 183:modules/motor/XMmotor/xmmotor.c ****         {
+ 541              		.loc 1 183 27 is_stmt 0 view .LVU181
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 16
+
+
+ 542 0108 94F82530 		ldrb	r3, [r4, #37]	@ zero_extendqisi2
+ 183:modules/motor/XMmotor/xmmotor.c ****         {
+ 543              		.loc 1 183 12 view .LVU182
+ 544 010c 13F0020F 		tst	r3, #2
+ 545 0110 1AD0     		beq	.L18
+ 183:modules/motor/XMmotor/xmmotor.c ****         {
+ 546              		.loc 1 183 76 discriminator 1 view .LVU183
+ 547 0112 94F82430 		ldrb	r3, [r4, #36]	@ zero_extendqisi2
+ 183:modules/motor/XMmotor/xmmotor.c ****         {
+ 548              		.loc 1 183 59 discriminator 1 view .LVU184
+ 549 0116 13F0060F 		tst	r3, #6
+ 550 011a 15D0     		beq	.L18
+ 185:modules/motor/XMmotor/xmmotor.c ****                 pid_ref += *motor_controller->speed_feedforward_ptr;
+ 551              		.loc 1 185 13 is_stmt 1 view .LVU185
+ 185:modules/motor/XMmotor/xmmotor.c ****                 pid_ref += *motor_controller->speed_feedforward_ptr;
+ 552              		.loc 1 185 30 is_stmt 0 view .LVU186
+ 553 011c 94F82A30 		ldrb	r3, [r4, #42]	@ zero_extendqisi2
+ 185:modules/motor/XMmotor/xmmotor.c ****                 pid_ref += *motor_controller->speed_feedforward_ptr;
+ 554              		.loc 1 185 16 view .LVU187
+ 555 0120 13F0020F 		tst	r3, #2
+ 556 0124 04D0     		beq	.L19
+ 186:modules/motor/XMmotor/xmmotor.c **** 
+ 557              		.loc 1 186 17 is_stmt 1 view .LVU188
+ 186:modules/motor/XMmotor/xmmotor.c **** 
+ 558              		.loc 1 186 45 is_stmt 0 view .LVU189
+ 559 0126 A36B     		ldr	r3, [r4, #56]
+ 186:modules/motor/XMmotor/xmmotor.c **** 
+ 560              		.loc 1 186 28 view .LVU190
+ 561 0128 D3ED007A 		vldr.32	s15, [r3]
+ 186:modules/motor/XMmotor/xmmotor.c **** 
+ 562              		.loc 1 186 25 view .LVU191
+ 563 012c 70EEA70A 		vadd.f32	s1, s1, s15
+ 564              	.LVL53:
+ 565              	.L19:
+ 188:modules/motor/XMmotor/xmmotor.c ****                 pid_measure = *motor_controller->other_speed_feedback_ptr;
+ 566              		.loc 1 188 13 is_stmt 1 view .LVU192
+ 188:modules/motor/XMmotor/xmmotor.c ****                 pid_measure = *motor_controller->other_speed_feedback_ptr;
+ 567              		.loc 1 188 30 is_stmt 0 view .LVU193
+ 568 0130 94F82930 		ldrb	r3, [r4, #41]	@ zero_extendqisi2
+ 188:modules/motor/XMmotor/xmmotor.c ****                 pid_measure = *motor_controller->other_speed_feedback_ptr;
+ 569              		.loc 1 188 16 view .LVU194
+ 570 0134 012B     		cmp	r3, #1
+ 571 0136 81D0     		beq	.L34
+ 191:modules/motor/XMmotor/xmmotor.c ****             // 更新pid_ref
+ 572              		.loc 1 191 17 is_stmt 1 view .LVU195
+ 191:modules/motor/XMmotor/xmmotor.c ****             // 更新pid_ref
+ 573              		.loc 1 191 29 is_stmt 0 view .LVU196
+ 574 0138 94ED010A 		vldr.32	s0, [r4, #4]
+ 575              	.L21:
+ 576              	.LVL54:
+ 193:modules/motor/XMmotor/xmmotor.c ****         }
+ 577              		.loc 1 193 13 is_stmt 1 view .LVU197
+ 193:modules/motor/XMmotor/xmmotor.c ****         }
+ 578              		.loc 1 193 23 is_stmt 0 view .LVU198
+ 579 013c 04F1B800 		add	r0, r4, #184
+ 580 0140 FFF7FEFF 		bl	PIDCalculate
+ 581              	.LVL55:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 17
+
+
+ 193:modules/motor/XMmotor/xmmotor.c ****         }
+ 582              		.loc 1 193 23 view .LVU199
+ 583 0144 F0EE400A 		vmov.f32	s1, s0
+ 584              	.LVL56:
+ 585              	.L18:
+ 196:modules/motor/XMmotor/xmmotor.c ****             pid_ref *= -1;
+ 586              		.loc 1 196 9 is_stmt 1 view .LVU200
+ 196:modules/motor/XMmotor/xmmotor.c ****             pid_ref *= -1;
+ 587              		.loc 1 196 26 is_stmt 0 view .LVU201
+ 588 0148 94F82730 		ldrb	r3, [r4, #39]	@ zero_extendqisi2
+ 196:modules/motor/XMmotor/xmmotor.c ****             pid_ref *= -1;
+ 589              		.loc 1 196 12 view .LVU202
+ 590 014c 012B     		cmp	r3, #1
+ 591 014e 3FF479AF 		beq	.L35
+ 592              	.LVL57:
+ 593              	.L22:
+ 200:modules/motor/XMmotor/xmmotor.c ****         
+ 594              		.loc 1 200 9 is_stmt 1 view .LVU203
+ 202:modules/motor/XMmotor/xmmotor.c **** 
+ 595              		.loc 1 202 9 view .LVU204
+ 596 0152 FAEE047A 		vmov.f32	s15, #-1.0e+1
+ 597 0156 F4EEE70A 		vcmpe.f32	s1, s15
+ 598 015a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 599 015e 7FF67AAF 		bls	.L27
+ 202:modules/motor/XMmotor/xmmotor.c **** 
+ 600              		.loc 1 202 9 is_stmt 0 discriminator 2 view .LVU205
+ 601 0162 F2EE047A 		vmov.f32	s15, #1.0e+1
+ 602 0166 F4EEE70A 		vcmpe.f32	s1, s15
+ 603 016a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 604 016e FFF674AF 		blt	.L23
+ 202:modules/motor/XMmotor/xmmotor.c **** 
+ 605              		.loc 1 202 9 discriminator 4 view .LVU206
+ 606 0172 F0EE670A 		vmov.f32	s1, s15
+ 607              	.LVL58:
+ 202:modules/motor/XMmotor/xmmotor.c **** 
+ 608              		.loc 1 202 9 discriminator 4 view .LVU207
+ 609 0176 70E7     		b	.L23
+ 610              	.L37:
+ 611              		.align	2
+ 612              	.L36:
+ 613 0178 00000000 		.word	0
+ 614              		.cfi_endproc
+ 615              	.LFE288:
+ 617              		.section	.text.XMMotorCaliEncoder,"ax",%progbits
+ 618              		.align	1
+ 619              		.global	XMMotorCaliEncoder
+ 620              		.syntax unified
+ 621              		.thumb
+ 622              		.thumb_func
+ 624              	XMMotorCaliEncoder:
+ 625              	.LVL59:
+ 626              	.LFB281:
+  79:modules/motor/XMmotor/xmmotor.c ****     // XMMotorSetMode(DM_CMD_ZERO_POSITION, motor);
+ 627              		.loc 1 79 1 is_stmt 1 view -0
+ 628              		.cfi_startproc
+ 629              		@ args = 0, pretend = 0, frame = 0
+ 630              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 18
+
+
+ 631              		@ link register save eliminated.
+  82:modules/motor/XMmotor/xmmotor.c **** XMMotorInstance *XMMotorInit(Motor_Init_Config_s *config)
+ 632              		.loc 1 82 1 view .LVU209
+ 633 0000 7047     		bx	lr
+ 634              		.cfi_endproc
+ 635              	.LFE281:
+ 637              		.section	.text.XMMotorSetRef,"ax",%progbits
+ 638              		.align	1
+ 639              		.global	XMMotorSetRef
+ 640              		.syntax unified
+ 641              		.thumb
+ 642              		.thumb_func
+ 644              	XMMotorSetRef:
+ 645              	.LVL60:
+ 646              	.LFB283:
+ 119:modules/motor/XMmotor/xmmotor.c ****     motor->motor_controller.pid_ref = ref;
+ 647              		.loc 1 119 1 view -0
+ 648              		.cfi_startproc
+ 649              		@ args = 0, pretend = 0, frame = 0
+ 650              		@ frame_needed = 0, uses_anonymous_args = 0
+ 651              		@ link register save eliminated.
+ 120:modules/motor/XMmotor/xmmotor.c **** }
+ 652              		.loc 1 120 5 view .LVU211
+ 120:modules/motor/XMmotor/xmmotor.c **** }
+ 653              		.loc 1 120 37 is_stmt 0 view .LVU212
+ 654 0000 80ED6A0A 		vstr.32	s0, [r0, #424]
+ 121:modules/motor/XMmotor/xmmotor.c **** 
+ 655              		.loc 1 121 1 view .LVU213
+ 656 0004 7047     		bx	lr
+ 657              		.cfi_endproc
+ 658              	.LFE283:
+ 660              		.section	.text.XMMotorChangeFeed,"ax",%progbits
+ 661              		.align	1
+ 662              		.global	XMMotorChangeFeed
+ 663              		.syntax unified
+ 664              		.thumb
+ 665              		.thumb_func
+ 667              	XMMotorChangeFeed:
+ 668              	.LVL61:
+ 669              	.LFB284:
+ 124:modules/motor/XMmotor/xmmotor.c ****     if (loop == ANGLE_LOOP)
+ 670              		.loc 1 124 1 is_stmt 1 view -0
+ 671              		.cfi_startproc
+ 672              		@ args = 0, pretend = 0, frame = 0
+ 673              		@ frame_needed = 0, uses_anonymous_args = 0
+ 674              		@ link register save eliminated.
+ 125:modules/motor/XMmotor/xmmotor.c ****         motor->motor_settings.angle_feedback_source = type;
+ 675              		.loc 1 125 5 view .LVU215
+ 125:modules/motor/XMmotor/xmmotor.c ****         motor->motor_settings.angle_feedback_source = type;
+ 676              		.loc 1 125 8 is_stmt 0 view .LVU216
+ 677 0000 0429     		cmp	r1, #4
+ 678 0002 02D0     		beq	.L43
+ 127:modules/motor/XMmotor/xmmotor.c ****         motor->motor_settings.speed_feedback_source = type;
+ 679              		.loc 1 127 10 is_stmt 1 view .LVU217
+ 127:modules/motor/XMmotor/xmmotor.c ****         motor->motor_settings.speed_feedback_source = type;
+ 680              		.loc 1 127 13 is_stmt 0 view .LVU218
+ 681 0004 0229     		cmp	r1, #2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 19
+
+
+ 682 0006 03D0     		beq	.L44
+ 683              	.L40:
+ 131:modules/motor/XMmotor/xmmotor.c **** 
+ 684              		.loc 1 131 1 view .LVU219
+ 685 0008 7047     		bx	lr
+ 686              	.L43:
+ 126:modules/motor/XMmotor/xmmotor.c ****     else if (loop == SPEED_LOOP)
+ 687              		.loc 1 126 9 is_stmt 1 view .LVU220
+ 126:modules/motor/XMmotor/xmmotor.c ****     else if (loop == SPEED_LOOP)
+ 688              		.loc 1 126 53 is_stmt 0 view .LVU221
+ 689 000a 80F82820 		strb	r2, [r0, #40]
+ 690 000e 7047     		bx	lr
+ 691              	.L44:
+ 128:modules/motor/XMmotor/xmmotor.c ****     else
+ 692              		.loc 1 128 9 is_stmt 1 view .LVU222
+ 128:modules/motor/XMmotor/xmmotor.c ****     else
+ 693              		.loc 1 128 53 is_stmt 0 view .LVU223
+ 694 0010 80F82920 		strb	r2, [r0, #41]
+ 131:modules/motor/XMmotor/xmmotor.c **** 
+ 695              		.loc 1 131 1 view .LVU224
+ 696 0014 F8E7     		b	.L40
+ 697              		.cfi_endproc
+ 698              	.LFE284:
+ 700              		.section	.text.XMMotorEnable,"ax",%progbits
+ 701              		.align	1
+ 702              		.global	XMMotorEnable
+ 703              		.syntax unified
+ 704              		.thumb
+ 705              		.thumb_func
+ 707              	XMMotorEnable:
+ 708              	.LVL62:
+ 709              	.LFB285:
+ 135:modules/motor/XMmotor/xmmotor.c ****     motor->stop_flag = MOTOR_ENALBED;
+ 710              		.loc 1 135 1 is_stmt 1 view -0
+ 711              		.cfi_startproc
+ 712              		@ args = 0, pretend = 0, frame = 0
+ 713              		@ frame_needed = 0, uses_anonymous_args = 0
+ 714              		@ link register save eliminated.
+ 136:modules/motor/XMmotor/xmmotor.c **** }
+ 715              		.loc 1 136 5 view .LVU226
+ 136:modules/motor/XMmotor/xmmotor.c **** }
+ 716              		.loc 1 136 22 is_stmt 0 view .LVU227
+ 717 0000 0123     		movs	r3, #1
+ 718 0002 80F8B031 		strb	r3, [r0, #432]
+ 137:modules/motor/XMmotor/xmmotor.c **** 
+ 719              		.loc 1 137 1 view .LVU228
+ 720 0006 7047     		bx	lr
+ 721              		.cfi_endproc
+ 722              	.LFE285:
+ 724              		.section	.text.XMMotorInit,"ax",%progbits
+ 725              		.align	1
+ 726              		.global	XMMotorInit
+ 727              		.syntax unified
+ 728              		.thumb
+ 729              		.thumb_func
+ 731              	XMMotorInit:
+ 732              	.LVL63:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 20
+
+
+ 733              	.LFB282:
+  84:modules/motor/XMmotor/xmmotor.c ****     XMMotorInstance *motor = (XMMotorInstance *)malloc(sizeof(XMMotorInstance));
+ 734              		.loc 1 84 1 is_stmt 1 view -0
+ 735              		.cfi_startproc
+ 736              		@ args = 0, pretend = 0, frame = 16
+ 737              		@ frame_needed = 0, uses_anonymous_args = 0
+  84:modules/motor/XMmotor/xmmotor.c ****     XMMotorInstance *motor = (XMMotorInstance *)malloc(sizeof(XMMotorInstance));
+ 738              		.loc 1 84 1 is_stmt 0 view .LVU230
+ 739 0000 30B5     		push	{r4, r5, lr}
+ 740              		.cfi_def_cfa_offset 12
+ 741              		.cfi_offset 4, -12
+ 742              		.cfi_offset 5, -8
+ 743              		.cfi_offset 14, -4
+ 744 0002 2DED028B 		vpush.64	{d8}
+ 745              		.cfi_def_cfa_offset 20
+ 746              		.cfi_offset 80, -20
+ 747              		.cfi_offset 81, -16
+ 748 0006 85B0     		sub	sp, sp, #20
+ 749              		.cfi_def_cfa_offset 40
+ 750 0008 0546     		mov	r5, r0
+  85:modules/motor/XMmotor/xmmotor.c ****     memset(motor, 0, sizeof(XMMotorInstance));
+ 751              		.loc 1 85 5 is_stmt 1 view .LVU231
+  85:modules/motor/XMmotor/xmmotor.c ****     memset(motor, 0, sizeof(XMMotorInstance));
+ 752              		.loc 1 85 49 is_stmt 0 view .LVU232
+ 753 000a 4FF4E070 		mov	r0, #448
+ 754              	.LVL64:
+  85:modules/motor/XMmotor/xmmotor.c ****     memset(motor, 0, sizeof(XMMotorInstance));
+ 755              		.loc 1 85 49 view .LVU233
+ 756 000e FFF7FEFF 		bl	malloc
+ 757              	.LVL65:
+ 758 0012 0446     		mov	r4, r0
+ 759              	.LVL66:
+  86:modules/motor/XMmotor/xmmotor.c ****     
+ 760              		.loc 1 86 5 is_stmt 1 view .LVU234
+ 761 0014 4FF4E072 		mov	r2, #448
+ 762 0018 0021     		movs	r1, #0
+ 763 001a FFF7FEFF 		bl	memset
+ 764              	.LVL67:
+  88:modules/motor/XMmotor/xmmotor.c ****     PIDInit(&motor->motor_controller.current_PID, &config->controller_param_init_config.current_PID
+ 765              		.loc 1 88 5 view .LVU235
+  88:modules/motor/XMmotor/xmmotor.c ****     PIDInit(&motor->motor_controller.current_PID, &config->controller_param_init_config.current_PID
+ 766              		.loc 1 88 27 is_stmt 0 view .LVU236
+ 767 001e 04F12403 		add	r3, r4, #36
+ 768 0022 05F19402 		add	r2, r5, #148
+ 769 0026 92E80300 		ldm	r2, {r0, r1}
+ 770 002a 83E80300 		stm	r3, {r0, r1}
+  89:modules/motor/XMmotor/xmmotor.c ****     PIDInit(&motor->motor_controller.speed_PID, &config->controller_param_init_config.speed_PID);
+ 771              		.loc 1 89 5 is_stmt 1 view .LVU237
+ 772 002e 05F11001 		add	r1, r5, #16
+ 773 0032 04F14000 		add	r0, r4, #64
+ 774 0036 FFF7FEFF 		bl	PIDInit
+ 775              	.LVL68:
+  90:modules/motor/XMmotor/xmmotor.c ****     PIDInit(&motor->motor_controller.angle_PID, &config->controller_param_init_config.angle_PID);
+ 776              		.loc 1 90 5 view .LVU238
+ 777 003a 05F13C01 		add	r1, r5, #60
+ 778 003e 04F1B800 		add	r0, r4, #184
+ 779 0042 FFF7FEFF 		bl	PIDInit
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 21
+
+
+ 780              	.LVL69:
+  91:modules/motor/XMmotor/xmmotor.c ****     motor->motor_controller.other_angle_feedback_ptr = config->controller_param_init_config.other_a
+ 781              		.loc 1 91 5 view .LVU239
+ 782 0046 05F16801 		add	r1, r5, #104
+ 783 004a 04F59870 		add	r0, r4, #304
+ 784 004e FFF7FEFF 		bl	PIDInit
+ 785              	.LVL70:
+  92:modules/motor/XMmotor/xmmotor.c ****     motor->motor_controller.other_speed_feedback_ptr = config->controller_param_init_config.other_s
+ 786              		.loc 1 92 5 view .LVU240
+  92:modules/motor/XMmotor/xmmotor.c ****     motor->motor_controller.other_speed_feedback_ptr = config->controller_param_init_config.other_s
+ 787              		.loc 1 92 92 is_stmt 0 view .LVU241
+ 788 0052 2B68     		ldr	r3, [r5]
+  92:modules/motor/XMmotor/xmmotor.c ****     motor->motor_controller.other_speed_feedback_ptr = config->controller_param_init_config.other_s
+ 789              		.loc 1 92 54 view .LVU242
+ 790 0054 2363     		str	r3, [r4, #48]
+  93:modules/motor/XMmotor/xmmotor.c **** 
+ 791              		.loc 1 93 5 is_stmt 1 view .LVU243
+  93:modules/motor/XMmotor/xmmotor.c **** 
+ 792              		.loc 1 93 92 is_stmt 0 view .LVU244
+ 793 0056 6B68     		ldr	r3, [r5, #4]
+  93:modules/motor/XMmotor/xmmotor.c **** 
+ 794              		.loc 1 93 54 view .LVU245
+ 795 0058 6363     		str	r3, [r4, #52]
+  95:modules/motor/XMmotor/xmmotor.c ****     config->can_init_config.id = motor;
+ 796              		.loc 1 95 5 is_stmt 1 view .LVU246
+  95:modules/motor/XMmotor/xmmotor.c ****     config->can_init_config.id = motor;
+ 797              		.loc 1 95 49 is_stmt 0 view .LVU247
+ 798 005a 1F4B     		ldr	r3, .L48
+ 799 005c C5F8B430 		str	r3, [r5, #180]
+  96:modules/motor/XMmotor/xmmotor.c ****     config->can_init_config.mode = CAN_ID_EXT; // 开启拓展帧
+ 800              		.loc 1 96 5 is_stmt 1 view .LVU248
+  96:modules/motor/XMmotor/xmmotor.c ****     config->can_init_config.mode = CAN_ID_EXT; // 开启拓展帧
+ 801              		.loc 1 96 32 is_stmt 0 view .LVU249
+ 802 0060 C5F8B840 		str	r4, [r5, #184]
+  97:modules/motor/XMmotor/xmmotor.c ****     motor->motor_can_instace = CANRegister(&config->can_init_config);
+ 803              		.loc 1 97 5 is_stmt 1 view .LVU250
+  97:modules/motor/XMmotor/xmmotor.c ****     motor->motor_can_instace = CANRegister(&config->can_init_config);
+ 804              		.loc 1 97 34 is_stmt 0 view .LVU251
+ 805 0064 0423     		movs	r3, #4
+ 806 0066 C5F8B030 		str	r3, [r5, #176]
+  98:modules/motor/XMmotor/xmmotor.c **** 
+ 807              		.loc 1 98 5 is_stmt 1 view .LVU252
+  98:modules/motor/XMmotor/xmmotor.c **** 
+ 808              		.loc 1 98 32 is_stmt 0 view .LVU253
+ 809 006a 05F1A000 		add	r0, r5, #160
+ 810 006e FFF7FEFF 		bl	CANRegister
+ 811              	.LVL71:
+  98:modules/motor/XMmotor/xmmotor.c **** 
+ 812              		.loc 1 98 30 discriminator 1 view .LVU254
+ 813 0072 C4F8B401 		str	r0, [r4, #436]
+ 100:modules/motor/XMmotor/xmmotor.c **** 
+ 814              		.loc 1 100 5 is_stmt 1 view .LVU255
+ 815 0076 2046     		mov	r0, r4
+ 816 0078 FFF7FEFF 		bl	XMMotorEnable
+ 817              	.LVL72:
+ 102:modules/motor/XMmotor/xmmotor.c ****     DWT_Delay(0.1);
+ 818              		.loc 1 102 5 view .LVU256
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 22
+
+
+ 819 007c 2146     		mov	r1, r4
+ 820 007e 1220     		movs	r0, #18
+ 821 0080 FFF7FEFF 		bl	XMMotorSetMode
+ 822              	.LVL73:
+ 103:modules/motor/XMmotor/xmmotor.c ****     XMMotorSetMode(XM_CMD_MOTOR_MODE, motor);       // 使能电机    
+ 823              		.loc 1 103 5 view .LVU257
+ 824 0084 9FED158A 		vldr.32	s16, .L48+4
+ 825 0088 B0EE480A 		vmov.f32	s0, s16
+ 826 008c FFF7FEFF 		bl	DWT_Delay
+ 827              	.LVL74:
+ 104:modules/motor/XMmotor/xmmotor.c ****     DWT_Delay(0.1);
+ 828              		.loc 1 104 5 view .LVU258
+ 829 0090 2146     		mov	r1, r4
+ 830 0092 0320     		movs	r0, #3
+ 831 0094 FFF7FEFF 		bl	XMMotorSetMode
+ 832              	.LVL75:
+ 105:modules/motor/XMmotor/xmmotor.c **** 
+ 833              		.loc 1 105 5 view .LVU259
+ 834 0098 B0EE480A 		vmov.f32	s0, s16
+ 835 009c FFF7FEFF 		bl	DWT_Delay
+ 836              	.LVL76:
+ 107:modules/motor/XMmotor/xmmotor.c ****         .callback = XMMotorLostCallback,   
+ 837              		.loc 1 107 5 view .LVU260
+ 107:modules/motor/XMmotor/xmmotor.c ****         .callback = XMMotorLostCallback,   
+ 838              		.loc 1 107 26 is_stmt 0 view .LVU261
+ 839 00a0 01A8     		add	r0, sp, #4
+ 840 00a2 0023     		movs	r3, #0
+ 841 00a4 0193     		str	r3, [sp, #4]
+ 842 00a6 4360     		str	r3, [r0, #4]
+ 843 00a8 8360     		str	r3, [r0, #8]
+ 844 00aa 0523     		movs	r3, #5
+ 845 00ac ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 846 00b0 0B4B     		ldr	r3, .L48+8
+ 847 00b2 0293     		str	r3, [sp, #8]
+ 848 00b4 0394     		str	r4, [sp, #12]
+ 112:modules/motor/XMmotor/xmmotor.c **** 
+ 849              		.loc 1 112 5 is_stmt 1 view .LVU262
+ 112:modules/motor/XMmotor/xmmotor.c **** 
+ 850              		.loc 1 112 27 is_stmt 0 view .LVU263
+ 851 00b6 FFF7FEFF 		bl	DaemonRegister
+ 852              	.LVL77:
+ 112:modules/motor/XMmotor/xmmotor.c **** 
+ 853              		.loc 1 112 25 discriminator 1 view .LVU264
+ 854 00ba C4F8B801 		str	r0, [r4, #440]
+ 114:modules/motor/XMmotor/xmmotor.c ****     return motor;
+ 855              		.loc 1 114 5 is_stmt 1 view .LVU265
+ 114:modules/motor/XMmotor/xmmotor.c ****     return motor;
+ 856              		.loc 1 114 26 is_stmt 0 view .LVU266
+ 857 00be 094A     		ldr	r2, .L48+12
+ 858 00c0 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 859 00c2 591C     		adds	r1, r3, #1
+ 860 00c4 1170     		strb	r1, [r2]
+ 114:modules/motor/XMmotor/xmmotor.c ****     return motor;
+ 861              		.loc 1 114 30 view .LVU267
+ 862 00c6 084A     		ldr	r2, .L48+16
+ 863 00c8 42F82340 		str	r4, [r2, r3, lsl #2]
+ 115:modules/motor/XMmotor/xmmotor.c **** }
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 23
+
+
+ 864              		.loc 1 115 5 is_stmt 1 view .LVU268
+ 116:modules/motor/XMmotor/xmmotor.c **** 
+ 865              		.loc 1 116 1 is_stmt 0 view .LVU269
+ 866 00cc 2046     		mov	r0, r4
+ 867 00ce 05B0     		add	sp, sp, #20
+ 868              		.cfi_def_cfa_offset 20
+ 869              		@ sp needed
+ 870 00d0 BDEC028B 		vldm	sp!, {d8}
+ 871              		.cfi_restore 80
+ 872              		.cfi_restore 81
+ 873              		.cfi_def_cfa_offset 12
+ 874 00d4 30BD     		pop	{r4, r5, pc}
+ 875              	.LVL78:
+ 876              	.L49:
+ 116:modules/motor/XMmotor/xmmotor.c **** 
+ 877              		.loc 1 116 1 view .LVU270
+ 878 00d6 00BF     		.align	2
+ 879              	.L48:
+ 880 00d8 00000000 		.word	XMMotorDecode
+ 881 00dc CDCCCC3D 		.word	1036831949
+ 882 00e0 00000000 		.word	XMMotorLostCallback
+ 883 00e4 00000000 		.word	idx
+ 884 00e8 00000000 		.word	xm_motor_instance
+ 885              		.cfi_endproc
+ 886              	.LFE282:
+ 888              		.section	.text.XMMotorStop,"ax",%progbits
+ 889              		.align	1
+ 890              		.global	XMMotorStop
+ 891              		.syntax unified
+ 892              		.thumb
+ 893              		.thumb_func
+ 895              	XMMotorStop:
+ 896              	.LVL79:
+ 897              	.LFB286:
+ 140:modules/motor/XMmotor/xmmotor.c ****     motor->stop_flag = MOTOR_STOP;
+ 898              		.loc 1 140 1 is_stmt 1 view -0
+ 899              		.cfi_startproc
+ 900              		@ args = 0, pretend = 0, frame = 0
+ 901              		@ frame_needed = 0, uses_anonymous_args = 0
+ 902              		@ link register save eliminated.
+ 141:modules/motor/XMmotor/xmmotor.c **** }
+ 903              		.loc 1 141 5 view .LVU272
+ 141:modules/motor/XMmotor/xmmotor.c **** }
+ 904              		.loc 1 141 22 is_stmt 0 view .LVU273
+ 905 0000 0023     		movs	r3, #0
+ 906 0002 80F8B031 		strb	r3, [r0, #432]
+ 142:modules/motor/XMmotor/xmmotor.c **** 
+ 907              		.loc 1 142 1 view .LVU274
+ 908 0006 7047     		bx	lr
+ 909              		.cfi_endproc
+ 910              	.LFE286:
+ 912              		.section	.text.XMMotorOuterLoop,"ax",%progbits
+ 913              		.align	1
+ 914              		.global	XMMotorOuterLoop
+ 915              		.syntax unified
+ 916              		.thumb
+ 917              		.thumb_func
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 24
+
+
+ 919              	XMMotorOuterLoop:
+ 920              	.LVL80:
+ 921              	.LFB287:
+ 145:modules/motor/XMmotor/xmmotor.c ****     motor->motor_settings.outer_loop_type = type;
+ 922              		.loc 1 145 1 is_stmt 1 view -0
+ 923              		.cfi_startproc
+ 924              		@ args = 0, pretend = 0, frame = 0
+ 925              		@ frame_needed = 0, uses_anonymous_args = 0
+ 926              		@ link register save eliminated.
+ 146:modules/motor/XMmotor/xmmotor.c **** }
+ 927              		.loc 1 146 5 view .LVU276
+ 146:modules/motor/XMmotor/xmmotor.c **** }
+ 928              		.loc 1 146 43 is_stmt 0 view .LVU277
+ 929 0000 80F82410 		strb	r1, [r0, #36]
+ 147:modules/motor/XMmotor/xmmotor.c **** 
+ 930              		.loc 1 147 1 view .LVU278
+ 931 0004 7047     		bx	lr
+ 932              		.cfi_endproc
+ 933              	.LFE287:
+ 935              		.section	.text.XMMotorControlInit,"ax",%progbits
+ 936              		.align	1
+ 937              		.global	XMMotorControlInit
+ 938              		.syntax unified
+ 939              		.thumb
+ 940              		.thumb_func
+ 942              	XMMotorControlInit:
+ 943              	.LFB289:
+ 222:modules/motor/XMmotor/xmmotor.c ****     }
+ 223:modules/motor/XMmotor/xmmotor.c **** }
+ 224:modules/motor/XMmotor/xmmotor.c **** void XMMotorControlInit()
+ 225:modules/motor/XMmotor/xmmotor.c **** {
+ 944              		.loc 1 225 1 is_stmt 1 view -0
+ 945              		.cfi_startproc
+ 946              		@ args = 0, pretend = 0, frame = 40
+ 947              		@ frame_needed = 0, uses_anonymous_args = 0
+ 948 0000 30B5     		push	{r4, r5, lr}
+ 949              		.cfi_def_cfa_offset 12
+ 950              		.cfi_offset 4, -12
+ 951              		.cfi_offset 5, -8
+ 952              		.cfi_offset 14, -4
+ 953 0002 8BB0     		sub	sp, sp, #44
+ 954              		.cfi_def_cfa_offset 56
+ 226:modules/motor/XMmotor/xmmotor.c ****     char xm_task_name[5] = "xm";
+ 955              		.loc 1 226 5 view .LVU280
+ 956              		.loc 1 226 10 is_stmt 0 view .LVU281
+ 957 0004 46F67853 		movw	r3, #28024
+ 958 0008 0893     		str	r3, [sp, #32]
+ 959 000a 0023     		movs	r3, #0
+ 960 000c 8DF82430 		strb	r3, [sp, #36]
+ 227:modules/motor/XMmotor/xmmotor.c ****     // 遍历所有电机实例,创建任务
+ 228:modules/motor/XMmotor/xmmotor.c ****     if (!idx)
+ 961              		.loc 1 228 5 is_stmt 1 view .LVU282
+ 962              		.loc 1 228 9 is_stmt 0 view .LVU283
+ 963 0010 154B     		ldr	r3, .L58
+ 964 0012 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 965              		.loc 1 228 8 view .LVU284
+ 966 0014 2BB3     		cbz	r3, .L52
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 25
+
+
+ 967              	.LBB2:
+ 229:modules/motor/XMmotor/xmmotor.c ****         return;
+ 230:modules/motor/XMmotor/xmmotor.c ****     for (size_t i = 0; i < idx; i++)
+ 968              		.loc 1 230 17 view .LVU285
+ 969 0016 0024     		movs	r4, #0
+ 970 0018 1FE0     		b	.L53
+ 971              	.LVL81:
+ 972              	.L55:
+ 973              	.LBB3:
+ 231:modules/motor/XMmotor/xmmotor.c ****     {
+ 232:modules/motor/XMmotor/xmmotor.c ****         char xm_id_buff[2] = {0};
+ 974              		.loc 1 232 9 is_stmt 1 view .LVU286
+ 975              		.loc 1 232 14 is_stmt 0 view .LVU287
+ 976 001a 0023     		movs	r3, #0
+ 977 001c ADF80030 		strh	r3, [sp]	@ movhi
+ 233:modules/motor/XMmotor/xmmotor.c ****         __itoa(i, xm_id_buff, 10);
+ 978              		.loc 1 233 9 is_stmt 1 view .LVU288
+ 979 0020 0A22     		movs	r2, #10
+ 980 0022 6946     		mov	r1, sp
+ 981 0024 2046     		mov	r0, r4
+ 982 0026 FFF7FEFF 		bl	__itoa
+ 983              	.LVL82:
+ 234:modules/motor/XMmotor/xmmotor.c ****         strcat(xm_task_name, xm_id_buff);
+ 984              		.loc 1 234 9 view .LVU289
+ 985 002a 6946     		mov	r1, sp
+ 986 002c 08A8     		add	r0, sp, #32
+ 987 002e FFF7FEFF 		bl	strcat
+ 988              	.LVL83:
+ 235:modules/motor/XMmotor/xmmotor.c ****         osThreadDef(xm_task_name, XMMotorTask, osPriorityNormal, 0, 128);
+ 989              		.loc 1 235 9 view .LVU290
+ 990 0032 0DF1040C 		add	ip, sp, #4
+ 991 0036 0D4D     		ldr	r5, .L58+4
+ 992 0038 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 993 003a ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 994 003e 95E80700 		ldm	r5, {r0, r1, r2}
+ 995 0042 8CE80700 		stm	ip, {r0, r1, r2}
+ 236:modules/motor/XMmotor/xmmotor.c ****         xm_task_handle[i] = osThreadCreate(osThread(xm_task_name), xm_motor_instance[i]);
+ 996              		.loc 1 236 9 view .LVU291
+ 997              		.loc 1 236 29 is_stmt 0 view .LVU292
+ 998 0046 0A4B     		ldr	r3, .L58+8
+ 999 0048 53F82410 		ldr	r1, [r3, r4, lsl #2]
+ 1000 004c 01A8     		add	r0, sp, #4
+ 1001 004e FFF7FEFF 		bl	osThreadCreate
+ 1002              	.LVL84:
+ 1003              		.loc 1 236 27 discriminator 1 view .LVU293
+ 1004 0052 084B     		ldr	r3, .L58+12
+ 1005 0054 43F82400 		str	r0, [r3, r4, lsl #2]
+ 1006              	.LBE3:
+ 230:modules/motor/XMmotor/xmmotor.c ****     {
+ 1007              		.loc 1 230 34 is_stmt 1 discriminator 3 view .LVU294
+ 1008 0058 0134     		adds	r4, r4, #1
+ 1009              	.LVL85:
+ 1010              	.L53:
+ 230:modules/motor/XMmotor/xmmotor.c ****     {
+ 1011              		.loc 1 230 26 discriminator 1 view .LVU295
+ 1012 005a 034B     		ldr	r3, .L58
+ 1013 005c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 26
+
+
+ 1014 005e A342     		cmp	r3, r4
+ 1015 0060 DBD8     		bhi	.L55
+ 1016              	.LVL86:
+ 1017              	.L52:
+ 230:modules/motor/XMmotor/xmmotor.c ****     {
+ 1018              		.loc 1 230 26 is_stmt 0 discriminator 1 view .LVU296
+ 1019              	.LBE2:
+ 237:modules/motor/XMmotor/xmmotor.c ****     }
+ 238:modules/motor/XMmotor/xmmotor.c **** }...
+ 1020              		.loc 1 238 1 view .LVU297
+ 1021 0062 0BB0     		add	sp, sp, #44
+ 1022              		.cfi_def_cfa_offset 12
+ 1023              		@ sp needed
+ 1024 0064 30BD     		pop	{r4, r5, pc}
+ 1025              	.L59:
+ 1026 0066 00BF     		.align	2
+ 1027              	.L58:
+ 1028 0068 00000000 		.word	idx
+ 1029 006c 00000000 		.word	.LANCHOR0
+ 1030 0070 00000000 		.word	xm_motor_instance
+ 1031 0074 00000000 		.word	xm_task_handle
+ 1032              		.cfi_endproc
+ 1033              	.LFE289:
+ 1035              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 1036              		.align	2
+ 1037              	.LC0:
+ 1038 0000 786D5F74 		.ascii	"xm_task_name\000"
+ 1038      61736B5F 
+ 1038      6E616D65 
+ 1038      00
+ 1039              		.section	.bss.xm_task_handle,"aw",%nobits
+ 1040              		.align	2
+ 1043              	xm_task_handle:
+ 1044 0000 00000000 		.space	16
+ 1044      00000000 
+ 1044      00000000 
+ 1044      00000000 
+ 1045              		.section	.bss.xm_motor_instance,"aw",%nobits
+ 1046              		.align	2
+ 1049              	xm_motor_instance:
+ 1050 0000 00000000 		.space	16
+ 1050      00000000 
+ 1050      00000000 
+ 1050      00000000 
+ 1051              		.section	.bss.idx,"aw",%nobits
+ 1054              	idx:
+ 1055 0000 00       		.space	1
+ 1056              		.section	.rodata
+ 1057              		.align	2
+ 1058              		.set	.LANCHOR0,. + 0
+ 1059              	.LC2:
+ 1060 0000 00000000 		.word	.LC0
+ 1061 0004 00000000 		.word	XMMotorTask
+ 1062 0008 0000     		.short	0
+ 1063 000a 0000     		.space	2
+ 1064 000c 00000000 		.word	0
+ 1065 0010 80000000 		.word	128
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 27
+
+
+ 1066 0014 00000000 		.word	0
+ 1067 0018 00000000 		.word	0
+ 1068              		.text
+ 1069              	.Letext0:
+ 1070              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1071              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1072              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 1073              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 1074              		.file 6 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1075              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h"
+ 1076              		.file 8 "bsp/can/bsp_can.h"
+ 1077              		.file 9 "modules/algorithm/controller.h"
+ 1078              		.file 10 "modules/motor/motor_def.h"
+ 1079              		.file 11 "modules/daemon/daemon.h"
+ 1080              		.file 12 "modules/motor/XMmotor/xmmotor.h"
+ 1081              		.file 13 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h"
+ 1082              		.file 14 "Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h"
+ 1083              		.file 15 "Middlewares/Third_Party/FreeRTOS/Source/include/task.h"
+ 1084              		.file 16 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h"
+ 1085              		.file 17 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 1086              		.file 18 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 1087              		.file 19 "bsp/dwt/bsp_dwt.h"
+ 1088              		.file 20 "<built-in>"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 28
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 xmmotor.c
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:21     .text.uint16_to_float:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:26     .text.uint16_to_float:00000000 uint16_to_float
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:64     .text.XMMotorLostCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:69     .text.XMMotorLostCallback:00000000 XMMotorLostCallback
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:83     .text.XMMotorDecode:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:88     .text.XMMotorDecode:00000000 XMMotorDecode
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:205    .text.XMMotorDecode:000000a0 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:213    .text.XMMotorSetMode:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:218    .text.XMMotorSetMode:00000000 XMMotorSetMode
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:316    .text.XMMotorTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:322    .text.XMMotorTask:00000000 XMMotorTask
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:613    .text.XMMotorTask:00000178 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:618    .text.XMMotorCaliEncoder:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:624    .text.XMMotorCaliEncoder:00000000 XMMotorCaliEncoder
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:638    .text.XMMotorSetRef:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:644    .text.XMMotorSetRef:00000000 XMMotorSetRef
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:661    .text.XMMotorChangeFeed:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:667    .text.XMMotorChangeFeed:00000000 XMMotorChangeFeed
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:701    .text.XMMotorEnable:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:707    .text.XMMotorEnable:00000000 XMMotorEnable
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:725    .text.XMMotorInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:731    .text.XMMotorInit:00000000 XMMotorInit
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:880    .text.XMMotorInit:000000d8 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:1054   .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:1049   .bss.xm_motor_instance:00000000 xm_motor_instance
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:889    .text.XMMotorStop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:895    .text.XMMotorStop:00000000 XMMotorStop
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:913    .text.XMMotorOuterLoop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:919    .text.XMMotorOuterLoop:00000000 XMMotorOuterLoop
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:936    .text.XMMotorControlInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:942    .text.XMMotorControlInit:00000000 XMMotorControlInit
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:1028   .text.XMMotorControlInit:00000068 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:1043   .bss.xm_task_handle:00000000 xm_task_handle
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:1036   .rodata.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:1040   .bss.xm_task_handle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:1046   .bss.xm_motor_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:1055   .bss.idx:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s:1057   .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+DaemonReload
+__aeabi_f2d
+__aeabi_dmul
+__aeabi_d2f
+CANTransmit
+PIDCalculate
+osDelay
+malloc
+memset
+PIDInit
+CANRegister
+DWT_Delay
+DaemonRegister
+__itoa
+strcat
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWeCRRb.s 			page 29
+
+
+osThreadCreate

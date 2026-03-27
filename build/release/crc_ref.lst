@@ -1,0 +1,618 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"crc_ref.c"
+  16              		.text
+  17              		.section	.text.Get_CRC8_Check_Sum,"ax",%progbits
+  18              		.align	1
+  19              		.global	Get_CRC8_Check_Sum
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	Get_CRC8_Check_Sum:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27              		@ link register save eliminated.
+  28 0000 0346     		mov	r3, r0
+  29 0002 1046     		mov	r0, r2
+  30 0004 05E0     		b	.L2
+  31              	.L3:
+  32 0006 13F8011B 		ldrb	r1, [r3], #1	@ zero_extendqisi2
+  33 000a 4140     		eors	r1, r1, r0
+  34 000c 044A     		ldr	r2, .L4
+  35 000e 505C     		ldrb	r0, [r2, r1]	@ zero_extendqisi2
+  36 0010 6146     		mov	r1, ip
+  37              	.L2:
+  38 0012 01F1FF3C 		add	ip, r1, #-1
+  39 0016 1FFA8CFC 		uxth	ip, ip
+  40 001a 0029     		cmp	r1, #0
+  41 001c F3D1     		bne	.L3
+  42 001e 7047     		bx	lr
+  43              	.L5:
+  44              		.align	2
+  45              	.L4:
+  46 0020 00000000 		.word	CRC8_TAB
+  48              		.section	.text.Verify_CRC8_Check_Sum,"ax",%progbits
+  49              		.align	1
+  50              		.global	Verify_CRC8_Check_Sum
+  51              		.syntax unified
+  52              		.thumb
+  53              		.thumb_func
+  55              	Verify_CRC8_Check_Sum:
+  56              		@ args = 0, pretend = 0, frame = 0
+  57              		@ frame_needed = 0, uses_anonymous_args = 0
+  58 0000 88B1     		cbz	r0, .L11
+  59 0002 38B5     		push	{r3, r4, r5, lr}
+  60 0004 0446     		mov	r4, r0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s 			page 2
+
+
+  61 0006 0229     		cmp	r1, #2
+  62 0008 0BD9     		bls	.L9
+  63 000a 4B1E     		subs	r3, r1, #1
+  64 000c 1D46     		mov	r5, r3
+  65 000e FF22     		movs	r2, #255
+  66 0010 99B2     		uxth	r1, r3
+  67 0012 FFF7FEFF 		bl	Get_CRC8_Check_Sum
+  68 0016 635D     		ldrb	r3, [r4, r5]	@ zero_extendqisi2
+  69 0018 8342     		cmp	r3, r0
+  70 001a 14BF     		ite	ne
+  71 001c 0020     		movne	r0, #0
+  72 001e 0120     		moveq	r0, #1
+  73              	.L6:
+  74 0020 38BD     		pop	{r3, r4, r5, pc}
+  75              	.L9:
+  76 0022 0020     		movs	r0, #0
+  77 0024 FCE7     		b	.L6
+  78              	.L11:
+  79 0026 7047     		bx	lr
+  81              		.section	.text.Append_CRC8_Check_Sum,"ax",%progbits
+  82              		.align	1
+  83              		.global	Append_CRC8_Check_Sum
+  84              		.syntax unified
+  85              		.thumb
+  86              		.thumb_func
+  88              	Append_CRC8_Check_Sum:
+  89              		@ args = 0, pretend = 0, frame = 0
+  90              		@ frame_needed = 0, uses_anonymous_args = 0
+  91 0000 58B1     		cbz	r0, .L17
+  92 0002 38B5     		push	{r3, r4, r5, lr}
+  93 0004 0446     		mov	r4, r0
+  94 0006 0229     		cmp	r1, #2
+  95 0008 06D9     		bls	.L14
+  96 000a 4B1E     		subs	r3, r1, #1
+  97 000c 1D46     		mov	r5, r3
+  98 000e FF22     		movs	r2, #255
+  99 0010 99B2     		uxth	r1, r3
+ 100 0012 FFF7FEFF 		bl	Get_CRC8_Check_Sum
+ 101 0016 6055     		strb	r0, [r4, r5]
+ 102              	.L14:
+ 103 0018 38BD     		pop	{r3, r4, r5, pc}
+ 104              	.L17:
+ 105 001a 7047     		bx	lr
+ 107              		.section	.text.Get_CRC16_Check_Sum,"ax",%progbits
+ 108              		.align	1
+ 109              		.global	Get_CRC16_Check_Sum
+ 110              		.syntax unified
+ 111              		.thumb
+ 112              		.thumb_func
+ 114              	Get_CRC16_Check_Sum:
+ 115              		@ args = 0, pretend = 0, frame = 0
+ 116              		@ frame_needed = 0, uses_anonymous_args = 0
+ 117              		@ link register save eliminated.
+ 118 0000 0346     		mov	r3, r0
+ 119 0002 68B9     		cbnz	r0, .L22
+ 120 0004 4FF6FF72 		movw	r2, #65535
+ 121 0008 0DE0     		b	.L21
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s 			page 3
+
+
+ 122              	.L23:
+ 123 000a 13F8011B 		ldrb	r1, [r3], #1	@ zero_extendqisi2
+ 124 000e 5140     		eors	r1, r1, r2
+ 125 0010 C9B2     		uxtb	r1, r1
+ 126 0012 DFF818C0 		ldr	ip, .L25
+ 127 0016 3CF81110 		ldrh	r1, [ip, r1, lsl #1]
+ 128 001a 81EA1222 		eor	r2, r1, r2, lsr #8
+ 129 001e 0146     		mov	r1, r0
+ 130              	.L22:
+ 131 0020 481E     		subs	r0, r1, #1
+ 132 0022 0029     		cmp	r1, #0
+ 133 0024 F1D1     		bne	.L23
+ 134              	.L21:
+ 135 0026 1046     		mov	r0, r2
+ 136 0028 7047     		bx	lr
+ 137              	.L26:
+ 138 002a 00BF     		.align	2
+ 139              	.L25:
+ 140 002c 00000000 		.word	wCRC_Table
+ 142              		.section	.text.Verify_CRC16_Check_Sum,"ax",%progbits
+ 143              		.align	1
+ 144              		.global	Verify_CRC16_Check_Sum
+ 145              		.syntax unified
+ 146              		.thumb
+ 147              		.thumb_func
+ 149              	Verify_CRC16_Check_Sum:
+ 150              		@ args = 0, pretend = 0, frame = 0
+ 151              		@ frame_needed = 0, uses_anonymous_args = 0
+ 152 0000 E8B1     		cbz	r0, .L35
+ 153 0002 70B5     		push	{r4, r5, r6, lr}
+ 154 0004 0E46     		mov	r6, r1
+ 155 0006 0446     		mov	r4, r0
+ 156 0008 0229     		cmp	r1, #2
+ 157 000a 16D9     		bls	.L31
+ 158 000c 8B1E     		subs	r3, r1, #2
+ 159 000e 0C4A     		ldr	r2, .L39
+ 160 0010 1288     		ldrh	r2, [r2]
+ 161 0012 1D46     		mov	r5, r3
+ 162 0014 1946     		mov	r1, r3
+ 163 0016 FFF7FEFF 		bl	Get_CRC16_Check_Sum
+ 164 001a 625D     		ldrb	r2, [r4, r5]	@ zero_extendqisi2
+ 165 001c C3B2     		uxtb	r3, r0
+ 166 001e 9A42     		cmp	r2, r3
+ 167 0020 01D0     		beq	.L38
+ 168 0022 0020     		movs	r0, #0
+ 169              	.L27:
+ 170 0024 70BD     		pop	{r4, r5, r6, pc}
+ 171              	.L38:
+ 172 0026 C0F30F20 		ubfx	r0, r0, #8, #16
+ 173 002a 731E     		subs	r3, r6, #1
+ 174 002c E35C     		ldrb	r3, [r4, r3]	@ zero_extendqisi2
+ 175 002e 9842     		cmp	r0, r3
+ 176 0030 01D0     		beq	.L33
+ 177 0032 0020     		movs	r0, #0
+ 178 0034 F6E7     		b	.L27
+ 179              	.L33:
+ 180 0036 0120     		movs	r0, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s 			page 4
+
+
+ 181 0038 F4E7     		b	.L27
+ 182              	.L31:
+ 183 003a 0020     		movs	r0, #0
+ 184 003c F2E7     		b	.L27
+ 185              	.L35:
+ 186 003e 7047     		bx	lr
+ 187              	.L40:
+ 188              		.align	2
+ 189              	.L39:
+ 190 0040 00000000 		.word	CRC_INIT
+ 192              		.section	.text.Append_CRC16_Check_Sum,"ax",%progbits
+ 193              		.align	1
+ 194              		.global	Append_CRC16_Check_Sum
+ 195              		.syntax unified
+ 196              		.thumb
+ 197              		.thumb_func
+ 199              	Append_CRC16_Check_Sum:
+ 200              		@ args = 0, pretend = 0, frame = 0
+ 201              		@ frame_needed = 0, uses_anonymous_args = 0
+ 202 0000 88B1     		cbz	r0, .L44
+ 203 0002 70B5     		push	{r4, r5, r6, lr}
+ 204 0004 0C46     		mov	r4, r1
+ 205 0006 0546     		mov	r5, r0
+ 206 0008 0229     		cmp	r1, #2
+ 207 000a 0BD9     		bls	.L41
+ 208 000c 8A1E     		subs	r2, r1, #2
+ 209 000e 1646     		mov	r6, r2
+ 210 0010 054B     		ldr	r3, .L47
+ 211 0012 1A88     		ldrh	r2, [r3]
+ 212 0014 3146     		mov	r1, r6
+ 213 0016 FFF7FEFF 		bl	Get_CRC16_Check_Sum
+ 214 001a A855     		strb	r0, [r5, r6]
+ 215 001c 013C     		subs	r4, r4, #1
+ 216 001e C0F30720 		ubfx	r0, r0, #8, #8
+ 217 0022 2855     		strb	r0, [r5, r4]
+ 218              	.L41:
+ 219 0024 70BD     		pop	{r4, r5, r6, pc}
+ 220              	.L44:
+ 221 0026 7047     		bx	lr
+ 222              	.L48:
+ 223              		.align	2
+ 224              	.L47:
+ 225 0028 00000000 		.word	CRC_INIT
+ 227              		.global	wCRC_Table
+ 228              		.section	.rodata.wCRC_Table,"a"
+ 229              		.align	2
+ 232              	wCRC_Table:
+ 233 0000 0000     		.short	0
+ 234 0002 8911     		.short	4489
+ 235 0004 1223     		.short	8978
+ 236 0006 9B32     		.short	12955
+ 237 0008 2446     		.short	17956
+ 238 000a AD57     		.short	22445
+ 239 000c 3665     		.short	25910
+ 240 000e BF74     		.short	29887
+ 241 0010 488C     		.short	-29624
+ 242 0012 C19D     		.short	-25151
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s 			page 5
+
+
+ 243 0014 5AAF     		.short	-20646
+ 244 0016 D3BE     		.short	-16685
+ 245 0018 6CCA     		.short	-13716
+ 246 001a E5DB     		.short	-9243
+ 247 001c 7EE9     		.short	-5762
+ 248 001e F7F8     		.short	-1801
+ 249 0020 8110     		.short	4225
+ 250 0022 0801     		.short	264
+ 251 0024 9333     		.short	13203
+ 252 0026 1A22     		.short	8730
+ 253 0028 A556     		.short	22181
+ 254 002a 2C47     		.short	18220
+ 255 002c B775     		.short	30135
+ 256 002e 3E64     		.short	25662
+ 257 0030 C99C     		.short	-25399
+ 258 0032 408D     		.short	-29376
+ 259 0034 DBBF     		.short	-16421
+ 260 0036 52AE     		.short	-20910
+ 261 0038 EDDA     		.short	-9491
+ 262 003a 64CB     		.short	-13468
+ 263 003c FFF9     		.short	-1537
+ 264 003e 76E8     		.short	-6026
+ 265 0040 0221     		.short	8450
+ 266 0042 8B30     		.short	12427
+ 267 0044 1002     		.short	528
+ 268 0046 9913     		.short	5017
+ 269 0048 2667     		.short	26406
+ 270 004a AF76     		.short	30383
+ 271 004c 3444     		.short	17460
+ 272 004e BD55     		.short	21949
+ 273 0050 4AAD     		.short	-21174
+ 274 0052 C3BC     		.short	-17213
+ 275 0054 588E     		.short	-29096
+ 276 0056 D19F     		.short	-24623
+ 277 0058 6EEB     		.short	-5266
+ 278 005a E7FA     		.short	-1305
+ 279 005c 7CC8     		.short	-14212
+ 280 005e F5D9     		.short	-9739
+ 281 0060 8331     		.short	12675
+ 282 0062 0A20     		.short	8202
+ 283 0064 9112     		.short	4753
+ 284 0066 1803     		.short	792
+ 285 0068 A777     		.short	30631
+ 286 006a 2E66     		.short	26158
+ 287 006c B554     		.short	21685
+ 288 006e 3C45     		.short	17724
+ 289 0070 CBBD     		.short	-16949
+ 290 0072 42AC     		.short	-21438
+ 291 0074 D99E     		.short	-24871
+ 292 0076 508F     		.short	-28848
+ 293 0078 EFFB     		.short	-1041
+ 294 007a 66EA     		.short	-5530
+ 295 007c FDD8     		.short	-9987
+ 296 007e 74C9     		.short	-13964
+ 297 0080 0442     		.short	16900
+ 298 0082 8D53     		.short	21389
+ 299 0084 1661     		.short	24854
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s 			page 6
+
+
+ 300 0086 9F70     		.short	28831
+ 301 0088 2004     		.short	1056
+ 302 008a A915     		.short	5545
+ 303 008c 3227     		.short	10034
+ 304 008e BB36     		.short	14011
+ 305 0090 4CCE     		.short	-12724
+ 306 0092 C5DF     		.short	-8251
+ 307 0094 5EED     		.short	-4770
+ 308 0096 D7FC     		.short	-809
+ 309 0098 6888     		.short	-30616
+ 310 009a E199     		.short	-26143
+ 311 009c 7AAB     		.short	-21638
+ 312 009e F3BA     		.short	-17677
+ 313 00a0 8552     		.short	21125
+ 314 00a2 0C43     		.short	17164
+ 315 00a4 9771     		.short	29079
+ 316 00a6 1E60     		.short	24606
+ 317 00a8 A114     		.short	5281
+ 318 00aa 2805     		.short	1320
+ 319 00ac B337     		.short	14259
+ 320 00ae 3A26     		.short	9786
+ 321 00b0 CDDE     		.short	-8499
+ 322 00b2 44CF     		.short	-12476
+ 323 00b4 DFFD     		.short	-545
+ 324 00b6 56EC     		.short	-5034
+ 325 00b8 E998     		.short	-26391
+ 326 00ba 6089     		.short	-30368
+ 327 00bc FBBB     		.short	-17413
+ 328 00be 72AA     		.short	-21902
+ 329 00c0 0663     		.short	25350
+ 330 00c2 8F72     		.short	29327
+ 331 00c4 1440     		.short	16404
+ 332 00c6 9D51     		.short	20893
+ 333 00c8 2225     		.short	9506
+ 334 00ca AB34     		.short	13483
+ 335 00cc 3006     		.short	1584
+ 336 00ce B917     		.short	6073
+ 337 00d0 4EEF     		.short	-4274
+ 338 00d2 C7FE     		.short	-313
+ 339 00d4 5CCC     		.short	-13220
+ 340 00d6 D5DD     		.short	-8747
+ 341 00d8 6AA9     		.short	-22166
+ 342 00da E3B8     		.short	-18205
+ 343 00dc 788A     		.short	-30088
+ 344 00de F19B     		.short	-25615
+ 345 00e0 8773     		.short	29575
+ 346 00e2 0E62     		.short	25102
+ 347 00e4 9550     		.short	20629
+ 348 00e6 1C41     		.short	16668
+ 349 00e8 A335     		.short	13731
+ 350 00ea 2A24     		.short	9258
+ 351 00ec B116     		.short	5809
+ 352 00ee 3807     		.short	1848
+ 353 00f0 CFFF     		.short	-49
+ 354 00f2 46EE     		.short	-4538
+ 355 00f4 DDDC     		.short	-8995
+ 356 00f6 54CD     		.short	-12972
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s 			page 7
+
+
+ 357 00f8 EBB9     		.short	-17941
+ 358 00fa 62A8     		.short	-22430
+ 359 00fc F99A     		.short	-25863
+ 360 00fe 708B     		.short	-29840
+ 361 0100 0884     		.short	-31736
+ 362 0102 8195     		.short	-27263
+ 363 0104 1AA7     		.short	-22758
+ 364 0106 93B6     		.short	-18797
+ 365 0108 2CC2     		.short	-15828
+ 366 010a A5D3     		.short	-11355
+ 367 010c 3EE1     		.short	-7874
+ 368 010e B7F0     		.short	-3913
+ 369 0110 4008     		.short	2112
+ 370 0112 C919     		.short	6601
+ 371 0114 522B     		.short	11090
+ 372 0116 DB3A     		.short	15067
+ 373 0118 644E     		.short	20068
+ 374 011a ED5F     		.short	24557
+ 375 011c 766D     		.short	28022
+ 376 011e FF7C     		.short	31999
+ 377 0120 8994     		.short	-27511
+ 378 0122 0085     		.short	-31488
+ 379 0124 9BB7     		.short	-18533
+ 380 0126 12A6     		.short	-23022
+ 381 0128 ADD2     		.short	-11603
+ 382 012a 24C3     		.short	-15580
+ 383 012c BFF1     		.short	-3649
+ 384 012e 36E0     		.short	-8138
+ 385 0130 C118     		.short	6337
+ 386 0132 4809     		.short	2376
+ 387 0134 D33B     		.short	15315
+ 388 0136 5A2A     		.short	10842
+ 389 0138 E55E     		.short	24293
+ 390 013a 6C4F     		.short	20332
+ 391 013c F77D     		.short	32247
+ 392 013e 7E6C     		.short	27774
+ 393 0140 0AA5     		.short	-23286
+ 394 0142 83B4     		.short	-19325
+ 395 0144 1886     		.short	-31208
+ 396 0146 9197     		.short	-26735
+ 397 0148 2EE3     		.short	-7378
+ 398 014a A7F2     		.short	-3417
+ 399 014c 3CC0     		.short	-16324
+ 400 014e B5D1     		.short	-11851
+ 401 0150 4229     		.short	10562
+ 402 0152 CB38     		.short	14539
+ 403 0154 500A     		.short	2640
+ 404 0156 D91B     		.short	7129
+ 405 0158 666F     		.short	28518
+ 406 015a EF7E     		.short	32495
+ 407 015c 744C     		.short	19572
+ 408 015e FD5D     		.short	24061
+ 409 0160 8BB5     		.short	-19061
+ 410 0162 02A4     		.short	-23550
+ 411 0164 9996     		.short	-26983
+ 412 0166 1087     		.short	-30960
+ 413 0168 AFF3     		.short	-3153
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s 			page 8
+
+
+ 414 016a 26E2     		.short	-7642
+ 415 016c BDD0     		.short	-12099
+ 416 016e 34C1     		.short	-16076
+ 417 0170 C339     		.short	14787
+ 418 0172 4A28     		.short	10314
+ 419 0174 D11A     		.short	6865
+ 420 0176 580B     		.short	2904
+ 421 0178 E77F     		.short	32743
+ 422 017a 6E6E     		.short	28270
+ 423 017c F55C     		.short	23797
+ 424 017e 7C4D     		.short	19836
+ 425 0180 0CC6     		.short	-14836
+ 426 0182 85D7     		.short	-10363
+ 427 0184 1EE5     		.short	-6882
+ 428 0186 97F4     		.short	-2921
+ 429 0188 2880     		.short	-32728
+ 430 018a A191     		.short	-28255
+ 431 018c 3AA3     		.short	-23750
+ 432 018e B3B2     		.short	-19789
+ 433 0190 444A     		.short	19012
+ 434 0192 CD5B     		.short	23501
+ 435 0194 5669     		.short	26966
+ 436 0196 DF78     		.short	30943
+ 437 0198 600C     		.short	3168
+ 438 019a E91D     		.short	7657
+ 439 019c 722F     		.short	12146
+ 440 019e FB3E     		.short	16123
+ 441 01a0 8DD6     		.short	-10611
+ 442 01a2 04C7     		.short	-14588
+ 443 01a4 9FF5     		.short	-2657
+ 444 01a6 16E4     		.short	-7146
+ 445 01a8 A990     		.short	-28503
+ 446 01aa 2081     		.short	-32480
+ 447 01ac BBB3     		.short	-19525
+ 448 01ae 32A2     		.short	-24014
+ 449 01b0 C55A     		.short	23237
+ 450 01b2 4C4B     		.short	19276
+ 451 01b4 D779     		.short	31191
+ 452 01b6 5E68     		.short	26718
+ 453 01b8 E11C     		.short	7393
+ 454 01ba 680D     		.short	3432
+ 455 01bc F33F     		.short	16371
+ 456 01be 7A2E     		.short	11898
+ 457 01c0 0EE7     		.short	-6386
+ 458 01c2 87F6     		.short	-2425
+ 459 01c4 1CC4     		.short	-15332
+ 460 01c6 95D5     		.short	-10859
+ 461 01c8 2AA1     		.short	-24278
+ 462 01ca A3B0     		.short	-20317
+ 463 01cc 3882     		.short	-32200
+ 464 01ce B193     		.short	-27727
+ 465 01d0 466B     		.short	27462
+ 466 01d2 CF7A     		.short	31439
+ 467 01d4 5448     		.short	18516
+ 468 01d6 DD59     		.short	23005
+ 469 01d8 622D     		.short	11618
+ 470 01da EB3C     		.short	15595
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s 			page 9
+
+
+ 471 01dc 700E     		.short	3696
+ 472 01de F91F     		.short	8185
+ 473 01e0 8FF7     		.short	-2161
+ 474 01e2 06E6     		.short	-6650
+ 475 01e4 9DD4     		.short	-11107
+ 476 01e6 14C5     		.short	-15084
+ 477 01e8 ABB1     		.short	-20053
+ 478 01ea 22A0     		.short	-24542
+ 479 01ec B992     		.short	-27975
+ 480 01ee 3083     		.short	-31952
+ 481 01f0 C77B     		.short	31687
+ 482 01f2 4E6A     		.short	27214
+ 483 01f4 D558     		.short	22741
+ 484 01f6 5C49     		.short	18780
+ 485 01f8 E33D     		.short	15843
+ 486 01fa 6A2C     		.short	11370
+ 487 01fc F11E     		.short	7921
+ 488 01fe 780F     		.short	3960
+ 489              		.global	CRC_INIT
+ 490              		.section	.data.CRC_INIT,"aw"
+ 491              		.align	1
+ 494              	CRC_INIT:
+ 495 0000 FFFF     		.short	-1
+ 496              		.global	CRC8_TAB
+ 497              		.section	.rodata.CRC8_TAB,"a"
+ 498              		.align	2
+ 501              	CRC8_TAB:
+ 502 0000 005EBCE2 		.ascii	"\000^\274\342a?\335\203\302\234~ \243\375\037A\235\303"
+ 502      613FDD83 
+ 502      C29C7E20 
+ 502      A3FD1F41 
+ 502      9DC3
+ 503 0012 217FFCA2 		.ascii	"!\177\374\242@\036_\001\343\275>`\202\334#}\237\301"
+ 503      401E5F01 
+ 503      E3BD3E60 
+ 503      82DC237D 
+ 503      9FC1
+ 504 0024 421CFEA0 		.ascii	"B\034\376\240\341\277]\003\200\336<b\276\340\002\\\337"
+ 504      E1BF5D03 
+ 504      80DE3C62 
+ 504      BEE0025C 
+ 504      DF
+ 505 0035 81633D7C 		.ascii	"\201c=|\"\300\236\035C\241\377F\030\372\244'y\233\305"
+ 505      22C09E1D 
+ 505      43A1FF46 
+ 505      18FAA427 
+ 505      799BC5
+ 506 0048 84DA3866 		.ascii	"\204\3328f\345\273Y\007\333\205g9\272\344\006X\031G"
+ 506      E5BB5907 
+ 506      DB856739 
+ 506      BAE40658 
+ 506      1947
+ 507 005a A5FB7826 		.ascii	"\245\373x&\304\232e;\331\207\004Z\270\346\247\371\033"
+ 507      C49A653B 
+ 507      D987045A 
+ 507      B8E6A7F9 
+ 507      1B
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s 			page 10
+
+
+ 508 006b 45C6987A 		.ascii	"E\306\230z$\370\246D\032\231\307%{:d\206\330[\005\347"
+ 508      24F8A644 
+ 508      1A99C725 
+ 508      7B3A6486 
+ 508      D85B05E7 
+ 509 007f B98CD230 		.ascii	"\271\214\3220n\355\263Q\017N\020\362\254/q\223\315\021"
+ 509      6EEDB351 
+ 509      0F4E10F2 
+ 509      AC2F7193 
+ 509      CD11
+ 510 0091 4FADF370 		.ascii	"O\255\363p.\314\222\323\215o1\262\354\016P\257\361\023"
+ 510      2ECC92D3 
+ 510      8D6F31B2 
+ 510      EC0E50AF 
+ 510      F113
+ 511 00a3 4DCE9072 		.ascii	"M\316\220r,m3\321\217\014R\260\3562l\216\320S\015\357"
+ 511      2C6D33D1 
+ 511      8F0C52B0 
+ 511      EE326C8E 
+ 511      D0530DEF 
+ 512 00b7 B1F0AE4C 		.ascii	"\261\360\256L\022\221\317-s\312\224v(\253\365\027I\010"
+ 512      1291CF2D 
+ 512      73CA9476 
+ 512      28ABF517 
+ 512      4908
+ 513 00c9 56B4EA69 		.ascii	"V\264\352i7\325\213W\011\353\2656h\212\324\225\313)"
+ 513      37D58B57 
+ 513      09EBB536 
+ 513      688AD495 
+ 513      CB29
+ 514 00db 77F4AA48 		.ascii	"w\364\252H\026\351\267U\013\210\3264j+u\227\311J\024"
+ 514      16E9B755 
+ 514      0B88D634 
+ 514      6A2B7597 
+ 514      C94A14
+ 515 00ee F6A8742A 		.ascii	"\366\250t*\310\226\025K\251\367\266\350\012T\327\211"
+ 515      C896154B 
+ 515      A9F7B6E8 
+ 515      0A54D789 
+ 516 00fe 6B35     		.ascii	"k5"
+ 517              		.global	CRC8_INIT
+ 518              		.section	.rodata.CRC8_INIT,"a"
+ 521              	CRC8_INIT:
+ 522 0000 FF       		.byte	-1
+ 523              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 crc_ref.c
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:18     .text.Get_CRC8_Check_Sum:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:24     .text.Get_CRC8_Check_Sum:00000000 Get_CRC8_Check_Sum
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:46     .text.Get_CRC8_Check_Sum:00000020 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:501    .rodata.CRC8_TAB:00000000 CRC8_TAB
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:49     .text.Verify_CRC8_Check_Sum:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:55     .text.Verify_CRC8_Check_Sum:00000000 Verify_CRC8_Check_Sum
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:82     .text.Append_CRC8_Check_Sum:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:88     .text.Append_CRC8_Check_Sum:00000000 Append_CRC8_Check_Sum
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:108    .text.Get_CRC16_Check_Sum:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:114    .text.Get_CRC16_Check_Sum:00000000 Get_CRC16_Check_Sum
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:140    .text.Get_CRC16_Check_Sum:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:232    .rodata.wCRC_Table:00000000 wCRC_Table
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:143    .text.Verify_CRC16_Check_Sum:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:149    .text.Verify_CRC16_Check_Sum:00000000 Verify_CRC16_Check_Sum
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:190    .text.Verify_CRC16_Check_Sum:00000040 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:494    .data.CRC_INIT:00000000 CRC_INIT
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:193    .text.Append_CRC16_Check_Sum:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:199    .text.Append_CRC16_Check_Sum:00000000 Append_CRC16_Check_Sum
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:225    .text.Append_CRC16_Check_Sum:00000028 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:229    .rodata.wCRC_Table:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:491    .data.CRC_INIT:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:498    .rodata.CRC8_TAB:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLE9JUn.s:521    .rodata.CRC8_INIT:00000000 CRC8_INIT
+
+NO UNDEFINED SYMBOLS

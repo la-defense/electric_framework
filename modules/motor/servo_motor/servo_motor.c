@@ -41,7 +41,6 @@ ServoInstance *ServoInit(Servo_Init_Config_s *Servo_Init_Config)
 //@todo PWM舵机的角度设置需要根据相应定时器PWM等参数进行计算(是否需要规范定时器PWM的初始化参数，以便于计算)
 void ServoSetAngle(ServoInstance *servo, float angle)
 {
-
     switch (servo->servo_type)
     {
     case Bus_Servo:

@@ -1,0 +1,291 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"referee_task.c"
+  16              		.text
+  17              		.section	.text.DeterminRobotID,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	DeterminRobotID:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 094B     		ldr	r3, .L2
+  28 0002 1B68     		ldr	r3, [r3]
+  29 0004 93F84220 		ldrb	r2, [r3, #66]	@ zero_extendqisi2
+  30 0008 072A     		cmp	r2, #7
+  31 000a 94BF     		ite	ls
+  32 000c 0021     		movls	r1, #0
+  33 000e 0121     		movhi	r1, #1
+  34 0010 1970     		strb	r1, [r3]
+  35 0012 A3F80120 		strh	r2, [r3, #1]	@ unaligned
+  36 0016 02F58072 		add	r2, r2, #256
+  37 001a A3F80320 		strh	r2, [r3, #3]	@ unaligned
+  38 001e 0022     		movs	r2, #0
+  39 0020 5A71     		strb	r2, [r3, #5]
+  40 0022 9A71     		strb	r2, [r3, #6]
+  41 0024 7047     		bx	lr
+  42              	.L3:
+  43 0026 00BF     		.align	2
+  44              	.L2:
+  45 0028 00000000 		.word	referee_recv_info
+  47              		.section	.text.UIChangeCheck,"ax",%progbits
+  48              		.align	1
+  49              		.syntax unified
+  50              		.thumb
+  51              		.thumb_func
+  53              	UIChangeCheck:
+  54              		@ args = 0, pretend = 0, frame = 0
+  55              		@ frame_needed = 0, uses_anonymous_args = 0
+  56              		@ link register save eliminated.
+  57 0000 4378     		ldrb	r3, [r0, #1]	@ zero_extendqisi2
+  58 0002 827A     		ldrb	r2, [r0, #10]	@ zero_extendqisi2
+  59 0004 9342     		cmp	r3, r2
+  60 0006 04D0     		beq	.L5
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s 			page 2
+
+
+  61 0008 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+  62 000a 42F00102 		orr	r2, r2, #1
+  63 000e 0270     		strb	r2, [r0]
+  64 0010 8372     		strb	r3, [r0, #10]
+  65              	.L5:
+  66 0012 8378     		ldrb	r3, [r0, #2]	@ zero_extendqisi2
+  67 0014 C27A     		ldrb	r2, [r0, #11]	@ zero_extendqisi2
+  68 0016 9342     		cmp	r3, r2
+  69 0018 04D0     		beq	.L6
+  70 001a 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+  71 001c 42F00202 		orr	r2, r2, #2
+  72 0020 0270     		strb	r2, [r0]
+  73 0022 C372     		strb	r3, [r0, #11]
+  74              	.L6:
+  75 0024 C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+  76 0026 027B     		ldrb	r2, [r0, #12]	@ zero_extendqisi2
+  77 0028 9342     		cmp	r3, r2
+  78 002a 04D0     		beq	.L7
+  79 002c 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+  80 002e 42F00402 		orr	r2, r2, #4
+  81 0032 0270     		strb	r2, [r0]
+  82 0034 0373     		strb	r3, [r0, #12]
+  83              	.L7:
+  84 0036 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+  85 0038 427B     		ldrb	r2, [r0, #13]	@ zero_extendqisi2
+  86 003a 9342     		cmp	r3, r2
+  87 003c 04D0     		beq	.L8
+  88 003e 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+  89 0040 42F01002 		orr	r2, r2, #16
+  90 0044 0270     		strb	r2, [r0]
+  91 0046 4373     		strb	r3, [r0, #13]
+  92              	.L8:
+  93 0048 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+  94 004a 827B     		ldrb	r2, [r0, #14]	@ zero_extendqisi2
+  95 004c 9342     		cmp	r3, r2
+  96 004e 04D0     		beq	.L9
+  97 0050 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+  98 0052 42F00802 		orr	r2, r2, #8
+  99 0056 0270     		strb	r2, [r0]
+ 100 0058 8373     		strb	r3, [r0, #14]
+ 101              	.L9:
+ 102 005a D0F80630 		ldr	r3, [r0, #6]	@ unaligned
+ 103 005e D0F80F20 		ldr	r2, [r0, #15]	@ unaligned
+ 104 0062 07EE903A 		vmov	s15, r3
+ 105 0066 07EE102A 		vmov	s14, r2
+ 106 006a F4EE477A 		vcmp.f32	s15, s14
+ 107 006e F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 108 0072 05D0     		beq	.L4
+ 109 0074 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+ 110 0076 42F02002 		orr	r2, r2, #32
+ 111 007a 0270     		strb	r2, [r0]
+ 112 007c C0F80F30 		str	r3, [r0, #15]	@ unaligned
+ 113              	.L4:
+ 114 0080 7047     		bx	lr
+ 116              		.section	.text.MyUIRefresh,"ax",%progbits
+ 117              		.align	1
+ 118              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s 			page 3
+
+
+ 119              		.thumb
+ 120              		.thumb_func
+ 122              	MyUIRefresh:
+ 123              		@ args = 0, pretend = 0, frame = 0
+ 124              		@ frame_needed = 0, uses_anonymous_args = 0
+ 125 0000 10B5     		push	{r4, lr}
+ 126 0002 0446     		mov	r4, r0
+ 127 0004 0846     		mov	r0, r1
+ 128 0006 FFF7FEFF 		bl	UIChangeCheck
+ 129 000a 084B     		ldr	r3, .L15
+ 130 000c 1B68     		ldr	r3, [r3]
+ 131 000e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 132 0010 03F0C003 		and	r3, r3, #192
+ 133 0014 402B     		cmp	r3, #64
+ 134 0016 05D0     		beq	.L14
+ 135              	.L12:
+ 136 0018 044B     		ldr	r3, .L15
+ 137 001a 1968     		ldr	r1, [r3]
+ 138 001c 2046     		mov	r0, r4
+ 139 001e FFF7FEFF 		bl	InfantryDynamciscUI
+ 140 0022 10BD     		pop	{r4, pc}
+ 141              	.L14:
+ 142 0024 2046     		mov	r0, r4
+ 143 0026 FFF7FEFF 		bl	InfantryStaticUI
+ 144 002a F5E7     		b	.L12
+ 145              	.L16:
+ 146              		.align	2
+ 147              	.L15:
+ 148 002c 00000000 		.word	Interactive_data
+ 150              		.section	.text.UITaskInit,"ax",%progbits
+ 151              		.align	1
+ 152              		.global	UITaskInit
+ 153              		.syntax unified
+ 154              		.thumb
+ 155              		.thumb_func
+ 157              	UITaskInit:
+ 158              		@ args = 0, pretend = 0, frame = 0
+ 159              		@ frame_needed = 0, uses_anonymous_args = 0
+ 160 0000 10B5     		push	{r4, lr}
+ 161 0002 0C46     		mov	r4, r1
+ 162 0004 FFF7FEFF 		bl	RefereeInit
+ 163 0008 034A     		ldr	r2, .L19
+ 164 000a 1060     		str	r0, [r2]
+ 165 000c 034A     		ldr	r2, .L19+4
+ 166 000e 1460     		str	r4, [r2]
+ 167 0010 0122     		movs	r2, #1
+ 168 0012 80F88A20 		strb	r2, [r0, #138]
+ 169 0016 10BD     		pop	{r4, pc}
+ 170              	.L20:
+ 171              		.align	2
+ 172              	.L19:
+ 173 0018 00000000 		.word	referee_recv_info
+ 174 001c 00000000 		.word	Interactive_data
+ 176              		.section	.text.UITask,"ax",%progbits
+ 177              		.align	1
+ 178              		.global	UITask
+ 179              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s 			page 4
+
+
+ 180              		.thumb
+ 181              		.thumb_func
+ 183              	UITask:
+ 184              		@ args = 0, pretend = 0, frame = 0
+ 185              		@ frame_needed = 0, uses_anonymous_args = 0
+ 186 0000 08B5     		push	{r3, lr}
+ 187 0002 034B     		ldr	r3, .L23
+ 188 0004 1968     		ldr	r1, [r3]
+ 189 0006 034B     		ldr	r3, .L23+4
+ 190 0008 1868     		ldr	r0, [r3]
+ 191 000a FFF7FEFF 		bl	MyUIRefresh
+ 192 000e 08BD     		pop	{r3, pc}
+ 193              	.L24:
+ 194              		.align	2
+ 195              	.L23:
+ 196 0010 00000000 		.word	Interactive_data
+ 197 0014 00000000 		.word	referee_recv_info
+ 199              		.section	.text.MyUIInit,"ax",%progbits
+ 200              		.align	1
+ 201              		.global	MyUIInit
+ 202              		.syntax unified
+ 203              		.thumb
+ 204              		.thumb_func
+ 206              	MyUIInit:
+ 207              		@ args = 0, pretend = 0, frame = 0
+ 208              		@ frame_needed = 0, uses_anonymous_args = 0
+ 209 0000 10B5     		push	{r4, lr}
+ 210 0002 0F4B     		ldr	r3, .L30
+ 211 0004 1B68     		ldr	r3, [r3]
+ 212 0006 93F88A30 		ldrb	r3, [r3, #138]	@ zero_extendqisi2
+ 213 000a 33B9     		cbnz	r3, .L27
+ 214 000c 1846     		mov	r0, r3
+ 215 000e FFF7FEFF 		bl	vTaskDelete
+ 216 0012 02E0     		b	.L27
+ 217              	.L28:
+ 218 0014 6420     		movs	r0, #100
+ 219 0016 FFF7FEFF 		bl	osDelay
+ 220              	.L27:
+ 221 001a 094B     		ldr	r3, .L30
+ 222 001c 1B68     		ldr	r3, [r3]
+ 223 001e 93F84230 		ldrb	r3, [r3, #66]	@ zero_extendqisi2
+ 224 0022 002B     		cmp	r3, #0
+ 225 0024 F6D0     		beq	.L28
+ 226 0026 FFF7FEFF 		bl	DeterminRobotID
+ 227 002a 054C     		ldr	r4, .L30
+ 228 002c 0022     		movs	r2, #0
+ 229 002e 0221     		movs	r1, #2
+ 230 0030 2068     		ldr	r0, [r4]
+ 231 0032 FFF7FEFF 		bl	UIDelete
+ 232 0036 2068     		ldr	r0, [r4]
+ 233 0038 FFF7FEFF 		bl	InfantryStaticUI
+ 234 003c 10BD     		pop	{r4, pc}
+ 235              	.L31:
+ 236 003e 00BF     		.align	2
+ 237              	.L30:
+ 238 0040 00000000 		.word	referee_recv_info
+ 240              		.global	UI_Seq
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s 			page 5
+
+
+ 241              		.section	.bss.UI_Seq,"aw",%nobits
+ 244              	UI_Seq:
+ 245 0000 00       		.space	1
+ 246              		.section	.bss.referee_recv_info,"aw",%nobits
+ 247              		.align	2
+ 250              	referee_recv_info:
+ 251 0000 00000000 		.space	4
+ 252              		.section	.bss.Interactive_data,"aw",%nobits
+ 253              		.align	2
+ 256              	Interactive_data:
+ 257 0000 00000000 		.space	4
+ 258              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 referee_task.c
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:18     .text.DeterminRobotID:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:23     .text.DeterminRobotID:00000000 DeterminRobotID
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:45     .text.DeterminRobotID:00000028 $d
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:250    .bss.referee_recv_info:00000000 referee_recv_info
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:48     .text.UIChangeCheck:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:53     .text.UIChangeCheck:00000000 UIChangeCheck
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:117    .text.MyUIRefresh:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:122    .text.MyUIRefresh:00000000 MyUIRefresh
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:148    .text.MyUIRefresh:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:256    .bss.Interactive_data:00000000 Interactive_data
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:151    .text.UITaskInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:157    .text.UITaskInit:00000000 UITaskInit
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:173    .text.UITaskInit:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:177    .text.UITask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:183    .text.UITask:00000000 UITask
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:196    .text.UITask:00000010 $d
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:200    .text.MyUIInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:206    .text.MyUIInit:00000000 MyUIInit
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:238    .text.MyUIInit:00000040 $d
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:244    .bss.UI_Seq:00000000 UI_Seq
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:245    .bss.UI_Seq:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:247    .bss.referee_recv_info:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccM8Aj68.s:253    .bss.Interactive_data:00000000 $d
+
+UNDEFINED SYMBOLS
+InfantryDynamciscUI
+InfantryStaticUI
+RefereeInit
+vTaskDelete
+osDelay
+UIDelete

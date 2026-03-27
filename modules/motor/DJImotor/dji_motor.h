@@ -57,8 +57,9 @@ typedef struct
     uint8_t sender_group;
     uint8_t message_num;
 
-    Motor_Type_e motor_type;        // 电机类型
-    Motor_Working_Type_e stop_flag; // 启停标志
+    Motor_Type_e motor_type;         // 电机类型
+    Motor_Working_Type_e stop_flag;  // 启停标志
+    Motor_Online_Flag_e online_flag; // 在线标志
 
     DaemonInstance* daemon;
     uint32_t feed_cnt;
@@ -120,11 +121,25 @@ void DJIMotorStop(DJIMotorInstance *motor);
 void DJIMotorEnable(DJIMotorInstance *motor);
 
 /**
+ * @brief 判断电机是否离线
+ *
+ */
+void DJIMotorIsOnline(DJIMotorInstance *motor);
+
+/**
  * @brief 修改电机闭环目标(外层闭环)
  *
  * @param motor  要修改的电机实例指针
  * @param outer_loop 外层闭环类型
  */
 void DJIMotorOuterLoop(DJIMotorInstance *motor, Closeloop_Type_e outer_loop);
+ 
+/**
+ * @brief 修改电机闭环目标(内层闭环)
+ *
+ * @param motor  要修改的电机实例指针
+ * @param outer_loop 外层闭环类型
+ */
+void DJIMotorCloseLoop(DJIMotorInstance *motor, Closeloop_Type_e outer_loop);
 
 #endif // !DJI_MOTOR_H

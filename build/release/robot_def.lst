@@ -1,0 +1,167 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"robot_def.c"
+  16              		.text
+  17              		.section	.text.RobotConfigInit,"ax",%progbits
+  18              		.align	1
+  19              		.global	RobotConfigInit
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	RobotConfigInit:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 38B5     		push	{r3, r4, r5, lr}
+  28 0002 0546     		mov	r5, r0
+  29 0004 4FF49B60 		mov	r0, #1240
+  30 0008 FFF7FEFF 		bl	malloc
+  31 000c 0446     		mov	r4, r0
+  32 000e 4FF49B62 		mov	r2, #1240
+  33 0012 0021     		movs	r1, #0
+  34 0014 FFF7FEFF 		bl	memset
+  35 0018 042D     		cmp	r5, #4
+  36 001a 18D0     		beq	.L2
+  37 001c 07D9     		bls	.L10
+  38 001e 052D     		cmp	r5, #5
+  39 0020 1AD0     		beq	.L7
+  40 0022 072D     		cmp	r5, #7
+  41 0024 0FD1     		bne	.L6
+  42 0026 FFF7FEFF 		bl	SentinelConfigInit
+  43 002a 0446     		mov	r4, r0
+  44 002c 0BE0     		b	.L6
+  45              	.L10:
+  46 002e 012D     		cmp	r5, #1
+  47 0030 06D0     		beq	.L4
+  48 0032 032D     		cmp	r5, #3
+  49 0034 07D1     		bne	.L6
+  50 0036 0320     		movs	r0, #3
+  51 0038 FFF7FEFF 		bl	InfantryConfigInit
+  52 003c 0446     		mov	r4, r0
+  53 003e 02E0     		b	.L6
+  54              	.L4:
+  55 0040 FFF7FEFF 		bl	HeroConfigInit
+  56 0044 0446     		mov	r4, r0
+  57              	.L6:
+  58 0046 074B     		ldr	r3, .L11
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s 			page 2
+
+
+  59 0048 1C60     		str	r4, [r3]
+  60 004a 2046     		mov	r0, r4
+  61 004c 38BD     		pop	{r3, r4, r5, pc}
+  62              	.L2:
+  63 004e 0420     		movs	r0, #4
+  64 0050 FFF7FEFF 		bl	InfantryConfigInit
+  65 0054 0446     		mov	r4, r0
+  66 0056 F6E7     		b	.L6
+  67              	.L7:
+  68 0058 0520     		movs	r0, #5
+  69 005a FFF7FEFF 		bl	InfantryConfigInit
+  70 005e 0446     		mov	r4, r0
+  71 0060 F1E7     		b	.L6
+  72              	.L12:
+  73 0062 00BF     		.align	2
+  74              	.L11:
+  75 0064 00000000 		.word	robot_instance
+  77              		.section	.text.ChassisConfigFeed,"ax",%progbits
+  78              		.align	1
+  79              		.global	ChassisConfigFeed
+  80              		.syntax unified
+  81              		.thumb
+  82              		.thumb_func
+  84              	ChassisConfigFeed:
+  85              		@ args = 0, pretend = 0, frame = 0
+  86              		@ frame_needed = 0, uses_anonymous_args = 0
+  87              		@ link register save eliminated.
+  88 0000 014B     		ldr	r3, .L14
+  89 0002 1868     		ldr	r0, [r3]
+  90 0004 7047     		bx	lr
+  91              	.L15:
+  92 0006 00BF     		.align	2
+  93              	.L14:
+  94 0008 00000000 		.word	robot_instance
+  96              		.section	.text.GimbalConfigFeed,"ax",%progbits
+  97              		.align	1
+  98              		.global	GimbalConfigFeed
+  99              		.syntax unified
+ 100              		.thumb
+ 101              		.thumb_func
+ 103              	GimbalConfigFeed:
+ 104              		@ args = 0, pretend = 0, frame = 0
+ 105              		@ frame_needed = 0, uses_anonymous_args = 0
+ 106              		@ link register save eliminated.
+ 107 0000 024B     		ldr	r3, .L17
+ 108 0002 1868     		ldr	r0, [r3]
+ 109 0004 00F58670 		add	r0, r0, #268
+ 110 0008 7047     		bx	lr
+ 111              	.L18:
+ 112 000a 00BF     		.align	2
+ 113              	.L17:
+ 114 000c 00000000 		.word	robot_instance
+ 116              		.section	.text.ShootConfigFeed,"ax",%progbits
+ 117              		.align	1
+ 118              		.global	ShootConfigFeed
+ 119              		.syntax unified
+ 120              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s 			page 3
+
+
+ 121              		.thumb_func
+ 123              	ShootConfigFeed:
+ 124              		@ args = 0, pretend = 0, frame = 0
+ 125              		@ frame_needed = 0, uses_anonymous_args = 0
+ 126              		@ link register save eliminated.
+ 127 0000 024B     		ldr	r3, .L20
+ 128 0002 1868     		ldr	r0, [r3]
+ 129 0004 00F55570 		add	r0, r0, #852
+ 130 0008 7047     		bx	lr
+ 131              	.L21:
+ 132 000a 00BF     		.align	2
+ 133              	.L20:
+ 134 000c 00000000 		.word	robot_instance
+ 136              		.section	.bss.robot_instance,"aw",%nobits
+ 137              		.align	2
+ 140              	robot_instance:
+ 141 0000 00000000 		.space	4
+ 142              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 robot_def.c
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:18     .text.RobotConfigInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:24     .text.RobotConfigInit:00000000 RobotConfigInit
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:75     .text.RobotConfigInit:00000064 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:140    .bss.robot_instance:00000000 robot_instance
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:78     .text.ChassisConfigFeed:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:84     .text.ChassisConfigFeed:00000000 ChassisConfigFeed
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:94     .text.ChassisConfigFeed:00000008 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:97     .text.GimbalConfigFeed:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:103    .text.GimbalConfigFeed:00000000 GimbalConfigFeed
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:114    .text.GimbalConfigFeed:0000000c $d
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:117    .text.ShootConfigFeed:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:123    .text.ShootConfigFeed:00000000 ShootConfigFeed
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:134    .text.ShootConfigFeed:0000000c $d
+C:\Users\Administrator\AppData\Local\Temp\cc3UI40m.s:137    .bss.robot_instance:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc
+memset
+SentinelConfigInit
+InfantryConfigInit
+HeroConfigInit

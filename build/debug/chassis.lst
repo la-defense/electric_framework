@@ -1,0 +1,2482 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"chassis.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "application/chassis/chassis.c"
+  20              		.section	.text.ChassisCalculate,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	ChassisCalculate:
+  27              	.LFB277:
+   1:application/chassis/chassis.c **** /**
+   2:application/chassis/chassis.c ****  * @file chassis.c
+   3:application/chassis/chassis.c ****  * @author Zero 1433026627@qq.com
+   4:application/chassis/chassis.c ****  * @brief 底盘应用,负责接收robot_cmd的控制命令并根据命令进行运动学解算,得
+   5:application/chassis/chassis.c ****  *        注意底盘采取右手系,对于平面视图,底盘纵向运动的正前方为x正方�
+   6:application/chassis/chassis.c ****  *
+   7:application/chassis/chassis.c ****  * @version 0.1
+   8:application/chassis/chassis.c ****  * @date 2024-11-18
+   9:application/chassis/chassis.c ****  *
+  10:application/chassis/chassis.c ****  * @copyright Copyright (c) 2022 Team JiaoLong-SJTU
+  11:application/chassis/chassis.c ****  *
+  12:application/chassis/chassis.c ****  */
+  13:application/chassis/chassis.c **** 
+  14:application/chassis/chassis.c **** #include "chassis.h"
+  15:application/chassis/chassis.c **** #include "robot_def.h"
+  16:application/chassis/chassis.c **** #include "dji_motor.h"
+  17:application/chassis/chassis.c **** #include "super_cap.h"
+  18:application/chassis/chassis.c **** #include "power_manager.h"   
+  19:application/chassis/chassis.c **** #include "message_center.h"
+  20:application/chassis/chassis.c **** #include "user_lib.h"
+  21:application/chassis/chassis.c **** 
+  22:application/chassis/chassis.c **** #include "general_def.h"
+  23:application/chassis/chassis.c **** #include "bsp_dwt.h"
+  24:application/chassis/chassis.c **** #include "arm_math.h"
+  25:application/chassis/chassis.c **** 
+  26:application/chassis/chassis.c **** static Chassis_Config_s *chassis_config;
+  27:application/chassis/chassis.c **** 
+  28:application/chassis/chassis.c **** /* 底盘应用包含的模块和信息存储,底盘是单例模式,因此不需要为底盘建立�
+  29:application/chassis/chassis.c **** #ifdef CHASSIS_BOARD // 如果是底盘板,使用板载IMU获取底盘转动角速度
+  30:application/chassis/chassis.c **** #include "can_comm.h"
+  31:application/chassis/chassis.c **** #include "ins_task.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 2
+
+
+  32:application/chassis/chassis.c **** static CANCommInstance *chasiss_can_comm; // 双板通信CAN comm
+  33:application/chassis/chassis.c **** attitude_t *Chassis_IMU_data;
+  34:application/chassis/chassis.c **** #endif // CHASSIS_BOARD
+  35:application/chassis/chassis.c **** #ifdef ONE_BOARD
+  36:application/chassis/chassis.c **** static Publisher_t *chassis_pub;                    // 用于发布底盘的数据
+  37:application/chassis/chassis.c **** static Subscriber_t *chassis_sub;                   // 用于订阅底盘的控制命令
+  38:application/chassis/chassis.c **** #endif                                              // !ONE_BOARD
+  39:application/chassis/chassis.c **** static Chassis_Ctrl_Cmd_s chassis_cmd_recv;         // 底盘接收到的控制命令
+  40:application/chassis/chassis.c **** static Chassis_Upload_Data_s chassis_feedback_data; // 底盘回传的反馈数据
+  41:application/chassis/chassis.c **** 
+  42:application/chassis/chassis.c **** static SuperCapInstance *cap;                                       // 超级电容
+  43:application/chassis/chassis.c **** static DJIMotorInstance *motor_lf, *motor_rf, *motor_lb, *motor_rb; // left right forward back
+  44:application/chassis/chassis.c **** static PowerManagerInstance *power_manager;                         // 功率管理
+  45:application/chassis/chassis.c **** 
+  46:application/chassis/chassis.c **** /* 私有变量用于底盘旋转的机械参数常量 */
+  47:application/chassis/chassis.c **** static float lf_center, rf_center, lb_center, rb_center; // 左右前后轮子中心
+  48:application/chassis/chassis.c **** static float rpm_2_wheel_vector;
+  49:application/chassis/chassis.c **** /* 用于自旋变速策略的时间变量 */
+  50:application/chassis/chassis.c **** // static float t;
+  51:application/chassis/chassis.c **** 
+  52:application/chassis/chassis.c **** /* 私有函数计算的中介变量,设为静态避免参数传递的开销 */
+  53:application/chassis/chassis.c **** static float chassis_vx, chassis_vy;                 // 将云台系的速度投影到底盘
+  54:application/chassis/chassis.c **** static float vt_lf, vt_rf, vt_lb, vt_rb;             // 底盘速度解算后的输出
+  55:application/chassis/chassis.c **** static float rl_vt_lf, rl_vt_rf, rl_vt_lb, rl_vt_rb; // 底盘真实速度 m/s
+  56:application/chassis/chassis.c **** 
+  57:application/chassis/chassis.c **** #ifndef GIMBAL_BOARD
+  58:application/chassis/chassis.c **** void ChassisInit()
+  59:application/chassis/chassis.c **** {
+  60:application/chassis/chassis.c ****     static float half_wheel_base, half_track_width, perimeter_wheel;    // 半轴距,半轮距,轮�
+  61:application/chassis/chassis.c ****     static float center_gimbal_offset_x, center_gimbal_offset_y;        // 中心云台偏移量
+  62:application/chassis/chassis.c ****     static float reduction_ratio_wheel;                                 // 轮子减速比
+  63:application/chassis/chassis.c **** 
+  64:application/chassis/chassis.c ****     chassis_config = ChassisConfigFeed();
+  65:application/chassis/chassis.c **** 
+  66:application/chassis/chassis.c ****     half_wheel_base = (chassis_config->wheel_measure.wheel_base / 2.0f);
+  67:application/chassis/chassis.c ****     half_track_width = (chassis_config->wheel_measure.track_width / 2.0f);
+  68:application/chassis/chassis.c ****     perimeter_wheel = (chassis_config->wheel_measure.radius_wheel * 2 * PI);
+  69:application/chassis/chassis.c ****     center_gimbal_offset_x = chassis_config->wheel_measure.center_gimbal_offset_x;
+  70:application/chassis/chassis.c ****     center_gimbal_offset_y = chassis_config->wheel_measure.center_gimbal_offset_y;
+  71:application/chassis/chassis.c ****     reduction_ratio_wheel = chassis_config->wheel_measure.reduction_ratio_wheel;
+  72:application/chassis/chassis.c **** 
+  73:application/chassis/chassis.c ****     lf_center = ((half_track_width + center_gimbal_offset_x + half_wheel_base - center_gimbal_offse
+  74:application/chassis/chassis.c ****     rf_center = ((half_track_width - center_gimbal_offset_x + half_wheel_base - center_gimbal_offse
+  75:application/chassis/chassis.c ****     lb_center = ((half_track_width + center_gimbal_offset_x + half_wheel_base + center_gimbal_offse
+  76:application/chassis/chassis.c ****     rb_center = ((half_track_width - center_gimbal_offset_x + half_wheel_base + center_gimbal_offse
+  77:application/chassis/chassis.c ****     rpm_2_wheel_vector = (ANGLE_2_RPM_PER_MIN * (perimeter_wheel * MM_2_M) / (reduction_ratio_wheel
+  78:application/chassis/chassis.c **** 
+  79:application/chassis/chassis.c ****     // 四个轮子的参数一样,改tx_id和反转标志位即可
+  80:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.can_init_config.tx_id = chassis_config->chassis_motor_id[M
+  81:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+  82:application/chassis/chassis.c ****     motor_lf = DJIMotorInit(&chassis_config->chassis_motor_config);     
+  83:application/chassis/chassis.c **** 
+  84:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.can_init_config.tx_id = chassis_config->chassis_motor_id[M
+  85:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+  86:application/chassis/chassis.c ****     motor_rf = DJIMotorInit(&chassis_config->chassis_motor_config);
+  87:application/chassis/chassis.c **** 
+  88:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.can_init_config.tx_id = chassis_config->chassis_motor_id[M
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 3
+
+
+  89:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+  90:application/chassis/chassis.c ****     motor_lb = DJIMotorInit(&chassis_config->chassis_motor_config);
+  91:application/chassis/chassis.c **** 
+  92:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.can_init_config.tx_id = chassis_config->chassis_motor_id[M
+  93:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+  94:application/chassis/chassis.c ****     motor_rb = DJIMotorInit(&chassis_config->chassis_motor_config);
+  95:application/chassis/chassis.c **** 
+  96:application/chassis/chassis.c ****     SuperCap_Init_Config_s cap_conf = {
+  97:application/chassis/chassis.c ****         .can_config = {
+  98:application/chassis/chassis.c ****             .can_handle = &hcan2,
+  99:application/chassis/chassis.c ****             .tx_id = 0x302, // 超级电容默认接收id
+ 100:application/chassis/chassis.c ****             .rx_id = 0x301, // 超级电容默认发送id,注意tx和rx在其他人看来是反的
+ 101:application/chassis/chassis.c ****         }};
+ 102:application/chassis/chassis.c ****     cap = SuperCapInit(&cap_conf); // 超级电容初始化
+ 103:application/chassis/chassis.c **** 
+ 104:application/chassis/chassis.c ****     PowerManager_Init_Config_s power_manager_conf = {
+ 105:application/chassis/chassis.c ****         .k1 = 0.013,    // 越大功率限制权重越大  
+ 106:application/chassis/chassis.c ****         .k2 = 5.23,     // 5.23
+ 107:application/chassis/chassis.c ****         .k3 = 0.82,     // 0.82
+ 108:application/chassis/chassis.c ****         };
+ 109:application/chassis/chassis.c ****     power_manager = PowerControlInit(&power_manager_conf); // 功率管理初始化 
+ 110:application/chassis/chassis.c **** 
+ 111:application/chassis/chassis.c ****     // 发布订阅初始化,如果为双板,则需要can comm来传递消息
+ 112:application/chassis/chassis.c **** #ifdef CHASSIS_BOARD
+ 113:application/chassis/chassis.c ****     Chassis_IMU_data = INS_Init(); // 底盘IMU初始化
+ 114:application/chassis/chassis.c **** 
+ 115:application/chassis/chassis.c ****     CANComm_Init_Config_s comm_conf = {
+ 116:application/chassis/chassis.c ****         .can_config = {
+ 117:application/chassis/chassis.c ****             .can_handle = &hcan2,
+ 118:application/chassis/chassis.c ****             .tx_id = 0x311,
+ 119:application/chassis/chassis.c ****             .rx_id = 0x312,
+ 120:application/chassis/chassis.c ****         },
+ 121:application/chassis/chassis.c ****         .recv_data_len = sizeof(Chassis_Ctrl_Cmd_s),
+ 122:application/chassis/chassis.c ****         .send_data_len = sizeof(Chassis_Upload_Data_s),
+ 123:application/chassis/chassis.c ****     };
+ 124:application/chassis/chassis.c ****     chasiss_can_comm = CANCommInit(&comm_conf); // can comm初始化
+ 125:application/chassis/chassis.c **** #endif                                          // CHASSIS_BOARD
+ 126:application/chassis/chassis.c **** 
+ 127:application/chassis/chassis.c **** #ifdef ONE_BOARD // 单板控制整车,则通过pubsub来传递消息
+ 128:application/chassis/chassis.c ****     chassis_sub = SubRegister("chassis_cmd", sizeof(Chassis_Ctrl_Cmd_s));
+ 129:application/chassis/chassis.c ****     chassis_pub = PubRegister("chassis_feed", sizeof(Chassis_Upload_Data_s));
+ 130:application/chassis/chassis.c **** #endif // ONE_BOARD
+ 131:application/chassis/chassis.c **** }
+ 132:application/chassis/chassis.c **** 
+ 133:application/chassis/chassis.c **** /**
+ 134:application/chassis/chassis.c ****  * @brief 计算每个轮毂电机的输出,正运动学解算
+ 135:application/chassis/chassis.c ****  *        用宏进行预替换减小开销,运动解算具体过程参考教程
+ 136:application/chassis/chassis.c ****  */
+ 137:application/chassis/chassis.c **** static void ChassisCalculate()
+ 138:application/chassis/chassis.c **** {
+  28              		.loc 1 138 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+ 139:application/chassis/chassis.c ****     switch (chassis_config->wheel_type)
+  33              		.loc 1 139 5 view .LVU1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 4
+
+
+  34              		.loc 1 139 27 is_stmt 0 view .LVU2
+  35 0000 434B     		ldr	r3, .L5
+  36 0002 1B68     		ldr	r3, [r3]
+  37 0004 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  38              		.loc 1 139 5 view .LVU3
+  39 0006 13B1     		cbz	r3, .L2
+  40 0008 012B     		cmp	r3, #1
+  41 000a 3CD0     		beq	.L3
+  42 000c 7047     		bx	lr
+  43              	.L2:
+ 140:application/chassis/chassis.c ****     {
+ 141:application/chassis/chassis.c ****     case MECANUM_WHEEL:
+ 142:application/chassis/chassis.c ****         // 麦轮解算逆运动学模型
+ 143:application/chassis/chassis.c ****         vt_lf = -chassis_vx - chassis_vy - chassis_cmd_recv.wz * lf_center;
+  44              		.loc 1 143 9 is_stmt 1 view .LVU4
+  45              		.loc 1 143 17 is_stmt 0 view .LVU5
+  46 000e 414B     		ldr	r3, .L5+4
+  47 0010 D3ED007A 		vldr.32	s15, [r3]
+  48 0014 F1EE676A 		vneg.f32	s13, s15
+  49              		.loc 1 143 29 view .LVU6
+  50 0018 3F4B     		ldr	r3, .L5+8
+  51 001a 93ED006A 		vldr.32	s12, [r3]
+  52 001e 76EEC66A 		vsub.f32	s13, s13, s12
+  53              		.loc 1 143 60 view .LVU7
+  54 0022 3E4B     		ldr	r3, .L5+12
+  55 0024 93ED027A 		vldr.32	s14, [r3, #8]
+  56              		.loc 1 143 64 view .LVU8
+  57 0028 3D4B     		ldr	r3, .L5+16
+  58 002a D3ED005A 		vldr.32	s11, [r3]
+  59 002e 67EE255A 		vmul.f32	s11, s14, s11
+  60              		.loc 1 143 42 view .LVU9
+  61 0032 76EEE56A 		vsub.f32	s13, s13, s11
+  62              		.loc 1 143 15 view .LVU10
+  63 0036 3B4B     		ldr	r3, .L5+20
+  64 0038 C3ED006A 		vstr.32	s13, [r3]
+ 144:application/chassis/chassis.c ****         vt_rf = -chassis_vx + chassis_vy - chassis_cmd_recv.wz * rf_center;
+  65              		.loc 1 144 9 is_stmt 1 view .LVU11
+  66              		.loc 1 144 29 is_stmt 0 view .LVU12
+  67 003c 76EE676A 		vsub.f32	s13, s12, s15
+  68              		.loc 1 144 64 view .LVU13
+  69 0040 394B     		ldr	r3, .L5+24
+  70 0042 D3ED005A 		vldr.32	s11, [r3]
+  71 0046 67EE255A 		vmul.f32	s11, s14, s11
+  72              		.loc 1 144 42 view .LVU14
+  73 004a 76EEE56A 		vsub.f32	s13, s13, s11
+  74              		.loc 1 144 15 view .LVU15
+  75 004e 374B     		ldr	r3, .L5+28
+  76 0050 C3ED006A 		vstr.32	s13, [r3]
+ 145:application/chassis/chassis.c ****         vt_lb = chassis_vx - chassis_vy - chassis_cmd_recv.wz * lb_center;
+  77              		.loc 1 145 9 is_stmt 1 view .LVU16
+  78              		.loc 1 145 28 is_stmt 0 view .LVU17
+  79 0054 77EEC66A 		vsub.f32	s13, s15, s12
+  80              		.loc 1 145 63 view .LVU18
+  81 0058 354B     		ldr	r3, .L5+32
+  82 005a D3ED005A 		vldr.32	s11, [r3]
+  83 005e 67EE255A 		vmul.f32	s11, s14, s11
+  84              		.loc 1 145 41 view .LVU19
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 5
+
+
+  85 0062 76EEE56A 		vsub.f32	s13, s13, s11
+  86              		.loc 1 145 15 view .LVU20
+  87 0066 334B     		ldr	r3, .L5+36
+  88 0068 C3ED006A 		vstr.32	s13, [r3]
+ 146:application/chassis/chassis.c ****         vt_rb = chassis_vx + chassis_vy - chassis_cmd_recv.wz * rb_center;
+  89              		.loc 1 146 9 is_stmt 1 view .LVU21
+  90              		.loc 1 146 28 is_stmt 0 view .LVU22
+  91 006c 77EE867A 		vadd.f32	s15, s15, s12
+  92              		.loc 1 146 63 view .LVU23
+  93 0070 314B     		ldr	r3, .L5+40
+  94 0072 D3ED006A 		vldr.32	s13, [r3]
+  95 0076 27EE267A 		vmul.f32	s14, s14, s13
+  96              		.loc 1 146 41 view .LVU24
+  97 007a 77EEC77A 		vsub.f32	s15, s15, s14
+  98              		.loc 1 146 15 view .LVU25
+  99 007e 2F4B     		ldr	r3, .L5+44
+ 100 0080 C3ED007A 		vstr.32	s15, [r3]
+ 147:application/chassis/chassis.c ****         break;
+ 101              		.loc 1 147 9 is_stmt 1 view .LVU26
+ 102 0084 7047     		bx	lr
+ 103              	.L3:
+ 148:application/chassis/chassis.c ****     case OMNI_WHEEL:
+ 149:application/chassis/chassis.c ****         // 全向轮解算逆运动学模型
+ 150:application/chassis/chassis.c ****         vt_lf = -sqrtf(2) / 2.0f * chassis_vx + sqrtf(2) / 2.0f * chassis_vy - chassis_cmd_recv.wz 
+ 104              		.loc 1 150 9 view .LVU27
+ 105              		.loc 1 150 34 is_stmt 0 view .LVU28
+ 106 0086 234B     		ldr	r3, .L5+4
+ 107 0088 D3ED007A 		vldr.32	s15, [r3]
+ 108 008c 9FED2C7A 		vldr.32	s14, .L5+48
+ 109 0090 67EE877A 		vmul.f32	s15, s15, s14
+ 110              		.loc 1 150 65 view .LVU29
+ 111 0094 204B     		ldr	r3, .L5+8
+ 112 0096 D3ED006A 		vldr.32	s13, [r3]
+ 113 009a 9FED2A7A 		vldr.32	s14, .L5+52
+ 114 009e 66EE876A 		vmul.f32	s13, s13, s14
+ 115              		.loc 1 150 47 view .LVU30
+ 116 00a2 37EEA66A 		vadd.f32	s12, s15, s13
+ 117              		.loc 1 150 96 view .LVU31
+ 118 00a6 1D4B     		ldr	r3, .L5+12
+ 119 00a8 93ED027A 		vldr.32	s14, [r3, #8]
+ 120              		.loc 1 150 100 view .LVU32
+ 121 00ac 1C4B     		ldr	r3, .L5+16
+ 122 00ae D3ED005A 		vldr.32	s11, [r3]
+ 123 00b2 67EE255A 		vmul.f32	s11, s14, s11
+ 124              		.loc 1 150 78 view .LVU33
+ 125 00b6 36EE656A 		vsub.f32	s12, s12, s11
+ 126              		.loc 1 150 15 view .LVU34
+ 127 00ba 1A4B     		ldr	r3, .L5+20
+ 128 00bc 83ED006A 		vstr.32	s12, [r3]
+ 151:application/chassis/chassis.c ****         vt_rf = sqrtf(2) / 2.0f * chassis_vx + sqrtf(2) / 2.0f * chassis_vy - chassis_cmd_recv.wz *
+ 129              		.loc 1 151 9 is_stmt 1 view .LVU35
+ 130              		.loc 1 151 99 is_stmt 0 view .LVU36
+ 131 00c0 194B     		ldr	r3, .L5+24
+ 132 00c2 D3ED005A 		vldr.32	s11, [r3]
+ 133 00c6 67EE255A 		vmul.f32	s11, s14, s11
+ 134              		.loc 1 151 77 view .LVU37
+ 135 00ca 36EEE76A 		vsub.f32	s12, s13, s15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 6
+
+
+ 136 00ce 36EE656A 		vsub.f32	s12, s12, s11
+ 137              		.loc 1 151 15 view .LVU38
+ 138 00d2 164B     		ldr	r3, .L5+28
+ 139 00d4 83ED006A 		vstr.32	s12, [r3]
+ 152:application/chassis/chassis.c ****         vt_lb = -sqrtf(2) / 2.0f * chassis_vx - sqrtf(2) / 2.0f * chassis_vy - chassis_cmd_recv.wz 
+ 140              		.loc 1 152 9 is_stmt 1 view .LVU39
+ 141              		.loc 1 152 47 is_stmt 0 view .LVU40
+ 142 00d8 37EEE66A 		vsub.f32	s12, s15, s13
+ 143              		.loc 1 152 100 view .LVU41
+ 144 00dc 144B     		ldr	r3, .L5+32
+ 145 00de D3ED005A 		vldr.32	s11, [r3]
+ 146 00e2 67EE255A 		vmul.f32	s11, s14, s11
+ 147              		.loc 1 152 78 view .LVU42
+ 148 00e6 36EE656A 		vsub.f32	s12, s12, s11
+ 149              		.loc 1 152 15 view .LVU43
+ 150 00ea 124B     		ldr	r3, .L5+36
+ 151 00ec 83ED006A 		vstr.32	s12, [r3]
+ 153:application/chassis/chassis.c ****         vt_rb = sqrtf(2) / 2.0f * chassis_vx - sqrtf(2) / 2.0f * chassis_vy - chassis_cmd_recv.wz *
+ 152              		.loc 1 153 9 is_stmt 1 view .LVU44
+ 153              		.loc 1 153 46 is_stmt 0 view .LVU45
+ 154 00f0 F1EE677A 		vneg.f32	s15, s15
+ 155 00f4 77EEE67A 		vsub.f32	s15, s15, s13
+ 156              		.loc 1 153 99 view .LVU46
+ 157 00f8 0F4B     		ldr	r3, .L5+40
+ 158 00fa D3ED006A 		vldr.32	s13, [r3]
+ 159 00fe 27EE267A 		vmul.f32	s14, s14, s13
+ 160              		.loc 1 153 77 view .LVU47
+ 161 0102 77EEC77A 		vsub.f32	s15, s15, s14
+ 162              		.loc 1 153 15 view .LVU48
+ 163 0106 0D4B     		ldr	r3, .L5+44
+ 164 0108 C3ED007A 		vstr.32	s15, [r3]
+ 154:application/chassis/chassis.c **** 
+ 155:application/chassis/chassis.c ****         // vt_lf = -sqrtf(2) / 2.0f * chassis_cmd_recv.vx - sqrtf(2) / 2.0f * chassis_cmd_recv.vy -
+ 156:application/chassis/chassis.c ****         // vt_rf = -sqrtf(2) / 2.0f * chassis_cmd_recv.vx + sqrtf(2) / 2.0f * chassis_cmd_recv.vy -
+ 157:application/chassis/chassis.c ****         // vt_lb =  sqrtf(2) / 2.0f * chassis_cmd_recv.vx + sqrtf(2) / 2.0f * chassis_cmd_recv.vy -
+ 158:application/chassis/chassis.c ****         // vt_rb =  sqrtf(2) / 2.0f * chassis_cmd_recv.vx - sqrtf(2) / 2.0f * chassis_cmd_recv.vy -
+ 159:application/chassis/chassis.c ****         break;
+ 165              		.loc 1 159 9 is_stmt 1 view .LVU49
+ 160:application/chassis/chassis.c ****     default:
+ 161:application/chassis/chassis.c ****         break;
+ 162:application/chassis/chassis.c ****     }
+ 163:application/chassis/chassis.c **** }
+ 166              		.loc 1 163 1 is_stmt 0 view .LVU50
+ 167 010c 7047     		bx	lr
+ 168              	.L6:
+ 169 010e 00BF     		.align	2
+ 170              	.L5:
+ 171 0110 00000000 		.word	chassis_config
+ 172 0114 00000000 		.word	chassis_vx
+ 173 0118 00000000 		.word	chassis_vy
+ 174 011c 00000000 		.word	chassis_cmd_recv
+ 175 0120 00000000 		.word	lf_center
+ 176 0124 00000000 		.word	vt_lf
+ 177 0128 00000000 		.word	rf_center
+ 178 012c 00000000 		.word	vt_rf
+ 179 0130 00000000 		.word	lb_center
+ 180 0134 00000000 		.word	vt_lb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 7
+
+
+ 181 0138 00000000 		.word	rb_center
+ 182 013c 00000000 		.word	vt_rb
+ 183 0140 F30435BF 		.word	-1087044365
+ 184 0144 F304353F 		.word	1060439283
+ 185              		.cfi_endproc
+ 186              	.LFE277:
+ 188              		.section	.text.LimitChassisOutput,"ax",%progbits
+ 189              		.align	1
+ 190              		.syntax unified
+ 191              		.thumb
+ 192              		.thumb_func
+ 194              	LimitChassisOutput:
+ 195              	.LFB278:
+ 164:application/chassis/chassis.c **** 
+ 165:application/chassis/chassis.c **** /**
+ 166:application/chassis/chassis.c ****  * @brief 根据裁判系统和电容剩余容量对输出进行限制并设置电机参考值
+ 167:application/chassis/chassis.c ****  *
+ 168:application/chassis/chassis.c ****  */
+ 169:application/chassis/chassis.c **** static void LimitChassisOutput()
+ 170:application/chassis/chassis.c **** {
+ 196              		.loc 1 170 1 is_stmt 1 view -0
+ 197              		.cfi_startproc
+ 198              		@ args = 0, pretend = 0, frame = 64
+ 199              		@ frame_needed = 0, uses_anonymous_args = 0
+ 200 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 201              		.cfi_def_cfa_offset 36
+ 202              		.cfi_offset 4, -36
+ 203              		.cfi_offset 5, -32
+ 204              		.cfi_offset 6, -28
+ 205              		.cfi_offset 7, -24
+ 206              		.cfi_offset 8, -20
+ 207              		.cfi_offset 9, -16
+ 208              		.cfi_offset 10, -12
+ 209              		.cfi_offset 11, -8
+ 210              		.cfi_offset 14, -4
+ 211 0004 2DED088B 		vpush.64	{d8, d9, d10, d11}
+ 212              		.cfi_def_cfa_offset 68
+ 213              		.cfi_offset 80, -68
+ 214              		.cfi_offset 81, -64
+ 215              		.cfi_offset 82, -60
+ 216              		.cfi_offset 83, -56
+ 217              		.cfi_offset 84, -52
+ 218              		.cfi_offset 85, -48
+ 219              		.cfi_offset 86, -44
+ 220              		.cfi_offset 87, -40
+ 221 0008 91B0     		sub	sp, sp, #68
+ 222              		.cfi_def_cfa_offset 136
+ 171:application/chassis/chassis.c ****     // 底盘电机顺序和限制速度电机顺序一致，通过指针访问减少内存浪费
+ 172:application/chassis/chassis.c ****     static Motor_Controller_s *motor_controller;   // 电机控制器指针
+ 223              		.loc 1 172 5 view .LVU52
+ 173:application/chassis/chassis.c ****     static DJI_Motor_Measure_s *measure;           // 电机测量值指针    
+ 224              		.loc 1 173 5 view .LVU53
+ 174:application/chassis/chassis.c ****     DJIMotorInstance *motor[4] = {motor_lf, motor_rf, motor_lb, motor_rb};
+ 225              		.loc 1 174 5 view .LVU54
+ 226              		.loc 1 174 23 is_stmt 0 view .LVU55
+ 227 000a 894B     		ldr	r3, .L42+8
+ 228 000c 1B68     		ldr	r3, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 8
+
+
+ 229 000e 0C93     		str	r3, [sp, #48]
+ 230 0010 884B     		ldr	r3, .L42+12
+ 231 0012 1B68     		ldr	r3, [r3]
+ 232 0014 0D93     		str	r3, [sp, #52]
+ 233 0016 884B     		ldr	r3, .L42+16
+ 234 0018 1B68     		ldr	r3, [r3]
+ 235 001a 0E93     		str	r3, [sp, #56]
+ 236 001c 874B     		ldr	r3, .L42+20
+ 237 001e 1B68     		ldr	r3, [r3]
+ 238 0020 0F93     		str	r3, [sp, #60]
+ 175:application/chassis/chassis.c ****     float limit_vt[4] = {vt_lf, vt_rf, vt_lb, vt_rb};
+ 239              		.loc 1 175 5 is_stmt 1 view .LVU56
+ 240              		.loc 1 175 11 is_stmt 0 view .LVU57
+ 241 0022 874B     		ldr	r3, .L42+24
+ 242 0024 1B68     		ldr	r3, [r3]	@ float
+ 243 0026 0893     		str	r3, [sp, #32]	@ float
+ 244 0028 864B     		ldr	r3, .L42+28
+ 245 002a 1B68     		ldr	r3, [r3]	@ float
+ 246 002c 0993     		str	r3, [sp, #36]	@ float
+ 247 002e 864B     		ldr	r3, .L42+32
+ 248 0030 1B68     		ldr	r3, [r3]	@ float
+ 249 0032 0A93     		str	r3, [sp, #40]	@ float
+ 250 0034 854B     		ldr	r3, .L42+36
+ 251 0036 1B68     		ldr	r3, [r3]	@ float
+ 252 0038 0B93     		str	r3, [sp, #44]	@ float
+ 176:application/chassis/chassis.c **** 
+ 177:application/chassis/chassis.c ****     float currentPower[4];
+ 253              		.loc 1 177 5 is_stmt 1 view .LVU58
+ 178:application/chassis/chassis.c ****     float error[4];
+ 254              		.loc 1 178 5 view .LVU59
+ 179:application/chassis/chassis.c ****     float allocatablePower, sumPowerRequired, sumCurrentPower, sumError;
+ 255              		.loc 1 179 5 view .LVU60
+ 180:application/chassis/chassis.c ****     float errorConfidence, powerWeight_Error, powerWeight_Prop, powerWeight, delta;
+ 256              		.loc 1 180 5 view .LVU61
+ 181:application/chassis/chassis.c **** 
+ 182:application/chassis/chassis.c ****     // 裁判系统获得的功率限制值
+ 183:application/chassis/chassis.c ****     allocatablePower = chassis_cmd_recv.power_limit;
+ 257              		.loc 1 183 5 view .LVU62
+ 258              		.loc 1 183 22 is_stmt 0 view .LVU63
+ 259 003a 854B     		ldr	r3, .L42+40
+ 260 003c 93ED04AA 		vldr.32	s20, [r3, #16]
+ 261              	.LVL0:
+ 184:application/chassis/chassis.c ****     for (int i = 0; i < 4; i++)
+ 262              		.loc 1 184 5 is_stmt 1 view .LVU64
+ 263              	.LBB2:
+ 264              		.loc 1 184 10 view .LVU65
+ 265              		.loc 1 184 14 is_stmt 0 view .LVU66
+ 266 0040 0025     		movs	r5, #0
+ 267              		.loc 1 184 5 view .LVU67
+ 268 0042 0CE0     		b	.L8
+ 269              	.LVL1:
+ 270              	.L40:
+ 185:application/chassis/chassis.c ****     {   
+ 186:application/chassis/chassis.c ****         // 不用速度闭环，开启开环控制方便直接输出电流值
+ 187:application/chassis/chassis.c ****         DJIMotorOuterLoop(motor[i], OPEN_LOOP);
+ 188:application/chassis/chassis.c ****         DJIMotorCloseLoop(motor[i], OPEN_LOOP);        
+ 189:application/chassis/chassis.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 9
+
+
+ 190:application/chassis/chassis.c ****         measure = &motor[i]->measure;
+ 191:application/chassis/chassis.c ****         motor_controller = &motor[i]->motor_controller;   
+ 192:application/chassis/chassis.c **** 
+ 193:application/chassis/chassis.c ****         if (motor[i]->motor_settings.motor_reverse_flag == MOTOR_DIRECTION_REVERSE)
+ 194:application/chassis/chassis.c ****             limit_vt[i] *= -1;
+ 271              		.loc 1 194 13 is_stmt 1 view .LVU68
+ 272              		.loc 1 194 21 is_stmt 0 view .LVU69
+ 273 0044 10AB     		add	r3, sp, #64
+ 274 0046 03EB8503 		add	r3, r3, r5, lsl #2
+ 275 004a 53ED087A 		vldr.32	s15, [r3, #-32]
+ 276              		.loc 1 194 25 view .LVU70
+ 277 004e F1EE677A 		vneg.f32	s15, s15
+ 278 0052 43ED087A 		vstr.32	s15, [r3, #-32]
+ 279 0056 1BE0     		b	.L9
+ 280              	.L10:
+ 195:application/chassis/chassis.c **** 
+ 196:application/chassis/chassis.c ****         // 实时计算速度环PID输出
+ 197:application/chassis/chassis.c ****         limit_vt[i] = PIDCalculate(&motor_controller->speed_PID, measure->speed_aps, limit_vt[i]);
+ 198:application/chassis/chassis.c ****         limit_vt[i] = PIDCalculate(&motor_controller->current_PID, measure->real_current, limit_vt[
+ 199:application/chassis/chassis.c **** 
+ 200:application/chassis/chassis.c ****         currentPower[i] = motor_controller->current_PID.Output * TOQUE_COEFFICIENT_3508 * measure->
+ 201:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 202:application/chassis/chassis.c ****         error[i] = fabs(motor_controller->speed_PID.Ref - measure->speed_aps); 
+ 203:application/chassis/chassis.c ****         sumCurrentPower += currentPower[i]; 
+ 204:application/chassis/chassis.c **** 
+ 205:application/chassis/chassis.c **** 
+ 206:application/chassis/chassis.c ****         if (floatEqual(currentPower[i], 0.0f) || currentPower[i] < 0.0f) 
+ 207:application/chassis/chassis.c ****         {
+ 208:application/chassis/chassis.c ****             allocatablePower += -currentPower[i];
+ 281              		.loc 1 208 13 is_stmt 1 view .LVU71
+ 282              		.loc 1 208 30 is_stmt 0 view .LVU72
+ 283 0058 3AEE48AA 		vsub.f32	s20, s20, s16
+ 284              	.LVL2:
+ 285              	.L13:
+ 184:application/chassis/chassis.c ****     {   
+ 286              		.loc 1 184 29 is_stmt 1 discriminator 2 view .LVU73
+ 287 005c 0135     		adds	r5, r5, #1
+ 288              	.LVL3:
+ 289              	.L8:
+ 184:application/chassis/chassis.c ****     {   
+ 290              		.loc 1 184 23 discriminator 1 view .LVU74
+ 291 005e 032D     		cmp	r5, #3
+ 292 0060 00F3B380 		bgt	.L39
+ 187:application/chassis/chassis.c ****         DJIMotorCloseLoop(motor[i], OPEN_LOOP);        
+ 293              		.loc 1 187 9 view .LVU75
+ 294 0064 10AB     		add	r3, sp, #64
+ 295 0066 03EB8503 		add	r3, r3, r5, lsl #2
+ 296 006a 53F8106C 		ldr	r6, [r3, #-16]
+ 297 006e 0021     		movs	r1, #0
+ 298 0070 3046     		mov	r0, r6
+ 299 0072 FFF7FEFF 		bl	DJIMotorOuterLoop
+ 300              	.LVL4:
+ 188:application/chassis/chassis.c **** 
+ 301              		.loc 1 188 9 view .LVU76
+ 302 0076 0021     		movs	r1, #0
+ 303 0078 3046     		mov	r0, r6
+ 304 007a FFF7FEFF 		bl	DJIMotorCloseLoop
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 10
+
+
+ 305              	.LVL5:
+ 190:application/chassis/chassis.c ****         motor_controller = &motor[i]->motor_controller;   
+ 306              		.loc 1 190 9 view .LVU77
+ 190:application/chassis/chassis.c ****         motor_controller = &motor[i]->motor_controller;   
+ 307              		.loc 1 190 17 is_stmt 0 view .LVU78
+ 308 007e 754B     		ldr	r3, .L42+44
+ 309 0080 1E60     		str	r6, [r3]
+ 191:application/chassis/chassis.c **** 
+ 310              		.loc 1 191 9 is_stmt 1 view .LVU79
+ 191:application/chassis/chassis.c **** 
+ 311              		.loc 1 191 28 is_stmt 0 view .LVU80
+ 312 0082 06F12000 		add	r0, r6, #32
+ 191:application/chassis/chassis.c **** 
+ 313              		.loc 1 191 26 view .LVU81
+ 314 0086 744B     		ldr	r3, .L42+48
+ 315 0088 1860     		str	r0, [r3]
+ 193:application/chassis/chassis.c ****             limit_vt[i] *= -1;
+ 316              		.loc 1 193 9 is_stmt 1 view .LVU82
+ 193:application/chassis/chassis.c ****             limit_vt[i] *= -1;
+ 317              		.loc 1 193 37 is_stmt 0 view .LVU83
+ 318 008a B37E     		ldrb	r3, [r6, #26]	@ zero_extendqisi2
+ 193:application/chassis/chassis.c ****             limit_vt[i] *= -1;
+ 319              		.loc 1 193 12 view .LVU84
+ 320 008c 012B     		cmp	r3, #1
+ 321 008e D9D0     		beq	.L40
+ 322              	.L9:
+ 197:application/chassis/chassis.c ****         limit_vt[i] = PIDCalculate(&motor_controller->current_PID, measure->real_current, limit_vt[
+ 323              		.loc 1 197 9 is_stmt 1 view .LVU85
+ 197:application/chassis/chassis.c ****         limit_vt[i] = PIDCalculate(&motor_controller->current_PID, measure->real_current, limit_vt[
+ 324              		.loc 1 197 23 is_stmt 0 view .LVU86
+ 325 0090 10AB     		add	r3, sp, #64
+ 326 0092 03EB8504 		add	r4, r3, r5, lsl #2
+ 327 0096 54ED080A 		vldr.32	s1, [r4, #-32]
+ 328 009a 96ED020A 		vldr.32	s0, [r6, #8]
+ 329 009e 8830     		adds	r0, r0, #136
+ 330 00a0 FFF7FEFF 		bl	PIDCalculate
+ 331              	.LVL6:
+ 332 00a4 F0EE400A 		vmov.f32	s1, s0
+ 197:application/chassis/chassis.c ****         limit_vt[i] = PIDCalculate(&motor_controller->current_PID, measure->real_current, limit_vt[
+ 333              		.loc 1 197 21 discriminator 1 view .LVU87
+ 334 00a8 04ED080A 		vstr.32	s0, [r4, #-32]
+ 198:application/chassis/chassis.c **** 
+ 335              		.loc 1 198 9 is_stmt 1 view .LVU88
+ 198:application/chassis/chassis.c **** 
+ 336              		.loc 1 198 53 is_stmt 0 view .LVU89
+ 337 00ac 6A4F     		ldr	r7, .L42+48
+ 338 00ae 3868     		ldr	r0, [r7]
+ 198:application/chassis/chassis.c **** 
+ 339              		.loc 1 198 75 view .LVU90
+ 340 00b0 684E     		ldr	r6, .L42+44
+ 341 00b2 3368     		ldr	r3, [r6]
+ 342 00b4 B3F90C30 		ldrsh	r3, [r3, #12]
+ 343 00b8 00EE103A 		vmov	s0, r3	@ int
+ 198:application/chassis/chassis.c **** 
+ 344              		.loc 1 198 23 view .LVU91
+ 345 00bc B8EEC00A 		vcvt.f32.s32	s0, s0
+ 346 00c0 1030     		adds	r0, r0, #16
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 11
+
+
+ 347 00c2 FFF7FEFF 		bl	PIDCalculate
+ 348              	.LVL7:
+ 198:application/chassis/chassis.c **** 
+ 349              		.loc 1 198 21 discriminator 1 view .LVU92
+ 350 00c6 04ED080A 		vstr.32	s0, [r4, #-32]
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 351              		.loc 1 200 9 is_stmt 1 view .LVU93
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 352              		.loc 1 200 43 is_stmt 0 view .LVU94
+ 353 00ca D7F800B0 		ldr	fp, [r7]
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 354              		.loc 1 200 56 view .LVU95
+ 355 00ce 9BED188A 		vldr.32	s16, [fp, #96]
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 356              		.loc 1 200 64 view .LVU96
+ 357 00d2 DFED628A 		vldr.32	s17, .L42+52
+ 358 00d6 68EE287A 		vmul.f32	s15, s16, s17
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 359              		.loc 1 200 98 view .LVU97
+ 360 00da 3368     		ldr	r3, [r6]
+ 361 00dc 93ED029A 		vldr.32	s18, [r3, #8]
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 362              		.loc 1 200 89 view .LVU98
+ 363 00e0 67EE897A 		vmul.f32	s15, s15, s18
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 364              		.loc 1 200 110 view .LVU99
+ 365 00e4 9FED5E7A 		vldr.32	s14, .L42+56
+ 366 00e8 67EE877A 		vmul.f32	s15, s15, s14
+ 367 00ec 17EE900A 		vmov	r0, s15
+ 368 00f0 FFF7FEFF 		bl	__aeabi_f2d
+ 369              	.LVL8:
+ 370 00f4 0646     		mov	r6, r0
+ 371 00f6 0F46     		mov	r7, r1
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 372              		.loc 1 200 140 view .LVU100
+ 373 00f8 5A4B     		ldr	r3, .L42+60
+ 374 00fa D3F800A0 		ldr	r10, [r3]
+ 375 00fe DAF80400 		ldr	r0, [r10, #4]	@ float
+ 376 0102 FFF7FEFF 		bl	__aeabi_f2d
+ 377              	.LVL9:
+ 378 0106 8046     		mov	r8, r0
+ 379 0108 8946     		mov	r9, r1
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 380              		.loc 1 200 147 view .LVU101
+ 381 010a F0EEC97A 		vabs.f32	s15, s18
+ 382 010e 17EE900A 		vmov	r0, s15
+ 383 0112 FFF7FEFF 		bl	__aeabi_f2d
+ 384              	.LVL10:
+ 385 0116 0246     		mov	r2, r0
+ 386 0118 0B46     		mov	r3, r1
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 387              		.loc 1 200 145 view .LVU102
+ 388 011a 4046     		mov	r0, r8
+ 389 011c 4946     		mov	r1, r9
+ 390 011e FFF7FEFF 		bl	__aeabi_dmul
+ 391              	.LVL11:
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 12
+
+
+ 392              		.loc 1 200 172 view .LVU103
+ 393 0122 41A3     		adr	r3, .L42
+ 394 0124 D3E90023 		ldrd	r2, [r3]
+ 395 0128 FFF7FEFF 		bl	__aeabi_dmul
+ 396              	.LVL12:
+ 397 012c 0246     		mov	r2, r0
+ 398 012e 0B46     		mov	r3, r1
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 399              		.loc 1 200 125 view .LVU104
+ 400 0130 3046     		mov	r0, r6
+ 401 0132 3946     		mov	r1, r7
+ 402 0134 FFF7FEFF 		bl	__aeabi_dadd
+ 403              	.LVL13:
+ 404 0138 0646     		mov	r6, r0
+ 405 013a 0F46     		mov	r7, r1
+ 201:application/chassis/chassis.c ****         error[i] = fabs(motor_controller->speed_PID.Ref - measure->speed_aps); 
+ 406              		.loc 1 201 38 view .LVU105
+ 407 013c DAED027A 		vldr.32	s15, [r10, #8]
+ 201:application/chassis/chassis.c ****         error[i] = fabs(motor_controller->speed_PID.Ref - measure->speed_aps); 
+ 408              		.loc 1 201 43 view .LVU106
+ 409 0140 68EE277A 		vmul.f32	s15, s16, s15
+ 201:application/chassis/chassis.c ****         error[i] = fabs(motor_controller->speed_PID.Ref - measure->speed_aps); 
+ 410              		.loc 1 201 82 view .LVU107
+ 411 0144 67EEA87A 		vmul.f32	s15, s15, s17
+ 201:application/chassis/chassis.c ****         error[i] = fabs(motor_controller->speed_PID.Ref - measure->speed_aps); 
+ 412              		.loc 1 201 107 view .LVU108
+ 413 0148 28EE278A 		vmul.f32	s16, s16, s15
+ 201:application/chassis/chassis.c ****         error[i] = fabs(motor_controller->speed_PID.Ref - measure->speed_aps); 
+ 414              		.loc 1 201 146 view .LVU109
+ 415 014c 68EE287A 		vmul.f32	s15, s16, s17
+ 416 0150 17EE900A 		vmov	r0, s15
+ 417 0154 FFF7FEFF 		bl	__aeabi_f2d
+ 418              	.LVL14:
+ 419 0158 0246     		mov	r2, r0
+ 420 015a 0B46     		mov	r3, r1
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 421              		.loc 1 200 187 view .LVU110
+ 422 015c 3046     		mov	r0, r6
+ 423 015e 3946     		mov	r1, r7
+ 424 0160 FFF7FEFF 		bl	__aeabi_dadd
+ 425              	.LVL15:
+ 426 0164 0646     		mov	r6, r0
+ 427 0166 0F46     		mov	r7, r1
+ 201:application/chassis/chassis.c ****         error[i] = fabs(motor_controller->speed_PID.Ref - measure->speed_aps); 
+ 428              		.loc 1 201 186 view .LVU111
+ 429 0168 DAF80C00 		ldr	r0, [r10, #12]	@ float
+ 430 016c FFF7FEFF 		bl	__aeabi_f2d
+ 431              	.LVL16:
+ 432 0170 0246     		mov	r2, r0
+ 433 0172 0B46     		mov	r3, r1
+ 201:application/chassis/chassis.c ****         error[i] = fabs(motor_controller->speed_PID.Ref - measure->speed_aps); 
+ 434              		.loc 1 201 171 view .LVU112
+ 435 0174 3046     		mov	r0, r6
+ 436 0176 3946     		mov	r1, r7
+ 437 0178 FFF7FEFF 		bl	__aeabi_dadd
+ 438              	.LVL17:
+ 439 017c FFF7FEFF 		bl	__aeabi_d2f
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 13
+
+
+ 440              	.LVL18:
+ 441 0180 08EE100A 		vmov	s16, r0
+ 200:application/chassis/chassis.c ****                         power_manager->k2 * motor_controller->current_PID.Output * TOQUE_COEFFICIEN
+ 442              		.loc 1 200 25 view .LVU113
+ 443 0184 44F8300C 		str	r0, [r4, #-48]	@ float
+ 202:application/chassis/chassis.c ****         sumCurrentPower += currentPower[i]; 
+ 444              		.loc 1 202 9 is_stmt 1 view .LVU114
+ 202:application/chassis/chassis.c ****         sumCurrentPower += currentPower[i]; 
+ 445              		.loc 1 202 52 is_stmt 0 view .LVU115
+ 446 0188 DBED398A 		vldr.32	s17, [fp, #228]
+ 202:application/chassis/chassis.c ****         sumCurrentPower += currentPower[i]; 
+ 447              		.loc 1 202 57 view .LVU116
+ 448 018c 78EEC98A 		vsub.f32	s17, s17, s18
+ 202:application/chassis/chassis.c ****         sumCurrentPower += currentPower[i]; 
+ 449              		.loc 1 202 20 view .LVU117
+ 450 0190 F0EEE88A 		vabs.f32	s17, s17
+ 202:application/chassis/chassis.c ****         sumCurrentPower += currentPower[i]; 
+ 451              		.loc 1 202 18 view .LVU118
+ 452 0194 44ED108A 		vstr.32	s17, [r4, #-64]
+ 203:application/chassis/chassis.c **** 
+ 453              		.loc 1 203 9 is_stmt 1 view .LVU119
+ 203:application/chassis/chassis.c **** 
+ 454              		.loc 1 203 25 is_stmt 0 view .LVU120
+ 455 0198 79EE889A 		vadd.f32	s19, s19, s16
+ 456              	.LVL19:
+ 206:application/chassis/chassis.c ****         {
+ 457              		.loc 1 206 9 is_stmt 1 view .LVU121
+ 206:application/chassis/chassis.c ****         {
+ 458              		.loc 1 206 13 is_stmt 0 view .LVU122
+ 459 019c DFED320A 		vldr.32	s1, .L42+64
+ 460 01a0 B0EE480A 		vmov.f32	s0, s16
+ 461 01a4 FFF7FEFF 		bl	floatEqual
+ 462              	.LVL20:
+ 206:application/chassis/chassis.c ****         {
+ 463              		.loc 1 206 12 discriminator 1 view .LVU123
+ 464 01a8 B5EE400A 		vcmp.f32	s0, #0
+ 465 01ac F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 466 01b0 7FF452AF 		bne	.L10
+ 206:application/chassis/chassis.c ****         {
+ 467              		.loc 1 206 47 discriminator 2 view .LVU124
+ 468 01b4 B5EEC08A 		vcmpe.f32	s16, #0
+ 469 01b8 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 470 01bc 3FF54CAF 		bmi	.L10
+ 209:application/chassis/chassis.c ****         }
+ 210:application/chassis/chassis.c ****         else
+ 211:application/chassis/chassis.c ****         {
+ 212:application/chassis/chassis.c ****             sumPowerRequired += currentPower[i];
+ 471              		.loc 1 212 13 is_stmt 1 view .LVU125
+ 472              		.loc 1 212 30 is_stmt 0 view .LVU126
+ 473 01c0 3BEE08BA 		vadd.f32	s22, s22, s16
+ 474              	.LVL21:
+ 213:application/chassis/chassis.c ****             sumError += error[i];
+ 475              		.loc 1 213 13 is_stmt 1 view .LVU127
+ 476              		.loc 1 213 22 is_stmt 0 view .LVU128
+ 477 01c4 7AEEA8AA 		vadd.f32	s21, s21, s17
+ 478              	.LVL22:
+ 479              		.loc 1 213 22 view .LVU129
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 14
+
+
+ 480 01c8 48E7     		b	.L13
+ 481              	.LVL23:
+ 482              	.L39:
+ 483              		.loc 1 213 22 view .LVU130
+ 484              	.LBE2:
+ 214:application/chassis/chassis.c ****         }                
+ 215:application/chassis/chassis.c ****     }  
+ 216:application/chassis/chassis.c **** 
+ 217:application/chassis/chassis.c ****     // 当前功率大于最大功率时进行功率分配
+ 218:application/chassis/chassis.c ****     if (sumCurrentPower > chassis_cmd_recv.power_limit)
+ 485              		.loc 1 218 5 is_stmt 1 view .LVU131
+ 486              		.loc 1 218 43 is_stmt 0 view .LVU132
+ 487 01ca 214B     		ldr	r3, .L42+40
+ 488 01cc D3ED047A 		vldr.32	s15, [r3, #16]
+ 489              		.loc 1 218 8 view .LVU133
+ 490 01d0 F4EEE97A 		vcmpe.f32	s15, s19
+ 491 01d4 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 492 01d8 40F16781 		bpl	.L15
+ 219:application/chassis/chassis.c ****     {
+ 220:application/chassis/chassis.c ****         // 等比缩放保证每个轮子输出限制功率下最大功率
+ 221:application/chassis/chassis.c ****         if (sumError > ERROR_POWERDISTRIBUTE)
+ 493              		.loc 1 221 9 is_stmt 1 view .LVU134
+ 494              		.loc 1 221 12 is_stmt 0 view .LVU135
+ 495 01dc F2EE0E7A 		vmov.f32	s15, #1.5e+1
+ 496 01e0 F4EEE7AA 		vcmpe.f32	s21, s15
+ 497 01e4 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 498 01e8 18DC     		bgt	.L28
+ 222:application/chassis/chassis.c ****             errorConfidence = 1.0f;
+ 223:application/chassis/chassis.c ****         else if (sumError > PROP_POWERDISTRIBUTE)
+ 499              		.loc 1 223 14 is_stmt 1 view .LVU136
+ 500              		.loc 1 223 17 is_stmt 0 view .LVU137
+ 501 01ea F1EE047A 		vmov.f32	s15, #5.0e+0
+ 502 01ee F4EEE7AA 		vcmpe.f32	s21, s15
+ 503 01f2 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 504 01f6 02DC     		bgt	.L41
+ 224:application/chassis/chassis.c ****             errorConfidence = float_constrain((sumError - PROP_POWERDISTRIBUTE) / (ERROR_POWERDISTR
+ 225:application/chassis/chassis.c ****         else
+ 226:application/chassis/chassis.c ****             errorConfidence = 0.0f;
+ 505              		.loc 1 226 29 view .LVU138
+ 506 01f8 9FED1B9A 		vldr.32	s18, .L42+64
+ 507 01fc 10E0     		b	.L17
+ 508              	.L41:
+ 224:application/chassis/chassis.c ****             errorConfidence = float_constrain((sumError - PROP_POWERDISTRIBUTE) / (ERROR_POWERDISTR
+ 509              		.loc 1 224 13 is_stmt 1 view .LVU139
+ 224:application/chassis/chassis.c ****             errorConfidence = float_constrain((sumError - PROP_POWERDISTRIBUTE) / (ERROR_POWERDISTR
+ 510              		.loc 1 224 57 is_stmt 0 view .LVU140
+ 511 01fe 7AEEE77A 		vsub.f32	s15, s21, s15
+ 224:application/chassis/chassis.c ****             errorConfidence = float_constrain((sumError - PROP_POWERDISTRIBUTE) / (ERROR_POWERDISTR
+ 512              		.loc 1 224 31 view .LVU141
+ 513 0202 B7EE001A 		vmov.f32	s2, #1.0e+0
+ 514 0206 DFED180A 		vldr.32	s1, .L42+64
+ 515 020a B2EE040A 		vmov.f32	s0, #1.0e+1
+ 516 020e 87EE800A 		vdiv.f32	s0, s15, s0
+ 517 0212 FFF7FEFF 		bl	float_constrain
+ 518              	.LVL24:
+ 519 0216 B0EE409A 		vmov.f32	s18, s0
+ 520              	.LVL25:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 15
+
+
+ 224:application/chassis/chassis.c ****             errorConfidence = float_constrain((sumError - PROP_POWERDISTRIBUTE) / (ERROR_POWERDISTR
+ 521              		.loc 1 224 31 view .LVU142
+ 522 021a 01E0     		b	.L17
+ 523              	.LVL26:
+ 524              	.L28:
+ 222:application/chassis/chassis.c ****             errorConfidence = 1.0f;
+ 525              		.loc 1 222 29 view .LVU143
+ 526 021c B7EE009A 		vmov.f32	s18, #1.0e+0
+ 527              	.L17:
+ 528              	.LVL27:
+ 227:application/chassis/chassis.c ****             
+ 228:application/chassis/chassis.c ****         for (int i = 0; i < 4; i++)
+ 529              		.loc 1 228 9 is_stmt 1 view .LVU144
+ 530              	.LBB3:
+ 531              		.loc 1 228 14 view .LVU145
+ 532              		.loc 1 228 18 is_stmt 0 view .LVU146
+ 533 0220 0024     		movs	r4, #0
+ 534              		.loc 1 228 9 view .LVU147
+ 535 0222 53E0     		b	.L19
+ 536              	.L43:
+ 537 0224 AFF30080 		.align	3
+ 538              	.L42:
+ 539 0228 000000A0 		.word	-1610612736
+ 540 022c 46DF913F 		.word	1066524486
+ 541 0230 00000000 		.word	motor_lf
+ 542 0234 00000000 		.word	motor_rf
+ 543 0238 00000000 		.word	motor_lb
+ 544 023c 00000000 		.word	motor_rb
+ 545 0240 00000000 		.word	vt_lf
+ 546 0244 00000000 		.word	vt_rf
+ 547 0248 00000000 		.word	vt_lb
+ 548 024c 00000000 		.word	vt_rb
+ 549 0250 00000000 		.word	chassis_cmd_recv
+ 550 0254 00000000 		.word	measure.1
+ 551 0258 00000000 		.word	motor_controller.0
+ 552 025c E4F29F37 		.word	933229284
+ 553 0260 35FA8E3C 		.word	1016003125
+ 554 0264 00000000 		.word	power_manager
+ 555 0268 00000000 		.word	0
+ 556              	.LVL28:
+ 557              	.L21:
+ 229:application/chassis/chassis.c ****         { 
+ 230:application/chassis/chassis.c ****             measure = &motor[i]->measure;
+ 231:application/chassis/chassis.c ****             motor_controller = &motor[i]->motor_controller;              
+ 232:application/chassis/chassis.c **** 
+ 233:application/chassis/chassis.c ****             if (floatEqual(currentPower[i], 0.0f) || currentPower[i] < 0.0f)
+ 234:application/chassis/chassis.c ****                 continue;
+ 235:application/chassis/chassis.c **** 
+ 236:application/chassis/chassis.c ****             // 功率分配避免起步时无法走直线，同时云台跟随也可以避免此问
+ 237:application/chassis/chassis.c ****             powerWeight_Error = fabs(motor_controller->speed_PID.Ref - measure->speed_aps) / sumErr
+ 238:application/chassis/chassis.c ****             powerWeight_Prop  = currentPower[i] / sumPowerRequired;
+ 239:application/chassis/chassis.c ****             powerWeight       = errorConfidence * powerWeight_Error + (1.0f - errorConfidence) * po
+ 240:application/chassis/chassis.c ****             delta             = measure->speed_aps * DEGREE_2_RAD * measure->speed_aps * DEGREE_2_R
+ 241:application/chassis/chassis.c ****                         4.0f * power_manager->k2 * (power_manager->k1 * fabs(measure->speed_aps) * 
+ 242:application/chassis/chassis.c ****             // 求解出力矩并且转换成电流值
+ 243:application/chassis/chassis.c ****             if (floatEqual(delta, 0.0f))  
+ 244:application/chassis/chassis.c ****                 limit_vt[i] = (((-measure->speed_aps * DEGREE_2_RAD)) / (2.0f * power_manager->k2))
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 16
+
+
+ 245:application/chassis/chassis.c ****             else if (delta > 0.0f)  
+ 558              		.loc 1 245 18 is_stmt 1 view .LVU148
+ 559              		.loc 1 245 21 is_stmt 0 view .LVU149
+ 560 026c B5EEC08A 		vcmpe.f32	s16, #0
+ 561 0270 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 562 0274 40F3FF80 		ble	.L36
+ 246:application/chassis/chassis.c ****                 limit_vt[i] = motor_controller->current_PID.Output > 0.0f ? ((-measure->speed_aps *
+ 563              		.loc 1 246 17 is_stmt 1 view .LVU150
+ 564              		.loc 1 246 47 is_stmt 0 view .LVU151
+ 565 0278 9D4B     		ldr	r3, .L44+8
+ 566 027a 1B68     		ldr	r3, [r3]
+ 567              		.loc 1 246 60 view .LVU152
+ 568 027c D3ED187A 		vldr.32	s15, [r3, #96]
+ 247:application/chassis/chassis.c ****                                 : (((-measure->speed_aps * DEGREE_2_RAD - sqrtf(delta))) / (2.0f * 
+ 569              		.loc 1 247 33 view .LVU153
+ 570 0280 F5EEC07A 		vcmpe.f32	s15, #0
+ 571 0284 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 572 0288 40F3DA80 		ble	.L37
+ 246:application/chassis/chassis.c ****                 limit_vt[i] = motor_controller->current_PID.Output > 0.0f ? ((-measure->speed_aps *
+ 573              		.loc 1 246 87 view .LVU154
+ 574 028c 994B     		ldr	r3, .L44+12
+ 575 028e 1B68     		ldr	r3, [r3]
+ 576 0290 D3ED028A 		vldr.32	s17, [r3, #8]
+ 246:application/chassis/chassis.c ****                 limit_vt[i] = motor_controller->current_PID.Output > 0.0f ? ((-measure->speed_aps *
+ 577              		.loc 1 246 99 view .LVU155
+ 578 0294 DFED987A 		vldr.32	s15, .L44+16
+ 579 0298 68EEE78A 		vnmul.f32	s17, s17, s15
+ 246:application/chassis/chassis.c ****                 limit_vt[i] = motor_controller->current_PID.Output > 0.0f ? ((-measure->speed_aps *
+ 580              		.loc 1 246 116 view .LVU156
+ 581 029c B0EE480A 		vmov.f32	s0, s16
+ 582 02a0 FFF7FEFF 		bl	sqrtf
+ 583              	.LVL29:
+ 246:application/chassis/chassis.c ****                 limit_vt[i] = motor_controller->current_PID.Output > 0.0f ? ((-measure->speed_aps *
+ 584              		.loc 1 246 114 discriminator 1 view .LVU157
+ 585 02a4 78EE808A 		vadd.f32	s17, s17, s0
+ 246:application/chassis/chassis.c ****                 limit_vt[i] = motor_controller->current_PID.Output > 0.0f ? ((-measure->speed_aps *
+ 586              		.loc 1 246 153 discriminator 1 view .LVU158
+ 587 02a8 944B     		ldr	r3, .L44+20
+ 588 02aa 1B68     		ldr	r3, [r3]
+ 589 02ac D3ED027A 		vldr.32	s15, [r3, #8]
+ 246:application/chassis/chassis.c ****                 limit_vt[i] = motor_controller->current_PID.Output > 0.0f ? ((-measure->speed_aps *
+ 590              		.loc 1 246 138 discriminator 1 view .LVU159
+ 591 02b0 77EEA77A 		vadd.f32	s15, s15, s15
+ 246:application/chassis/chassis.c ****                 limit_vt[i] = motor_controller->current_PID.Output > 0.0f ? ((-measure->speed_aps *
+ 592              		.loc 1 246 130 discriminator 1 view .LVU160
+ 593 02b4 C8EEA76A 		vdiv.f32	s13, s17, s15
+ 594              		.loc 1 247 33 discriminator 1 view .LVU161
+ 595 02b8 9FED917A 		vldr.32	s14, .L44+24
+ 596 02bc C6EE877A 		vdiv.f32	s15, s13, s14
+ 597              	.L26:
+ 246:application/chassis/chassis.c ****                 limit_vt[i] = motor_controller->current_PID.Output > 0.0f ? ((-measure->speed_aps *
+ 598              		.loc 1 246 29 view .LVU162
+ 599 02c0 10AB     		add	r3, sp, #64
+ 600              	.LVL30:
+ 246:application/chassis/chassis.c ****                 limit_vt[i] = motor_controller->current_PID.Output > 0.0f ? ((-measure->speed_aps *
+ 601              		.loc 1 246 29 view .LVU163
+ 602 02c2 03EB8403 		add	r3, r3, r4, lsl #2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 17
+
+
+ 603              	.LVL31:
+ 246:application/chassis/chassis.c ****                 limit_vt[i] = motor_controller->current_PID.Output > 0.0f ? ((-measure->speed_aps *
+ 604              		.loc 1 246 29 view .LVU164
+ 605 02c6 43ED087A 		vstr.32	s15, [r3, #-32]
+ 606              	.LVL32:
+ 607              	.L20:
+ 228:application/chassis/chassis.c ****         { 
+ 608              		.loc 1 228 33 is_stmt 1 discriminator 2 view .LVU165
+ 609 02ca 0134     		adds	r4, r4, #1
+ 610              	.LVL33:
+ 611              	.L19:
+ 228:application/chassis/chassis.c ****         { 
+ 612              		.loc 1 228 27 discriminator 1 view .LVU166
+ 613 02cc 032C     		cmp	r4, #3
+ 614 02ce 00F3EC80 		bgt	.L15
+ 230:application/chassis/chassis.c ****             motor_controller = &motor[i]->motor_controller;              
+ 615              		.loc 1 230 13 view .LVU167
+ 230:application/chassis/chassis.c ****             motor_controller = &motor[i]->motor_controller;              
+ 616              		.loc 1 230 29 is_stmt 0 view .LVU168
+ 617 02d2 10AB     		add	r3, sp, #64
+ 618 02d4 03EB8402 		add	r2, r3, r4, lsl #2
+ 619 02d8 52F8103C 		ldr	r3, [r2, #-16]
+ 230:application/chassis/chassis.c ****             motor_controller = &motor[i]->motor_controller;              
+ 620              		.loc 1 230 21 view .LVU169
+ 621 02dc 8549     		ldr	r1, .L44+12
+ 622 02de 0B60     		str	r3, [r1]
+ 231:application/chassis/chassis.c **** 
+ 623              		.loc 1 231 13 is_stmt 1 view .LVU170
+ 231:application/chassis/chassis.c **** 
+ 624              		.loc 1 231 32 is_stmt 0 view .LVU171
+ 625 02e0 2033     		adds	r3, r3, #32
+ 231:application/chassis/chassis.c **** 
+ 626              		.loc 1 231 30 view .LVU172
+ 627 02e2 8349     		ldr	r1, .L44+8
+ 628 02e4 0B60     		str	r3, [r1]
+ 233:application/chassis/chassis.c ****                 continue;
+ 629              		.loc 1 233 13 is_stmt 1 view .LVU173
+ 233:application/chassis/chassis.c ****                 continue;
+ 630              		.loc 1 233 17 is_stmt 0 view .LVU174
+ 631 02e6 12ED0C8A 		vldr.32	s16, [r2, #-48]
+ 632 02ea DFED860A 		vldr.32	s1, .L44+28
+ 633 02ee B0EE480A 		vmov.f32	s0, s16
+ 634 02f2 FFF7FEFF 		bl	floatEqual
+ 635              	.LVL34:
+ 233:application/chassis/chassis.c ****                 continue;
+ 636              		.loc 1 233 16 discriminator 1 view .LVU175
+ 637 02f6 B5EE400A 		vcmp.f32	s0, #0
+ 638 02fa F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 639 02fe E4D1     		bne	.L20
+ 233:application/chassis/chassis.c ****                 continue;
+ 640              		.loc 1 233 51 discriminator 3 view .LVU176
+ 641 0300 B5EEC08A 		vcmpe.f32	s16, #0
+ 642 0304 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 643 0308 DFD4     		bmi	.L20
+ 237:application/chassis/chassis.c ****             powerWeight_Prop  = currentPower[i] / sumPowerRequired;
+ 644              		.loc 1 237 13 is_stmt 1 view .LVU177
+ 237:application/chassis/chassis.c ****             powerWeight_Prop  = currentPower[i] / sumPowerRequired;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 18
+
+
+ 645              		.loc 1 237 54 is_stmt 0 view .LVU178
+ 646 030a 794B     		ldr	r3, .L44+8
+ 647 030c 1B68     		ldr	r3, [r3]
+ 237:application/chassis/chassis.c ****             powerWeight_Prop  = currentPower[i] / sumPowerRequired;
+ 648              		.loc 1 237 65 view .LVU179
+ 649 030e 93ED397A 		vldr.32	s14, [r3, #228]
+ 237:application/chassis/chassis.c ****             powerWeight_Prop  = currentPower[i] / sumPowerRequired;
+ 650              		.loc 1 237 79 view .LVU180
+ 651 0312 784B     		ldr	r3, .L44+12
+ 652 0314 1B68     		ldr	r3, [r3]
+ 653 0316 D3ED028A 		vldr.32	s17, [r3, #8]
+ 237:application/chassis/chassis.c ****             powerWeight_Prop  = currentPower[i] / sumPowerRequired;
+ 654              		.loc 1 237 70 view .LVU181
+ 655 031a 37EE687A 		vsub.f32	s14, s14, s17
+ 237:application/chassis/chassis.c ****             powerWeight_Prop  = currentPower[i] / sumPowerRequired;
+ 656              		.loc 1 237 33 view .LVU182
+ 657 031e B0EEC77A 		vabs.f32	s14, s14
+ 237:application/chassis/chassis.c ****             powerWeight_Prop  = currentPower[i] / sumPowerRequired;
+ 658              		.loc 1 237 31 view .LVU183
+ 659 0322 C7EE2A7A 		vdiv.f32	s15, s14, s21
+ 660              	.LVL35:
+ 238:application/chassis/chassis.c ****             powerWeight       = errorConfidence * powerWeight_Error + (1.0f - errorConfidence) * po
+ 661              		.loc 1 238 13 is_stmt 1 view .LVU184
+ 238:application/chassis/chassis.c ****             powerWeight       = errorConfidence * powerWeight_Error + (1.0f - errorConfidence) * po
+ 662              		.loc 1 238 31 is_stmt 0 view .LVU185
+ 663 0326 88EE0B7A 		vdiv.f32	s14, s16, s22
+ 664              	.LVL36:
+ 239:application/chassis/chassis.c ****             delta             = measure->speed_aps * DEGREE_2_RAD * measure->speed_aps * DEGREE_2_R
+ 665              		.loc 1 239 13 is_stmt 1 view .LVU186
+ 239:application/chassis/chassis.c ****             delta             = measure->speed_aps * DEGREE_2_RAD * measure->speed_aps * DEGREE_2_R
+ 666              		.loc 1 239 49 is_stmt 0 view .LVU187
+ 667 032a 29EE278A 		vmul.f32	s16, s18, s15
+ 239:application/chassis/chassis.c ****             delta             = measure->speed_aps * DEGREE_2_RAD * measure->speed_aps * DEGREE_2_R
+ 668              		.loc 1 239 77 view .LVU188
+ 669 032e F7EE007A 		vmov.f32	s15, #1.0e+0
+ 670              	.LVL37:
+ 239:application/chassis/chassis.c ****             delta             = measure->speed_aps * DEGREE_2_RAD * measure->speed_aps * DEGREE_2_R
+ 671              		.loc 1 239 77 view .LVU189
+ 672 0332 77EEC97A 		vsub.f32	s15, s15, s18
+ 239:application/chassis/chassis.c ****             delta             = measure->speed_aps * DEGREE_2_RAD * measure->speed_aps * DEGREE_2_R
+ 673              		.loc 1 239 96 view .LVU190
+ 674 0336 67EE877A 		vmul.f32	s15, s15, s14
+ 239:application/chassis/chassis.c ****             delta             = measure->speed_aps * DEGREE_2_RAD * measure->speed_aps * DEGREE_2_R
+ 675              		.loc 1 239 31 view .LVU191
+ 676 033a 38EE278A 		vadd.f32	s16, s16, s15
+ 677              	.LVL38:
+ 240:application/chassis/chassis.c ****                         4.0f * power_manager->k2 * (power_manager->k1 * fabs(measure->speed_aps) * 
+ 678              		.loc 1 240 13 is_stmt 1 view .LVU192
+ 240:application/chassis/chassis.c ****                         4.0f * power_manager->k2 * (power_manager->k1 * fabs(measure->speed_aps) * 
+ 679              		.loc 1 240 52 is_stmt 0 view .LVU193
+ 680 033e 9FED6E7A 		vldr.32	s14, .L44+16
+ 681              	.LVL39:
+ 240:application/chassis/chassis.c ****                         4.0f * power_manager->k2 * (power_manager->k1 * fabs(measure->speed_aps) * 
+ 682              		.loc 1 240 52 view .LVU194
+ 683 0342 68EE877A 		vmul.f32	s15, s17, s14
+ 240:application/chassis/chassis.c ****                         4.0f * power_manager->k2 * (power_manager->k1 * fabs(measure->speed_aps) * 
+ 684              		.loc 1 240 67 view .LVU195
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 19
+
+
+ 685 0346 68EEA77A 		vmul.f32	s15, s17, s15
+ 240:application/chassis/chassis.c ****                         4.0f * power_manager->k2 * (power_manager->k1 * fabs(measure->speed_aps) * 
+ 686              		.loc 1 240 88 view .LVU196
+ 687 034a 67EE877A 		vmul.f32	s15, s15, s14
+ 688 034e 17EE900A 		vmov	r0, s15
+ 689 0352 FFF7FEFF 		bl	__aeabi_f2d
+ 690              	.LVL40:
+ 240:application/chassis/chassis.c ****                         4.0f * power_manager->k2 * (power_manager->k1 * fabs(measure->speed_aps) * 
+ 691              		.loc 1 240 88 view .LVU197
+ 692 0356 8246     		mov	r10, r0
+ 693 0358 8B46     		mov	fp, r1
+ 241:application/chassis/chassis.c ****             // 求解出力矩并且转换成电流值
+ 694              		.loc 1 241 45 view .LVU198
+ 695 035a 684B     		ldr	r3, .L44+20
+ 696 035c 1D68     		ldr	r5, [r3]
+ 697 035e 95ED027A 		vldr.32	s14, [r5, #8]
+ 241:application/chassis/chassis.c ****             // 求解出力矩并且转换成电流值
+ 698              		.loc 1 241 30 view .LVU199
+ 699 0362 F1EE007A 		vmov.f32	s15, #4.0e+0
+ 700 0366 67EE277A 		vmul.f32	s15, s14, s15
+ 701 036a 17EE900A 		vmov	r0, s15
+ 702 036e FFF7FEFF 		bl	__aeabi_f2d
+ 703              	.LVL41:
+ 704 0372 8046     		mov	r8, r0
+ 705 0374 8946     		mov	r9, r1
+ 241:application/chassis/chassis.c ****             // 求解出力矩并且转换成电流值
+ 706              		.loc 1 241 66 view .LVU200
+ 707 0376 6868     		ldr	r0, [r5, #4]	@ float
+ 708 0378 FFF7FEFF 		bl	__aeabi_f2d
+ 709              	.LVL42:
+ 710 037c 0646     		mov	r6, r0
+ 711 037e 0F46     		mov	r7, r1
+ 241:application/chassis/chassis.c ****             // 求解出力矩并且转换成电流值
+ 712              		.loc 1 241 73 view .LVU201
+ 713 0380 F0EEE87A 		vabs.f32	s15, s17
+ 714 0384 17EE900A 		vmov	r0, s15
+ 715 0388 FFF7FEFF 		bl	__aeabi_f2d
+ 716              	.LVL43:
+ 717 038c 0246     		mov	r2, r0
+ 718 038e 0B46     		mov	r3, r1
+ 241:application/chassis/chassis.c ****             // 求解出力矩并且转换成电流值
+ 719              		.loc 1 241 71 view .LVU202
+ 720 0390 3046     		mov	r0, r6
+ 721 0392 3946     		mov	r1, r7
+ 722 0394 FFF7FEFF 		bl	__aeabi_dmul
+ 723              	.LVL44:
+ 241:application/chassis/chassis.c ****             // 求解出力矩并且转换成电流值
+ 724              		.loc 1 241 98 view .LVU203
+ 725 0398 53A3     		adr	r3, .L44
+ 726 039a D3E90023 		ldrd	r2, [r3]
+ 727 039e FFF7FEFF 		bl	__aeabi_dmul
+ 728              	.LVL45:
+ 729 03a2 0646     		mov	r6, r0
+ 730 03a4 0F46     		mov	r7, r1
+ 241:application/chassis/chassis.c ****             // 求解出力矩并且转换成电流值
+ 731              		.loc 1 241 127 view .LVU204
+ 732 03a6 6AEE087A 		vmul.f32	s15, s20, s16
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 20
+
+
+ 733 03aa 17EE900A 		vmov	r0, s15
+ 734 03ae FFF7FEFF 		bl	__aeabi_f2d
+ 735              	.LVL46:
+ 736 03b2 0246     		mov	r2, r0
+ 737 03b4 0B46     		mov	r3, r1
+ 241:application/chassis/chassis.c ****             // 求解出力矩并且转换成电流值
+ 738              		.loc 1 241 113 view .LVU205
+ 739 03b6 3046     		mov	r0, r6
+ 740 03b8 3946     		mov	r1, r7
+ 741 03ba FFF7FEFF 		bl	__aeabi_dsub
+ 742              	.LVL47:
+ 743 03be 0646     		mov	r6, r0
+ 744 03c0 0F46     		mov	r7, r1
+ 241:application/chassis/chassis.c ****             // 求解出力矩并且转换成电流值
+ 745              		.loc 1 241 161 view .LVU206
+ 746 03c2 E868     		ldr	r0, [r5, #12]	@ float
+ 747 03c4 FFF7FEFF 		bl	__aeabi_f2d
+ 748              	.LVL48:
+ 749 03c8 0246     		mov	r2, r0
+ 750 03ca 0B46     		mov	r3, r1
+ 241:application/chassis/chassis.c ****             // 求解出力矩并且转换成电流值
+ 751              		.loc 1 241 146 view .LVU207
+ 752 03cc 3046     		mov	r0, r6
+ 753 03ce 3946     		mov	r1, r7
+ 754 03d0 FFF7FEFF 		bl	__aeabi_dadd
+ 755              	.LVL49:
+ 756 03d4 0246     		mov	r2, r0
+ 757 03d6 0B46     		mov	r3, r1
+ 241:application/chassis/chassis.c ****             // 求解出力矩并且转换成电流值
+ 758              		.loc 1 241 50 view .LVU208
+ 759 03d8 4046     		mov	r0, r8
+ 760 03da 4946     		mov	r1, r9
+ 761 03dc FFF7FEFF 		bl	__aeabi_dmul
+ 762              	.LVL50:
+ 763 03e0 0246     		mov	r2, r0
+ 764 03e2 0B46     		mov	r3, r1
+ 240:application/chassis/chassis.c ****                         4.0f * power_manager->k2 * (power_manager->k1 * fabs(measure->speed_aps) * 
+ 765              		.loc 1 240 103 view .LVU209
+ 766 03e4 5046     		mov	r0, r10
+ 767 03e6 5946     		mov	r1, fp
+ 768 03e8 FFF7FEFF 		bl	__aeabi_dsub
+ 769              	.LVL51:
+ 240:application/chassis/chassis.c ****                         4.0f * power_manager->k2 * (power_manager->k1 * fabs(measure->speed_aps) * 
+ 770              		.loc 1 240 31 view .LVU210
+ 771 03ec FFF7FEFF 		bl	__aeabi_d2f
+ 772              	.LVL52:
+ 773 03f0 08EE100A 		vmov	s16, r0
+ 774              	.LVL53:
+ 243:application/chassis/chassis.c ****                 limit_vt[i] = (((-measure->speed_aps * DEGREE_2_RAD)) / (2.0f * power_manager->k2))
+ 775              		.loc 1 243 13 is_stmt 1 view .LVU211
+ 243:application/chassis/chassis.c ****                 limit_vt[i] = (((-measure->speed_aps * DEGREE_2_RAD)) / (2.0f * power_manager->k2))
+ 776              		.loc 1 243 17 is_stmt 0 view .LVU212
+ 777 03f4 DFED430A 		vldr.32	s1, .L44+28
+ 778 03f8 B0EE480A 		vmov.f32	s0, s16
+ 779 03fc FFF7FEFF 		bl	floatEqual
+ 780              	.LVL54:
+ 243:application/chassis/chassis.c ****                 limit_vt[i] = (((-measure->speed_aps * DEGREE_2_RAD)) / (2.0f * power_manager->k2))
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 21
+
+
+ 781              		.loc 1 243 16 discriminator 1 view .LVU213
+ 782 0400 B5EE400A 		vcmp.f32	s0, #0
+ 783 0404 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 784 0408 3FF430AF 		beq	.L21
+ 244:application/chassis/chassis.c ****             else if (delta > 0.0f)  
+ 785              		.loc 1 244 17 is_stmt 1 view .LVU214
+ 244:application/chassis/chassis.c ****             else if (delta > 0.0f)  
+ 786              		.loc 1 244 42 is_stmt 0 view .LVU215
+ 787 040c 394B     		ldr	r3, .L44+12
+ 788 040e 1B68     		ldr	r3, [r3]
+ 789 0410 93ED027A 		vldr.32	s14, [r3, #8]
+ 244:application/chassis/chassis.c ****             else if (delta > 0.0f)  
+ 790              		.loc 1 244 54 view .LVU216
+ 791 0414 DFED387A 		vldr.32	s15, .L44+16
+ 792 0418 27EE677A 		vnmul.f32	s14, s14, s15
+ 244:application/chassis/chassis.c ****             else if (delta > 0.0f)  
+ 793              		.loc 1 244 94 view .LVU217
+ 794 041c 374B     		ldr	r3, .L44+20
+ 795 041e 1B68     		ldr	r3, [r3]
+ 796 0420 D3ED027A 		vldr.32	s15, [r3, #8]
+ 244:application/chassis/chassis.c ****             else if (delta > 0.0f)  
+ 797              		.loc 1 244 79 view .LVU218
+ 798 0424 77EEA77A 		vadd.f32	s15, s15, s15
+ 244:application/chassis/chassis.c ****             else if (delta > 0.0f)  
+ 799              		.loc 1 244 71 view .LVU219
+ 800 0428 C7EE276A 		vdiv.f32	s13, s14, s15
+ 244:application/chassis/chassis.c ****             else if (delta > 0.0f)  
+ 801              		.loc 1 244 101 view .LVU220
+ 802 042c 9FED347A 		vldr.32	s14, .L44+24
+ 803 0430 C6EE877A 		vdiv.f32	s15, s13, s14
+ 244:application/chassis/chassis.c ****             else if (delta > 0.0f)  
+ 804              		.loc 1 244 29 view .LVU221
+ 805 0434 10AB     		add	r3, sp, #64
+ 806              	.LVL55:
+ 244:application/chassis/chassis.c ****             else if (delta > 0.0f)  
+ 807              		.loc 1 244 29 view .LVU222
+ 808 0436 03EB8403 		add	r3, r3, r4, lsl #2
+ 809              	.LVL56:
+ 244:application/chassis/chassis.c ****             else if (delta > 0.0f)  
+ 810              		.loc 1 244 29 view .LVU223
+ 811 043a 43ED087A 		vstr.32	s15, [r3, #-32]
+ 812 043e 44E7     		b	.L20
+ 813              	.LVL57:
+ 814              	.L37:
+ 815              		.loc 1 247 46 discriminator 2 view .LVU224
+ 816 0440 2C4B     		ldr	r3, .L44+12
+ 817 0442 1B68     		ldr	r3, [r3]
+ 818 0444 D3ED028A 		vldr.32	s17, [r3, #8]
+ 819              		.loc 1 247 58 discriminator 2 view .LVU225
+ 820 0448 DFED2B7A 		vldr.32	s15, .L44+16
+ 821 044c 68EEE78A 		vnmul.f32	s17, s17, s15
+ 822              		.loc 1 247 75 discriminator 2 view .LVU226
+ 823 0450 B0EE480A 		vmov.f32	s0, s16
+ 824 0454 FFF7FEFF 		bl	sqrtf
+ 825              	.LVL58:
+ 826              		.loc 1 247 73 discriminator 3 view .LVU227
+ 827 0458 78EEC08A 		vsub.f32	s17, s17, s0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 22
+
+
+ 828              		.loc 1 247 113 discriminator 3 view .LVU228
+ 829 045c 274B     		ldr	r3, .L44+20
+ 830 045e 1B68     		ldr	r3, [r3]
+ 831 0460 D3ED027A 		vldr.32	s15, [r3, #8]
+ 832              		.loc 1 247 98 discriminator 3 view .LVU229
+ 833 0464 77EEA77A 		vadd.f32	s15, s15, s15
+ 834              		.loc 1 247 90 discriminator 3 view .LVU230
+ 835 0468 C8EEA76A 		vdiv.f32	s13, s17, s15
+ 836              		.loc 1 247 33 discriminator 3 view .LVU231
+ 837 046c 9FED247A 		vldr.32	s14, .L44+24
+ 838 0470 C6EE877A 		vdiv.f32	s15, s13, s14
+ 839 0474 24E7     		b	.L26
+ 840              	.L36:
+ 248:application/chassis/chassis.c ****             else  
+ 249:application/chassis/chassis.c ****                 limit_vt[i] = (((-measure->speed_aps * DEGREE_2_RAD)) / (2.0f * power_manager->k2))
+ 841              		.loc 1 249 17 is_stmt 1 view .LVU232
+ 842              		.loc 1 249 42 is_stmt 0 view .LVU233
+ 843 0476 1F4B     		ldr	r3, .L44+12
+ 844 0478 1B68     		ldr	r3, [r3]
+ 845 047a 93ED027A 		vldr.32	s14, [r3, #8]
+ 846              		.loc 1 249 54 view .LVU234
+ 847 047e DFED1E7A 		vldr.32	s15, .L44+16
+ 848 0482 27EE677A 		vnmul.f32	s14, s14, s15
+ 849              		.loc 1 249 94 view .LVU235
+ 850 0486 1D4B     		ldr	r3, .L44+20
+ 851 0488 1B68     		ldr	r3, [r3]
+ 852 048a D3ED027A 		vldr.32	s15, [r3, #8]
+ 853              		.loc 1 249 79 view .LVU236
+ 854 048e 77EEA77A 		vadd.f32	s15, s15, s15
+ 855              		.loc 1 249 71 view .LVU237
+ 856 0492 C7EE276A 		vdiv.f32	s13, s14, s15
+ 857              		.loc 1 249 101 view .LVU238
+ 858 0496 9FED1A7A 		vldr.32	s14, .L44+24
+ 859 049a C6EE877A 		vdiv.f32	s15, s13, s14
+ 860              		.loc 1 249 29 view .LVU239
+ 861 049e 10AB     		add	r3, sp, #64
+ 862              	.LVL59:
+ 863              		.loc 1 249 29 view .LVU240
+ 864 04a0 03EB8403 		add	r3, r3, r4, lsl #2
+ 865              	.LVL60:
+ 866              		.loc 1 249 29 view .LVU241
+ 867 04a4 43ED087A 		vstr.32	s15, [r3, #-32]
+ 868 04a8 0FE7     		b	.L20
+ 869              	.LVL61:
+ 870              	.L15:
+ 871              		.loc 1 249 29 view .LVU242
+ 872              	.LBE3:
+ 250:application/chassis/chassis.c ****         }                
+ 251:application/chassis/chassis.c ****     }  
+ 252:application/chassis/chassis.c **** 
+ 253:application/chassis/chassis.c ****     // 输出功率限制后电流值
+ 254:application/chassis/chassis.c ****     DJIMotorSetRef(motor_lf, limit_vt[0]);
+ 873              		.loc 1 254 5 is_stmt 1 view .LVU243
+ 874 04aa 9DED080A 		vldr.32	s0, [sp, #32]
+ 875 04ae 164B     		ldr	r3, .L44+32
+ 876 04b0 1868     		ldr	r0, [r3]
+ 877 04b2 FFF7FEFF 		bl	DJIMotorSetRef
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 23
+
+
+ 878              	.LVL62:
+ 255:application/chassis/chassis.c ****     DJIMotorSetRef(motor_rf, limit_vt[1]);
+ 879              		.loc 1 255 5 view .LVU244
+ 880 04b6 9DED090A 		vldr.32	s0, [sp, #36]
+ 881 04ba 144B     		ldr	r3, .L44+36
+ 882 04bc 1868     		ldr	r0, [r3]
+ 883 04be FFF7FEFF 		bl	DJIMotorSetRef
+ 884              	.LVL63:
+ 256:application/chassis/chassis.c ****     DJIMotorSetRef(motor_lb, limit_vt[2]);
+ 885              		.loc 1 256 5 view .LVU245
+ 886 04c2 9DED0A0A 		vldr.32	s0, [sp, #40]
+ 887 04c6 124B     		ldr	r3, .L44+40
+ 888 04c8 1868     		ldr	r0, [r3]
+ 889 04ca FFF7FEFF 		bl	DJIMotorSetRef
+ 890              	.LVL64:
+ 257:application/chassis/chassis.c ****     DJIMotorSetRef(motor_rb, limit_vt[3]);           
+ 891              		.loc 1 257 5 view .LVU246
+ 892 04ce 9DED0B0A 		vldr.32	s0, [sp, #44]
+ 893 04d2 104B     		ldr	r3, .L44+44
+ 894 04d4 1868     		ldr	r0, [r3]
+ 895 04d6 FFF7FEFF 		bl	DJIMotorSetRef
+ 896              	.LVL65:
+ 258:application/chassis/chassis.c **** }
+ 897              		.loc 1 258 1 is_stmt 0 view .LVU247
+ 898 04da 11B0     		add	sp, sp, #68
+ 899              		.cfi_def_cfa_offset 68
+ 900              		@ sp needed
+ 901 04dc BDEC088B 		vldm	sp!, {d8-d11}
+ 902              		.cfi_restore 86
+ 903              		.cfi_restore 87
+ 904              		.cfi_restore 84
+ 905              		.cfi_restore 85
+ 906              		.cfi_restore 82
+ 907              		.cfi_restore 83
+ 908              		.cfi_restore 80
+ 909              		.cfi_restore 81
+ 910              		.cfi_def_cfa_offset 36
+ 911              	.LVL66:
+ 912              		.loc 1 258 1 view .LVU248
+ 913 04e0 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 914              	.L45:
+ 915 04e4 AFF30080 		.align	3
+ 916              	.L44:
+ 917 04e8 000000A0 		.word	-1610612736
+ 918 04ec 46DF913F 		.word	1066524486
+ 919 04f0 00000000 		.word	motor_controller.0
+ 920 04f4 00000000 		.word	measure.1
+ 921 04f8 35FA8E3C 		.word	1016003125
+ 922 04fc 00000000 		.word	power_manager
+ 923 0500 E4F29F37 		.word	933229284
+ 924 0504 00000000 		.word	0
+ 925 0508 00000000 		.word	motor_lf
+ 926 050c 00000000 		.word	motor_rf
+ 927 0510 00000000 		.word	motor_lb
+ 928 0514 00000000 		.word	motor_rb
+ 929              		.cfi_endproc
+ 930              	.LFE278:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 24
+
+
+ 932              		.section	.rodata.ChassisInit.str1.4,"aMS",%progbits,1
+ 933              		.align	2
+ 934              	.LC1:
+ 935 0000 63686173 		.ascii	"chassis_cmd\000"
+ 935      7369735F 
+ 935      636D6400 
+ 936              		.align	2
+ 937              	.LC2:
+ 938 000c 63686173 		.ascii	"chassis_feed\000"
+ 938      7369735F 
+ 938      66656564 
+ 938      00
+ 939              		.section	.text.ChassisInit,"ax",%progbits
+ 940              		.align	1
+ 941              		.global	ChassisInit
+ 942              		.syntax unified
+ 943              		.thumb
+ 944              		.thumb_func
+ 946              	ChassisInit:
+ 947              	.LFB276:
+  59:application/chassis/chassis.c ****     static float half_wheel_base, half_track_width, perimeter_wheel;    // 半轴距,半轮距,轮�
+ 948              		.loc 1 59 1 is_stmt 1 view -0
+ 949              		.cfi_startproc
+ 950              		@ args = 0, pretend = 0, frame = 40
+ 951              		@ frame_needed = 0, uses_anonymous_args = 0
+ 952 0000 30B5     		push	{r4, r5, lr}
+ 953              		.cfi_def_cfa_offset 12
+ 954              		.cfi_offset 4, -12
+ 955              		.cfi_offset 5, -8
+ 956              		.cfi_offset 14, -4
+ 957 0002 8BB0     		sub	sp, sp, #44
+ 958              		.cfi_def_cfa_offset 56
+  60:application/chassis/chassis.c ****     static float center_gimbal_offset_x, center_gimbal_offset_y;        // 中心云台偏移量
+ 959              		.loc 1 60 5 view .LVU250
+  61:application/chassis/chassis.c ****     static float reduction_ratio_wheel;                                 // 轮子减速比
+ 960              		.loc 1 61 5 view .LVU251
+  62:application/chassis/chassis.c **** 
+ 961              		.loc 1 62 5 view .LVU252
+  64:application/chassis/chassis.c **** 
+ 962              		.loc 1 64 5 view .LVU253
+  64:application/chassis/chassis.c **** 
+ 963              		.loc 1 64 22 is_stmt 0 view .LVU254
+ 964 0004 FFF7FEFF 		bl	ChassisConfigFeed
+ 965              	.LVL67:
+  64:application/chassis/chassis.c **** 
+ 966              		.loc 1 64 20 discriminator 1 view .LVU255
+ 967 0008 5F4D     		ldr	r5, .L48
+ 968 000a 2860     		str	r0, [r5]
+  66:application/chassis/chassis.c ****     half_track_width = (chassis_config->wheel_measure.track_width / 2.0f);
+ 969              		.loc 1 66 5 is_stmt 1 view .LVU256
+  66:application/chassis/chassis.c ****     half_track_width = (chassis_config->wheel_measure.track_width / 2.0f);
+ 970              		.loc 1 66 53 is_stmt 0 view .LVU257
+ 971 000c D0ED036A 		vldr.32	s13, [r0, #12]
+  66:application/chassis/chassis.c ****     half_track_width = (chassis_config->wheel_measure.track_width / 2.0f);
+ 972              		.loc 1 66 65 view .LVU258
+ 973 0010 F6EE007A 		vmov.f32	s15, #5.0e-1
+ 974 0014 66EEA76A 		vmul.f32	s13, s13, s15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 25
+
+
+  66:application/chassis/chassis.c ****     half_track_width = (chassis_config->wheel_measure.track_width / 2.0f);
+ 975              		.loc 1 66 21 view .LVU259
+ 976 0018 5C4B     		ldr	r3, .L48+4
+ 977 001a C3ED006A 		vstr.32	s13, [r3]
+  67:application/chassis/chassis.c ****     perimeter_wheel = (chassis_config->wheel_measure.radius_wheel * 2 * PI);
+ 978              		.loc 1 67 5 is_stmt 1 view .LVU260
+  67:application/chassis/chassis.c ****     perimeter_wheel = (chassis_config->wheel_measure.radius_wheel * 2 * PI);
+ 979              		.loc 1 67 54 is_stmt 0 view .LVU261
+ 980 001e D0ED045A 		vldr.32	s11, [r0, #16]
+  67:application/chassis/chassis.c ****     perimeter_wheel = (chassis_config->wheel_measure.radius_wheel * 2 * PI);
+ 981              		.loc 1 67 67 view .LVU262
+ 982 0022 65EEA75A 		vmul.f32	s11, s11, s15
+  67:application/chassis/chassis.c ****     perimeter_wheel = (chassis_config->wheel_measure.radius_wheel * 2 * PI);
+ 983              		.loc 1 67 22 view .LVU263
+ 984 0026 5A4B     		ldr	r3, .L48+8
+ 985 0028 C3ED005A 		vstr.32	s11, [r3]
+  68:application/chassis/chassis.c ****     center_gimbal_offset_x = chassis_config->wheel_measure.center_gimbal_offset_x;
+ 986              		.loc 1 68 5 is_stmt 1 view .LVU264
+  68:application/chassis/chassis.c ****     center_gimbal_offset_x = chassis_config->wheel_measure.center_gimbal_offset_x;
+ 987              		.loc 1 68 53 is_stmt 0 view .LVU265
+ 988 002c D0ED057A 		vldr.32	s15, [r0, #20]
+  68:application/chassis/chassis.c ****     center_gimbal_offset_x = chassis_config->wheel_measure.center_gimbal_offset_x;
+ 989              		.loc 1 68 67 view .LVU266
+ 990 0030 77EEA77A 		vadd.f32	s15, s15, s15
+  68:application/chassis/chassis.c ****     center_gimbal_offset_x = chassis_config->wheel_measure.center_gimbal_offset_x;
+ 991              		.loc 1 68 71 view .LVU267
+ 992 0034 9FED577A 		vldr.32	s14, .L48+12
+ 993 0038 67EE877A 		vmul.f32	s15, s15, s14
+  68:application/chassis/chassis.c ****     center_gimbal_offset_x = chassis_config->wheel_measure.center_gimbal_offset_x;
+ 994              		.loc 1 68 21 view .LVU268
+ 995 003c 564B     		ldr	r3, .L48+16
+ 996 003e C3ED007A 		vstr.32	s15, [r3]
+  69:application/chassis/chassis.c ****     center_gimbal_offset_y = chassis_config->wheel_measure.center_gimbal_offset_y;
+ 997              		.loc 1 69 5 is_stmt 1 view .LVU269
+  69:application/chassis/chassis.c ****     center_gimbal_offset_y = chassis_config->wheel_measure.center_gimbal_offset_y;
+ 998              		.loc 1 69 59 is_stmt 0 view .LVU270
+ 999 0042 90ED014A 		vldr.32	s8, [r0, #4]
+  69:application/chassis/chassis.c ****     center_gimbal_offset_y = chassis_config->wheel_measure.center_gimbal_offset_y;
+ 1000              		.loc 1 69 28 view .LVU271
+ 1001 0046 554B     		ldr	r3, .L48+20
+ 1002 0048 83ED004A 		vstr.32	s8, [r3]
+  70:application/chassis/chassis.c ****     reduction_ratio_wheel = chassis_config->wheel_measure.reduction_ratio_wheel;
+ 1003              		.loc 1 70 5 is_stmt 1 view .LVU272
+  70:application/chassis/chassis.c ****     reduction_ratio_wheel = chassis_config->wheel_measure.reduction_ratio_wheel;
+ 1004              		.loc 1 70 59 is_stmt 0 view .LVU273
+ 1005 004c 90ED027A 		vldr.32	s14, [r0, #8]
+  70:application/chassis/chassis.c ****     reduction_ratio_wheel = chassis_config->wheel_measure.reduction_ratio_wheel;
+ 1006              		.loc 1 70 28 view .LVU274
+ 1007 0050 534B     		ldr	r3, .L48+24
+ 1008 0052 83ED007A 		vstr.32	s14, [r3]
+  71:application/chassis/chassis.c **** 
+ 1009              		.loc 1 71 5 is_stmt 1 view .LVU275
+  71:application/chassis/chassis.c **** 
+ 1010              		.loc 1 71 58 is_stmt 0 view .LVU276
+ 1011 0056 90ED065A 		vldr.32	s10, [r0, #24]
+  71:application/chassis/chassis.c **** 
+ 1012              		.loc 1 71 27 view .LVU277
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 26
+
+
+ 1013 005a 524B     		ldr	r3, .L48+28
+ 1014 005c 83ED005A 		vstr.32	s10, [r3]
+  73:application/chassis/chassis.c ****     rf_center = ((half_track_width - center_gimbal_offset_x + half_wheel_base - center_gimbal_offse
+ 1015              		.loc 1 73 5 is_stmt 1 view .LVU278
+  73:application/chassis/chassis.c ****     rf_center = ((half_track_width - center_gimbal_offset_x + half_wheel_base - center_gimbal_offse
+ 1016              		.loc 1 73 36 is_stmt 0 view .LVU279
+ 1017 0060 35EE846A 		vadd.f32	s12, s11, s8
+  73:application/chassis/chassis.c ****     rf_center = ((half_track_width - center_gimbal_offset_x + half_wheel_base - center_gimbal_offse
+ 1018              		.loc 1 73 61 view .LVU280
+ 1019 0064 36EE866A 		vadd.f32	s12, s13, s12
+  73:application/chassis/chassis.c ****     rf_center = ((half_track_width - center_gimbal_offset_x + half_wheel_base - center_gimbal_offse
+ 1020              		.loc 1 73 79 view .LVU281
+ 1021 0068 76EE473A 		vsub.f32	s7, s12, s14
+  73:application/chassis/chassis.c ****     rf_center = ((half_track_width - center_gimbal_offset_x + half_wheel_base - center_gimbal_offse
+ 1022              		.loc 1 73 105 view .LVU282
+ 1023 006c DFED4E4A 		vldr.32	s9, .L48+32
+ 1024 0070 63EEA43A 		vmul.f32	s7, s7, s9
+  73:application/chassis/chassis.c ****     rf_center = ((half_track_width - center_gimbal_offset_x + half_wheel_base - center_gimbal_offse
+ 1025              		.loc 1 73 15 view .LVU283
+ 1026 0074 4D4B     		ldr	r3, .L48+36
+ 1027 0076 C3ED003A 		vstr.32	s7, [r3]
+  74:application/chassis/chassis.c ****     lb_center = ((half_track_width + center_gimbal_offset_x + half_wheel_base + center_gimbal_offse
+ 1028              		.loc 1 74 5 is_stmt 1 view .LVU284
+  74:application/chassis/chassis.c ****     lb_center = ((half_track_width + center_gimbal_offset_x + half_wheel_base + center_gimbal_offse
+ 1029              		.loc 1 74 36 is_stmt 0 view .LVU285
+ 1030 007a 75EEC45A 		vsub.f32	s11, s11, s8
+  74:application/chassis/chassis.c ****     lb_center = ((half_track_width + center_gimbal_offset_x + half_wheel_base + center_gimbal_offse
+ 1031              		.loc 1 74 61 view .LVU286
+ 1032 007e 76EEA56A 		vadd.f32	s13, s13, s11
+  74:application/chassis/chassis.c ****     lb_center = ((half_track_width + center_gimbal_offset_x + half_wheel_base + center_gimbal_offse
+ 1033              		.loc 1 74 79 view .LVU287
+ 1034 0082 76EEC75A 		vsub.f32	s11, s13, s14
+  74:application/chassis/chassis.c ****     lb_center = ((half_track_width + center_gimbal_offset_x + half_wheel_base + center_gimbal_offse
+ 1035              		.loc 1 74 105 view .LVU288
+ 1036 0086 65EEA45A 		vmul.f32	s11, s11, s9
+  74:application/chassis/chassis.c ****     lb_center = ((half_track_width + center_gimbal_offset_x + half_wheel_base + center_gimbal_offse
+ 1037              		.loc 1 74 15 view .LVU289
+ 1038 008a 494B     		ldr	r3, .L48+40
+ 1039 008c C3ED005A 		vstr.32	s11, [r3]
+  75:application/chassis/chassis.c ****     rb_center = ((half_track_width - center_gimbal_offset_x + half_wheel_base + center_gimbal_offse
+ 1040              		.loc 1 75 5 is_stmt 1 view .LVU290
+  75:application/chassis/chassis.c ****     rb_center = ((half_track_width - center_gimbal_offset_x + half_wheel_base + center_gimbal_offse
+ 1041              		.loc 1 75 79 is_stmt 0 view .LVU291
+ 1042 0090 37EE066A 		vadd.f32	s12, s14, s12
+  75:application/chassis/chassis.c ****     rb_center = ((half_track_width - center_gimbal_offset_x + half_wheel_base + center_gimbal_offse
+ 1043              		.loc 1 75 105 view .LVU292
+ 1044 0094 26EE246A 		vmul.f32	s12, s12, s9
+  75:application/chassis/chassis.c ****     rb_center = ((half_track_width - center_gimbal_offset_x + half_wheel_base + center_gimbal_offse
+ 1045              		.loc 1 75 15 view .LVU293
+ 1046 0098 464B     		ldr	r3, .L48+44
+ 1047 009a 83ED006A 		vstr.32	s12, [r3]
+  76:application/chassis/chassis.c ****     rpm_2_wheel_vector = (ANGLE_2_RPM_PER_MIN * (perimeter_wheel * MM_2_M) / (reduction_ratio_wheel
+ 1048              		.loc 1 76 5 is_stmt 1 view .LVU294
+  76:application/chassis/chassis.c ****     rpm_2_wheel_vector = (ANGLE_2_RPM_PER_MIN * (perimeter_wheel * MM_2_M) / (reduction_ratio_wheel
+ 1049              		.loc 1 76 79 is_stmt 0 view .LVU295
+ 1050 009e 37EE267A 		vadd.f32	s14, s14, s13
+  76:application/chassis/chassis.c ****     rpm_2_wheel_vector = (ANGLE_2_RPM_PER_MIN * (perimeter_wheel * MM_2_M) / (reduction_ratio_wheel
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 27
+
+
+ 1051              		.loc 1 76 105 view .LVU296
+ 1052 00a2 27EE247A 		vmul.f32	s14, s14, s9
+  76:application/chassis/chassis.c ****     rpm_2_wheel_vector = (ANGLE_2_RPM_PER_MIN * (perimeter_wheel * MM_2_M) / (reduction_ratio_wheel
+ 1053              		.loc 1 76 15 view .LVU297
+ 1054 00a6 444B     		ldr	r3, .L48+48
+ 1055 00a8 83ED007A 		vstr.32	s14, [r3]
+  77:application/chassis/chassis.c **** 
+ 1056              		.loc 1 77 5 is_stmt 1 view .LVU298
+  77:application/chassis/chassis.c **** 
+ 1057              		.loc 1 77 66 is_stmt 0 view .LVU299
+ 1058 00ac 9FED437A 		vldr.32	s14, .L48+52
+ 1059 00b0 67EE877A 		vmul.f32	s15, s15, s14
+  77:application/chassis/chassis.c **** 
+ 1060              		.loc 1 77 47 view .LVU300
+ 1061 00b4 9FED427A 		vldr.32	s14, .L48+56
+ 1062 00b8 67EE877A 		vmul.f32	s15, s15, s14
+  77:application/chassis/chassis.c **** 
+ 1063              		.loc 1 77 101 view .LVU301
+ 1064 00bc 9FED417A 		vldr.32	s14, .L48+60
+ 1065 00c0 25EE075A 		vmul.f32	s10, s10, s14
+  77:application/chassis/chassis.c **** 
+ 1066              		.loc 1 77 76 view .LVU302
+ 1067 00c4 87EE857A 		vdiv.f32	s14, s15, s10
+  77:application/chassis/chassis.c **** 
+ 1068              		.loc 1 77 24 view .LVU303
+ 1069 00c8 3F4B     		ldr	r3, .L48+64
+ 1070 00ca 83ED007A 		vstr.32	s14, [r3]
+  80:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1071              		.loc 1 80 5 is_stmt 1 view .LVU304
+  80:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1072              		.loc 1 80 98 is_stmt 0 view .LVU305
+ 1073 00ce 90F80431 		ldrb	r3, [r0, #260]	@ zero_extendqisi2
+  80:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1074              		.loc 1 80 64 view .LVU306
+ 1075 00d2 C0F8C030 		str	r3, [r0, #192]
+  81:application/chassis/chassis.c ****     motor_lf = DJIMotorInit(&chassis_config->chassis_motor_config);     
+ 1076              		.loc 1 81 5 is_stmt 1 view .LVU307
+  81:application/chassis/chassis.c ****     motor_lf = DJIMotorInit(&chassis_config->chassis_motor_config);     
+ 1077              		.loc 1 81 92 is_stmt 0 view .LVU308
+ 1078 00d6 0124     		movs	r4, #1
+ 1079 00d8 80F8B240 		strb	r4, [r0, #178]
+  82:application/chassis/chassis.c **** 
+ 1080              		.loc 1 82 5 is_stmt 1 view .LVU309
+  82:application/chassis/chassis.c **** 
+ 1081              		.loc 1 82 16 is_stmt 0 view .LVU310
+ 1082 00dc 1C30     		adds	r0, r0, #28
+ 1083 00de FFF7FEFF 		bl	DJIMotorInit
+ 1084              	.LVL68:
+  82:application/chassis/chassis.c **** 
+ 1085              		.loc 1 82 14 discriminator 1 view .LVU311
+ 1086 00e2 3A4B     		ldr	r3, .L48+68
+ 1087 00e4 1860     		str	r0, [r3]
+  84:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1088              		.loc 1 84 5 is_stmt 1 view .LVU312
+  84:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1089              		.loc 1 84 80 is_stmt 0 view .LVU313
+ 1090 00e6 2868     		ldr	r0, [r5]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 28
+
+
+  84:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1091              		.loc 1 84 98 view .LVU314
+ 1092 00e8 90F80531 		ldrb	r3, [r0, #261]	@ zero_extendqisi2
+  84:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1093              		.loc 1 84 64 view .LVU315
+ 1094 00ec C0F8C030 		str	r3, [r0, #192]
+  85:application/chassis/chassis.c ****     motor_rf = DJIMotorInit(&chassis_config->chassis_motor_config);
+ 1095              		.loc 1 85 5 is_stmt 1 view .LVU316
+  85:application/chassis/chassis.c ****     motor_rf = DJIMotorInit(&chassis_config->chassis_motor_config);
+ 1096              		.loc 1 85 92 is_stmt 0 view .LVU317
+ 1097 00f0 80F8B240 		strb	r4, [r0, #178]
+  86:application/chassis/chassis.c **** 
+ 1098              		.loc 1 86 5 is_stmt 1 view .LVU318
+  86:application/chassis/chassis.c **** 
+ 1099              		.loc 1 86 16 is_stmt 0 view .LVU319
+ 1100 00f4 1C30     		adds	r0, r0, #28
+ 1101 00f6 FFF7FEFF 		bl	DJIMotorInit
+ 1102              	.LVL69:
+  86:application/chassis/chassis.c **** 
+ 1103              		.loc 1 86 14 discriminator 1 view .LVU320
+ 1104 00fa 354B     		ldr	r3, .L48+72
+ 1105 00fc 1860     		str	r0, [r3]
+  88:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1106              		.loc 1 88 5 is_stmt 1 view .LVU321
+  88:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1107              		.loc 1 88 80 is_stmt 0 view .LVU322
+ 1108 00fe 2868     		ldr	r0, [r5]
+  88:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1109              		.loc 1 88 98 view .LVU323
+ 1110 0100 90F80631 		ldrb	r3, [r0, #262]	@ zero_extendqisi2
+  88:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1111              		.loc 1 88 64 view .LVU324
+ 1112 0104 C0F8C030 		str	r3, [r0, #192]
+  89:application/chassis/chassis.c ****     motor_lb = DJIMotorInit(&chassis_config->chassis_motor_config);
+ 1113              		.loc 1 89 5 is_stmt 1 view .LVU325
+  89:application/chassis/chassis.c ****     motor_lb = DJIMotorInit(&chassis_config->chassis_motor_config);
+ 1114              		.loc 1 89 92 is_stmt 0 view .LVU326
+ 1115 0108 80F8B240 		strb	r4, [r0, #178]
+  90:application/chassis/chassis.c **** 
+ 1116              		.loc 1 90 5 is_stmt 1 view .LVU327
+  90:application/chassis/chassis.c **** 
+ 1117              		.loc 1 90 16 is_stmt 0 view .LVU328
+ 1118 010c 1C30     		adds	r0, r0, #28
+ 1119 010e FFF7FEFF 		bl	DJIMotorInit
+ 1120              	.LVL70:
+  90:application/chassis/chassis.c **** 
+ 1121              		.loc 1 90 14 discriminator 1 view .LVU329
+ 1122 0112 304B     		ldr	r3, .L48+76
+ 1123 0114 1860     		str	r0, [r3]
+  92:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1124              		.loc 1 92 5 is_stmt 1 view .LVU330
+  92:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1125              		.loc 1 92 80 is_stmt 0 view .LVU331
+ 1126 0116 2868     		ldr	r0, [r5]
+  92:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1127              		.loc 1 92 98 view .LVU332
+ 1128 0118 90F80731 		ldrb	r3, [r0, #263]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 29
+
+
+  92:application/chassis/chassis.c ****     chassis_config->chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_
+ 1129              		.loc 1 92 64 view .LVU333
+ 1130 011c C0F8C030 		str	r3, [r0, #192]
+  93:application/chassis/chassis.c ****     motor_rb = DJIMotorInit(&chassis_config->chassis_motor_config);
+ 1131              		.loc 1 93 5 is_stmt 1 view .LVU334
+  93:application/chassis/chassis.c ****     motor_rb = DJIMotorInit(&chassis_config->chassis_motor_config);
+ 1132              		.loc 1 93 92 is_stmt 0 view .LVU335
+ 1133 0120 80F8B240 		strb	r4, [r0, #178]
+  94:application/chassis/chassis.c **** 
+ 1134              		.loc 1 94 5 is_stmt 1 view .LVU336
+  94:application/chassis/chassis.c **** 
+ 1135              		.loc 1 94 16 is_stmt 0 view .LVU337
+ 1136 0124 1C30     		adds	r0, r0, #28
+ 1137 0126 FFF7FEFF 		bl	DJIMotorInit
+ 1138              	.LVL71:
+  94:application/chassis/chassis.c **** 
+ 1139              		.loc 1 94 14 discriminator 1 view .LVU338
+ 1140 012a 2B4B     		ldr	r3, .L48+80
+ 1141 012c 1860     		str	r0, [r3]
+  96:application/chassis/chassis.c ****         .can_config = {
+ 1142              		.loc 1 96 5 is_stmt 1 view .LVU339
+  96:application/chassis/chassis.c ****         .can_config = {
+ 1143              		.loc 1 96 28 is_stmt 0 view .LVU340
+ 1144 012e 03A8     		add	r0, sp, #12
+ 1145 0130 0023     		movs	r3, #0
+ 1146 0132 0393     		str	r3, [sp, #12]
+ 1147 0134 4360     		str	r3, [r0, #4]
+ 1148 0136 8360     		str	r3, [r0, #8]
+ 1149 0138 C360     		str	r3, [r0, #12]
+ 1150 013a 0361     		str	r3, [r0, #16]
+ 1151 013c 4361     		str	r3, [r0, #20]
+ 1152 013e 8361     		str	r3, [r0, #24]
+ 1153 0140 264B     		ldr	r3, .L48+84
+ 1154 0142 0393     		str	r3, [sp, #12]
+ 1155 0144 40F20233 		movw	r3, #770
+ 1156 0148 0493     		str	r3, [sp, #16]
+ 1157 014a 40F20133 		movw	r3, #769
+ 1158 014e 0593     		str	r3, [sp, #20]
+ 102:application/chassis/chassis.c **** 
+ 1159              		.loc 1 102 5 is_stmt 1 view .LVU341
+ 102:application/chassis/chassis.c **** 
+ 1160              		.loc 1 102 11 is_stmt 0 view .LVU342
+ 1161 0150 FFF7FEFF 		bl	SuperCapInit
+ 1162              	.LVL72:
+ 102:application/chassis/chassis.c **** 
+ 1163              		.loc 1 102 9 discriminator 1 view .LVU343
+ 1164 0154 224B     		ldr	r3, .L48+88
+ 1165 0156 1860     		str	r0, [r3]
+ 104:application/chassis/chassis.c ****         .k1 = 0.013,    // 越大功率限制权重越大  
+ 1166              		.loc 1 104 5 is_stmt 1 view .LVU344
+ 104:application/chassis/chassis.c ****         .k1 = 0.013,    // 越大功率限制权重越大  
+ 1167              		.loc 1 104 32 is_stmt 0 view .LVU345
+ 1168 0158 224A     		ldr	r2, .L48+92
+ 1169 015a 07CA     		ldm	r2, {r0, r1, r2}
+ 1170 015c 8DE80700 		stm	sp, {r0, r1, r2}
+ 109:application/chassis/chassis.c **** 
+ 1171              		.loc 1 109 5 is_stmt 1 view .LVU346
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 30
+
+
+ 109:application/chassis/chassis.c **** 
+ 1172              		.loc 1 109 21 is_stmt 0 view .LVU347
+ 1173 0160 6846     		mov	r0, sp
+ 1174 0162 FFF7FEFF 		bl	PowerControlInit
+ 1175              	.LVL73:
+ 109:application/chassis/chassis.c **** 
+ 1176              		.loc 1 109 19 discriminator 1 view .LVU348
+ 1177 0166 204B     		ldr	r3, .L48+96
+ 1178 0168 1860     		str	r0, [r3]
+ 128:application/chassis/chassis.c ****     chassis_pub = PubRegister("chassis_feed", sizeof(Chassis_Upload_Data_s));
+ 1179              		.loc 1 128 5 is_stmt 1 view .LVU349
+ 128:application/chassis/chassis.c ****     chassis_pub = PubRegister("chassis_feed", sizeof(Chassis_Upload_Data_s));
+ 1180              		.loc 1 128 19 is_stmt 0 view .LVU350
+ 1181 016a 1921     		movs	r1, #25
+ 1182 016c 1F48     		ldr	r0, .L48+100
+ 1183 016e FFF7FEFF 		bl	SubRegister
+ 1184              	.LVL74:
+ 128:application/chassis/chassis.c ****     chassis_pub = PubRegister("chassis_feed", sizeof(Chassis_Upload_Data_s));
+ 1185              		.loc 1 128 17 discriminator 1 view .LVU351
+ 1186 0172 1F4B     		ldr	r3, .L48+104
+ 1187 0174 1860     		str	r0, [r3]
+ 129:application/chassis/chassis.c **** #endif // ONE_BOARD
+ 1188              		.loc 1 129 5 is_stmt 1 view .LVU352
+ 129:application/chassis/chassis.c **** #endif // ONE_BOARD
+ 1189              		.loc 1 129 19 is_stmt 0 view .LVU353
+ 1190 0176 0E21     		movs	r1, #14
+ 1191 0178 1E48     		ldr	r0, .L48+108
+ 1192 017a FFF7FEFF 		bl	PubRegister
+ 1193              	.LVL75:
+ 129:application/chassis/chassis.c **** #endif // ONE_BOARD
+ 1194              		.loc 1 129 17 discriminator 1 view .LVU354
+ 1195 017e 1E4B     		ldr	r3, .L48+112
+ 1196 0180 1860     		str	r0, [r3]
+ 131:application/chassis/chassis.c **** 
+ 1197              		.loc 1 131 1 view .LVU355
+ 1198 0182 0BB0     		add	sp, sp, #44
+ 1199              		.cfi_def_cfa_offset 12
+ 1200              		@ sp needed
+ 1201 0184 30BD     		pop	{r4, r5, pc}
+ 1202              	.L49:
+ 1203 0186 00BF     		.align	2
+ 1204              	.L48:
+ 1205 0188 00000000 		.word	chassis_config
+ 1206 018c 00000000 		.word	half_wheel_base.9
+ 1207 0190 00000000 		.word	half_track_width.8
+ 1208 0194 DB0F4940 		.word	1078530011
+ 1209 0198 00000000 		.word	perimeter_wheel.7
+ 1210 019c 00000000 		.word	center_gimbal_offset_x.6
+ 1211 01a0 00000000 		.word	center_gimbal_offset_y.5
+ 1212 01a4 00000000 		.word	reduction_ratio_wheel.4
+ 1213 01a8 35FA8E3C 		.word	1016003125
+ 1214 01ac 00000000 		.word	lf_center
+ 1215 01b0 00000000 		.word	rf_center
+ 1216 01b4 00000000 		.word	lb_center
+ 1217 01b8 00000000 		.word	rb_center
+ 1218 01bc 6F12833A 		.word	981668463
+ 1219 01c0 A6AA2A3E 		.word	1042983590
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 31
+
+
+ 1220 01c4 00007042 		.word	1114636288
+ 1221 01c8 00000000 		.word	rpm_2_wheel_vector
+ 1222 01cc 00000000 		.word	motor_lf
+ 1223 01d0 00000000 		.word	motor_rf
+ 1224 01d4 00000000 		.word	motor_lb
+ 1225 01d8 00000000 		.word	motor_rb
+ 1226 01dc 00000000 		.word	hcan2
+ 1227 01e0 00000000 		.word	cap
+ 1228 01e4 00000000 		.word	.LANCHOR0
+ 1229 01e8 00000000 		.word	power_manager
+ 1230 01ec 00000000 		.word	.LC1
+ 1231 01f0 00000000 		.word	chassis_sub
+ 1232 01f4 0C000000 		.word	.LC2
+ 1233 01f8 00000000 		.word	chassis_pub
+ 1234              		.cfi_endproc
+ 1235              	.LFE276:
+ 1237              		.section	.text.ChassisTask,"ax",%progbits
+ 1238              		.align	1
+ 1239              		.global	ChassisTask
+ 1240              		.syntax unified
+ 1241              		.thumb
+ 1242              		.thumb_func
+ 1244              	ChassisTask:
+ 1245              	.LFB280:
+ 259:application/chassis/chassis.c **** 
+ 260:application/chassis/chassis.c **** #define RPM_2_VECTOR (ANGLE_2_RPM_PER_MIN * RPM_2_WHEEL_VECTOR)
+ 261:application/chassis/chassis.c **** /**
+ 262:application/chassis/chassis.c ****  * @brief 根据每个轮子的速度反馈,计算底盘的实际运动速度,逆运动解算
+ 263:application/chassis/chassis.c ****  *        对于双板的情况,考虑增加来自底盘板IMU的数据
+ 264:application/chassis/chassis.c ****  *
+ 265:application/chassis/chassis.c ****  */
+ 266:application/chassis/chassis.c **** static void EstimateSpeed()
+ 267:application/chassis/chassis.c **** {
+ 268:application/chassis/chassis.c ****     // // 根据电机速度和陀螺仪的角速度进行解算,还可以利用加速度计判断�
+ 269:application/chassis/chassis.c ****     // //正运动学模型
+ 270:application/chassis/chassis.c ****     // rl_vt_lf = motor_lf->measure.speed_aps * RPM_2_VECTOR;
+ 271:application/chassis/chassis.c ****     // rl_vt_rf = -motor_rf->measure.speed_aps * RPM_2_VECTOR;
+ 272:application/chassis/chassis.c ****     // rl_vt_lb = motor_lb->measure.speed_aps * RPM_2_VECTOR;
+ 273:application/chassis/chassis.c ****     // rl_vt_rb = -motor_rb->measure.speed_aps * RPM_2_VECTOR;
+ 274:application/chassis/chassis.c **** 
+ 275:application/chassis/chassis.c ****     // //底盘向前为正方向,向左为正方向,单位m/s
+ 276:application/chassis/chassis.c ****     // chassis_feedback_data.real_vx = (rl_vt_lb + rl_vt_rb) / 2.0f;
+ 277:application/chassis/chassis.c ****     // chassis_feedback_data.real_vy = (rl_vt_lb - rl_vt_lf) / 2.0f;
+ 278:application/chassis/chassis.c **** 
+ 279:application/chassis/chassis.c ****     // //底盘逆时针旋转为正方向,单位rad/s
+ 280:application/chassis/chassis.c ****     // chassis_feedback_data.real_wz = (rl_vt_rf - rl_vt_lb) / (2.0f * (HALF_WHEEL_BASE * MM_2_M + 
+ 281:application/chassis/chassis.c **** }
+ 282:application/chassis/chassis.c **** /* 机器人底盘控制核心任务 */
+ 283:application/chassis/chassis.c **** void ChassisTask()
+ 284:application/chassis/chassis.c **** {
+ 1246              		.loc 1 284 1 is_stmt 1 view -0
+ 1247              		.cfi_startproc
+ 1248              		@ args = 0, pretend = 0, frame = 0
+ 1249              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1250 0000 38B5     		push	{r3, r4, r5, lr}
+ 1251              		.cfi_def_cfa_offset 16
+ 1252              		.cfi_offset 3, -16
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 32
+
+
+ 1253              		.cfi_offset 4, -12
+ 1254              		.cfi_offset 5, -8
+ 1255              		.cfi_offset 14, -4
+ 1256 0002 2DED028B 		vpush.64	{d8}
+ 1257              		.cfi_def_cfa_offset 24
+ 1258              		.cfi_offset 80, -24
+ 1259              		.cfi_offset 81, -20
+ 285:application/chassis/chassis.c ****     // 后续增加没收到消息的处理(双板的情况)
+ 286:application/chassis/chassis.c ****     // 获取新的控制信息
+ 287:application/chassis/chassis.c **** #ifdef ONE_BOARD
+ 288:application/chassis/chassis.c ****     SubGetMessage(chassis_sub, &chassis_cmd_recv);
+ 1260              		.loc 1 288 5 view .LVU357
+ 1261 0006 4A4C     		ldr	r4, .L60
+ 1262 0008 2146     		mov	r1, r4
+ 1263 000a 4A4B     		ldr	r3, .L60+4
+ 1264 000c 1868     		ldr	r0, [r3]
+ 1265 000e FFF7FEFF 		bl	SubGetMessage
+ 1266              	.LVL76:
+ 289:application/chassis/chassis.c **** #endif
+ 290:application/chassis/chassis.c **** #ifdef CHASSIS_BOARD
+ 291:application/chassis/chassis.c ****     chassis_cmd_recv = *(Chassis_Ctrl_Cmd_s *)CANCommGet(chasiss_can_comm);
+ 292:application/chassis/chassis.c **** #endif // CHASSIS_BOARD
+ 293:application/chassis/chassis.c **** 
+ 294:application/chassis/chassis.c ****     if (chassis_cmd_recv.chassis_mode == CHASSIS_ZERO_FORCE)
+ 1267              		.loc 1 294 5 view .LVU358
+ 1268              		.loc 1 294 25 is_stmt 0 view .LVU359
+ 1269 0012 237D     		ldrb	r3, [r4, #20]	@ zero_extendqisi2
+ 1270              		.loc 1 294 8 view .LVU360
+ 1271 0014 DBB9     		cbnz	r3, .L51
+ 295:application/chassis/chassis.c ****     { // 如果出现重要模块离线或遥控器设置为急停,让电机停止
+ 296:application/chassis/chassis.c ****         DJIMotorStop(motor_lf);
+ 1272              		.loc 1 296 9 is_stmt 1 view .LVU361
+ 1273 0016 484B     		ldr	r3, .L60+8
+ 1274 0018 1868     		ldr	r0, [r3]
+ 1275 001a FFF7FEFF 		bl	DJIMotorStop
+ 1276              	.LVL77:
+ 297:application/chassis/chassis.c ****         DJIMotorStop(motor_rf);
+ 1277              		.loc 1 297 9 view .LVU362
+ 1278 001e 474B     		ldr	r3, .L60+12
+ 1279 0020 1868     		ldr	r0, [r3]
+ 1280 0022 FFF7FEFF 		bl	DJIMotorStop
+ 1281              	.LVL78:
+ 298:application/chassis/chassis.c ****         DJIMotorStop(motor_lb);
+ 1282              		.loc 1 298 9 view .LVU363
+ 1283 0026 464B     		ldr	r3, .L60+16
+ 1284 0028 1868     		ldr	r0, [r3]
+ 1285 002a FFF7FEFF 		bl	DJIMotorStop
+ 1286              	.LVL79:
+ 299:application/chassis/chassis.c ****         DJIMotorStop(motor_rb);
+ 1287              		.loc 1 299 9 view .LVU364
+ 1288 002e 454B     		ldr	r3, .L60+20
+ 1289 0030 1868     		ldr	r0, [r3]
+ 1290 0032 FFF7FEFF 		bl	DJIMotorStop
+ 1291              	.LVL80:
+ 1292              	.L52:
+ 300:application/chassis/chassis.c ****     }
+ 301:application/chassis/chassis.c ****     else
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 33
+
+
+ 302:application/chassis/chassis.c ****     { // 正常工作
+ 303:application/chassis/chassis.c ****         DJIMotorEnable(motor_lf);
+ 304:application/chassis/chassis.c ****         DJIMotorEnable(motor_rf);
+ 305:application/chassis/chassis.c ****         DJIMotorEnable(motor_lb);
+ 306:application/chassis/chassis.c ****         DJIMotorEnable(motor_rb);
+ 307:application/chassis/chassis.c ****     }
+ 308:application/chassis/chassis.c ****     // 根据控制模式设定旋转速度
+ 309:application/chassis/chassis.c ****     switch (chassis_cmd_recv.chassis_mode)
+ 1293              		.loc 1 309 5 view .LVU365
+ 1294              		.loc 1 309 29 is_stmt 0 view .LVU366
+ 1295 0036 3E4B     		ldr	r3, .L60
+ 1296 0038 1B7D     		ldrb	r3, [r3, #20]	@ zero_extendqisi2
+ 1297              		.loc 1 309 5 view .LVU367
+ 1298 003a 022B     		cmp	r3, #2
+ 1299 003c 18D0     		beq	.L53
+ 1300 003e 032B     		cmp	r3, #3
+ 1301 0040 60D0     		beq	.L54
+ 1302 0042 012B     		cmp	r3, #1
+ 1303 0044 1ED1     		bne	.L56
+ 310:application/chassis/chassis.c ****     {
+ 311:application/chassis/chassis.c ****     case CHASSIS_NO_FOLLOW: // 底盘不旋转,但维持全向机动,一般用于调整云台姿态
+ 312:application/chassis/chassis.c ****         chassis_cmd_recv.wz = chassis_cmd_recv.wz / rpm_2_wheel_vector;
+ 313:application/chassis/chassis.c ****         break;     
+ 314:application/chassis/chassis.c ****     case CHASSIS_FOLLOW_GIMBAL_YAW: // 跟随云台,不单独设置pid,以误差角度平方为速�
+ 315:application/chassis/chassis.c ****         chassis_cmd_recv.wz = -3.0f * chassis_cmd_recv.offset_angle * abs(chassis_cmd_recv.offset_a
+ 316:application/chassis/chassis.c ****         break;
+ 317:application/chassis/chassis.c ****     case CHASSIS_ROTATE: // 自旋,同时保持全向机动;当前wz维持定值,后续增加不规
+ 318:application/chassis/chassis.c ****         chassis_cmd_recv.wz = 5000;
+ 1304              		.loc 1 318 9 is_stmt 1 view .LVU368
+ 1305              		.loc 1 318 29 is_stmt 0 view .LVU369
+ 1306 0046 3A4B     		ldr	r3, .L60
+ 1307 0048 3F4A     		ldr	r2, .L60+24
+ 1308 004a 9A60     		str	r2, [r3, #8]	@ float
+ 319:application/chassis/chassis.c ****         break;
+ 1309              		.loc 1 319 9 is_stmt 1 view .LVU370
+ 1310 004c 1AE0     		b	.L56
+ 1311              	.L51:
+ 303:application/chassis/chassis.c ****         DJIMotorEnable(motor_rf);
+ 1312              		.loc 1 303 9 view .LVU371
+ 1313 004e 3A4B     		ldr	r3, .L60+8
+ 1314 0050 1868     		ldr	r0, [r3]
+ 1315 0052 FFF7FEFF 		bl	DJIMotorEnable
+ 1316              	.LVL81:
+ 304:application/chassis/chassis.c ****         DJIMotorEnable(motor_lb);
+ 1317              		.loc 1 304 9 view .LVU372
+ 1318 0056 394B     		ldr	r3, .L60+12
+ 1319 0058 1868     		ldr	r0, [r3]
+ 1320 005a FFF7FEFF 		bl	DJIMotorEnable
+ 1321              	.LVL82:
+ 305:application/chassis/chassis.c ****         DJIMotorEnable(motor_rb);
+ 1322              		.loc 1 305 9 view .LVU373
+ 1323 005e 384B     		ldr	r3, .L60+16
+ 1324 0060 1868     		ldr	r0, [r3]
+ 1325 0062 FFF7FEFF 		bl	DJIMotorEnable
+ 1326              	.LVL83:
+ 306:application/chassis/chassis.c ****     }
+ 1327              		.loc 1 306 9 view .LVU374
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 34
+
+
+ 1328 0066 374B     		ldr	r3, .L60+20
+ 1329 0068 1868     		ldr	r0, [r3]
+ 1330 006a FFF7FEFF 		bl	DJIMotorEnable
+ 1331              	.LVL84:
+ 1332 006e E2E7     		b	.L52
+ 1333              	.L53:
+ 312:application/chassis/chassis.c ****         break;     
+ 1334              		.loc 1 312 9 view .LVU375
+ 312:application/chassis/chassis.c ****         break;     
+ 1335              		.loc 1 312 47 is_stmt 0 view .LVU376
+ 1336 0070 2F4B     		ldr	r3, .L60
+ 1337 0072 D3ED026A 		vldr.32	s13, [r3, #8]
+ 312:application/chassis/chassis.c ****         break;     
+ 1338              		.loc 1 312 51 view .LVU377
+ 1339 0076 354A     		ldr	r2, .L60+28
+ 1340 0078 92ED007A 		vldr.32	s14, [r2]
+ 1341 007c C6EE877A 		vdiv.f32	s15, s13, s14
+ 312:application/chassis/chassis.c ****         break;     
+ 1342              		.loc 1 312 29 view .LVU378
+ 1343 0080 C3ED027A 		vstr.32	s15, [r3, #8]
+ 313:application/chassis/chassis.c ****     case CHASSIS_FOLLOW_GIMBAL_YAW: // 跟随云台,不单独设置pid,以误差角度平方为速�
+ 1344              		.loc 1 313 9 is_stmt 1 view .LVU379
+ 1345              	.L56:
+ 320:application/chassis/chassis.c ****     default:
+ 321:application/chassis/chassis.c ****         break;
+ 322:application/chassis/chassis.c ****     }
+ 323:application/chassis/chassis.c **** 
+ 324:application/chassis/chassis.c ****     // 根据云台和底盘的角度offset将控制量映射到底盘坐标系上
+ 325:application/chassis/chassis.c ****     // 底盘逆时针旋转为角度正方向;云台命令的方向以云台指向的方向为x,�
+ 326:application/chassis/chassis.c ****     static float sin_theta, cos_theta;
+ 1346              		.loc 1 326 5 view .LVU380
+ 327:application/chassis/chassis.c ****     cos_theta = arm_cos_f32(chassis_cmd_recv.offset_angle * DEGREE_2_RAD);
+ 1347              		.loc 1 327 5 view .LVU381
+ 1348              		.loc 1 327 45 is_stmt 0 view .LVU382
+ 1349 0084 2A4C     		ldr	r4, .L60
+ 1350 0086 94ED030A 		vldr.32	s0, [r4, #12]
+ 1351              		.loc 1 327 59 view .LVU383
+ 1352 008a 9FED318A 		vldr.32	s16, .L60+32
+ 1353              		.loc 1 327 17 view .LVU384
+ 1354 008e 20EE080A 		vmul.f32	s0, s0, s16
+ 1355 0092 FFF7FEFF 		bl	arm_cos_f32
+ 1356              	.LVL85:
+ 1357              		.loc 1 327 15 discriminator 1 view .LVU385
+ 1358 0096 2F4D     		ldr	r5, .L60+36
+ 1359 0098 85ED000A 		vstr.32	s0, [r5]
+ 328:application/chassis/chassis.c ****     sin_theta = arm_sin_f32(chassis_cmd_recv.offset_angle * DEGREE_2_RAD);
+ 1360              		.loc 1 328 5 is_stmt 1 view .LVU386
+ 1361              		.loc 1 328 45 is_stmt 0 view .LVU387
+ 1362 009c 94ED030A 		vldr.32	s0, [r4, #12]
+ 1363              		.loc 1 328 17 view .LVU388
+ 1364 00a0 20EE080A 		vmul.f32	s0, s0, s16
+ 1365 00a4 FFF7FEFF 		bl	arm_sin_f32
+ 1366              	.LVL86:
+ 1367              		.loc 1 328 15 discriminator 1 view .LVU389
+ 1368 00a8 2B4B     		ldr	r3, .L60+40
+ 1369 00aa 83ED000A 		vstr.32	s0, [r3]
+ 329:application/chassis/chassis.c ****     chassis_vx = (chassis_cmd_recv.vx * cos_theta - chassis_cmd_recv.vy * sin_theta) / rpm_2_wheel_
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 35
+
+
+ 1370              		.loc 1 329 5 is_stmt 1 view .LVU390
+ 1371              		.loc 1 329 35 is_stmt 0 view .LVU391
+ 1372 00ae D4ED005A 		vldr.32	s11, [r4]
+ 1373              		.loc 1 329 39 view .LVU392
+ 1374 00b2 D5ED007A 		vldr.32	s15, [r5]
+ 1375 00b6 25EEA77A 		vmul.f32	s14, s11, s15
+ 1376              		.loc 1 329 69 view .LVU393
+ 1377 00ba 94ED016A 		vldr.32	s12, [r4, #4]
+ 1378              		.loc 1 329 73 view .LVU394
+ 1379 00be 60EE066A 		vmul.f32	s13, s0, s12
+ 1380              		.loc 1 329 51 view .LVU395
+ 1381 00c2 37EE667A 		vsub.f32	s14, s14, s13
+ 1382              		.loc 1 329 86 view .LVU396
+ 1383 00c6 214B     		ldr	r3, .L60+28
+ 1384 00c8 D3ED006A 		vldr.32	s13, [r3]
+ 1385 00cc 87EE265A 		vdiv.f32	s10, s14, s13
+ 1386              		.loc 1 329 16 view .LVU397
+ 1387 00d0 224B     		ldr	r3, .L60+44
+ 1388 00d2 83ED005A 		vstr.32	s10, [r3]
+ 330:application/chassis/chassis.c ****     chassis_vy = (chassis_cmd_recv.vx * sin_theta + chassis_cmd_recv.vy * cos_theta) / rpm_2_wheel_
+ 1389              		.loc 1 330 5 is_stmt 1 view .LVU398
+ 1390              		.loc 1 330 39 is_stmt 0 view .LVU399
+ 1391 00d6 20EE250A 		vmul.f32	s0, s0, s11
+ 1392              		.loc 1 330 73 view .LVU400
+ 1393 00da 67EE867A 		vmul.f32	s15, s15, s12
+ 1394              		.loc 1 330 51 view .LVU401
+ 1395 00de 30EE270A 		vadd.f32	s0, s0, s15
+ 1396              		.loc 1 330 86 view .LVU402
+ 1397 00e2 C0EE267A 		vdiv.f32	s15, s0, s13
+ 1398              		.loc 1 330 16 view .LVU403
+ 1399 00e6 1E4B     		ldr	r3, .L60+48
+ 1400 00e8 C3ED007A 		vstr.32	s15, [r3]
+ 331:application/chassis/chassis.c ****    
+ 332:application/chassis/chassis.c ****     // 根据控制模式进行正运动学解算,计算底盘输出
+ 333:application/chassis/chassis.c ****     ChassisCalculate();
+ 1401              		.loc 1 333 5 is_stmt 1 view .LVU404
+ 1402 00ec FFF7FEFF 		bl	ChassisCalculate
+ 1403              	.LVL87:
+ 334:application/chassis/chassis.c **** 
+ 335:application/chassis/chassis.c ****     // 根据裁判系统的反馈数据和电容数据对输出限幅并设定闭环参考值
+ 336:application/chassis/chassis.c ****     LimitChassisOutput();
+ 1404              		.loc 1 336 5 view .LVU405
+ 1405 00f0 FFF7FEFF 		bl	LimitChassisOutput
+ 1406              	.LVL88:
+ 337:application/chassis/chassis.c **** 
+ 338:application/chassis/chassis.c ****     // 根据电机的反馈速度和IMU(如果有)计算真实速度
+ 339:application/chassis/chassis.c ****     EstimateSpeed();
+ 1407              		.loc 1 339 5 view .LVU406
+ 340:application/chassis/chassis.c **** 
+ 341:application/chassis/chassis.c **** // #ifdef ONE_BOARD
+ 342:application/chassis/chassis.c **** //     // 根据电机状态反馈是否离线
+ 343:application/chassis/chassis.c **** //     DJIMotorIsOnline(motor_lf);
+ 344:application/chassis/chassis.c **** //     DJIMotorIsOnline(motor_rf);
+ 345:application/chassis/chassis.c **** //     DJIMotorIsOnline(motor_lb);
+ 346:application/chassis/chassis.c **** //     DJIMotorIsOnline(motor_rb);
+ 347:application/chassis/chassis.c **** //     // 反馈电机离线数量
+ 348:application/chassis/chassis.c **** //     if (motor_lf->online_flag || motor_rf->online_flag || motor_lb->online_flag || motor_rb->onl
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 36
+
+
+ 349:application/chassis/chassis.c **** //     {
+ 350:application/chassis/chassis.c **** //         chassis_feedback_data.motor_offline_count = motor_lf->online_flag + motor_rf->online_fla
+ 351:application/chassis/chassis.c **** //         chassis_feedback_data.motor_state = CHASSIS_MOTOR_OFFLINE;
+ 352:application/chassis/chassis.c **** //     }
+ 353:application/chassis/chassis.c **** //     else
+ 354:application/chassis/chassis.c **** //     {
+ 355:application/chassis/chassis.c **** //         chassis_feedback_data.motor_offline_count = 0;
+ 356:application/chassis/chassis.c **** //         chassis_feedback_data.motor_state = CHASSIS_MOTOR_ONLINE;
+ 357:application/chassis/chassis.c **** //     }
+ 358:application/chassis/chassis.c **** // #endif
+ 359:application/chassis/chassis.c **** 
+ 360:application/chassis/chassis.c **** #ifdef CHASSIS_BOARD
+ 361:application/chassis/chassis.c ****     ;
+ 362:application/chassis/chassis.c **** #endif // CHASSIS_BOARD
+ 363:application/chassis/chassis.c **** 
+ 364:application/chassis/chassis.c ****     // 推送反馈消息
+ 365:application/chassis/chassis.c **** #ifdef ONE_BOARD
+ 366:application/chassis/chassis.c ****     PubPushMessage(chassis_pub, (void *)&chassis_feedback_data);
+ 1408              		.loc 1 366 5 view .LVU407
+ 1409 00f4 1B49     		ldr	r1, .L60+52
+ 1410 00f6 1C4B     		ldr	r3, .L60+56
+ 1411 00f8 1868     		ldr	r0, [r3]
+ 1412 00fa FFF7FEFF 		bl	PubPushMessage
+ 1413              	.LVL89:
+ 367:application/chassis/chassis.c **** #endif
+ 368:application/chassis/chassis.c **** #ifdef CHASSIS_BOARD
+ 369:application/chassis/chassis.c ****     CANCommSend(chasiss_can_comm, (void *)&chassis_feedback_data);
+ 370:application/chassis/chassis.c **** #endif // CHASSIS_BOARD
+ 371:application/chassis/chassis.c **** }
+ 1414              		.loc 1 371 1 is_stmt 0 view .LVU408
+ 1415 00fe BDEC028B 		vldm	sp!, {d8}
+ 1416              		.cfi_remember_state
+ 1417              		.cfi_restore 80
+ 1418              		.cfi_restore 81
+ 1419              		.cfi_def_cfa_offset 16
+ 1420 0102 38BD     		pop	{r3, r4, r5, pc}
+ 1421              	.L54:
+ 1422              		.cfi_restore_state
+ 315:application/chassis/chassis.c ****         break;
+ 1423              		.loc 1 315 9 is_stmt 1 view .LVU409
+ 315:application/chassis/chassis.c ****         break;
+ 1424              		.loc 1 315 55 is_stmt 0 view .LVU410
+ 1425 0104 0A4B     		ldr	r3, .L60
+ 1426 0106 93ED037A 		vldr.32	s14, [r3, #12]
+ 315:application/chassis/chassis.c ****         break;
+ 1427              		.loc 1 315 37 view .LVU411
+ 1428 010a F8EE087A 		vmov.f32	s15, #-3.0e+0
+ 1429 010e 67EE277A 		vmul.f32	s15, s14, s15
+ 315:application/chassis/chassis.c ****         break;
+ 1430              		.loc 1 315 71 view .LVU412
+ 1431 0112 B5EEC07A 		vcmpe.f32	s14, #0
+ 1432 0116 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1433 011a 05DD     		ble	.L59
+ 1434              	.L57:
+ 315:application/chassis/chassis.c ****         break;
+ 1435              		.loc 1 315 69 discriminator 4 view .LVU413
+ 1436 011c 67EE877A 		vmul.f32	s15, s15, s14
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 37
+
+
+ 315:application/chassis/chassis.c ****         break;
+ 1437              		.loc 1 315 29 discriminator 4 view .LVU414
+ 1438 0120 034B     		ldr	r3, .L60
+ 1439 0122 C3ED027A 		vstr.32	s15, [r3, #8]
+ 316:application/chassis/chassis.c ****     case CHASSIS_ROTATE: // 自旋,同时保持全向机动;当前wz维持定值,后续增加不规
+ 1440              		.loc 1 316 9 is_stmt 1 view .LVU415
+ 1441 0126 ADE7     		b	.L56
+ 1442              	.L59:
+ 315:application/chassis/chassis.c ****         break;
+ 1443              		.loc 1 315 71 is_stmt 0 discriminator 2 view .LVU416
+ 1444 0128 B1EE477A 		vneg.f32	s14, s14
+ 1445 012c F6E7     		b	.L57
+ 1446              	.L61:
+ 1447 012e 00BF     		.align	2
+ 1448              	.L60:
+ 1449 0130 00000000 		.word	chassis_cmd_recv
+ 1450 0134 00000000 		.word	chassis_sub
+ 1451 0138 00000000 		.word	motor_lf
+ 1452 013c 00000000 		.word	motor_rf
+ 1453 0140 00000000 		.word	motor_lb
+ 1454 0144 00000000 		.word	motor_rb
+ 1455 0148 00409C45 		.word	1167867904
+ 1456 014c 00000000 		.word	rpm_2_wheel_vector
+ 1457 0150 35FA8E3C 		.word	1016003125
+ 1458 0154 00000000 		.word	cos_theta.3
+ 1459 0158 00000000 		.word	sin_theta.2
+ 1460 015c 00000000 		.word	chassis_vx
+ 1461 0160 00000000 		.word	chassis_vy
+ 1462 0164 00000000 		.word	chassis_feedback_data
+ 1463 0168 00000000 		.word	chassis_pub
+ 1464              		.cfi_endproc
+ 1465              	.LFE280:
+ 1467              		.section	.bss.motor_controller.0,"aw",%nobits
+ 1468              		.align	2
+ 1471              	motor_controller.0:
+ 1472 0000 00000000 		.space	4
+ 1473              		.section	.bss.measure.1,"aw",%nobits
+ 1474              		.align	2
+ 1477              	measure.1:
+ 1478 0000 00000000 		.space	4
+ 1479              		.section	.bss.sin_theta.2,"aw",%nobits
+ 1480              		.align	2
+ 1483              	sin_theta.2:
+ 1484 0000 00000000 		.space	4
+ 1485              		.section	.bss.cos_theta.3,"aw",%nobits
+ 1486              		.align	2
+ 1489              	cos_theta.3:
+ 1490 0000 00000000 		.space	4
+ 1491              		.section	.bss.reduction_ratio_wheel.4,"aw",%nobits
+ 1492              		.align	2
+ 1495              	reduction_ratio_wheel.4:
+ 1496 0000 00000000 		.space	4
+ 1497              		.section	.bss.center_gimbal_offset_y.5,"aw",%nobits
+ 1498              		.align	2
+ 1501              	center_gimbal_offset_y.5:
+ 1502 0000 00000000 		.space	4
+ 1503              		.section	.bss.center_gimbal_offset_x.6,"aw",%nobits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 38
+
+
+ 1504              		.align	2
+ 1507              	center_gimbal_offset_x.6:
+ 1508 0000 00000000 		.space	4
+ 1509              		.section	.bss.perimeter_wheel.7,"aw",%nobits
+ 1510              		.align	2
+ 1513              	perimeter_wheel.7:
+ 1514 0000 00000000 		.space	4
+ 1515              		.section	.bss.half_track_width.8,"aw",%nobits
+ 1516              		.align	2
+ 1519              	half_track_width.8:
+ 1520 0000 00000000 		.space	4
+ 1521              		.section	.bss.half_wheel_base.9,"aw",%nobits
+ 1522              		.align	2
+ 1525              	half_wheel_base.9:
+ 1526 0000 00000000 		.space	4
+ 1527              		.section	.bss.vt_rb,"aw",%nobits
+ 1528              		.align	2
+ 1531              	vt_rb:
+ 1532 0000 00000000 		.space	4
+ 1533              		.section	.bss.vt_lb,"aw",%nobits
+ 1534              		.align	2
+ 1537              	vt_lb:
+ 1538 0000 00000000 		.space	4
+ 1539              		.section	.bss.vt_rf,"aw",%nobits
+ 1540              		.align	2
+ 1543              	vt_rf:
+ 1544 0000 00000000 		.space	4
+ 1545              		.section	.bss.vt_lf,"aw",%nobits
+ 1546              		.align	2
+ 1549              	vt_lf:
+ 1550 0000 00000000 		.space	4
+ 1551              		.section	.bss.chassis_vy,"aw",%nobits
+ 1552              		.align	2
+ 1555              	chassis_vy:
+ 1556 0000 00000000 		.space	4
+ 1557              		.section	.bss.chassis_vx,"aw",%nobits
+ 1558              		.align	2
+ 1561              	chassis_vx:
+ 1562 0000 00000000 		.space	4
+ 1563              		.section	.bss.rpm_2_wheel_vector,"aw",%nobits
+ 1564              		.align	2
+ 1567              	rpm_2_wheel_vector:
+ 1568 0000 00000000 		.space	4
+ 1569              		.section	.bss.rb_center,"aw",%nobits
+ 1570              		.align	2
+ 1573              	rb_center:
+ 1574 0000 00000000 		.space	4
+ 1575              		.section	.bss.lb_center,"aw",%nobits
+ 1576              		.align	2
+ 1579              	lb_center:
+ 1580 0000 00000000 		.space	4
+ 1581              		.section	.bss.rf_center,"aw",%nobits
+ 1582              		.align	2
+ 1585              	rf_center:
+ 1586 0000 00000000 		.space	4
+ 1587              		.section	.bss.lf_center,"aw",%nobits
+ 1588              		.align	2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 39
+
+
+ 1591              	lf_center:
+ 1592 0000 00000000 		.space	4
+ 1593              		.section	.bss.power_manager,"aw",%nobits
+ 1594              		.align	2
+ 1597              	power_manager:
+ 1598 0000 00000000 		.space	4
+ 1599              		.section	.bss.motor_rb,"aw",%nobits
+ 1600              		.align	2
+ 1603              	motor_rb:
+ 1604 0000 00000000 		.space	4
+ 1605              		.section	.bss.motor_lb,"aw",%nobits
+ 1606              		.align	2
+ 1609              	motor_lb:
+ 1610 0000 00000000 		.space	4
+ 1611              		.section	.bss.motor_rf,"aw",%nobits
+ 1612              		.align	2
+ 1615              	motor_rf:
+ 1616 0000 00000000 		.space	4
+ 1617              		.section	.bss.motor_lf,"aw",%nobits
+ 1618              		.align	2
+ 1621              	motor_lf:
+ 1622 0000 00000000 		.space	4
+ 1623              		.section	.bss.cap,"aw",%nobits
+ 1624              		.align	2
+ 1627              	cap:
+ 1628 0000 00000000 		.space	4
+ 1629              		.section	.bss.chassis_feedback_data,"aw",%nobits
+ 1630              		.align	2
+ 1633              	chassis_feedback_data:
+ 1634 0000 00000000 		.space	14
+ 1634      00000000 
+ 1634      00000000 
+ 1634      0000
+ 1635              		.section	.bss.chassis_cmd_recv,"aw",%nobits
+ 1636              		.align	2
+ 1639              	chassis_cmd_recv:
+ 1640 0000 00000000 		.space	25
+ 1640      00000000 
+ 1640      00000000 
+ 1640      00000000 
+ 1640      00000000 
+ 1641              		.section	.bss.chassis_sub,"aw",%nobits
+ 1642              		.align	2
+ 1645              	chassis_sub:
+ 1646 0000 00000000 		.space	4
+ 1647              		.section	.bss.chassis_pub,"aw",%nobits
+ 1648              		.align	2
+ 1651              	chassis_pub:
+ 1652 0000 00000000 		.space	4
+ 1653              		.section	.bss.chassis_config,"aw",%nobits
+ 1654              		.align	2
+ 1657              	chassis_config:
+ 1658 0000 00000000 		.space	4
+ 1659              		.section	.rodata
+ 1660              		.align	2
+ 1661              		.set	.LANCHOR0,. + 0
+ 1662              	.LC0:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 40
+
+
+ 1663 0000 F4FD543C 		.word	1012202996
+ 1664 0004 295CA740 		.word	1084709929
+ 1665 0008 85EB513F 		.word	1062333317
+ 1666              		.text
+ 1667              	.Letext0:
+ 1668              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1669              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1670              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 1671              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 1672              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h"
+ 1673              		.file 7 "Middlewares/ST/ARM/DSP/Inc/arm_math.h"
+ 1674              		.file 8 "bsp/can/bsp_can.h"
+ 1675              		.file 9 "modules/algorithm/controller.h"
+ 1676              		.file 10 "modules/motor/motor_def.h"
+ 1677              		.file 11 "application/config/config.h"
+ 1678              		.file 12 "application/robot_def.h"
+ 1679              		.file 13 "modules/daemon/daemon.h"
+ 1680              		.file 14 "modules/motor/DJImotor/dji_motor.h"
+ 1681              		.file 15 "modules/power/super_cap.h"
+ 1682              		.file 16 "modules/power/power_manager.h"
+ 1683              		.file 17 "modules/message_center/message_center.h"
+ 1684              		.file 18 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 1685              		.file 19 "modules/algorithm/user_lib.h"
+ 1686              		.file 20 "Inc/can.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 41
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 chassis.c
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:21     .text.ChassisCalculate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:26     .text.ChassisCalculate:00000000 ChassisCalculate
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:171    .text.ChassisCalculate:00000110 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1657   .bss.chassis_config:00000000 chassis_config
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1561   .bss.chassis_vx:00000000 chassis_vx
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1555   .bss.chassis_vy:00000000 chassis_vy
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1639   .bss.chassis_cmd_recv:00000000 chassis_cmd_recv
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1591   .bss.lf_center:00000000 lf_center
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1549   .bss.vt_lf:00000000 vt_lf
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1585   .bss.rf_center:00000000 rf_center
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1543   .bss.vt_rf:00000000 vt_rf
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1579   .bss.lb_center:00000000 lb_center
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1537   .bss.vt_lb:00000000 vt_lb
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1573   .bss.rb_center:00000000 rb_center
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1531   .bss.vt_rb:00000000 vt_rb
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:189    .text.LimitChassisOutput:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:194    .text.LimitChassisOutput:00000000 LimitChassisOutput
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:539    .text.LimitChassisOutput:00000228 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1621   .bss.motor_lf:00000000 motor_lf
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1615   .bss.motor_rf:00000000 motor_rf
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1609   .bss.motor_lb:00000000 motor_lb
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1603   .bss.motor_rb:00000000 motor_rb
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1477   .bss.measure.1:00000000 measure.1
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1471   .bss.motor_controller.0:00000000 motor_controller.0
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1597   .bss.power_manager:00000000 power_manager
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:560    .text.LimitChassisOutput:0000026c $t
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:917    .text.LimitChassisOutput:000004e8 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:933    .rodata.ChassisInit.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:940    .text.ChassisInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:946    .text.ChassisInit:00000000 ChassisInit
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1205   .text.ChassisInit:00000188 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1525   .bss.half_wheel_base.9:00000000 half_wheel_base.9
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1519   .bss.half_track_width.8:00000000 half_track_width.8
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1513   .bss.perimeter_wheel.7:00000000 perimeter_wheel.7
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1507   .bss.center_gimbal_offset_x.6:00000000 center_gimbal_offset_x.6
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1501   .bss.center_gimbal_offset_y.5:00000000 center_gimbal_offset_y.5
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1495   .bss.reduction_ratio_wheel.4:00000000 reduction_ratio_wheel.4
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1567   .bss.rpm_2_wheel_vector:00000000 rpm_2_wheel_vector
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1627   .bss.cap:00000000 cap
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1645   .bss.chassis_sub:00000000 chassis_sub
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1651   .bss.chassis_pub:00000000 chassis_pub
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1238   .text.ChassisTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1244   .text.ChassisTask:00000000 ChassisTask
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1449   .text.ChassisTask:00000130 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1489   .bss.cos_theta.3:00000000 cos_theta.3
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1483   .bss.sin_theta.2:00000000 sin_theta.2
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1633   .bss.chassis_feedback_data:00000000 chassis_feedback_data
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1468   .bss.motor_controller.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1474   .bss.measure.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1480   .bss.sin_theta.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1486   .bss.cos_theta.3:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1492   .bss.reduction_ratio_wheel.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1498   .bss.center_gimbal_offset_y.5:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1504   .bss.center_gimbal_offset_x.6:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1510   .bss.perimeter_wheel.7:00000000 $d
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s 			page 42
+
+
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1516   .bss.half_track_width.8:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1522   .bss.half_wheel_base.9:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1528   .bss.vt_rb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1534   .bss.vt_lb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1540   .bss.vt_rf:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1546   .bss.vt_lf:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1552   .bss.chassis_vy:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1558   .bss.chassis_vx:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1564   .bss.rpm_2_wheel_vector:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1570   .bss.rb_center:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1576   .bss.lb_center:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1582   .bss.rf_center:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1588   .bss.lf_center:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1594   .bss.power_manager:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1600   .bss.motor_rb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1606   .bss.motor_lb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1612   .bss.motor_rf:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1618   .bss.motor_lf:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1624   .bss.cap:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1630   .bss.chassis_feedback_data:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1636   .bss.chassis_cmd_recv:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1642   .bss.chassis_sub:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1648   .bss.chassis_pub:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1654   .bss.chassis_config:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccdytHPl.s:1660   .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+DJIMotorOuterLoop
+DJIMotorCloseLoop
+PIDCalculate
+__aeabi_f2d
+__aeabi_dmul
+__aeabi_dadd
+__aeabi_d2f
+floatEqual
+float_constrain
+sqrtf
+__aeabi_dsub
+DJIMotorSetRef
+ChassisConfigFeed
+DJIMotorInit
+SuperCapInit
+PowerControlInit
+SubRegister
+PubRegister
+hcan2
+SubGetMessage
+DJIMotorStop
+DJIMotorEnable
+arm_cos_f32
+arm_sin_f32
+PubPushMessage

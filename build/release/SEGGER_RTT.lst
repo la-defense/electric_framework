@@ -1,0 +1,2277 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"SEGGER_RTT.c"
+  16              		.text
+  17              		.section	.text._GetAvailWriteSpace,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	_GetAvailWriteSpace:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 0369     		ldr	r3, [r0, #16]
+  28 0002 C268     		ldr	r2, [r0, #12]
+  29 0004 9342     		cmp	r3, r2
+  30 0006 04D8     		bhi	.L2
+  31 0008 8168     		ldr	r1, [r0, #8]
+  32 000a 8A1A     		subs	r2, r1, r2
+  33 000c 1344     		add	r3, r3, r2
+  34 000e 581E     		subs	r0, r3, #1
+  35 0010 7047     		bx	lr
+  36              	.L2:
+  37 0012 981A     		subs	r0, r3, r2
+  38 0014 0138     		subs	r0, r0, #1
+  39 0016 7047     		bx	lr
+  41              		.section	.text._WriteNoCheck,"ax",%progbits
+  42              		.align	1
+  43              		.syntax unified
+  44              		.thumb
+  45              		.thumb_func
+  47              	_WriteNoCheck:
+  48              		@ args = 0, pretend = 0, frame = 0
+  49              		@ frame_needed = 0, uses_anonymous_args = 0
+  50 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+  51 0004 0446     		mov	r4, r0
+  52 0006 1646     		mov	r6, r2
+  53 0008 C568     		ldr	r5, [r0, #12]
+  54 000a 8768     		ldr	r7, [r0, #8]
+  55 000c A7EB0508 		sub	r8, r7, r5
+  56 0010 9045     		cmp	r8, r2
+  57 0012 09D9     		bls	.L5
+  58 0014 4068     		ldr	r0, [r0, #4]
+  59 0016 2844     		add	r0, r0, r5
+  60 0018 FFF7FEFF 		bl	memcpy
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 2
+
+
+  61              		.syntax unified
+  62              	@ 456 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+  63 001c BFF35F8F 		dmb
+  64              	
+  65              	@ 0 "" 2
+  66              		.thumb
+  67              		.syntax unified
+  68 0020 3544     		add	r5, r5, r6
+  69 0022 E560     		str	r5, [r4, #12]
+  70              	.L4:
+  71 0024 BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+  72              	.L5:
+  73 0028 4068     		ldr	r0, [r0, #4]
+  74 002a 4246     		mov	r2, r8
+  75 002c 8946     		mov	r9, r1
+  76 002e 2844     		add	r0, r0, r5
+  77 0030 FFF7FEFF 		bl	memcpy
+  78 0034 ED1B     		subs	r5, r5, r7
+  79 0036 3544     		add	r5, r5, r6
+  80 0038 2A46     		mov	r2, r5
+  81 003a 4946     		mov	r1, r9
+  82 003c 4144     		add	r1, r1, r8
+  83 003e 6068     		ldr	r0, [r4, #4]
+  84 0040 FFF7FEFF 		bl	memcpy
+  85              		.syntax unified
+  86              	@ 483 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+  87 0044 BFF35F8F 		dmb
+  88              	
+  89              	@ 0 "" 2
+  90              		.thumb
+  91              		.syntax unified
+  92 0048 E560     		str	r5, [r4, #12]
+  93 004a EBE7     		b	.L4
+  95              		.section	.text._WriteBlocking,"ax",%progbits
+  96              		.align	1
+  97              		.syntax unified
+  98              		.thumb
+  99              		.thumb_func
+ 101              	_WriteBlocking:
+ 102              		@ args = 0, pretend = 0, frame = 0
+ 103              		@ frame_needed = 0, uses_anonymous_args = 0
+ 104 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+ 105 0004 0646     		mov	r6, r0
+ 106 0006 8846     		mov	r8, r1
+ 107 0008 1746     		mov	r7, r2
+ 108 000a C568     		ldr	r5, [r0, #12]
+ 109 000c 4FF00009 		mov	r9, #0
+ 110 0010 1CE0     		b	.L12
+ 111              	.L9:
+ 112 0012 B268     		ldr	r2, [r6, #8]
+ 113 0014 5B1B     		subs	r3, r3, r5
+ 114 0016 1A44     		add	r2, r2, r3
+ 115 0018 013A     		subs	r2, r2, #1
+ 116              	.L10:
+ 117 001a B368     		ldr	r3, [r6, #8]
+ 118 001c 5C1B     		subs	r4, r3, r5
+ 119 001e 9442     		cmp	r4, r2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 3
+
+
+ 120 0020 28BF     		it	cs
+ 121 0022 1446     		movcs	r4, r2
+ 122 0024 BC42     		cmp	r4, r7
+ 123 0026 28BF     		it	cs
+ 124 0028 3C46     		movcs	r4, r7
+ 125 002a 7068     		ldr	r0, [r6, #4]
+ 126 002c 2246     		mov	r2, r4
+ 127 002e 4146     		mov	r1, r8
+ 128 0030 2844     		add	r0, r0, r5
+ 129 0032 FFF7FEFF 		bl	memcpy
+ 130 0036 A144     		add	r9, r9, r4
+ 131 0038 A044     		add	r8, r8, r4
+ 132 003a 3F1B     		subs	r7, r7, r4
+ 133 003c 2544     		add	r5, r5, r4
+ 134 003e B368     		ldr	r3, [r6, #8]
+ 135 0040 AB42     		cmp	r3, r5
+ 136 0042 09D0     		beq	.L15
+ 137              	.L11:
+ 138              		.syntax unified
+ 139              	@ 410 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 140 0044 BFF35F8F 		dmb
+ 141              	
+ 142              	@ 0 "" 2
+ 143              		.thumb
+ 144              		.syntax unified
+ 145 0048 F560     		str	r5, [r6, #12]
+ 146 004a 3FB1     		cbz	r7, .L16
+ 147              	.L12:
+ 148 004c 3369     		ldr	r3, [r6, #16]
+ 149 004e 9D42     		cmp	r5, r3
+ 150 0050 DFD2     		bcs	.L9
+ 151 0052 5B1B     		subs	r3, r3, r5
+ 152 0054 5A1E     		subs	r2, r3, #1
+ 153 0056 E0E7     		b	.L10
+ 154              	.L15:
+ 155 0058 0025     		movs	r5, #0
+ 156 005a F3E7     		b	.L11
+ 157              	.L16:
+ 158 005c 4846     		mov	r0, r9
+ 159 005e BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 161              		.section	.text._PostTerminalSwitch,"ax",%progbits
+ 162              		.align	1
+ 163              		.syntax unified
+ 164              		.thumb
+ 165              		.thumb_func
+ 167              	_PostTerminalSwitch:
+ 168              		@ args = 0, pretend = 0, frame = 8
+ 169              		@ frame_needed = 0, uses_anonymous_args = 0
+ 170 0000 00B5     		push	{lr}
+ 171 0002 83B0     		sub	sp, sp, #12
+ 172 0004 FF23     		movs	r3, #255
+ 173 0006 8DF80430 		strb	r3, [sp, #4]
+ 174 000a 054B     		ldr	r3, .L19
+ 175 000c 5B5C     		ldrb	r3, [r3, r1]	@ zero_extendqisi2
+ 176 000e 8DF80530 		strb	r3, [sp, #5]
+ 177 0012 0222     		movs	r2, #2
+ 178 0014 01A9     		add	r1, sp, #4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 4
+
+
+ 179 0016 FFF7FEFF 		bl	_WriteBlocking
+ 180 001a 03B0     		add	sp, sp, #12
+ 181              		@ sp needed
+ 182 001c 00BD     		pop	{pc}
+ 183              	.L20:
+ 184 001e 00BF     		.align	2
+ 185              	.L19:
+ 186 0020 00000000 		.word	_aTerminalId
+ 188              		.section	.rodata._DoInit.str1.4,"aMS",%progbits,1
+ 189              		.align	2
+ 190              	.LC0:
+ 191 0000 5465726D 		.ascii	"Terminal\000"
+ 191      696E616C 
+ 191      00
+ 192              		.section	.text._DoInit,"ax",%progbits
+ 193              		.align	1
+ 194              		.syntax unified
+ 195              		.thumb
+ 196              		.thumb_func
+ 198              	_DoInit:
+ 199              		@ args = 0, pretend = 0, frame = 0
+ 200              		@ frame_needed = 0, uses_anonymous_args = 0
+ 201 0000 10B5     		push	{r4, lr}
+ 202 0002 154C     		ldr	r4, .L25
+ 203 0004 A822     		movs	r2, #168
+ 204 0006 0021     		movs	r1, #0
+ 205 0008 2046     		mov	r0, r4
+ 206 000a FFF7FEFF 		bl	memset
+ 207 000e 0323     		movs	r3, #3
+ 208 0010 2361     		str	r3, [r4, #16]
+ 209 0012 6361     		str	r3, [r4, #20]
+ 210 0014 114A     		ldr	r2, .L25+4
+ 211 0016 A261     		str	r2, [r4, #24]
+ 212 0018 114B     		ldr	r3, .L25+8
+ 213 001a E361     		str	r3, [r4, #28]
+ 214 001c 4FF48063 		mov	r3, #1024
+ 215 0020 2362     		str	r3, [r4, #32]
+ 216 0022 0023     		movs	r3, #0
+ 217 0024 A362     		str	r3, [r4, #40]
+ 218 0026 6362     		str	r3, [r4, #36]
+ 219 0028 E362     		str	r3, [r4, #44]
+ 220 002a 2266     		str	r2, [r4, #96]
+ 221 002c 0D4A     		ldr	r2, .L25+12
+ 222 002e 6266     		str	r2, [r4, #100]
+ 223 0030 1022     		movs	r2, #16
+ 224 0032 A266     		str	r2, [r4, #104]
+ 225 0034 2367     		str	r3, [r4, #112]
+ 226 0036 E366     		str	r3, [r4, #108]
+ 227 0038 6367     		str	r3, [r4, #116]
+ 228              		.syntax unified
+ 229              	@ 346 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 230 003a BFF35F8F 		dmb
+ 231              	
+ 232              	@ 0 "" 2
+ 233              		.thumb
+ 234              		.syntax unified
+ 235 003e 06E0     		b	.L22
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 5
+
+
+ 236              	.L23:
+ 237 0040 C3F10F02 		rsb	r2, r3, #15
+ 238 0044 0849     		ldr	r1, .L25+16
+ 239 0046 895C     		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ 240 0048 034A     		ldr	r2, .L25
+ 241 004a D154     		strb	r1, [r2, r3]
+ 242 004c 0133     		adds	r3, r3, #1
+ 243              	.L22:
+ 244 004e 0F2B     		cmp	r3, #15
+ 245 0050 F6D9     		bls	.L23
+ 246              		.syntax unified
+ 247              	@ 350 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 248 0052 BFF35F8F 		dmb
+ 249              	
+ 250              	@ 0 "" 2
+ 251              		.thumb
+ 252              		.syntax unified
+ 253 0056 10BD     		pop	{r4, pc}
+ 254              	.L26:
+ 255              		.align	2
+ 256              	.L25:
+ 257 0058 00000000 		.word	_SEGGER_RTT
+ 258 005c 00000000 		.word	.LC0
+ 259 0060 00000000 		.word	_acUpBuffer
+ 260 0064 00000000 		.word	_acDownBuffer
+ 261 0068 00000000 		.word	_aInitStr.0
+ 263              		.section	.text.SEGGER_RTT_ReadUpBufferNoLock,"ax",%progbits
+ 264              		.align	1
+ 265              		.global	SEGGER_RTT_ReadUpBufferNoLock
+ 266              		.syntax unified
+ 267              		.thumb
+ 268              		.thumb_func
+ 270              	SEGGER_RTT_ReadUpBufferNoLock:
+ 271              		@ args = 0, pretend = 0, frame = 8
+ 272              		@ frame_needed = 0, uses_anonymous_args = 0
+ 273 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 274 0004 83B0     		sub	sp, sp, #12
+ 275 0006 0446     		mov	r4, r0
+ 276 0008 8946     		mov	r9, r1
+ 277 000a 9046     		mov	r8, r2
+ 278 000c 274B     		ldr	r3, .L38
+ 279 000e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 280 0010 CBB1     		cbz	r3, .L35
+ 281              	.L28:
+ 282 0012 04EB4402 		add	r2, r4, r4, lsl #1
+ 283 0016 254B     		ldr	r3, .L38
+ 284 0018 03EBC203 		add	r3, r3, r2, lsl #3
+ 285 001c 9F6A     		ldr	r7, [r3, #40]
+ 286 001e 5D6A     		ldr	r5, [r3, #36]
+ 287 0020 AF42     		cmp	r7, r5
+ 288 0022 13D8     		bhi	.L36
+ 289 0024 0026     		movs	r6, #0
+ 290              	.L29:
+ 291 0026 ED1B     		subs	r5, r5, r7
+ 292 0028 4545     		cmp	r5, r8
+ 293 002a 28BF     		it	cs
+ 294 002c 4546     		movcs	r5, r8
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 6
+
+
+ 295 002e 6DBB     		cbnz	r5, .L37
+ 296              	.L30:
+ 297 0030 2EB1     		cbz	r6, .L27
+ 298 0032 04EB4404 		add	r4, r4, r4, lsl #1
+ 299 0036 1D4B     		ldr	r3, .L38
+ 300 0038 03EBC403 		add	r3, r3, r4, lsl #3
+ 301 003c 9F62     		str	r7, [r3, #40]
+ 302              	.L27:
+ 303 003e 3046     		mov	r0, r6
+ 304 0040 03B0     		add	sp, sp, #12
+ 305              		@ sp needed
+ 306 0042 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 307              	.L35:
+ 308 0046 FFF7FEFF 		bl	_DoInit
+ 309 004a E2E7     		b	.L28
+ 310              	.L36:
+ 311 004c 174B     		ldr	r3, .L38
+ 312 004e 03EBC202 		add	r2, r3, r2, lsl #3
+ 313 0052 0192     		str	r2, [sp, #4]
+ 314 0054 166A     		ldr	r6, [r2, #32]
+ 315 0056 F61B     		subs	r6, r6, r7
+ 316 0058 4645     		cmp	r6, r8
+ 317 005a 28BF     		it	cs
+ 318 005c 4646     		movcs	r6, r8
+ 319 005e 621C     		adds	r2, r4, #1
+ 320 0060 02EB4202 		add	r2, r2, r2, lsl #1
+ 321 0064 03EBC203 		add	r3, r3, r2, lsl #3
+ 322 0068 5968     		ldr	r1, [r3, #4]
+ 323 006a 3246     		mov	r2, r6
+ 324 006c 3944     		add	r1, r1, r7
+ 325 006e 4846     		mov	r0, r9
+ 326 0070 FFF7FEFF 		bl	memcpy
+ 327 0074 4B46     		mov	r3, r9
+ 328 0076 3344     		add	r3, r3, r6
+ 329 0078 9946     		mov	r9, r3
+ 330 007a A8EB0608 		sub	r8, r8, r6
+ 331 007e 3744     		add	r7, r7, r6
+ 332 0080 019A     		ldr	r2, [sp, #4]
+ 333 0082 136A     		ldr	r3, [r2, #32]
+ 334 0084 BB42     		cmp	r3, r7
+ 335 0086 CED1     		bne	.L29
+ 336 0088 0027     		movs	r7, #0
+ 337 008a CCE7     		b	.L29
+ 338              	.L37:
+ 339 008c 631C     		adds	r3, r4, #1
+ 340 008e 03EB4303 		add	r3, r3, r3, lsl #1
+ 341 0092 064A     		ldr	r2, .L38
+ 342 0094 02EBC303 		add	r3, r2, r3, lsl #3
+ 343 0098 5968     		ldr	r1, [r3, #4]
+ 344 009a 2A46     		mov	r2, r5
+ 345 009c 3944     		add	r1, r1, r7
+ 346 009e 4846     		mov	r0, r9
+ 347 00a0 FFF7FEFF 		bl	memcpy
+ 348 00a4 2E44     		add	r6, r6, r5
+ 349 00a6 2F44     		add	r7, r7, r5
+ 350 00a8 C2E7     		b	.L30
+ 351              	.L39:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 7
+
+
+ 352 00aa 00BF     		.align	2
+ 353              	.L38:
+ 354 00ac 00000000 		.word	_SEGGER_RTT
+ 356              		.section	.text.SEGGER_RTT_ReadNoLock,"ax",%progbits
+ 357              		.align	1
+ 358              		.global	SEGGER_RTT_ReadNoLock
+ 359              		.syntax unified
+ 360              		.thumb
+ 361              		.thumb_func
+ 363              	SEGGER_RTT_ReadNoLock:
+ 364              		@ args = 0, pretend = 0, frame = 0
+ 365              		@ frame_needed = 0, uses_anonymous_args = 0
+ 366 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 367 0004 0446     		mov	r4, r0
+ 368 0006 8A46     		mov	r10, r1
+ 369 0008 9046     		mov	r8, r2
+ 370 000a 254B     		ldr	r3, .L51
+ 371 000c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 372 000e C3B1     		cbz	r3, .L48
+ 373              	.L41:
+ 374 0010 04EB4402 		add	r2, r4, r4, lsl #1
+ 375 0014 224B     		ldr	r3, .L51
+ 376 0016 03EBC203 		add	r3, r3, r2, lsl #3
+ 377 001a 1F6F     		ldr	r7, [r3, #112]
+ 378 001c DD6E     		ldr	r5, [r3, #108]
+ 379 001e AF42     		cmp	r7, r5
+ 380 0020 12D8     		bhi	.L49
+ 381 0022 0026     		movs	r6, #0
+ 382              	.L42:
+ 383 0024 ED1B     		subs	r5, r5, r7
+ 384 0026 4545     		cmp	r5, r8
+ 385 0028 28BF     		it	cs
+ 386 002a 4546     		movcs	r5, r8
+ 387 002c 4DBB     		cbnz	r5, .L50
+ 388              	.L43:
+ 389 002e 2EB1     		cbz	r6, .L40
+ 390 0030 04EB4404 		add	r4, r4, r4, lsl #1
+ 391 0034 1A4B     		ldr	r3, .L51
+ 392 0036 03EBC403 		add	r3, r3, r4, lsl #3
+ 393 003a 1F67     		str	r7, [r3, #112]
+ 394              	.L40:
+ 395 003c 3046     		mov	r0, r6
+ 396 003e BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 397              	.L48:
+ 398 0042 FFF7FEFF 		bl	_DoInit
+ 399 0046 E3E7     		b	.L41
+ 400              	.L49:
+ 401 0048 1346     		mov	r3, r2
+ 402 004a 154A     		ldr	r2, .L51
+ 403 004c 02EBC309 		add	r9, r2, r3, lsl #3
+ 404 0050 D9F86860 		ldr	r6, [r9, #104]
+ 405 0054 F61B     		subs	r6, r6, r7
+ 406 0056 4645     		cmp	r6, r8
+ 407 0058 28BF     		it	cs
+ 408 005a 4646     		movcs	r6, r8
+ 409 005c D9F86410 		ldr	r1, [r9, #100]
+ 410 0060 3246     		mov	r2, r6
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 8
+
+
+ 411 0062 3944     		add	r1, r1, r7
+ 412 0064 5046     		mov	r0, r10
+ 413 0066 FFF7FEFF 		bl	memcpy
+ 414 006a 5346     		mov	r3, r10
+ 415 006c 3344     		add	r3, r3, r6
+ 416 006e 9A46     		mov	r10, r3
+ 417 0070 A8EB0608 		sub	r8, r8, r6
+ 418 0074 3744     		add	r7, r7, r6
+ 419 0076 D9F86830 		ldr	r3, [r9, #104]
+ 420 007a BB42     		cmp	r3, r7
+ 421 007c D2D1     		bne	.L42
+ 422 007e 0027     		movs	r7, #0
+ 423 0080 D0E7     		b	.L42
+ 424              	.L50:
+ 425 0082 04EB4402 		add	r2, r4, r4, lsl #1
+ 426 0086 064B     		ldr	r3, .L51
+ 427 0088 03EBC203 		add	r3, r3, r2, lsl #3
+ 428 008c 596E     		ldr	r1, [r3, #100]
+ 429 008e 2A46     		mov	r2, r5
+ 430 0090 3944     		add	r1, r1, r7
+ 431 0092 5046     		mov	r0, r10
+ 432 0094 FFF7FEFF 		bl	memcpy
+ 433 0098 2E44     		add	r6, r6, r5
+ 434 009a 2F44     		add	r7, r7, r5
+ 435 009c C7E7     		b	.L43
+ 436              	.L52:
+ 437 009e 00BF     		.align	2
+ 438              	.L51:
+ 439 00a0 00000000 		.word	_SEGGER_RTT
+ 441              		.section	.text.SEGGER_RTT_ReadUpBuffer,"ax",%progbits
+ 442              		.align	1
+ 443              		.global	SEGGER_RTT_ReadUpBuffer
+ 444              		.syntax unified
+ 445              		.thumb
+ 446              		.thumb_func
+ 448              	SEGGER_RTT_ReadUpBuffer:
+ 449              		@ args = 0, pretend = 0, frame = 0
+ 450              		@ frame_needed = 0, uses_anonymous_args = 0
+ 451 0000 10B5     		push	{r4, lr}
+ 452 0002 0B46     		mov	r3, r1
+ 453              		.syntax unified
+ 454              	@ 763 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 455 0004 EFF31184 		mrs   r4, basepri  
+ 456 0008 4FF02001 		mov   r1, #32       
+ 457 000c 81F31188 		msr   basepri, r1  
+ 458              		
+ 459              	@ 0 "" 2
+ 460              		.thumb
+ 461              		.syntax unified
+ 462 0010 1946     		mov	r1, r3
+ 463 0012 FFF7FEFF 		bl	SEGGER_RTT_ReadUpBufferNoLock
+ 464              		.syntax unified
+ 465              	@ 771 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 466 0016 84F31188 		msr   basepri, r4  
+ 467              		
+ 468              	@ 0 "" 2
+ 469              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 9
+
+
+ 470              		.syntax unified
+ 471 001a 10BD     		pop	{r4, pc}
+ 473              		.section	.text.SEGGER_RTT_Read,"ax",%progbits
+ 474              		.align	1
+ 475              		.global	SEGGER_RTT_Read
+ 476              		.syntax unified
+ 477              		.thumb
+ 478              		.thumb_func
+ 480              	SEGGER_RTT_Read:
+ 481              		@ args = 0, pretend = 0, frame = 0
+ 482              		@ frame_needed = 0, uses_anonymous_args = 0
+ 483 0000 10B5     		push	{r4, lr}
+ 484 0002 0B46     		mov	r3, r1
+ 485              		.syntax unified
+ 486              	@ 795 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 487 0004 EFF31184 		mrs   r4, basepri  
+ 488 0008 4FF02001 		mov   r1, #32       
+ 489 000c 81F31188 		msr   basepri, r1  
+ 490              		
+ 491              	@ 0 "" 2
+ 492              		.thumb
+ 493              		.syntax unified
+ 494 0010 1946     		mov	r1, r3
+ 495 0012 FFF7FEFF 		bl	SEGGER_RTT_ReadNoLock
+ 496              		.syntax unified
+ 497              	@ 803 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 498 0016 84F31188 		msr   basepri, r4  
+ 499              		
+ 500              	@ 0 "" 2
+ 501              		.thumb
+ 502              		.syntax unified
+ 503 001a 10BD     		pop	{r4, pc}
+ 505              		.section	.text.SEGGER_RTT_WriteWithOverwriteNoLock,"ax",%progbits
+ 506              		.align	1
+ 507              		.global	SEGGER_RTT_WriteWithOverwriteNoLock
+ 508              		.syntax unified
+ 509              		.thumb
+ 510              		.thumb_func
+ 512              	SEGGER_RTT_WriteWithOverwriteNoLock:
+ 513              		@ args = 0, pretend = 0, frame = 8
+ 514              		@ frame_needed = 0, uses_anonymous_args = 0
+ 515 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 516 0004 82B0     		sub	sp, sp, #8
+ 517 0006 0646     		mov	r6, r0
+ 518 0008 8846     		mov	r8, r1
+ 519 000a 1746     		mov	r7, r2
+ 520 000c 00EB4002 		add	r2, r0, r0, lsl #1
+ 521 0010 434B     		ldr	r3, .L70
+ 522 0012 03EBC203 		add	r3, r3, r2, lsl #3
+ 523 0016 596A     		ldr	r1, [r3, #36]
+ 524 0018 9B6A     		ldr	r3, [r3, #40]
+ 525 001a 9942     		cmp	r1, r3
+ 526 001c 0ED0     		beq	.L68
+ 527 001e 00EB4002 		add	r2, r0, r0, lsl #1
+ 528 0022 3F4B     		ldr	r3, .L70
+ 529 0024 03EBC203 		add	r3, r3, r2, lsl #3
+ 530 0028 9B6A     		ldr	r3, [r3, #40]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 10
+
+
+ 531 002a 9942     		cmp	r1, r3
+ 532 002c 17D2     		bcs	.L60
+ 533 002e 3C4B     		ldr	r3, .L70
+ 534 0030 03EBC203 		add	r3, r3, r2, lsl #3
+ 535 0034 9B6A     		ldr	r3, [r3, #40]
+ 536 0036 5B1A     		subs	r3, r3, r1
+ 537 0038 013B     		subs	r3, r3, #1
+ 538 003a 04E0     		b	.L59
+ 539              	.L68:
+ 540 003c 384B     		ldr	r3, .L70
+ 541 003e 03EBC203 		add	r3, r3, r2, lsl #3
+ 542 0042 1B6A     		ldr	r3, [r3, #32]
+ 543 0044 013B     		subs	r3, r3, #1
+ 544              	.L59:
+ 545 0046 BB42     		cmp	r3, r7
+ 546 0048 25D2     		bcs	.L61
+ 547 004a 06EB4600 		add	r0, r6, r6, lsl #1
+ 548 004e 344A     		ldr	r2, .L70
+ 549 0050 02EBC002 		add	r2, r2, r0, lsl #3
+ 550 0054 906A     		ldr	r0, [r2, #40]
+ 551 0056 FB1A     		subs	r3, r7, r3
+ 552 0058 0344     		add	r3, r3, r0
+ 553 005a 9362     		str	r3, [r2, #40]
+ 554 005c 12E0     		b	.L62
+ 555              	.L60:
+ 556 005e 00EB4003 		add	r3, r0, r0, lsl #1
+ 557 0062 2F4A     		ldr	r2, .L70
+ 558 0064 02EBC302 		add	r2, r2, r3, lsl #3
+ 559 0068 936A     		ldr	r3, [r2, #40]
+ 560 006a 5B1A     		subs	r3, r3, r1
+ 561 006c 126A     		ldr	r2, [r2, #32]
+ 562 006e 1344     		add	r3, r3, r2
+ 563 0070 013B     		subs	r3, r3, #1
+ 564 0072 E8E7     		b	.L59
+ 565              	.L63:
+ 566 0074 06EB4602 		add	r2, r6, r6, lsl #1
+ 567 0078 294B     		ldr	r3, .L70
+ 568 007a 03EBC203 		add	r3, r3, r2, lsl #3
+ 569 007e 9A6A     		ldr	r2, [r3, #40]
+ 570 0080 121A     		subs	r2, r2, r0
+ 571 0082 9A62     		str	r2, [r3, #40]
+ 572              	.L62:
+ 573 0084 06EB4602 		add	r2, r6, r6, lsl #1
+ 574 0088 254B     		ldr	r3, .L70
+ 575 008a 03EBC203 		add	r3, r3, r2, lsl #3
+ 576 008e 9A6A     		ldr	r2, [r3, #40]
+ 577 0090 186A     		ldr	r0, [r3, #32]
+ 578 0092 8242     		cmp	r2, r0
+ 579 0094 EED2     		bcs	.L63
+ 580              	.L61:
+ 581 0096 06EB4602 		add	r2, r6, r6, lsl #1
+ 582 009a 214B     		ldr	r3, .L70
+ 583 009c 03EBC203 		add	r3, r3, r2, lsl #3
+ 584 00a0 1C6A     		ldr	r4, [r3, #32]
+ 585 00a2 641A     		subs	r4, r4, r1
+ 586              	.L66:
+ 587 00a4 A742     		cmp	r7, r4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 11
+
+
+ 588 00a6 1BD3     		bcc	.L69
+ 589 00a8 1D4D     		ldr	r5, .L70
+ 590 00aa 731C     		adds	r3, r6, #1
+ 591 00ac 03EB4303 		add	r3, r3, r3, lsl #1
+ 592 00b0 05EBC303 		add	r3, r5, r3, lsl #3
+ 593 00b4 5868     		ldr	r0, [r3, #4]
+ 594 00b6 06EB4603 		add	r3, r6, r6, lsl #1
+ 595 00ba 05EBC305 		add	r5, r5, r3, lsl #3
+ 596 00be 6B6A     		ldr	r3, [r5, #36]
+ 597 00c0 2246     		mov	r2, r4
+ 598 00c2 4146     		mov	r1, r8
+ 599 00c4 1844     		add	r0, r0, r3
+ 600 00c6 FFF7FEFF 		bl	memcpy
+ 601 00ca A044     		add	r8, r8, r4
+ 602              		.syntax unified
+ 603              	@ 895 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 604 00cc BFF35F8F 		dmb
+ 605              	
+ 606              	@ 0 "" 2
+ 607              		.thumb
+ 608              		.syntax unified
+ 609 00d0 0023     		movs	r3, #0
+ 610 00d2 6B62     		str	r3, [r5, #36]
+ 611 00d4 3F1B     		subs	r7, r7, r4
+ 612 00d6 2C6A     		ldr	r4, [r5, #32]
+ 613 00d8 013C     		subs	r4, r4, #1
+ 614 00da 002F     		cmp	r7, #0
+ 615 00dc E2D1     		bne	.L66
+ 616 00de 1BE0     		b	.L57
+ 617              	.L69:
+ 618 00e0 0F4C     		ldr	r4, .L70
+ 619 00e2 731C     		adds	r3, r6, #1
+ 620 00e4 03EB4303 		add	r3, r3, r3, lsl #1
+ 621 00e8 04EBC303 		add	r3, r4, r3, lsl #3
+ 622 00ec 5868     		ldr	r0, [r3, #4]
+ 623 00ee 7300     		lsls	r3, r6, #1
+ 624 00f0 0193     		str	r3, [sp, #4]
+ 625 00f2 06EB4605 		add	r5, r6, r6, lsl #1
+ 626 00f6 04EBC505 		add	r5, r4, r5, lsl #3
+ 627 00fa 6B6A     		ldr	r3, [r5, #36]
+ 628 00fc 3A46     		mov	r2, r7
+ 629 00fe 4146     		mov	r1, r8
+ 630 0100 1844     		add	r0, r0, r3
+ 631 0102 FFF7FEFF 		bl	memcpy
+ 632              		.syntax unified
+ 633              	@ 876 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 634 0106 BFF35F8F 		dmb
+ 635              	
+ 636              	@ 0 "" 2
+ 637              		.thumb
+ 638              		.syntax unified
+ 639 010a 6B6A     		ldr	r3, [r5, #36]
+ 640 010c 019A     		ldr	r2, [sp, #4]
+ 641 010e 3244     		add	r2, r2, r6
+ 642 0110 04EBC204 		add	r4, r4, r2, lsl #3
+ 643 0114 3B44     		add	r3, r3, r7
+ 644 0116 6362     		str	r3, [r4, #36]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 12
+
+
+ 645              	.L57:
+ 646 0118 02B0     		add	sp, sp, #8
+ 647              		@ sp needed
+ 648 011a BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 649              	.L71:
+ 650 011e 00BF     		.align	2
+ 651              	.L70:
+ 652 0120 00000000 		.word	_SEGGER_RTT
+ 654              		.section	.text.SEGGER_RTT_WriteDownBufferNoLock,"ax",%progbits
+ 655              		.align	1
+ 656              		.global	SEGGER_RTT_WriteDownBufferNoLock
+ 657              		.syntax unified
+ 658              		.thumb
+ 659              		.thumb_func
+ 661              	SEGGER_RTT_WriteDownBufferNoLock:
+ 662              		@ args = 0, pretend = 0, frame = 0
+ 663              		@ frame_needed = 0, uses_anonymous_args = 0
+ 664 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 665 0002 0F46     		mov	r7, r1
+ 666 0004 1646     		mov	r6, r2
+ 667 0006 00EB4000 		add	r0, r0, r0, lsl #1
+ 668 000a C400     		lsls	r4, r0, #3
+ 669 000c 6034     		adds	r4, r4, #96
+ 670 000e 144B     		ldr	r3, .L78
+ 671 0010 1C44     		add	r4, r4, r3
+ 672 0012 6569     		ldr	r5, [r4, #20]
+ 673 0014 012D     		cmp	r5, #1
+ 674 0016 0ED0     		beq	.L73
+ 675 0018 022D     		cmp	r5, #2
+ 676 001a 1AD0     		beq	.L74
+ 677 001c F5B9     		cbnz	r5, .L76
+ 678 001e 2046     		mov	r0, r4
+ 679 0020 FFF7FEFF 		bl	_GetAvailWriteSpace
+ 680 0024 8642     		cmp	r6, r0
+ 681 0026 12D8     		bhi	.L72
+ 682 0028 3546     		mov	r5, r6
+ 683 002a 3246     		mov	r2, r6
+ 684 002c 3946     		mov	r1, r7
+ 685 002e 2046     		mov	r0, r4
+ 686 0030 FFF7FEFF 		bl	_WriteNoCheck
+ 687 0034 0BE0     		b	.L72
+ 688              	.L73:
+ 689 0036 2046     		mov	r0, r4
+ 690 0038 FFF7FEFF 		bl	_GetAvailWriteSpace
+ 691 003c 3546     		mov	r5, r6
+ 692 003e 8642     		cmp	r6, r0
+ 693 0040 28BF     		it	cs
+ 694 0042 0546     		movcs	r5, r0
+ 695 0044 2A46     		mov	r2, r5
+ 696 0046 3946     		mov	r1, r7
+ 697 0048 2046     		mov	r0, r4
+ 698 004a FFF7FEFF 		bl	_WriteNoCheck
+ 699              	.L72:
+ 700 004e 2846     		mov	r0, r5
+ 701 0050 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 702              	.L74:
+ 703 0052 2046     		mov	r0, r4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 13
+
+
+ 704 0054 FFF7FEFF 		bl	_WriteBlocking
+ 705 0058 0546     		mov	r5, r0
+ 706 005a F8E7     		b	.L72
+ 707              	.L76:
+ 708 005c 0025     		movs	r5, #0
+ 709 005e F6E7     		b	.L72
+ 710              	.L79:
+ 711              		.align	2
+ 712              	.L78:
+ 713 0060 00000000 		.word	_SEGGER_RTT
+ 715              		.section	.text.SEGGER_RTT_WriteNoLock,"ax",%progbits
+ 716              		.align	1
+ 717              		.global	SEGGER_RTT_WriteNoLock
+ 718              		.syntax unified
+ 719              		.thumb
+ 720              		.thumb_func
+ 722              	SEGGER_RTT_WriteNoLock:
+ 723              		@ args = 0, pretend = 0, frame = 0
+ 724              		@ frame_needed = 0, uses_anonymous_args = 0
+ 725 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 726 0004 0F46     		mov	r7, r1
+ 727 0006 1546     		mov	r5, r2
+ 728 0008 9046     		mov	r8, r2
+ 729 000a 431C     		adds	r3, r0, #1
+ 730 000c 03EB4302 		add	r2, r3, r3, lsl #1
+ 731 0010 184B     		ldr	r3, .L86
+ 732 0012 03EBC201 		add	r1, r3, r2, lsl #3
+ 733 0016 0E46     		mov	r6, r1
+ 734 0018 00EB4000 		add	r0, r0, r0, lsl #1
+ 735 001c 03EBC003 		add	r3, r3, r0, lsl #3
+ 736 0020 DC6A     		ldr	r4, [r3, #44]
+ 737 0022 012C     		cmp	r4, #1
+ 738 0024 0ED0     		beq	.L81
+ 739 0026 022C     		cmp	r4, #2
+ 740 0028 1BD0     		beq	.L82
+ 741 002a 0CBB     		cbnz	r4, .L84
+ 742 002c 0846     		mov	r0, r1
+ 743 002e FFF7FEFF 		bl	_GetAvailWriteSpace
+ 744 0032 8542     		cmp	r5, r0
+ 745 0034 12D8     		bhi	.L80
+ 746 0036 2C46     		mov	r4, r5
+ 747 0038 2A46     		mov	r2, r5
+ 748 003a 3946     		mov	r1, r7
+ 749 003c 3046     		mov	r0, r6
+ 750 003e FFF7FEFF 		bl	_WriteNoCheck
+ 751 0042 0BE0     		b	.L80
+ 752              	.L81:
+ 753 0044 0846     		mov	r0, r1
+ 754 0046 FFF7FEFF 		bl	_GetAvailWriteSpace
+ 755 004a 4446     		mov	r4, r8
+ 756 004c 8045     		cmp	r8, r0
+ 757 004e 28BF     		it	cs
+ 758 0050 0446     		movcs	r4, r0
+ 759 0052 2246     		mov	r2, r4
+ 760 0054 3946     		mov	r1, r7
+ 761 0056 3046     		mov	r0, r6
+ 762 0058 FFF7FEFF 		bl	_WriteNoCheck
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 14
+
+
+ 763              	.L80:
+ 764 005c 2046     		mov	r0, r4
+ 765 005e BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 766              	.L82:
+ 767 0062 2A46     		mov	r2, r5
+ 768 0064 3946     		mov	r1, r7
+ 769 0066 3046     		mov	r0, r6
+ 770 0068 FFF7FEFF 		bl	_WriteBlocking
+ 771 006c 0446     		mov	r4, r0
+ 772 006e F5E7     		b	.L80
+ 773              	.L84:
+ 774 0070 0024     		movs	r4, #0
+ 775 0072 F3E7     		b	.L80
+ 776              	.L87:
+ 777              		.align	2
+ 778              	.L86:
+ 779 0074 00000000 		.word	_SEGGER_RTT
+ 781              		.section	.text.SEGGER_RTT_WriteDownBuffer,"ax",%progbits
+ 782              		.align	1
+ 783              		.global	SEGGER_RTT_WriteDownBuffer
+ 784              		.syntax unified
+ 785              		.thumb
+ 786              		.thumb_func
+ 788              	SEGGER_RTT_WriteDownBuffer:
+ 789              		@ args = 0, pretend = 0, frame = 0
+ 790              		@ frame_needed = 0, uses_anonymous_args = 0
+ 791 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 792 0002 0546     		mov	r5, r0
+ 793 0004 0E46     		mov	r6, r1
+ 794 0006 1746     		mov	r7, r2
+ 795 0008 094B     		ldr	r3, .L92
+ 796 000a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 797 000c 6BB1     		cbz	r3, .L91
+ 798              	.L89:
+ 799              		.syntax unified
+ 800              	@ 1177 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 801 000e EFF31184 		mrs   r4, basepri  
+ 802 0012 4FF02001 		mov   r1, #32       
+ 803 0016 81F31188 		msr   basepri, r1  
+ 804              		
+ 805              	@ 0 "" 2
+ 806              		.thumb
+ 807              		.syntax unified
+ 808 001a 3A46     		mov	r2, r7
+ 809 001c 3146     		mov	r1, r6
+ 810 001e 2846     		mov	r0, r5
+ 811 0020 FFF7FEFF 		bl	SEGGER_RTT_WriteDownBufferNoLock
+ 812              		.syntax unified
+ 813              	@ 1179 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 814 0024 84F31188 		msr   basepri, r4  
+ 815              		
+ 816              	@ 0 "" 2
+ 817              		.thumb
+ 818              		.syntax unified
+ 819 0028 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 820              	.L91:
+ 821 002a FFF7FEFF 		bl	_DoInit
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 15
+
+
+ 822 002e EEE7     		b	.L89
+ 823              	.L93:
+ 824              		.align	2
+ 825              	.L92:
+ 826 0030 00000000 		.word	_SEGGER_RTT
+ 828              		.section	.text.SEGGER_RTT_Write,"ax",%progbits
+ 829              		.align	1
+ 830              		.global	SEGGER_RTT_Write
+ 831              		.syntax unified
+ 832              		.thumb
+ 833              		.thumb_func
+ 835              	SEGGER_RTT_Write:
+ 836              		@ args = 0, pretend = 0, frame = 0
+ 837              		@ frame_needed = 0, uses_anonymous_args = 0
+ 838 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 839 0002 0546     		mov	r5, r0
+ 840 0004 0E46     		mov	r6, r1
+ 841 0006 1746     		mov	r7, r2
+ 842 0008 094B     		ldr	r3, .L98
+ 843 000a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 844 000c 6BB1     		cbz	r3, .L97
+ 845              	.L95:
+ 846              		.syntax unified
+ 847              	@ 1206 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 848 000e EFF31184 		mrs   r4, basepri  
+ 849 0012 4FF02001 		mov   r1, #32       
+ 850 0016 81F31188 		msr   basepri, r1  
+ 851              		
+ 852              	@ 0 "" 2
+ 853              		.thumb
+ 854              		.syntax unified
+ 855 001a 3A46     		mov	r2, r7
+ 856 001c 3146     		mov	r1, r6
+ 857 001e 2846     		mov	r0, r5
+ 858 0020 FFF7FEFF 		bl	SEGGER_RTT_WriteNoLock
+ 859              		.syntax unified
+ 860              	@ 1208 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 861 0024 84F31188 		msr   basepri, r4  
+ 862              		
+ 863              	@ 0 "" 2
+ 864              		.thumb
+ 865              		.syntax unified
+ 866 0028 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 867              	.L97:
+ 868 002a FFF7FEFF 		bl	_DoInit
+ 869 002e EEE7     		b	.L95
+ 870              	.L99:
+ 871              		.align	2
+ 872              	.L98:
+ 873 0030 00000000 		.word	_SEGGER_RTT
+ 875              		.section	.text.SEGGER_RTT_WriteString,"ax",%progbits
+ 876              		.align	1
+ 877              		.global	SEGGER_RTT_WriteString
+ 878              		.syntax unified
+ 879              		.thumb
+ 880              		.thumb_func
+ 882              	SEGGER_RTT_WriteString:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 16
+
+
+ 883              		@ args = 0, pretend = 0, frame = 0
+ 884              		@ frame_needed = 0, uses_anonymous_args = 0
+ 885 0000 38B5     		push	{r3, r4, r5, lr}
+ 886 0002 0546     		mov	r5, r0
+ 887 0004 0C46     		mov	r4, r1
+ 888 0006 0846     		mov	r0, r1
+ 889 0008 FFF7FEFF 		bl	strlen
+ 890 000c 0246     		mov	r2, r0
+ 891 000e 2146     		mov	r1, r4
+ 892 0010 2846     		mov	r0, r5
+ 893 0012 FFF7FEFF 		bl	SEGGER_RTT_Write
+ 894 0016 38BD     		pop	{r3, r4, r5, pc}
+ 896              		.section	.text.SEGGER_RTT_PutCharSkipNoLock,"ax",%progbits
+ 897              		.align	1
+ 898              		.global	SEGGER_RTT_PutCharSkipNoLock
+ 899              		.syntax unified
+ 900              		.thumb
+ 901              		.thumb_func
+ 903              	SEGGER_RTT_PutCharSkipNoLock:
+ 904              		@ args = 0, pretend = 0, frame = 0
+ 905              		@ frame_needed = 0, uses_anonymous_args = 0
+ 906 0000 00B5     		push	{lr}
+ 907 0002 00EB4002 		add	r2, r0, r0, lsl #1
+ 908 0006 154B     		ldr	r3, .L109
+ 909 0008 03EBC203 		add	r3, r3, r2, lsl #3
+ 910 000c D3F824E0 		ldr	lr, [r3, #36]
+ 911 0010 0EF10102 		add	r2, lr, #1
+ 912 0014 1B6A     		ldr	r3, [r3, #32]
+ 913 0016 9342     		cmp	r3, r2
+ 914 0018 1BD0     		beq	.L108
+ 915              	.L103:
+ 916 001a 00EB400C 		add	ip, r0, r0, lsl #1
+ 917 001e 0F4B     		ldr	r3, .L109
+ 918 0020 03EBCC03 		add	r3, r3, ip, lsl #3
+ 919 0024 9B6A     		ldr	r3, [r3, #40]
+ 920 0026 9342     		cmp	r3, r2
+ 921 0028 15D0     		beq	.L106
+ 922 002a DFF830C0 		ldr	ip, .L109
+ 923 002e 431C     		adds	r3, r0, #1
+ 924 0030 03EB4303 		add	r3, r3, r3, lsl #1
+ 925 0034 0CEBC303 		add	r3, ip, r3, lsl #3
+ 926 0038 5B68     		ldr	r3, [r3, #4]
+ 927 003a 03F80E10 		strb	r1, [r3, lr]
+ 928              		.syntax unified
+ 929              	@ 1284 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 930 003e BFF35F8F 		dmb
+ 931              	
+ 932              	@ 0 "" 2
+ 933              		.thumb
+ 934              		.syntax unified
+ 935 0042 00EB4000 		add	r0, r0, r0, lsl #1
+ 936 0046 0CEBC00C 		add	ip, ip, r0, lsl #3
+ 937 004a CCF82420 		str	r2, [ip, #36]
+ 938 004e 0120     		movs	r0, #1
+ 939              	.L102:
+ 940 0050 00BD     		pop	{pc}
+ 941              	.L108:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 17
+
+
+ 942 0052 0022     		movs	r2, #0
+ 943 0054 E1E7     		b	.L103
+ 944              	.L106:
+ 945 0056 0020     		movs	r0, #0
+ 946 0058 FAE7     		b	.L102
+ 947              	.L110:
+ 948 005a 00BF     		.align	2
+ 949              	.L109:
+ 950 005c 00000000 		.word	_SEGGER_RTT
+ 952              		.section	.text.SEGGER_RTT_PutCharSkip,"ax",%progbits
+ 953              		.align	1
+ 954              		.global	SEGGER_RTT_PutCharSkip
+ 955              		.syntax unified
+ 956              		.thumb
+ 957              		.thumb_func
+ 959              	SEGGER_RTT_PutCharSkip:
+ 960              		@ args = 0, pretend = 0, frame = 0
+ 961              		@ frame_needed = 0, uses_anonymous_args = 0
+ 962 0000 38B5     		push	{r3, r4, r5, lr}
+ 963 0002 0446     		mov	r4, r0
+ 964 0004 0D46     		mov	r5, r1
+ 965 0006 1C4B     		ldr	r3, .L120
+ 966 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 967 000a 6BB3     		cbz	r3, .L118
+ 968              	.L112:
+ 969              		.syntax unified
+ 970              	@ 1321 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 971 000c EFF31182 		mrs   r2, basepri  
+ 972 0010 4FF02001 		mov   r1, #32       
+ 973 0014 81F31188 		msr   basepri, r1  
+ 974              		
+ 975              	@ 0 "" 2
+ 976              		.thumb
+ 977              		.syntax unified
+ 978 0018 04EB4401 		add	r1, r4, r4, lsl #1
+ 979 001c 164B     		ldr	r3, .L120
+ 980 001e 03EBC103 		add	r3, r3, r1, lsl #3
+ 981 0022 D3F824C0 		ldr	ip, [r3, #36]
+ 982 0026 0CF10101 		add	r1, ip, #1
+ 983 002a 1B6A     		ldr	r3, [r3, #32]
+ 984 002c 8B42     		cmp	r3, r1
+ 985 002e 1ED0     		beq	.L119
+ 986              	.L113:
+ 987 0030 04EB4400 		add	r0, r4, r4, lsl #1
+ 988 0034 104B     		ldr	r3, .L120
+ 989 0036 03EBC003 		add	r3, r3, r0, lsl #3
+ 990 003a 9B6A     		ldr	r3, [r3, #40]
+ 991 003c 8B42     		cmp	r3, r1
+ 992 003e 18D0     		beq	.L116
+ 993 0040 0D48     		ldr	r0, .L120
+ 994 0042 631C     		adds	r3, r4, #1
+ 995 0044 03EB4303 		add	r3, r3, r3, lsl #1
+ 996 0048 00EBC303 		add	r3, r0, r3, lsl #3
+ 997 004c 5B68     		ldr	r3, [r3, #4]
+ 998 004e 03F80C50 		strb	r5, [r3, ip]
+ 999              		.syntax unified
+ 1000              	@ 1339 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 18
+
+
+ 1001 0052 BFF35F8F 		dmb
+ 1002              	
+ 1003              	@ 0 "" 2
+ 1004              		.thumb
+ 1005              		.syntax unified
+ 1006 0056 04EB4404 		add	r4, r4, r4, lsl #1
+ 1007 005a 00EBC400 		add	r0, r0, r4, lsl #3
+ 1008 005e 4162     		str	r1, [r0, #36]
+ 1009 0060 0120     		movs	r0, #1
+ 1010              	.L114:
+ 1011              		.syntax unified
+ 1012              	@ 1348 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1013 0062 82F31188 		msr   basepri, r2  
+ 1014              		
+ 1015              	@ 0 "" 2
+ 1016              		.thumb
+ 1017              		.syntax unified
+ 1018 0066 38BD     		pop	{r3, r4, r5, pc}
+ 1019              	.L118:
+ 1020 0068 FFF7FEFF 		bl	_DoInit
+ 1021 006c CEE7     		b	.L112
+ 1022              	.L119:
+ 1023 006e 0021     		movs	r1, #0
+ 1024 0070 DEE7     		b	.L113
+ 1025              	.L116:
+ 1026 0072 0020     		movs	r0, #0
+ 1027 0074 F5E7     		b	.L114
+ 1028              	.L121:
+ 1029 0076 00BF     		.align	2
+ 1030              	.L120:
+ 1031 0078 00000000 		.word	_SEGGER_RTT
+ 1033              		.section	.text.SEGGER_RTT_PutChar,"ax",%progbits
+ 1034              		.align	1
+ 1035              		.global	SEGGER_RTT_PutChar
+ 1036              		.syntax unified
+ 1037              		.thumb
+ 1038              		.thumb_func
+ 1040              	SEGGER_RTT_PutChar:
+ 1041              		@ args = 0, pretend = 0, frame = 0
+ 1042              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1043 0000 38B5     		push	{r3, r4, r5, lr}
+ 1044 0002 0446     		mov	r4, r0
+ 1045 0004 0D46     		mov	r5, r1
+ 1046 0006 254B     		ldr	r3, .L133
+ 1047 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1048 000a 002B     		cmp	r3, #0
+ 1049 000c 36D0     		beq	.L131
+ 1050              	.L123:
+ 1051              		.syntax unified
+ 1052              	@ 1380 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1053 000e EFF31183 		mrs   r3, basepri  
+ 1054 0012 4FF02001 		mov   r1, #32       
+ 1055 0016 81F31188 		msr   basepri, r1  
+ 1056              		
+ 1057              	@ 0 "" 2
+ 1058              		.thumb
+ 1059              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 19
+
+
+ 1060 001a 1946     		mov	r1, r3
+ 1061 001c 04EB4402 		add	r2, r4, r4, lsl #1
+ 1062 0020 1E4B     		ldr	r3, .L133
+ 1063 0022 03EBC203 		add	r3, r3, r2, lsl #3
+ 1064 0026 D3F824C0 		ldr	ip, [r3, #36]
+ 1065 002a 0CF10100 		add	r0, ip, #1
+ 1066 002e 1B6A     		ldr	r3, [r3, #32]
+ 1067 0030 8342     		cmp	r3, r0
+ 1068 0032 26D0     		beq	.L132
+ 1069              	.L124:
+ 1070 0034 04EB4402 		add	r2, r4, r4, lsl #1
+ 1071 0038 184B     		ldr	r3, .L133
+ 1072 003a 03EBC203 		add	r3, r3, r2, lsl #3
+ 1073 003e DB6A     		ldr	r3, [r3, #44]
+ 1074 0040 022B     		cmp	r3, #2
+ 1075 0042 20D0     		beq	.L126
+ 1076              	.L125:
+ 1077 0044 04EB4402 		add	r2, r4, r4, lsl #1
+ 1078 0048 144B     		ldr	r3, .L133
+ 1079 004a 03EBC203 		add	r3, r3, r2, lsl #3
+ 1080 004e 9B6A     		ldr	r3, [r3, #40]
+ 1081 0050 8342     		cmp	r3, r0
+ 1082 0052 21D0     		beq	.L129
+ 1083 0054 114A     		ldr	r2, .L133
+ 1084 0056 631C     		adds	r3, r4, #1
+ 1085 0058 03EB4303 		add	r3, r3, r3, lsl #1
+ 1086 005c 02EBC303 		add	r3, r2, r3, lsl #3
+ 1087 0060 5B68     		ldr	r3, [r3, #4]
+ 1088 0062 03F80C50 		strb	r5, [r3, ip]
+ 1089              		.syntax unified
+ 1090              	@ 1406 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1091 0066 BFF35F8F 		dmb
+ 1092              	
+ 1093              	@ 0 "" 2
+ 1094              		.thumb
+ 1095              		.syntax unified
+ 1096 006a 04EB4404 		add	r4, r4, r4, lsl #1
+ 1097 006e 02EBC402 		add	r2, r2, r4, lsl #3
+ 1098 0072 5062     		str	r0, [r2, #36]
+ 1099 0074 0120     		movs	r0, #1
+ 1100              	.L127:
+ 1101              		.syntax unified
+ 1102              	@ 1415 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1103 0076 81F31188 		msr   basepri, r1  
+ 1104              		
+ 1105              	@ 0 "" 2
+ 1106              		.thumb
+ 1107              		.syntax unified
+ 1108 007a 38BD     		pop	{r3, r4, r5, pc}
+ 1109              	.L131:
+ 1110 007c FFF7FEFF 		bl	_DoInit
+ 1111 0080 C5E7     		b	.L123
+ 1112              	.L132:
+ 1113 0082 0020     		movs	r0, #0
+ 1114 0084 D6E7     		b	.L124
+ 1115              	.L126:
+ 1116 0086 04EB4402 		add	r2, r4, r4, lsl #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 20
+
+
+ 1117 008a 044B     		ldr	r3, .L133
+ 1118 008c 03EBC203 		add	r3, r3, r2, lsl #3
+ 1119 0090 9B6A     		ldr	r3, [r3, #40]
+ 1120 0092 8342     		cmp	r3, r0
+ 1121 0094 F7D0     		beq	.L126
+ 1122 0096 D5E7     		b	.L125
+ 1123              	.L129:
+ 1124 0098 0020     		movs	r0, #0
+ 1125 009a ECE7     		b	.L127
+ 1126              	.L134:
+ 1127              		.align	2
+ 1128              	.L133:
+ 1129 009c 00000000 		.word	_SEGGER_RTT
+ 1131              		.section	.text.SEGGER_RTT_GetKey,"ax",%progbits
+ 1132              		.align	1
+ 1133              		.global	SEGGER_RTT_GetKey
+ 1134              		.syntax unified
+ 1135              		.thumb
+ 1136              		.thumb_func
+ 1138              	SEGGER_RTT_GetKey:
+ 1139              		@ args = 0, pretend = 0, frame = 8
+ 1140              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1141 0000 00B5     		push	{lr}
+ 1142 0002 83B0     		sub	sp, sp, #12
+ 1143 0004 0122     		movs	r2, #1
+ 1144 0006 0DF10701 		add	r1, sp, #7
+ 1145 000a 0020     		movs	r0, #0
+ 1146 000c FFF7FEFF 		bl	SEGGER_RTT_Read
+ 1147 0010 0128     		cmp	r0, #1
+ 1148 0012 03D1     		bne	.L137
+ 1149 0014 9DF80700 		ldrb	r0, [sp, #7]	@ zero_extendqisi2
+ 1150              	.L135:
+ 1151 0018 03B0     		add	sp, sp, #12
+ 1152              		@ sp needed
+ 1153 001a 00BD     		pop	{pc}
+ 1154              	.L137:
+ 1155 001c 4FF0FF30 		mov	r0, #-1
+ 1156 0020 FAE7     		b	.L135
+ 1158              		.section	.text.SEGGER_RTT_WaitKey,"ax",%progbits
+ 1159              		.align	1
+ 1160              		.global	SEGGER_RTT_WaitKey
+ 1161              		.syntax unified
+ 1162              		.thumb
+ 1163              		.thumb_func
+ 1165              	SEGGER_RTT_WaitKey:
+ 1166              		@ args = 0, pretend = 0, frame = 0
+ 1167              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1168 0000 08B5     		push	{r3, lr}
+ 1169              	.L140:
+ 1170 0002 FFF7FEFF 		bl	SEGGER_RTT_GetKey
+ 1171 0006 0028     		cmp	r0, #0
+ 1172 0008 FBDB     		blt	.L140
+ 1173 000a 08BD     		pop	{r3, pc}
+ 1175              		.section	.text.SEGGER_RTT_HasKey,"ax",%progbits
+ 1176              		.align	1
+ 1177              		.global	SEGGER_RTT_HasKey
+ 1178              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 21
+
+
+ 1179              		.thumb
+ 1180              		.thumb_func
+ 1182              	SEGGER_RTT_HasKey:
+ 1183              		@ args = 0, pretend = 0, frame = 0
+ 1184              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1185 0000 08B5     		push	{r3, lr}
+ 1186 0002 074B     		ldr	r3, .L148
+ 1187 0004 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1188 0006 33B1     		cbz	r3, .L147
+ 1189              	.L143:
+ 1190 0008 054B     		ldr	r3, .L148
+ 1191 000a 1A6F     		ldr	r2, [r3, #112]
+ 1192 000c DB6E     		ldr	r3, [r3, #108]
+ 1193 000e 9342     		cmp	r3, r2
+ 1194 0010 04D0     		beq	.L145
+ 1195 0012 0120     		movs	r0, #1
+ 1196              	.L142:
+ 1197 0014 08BD     		pop	{r3, pc}
+ 1198              	.L147:
+ 1199 0016 FFF7FEFF 		bl	_DoInit
+ 1200 001a F5E7     		b	.L143
+ 1201              	.L145:
+ 1202 001c 0020     		movs	r0, #0
+ 1203 001e F9E7     		b	.L142
+ 1204              	.L149:
+ 1205              		.align	2
+ 1206              	.L148:
+ 1207 0020 00000000 		.word	_SEGGER_RTT
+ 1209              		.section	.text.SEGGER_RTT_HasData,"ax",%progbits
+ 1210              		.align	1
+ 1211              		.global	SEGGER_RTT_HasData
+ 1212              		.syntax unified
+ 1213              		.thumb
+ 1214              		.thumb_func
+ 1216              	SEGGER_RTT_HasData:
+ 1217              		@ args = 0, pretend = 0, frame = 0
+ 1218              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1219              		@ link register save eliminated.
+ 1220 0000 064B     		ldr	r3, .L151
+ 1221 0002 00EB4002 		add	r2, r0, r0, lsl #1
+ 1222 0006 03EBC202 		add	r2, r3, r2, lsl #3
+ 1223 000a D26E     		ldr	r2, [r2, #108]
+ 1224 000c 00EB4000 		add	r0, r0, r0, lsl #1
+ 1225 0010 03EBC003 		add	r3, r3, r0, lsl #3
+ 1226 0014 186F     		ldr	r0, [r3, #112]
+ 1227 0016 101A     		subs	r0, r2, r0
+ 1228 0018 7047     		bx	lr
+ 1229              	.L152:
+ 1230 001a 00BF     		.align	2
+ 1231              	.L151:
+ 1232 001c 00000000 		.word	_SEGGER_RTT
+ 1234              		.section	.text.SEGGER_RTT_HasDataUp,"ax",%progbits
+ 1235              		.align	1
+ 1236              		.global	SEGGER_RTT_HasDataUp
+ 1237              		.syntax unified
+ 1238              		.thumb
+ 1239              		.thumb_func
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 22
+
+
+ 1241              	SEGGER_RTT_HasDataUp:
+ 1242              		@ args = 0, pretend = 0, frame = 0
+ 1243              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1244              		@ link register save eliminated.
+ 1245 0000 064B     		ldr	r3, .L154
+ 1246 0002 00EB4002 		add	r2, r0, r0, lsl #1
+ 1247 0006 03EBC202 		add	r2, r3, r2, lsl #3
+ 1248 000a 926A     		ldr	r2, [r2, #40]
+ 1249 000c 00EB4000 		add	r0, r0, r0, lsl #1
+ 1250 0010 03EBC003 		add	r3, r3, r0, lsl #3
+ 1251 0014 586A     		ldr	r0, [r3, #36]
+ 1252 0016 801A     		subs	r0, r0, r2
+ 1253 0018 7047     		bx	lr
+ 1254              	.L155:
+ 1255 001a 00BF     		.align	2
+ 1256              	.L154:
+ 1257 001c 00000000 		.word	_SEGGER_RTT
+ 1259              		.section	.text.SEGGER_RTT_AllocDownBuffer,"ax",%progbits
+ 1260              		.align	1
+ 1261              		.global	SEGGER_RTT_AllocDownBuffer
+ 1262              		.syntax unified
+ 1263              		.thumb
+ 1264              		.thumb_func
+ 1266              	SEGGER_RTT_AllocDownBuffer:
+ 1267              		@ args = 0, pretend = 0, frame = 0
+ 1268              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1269 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 1270 0002 0446     		mov	r4, r0
+ 1271 0004 0D46     		mov	r5, r1
+ 1272 0006 1646     		mov	r6, r2
+ 1273 0008 1F46     		mov	r7, r3
+ 1274 000a 194B     		ldr	r3, .L164
+ 1275 000c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1276 000e 43B3     		cbz	r3, .L163
+ 1277              	.L157:
+ 1278              		.syntax unified
+ 1279              	@ 1567 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1280 0010 EFF31182 		mrs   r2, basepri  
+ 1281 0014 4FF02001 		mov   r1, #32       
+ 1282 0018 81F31188 		msr   basepri, r1  
+ 1283              		
+ 1284              	@ 0 "" 2
+ 1285              		.thumb
+ 1286              		.syntax unified
+ 1287 001c 0020     		movs	r0, #0
+ 1288              	.L159:
+ 1289 001e 00EB400C 		add	ip, r0, r0, lsl #1
+ 1290 0022 134B     		ldr	r3, .L164
+ 1291 0024 03EBCC0C 		add	ip, r3, ip, lsl #3
+ 1292 0028 DCF86430 		ldr	r3, [ip, #100]
+ 1293 002c 23B1     		cbz	r3, .L158
+ 1294 002e 0130     		adds	r0, r0, #1
+ 1295 0030 0F4B     		ldr	r3, .L164
+ 1296 0032 5B69     		ldr	r3, [r3, #20]
+ 1297 0034 8342     		cmp	r3, r0
+ 1298 0036 F2DC     		bgt	.L159
+ 1299              	.L158:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 23
+
+
+ 1300 0038 0D4B     		ldr	r3, .L164
+ 1301 003a 5B69     		ldr	r3, [r3, #20]
+ 1302 003c 8342     		cmp	r3, r0
+ 1303 003e 13DD     		ble	.L161
+ 1304 0040 00EB4001 		add	r1, r0, r0, lsl #1
+ 1305 0044 0A4B     		ldr	r3, .L164
+ 1306 0046 03EBC103 		add	r3, r3, r1, lsl #3
+ 1307 004a 1C66     		str	r4, [r3, #96]
+ 1308 004c 5D66     		str	r5, [r3, #100]
+ 1309 004e 9E66     		str	r6, [r3, #104]
+ 1310 0050 0021     		movs	r1, #0
+ 1311 0052 1967     		str	r1, [r3, #112]
+ 1312 0054 D966     		str	r1, [r3, #108]
+ 1313 0056 5F67     		str	r7, [r3, #116]
+ 1314              		.syntax unified
+ 1315              	@ 1583 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1316 0058 BFF35F8F 		dmb
+ 1317              	
+ 1318              	@ 0 "" 2
+ 1319              		.thumb
+ 1320              		.syntax unified
+ 1321              	.L160:
+ 1322              		.syntax unified
+ 1323              	@ 1587 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1324 005c 82F31188 		msr   basepri, r2  
+ 1325              		
+ 1326              	@ 0 "" 2
+ 1327              		.thumb
+ 1328              		.syntax unified
+ 1329 0060 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 1330              	.L163:
+ 1331 0062 FFF7FEFF 		bl	_DoInit
+ 1332 0066 D3E7     		b	.L157
+ 1333              	.L161:
+ 1334 0068 4FF0FF30 		mov	r0, #-1
+ 1335 006c F6E7     		b	.L160
+ 1336              	.L165:
+ 1337 006e 00BF     		.align	2
+ 1338              	.L164:
+ 1339 0070 00000000 		.word	_SEGGER_RTT
+ 1341              		.section	.text.SEGGER_RTT_AllocUpBuffer,"ax",%progbits
+ 1342              		.align	1
+ 1343              		.global	SEGGER_RTT_AllocUpBuffer
+ 1344              		.syntax unified
+ 1345              		.thumb
+ 1346              		.thumb_func
+ 1348              	SEGGER_RTT_AllocUpBuffer:
+ 1349              		@ args = 0, pretend = 0, frame = 0
+ 1350              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1351 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 1352 0002 0446     		mov	r4, r0
+ 1353 0004 0D46     		mov	r5, r1
+ 1354 0006 1646     		mov	r6, r2
+ 1355 0008 1F46     		mov	r7, r3
+ 1356 000a 1F4B     		ldr	r3, .L174
+ 1357 000c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1358 000e 002B     		cmp	r3, #0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 24
+
+
+ 1359 0010 34D0     		beq	.L173
+ 1360              	.L167:
+ 1361              		.syntax unified
+ 1362              	@ 1615 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1363 0012 EFF31182 		mrs   r2, basepri  
+ 1364 0016 4FF02001 		mov   r1, #32       
+ 1365 001a 81F31188 		msr   basepri, r1  
+ 1366              		
+ 1367              	@ 0 "" 2
+ 1368              		.thumb
+ 1369              		.syntax unified
+ 1370 001e 0020     		movs	r0, #0
+ 1371              	.L169:
+ 1372 0020 00F1010C 		add	ip, r0, #1
+ 1373 0024 0CEB4C0C 		add	ip, ip, ip, lsl #1
+ 1374 0028 174B     		ldr	r3, .L174
+ 1375 002a 03EBCC0C 		add	ip, r3, ip, lsl #3
+ 1376 002e DCF80430 		ldr	r3, [ip, #4]
+ 1377 0032 23B1     		cbz	r3, .L168
+ 1378 0034 0130     		adds	r0, r0, #1
+ 1379 0036 144B     		ldr	r3, .L174
+ 1380 0038 1B69     		ldr	r3, [r3, #16]
+ 1381 003a 8342     		cmp	r3, r0
+ 1382 003c F0DC     		bgt	.L169
+ 1383              	.L168:
+ 1384 003e 124B     		ldr	r3, .L174
+ 1385 0040 1B69     		ldr	r3, [r3, #16]
+ 1386 0042 8342     		cmp	r3, r0
+ 1387 0044 1DDD     		ble	.L171
+ 1388 0046 104B     		ldr	r3, .L174
+ 1389 0048 411C     		adds	r1, r0, #1
+ 1390 004a 01EB410C 		add	ip, r1, r1, lsl #1
+ 1391 004e 4FEACC0C 		lsl	ip, ip, #3
+ 1392 0052 43F80C40 		str	r4, [r3, ip]
+ 1393 0056 01EB4101 		add	r1, r1, r1, lsl #1
+ 1394 005a 03EBC101 		add	r1, r3, r1, lsl #3
+ 1395 005e 4D60     		str	r5, [r1, #4]
+ 1396 0060 00EB4001 		add	r1, r0, r0, lsl #1
+ 1397 0064 03EBC103 		add	r3, r3, r1, lsl #3
+ 1398 0068 1E62     		str	r6, [r3, #32]
+ 1399 006a 0021     		movs	r1, #0
+ 1400 006c 9962     		str	r1, [r3, #40]
+ 1401 006e 5962     		str	r1, [r3, #36]
+ 1402 0070 DF62     		str	r7, [r3, #44]
+ 1403              		.syntax unified
+ 1404              	@ 1631 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1405 0072 BFF35F8F 		dmb
+ 1406              	
+ 1407              	@ 0 "" 2
+ 1408              		.thumb
+ 1409              		.syntax unified
+ 1410              	.L170:
+ 1411              		.syntax unified
+ 1412              	@ 1635 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1413 0076 82F31188 		msr   basepri, r2  
+ 1414              		
+ 1415              	@ 0 "" 2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 25
+
+
+ 1416              		.thumb
+ 1417              		.syntax unified
+ 1418 007a F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 1419              	.L173:
+ 1420 007c FFF7FEFF 		bl	_DoInit
+ 1421 0080 C7E7     		b	.L167
+ 1422              	.L171:
+ 1423 0082 4FF0FF30 		mov	r0, #-1
+ 1424 0086 F6E7     		b	.L170
+ 1425              	.L175:
+ 1426              		.align	2
+ 1427              	.L174:
+ 1428 0088 00000000 		.word	_SEGGER_RTT
+ 1430              		.section	.text.SEGGER_RTT_ConfigUpBuffer,"ax",%progbits
+ 1431              		.align	1
+ 1432              		.global	SEGGER_RTT_ConfigUpBuffer
+ 1433              		.syntax unified
+ 1434              		.thumb
+ 1435              		.thumb_func
+ 1437              	SEGGER_RTT_ConfigUpBuffer:
+ 1438              		@ args = 4, pretend = 0, frame = 0
+ 1439              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1440 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 1441 0002 0446     		mov	r4, r0
+ 1442 0004 0D46     		mov	r5, r1
+ 1443 0006 1646     		mov	r6, r2
+ 1444 0008 1F46     		mov	r7, r3
+ 1445 000a 184B     		ldr	r3, .L183
+ 1446 000c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1447 000e 33B3     		cbz	r3, .L182
+ 1448              	.L177:
+ 1449 0010 022C     		cmp	r4, #2
+ 1450 0012 27D8     		bhi	.L180
+ 1451              		.syntax unified
+ 1452              	@ 1672 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1453 0014 EFF3118C 		mrs   ip, basepri  
+ 1454 0018 4FF02001 		mov   r1, #32       
+ 1455 001c 81F31188 		msr   basepri, r1  
+ 1456              		
+ 1457              	@ 0 "" 2
+ 1458              		.thumb
+ 1459              		.syntax unified
+ 1460 0020 94B1     		cbz	r4, .L179
+ 1461 0022 124A     		ldr	r2, .L183
+ 1462 0024 601C     		adds	r0, r4, #1
+ 1463 0026 00EB4003 		add	r3, r0, r0, lsl #1
+ 1464 002a DB00     		lsls	r3, r3, #3
+ 1465 002c D550     		str	r5, [r2, r3]
+ 1466 002e 00EB4000 		add	r0, r0, r0, lsl #1
+ 1467 0032 02EBC000 		add	r0, r2, r0, lsl #3
+ 1468 0036 4660     		str	r6, [r0, #4]
+ 1469 0038 04EB4403 		add	r3, r4, r4, lsl #1
+ 1470 003c 02EBC302 		add	r2, r2, r3, lsl #3
+ 1471 0040 1762     		str	r7, [r2, #32]
+ 1472 0042 0023     		movs	r3, #0
+ 1473 0044 9362     		str	r3, [r2, #40]
+ 1474 0046 5362     		str	r3, [r2, #36]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 26
+
+
+ 1475              	.L179:
+ 1476 0048 04EB4404 		add	r4, r4, r4, lsl #1
+ 1477 004c 074B     		ldr	r3, .L183
+ 1478 004e 03EBC403 		add	r3, r3, r4, lsl #3
+ 1479 0052 069A     		ldr	r2, [sp, #24]
+ 1480 0054 DA62     		str	r2, [r3, #44]
+ 1481              		.syntax unified
+ 1482              	@ 1682 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1483 0056 8CF31188 		msr   basepri, ip  
+ 1484              		
+ 1485              	@ 0 "" 2
+ 1486              		.thumb
+ 1487              		.syntax unified
+ 1488 005a 0020     		movs	r0, #0
+ 1489              	.L176:
+ 1490 005c F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 1491              	.L182:
+ 1492 005e FFF7FEFF 		bl	_DoInit
+ 1493 0062 D5E7     		b	.L177
+ 1494              	.L180:
+ 1495 0064 4FF0FF30 		mov	r0, #-1
+ 1496 0068 F8E7     		b	.L176
+ 1497              	.L184:
+ 1498 006a 00BF     		.align	2
+ 1499              	.L183:
+ 1500 006c 00000000 		.word	_SEGGER_RTT
+ 1502              		.section	.text.SEGGER_RTT_ConfigDownBuffer,"ax",%progbits
+ 1503              		.align	1
+ 1504              		.global	SEGGER_RTT_ConfigDownBuffer
+ 1505              		.syntax unified
+ 1506              		.thumb
+ 1507              		.thumb_func
+ 1509              	SEGGER_RTT_ConfigDownBuffer:
+ 1510              		@ args = 4, pretend = 0, frame = 0
+ 1511              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1512 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 1513 0002 0446     		mov	r4, r0
+ 1514 0004 0D46     		mov	r5, r1
+ 1515 0006 1646     		mov	r6, r2
+ 1516 0008 1F46     		mov	r7, r3
+ 1517 000a 174B     		ldr	r3, .L192
+ 1518 000c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1519 000e 2BB3     		cbz	r3, .L191
+ 1520              	.L186:
+ 1521 0010 022C     		cmp	r4, #2
+ 1522 0012 26D8     		bhi	.L189
+ 1523              		.syntax unified
+ 1524              	@ 1723 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1525 0014 EFF31180 		mrs   r0, basepri  
+ 1526 0018 4FF02001 		mov   r1, #32       
+ 1527 001c 81F31188 		msr   basepri, r1  
+ 1528              		
+ 1529              	@ 0 "" 2
+ 1530              		.thumb
+ 1531              		.syntax unified
+ 1532 0020 7CB1     		cbz	r4, .L188
+ 1533 0022 04EB4402 		add	r2, r4, r4, lsl #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 27
+
+
+ 1534 0026 104B     		ldr	r3, .L192
+ 1535 0028 03EBC20C 		add	ip, r3, r2, lsl #3
+ 1536 002c CCF86050 		str	r5, [ip, #96]
+ 1537 0030 CCF86460 		str	r6, [ip, #100]
+ 1538 0034 CCF86870 		str	r7, [ip, #104]
+ 1539 0038 0023     		movs	r3, #0
+ 1540 003a CCF87030 		str	r3, [ip, #112]
+ 1541 003e CCF86C30 		str	r3, [ip, #108]
+ 1542              	.L188:
+ 1543 0042 04EB4404 		add	r4, r4, r4, lsl #1
+ 1544 0046 084B     		ldr	r3, .L192
+ 1545 0048 03EBC403 		add	r3, r3, r4, lsl #3
+ 1546 004c 069A     		ldr	r2, [sp, #24]
+ 1547 004e 5A67     		str	r2, [r3, #116]
+ 1548              		.syntax unified
+ 1549              	@ 1733 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1550 0050 BFF35F8F 		dmb
+ 1551              	
+ 1552              	@ 0 "" 2
+ 1553              	@ 1734 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1554 0054 80F31188 		msr   basepri, r0  
+ 1555              		
+ 1556              	@ 0 "" 2
+ 1557              		.thumb
+ 1558              		.syntax unified
+ 1559 0058 0020     		movs	r0, #0
+ 1560              	.L185:
+ 1561 005a F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 1562              	.L191:
+ 1563 005c FFF7FEFF 		bl	_DoInit
+ 1564 0060 D6E7     		b	.L186
+ 1565              	.L189:
+ 1566 0062 4FF0FF30 		mov	r0, #-1
+ 1567 0066 F8E7     		b	.L185
+ 1568              	.L193:
+ 1569              		.align	2
+ 1570              	.L192:
+ 1571 0068 00000000 		.word	_SEGGER_RTT
+ 1573              		.section	.text.SEGGER_RTT_SetNameUpBuffer,"ax",%progbits
+ 1574              		.align	1
+ 1575              		.global	SEGGER_RTT_SetNameUpBuffer
+ 1576              		.syntax unified
+ 1577              		.thumb
+ 1578              		.thumb_func
+ 1580              	SEGGER_RTT_SetNameUpBuffer:
+ 1581              		@ args = 0, pretend = 0, frame = 0
+ 1582              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1583 0000 38B5     		push	{r3, r4, r5, lr}
+ 1584 0002 0446     		mov	r4, r0
+ 1585 0004 0D46     		mov	r5, r1
+ 1586 0006 0D4B     		ldr	r3, .L200
+ 1587 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1588 000a 8BB1     		cbz	r3, .L199
+ 1589              	.L195:
+ 1590 000c 022C     		cmp	r4, #2
+ 1591 000e 12D8     		bhi	.L197
+ 1592              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 28
+
+
+ 1593              	@ 1766 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1594 0010 EFF31183 		mrs   r3, basepri  
+ 1595 0014 4FF02001 		mov   r1, #32       
+ 1596 0018 81F31188 		msr   basepri, r1  
+ 1597              		
+ 1598              	@ 0 "" 2
+ 1599              		.thumb
+ 1600              		.syntax unified
+ 1601 001c 0134     		adds	r4, r4, #1
+ 1602 001e 04EB4404 		add	r4, r4, r4, lsl #1
+ 1603 0022 E400     		lsls	r4, r4, #3
+ 1604 0024 054A     		ldr	r2, .L200
+ 1605 0026 1551     		str	r5, [r2, r4]
+ 1606              		.syntax unified
+ 1607              	@ 1769 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1608 0028 83F31188 		msr   basepri, r3  
+ 1609              		
+ 1610              	@ 0 "" 2
+ 1611              		.thumb
+ 1612              		.syntax unified
+ 1613 002c 0020     		movs	r0, #0
+ 1614              	.L194:
+ 1615 002e 38BD     		pop	{r3, r4, r5, pc}
+ 1616              	.L199:
+ 1617 0030 FFF7FEFF 		bl	_DoInit
+ 1618 0034 EAE7     		b	.L195
+ 1619              	.L197:
+ 1620 0036 4FF0FF30 		mov	r0, #-1
+ 1621 003a F8E7     		b	.L194
+ 1622              	.L201:
+ 1623              		.align	2
+ 1624              	.L200:
+ 1625 003c 00000000 		.word	_SEGGER_RTT
+ 1627              		.section	.text.SEGGER_RTT_SetNameDownBuffer,"ax",%progbits
+ 1628              		.align	1
+ 1629              		.global	SEGGER_RTT_SetNameDownBuffer
+ 1630              		.syntax unified
+ 1631              		.thumb
+ 1632              		.thumb_func
+ 1634              	SEGGER_RTT_SetNameDownBuffer:
+ 1635              		@ args = 0, pretend = 0, frame = 0
+ 1636              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1637 0000 38B5     		push	{r3, r4, r5, lr}
+ 1638 0002 0446     		mov	r4, r0
+ 1639 0004 0D46     		mov	r5, r1
+ 1640 0006 0D4B     		ldr	r3, .L208
+ 1641 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1642 000a 8BB1     		cbz	r3, .L207
+ 1643              	.L203:
+ 1644 000c 022C     		cmp	r4, #2
+ 1645 000e 12D8     		bhi	.L205
+ 1646              		.syntax unified
+ 1647              	@ 1801 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1648 0010 EFF31182 		mrs   r2, basepri  
+ 1649 0014 4FF02001 		mov   r1, #32       
+ 1650 0018 81F31188 		msr   basepri, r1  
+ 1651              		
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 29
+
+
+ 1652              	@ 0 "" 2
+ 1653              		.thumb
+ 1654              		.syntax unified
+ 1655 001c 04EB4404 		add	r4, r4, r4, lsl #1
+ 1656 0020 064B     		ldr	r3, .L208
+ 1657 0022 03EBC403 		add	r3, r3, r4, lsl #3
+ 1658 0026 1D66     		str	r5, [r3, #96]
+ 1659              		.syntax unified
+ 1660              	@ 1804 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1661 0028 82F31188 		msr   basepri, r2  
+ 1662              		
+ 1663              	@ 0 "" 2
+ 1664              		.thumb
+ 1665              		.syntax unified
+ 1666 002c 0020     		movs	r0, #0
+ 1667              	.L202:
+ 1668 002e 38BD     		pop	{r3, r4, r5, pc}
+ 1669              	.L207:
+ 1670 0030 FFF7FEFF 		bl	_DoInit
+ 1671 0034 EAE7     		b	.L203
+ 1672              	.L205:
+ 1673 0036 4FF0FF30 		mov	r0, #-1
+ 1674 003a F8E7     		b	.L202
+ 1675              	.L209:
+ 1676              		.align	2
+ 1677              	.L208:
+ 1678 003c 00000000 		.word	_SEGGER_RTT
+ 1680              		.section	.text.SEGGER_RTT_SetFlagsUpBuffer,"ax",%progbits
+ 1681              		.align	1
+ 1682              		.global	SEGGER_RTT_SetFlagsUpBuffer
+ 1683              		.syntax unified
+ 1684              		.thumb
+ 1685              		.thumb_func
+ 1687              	SEGGER_RTT_SetFlagsUpBuffer:
+ 1688              		@ args = 0, pretend = 0, frame = 0
+ 1689              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1690 0000 38B5     		push	{r3, r4, r5, lr}
+ 1691 0002 0446     		mov	r4, r0
+ 1692 0004 0D46     		mov	r5, r1
+ 1693 0006 0D4B     		ldr	r3, .L216
+ 1694 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1695 000a 8BB1     		cbz	r3, .L215
+ 1696              	.L211:
+ 1697 000c 022C     		cmp	r4, #2
+ 1698 000e 12D8     		bhi	.L213
+ 1699              		.syntax unified
+ 1700              	@ 1836 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1701 0010 EFF31182 		mrs   r2, basepri  
+ 1702 0014 4FF02001 		mov   r1, #32       
+ 1703 0018 81F31188 		msr   basepri, r1  
+ 1704              		
+ 1705              	@ 0 "" 2
+ 1706              		.thumb
+ 1707              		.syntax unified
+ 1708 001c 04EB4404 		add	r4, r4, r4, lsl #1
+ 1709 0020 064B     		ldr	r3, .L216
+ 1710 0022 03EBC403 		add	r3, r3, r4, lsl #3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 30
+
+
+ 1711 0026 DD62     		str	r5, [r3, #44]
+ 1712              		.syntax unified
+ 1713              	@ 1839 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1714 0028 82F31188 		msr   basepri, r2  
+ 1715              		
+ 1716              	@ 0 "" 2
+ 1717              		.thumb
+ 1718              		.syntax unified
+ 1719 002c 0020     		movs	r0, #0
+ 1720              	.L210:
+ 1721 002e 38BD     		pop	{r3, r4, r5, pc}
+ 1722              	.L215:
+ 1723 0030 FFF7FEFF 		bl	_DoInit
+ 1724 0034 EAE7     		b	.L211
+ 1725              	.L213:
+ 1726 0036 4FF0FF30 		mov	r0, #-1
+ 1727 003a F8E7     		b	.L210
+ 1728              	.L217:
+ 1729              		.align	2
+ 1730              	.L216:
+ 1731 003c 00000000 		.word	_SEGGER_RTT
+ 1733              		.section	.text.SEGGER_RTT_SetFlagsDownBuffer,"ax",%progbits
+ 1734              		.align	1
+ 1735              		.global	SEGGER_RTT_SetFlagsDownBuffer
+ 1736              		.syntax unified
+ 1737              		.thumb
+ 1738              		.thumb_func
+ 1740              	SEGGER_RTT_SetFlagsDownBuffer:
+ 1741              		@ args = 0, pretend = 0, frame = 0
+ 1742              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1743 0000 38B5     		push	{r3, r4, r5, lr}
+ 1744 0002 0446     		mov	r4, r0
+ 1745 0004 0D46     		mov	r5, r1
+ 1746 0006 0D4B     		ldr	r3, .L224
+ 1747 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1748 000a 8BB1     		cbz	r3, .L223
+ 1749              	.L219:
+ 1750 000c 022C     		cmp	r4, #2
+ 1751 000e 12D8     		bhi	.L221
+ 1752              		.syntax unified
+ 1753              	@ 1871 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1754 0010 EFF31182 		mrs   r2, basepri  
+ 1755 0014 4FF02001 		mov   r1, #32       
+ 1756 0018 81F31188 		msr   basepri, r1  
+ 1757              		
+ 1758              	@ 0 "" 2
+ 1759              		.thumb
+ 1760              		.syntax unified
+ 1761 001c 04EB4404 		add	r4, r4, r4, lsl #1
+ 1762 0020 064B     		ldr	r3, .L224
+ 1763 0022 03EBC403 		add	r3, r3, r4, lsl #3
+ 1764 0026 5D67     		str	r5, [r3, #116]
+ 1765              		.syntax unified
+ 1766              	@ 1874 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1767 0028 82F31188 		msr   basepri, r2  
+ 1768              		
+ 1769              	@ 0 "" 2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 31
+
+
+ 1770              		.thumb
+ 1771              		.syntax unified
+ 1772 002c 0020     		movs	r0, #0
+ 1773              	.L218:
+ 1774 002e 38BD     		pop	{r3, r4, r5, pc}
+ 1775              	.L223:
+ 1776 0030 FFF7FEFF 		bl	_DoInit
+ 1777 0034 EAE7     		b	.L219
+ 1778              	.L221:
+ 1779 0036 4FF0FF30 		mov	r0, #-1
+ 1780 003a F8E7     		b	.L218
+ 1781              	.L225:
+ 1782              		.align	2
+ 1783              	.L224:
+ 1784 003c 00000000 		.word	_SEGGER_RTT
+ 1786              		.section	.text.SEGGER_RTT_Init,"ax",%progbits
+ 1787              		.align	1
+ 1788              		.global	SEGGER_RTT_Init
+ 1789              		.syntax unified
+ 1790              		.thumb
+ 1791              		.thumb_func
+ 1793              	SEGGER_RTT_Init:
+ 1794              		@ args = 0, pretend = 0, frame = 0
+ 1795              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1796 0000 08B5     		push	{r3, lr}
+ 1797 0002 FFF7FEFF 		bl	_DoInit
+ 1798 0006 08BD     		pop	{r3, pc}
+ 1800              		.section	.text.SEGGER_RTT_SetTerminal,"ax",%progbits
+ 1801              		.align	1
+ 1802              		.global	SEGGER_RTT_SetTerminal
+ 1803              		.syntax unified
+ 1804              		.thumb
+ 1805              		.thumb_func
+ 1807              	SEGGER_RTT_SetTerminal:
+ 1808              		@ args = 0, pretend = 0, frame = 8
+ 1809              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1810 0000 30B5     		push	{r4, r5, lr}
+ 1811 0002 83B0     		sub	sp, sp, #12
+ 1812 0004 0446     		mov	r4, r0
+ 1813 0006 1E4B     		ldr	r3, .L239
+ 1814 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1815 000a 03B3     		cbz	r3, .L236
+ 1816              	.L229:
+ 1817 000c FF23     		movs	r3, #255
+ 1818 000e 8DF80430 		strb	r3, [sp, #4]
+ 1819 0012 0F2C     		cmp	r4, #15
+ 1820 0014 30D8     		bhi	.L233
+ 1821 0016 1B4B     		ldr	r3, .L239+4
+ 1822 0018 1B5D     		ldrb	r3, [r3, r4]	@ zero_extendqisi2
+ 1823 001a 8DF80530 		strb	r3, [sp, #5]
+ 1824              		.syntax unified
+ 1825              	@ 1924 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1826 001e EFF31183 		mrs   r3, basepri  
+ 1827 0022 4FF02001 		mov   r1, #32       
+ 1828 0026 81F31188 		msr   basepri, r1  
+ 1829              		
+ 1830              	@ 0 "" 2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 32
+
+
+ 1831              		.thumb
+ 1832              		.syntax unified
+ 1833 002a 1D46     		mov	r5, r3
+ 1834 002c 144B     		ldr	r3, .L239
+ 1835 002e DB6A     		ldr	r3, [r3, #44]
+ 1836 0030 03F00303 		and	r3, r3, #3
+ 1837 0034 022B     		cmp	r3, #2
+ 1838 0036 0DD0     		beq	.L237
+ 1839 0038 1348     		ldr	r0, .L239+8
+ 1840 003a FFF7FEFF 		bl	_GetAvailWriteSpace
+ 1841 003e 0128     		cmp	r0, #1
+ 1842 0040 11D8     		bhi	.L238
+ 1843 0042 4FF0FF30 		mov	r0, #-1
+ 1844              	.L232:
+ 1845              		.syntax unified
+ 1846              	@ 1937 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1847 0046 85F31188 		msr   basepri, r5  
+ 1848              		
+ 1849              	@ 0 "" 2
+ 1850              		.thumb
+ 1851              		.syntax unified
+ 1852              	.L228:
+ 1853 004a 03B0     		add	sp, sp, #12
+ 1854              		@ sp needed
+ 1855 004c 30BD     		pop	{r4, r5, pc}
+ 1856              	.L236:
+ 1857 004e FFF7FEFF 		bl	_DoInit
+ 1858 0052 DBE7     		b	.L229
+ 1859              	.L237:
+ 1860 0054 0D4B     		ldr	r3, .L239+12
+ 1861 0056 1C70     		strb	r4, [r3]
+ 1862 0058 0222     		movs	r2, #2
+ 1863 005a 01A9     		add	r1, sp, #4
+ 1864 005c 0A48     		ldr	r0, .L239+8
+ 1865 005e FFF7FEFF 		bl	_WriteBlocking
+ 1866 0062 0020     		movs	r0, #0
+ 1867 0064 EFE7     		b	.L232
+ 1868              	.L238:
+ 1869 0066 094B     		ldr	r3, .L239+12
+ 1870 0068 1C70     		strb	r4, [r3]
+ 1871 006a 0222     		movs	r2, #2
+ 1872 006c 01A9     		add	r1, sp, #4
+ 1873 006e 0648     		ldr	r0, .L239+8
+ 1874 0070 FFF7FEFF 		bl	_WriteNoCheck
+ 1875 0074 0020     		movs	r0, #0
+ 1876 0076 E6E7     		b	.L232
+ 1877              	.L233:
+ 1878 0078 4FF0FF30 		mov	r0, #-1
+ 1879 007c E5E7     		b	.L228
+ 1880              	.L240:
+ 1881 007e 00BF     		.align	2
+ 1882              	.L239:
+ 1883 0080 00000000 		.word	_SEGGER_RTT
+ 1884 0084 00000000 		.word	_aTerminalId
+ 1885 0088 18000000 		.word	_SEGGER_RTT+24
+ 1886 008c 00000000 		.word	_ActiveTerminal
+ 1888              		.section	.text.SEGGER_RTT_TerminalOut,"ax",%progbits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 33
+
+
+ 1889              		.align	1
+ 1890              		.global	SEGGER_RTT_TerminalOut
+ 1891              		.syntax unified
+ 1892              		.thumb
+ 1893              		.thumb_func
+ 1895              	SEGGER_RTT_TerminalOut:
+ 1896              		@ args = 0, pretend = 0, frame = 0
+ 1897              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1898 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+ 1899 0004 0646     		mov	r6, r0
+ 1900 0006 0F46     		mov	r7, r1
+ 1901 0008 344B     		ldr	r3, .L255
+ 1902 000a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1903 000c 03B3     		cbz	r3, .L252
+ 1904              	.L242:
+ 1905 000e 0F2E     		cmp	r6, #15
+ 1906 0010 61D8     		bhi	.L247
+ 1907 0012 3846     		mov	r0, r7
+ 1908 0014 FFF7FEFF 		bl	strlen
+ 1909 0018 0546     		mov	r5, r0
+ 1910              		.syntax unified
+ 1911              	@ 1984 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1912 001a EFF31183 		mrs   r3, basepri  
+ 1913 001e 4FF02001 		mov   r1, #32       
+ 1914 0022 81F31188 		msr   basepri, r1  
+ 1915              		
+ 1916              	@ 0 "" 2
+ 1917              		.thumb
+ 1918              		.syntax unified
+ 1919 0026 9846     		mov	r8, r3
+ 1920 0028 2D4C     		ldr	r4, .L255+4
+ 1921 002a 2046     		mov	r0, r4
+ 1922 002c FFF7FEFF 		bl	_GetAvailWriteSpace
+ 1923 0030 8146     		mov	r9, r0
+ 1924 0032 6369     		ldr	r3, [r4, #20]
+ 1925 0034 03F00303 		and	r3, r3, #3
+ 1926 0038 012B     		cmp	r3, #1
+ 1927 003a 1CD0     		beq	.L244
+ 1928 003c 022B     		cmp	r3, #2
+ 1929 003e 33D0     		beq	.L245
+ 1930 0040 002B     		cmp	r3, #0
+ 1931 0042 45D1     		bne	.L248
+ 1932 0044 2B46     		mov	r3, r5
+ 1933 0046 0433     		adds	r3, r3, #4
+ 1934 0048 8342     		cmp	r3, r0
+ 1935 004a 04D9     		bls	.L253
+ 1936 004c 0024     		movs	r4, #0
+ 1937 004e 3AE0     		b	.L246
+ 1938              	.L252:
+ 1939 0050 FFF7FEFF 		bl	_DoInit
+ 1940 0054 DBE7     		b	.L242
+ 1941              	.L253:
+ 1942 0056 3146     		mov	r1, r6
+ 1943 0058 2046     		mov	r0, r4
+ 1944 005a FFF7FEFF 		bl	_PostTerminalSwitch
+ 1945 005e 2A46     		mov	r2, r5
+ 1946 0060 3946     		mov	r1, r7
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 34
+
+
+ 1947 0062 2046     		mov	r0, r4
+ 1948 0064 FFF7FEFF 		bl	_WriteBlocking
+ 1949 0068 0446     		mov	r4, r0
+ 1950 006a 1E4B     		ldr	r3, .L255+8
+ 1951 006c 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 1952 006e 1C48     		ldr	r0, .L255+4
+ 1953 0070 FFF7FEFF 		bl	_PostTerminalSwitch
+ 1954 0074 27E0     		b	.L246
+ 1955              	.L244:
+ 1956 0076 0328     		cmp	r0, #3
+ 1957 0078 02D8     		bhi	.L254
+ 1958 007a 4FF0FF34 		mov	r4, #-1
+ 1959 007e 22E0     		b	.L246
+ 1960              	.L254:
+ 1961 0080 3146     		mov	r1, r6
+ 1962 0082 1748     		ldr	r0, .L255+4
+ 1963 0084 FFF7FEFF 		bl	_PostTerminalSwitch
+ 1964 0088 A9F10402 		sub	r2, r9, #4
+ 1965 008c AA42     		cmp	r2, r5
+ 1966 008e 28BF     		it	cs
+ 1967 0090 2A46     		movcs	r2, r5
+ 1968 0092 3946     		mov	r1, r7
+ 1969 0094 1248     		ldr	r0, .L255+4
+ 1970 0096 FFF7FEFF 		bl	_WriteBlocking
+ 1971 009a 0446     		mov	r4, r0
+ 1972 009c 114B     		ldr	r3, .L255+8
+ 1973 009e 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 1974 00a0 0F48     		ldr	r0, .L255+4
+ 1975 00a2 FFF7FEFF 		bl	_PostTerminalSwitch
+ 1976 00a6 0EE0     		b	.L246
+ 1977              	.L245:
+ 1978 00a8 3146     		mov	r1, r6
+ 1979 00aa 0D48     		ldr	r0, .L255+4
+ 1980 00ac FFF7FEFF 		bl	_PostTerminalSwitch
+ 1981 00b0 2A46     		mov	r2, r5
+ 1982 00b2 3946     		mov	r1, r7
+ 1983 00b4 0A48     		ldr	r0, .L255+4
+ 1984 00b6 FFF7FEFF 		bl	_WriteBlocking
+ 1985 00ba 0446     		mov	r4, r0
+ 1986 00bc 094B     		ldr	r3, .L255+8
+ 1987 00be 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 1988 00c0 0748     		ldr	r0, .L255+4
+ 1989 00c2 FFF7FEFF 		bl	_PostTerminalSwitch
+ 1990              	.L246:
+ 1991              		.syntax unified
+ 1992              	@ 2029 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.c" 1
+ 1993 00c6 88F31188 		msr   basepri, r8  
+ 1994              		
+ 1995              	@ 0 "" 2
+ 1996              		.thumb
+ 1997              		.syntax unified
+ 1998              	.L241:
+ 1999 00ca 2046     		mov	r0, r4
+ 2000 00cc BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 2001              	.L248:
+ 2002 00d0 4FF0FF34 		mov	r4, #-1
+ 2003 00d4 F7E7     		b	.L246
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 35
+
+
+ 2004              	.L247:
+ 2005 00d6 4FF0FF34 		mov	r4, #-1
+ 2006 00da F6E7     		b	.L241
+ 2007              	.L256:
+ 2008              		.align	2
+ 2009              	.L255:
+ 2010 00dc 00000000 		.word	_SEGGER_RTT
+ 2011 00e0 18000000 		.word	_SEGGER_RTT+24
+ 2012 00e4 00000000 		.word	_ActiveTerminal
+ 2014              		.section	.text.SEGGER_RTT_GetAvailWriteSpace,"ax",%progbits
+ 2015              		.align	1
+ 2016              		.global	SEGGER_RTT_GetAvailWriteSpace
+ 2017              		.syntax unified
+ 2018              		.thumb
+ 2019              		.thumb_func
+ 2021              	SEGGER_RTT_GetAvailWriteSpace:
+ 2022              		@ args = 0, pretend = 0, frame = 0
+ 2023              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2024 0000 08B5     		push	{r3, lr}
+ 2025 0002 0130     		adds	r0, r0, #1
+ 2026 0004 00EB4000 		add	r0, r0, r0, lsl #1
+ 2027 0008 024B     		ldr	r3, .L259
+ 2028 000a 03EBC000 		add	r0, r3, r0, lsl #3
+ 2029 000e FFF7FEFF 		bl	_GetAvailWriteSpace
+ 2030 0012 08BD     		pop	{r3, pc}
+ 2031              	.L260:
+ 2032              		.align	2
+ 2033              	.L259:
+ 2034 0014 00000000 		.word	_SEGGER_RTT
+ 2036              		.section	.text.SEGGER_RTT_GetBytesInBuffer,"ax",%progbits
+ 2037              		.align	1
+ 2038              		.global	SEGGER_RTT_GetBytesInBuffer
+ 2039              		.syntax unified
+ 2040              		.thumb
+ 2041              		.thumb_func
+ 2043              	SEGGER_RTT_GetBytesInBuffer:
+ 2044              		@ args = 0, pretend = 0, frame = 0
+ 2045              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2046              		@ link register save eliminated.
+ 2047 0000 00EB4002 		add	r2, r0, r0, lsl #1
+ 2048 0004 084B     		ldr	r3, .L264
+ 2049 0006 03EBC203 		add	r3, r3, r2, lsl #3
+ 2050 000a 9A6A     		ldr	r2, [r3, #40]
+ 2051 000c 5B6A     		ldr	r3, [r3, #36]
+ 2052 000e 9A42     		cmp	r2, r3
+ 2053 0010 01D8     		bhi	.L262
+ 2054 0012 981A     		subs	r0, r3, r2
+ 2055 0014 7047     		bx	lr
+ 2056              	.L262:
+ 2057 0016 00EB4000 		add	r0, r0, r0, lsl #1
+ 2058 001a 0349     		ldr	r1, .L264
+ 2059 001c 01EBC001 		add	r1, r1, r0, lsl #3
+ 2060 0020 086A     		ldr	r0, [r1, #32]
+ 2061 0022 D21A     		subs	r2, r2, r3
+ 2062 0024 1044     		add	r0, r0, r2
+ 2063 0026 7047     		bx	lr
+ 2064              	.L265:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 36
+
+
+ 2065              		.align	2
+ 2066              	.L264:
+ 2067 0028 00000000 		.word	_SEGGER_RTT
+ 2069              		.section	.rodata._aInitStr.0,"a"
+ 2070              		.align	2
+ 2073              	_aInitStr.0:
+ 2074 0000 00000000 		.ascii	"\000\000\000\000\000\000TTR REGGES\000"
+ 2074      00005454 
+ 2074      52205245 
+ 2074      47474553 
+ 2074      00
+ 2075              		.section	.bss._ActiveTerminal,"aw",%nobits
+ 2078              	_ActiveTerminal:
+ 2079 0000 00       		.space	1
+ 2080              		.section	.bss._acDownBuffer,"aw",%nobits
+ 2081              		.align	2
+ 2084              	_acDownBuffer:
+ 2085 0000 00000000 		.space	16
+ 2085      00000000 
+ 2085      00000000 
+ 2085      00000000 
+ 2086              		.section	.bss._acUpBuffer,"aw",%nobits
+ 2087              		.align	2
+ 2090              	_acUpBuffer:
+ 2091 0000 00000000 		.space	1024
+ 2091      00000000 
+ 2091      00000000 
+ 2091      00000000 
+ 2091      00000000 
+ 2092              		.global	_SEGGER_RTT
+ 2093              		.section	.bss._SEGGER_RTT,"aw",%nobits
+ 2094              		.align	2
+ 2097              	_SEGGER_RTT:
+ 2098 0000 00000000 		.space	168
+ 2098      00000000 
+ 2098      00000000 
+ 2098      00000000 
+ 2098      00000000 
+ 2099              		.section	.rodata._aTerminalId,"a"
+ 2100              		.align	2
+ 2103              	_aTerminalId:
+ 2104 0000 30313233 		.ascii	"0123456789ABCDEF"
+ 2104      34353637 
+ 2104      38394142 
+ 2104      43444546 
+ 2105              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 37
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 SEGGER_RTT.c
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:18     .text._GetAvailWriteSpace:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:23     .text._GetAvailWriteSpace:00000000 _GetAvailWriteSpace
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:42     .text._WriteNoCheck:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:47     .text._WriteNoCheck:00000000 _WriteNoCheck
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:96     .text._WriteBlocking:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:101    .text._WriteBlocking:00000000 _WriteBlocking
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:162    .text._PostTerminalSwitch:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:167    .text._PostTerminalSwitch:00000000 _PostTerminalSwitch
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:186    .text._PostTerminalSwitch:00000020 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2103   .rodata._aTerminalId:00000000 _aTerminalId
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:189    .rodata._DoInit.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:193    .text._DoInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:198    .text._DoInit:00000000 _DoInit
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:257    .text._DoInit:00000058 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2097   .bss._SEGGER_RTT:00000000 _SEGGER_RTT
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2090   .bss._acUpBuffer:00000000 _acUpBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2084   .bss._acDownBuffer:00000000 _acDownBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2073   .rodata._aInitStr.0:00000000 _aInitStr.0
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:264    .text.SEGGER_RTT_ReadUpBufferNoLock:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:270    .text.SEGGER_RTT_ReadUpBufferNoLock:00000000 SEGGER_RTT_ReadUpBufferNoLock
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:354    .text.SEGGER_RTT_ReadUpBufferNoLock:000000ac $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:357    .text.SEGGER_RTT_ReadNoLock:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:363    .text.SEGGER_RTT_ReadNoLock:00000000 SEGGER_RTT_ReadNoLock
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:439    .text.SEGGER_RTT_ReadNoLock:000000a0 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:442    .text.SEGGER_RTT_ReadUpBuffer:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:448    .text.SEGGER_RTT_ReadUpBuffer:00000000 SEGGER_RTT_ReadUpBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:474    .text.SEGGER_RTT_Read:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:480    .text.SEGGER_RTT_Read:00000000 SEGGER_RTT_Read
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:506    .text.SEGGER_RTT_WriteWithOverwriteNoLock:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:512    .text.SEGGER_RTT_WriteWithOverwriteNoLock:00000000 SEGGER_RTT_WriteWithOverwriteNoLock
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:652    .text.SEGGER_RTT_WriteWithOverwriteNoLock:00000120 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:655    .text.SEGGER_RTT_WriteDownBufferNoLock:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:661    .text.SEGGER_RTT_WriteDownBufferNoLock:00000000 SEGGER_RTT_WriteDownBufferNoLock
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:713    .text.SEGGER_RTT_WriteDownBufferNoLock:00000060 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:716    .text.SEGGER_RTT_WriteNoLock:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:722    .text.SEGGER_RTT_WriteNoLock:00000000 SEGGER_RTT_WriteNoLock
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:779    .text.SEGGER_RTT_WriteNoLock:00000074 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:782    .text.SEGGER_RTT_WriteDownBuffer:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:788    .text.SEGGER_RTT_WriteDownBuffer:00000000 SEGGER_RTT_WriteDownBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:826    .text.SEGGER_RTT_WriteDownBuffer:00000030 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:829    .text.SEGGER_RTT_Write:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:835    .text.SEGGER_RTT_Write:00000000 SEGGER_RTT_Write
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:873    .text.SEGGER_RTT_Write:00000030 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:876    .text.SEGGER_RTT_WriteString:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:882    .text.SEGGER_RTT_WriteString:00000000 SEGGER_RTT_WriteString
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:897    .text.SEGGER_RTT_PutCharSkipNoLock:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:903    .text.SEGGER_RTT_PutCharSkipNoLock:00000000 SEGGER_RTT_PutCharSkipNoLock
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:950    .text.SEGGER_RTT_PutCharSkipNoLock:0000005c $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:953    .text.SEGGER_RTT_PutCharSkip:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:959    .text.SEGGER_RTT_PutCharSkip:00000000 SEGGER_RTT_PutCharSkip
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1031   .text.SEGGER_RTT_PutCharSkip:00000078 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1034   .text.SEGGER_RTT_PutChar:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1040   .text.SEGGER_RTT_PutChar:00000000 SEGGER_RTT_PutChar
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1129   .text.SEGGER_RTT_PutChar:0000009c $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1132   .text.SEGGER_RTT_GetKey:00000000 $t
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 38
+
+
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1138   .text.SEGGER_RTT_GetKey:00000000 SEGGER_RTT_GetKey
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1159   .text.SEGGER_RTT_WaitKey:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1165   .text.SEGGER_RTT_WaitKey:00000000 SEGGER_RTT_WaitKey
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1176   .text.SEGGER_RTT_HasKey:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1182   .text.SEGGER_RTT_HasKey:00000000 SEGGER_RTT_HasKey
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1207   .text.SEGGER_RTT_HasKey:00000020 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1210   .text.SEGGER_RTT_HasData:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1216   .text.SEGGER_RTT_HasData:00000000 SEGGER_RTT_HasData
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1232   .text.SEGGER_RTT_HasData:0000001c $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1235   .text.SEGGER_RTT_HasDataUp:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1241   .text.SEGGER_RTT_HasDataUp:00000000 SEGGER_RTT_HasDataUp
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1257   .text.SEGGER_RTT_HasDataUp:0000001c $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1260   .text.SEGGER_RTT_AllocDownBuffer:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1266   .text.SEGGER_RTT_AllocDownBuffer:00000000 SEGGER_RTT_AllocDownBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1339   .text.SEGGER_RTT_AllocDownBuffer:00000070 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1342   .text.SEGGER_RTT_AllocUpBuffer:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1348   .text.SEGGER_RTT_AllocUpBuffer:00000000 SEGGER_RTT_AllocUpBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1428   .text.SEGGER_RTT_AllocUpBuffer:00000088 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1431   .text.SEGGER_RTT_ConfigUpBuffer:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1437   .text.SEGGER_RTT_ConfigUpBuffer:00000000 SEGGER_RTT_ConfigUpBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1500   .text.SEGGER_RTT_ConfigUpBuffer:0000006c $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1503   .text.SEGGER_RTT_ConfigDownBuffer:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1509   .text.SEGGER_RTT_ConfigDownBuffer:00000000 SEGGER_RTT_ConfigDownBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1571   .text.SEGGER_RTT_ConfigDownBuffer:00000068 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1574   .text.SEGGER_RTT_SetNameUpBuffer:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1580   .text.SEGGER_RTT_SetNameUpBuffer:00000000 SEGGER_RTT_SetNameUpBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1625   .text.SEGGER_RTT_SetNameUpBuffer:0000003c $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1628   .text.SEGGER_RTT_SetNameDownBuffer:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1634   .text.SEGGER_RTT_SetNameDownBuffer:00000000 SEGGER_RTT_SetNameDownBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1678   .text.SEGGER_RTT_SetNameDownBuffer:0000003c $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1681   .text.SEGGER_RTT_SetFlagsUpBuffer:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1687   .text.SEGGER_RTT_SetFlagsUpBuffer:00000000 SEGGER_RTT_SetFlagsUpBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1731   .text.SEGGER_RTT_SetFlagsUpBuffer:0000003c $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1734   .text.SEGGER_RTT_SetFlagsDownBuffer:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1740   .text.SEGGER_RTT_SetFlagsDownBuffer:00000000 SEGGER_RTT_SetFlagsDownBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1784   .text.SEGGER_RTT_SetFlagsDownBuffer:0000003c $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1787   .text.SEGGER_RTT_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1793   .text.SEGGER_RTT_Init:00000000 SEGGER_RTT_Init
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1801   .text.SEGGER_RTT_SetTerminal:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1807   .text.SEGGER_RTT_SetTerminal:00000000 SEGGER_RTT_SetTerminal
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1883   .text.SEGGER_RTT_SetTerminal:00000080 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2078   .bss._ActiveTerminal:00000000 _ActiveTerminal
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1889   .text.SEGGER_RTT_TerminalOut:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:1895   .text.SEGGER_RTT_TerminalOut:00000000 SEGGER_RTT_TerminalOut
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2010   .text.SEGGER_RTT_TerminalOut:000000dc $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2015   .text.SEGGER_RTT_GetAvailWriteSpace:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2021   .text.SEGGER_RTT_GetAvailWriteSpace:00000000 SEGGER_RTT_GetAvailWriteSpace
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2034   .text.SEGGER_RTT_GetAvailWriteSpace:00000014 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2037   .text.SEGGER_RTT_GetBytesInBuffer:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2043   .text.SEGGER_RTT_GetBytesInBuffer:00000000 SEGGER_RTT_GetBytesInBuffer
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2067   .text.SEGGER_RTT_GetBytesInBuffer:00000028 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2070   .rodata._aInitStr.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2079   .bss._ActiveTerminal:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2081   .bss._acDownBuffer:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2087   .bss._acUpBuffer:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2094   .bss._SEGGER_RTT:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s:2100   .rodata._aTerminalId:00000000 $d
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccLJHz34.s 			page 39
+
+
+
+UNDEFINED SYMBOLS
+memcpy
+memset
+strlen

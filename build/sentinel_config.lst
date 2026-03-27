@@ -1,0 +1,666 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"sentinel_config.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "application/config/sentinel_robot/sentinel_config.c"
+  20              		.section	.text.SentinelConfigInit,"ax",%progbits
+  21              		.align	1
+  22              		.global	SentinelConfigInit
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	SentinelConfigInit:
+  28              	.LFB271:
+   1:application/config/sentinel_robot/sentinel_config.c **** #include "sentinel_config.h"
+   2:application/config/sentinel_robot/sentinel_config.c **** 
+   3:application/config/sentinel_robot/sentinel_config.c **** Robot_Config_s *SentinelConfigInit(void) 
+   4:application/config/sentinel_robot/sentinel_config.c **** {
+  29              		.loc 1 4 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+   5:application/config/sentinel_robot/sentinel_config.c ****     static Robot_Config_s sentinel_config = { 
+  34              		.loc 1 5 5 view .LVU1
+   6:application/config/sentinel_robot/sentinel_config.c ****         .chassis_param = {
+   7:application/config/sentinel_robot/sentinel_config.c ****             .chassis_motor_id[MOTOR_LF] = 3,//4
+   8:application/config/sentinel_robot/sentinel_config.c ****             .chassis_motor_id[MOTOR_RF] = 2,//2
+   9:application/config/sentinel_robot/sentinel_config.c ****             .chassis_motor_id[MOTOR_RB] = 1, //3
+  10:application/config/sentinel_robot/sentinel_config.c ****             .chassis_motor_id[MOTOR_LB] = 4, //1
+  11:application/config/sentinel_robot/sentinel_config.c **** 
+  12:application/config/sentinel_robot/sentinel_config.c ****             .wheel_type = OMNI_WHEEL,
+  13:application/config/sentinel_robot/sentinel_config.c ****             .wheel_measure = {
+  14:application/config/sentinel_robot/sentinel_config.c ****                 .center_gimbal_offset_x = 0.0,
+  15:application/config/sentinel_robot/sentinel_config.c ****                 .center_gimbal_offset_y = 0.0,
+  16:application/config/sentinel_robot/sentinel_config.c ****                 .wheel_base = 370,
+  17:application/config/sentinel_robot/sentinel_config.c ****                 .track_width = 420,
+  18:application/config/sentinel_robot/sentinel_config.c ****                 .radius_wheel = 75,
+  19:application/config/sentinel_robot/sentinel_config.c ****                 .reduction_ratio_wheel = 19.0,
+  20:application/config/sentinel_robot/sentinel_config.c ****             },
+  21:application/config/sentinel_robot/sentinel_config.c **** 
+  22:application/config/sentinel_robot/sentinel_config.c ****             .chassis_motor_config = {
+  23:application/config/sentinel_robot/sentinel_config.c ****                 .can_init_config.can_handle = &hcan1,
+  24:application/config/sentinel_robot/sentinel_config.c ****                 .controller_param_init_config = {
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s 			page 2
+
+
+  25:application/config/sentinel_robot/sentinel_config.c ****                     .speed_PID = {
+  26:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 5.0,
+  27:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 1.0,
+  28:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.0, 
+  29:application/config/sentinel_robot/sentinel_config.c ****                         .IntegralLimit = 3000,
+  30:application/config/sentinel_robot/sentinel_config.c ****                         .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On
+  31:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 12000,
+  32:application/config/sentinel_robot/sentinel_config.c ****                     },
+  33:application/config/sentinel_robot/sentinel_config.c ****                     .current_PID = {
+  34:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 0.5, 
+  35:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 0.0,   
+  36:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.0,
+  37:application/config/sentinel_robot/sentinel_config.c ****                         .IntegralLimit = 3000,
+  38:application/config/sentinel_robot/sentinel_config.c ****                         .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On
+  39:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 15000,
+  40:application/config/sentinel_robot/sentinel_config.c ****                     },
+  41:application/config/sentinel_robot/sentinel_config.c ****                 },   
+  42:application/config/sentinel_robot/sentinel_config.c ****                 .controller_setting_init_config = {
+  43:application/config/sentinel_robot/sentinel_config.c ****                     .angle_feedback_source = MOTOR_FEED,
+  44:application/config/sentinel_robot/sentinel_config.c ****                     .speed_feedback_source = MOTOR_FEED,
+  45:application/config/sentinel_robot/sentinel_config.c ****                     .outer_loop_type = SPEED_LOOP,
+  46:application/config/sentinel_robot/sentinel_config.c ****                     .close_loop_type = CURRENT_LOOP | SPEED_LOOP,
+  47:application/config/sentinel_robot/sentinel_config.c ****                 },
+  48:application/config/sentinel_robot/sentinel_config.c ****                 .motor_type = M3508,             
+  49:application/config/sentinel_robot/sentinel_config.c ****             }
+  50:application/config/sentinel_robot/sentinel_config.c ****         },
+  51:application/config/sentinel_robot/sentinel_config.c **** 
+  52:application/config/sentinel_robot/sentinel_config.c **** 
+  53:application/config/sentinel_robot/sentinel_config.c ****         .gimbal_param = {
+  54:application/config/sentinel_robot/sentinel_config.c ****             .gimbal_type = MINI_GIMBAL,
+  55:application/config/sentinel_robot/sentinel_config.c ****             .gimbal_offset = {
+  56:application/config/sentinel_robot/sentinel_config.c ****                 .mini_yaw_offset = -36.0f,
+  57:application/config/sentinel_robot/sentinel_config.c ****                 .yaw_offset = 118,
+  58:application/config/sentinel_robot/sentinel_config.c ****                 .pitch_min_angle = -24.0f,
+  59:application/config/sentinel_robot/sentinel_config.c ****                 .pitch_max_angle = 25.0f,
+  60:application/config/sentinel_robot/sentinel_config.c ****             },
+  61:application/config/sentinel_robot/sentinel_config.c **** 
+  62:application/config/sentinel_robot/sentinel_config.c ****             .yaw_motor_config = {
+  63:application/config/sentinel_robot/sentinel_config.c ****                 .can_init_config = {
+  64:application/config/sentinel_robot/sentinel_config.c ****                     .can_handle = &hcan1,
+  65:application/config/sentinel_robot/sentinel_config.c ****                     .tx_id = 5,
+  66:application/config/sentinel_robot/sentinel_config.c ****                 },
+  67:application/config/sentinel_robot/sentinel_config.c ****                 .controller_param_init_config = {
+  68:application/config/sentinel_robot/sentinel_config.c ****                     .angle_PID = {
+  69:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 10.0,
+  70:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 0.0, 
+  71:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.7, 
+  72:application/config/sentinel_robot/sentinel_config.c ****                         .DeadBand = 0.1,
+  73:application/config/sentinel_robot/sentinel_config.c ****                         .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On
+  74:application/config/sentinel_robot/sentinel_config.c ****                         .IntegralLimit = 100,
+  75:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 500,
+  76:application/config/sentinel_robot/sentinel_config.c ****                     },
+  77:application/config/sentinel_robot/sentinel_config.c ****                     .speed_PID = {
+  78:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 100.0, 
+  79:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 0.0, 
+  80:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.0,
+  81:application/config/sentinel_robot/sentinel_config.c ****                         .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s 			page 3
+
+
+  82:application/config/sentinel_robot/sentinel_config.c ****                         .IntegralLimit = 3000,
+  83:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 20000,
+  84:application/config/sentinel_robot/sentinel_config.c ****                     },
+  85:application/config/sentinel_robot/sentinel_config.c ****                 },
+  86:application/config/sentinel_robot/sentinel_config.c ****                 .controller_setting_init_config = {
+  87:application/config/sentinel_robot/sentinel_config.c ****                     .angle_feedback_source = OTHER_FEED,
+  88:application/config/sentinel_robot/sentinel_config.c ****                     .speed_feedback_source = OTHER_FEED,
+  89:application/config/sentinel_robot/sentinel_config.c ****                     .outer_loop_type = ANGLE_LOOP,
+  90:application/config/sentinel_robot/sentinel_config.c ****                     .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+  91:application/config/sentinel_robot/sentinel_config.c ****                     .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+  92:application/config/sentinel_robot/sentinel_config.c ****                     .feedback_reverse_flag = FEEDBACK_DIRECTION_NORMAL,
+  93:application/config/sentinel_robot/sentinel_config.c ****                 },
+  94:application/config/sentinel_robot/sentinel_config.c ****                 .motor_type = GM6020,
+  95:application/config/sentinel_robot/sentinel_config.c ****             },        
+  96:application/config/sentinel_robot/sentinel_config.c **** 
+  97:application/config/sentinel_robot/sentinel_config.c ****             .mini_yaw_motor_config = {
+  98:application/config/sentinel_robot/sentinel_config.c ****                 .can_init_config = {
+  99:application/config/sentinel_robot/sentinel_config.c ****                     .can_handle = &hcan2,
+ 100:application/config/sentinel_robot/sentinel_config.c ****                     .tx_id = 1,
+ 101:application/config/sentinel_robot/sentinel_config.c ****                 },
+ 102:application/config/sentinel_robot/sentinel_config.c ****                 .controller_param_init_config = {
+ 103:application/config/sentinel_robot/sentinel_config.c ****                     .angle_PID = {
+ 104:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 10.0,
+ 105:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 0.0, 
+ 106:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.0, 
+ 107:application/config/sentinel_robot/sentinel_config.c ****                         .DeadBand = 0.1,
+ 108:application/config/sentinel_robot/sentinel_config.c ****                         .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On
+ 109:application/config/sentinel_robot/sentinel_config.c ****                         .IntegralLimit = 100,
+ 110:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 300,
+ 111:application/config/sentinel_robot/sentinel_config.c ****                     },
+ 112:application/config/sentinel_robot/sentinel_config.c ****                     .speed_PID = {
+ 113:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 40.0, 
+ 114:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 0.0, 
+ 115:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.0,
+ 116:application/config/sentinel_robot/sentinel_config.c ****                         .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On
+ 117:application/config/sentinel_robot/sentinel_config.c ****                         .IntegralLimit = 8000,
+ 118:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 10000,
+ 119:application/config/sentinel_robot/sentinel_config.c ****                     },
+ 120:application/config/sentinel_robot/sentinel_config.c ****                 },
+ 121:application/config/sentinel_robot/sentinel_config.c ****                 .controller_setting_init_config = {
+ 122:application/config/sentinel_robot/sentinel_config.c ****                     .angle_feedback_source = MOTOR_FEED,
+ 123:application/config/sentinel_robot/sentinel_config.c ****                     .speed_feedback_source = MOTOR_FEED,
+ 124:application/config/sentinel_robot/sentinel_config.c ****                     .outer_loop_type = ANGLE_LOOP,
+ 125:application/config/sentinel_robot/sentinel_config.c ****                     .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+ 126:application/config/sentinel_robot/sentinel_config.c ****                     .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+ 127:application/config/sentinel_robot/sentinel_config.c ****                     .feedback_reverse_flag = FEEDBACK_DIRECTION_NORMAL,
+ 128:application/config/sentinel_robot/sentinel_config.c ****                 },
+ 129:application/config/sentinel_robot/sentinel_config.c ****                 .motor_type = GM6020,
+ 130:application/config/sentinel_robot/sentinel_config.c ****             },        
+ 131:application/config/sentinel_robot/sentinel_config.c **** 
+ 132:application/config/sentinel_robot/sentinel_config.c ****             .pitch_motor_config = {
+ 133:application/config/sentinel_robot/sentinel_config.c ****                 .can_init_config = {
+ 134:application/config/sentinel_robot/sentinel_config.c ****                     .can_handle = &hcan2,
+ 135:application/config/sentinel_robot/sentinel_config.c ****                     .tx_id = 6,
+ 136:application/config/sentinel_robot/sentinel_config.c ****                 },
+ 137:application/config/sentinel_robot/sentinel_config.c ****                 .controller_param_init_config = {
+ 138:application/config/sentinel_robot/sentinel_config.c ****                     .angle_PID = {
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s 			page 4
+
+
+ 139:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 10.0,
+ 140:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 0.0, 
+ 141:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.2, 
+ 142:application/config/sentinel_robot/sentinel_config.c ****                         .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On
+ 143:application/config/sentinel_robot/sentinel_config.c ****                         .IntegralLimit = 100,
+ 144:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 500,
+ 145:application/config/sentinel_robot/sentinel_config.c ****                     },
+ 146:application/config/sentinel_robot/sentinel_config.c ****                     .speed_PID = {
+ 147:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 30.0, 
+ 148:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 0.0, 
+ 149:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.0,
+ 150:application/config/sentinel_robot/sentinel_config.c ****                         .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On
+ 151:application/config/sentinel_robot/sentinel_config.c ****                         .IntegralLimit = 2500,
+ 152:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 20000,
+ 153:application/config/sentinel_robot/sentinel_config.c ****                     },
+ 154:application/config/sentinel_robot/sentinel_config.c ****                 },
+ 155:application/config/sentinel_robot/sentinel_config.c ****                 .controller_setting_init_config = {
+ 156:application/config/sentinel_robot/sentinel_config.c ****                     .angle_feedback_source = OTHER_FEED,
+ 157:application/config/sentinel_robot/sentinel_config.c ****                     .speed_feedback_source = OTHER_FEED,
+ 158:application/config/sentinel_robot/sentinel_config.c ****                     .outer_loop_type = ANGLE_LOOP,
+ 159:application/config/sentinel_robot/sentinel_config.c ****                     .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+ 160:application/config/sentinel_robot/sentinel_config.c ****                     .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+ 161:application/config/sentinel_robot/sentinel_config.c ****                     .feedback_reverse_flag = FEEDBACK_DIRECTION_NORMAL,
+ 162:application/config/sentinel_robot/sentinel_config.c ****                 },
+ 163:application/config/sentinel_robot/sentinel_config.c ****                 .motor_type = GM6020
+ 164:application/config/sentinel_robot/sentinel_config.c ****             }                
+ 165:application/config/sentinel_robot/sentinel_config.c ****         },
+ 166:application/config/sentinel_robot/sentinel_config.c **** 
+ 167:application/config/sentinel_robot/sentinel_config.c ****         .shoot_param = {
+ 168:application/config/sentinel_robot/sentinel_config.c ****             .friction_motor_id[MOTOR_LF] = 8,
+ 169:application/config/sentinel_robot/sentinel_config.c ****             .friction_motor_id[MOTOR_RF] = 4,
+ 170:application/config/sentinel_robot/sentinel_config.c ****             .friction_motor_reverse_flag[MOTOR_LF] = MOTOR_DIRECTION_REVERSE,
+ 171:application/config/sentinel_robot/sentinel_config.c ****             .friction_motor_reverse_flag[MOTOR_RF] = MOTOR_DIRECTION_NORMAL,    
+ 172:application/config/sentinel_robot/sentinel_config.c **** 
+ 173:application/config/sentinel_robot/sentinel_config.c ****             .shoot_type = DUAL_SHOOT,
+ 174:application/config/sentinel_robot/sentinel_config.c ****             .friction_motor_config = {
+ 175:application/config/sentinel_robot/sentinel_config.c ****                 .can_init_config = {
+ 176:application/config/sentinel_robot/sentinel_config.c ****                     .can_handle = &hcan2,
+ 177:application/config/sentinel_robot/sentinel_config.c ****                 },
+ 178:application/config/sentinel_robot/sentinel_config.c ****                 .controller_param_init_config = {
+ 179:application/config/sentinel_robot/sentinel_config.c ****                     .speed_PID = {
+ 180:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 15.0, 
+ 181:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 1.0, 
+ 182:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.0,
+ 183:application/config/sentinel_robot/sentinel_config.c ****                         .Improve = PID_Integral_Limit,
+ 184:application/config/sentinel_robot/sentinel_config.c ****                         .IntegralLimit = 10000,
+ 185:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 15000,
+ 186:application/config/sentinel_robot/sentinel_config.c ****                     },
+ 187:application/config/sentinel_robot/sentinel_config.c ****                     .current_PID = {
+ 188:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 0.4, 
+ 189:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 0.0, 
+ 190:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.0,
+ 191:application/config/sentinel_robot/sentinel_config.c ****                         .Improve = PID_Integral_Limit,
+ 192:application/config/sentinel_robot/sentinel_config.c ****                         .IntegralLimit = 10000,
+ 193:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 15000,
+ 194:application/config/sentinel_robot/sentinel_config.c ****                     },
+ 195:application/config/sentinel_robot/sentinel_config.c ****                 },
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s 			page 5
+
+
+ 196:application/config/sentinel_robot/sentinel_config.c ****                 .controller_setting_init_config = {
+ 197:application/config/sentinel_robot/sentinel_config.c ****                     .angle_feedback_source = MOTOR_FEED,
+ 198:application/config/sentinel_robot/sentinel_config.c ****                     .speed_feedback_source = MOTOR_FEED,
+ 199:application/config/sentinel_robot/sentinel_config.c ****                     .outer_loop_type = SPEED_LOOP,
+ 200:application/config/sentinel_robot/sentinel_config.c ****                     .close_loop_type = SPEED_LOOP | CURRENT_LOOP,
+ 201:application/config/sentinel_robot/sentinel_config.c ****                     .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+ 202:application/config/sentinel_robot/sentinel_config.c ****                 },
+ 203:application/config/sentinel_robot/sentinel_config.c ****                 .motor_type = M3508
+ 204:application/config/sentinel_robot/sentinel_config.c ****             },
+ 205:application/config/sentinel_robot/sentinel_config.c **** 
+ 206:application/config/sentinel_robot/sentinel_config.c ****             .loader_motor_config = {
+ 207:application/config/sentinel_robot/sentinel_config.c ****                 .can_init_config = {
+ 208:application/config/sentinel_robot/sentinel_config.c ****                     .can_handle = &hcan1,
+ 209:application/config/sentinel_robot/sentinel_config.c ****                     .tx_id = 7,
+ 210:application/config/sentinel_robot/sentinel_config.c ****                 },
+ 211:application/config/sentinel_robot/sentinel_config.c ****                 .controller_param_init_config = {
+ 212:application/config/sentinel_robot/sentinel_config.c ****                     .angle_PID = {
+ 213:application/config/sentinel_robot/sentinel_config.c ****                         // 如果启用位置环来控制发弹,需要较大的I值保证输出力�
+ 214:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 5.0, 
+ 215:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 1.0,
+ 216:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.0,
+ 217:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 200, 
+ 218:application/config/sentinel_robot/sentinel_config.c ****                     },
+ 219:application/config/sentinel_robot/sentinel_config.c ****                     .speed_PID = {
+ 220:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 5.0, 
+ 221:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 1.0, 
+ 222:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.0,
+ 223:application/config/sentinel_robot/sentinel_config.c ****                         .Improve = PID_Integral_Limit,
+ 224:application/config/sentinel_robot/sentinel_config.c ****                         .IntegralLimit = 8000,
+ 225:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 10000,
+ 226:application/config/sentinel_robot/sentinel_config.c ****                     },
+ 227:application/config/sentinel_robot/sentinel_config.c ****                     .current_PID = {
+ 228:application/config/sentinel_robot/sentinel_config.c ****                         .Kp = 0.4, 
+ 229:application/config/sentinel_robot/sentinel_config.c ****                         .Ki = 0.0, 
+ 230:application/config/sentinel_robot/sentinel_config.c ****                         .Kd = 0.0,
+ 231:application/config/sentinel_robot/sentinel_config.c ****                         .Improve = PID_Integral_Limit,
+ 232:application/config/sentinel_robot/sentinel_config.c ****                         .IntegralLimit = 5000,
+ 233:application/config/sentinel_robot/sentinel_config.c ****                         .MaxOut = 5000,
+ 234:application/config/sentinel_robot/sentinel_config.c ****                     },
+ 235:application/config/sentinel_robot/sentinel_config.c ****                 },
+ 236:application/config/sentinel_robot/sentinel_config.c ****                 .controller_setting_init_config = {
+ 237:application/config/sentinel_robot/sentinel_config.c ****                     .angle_feedback_source = MOTOR_FEED, 
+ 238:application/config/sentinel_robot/sentinel_config.c ****                     .speed_feedback_source = MOTOR_FEED,
+ 239:application/config/sentinel_robot/sentinel_config.c ****                     .outer_loop_type = SPEED_LOOP, // 初始化成SPEED_LOOP,让拨盘停在原地,
+ 240:application/config/sentinel_robot/sentinel_config.c ****                     .close_loop_type = CURRENT_LOOP | SPEED_LOOP,
+ 241:application/config/sentinel_robot/sentinel_config.c ****                     .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+ 242:application/config/sentinel_robot/sentinel_config.c ****                 },
+ 243:application/config/sentinel_robot/sentinel_config.c ****                 .motor_type = M2006 // 英雄使用M3508
+ 244:application/config/sentinel_robot/sentinel_config.c ****             }
+ 245:application/config/sentinel_robot/sentinel_config.c ****         }
+ 246:application/config/sentinel_robot/sentinel_config.c ****     };
+ 247:application/config/sentinel_robot/sentinel_config.c **** 
+ 248:application/config/sentinel_robot/sentinel_config.c ****     return &sentinel_config;
+  35              		.loc 1 248 5 view .LVU2
+ 249:application/config/sentinel_robot/sentinel_config.c **** } 
+  36              		.loc 1 249 1 is_stmt 0 view .LVU3
+  37 0000 0048     		ldr	r0, .L2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s 			page 6
+
+
+  38 0002 7047     		bx	lr
+  39              	.L3:
+  40              		.align	2
+  41              	.L2:
+  42 0004 00000000 		.word	sentinel_config.0
+  43              		.cfi_endproc
+  44              	.LFE271:
+  46              		.section	.data.sentinel_config.0,"aw"
+  47              		.align	2
+  50              	sentinel_config.0:
+  51 0000 01       		.byte	1
+  52 0001 000000   		.space	3
+  53 0004 00000000 		.word	0
+  54 0008 00000000 		.word	0
+  55 000c 0000B943 		.word	1136197632
+  56 0010 0000D243 		.word	1137836032
+  57 0014 00009642 		.word	1117126656
+  58 0018 00009841 		.word	1100480512
+  59 001c 00000000 		.space	16
+  59      00000000 
+  59      00000000 
+  59      00000000 
+  60 002c 0000003F 		.word	1056964608
+  61 0030 00000000 		.word	0
+  62 0034 00000000 		.word	0
+  63 0038 00606A46 		.word	1181376512
+  64 003c 00000000 		.space	4
+  65 0040 07       		.byte	7
+  66 0041 000000   		.space	3
+  67 0044 00803B45 		.word	1161527296
+  68 0048 00000000 		.space	16
+  68      00000000 
+  68      00000000 
+  68      00000000 
+  69 0058 0000A040 		.word	1084227584
+  70 005c 0000803F 		.word	1065353216
+  71 0060 00000000 		.word	0
+  72 0064 00803B46 		.word	1178304512
+  73 0068 00000000 		.space	4
+  74 006c 07       		.byte	7
+  75 006d 000000   		.space	3
+  76 0070 00803B45 		.word	1161527296
+  77 0074 00000000 		.space	16
+  77      00000000 
+  77      00000000 
+  77      00000000 
+  78 0084 00000000 		.space	44
+  78      00000000 
+  78      00000000 
+  78      00000000 
+  78      00000000 
+  79 00b0 02       		.byte	2
+  80 00b1 03       		.byte	3
+  81 00b2 0000     		.space	2
+  82 00b4 00       		.byte	0
+  83 00b5 00       		.byte	0
+  84 00b6 0000     		.space	2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s 			page 7
+
+
+  85 00b8 02       		.byte	2
+  86 00b9 000000   		.space	3
+  87 00bc 00000000 		.word	hcan1
+  88 00c0 00000000 		.space	24
+  88      00000000 
+  88      00000000 
+  88      00000000 
+  88      00000000 
+  89 00d8 00000000 		.space	44
+  89      00000000 
+  89      00000000 
+  89      00000000 
+  89      00000000 
+  90 0104 03020401 		.ascii	"\003\002\004\001\000"
+  90      00
+  91 0109 000000   		.space	3
+  92 010c 01       		.byte	1
+  93 010d 000000   		.space	3
+  94 0110 000010C2 		.word	-1039138816
+  95 0114 0000EC42 		.word	1122762752
+  96 0118 0000C841 		.word	1103626240
+  97 011c 0000C0C1 		.word	-1044381696
+  98 0120 00000000 		.space	60
+  98      00000000 
+  98      00000000 
+  98      00000000 
+  98      00000000 
+  99 015c 0000C842 		.word	1120403456
+ 100 0160 00000000 		.word	0
+ 101 0164 00000000 		.word	0
+ 102 0168 00409C46 		.word	1184645120
+ 103 016c 00000000 		.space	4
+ 104 0170 07       		.byte	7
+ 105 0171 000000   		.space	3
+ 106 0174 00803B45 		.word	1161527296
+ 107 0178 00000000 		.space	16
+ 107      00000000 
+ 107      00000000 
+ 107      00000000 
+ 108 0188 00002041 		.word	1092616192
+ 109 018c 00000000 		.word	0
+ 110 0190 3333333F 		.word	1060320051
+ 111 0194 0000FA43 		.word	1140457472
+ 112 0198 CDCCCC3D 		.word	1036831949
+ 113 019c 07       		.byte	7
+ 114 019d 000000   		.space	3
+ 115 01a0 0000C842 		.word	1120403456
+ 116 01a4 00000000 		.space	16
+ 116      00000000 
+ 116      00000000 
+ 116      00000000 
+ 117 01b4 04       		.byte	4
+ 118 01b5 06       		.byte	6
+ 119 01b6 01       		.byte	1
+ 120 01b7 00       		.byte	0
+ 121 01b8 01       		.byte	1
+ 122 01b9 01       		.byte	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s 			page 8
+
+
+ 123 01ba 0000     		.space	2
+ 124 01bc 01       		.byte	1
+ 125 01bd 000000   		.space	3
+ 126 01c0 00000000 		.word	hcan1
+ 127 01c4 05000000 		.word	5
+ 128 01c8 00000000 		.space	20
+ 128      00000000 
+ 128      00000000 
+ 128      00000000 
+ 128      00000000 
+ 129 01dc 00000000 		.space	60
+ 129      00000000 
+ 129      00000000 
+ 129      00000000 
+ 129      00000000 
+ 130 0218 00002042 		.word	1109393408
+ 131 021c 00000000 		.word	0
+ 132 0220 00000000 		.word	0
+ 133 0224 00401C46 		.word	1176256512
+ 134 0228 00000000 		.space	4
+ 135 022c 07       		.byte	7
+ 136 022d 000000   		.space	3
+ 137 0230 0000FA45 		.word	1174011904
+ 138 0234 00000000 		.space	16
+ 138      00000000 
+ 138      00000000 
+ 138      00000000 
+ 139 0244 00002041 		.word	1092616192
+ 140 0248 00000000 		.word	0
+ 141 024c 00000000 		.word	0
+ 142 0250 00009643 		.word	1133903872
+ 143 0254 CDCCCC3D 		.word	1036831949
+ 144 0258 07       		.byte	7
+ 145 0259 000000   		.space	3
+ 146 025c 0000C842 		.word	1120403456
+ 147 0260 00000000 		.space	16
+ 147      00000000 
+ 147      00000000 
+ 147      00000000 
+ 148 0270 04       		.byte	4
+ 149 0271 06       		.byte	6
+ 150 0272 00       		.byte	0
+ 151 0273 00       		.byte	0
+ 152 0274 00       		.byte	0
+ 153 0275 00       		.byte	0
+ 154 0276 0000     		.space	2
+ 155 0278 01       		.byte	1
+ 156 0279 000000   		.space	3
+ 157 027c 00000000 		.word	hcan2
+ 158 0280 01000000 		.word	1
+ 159 0284 00000000 		.space	20
+ 159      00000000 
+ 159      00000000 
+ 159      00000000 
+ 159      00000000 
+ 160 0298 00000000 		.space	60
+ 160      00000000 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s 			page 9
+
+
+ 160      00000000 
+ 160      00000000 
+ 160      00000000 
+ 161 02d4 0000F041 		.word	1106247680
+ 162 02d8 00000000 		.word	0
+ 163 02dc 00000000 		.word	0
+ 164 02e0 00409C46 		.word	1184645120
+ 165 02e4 00000000 		.space	4
+ 166 02e8 07       		.byte	7
+ 167 02e9 000000   		.space	3
+ 168 02ec 00401C45 		.word	1159479296
+ 169 02f0 00000000 		.space	16
+ 169      00000000 
+ 169      00000000 
+ 169      00000000 
+ 170 0300 00002041 		.word	1092616192
+ 171 0304 00000000 		.word	0
+ 172 0308 CDCC4C3E 		.word	1045220557
+ 173 030c 0000FA43 		.word	1140457472
+ 174 0310 00000000 		.space	4
+ 175 0314 07       		.byte	7
+ 176 0315 000000   		.space	3
+ 177 0318 0000C842 		.word	1120403456
+ 178 031c 00000000 		.space	16
+ 178      00000000 
+ 178      00000000 
+ 178      00000000 
+ 179 032c 04       		.byte	4
+ 180 032d 06       		.byte	6
+ 181 032e 00       		.byte	0
+ 182 032f 00       		.byte	0
+ 183 0330 01       		.byte	1
+ 184 0331 01       		.byte	1
+ 185 0332 0000     		.space	2
+ 186 0334 01       		.byte	1
+ 187 0335 000000   		.space	3
+ 188 0338 00000000 		.word	hcan2
+ 189 033c 06000000 		.word	6
+ 190 0340 00000000 		.space	20
+ 190      00000000 
+ 190      00000000 
+ 190      00000000 
+ 190      00000000 
+ 191 0354 00       		.byte	0
+ 192 0355 000000   		.space	3
+ 193 0358 00000000 		.space	16
+ 193      00000000 
+ 193      00000000 
+ 193      00000000 
+ 194 0368 CDCCCC3E 		.word	1053609165
+ 195 036c 00000000 		.word	0
+ 196 0370 00000000 		.word	0
+ 197 0374 00606A46 		.word	1181376512
+ 198 0378 00000000 		.space	4
+ 199 037c 01       		.byte	1
+ 200 037d 000000   		.space	3
+ 201 0380 00401C46 		.word	1176256512
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s 			page 10
+
+
+ 202 0384 00000000 		.space	16
+ 202      00000000 
+ 202      00000000 
+ 202      00000000 
+ 203 0394 00007041 		.word	1097859072
+ 204 0398 0000803F 		.word	1065353216
+ 205 039c 00000000 		.word	0
+ 206 03a0 00606A46 		.word	1181376512
+ 207 03a4 00000000 		.space	4
+ 208 03a8 01       		.byte	1
+ 209 03a9 000000   		.space	3
+ 210 03ac 00401C46 		.word	1176256512
+ 211 03b0 00000000 		.space	16
+ 211      00000000 
+ 211      00000000 
+ 211      00000000 
+ 212 03c0 00000000 		.space	44
+ 212      00000000 
+ 212      00000000 
+ 212      00000000 
+ 212      00000000 
+ 213 03ec 02       		.byte	2
+ 214 03ed 03       		.byte	3
+ 215 03ee 01       		.byte	1
+ 216 03ef 00       		.space	1
+ 217 03f0 00       		.byte	0
+ 218 03f1 00       		.byte	0
+ 219 03f2 0000     		.space	2
+ 220 03f4 02       		.byte	2
+ 221 03f5 000000   		.space	3
+ 222 03f8 00000000 		.word	hcan2
+ 223 03fc 00000000 		.space	24
+ 223      00000000 
+ 223      00000000 
+ 223      00000000 
+ 223      00000000 
+ 224 0414 00000000 		.space	16
+ 224      00000000 
+ 224      00000000 
+ 224      00000000 
+ 225 0424 CDCCCC3E 		.word	1053609165
+ 226 0428 00000000 		.word	0
+ 227 042c 00000000 		.word	0
+ 228 0430 00409C45 		.word	1167867904
+ 229 0434 00000000 		.space	4
+ 230 0438 01       		.byte	1
+ 231 0439 000000   		.space	3
+ 232 043c 00409C45 		.word	1167867904
+ 233 0440 00000000 		.space	16
+ 233      00000000 
+ 233      00000000 
+ 233      00000000 
+ 234 0450 0000A040 		.word	1084227584
+ 235 0454 0000803F 		.word	1065353216
+ 236 0458 00000000 		.word	0
+ 237 045c 00401C46 		.word	1176256512
+ 238 0460 00000000 		.space	4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s 			page 11
+
+
+ 239 0464 01       		.byte	1
+ 240 0465 000000   		.space	3
+ 241 0468 0000FA45 		.word	1174011904
+ 242 046c 00000000 		.space	16
+ 242      00000000 
+ 242      00000000 
+ 242      00000000 
+ 243 047c 0000A040 		.word	1084227584
+ 244 0480 0000803F 		.word	1065353216
+ 245 0484 00000000 		.word	0
+ 246 0488 00004843 		.word	1128792064
+ 247 048c 00000000 		.space	28
+ 247      00000000 
+ 247      00000000 
+ 247      00000000 
+ 247      00000000 
+ 248 04a8 02       		.byte	2
+ 249 04a9 03       		.byte	3
+ 250 04aa 00       		.byte	0
+ 251 04ab 00       		.space	1
+ 252 04ac 00       		.byte	0
+ 253 04ad 00       		.byte	0
+ 254 04ae 0000     		.space	2
+ 255 04b0 03       		.byte	3
+ 256 04b1 000000   		.space	3
+ 257 04b4 00000000 		.word	hcan1
+ 258 04b8 07000000 		.word	7
+ 259 04bc 00000000 		.space	20
+ 259      00000000 
+ 259      00000000 
+ 259      00000000 
+ 259      00000000 
+ 260 04d0 080400   		.ascii	"\010\004\000"
+ 261 04d3 00       		.space	1
+ 262 04d4 01       		.byte	1
+ 263 04d5 00       		.byte	0
+ 264 04d6 0000     		.space	2
+ 265              		.text
+ 266              	.Letext0:
+ 267              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 268              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 269              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 270              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 271              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h"
+ 272              		.file 7 "Inc/can.h"
+ 273              		.file 8 "bsp/can/bsp_can.h"
+ 274              		.file 9 "modules/algorithm/controller.h"
+ 275              		.file 10 "modules/motor/motor_def.h"
+ 276              		.file 11 "application/config/config.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s 			page 12
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 sentinel_config.c
+C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s:21     .text.SentinelConfigInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s:27     .text.SentinelConfigInit:00000000 SentinelConfigInit
+C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s:42     .text.SentinelConfigInit:00000004 $d
+C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s:50     .data.sentinel_config.0:00000000 sentinel_config.0
+C:\Users\Administrator\AppData\Local\Temp\ccGihsqY.s:47     .data.sentinel_config.0:00000000 $d
+
+UNDEFINED SYMBOLS
+hcan1
+hcan2

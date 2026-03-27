@@ -1,0 +1,180 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"adc.c"
+  16              		.text
+  17              		.section	.text.MX_ADC1_Init,"ax",%progbits
+  18              		.align	1
+  19              		.global	MX_ADC1_Init
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	MX_ADC1_Init:
+  25              		@ args = 0, pretend = 0, frame = 16
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 00B5     		push	{lr}
+  28 0002 85B0     		sub	sp, sp, #20
+  29 0004 0023     		movs	r3, #0
+  30 0006 0093     		str	r3, [sp]
+  31 0008 0193     		str	r3, [sp, #4]
+  32 000a 0293     		str	r3, [sp, #8]
+  33 000c 0393     		str	r3, [sp, #12]
+  34 000e 1548     		ldr	r0, .L7
+  35 0010 154A     		ldr	r2, .L7+4
+  36 0012 0260     		str	r2, [r0]
+  37 0014 4FF40032 		mov	r2, #131072
+  38 0018 4260     		str	r2, [r0, #4]
+  39 001a 8360     		str	r3, [r0, #8]
+  40 001c 0361     		str	r3, [r0, #16]
+  41 001e 0376     		strb	r3, [r0, #24]
+  42 0020 80F82030 		strb	r3, [r0, #32]
+  43 0024 C362     		str	r3, [r0, #44]
+  44 0026 114A     		ldr	r2, .L7+8
+  45 0028 8262     		str	r2, [r0, #40]
+  46 002a C360     		str	r3, [r0, #12]
+  47 002c 0122     		movs	r2, #1
+  48 002e C261     		str	r2, [r0, #28]
+  49 0030 80F83030 		strb	r3, [r0, #48]
+  50 0034 4261     		str	r2, [r0, #20]
+  51 0036 FFF7FEFF 		bl	HAL_ADC_Init
+  52 003a 60B9     		cbnz	r0, .L5
+  53              	.L2:
+  54 003c 1023     		movs	r3, #16
+  55 003e 0093     		str	r3, [sp]
+  56 0040 0123     		movs	r3, #1
+  57 0042 0193     		str	r3, [sp, #4]
+  58 0044 0023     		movs	r3, #0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s 			page 2
+
+
+  59 0046 0293     		str	r3, [sp, #8]
+  60 0048 6946     		mov	r1, sp
+  61 004a 0648     		ldr	r0, .L7
+  62 004c FFF7FEFF 		bl	HAL_ADC_ConfigChannel
+  63 0050 20B9     		cbnz	r0, .L6
+  64              	.L1:
+  65 0052 05B0     		add	sp, sp, #20
+  66              		@ sp needed
+  67 0054 00BD     		pop	{pc}
+  68              	.L5:
+  69 0056 FFF7FEFF 		bl	Error_Handler
+  70 005a EFE7     		b	.L2
+  71              	.L6:
+  72 005c FFF7FEFF 		bl	Error_Handler
+  73 0060 F7E7     		b	.L1
+  74              	.L8:
+  75 0062 00BF     		.align	2
+  76              	.L7:
+  77 0064 00000000 		.word	hadc1
+  78 0068 00200140 		.word	1073815552
+  79 006c 0100000F 		.word	251658241
+  81              		.section	.text.HAL_ADC_MspInit,"ax",%progbits
+  82              		.align	1
+  83              		.global	HAL_ADC_MspInit
+  84              		.syntax unified
+  85              		.thumb
+  86              		.thumb_func
+  88              	HAL_ADC_MspInit:
+  89              		@ args = 0, pretend = 0, frame = 8
+  90              		@ frame_needed = 0, uses_anonymous_args = 0
+  91              		@ link register save eliminated.
+  92 0000 0268     		ldr	r2, [r0]
+  93 0002 094B     		ldr	r3, .L16
+  94 0004 9A42     		cmp	r2, r3
+  95 0006 00D0     		beq	.L15
+  96 0008 7047     		bx	lr
+  97              	.L15:
+  98 000a 82B0     		sub	sp, sp, #8
+  99 000c 0023     		movs	r3, #0
+ 100 000e 0193     		str	r3, [sp, #4]
+ 101 0010 064B     		ldr	r3, .L16+4
+ 102 0012 5A6C     		ldr	r2, [r3, #68]
+ 103 0014 42F48072 		orr	r2, r2, #256
+ 104 0018 5A64     		str	r2, [r3, #68]
+ 105 001a 5B6C     		ldr	r3, [r3, #68]
+ 106 001c 03F48073 		and	r3, r3, #256
+ 107 0020 0193     		str	r3, [sp, #4]
+ 108 0022 019B     		ldr	r3, [sp, #4]
+ 109 0024 02B0     		add	sp, sp, #8
+ 110              		@ sp needed
+ 111 0026 7047     		bx	lr
+ 112              	.L17:
+ 113              		.align	2
+ 114              	.L16:
+ 115 0028 00200140 		.word	1073815552
+ 116 002c 00380240 		.word	1073887232
+ 118              		.section	.text.HAL_ADC_MspDeInit,"ax",%progbits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s 			page 3
+
+
+ 119              		.align	1
+ 120              		.global	HAL_ADC_MspDeInit
+ 121              		.syntax unified
+ 122              		.thumb
+ 123              		.thumb_func
+ 125              	HAL_ADC_MspDeInit:
+ 126              		@ args = 0, pretend = 0, frame = 0
+ 127              		@ frame_needed = 0, uses_anonymous_args = 0
+ 128              		@ link register save eliminated.
+ 129 0000 0268     		ldr	r2, [r0]
+ 130 0002 054B     		ldr	r3, .L21
+ 131 0004 9A42     		cmp	r2, r3
+ 132 0006 00D0     		beq	.L20
+ 133              	.L18:
+ 134 0008 7047     		bx	lr
+ 135              	.L20:
+ 136 000a 044A     		ldr	r2, .L21+4
+ 137 000c 536C     		ldr	r3, [r2, #68]
+ 138 000e 23F48073 		bic	r3, r3, #256
+ 139 0012 5364     		str	r3, [r2, #68]
+ 140 0014 F8E7     		b	.L18
+ 141              	.L22:
+ 142 0016 00BF     		.align	2
+ 143              	.L21:
+ 144 0018 00200140 		.word	1073815552
+ 145 001c 00380240 		.word	1073887232
+ 147              		.global	hadc1
+ 148              		.section	.bss.hadc1,"aw",%nobits
+ 149              		.align	2
+ 152              	hadc1:
+ 153 0000 00000000 		.space	72
+ 153      00000000 
+ 153      00000000 
+ 153      00000000 
+ 153      00000000 
+ 154              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 adc.c
+C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s:18     .text.MX_ADC1_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s:24     .text.MX_ADC1_Init:00000000 MX_ADC1_Init
+C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s:77     .text.MX_ADC1_Init:00000064 $d
+C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s:152    .bss.hadc1:00000000 hadc1
+C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s:82     .text.HAL_ADC_MspInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s:88     .text.HAL_ADC_MspInit:00000000 HAL_ADC_MspInit
+C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s:115    .text.HAL_ADC_MspInit:00000028 $d
+C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s:119    .text.HAL_ADC_MspDeInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s:125    .text.HAL_ADC_MspDeInit:00000000 HAL_ADC_MspDeInit
+C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s:144    .text.HAL_ADC_MspDeInit:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\ccf9v82f.s:149    .bss.hadc1:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_ADC_Init
+HAL_ADC_ConfigChannel
+Error_Handler

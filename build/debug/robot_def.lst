@@ -1,0 +1,356 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"robot_def.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "application/robot_def.c"
+  20              		.section	.text.RobotConfigInit,"ax",%progbits
+  21              		.align	1
+  22              		.global	RobotConfigInit
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	RobotConfigInit:
+  28              	.LVL0:
+  29              	.LFB276:
+   1:application/robot_def.c **** /**
+   2:application/robot_def.c ****  * @file robot_def.h
+   3:application/robot_def.c ****  * @author Zero lanmeiop@163.com
+   4:application/robot_def.c ****  * @author Zero
+   5:application/robot_def.c ****  * @version 0.1
+   6:application/robot_def.c ****  * @date 2025-03-04
+   7:application/robot_def.c ****  *
+   8:application/robot_def.c ****  * @copyright Copyright (c) HNU YueLu EC 2022 all rights reserved
+   9:application/robot_def.c ****  *
+  10:application/robot_def.c ****  */
+  11:application/robot_def.c **** #include "robot_def.h"
+  12:application/robot_def.c **** 
+  13:application/robot_def.c **** #include "infantry_config.h"
+  14:application/robot_def.c **** #include "sentinel_config.h"
+  15:application/robot_def.c **** #include "hero_config.h"
+  16:application/robot_def.c **** 
+  17:application/robot_def.c **** static Robot_Config_s *robot_instance = {NULL}; 
+  18:application/robot_def.c **** 
+  19:application/robot_def.c **** Robot_Config_s *RobotConfigInit(uint8_t id)
+  20:application/robot_def.c **** {
+  30              		.loc 1 20 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 20 1 is_stmt 0 view .LVU1
+  35 0000 38B5     		push	{r3, r4, r5, lr}
+  36              		.cfi_def_cfa_offset 16
+  37              		.cfi_offset 3, -16
+  38              		.cfi_offset 4, -12
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s 			page 2
+
+
+  39              		.cfi_offset 5, -8
+  40              		.cfi_offset 14, -4
+  41 0002 0546     		mov	r5, r0
+  21:application/robot_def.c ****     Robot_Config_s *instance = (Robot_Config_s *)malloc(sizeof(Robot_Config_s));
+  42              		.loc 1 21 5 is_stmt 1 view .LVU2
+  43              		.loc 1 21 50 is_stmt 0 view .LVU3
+  44 0004 4FF49B60 		mov	r0, #1240
+  45              	.LVL1:
+  46              		.loc 1 21 50 view .LVU4
+  47 0008 FFF7FEFF 		bl	malloc
+  48              	.LVL2:
+  49 000c 0446     		mov	r4, r0
+  50              	.LVL3:
+  22:application/robot_def.c ****     memset(instance, 0, sizeof(Robot_Config_s));
+  51              		.loc 1 22 5 is_stmt 1 view .LVU5
+  52 000e 4FF49B62 		mov	r2, #1240
+  53 0012 0021     		movs	r1, #0
+  54 0014 FFF7FEFF 		bl	memset
+  55              	.LVL4:
+  23:application/robot_def.c **** 
+  24:application/robot_def.c ****  //   if (id == ROBOT_ID)
+  25:application/robot_def.c ****  //   {
+  26:application/robot_def.c ****         switch (id)
+  56              		.loc 1 26 9 view .LVU6
+  57 0018 042D     		cmp	r5, #4
+  58 001a 18D0     		beq	.L2
+  59 001c 07D9     		bls	.L10
+  60 001e 052D     		cmp	r5, #5
+  61 0020 1AD0     		beq	.L7
+  62 0022 072D     		cmp	r5, #7
+  63 0024 0FD1     		bne	.L6
+  27:application/robot_def.c ****         {
+  28:application/robot_def.c ****         case HERO_ROBOT:
+  29:application/robot_def.c ****             instance = HeroConfigInit();
+  30:application/robot_def.c ****             break;
+  31:application/robot_def.c ****         case ENGINEER_ROBOT:
+  32:application/robot_def.c ****             break;
+  33:application/robot_def.c ****         case INFANTRY_ROBOT_3:
+  34:application/robot_def.c ****             instance = InfantryConfigInit(INFANTRY_ROBOT_3);
+  35:application/robot_def.c ****             break;
+  36:application/robot_def.c ****         case INFANTRY_ROBOT_4:
+  37:application/robot_def.c ****             instance = InfantryConfigInit(INFANTRY_ROBOT_4);
+  38:application/robot_def.c ****             break;
+  39:application/robot_def.c ****         case INFANTRY_ROBOT_5:
+  40:application/robot_def.c ****             instance = InfantryConfigInit(INFANTRY_ROBOT_5);
+  41:application/robot_def.c ****             break;
+  42:application/robot_def.c ****         case AERIAL_ROBOT:
+  43:application/robot_def.c ****             break;
+  44:application/robot_def.c ****         case SENTINEL_ROBOT:
+  45:application/robot_def.c ****             instance = SentinelConfigInit();
+  64              		.loc 1 45 13 view .LVU7
+  65              		.loc 1 45 24 is_stmt 0 view .LVU8
+  66 0026 FFF7FEFF 		bl	SentinelConfigInit
+  67              	.LVL5:
+  68 002a 0446     		mov	r4, r0
+  69              	.LVL6:
+  46:application/robot_def.c ****             break;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s 			page 3
+
+
+  70              		.loc 1 46 13 is_stmt 1 view .LVU9
+  71 002c 0BE0     		b	.L6
+  72              	.LVL7:
+  73              	.L10:
+  26:application/robot_def.c ****         {
+  74              		.loc 1 26 9 is_stmt 0 view .LVU10
+  75 002e 012D     		cmp	r5, #1
+  76 0030 06D0     		beq	.L4
+  77 0032 032D     		cmp	r5, #3
+  78 0034 07D1     		bne	.L6
+  34:application/robot_def.c ****             break;
+  79              		.loc 1 34 13 is_stmt 1 view .LVU11
+  34:application/robot_def.c ****             break;
+  80              		.loc 1 34 24 is_stmt 0 view .LVU12
+  81 0036 0320     		movs	r0, #3
+  82 0038 FFF7FEFF 		bl	InfantryConfigInit
+  83              	.LVL8:
+  84 003c 0446     		mov	r4, r0
+  85              	.LVL9:
+  35:application/robot_def.c ****         case INFANTRY_ROBOT_4:
+  86              		.loc 1 35 13 is_stmt 1 view .LVU13
+  87 003e 02E0     		b	.L6
+  88              	.LVL10:
+  89              	.L4:
+  29:application/robot_def.c ****             break;
+  90              		.loc 1 29 13 view .LVU14
+  29:application/robot_def.c ****             break;
+  91              		.loc 1 29 24 is_stmt 0 view .LVU15
+  92 0040 FFF7FEFF 		bl	HeroConfigInit
+  93              	.LVL11:
+  94 0044 0446     		mov	r4, r0
+  95              	.LVL12:
+  30:application/robot_def.c ****         case ENGINEER_ROBOT:
+  96              		.loc 1 30 13 is_stmt 1 view .LVU16
+  97              	.L6:
+  47:application/robot_def.c ****         case DART_ROBOT:
+  48:application/robot_def.c ****             break;
+  49:application/robot_def.c ****         default:
+  50:application/robot_def.c ****             break;
+  51:application/robot_def.c ****         }
+  52:application/robot_def.c ****  //   }
+  53:application/robot_def.c **** 
+  54:application/robot_def.c ****     robot_instance = instance;
+  98              		.loc 1 54 5 view .LVU17
+  99              		.loc 1 54 20 is_stmt 0 view .LVU18
+ 100 0046 074B     		ldr	r3, .L11
+ 101 0048 1C60     		str	r4, [r3]
+  55:application/robot_def.c ****     return instance;
+ 102              		.loc 1 55 5 is_stmt 1 view .LVU19
+  56:application/robot_def.c **** }
+ 103              		.loc 1 56 1 is_stmt 0 view .LVU20
+ 104 004a 2046     		mov	r0, r4
+ 105 004c 38BD     		pop	{r3, r4, r5, pc}
+ 106              	.LVL13:
+ 107              	.L2:
+  37:application/robot_def.c ****             break;
+ 108              		.loc 1 37 13 is_stmt 1 view .LVU21
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s 			page 4
+
+
+  37:application/robot_def.c ****             break;
+ 109              		.loc 1 37 24 is_stmt 0 view .LVU22
+ 110 004e 0420     		movs	r0, #4
+ 111 0050 FFF7FEFF 		bl	InfantryConfigInit
+ 112              	.LVL14:
+ 113 0054 0446     		mov	r4, r0
+ 114              	.LVL15:
+  38:application/robot_def.c ****         case INFANTRY_ROBOT_5:
+ 115              		.loc 1 38 13 is_stmt 1 view .LVU23
+ 116 0056 F6E7     		b	.L6
+ 117              	.LVL16:
+ 118              	.L7:
+  40:application/robot_def.c ****             break;
+ 119              		.loc 1 40 13 view .LVU24
+  40:application/robot_def.c ****             break;
+ 120              		.loc 1 40 24 is_stmt 0 view .LVU25
+ 121 0058 0520     		movs	r0, #5
+ 122 005a FFF7FEFF 		bl	InfantryConfigInit
+ 123              	.LVL17:
+ 124 005e 0446     		mov	r4, r0
+ 125              	.LVL18:
+  41:application/robot_def.c ****         case AERIAL_ROBOT:
+ 126              		.loc 1 41 13 is_stmt 1 view .LVU26
+ 127 0060 F1E7     		b	.L6
+ 128              	.L12:
+ 129 0062 00BF     		.align	2
+ 130              	.L11:
+ 131 0064 00000000 		.word	robot_instance
+ 132              		.cfi_endproc
+ 133              	.LFE276:
+ 135              		.section	.text.ChassisConfigFeed,"ax",%progbits
+ 136              		.align	1
+ 137              		.global	ChassisConfigFeed
+ 138              		.syntax unified
+ 139              		.thumb
+ 140              		.thumb_func
+ 142              	ChassisConfigFeed:
+ 143              	.LFB277:
+  57:application/robot_def.c **** 
+  58:application/robot_def.c **** Chassis_Config_s *ChassisConfigFeed(void)
+  59:application/robot_def.c **** {
+ 144              		.loc 1 59 1 view -0
+ 145              		.cfi_startproc
+ 146              		@ args = 0, pretend = 0, frame = 0
+ 147              		@ frame_needed = 0, uses_anonymous_args = 0
+ 148              		@ link register save eliminated.
+  60:application/robot_def.c ****     return &robot_instance->chassis_param;
+ 149              		.loc 1 60 5 view .LVU28
+  61:application/robot_def.c **** }
+ 150              		.loc 1 61 1 is_stmt 0 view .LVU29
+ 151 0000 014B     		ldr	r3, .L14
+ 152 0002 1868     		ldr	r0, [r3]
+ 153 0004 7047     		bx	lr
+ 154              	.L15:
+ 155 0006 00BF     		.align	2
+ 156              	.L14:
+ 157 0008 00000000 		.word	robot_instance
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s 			page 5
+
+
+ 158              		.cfi_endproc
+ 159              	.LFE277:
+ 161              		.section	.text.GimbalConfigFeed,"ax",%progbits
+ 162              		.align	1
+ 163              		.global	GimbalConfigFeed
+ 164              		.syntax unified
+ 165              		.thumb
+ 166              		.thumb_func
+ 168              	GimbalConfigFeed:
+ 169              	.LFB278:
+  62:application/robot_def.c **** 
+  63:application/robot_def.c **** Gimbal_Config_s *GimbalConfigFeed(void)
+  64:application/robot_def.c **** {
+ 170              		.loc 1 64 1 is_stmt 1 view -0
+ 171              		.cfi_startproc
+ 172              		@ args = 0, pretend = 0, frame = 0
+ 173              		@ frame_needed = 0, uses_anonymous_args = 0
+ 174              		@ link register save eliminated.
+  65:application/robot_def.c ****     return &robot_instance->gimbal_param;
+ 175              		.loc 1 65 5 view .LVU31
+ 176              		.loc 1 65 27 is_stmt 0 view .LVU32
+ 177 0000 024B     		ldr	r3, .L17
+ 178 0002 1868     		ldr	r0, [r3]
+  66:application/robot_def.c **** }
+ 179              		.loc 1 66 1 view .LVU33
+ 180 0004 00F58670 		add	r0, r0, #268
+ 181 0008 7047     		bx	lr
+ 182              	.L18:
+ 183 000a 00BF     		.align	2
+ 184              	.L17:
+ 185 000c 00000000 		.word	robot_instance
+ 186              		.cfi_endproc
+ 187              	.LFE278:
+ 189              		.section	.text.ShootConfigFeed,"ax",%progbits
+ 190              		.align	1
+ 191              		.global	ShootConfigFeed
+ 192              		.syntax unified
+ 193              		.thumb
+ 194              		.thumb_func
+ 196              	ShootConfigFeed:
+ 197              	.LFB279:
+  67:application/robot_def.c **** Shoot_Config_s *ShootConfigFeed(void)
+  68:application/robot_def.c **** {
+ 198              		.loc 1 68 1 is_stmt 1 view -0
+ 199              		.cfi_startproc
+ 200              		@ args = 0, pretend = 0, frame = 0
+ 201              		@ frame_needed = 0, uses_anonymous_args = 0
+ 202              		@ link register save eliminated.
+  69:application/robot_def.c ****     return &robot_instance->shoot_param;
+ 203              		.loc 1 69 5 view .LVU35
+ 204              		.loc 1 69 27 is_stmt 0 view .LVU36
+ 205 0000 024B     		ldr	r3, .L20
+ 206 0002 1868     		ldr	r0, [r3]
+  70:application/robot_def.c **** }...
+ 207              		.loc 1 70 1 view .LVU37
+ 208 0004 00F55570 		add	r0, r0, #852
+ 209 0008 7047     		bx	lr
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s 			page 6
+
+
+ 210              	.L21:
+ 211 000a 00BF     		.align	2
+ 212              	.L20:
+ 213 000c 00000000 		.word	robot_instance
+ 214              		.cfi_endproc
+ 215              	.LFE279:
+ 217              		.section	.bss.robot_instance,"aw",%nobits
+ 218              		.align	2
+ 221              	robot_instance:
+ 222 0000 00000000 		.space	4
+ 223              		.text
+ 224              	.Letext0:
+ 225              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 226              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 227              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 228              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 229              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h"
+ 230              		.file 7 "bsp/can/bsp_can.h"
+ 231              		.file 8 "modules/algorithm/controller.h"
+ 232              		.file 9 "modules/motor/motor_def.h"
+ 233              		.file 10 "application/config/config.h"
+ 234              		.file 11 "application/config/sentinel_robot/sentinel_config.h"
+ 235              		.file 12 "application/config/hero_robot/hero_config.h"
+ 236              		.file 13 "application/config/infantry_robot/infantry_config.h"
+ 237              		.file 14 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 238              		.file 15 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 239              		.file 16 "<built-in>"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 robot_def.c
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:21     .text.RobotConfigInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:27     .text.RobotConfigInit:00000000 RobotConfigInit
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:131    .text.RobotConfigInit:00000064 $d
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:221    .bss.robot_instance:00000000 robot_instance
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:136    .text.ChassisConfigFeed:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:142    .text.ChassisConfigFeed:00000000 ChassisConfigFeed
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:157    .text.ChassisConfigFeed:00000008 $d
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:162    .text.GimbalConfigFeed:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:168    .text.GimbalConfigFeed:00000000 GimbalConfigFeed
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:185    .text.GimbalConfigFeed:0000000c $d
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:190    .text.ShootConfigFeed:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:196    .text.ShootConfigFeed:00000000 ShootConfigFeed
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:213    .text.ShootConfigFeed:0000000c $d
+C:\Users\Administrator\AppData\Local\Temp\cc5OXJiC.s:218    .bss.robot_instance:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc
+memset
+SentinelConfigInit
+InfantryConfigInit
+HeroConfigInit

@@ -1,0 +1,1324 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"referee_UI.c"
+  16              		.text
+  17              		.section	.text.UIDelete,"ax",%progbits
+  18              		.align	1
+  19              		.global	UIDelete
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	UIDelete:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+  28 0004 0546     		mov	r5, r0
+  29 0006 8946     		mov	r9, r1
+  30 0008 9046     		mov	r8, r2
+  31 000a 194C     		ldr	r4, .L3
+  32 000c A523     		movs	r3, #165
+  33 000e 2370     		strb	r3, [r4]
+  34 0010 0027     		movs	r7, #0
+  35 0012 0823     		movs	r3, #8
+  36 0014 6370     		strb	r3, [r4, #1]
+  37 0016 A770     		strb	r7, [r4, #2]
+  38 0018 164E     		ldr	r6, .L3+4
+  39 001a 3378     		ldrb	r3, [r6]	@ zero_extendqisi2
+  40 001c E370     		strb	r3, [r4, #3]
+  41 001e FF22     		movs	r2, #255
+  42 0020 0421     		movs	r1, #4
+  43 0022 2046     		mov	r0, r4
+  44 0024 FFF7FEFF 		bl	Get_CRC8_Check_Sum
+  45 0028 2071     		strb	r0, [r4, #4]
+  46 002a 0123     		movs	r3, #1
+  47 002c 6371     		strb	r3, [r4, #5]
+  48 002e 0322     		movs	r2, #3
+  49 0030 A271     		strb	r2, [r4, #6]
+  50 0032 E771     		strb	r7, [r4, #7]
+  51 0034 2372     		strb	r3, [r4, #8]
+  52 0036 B5F80330 		ldrh	r3, [r5, #3]	@ unaligned
+  53 003a A4F80B30 		strh	r3, [r4, #11]	@ unaligned
+  54 003e B5F80130 		ldrh	r3, [r5, #1]	@ unaligned
+  55 0042 A4F80930 		strh	r3, [r4, #9]	@ unaligned
+  56 0046 84F80D90 		strb	r9, [r4, #13]
+  57 004a 84F80E80 		strb	r8, [r4, #14]
+  58 004e 4FF6FF72 		movw	r2, #65535
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 2
+
+
+  59 0052 0F21     		movs	r1, #15
+  60 0054 2046     		mov	r0, r4
+  61 0056 FFF7FEFF 		bl	Get_CRC16_Check_Sum
+  62 005a A4F80F00 		strh	r0, [r4, #15]	@ unaligned
+  63 005e 1121     		movs	r1, #17
+  64 0060 2046     		mov	r0, r4
+  65 0062 FFF7FEFF 		bl	RefereeSend
+  66 0066 3378     		ldrb	r3, [r6]	@ zero_extendqisi2
+  67 0068 0133     		adds	r3, r3, #1
+  68 006a 3370     		strb	r3, [r6]
+  69 006c BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+  70              	.L4:
+  71              		.align	2
+  72              	.L3:
+  73 0070 00000000 		.word	UI_delete_data.2
+  74 0074 00000000 		.word	UI_Seq
+  76              		.section	.text.UILineDraw,"ax",%progbits
+  77              		.align	1
+  78              		.global	UILineDraw
+  79              		.syntax unified
+  80              		.thumb
+  81              		.thumb_func
+  83              	UILineDraw:
+  84              		@ args = 24, pretend = 0, frame = 0
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86 0000 30B5     		push	{r4, r5, lr}
+  87 0002 0C46     		mov	r4, r1
+  88 0004 9E46     		mov	lr, r3
+  89 0006 0799     		ldr	r1, [sp, #28]
+  90 0008 4FF0000C 		mov	ip, #0
+  91 000c 04E0     		b	.L6
+  92              	.L8:
+  93 000e CCF10205 		rsb	r5, ip, #2
+  94 0012 4355     		strb	r3, [r0, r5]
+  95 0014 0CF1010C 		add	ip, ip, #1
+  96              	.L6:
+  97 0018 BCF1020F 		cmp	ip, #2
+  98 001c 03DC     		bgt	.L7
+  99 001e 14F80C30 		ldrb	r3, [r4, ip]	@ zero_extendqisi2
+ 100 0022 002B     		cmp	r3, #0
+ 101 0024 F3D1     		bne	.L8
+ 102              	.L7:
+ 103 0026 C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+ 104 0028 62F30203 		bfi	r3, r2, #0, #3
+ 105 002c C370     		strb	r3, [r0, #3]
+ 106 002e DBB2     		uxtb	r3, r3
+ 107 0030 23F03803 		bic	r3, r3, #56
+ 108 0034 C370     		strb	r3, [r0, #3]
+ 109 0036 0EF00304 		and	r4, lr, #3
+ 110 003a DBB2     		uxtb	r3, r3
+ 111 003c 03F03F03 		and	r3, r3, #63
+ 112 0040 43EA8413 		orr	r3, r3, r4, lsl #6
+ 113 0044 C370     		strb	r3, [r0, #3]
+ 114 0046 CEF3810E 		ubfx	lr, lr, #2, #2
+ 115 004a 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 116 004c 23F00303 		bic	r3, r3, #3
+ 117 0050 43EA0E0E 		orr	lr, r3, lr
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 3
+
+
+ 118 0054 80F804E0 		strb	lr, [r0, #4]
+ 119 0058 5FFA8EF3 		uxtb	r3, lr
+ 120 005c 039C     		ldr	r4, [sp, #12]
+ 121 005e 64F38503 		bfi	r3, r4, #2, #4
+ 122 0062 0371     		strb	r3, [r0, #4]
+ 123 0064 DBB2     		uxtb	r3, r3
+ 124 0066 03F03F03 		and	r3, r3, #63
+ 125 006a 0371     		strb	r3, [r0, #4]
+ 126 006c 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 127 006e 23F07F03 		bic	r3, r3, #127
+ 128 0072 4371     		strb	r3, [r0, #5]
+ 129 0074 DBB2     		uxtb	r3, r3
+ 130 0076 03F07F03 		and	r3, r3, #127
+ 131 007a 4371     		strb	r3, [r0, #5]
+ 132 007c 4FF0000C 		mov	ip, #0
+ 133 0080 80F806C0 		strb	ip, [r0, #6]
+ 134 0084 049B     		ldr	r3, [sp, #16]
+ 135 0086 C371     		strb	r3, [r0, #7]
+ 136 0088 C3F30124 		ubfx	r4, r3, #8, #2
+ 137 008c 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 138 008e 23F00303 		bic	r3, r3, #3
+ 139 0092 2343     		orrs	r3, r3, r4
+ 140 0094 0372     		strb	r3, [r0, #8]
+ 141 0096 059B     		ldr	r3, [sp, #20]
+ 142 0098 03F03F04 		and	r4, r3, #63
+ 143 009c 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 144 009e 03F00303 		and	r3, r3, #3
+ 145 00a2 43EA8403 		orr	r3, r3, r4, lsl #2
+ 146 00a6 0372     		strb	r3, [r0, #8]
+ 147 00a8 059B     		ldr	r3, [sp, #20]
+ 148 00aa C3F38414 		ubfx	r4, r3, #6, #5
+ 149 00ae 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 150 00b0 23F01F03 		bic	r3, r3, #31
+ 151 00b4 2343     		orrs	r3, r3, r4
+ 152 00b6 4372     		strb	r3, [r0, #9]
+ 153 00b8 069B     		ldr	r3, [sp, #24]
+ 154 00ba 03F00704 		and	r4, r3, #7
+ 155 00be 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 156 00c0 03F01F03 		and	r3, r3, #31
+ 157 00c4 43EA4413 		orr	r3, r3, r4, lsl #5
+ 158 00c8 4372     		strb	r3, [r0, #9]
+ 159 00ca 069B     		ldr	r3, [sp, #24]
+ 160 00cc C3F3C703 		ubfx	r3, r3, #3, #8
+ 161 00d0 8372     		strb	r3, [r0, #10]
+ 162 00d2 80F80BC0 		strb	ip, [r0, #11]
+ 163 00d6 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 164 00d8 23F00303 		bic	r3, r3, #3
+ 165 00dc 0373     		strb	r3, [r0, #12]
+ 166 00de 01F03F04 		and	r4, r1, #63
+ 167 00e2 DBB2     		uxtb	r3, r3
+ 168 00e4 03F00303 		and	r3, r3, #3
+ 169 00e8 43EA8403 		orr	r3, r3, r4, lsl #2
+ 170 00ec 0373     		strb	r3, [r0, #12]
+ 171 00ee C1F38411 		ubfx	r1, r1, #6, #5
+ 172 00f2 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 173 00f4 23F01F03 		bic	r3, r3, #31
+ 174 00f8 0B43     		orrs	r3, r3, r1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 4
+
+
+ 175 00fa 4373     		strb	r3, [r0, #13]
+ 176 00fc 089B     		ldr	r3, [sp, #32]
+ 177 00fe 03F00701 		and	r1, r3, #7
+ 178 0102 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 179 0104 03F01F03 		and	r3, r3, #31
+ 180 0108 43EA4113 		orr	r3, r3, r1, lsl #5
+ 181 010c 4373     		strb	r3, [r0, #13]
+ 182 010e 089B     		ldr	r3, [sp, #32]
+ 183 0110 C3F3C702 		ubfx	r2, r3, #3, #8
+ 184 0114 8273     		strb	r2, [r0, #14]
+ 185 0116 30BD     		pop	{r4, r5, pc}
+ 187              		.section	.text.UIRectangleDraw,"ax",%progbits
+ 188              		.align	1
+ 189              		.global	UIRectangleDraw
+ 190              		.syntax unified
+ 191              		.thumb
+ 192              		.thumb_func
+ 194              	UIRectangleDraw:
+ 195              		@ args = 24, pretend = 0, frame = 0
+ 196              		@ frame_needed = 0, uses_anonymous_args = 0
+ 197 0000 30B5     		push	{r4, r5, lr}
+ 198 0002 0C46     		mov	r4, r1
+ 199 0004 9E46     		mov	lr, r3
+ 200 0006 0799     		ldr	r1, [sp, #28]
+ 201 0008 4FF0000C 		mov	ip, #0
+ 202 000c 04E0     		b	.L11
+ 203              	.L13:
+ 204 000e CCF10205 		rsb	r5, ip, #2
+ 205 0012 4355     		strb	r3, [r0, r5]
+ 206 0014 0CF1010C 		add	ip, ip, #1
+ 207              	.L11:
+ 208 0018 BCF1020F 		cmp	ip, #2
+ 209 001c 03DC     		bgt	.L12
+ 210 001e 14F80C30 		ldrb	r3, [r4, ip]	@ zero_extendqisi2
+ 211 0022 002B     		cmp	r3, #0
+ 212 0024 F3D1     		bne	.L13
+ 213              	.L12:
+ 214 0026 C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+ 215 0028 0124     		movs	r4, #1
+ 216 002a 64F3C503 		bfi	r3, r4, #3, #3
+ 217 002e C370     		strb	r3, [r0, #3]
+ 218 0030 DBB2     		uxtb	r3, r3
+ 219 0032 62F30203 		bfi	r3, r2, #0, #3
+ 220 0036 C370     		strb	r3, [r0, #3]
+ 221 0038 0EF00304 		and	r4, lr, #3
+ 222 003c DBB2     		uxtb	r3, r3
+ 223 003e 03F03F03 		and	r3, r3, #63
+ 224 0042 43EA8413 		orr	r3, r3, r4, lsl #6
+ 225 0046 C370     		strb	r3, [r0, #3]
+ 226 0048 CEF3810E 		ubfx	lr, lr, #2, #2
+ 227 004c 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 228 004e 23F00303 		bic	r3, r3, #3
+ 229 0052 43EA0E0E 		orr	lr, r3, lr
+ 230 0056 80F804E0 		strb	lr, [r0, #4]
+ 231 005a 5FFA8EF3 		uxtb	r3, lr
+ 232 005e 039C     		ldr	r4, [sp, #12]
+ 233 0060 64F38503 		bfi	r3, r4, #2, #4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 5
+
+
+ 234 0064 0371     		strb	r3, [r0, #4]
+ 235 0066 DBB2     		uxtb	r3, r3
+ 236 0068 03F03F03 		and	r3, r3, #63
+ 237 006c 0371     		strb	r3, [r0, #4]
+ 238 006e 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 239 0070 23F07F03 		bic	r3, r3, #127
+ 240 0074 4371     		strb	r3, [r0, #5]
+ 241 0076 DBB2     		uxtb	r3, r3
+ 242 0078 03F07F03 		and	r3, r3, #127
+ 243 007c 4371     		strb	r3, [r0, #5]
+ 244 007e 4FF0000C 		mov	ip, #0
+ 245 0082 80F806C0 		strb	ip, [r0, #6]
+ 246 0086 049B     		ldr	r3, [sp, #16]
+ 247 0088 C371     		strb	r3, [r0, #7]
+ 248 008a C3F30124 		ubfx	r4, r3, #8, #2
+ 249 008e 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 250 0090 23F00303 		bic	r3, r3, #3
+ 251 0094 2343     		orrs	r3, r3, r4
+ 252 0096 0372     		strb	r3, [r0, #8]
+ 253 0098 059B     		ldr	r3, [sp, #20]
+ 254 009a 03F03F04 		and	r4, r3, #63
+ 255 009e 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 256 00a0 03F00303 		and	r3, r3, #3
+ 257 00a4 43EA8403 		orr	r3, r3, r4, lsl #2
+ 258 00a8 0372     		strb	r3, [r0, #8]
+ 259 00aa 059B     		ldr	r3, [sp, #20]
+ 260 00ac C3F38414 		ubfx	r4, r3, #6, #5
+ 261 00b0 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 262 00b2 23F01F03 		bic	r3, r3, #31
+ 263 00b6 2343     		orrs	r3, r3, r4
+ 264 00b8 4372     		strb	r3, [r0, #9]
+ 265 00ba 069B     		ldr	r3, [sp, #24]
+ 266 00bc 03F00704 		and	r4, r3, #7
+ 267 00c0 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 268 00c2 03F01F03 		and	r3, r3, #31
+ 269 00c6 43EA4413 		orr	r3, r3, r4, lsl #5
+ 270 00ca 4372     		strb	r3, [r0, #9]
+ 271 00cc 069B     		ldr	r3, [sp, #24]
+ 272 00ce C3F3C703 		ubfx	r3, r3, #3, #8
+ 273 00d2 8372     		strb	r3, [r0, #10]
+ 274 00d4 80F80BC0 		strb	ip, [r0, #11]
+ 275 00d8 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 276 00da 23F00303 		bic	r3, r3, #3
+ 277 00de 0373     		strb	r3, [r0, #12]
+ 278 00e0 01F03F04 		and	r4, r1, #63
+ 279 00e4 DBB2     		uxtb	r3, r3
+ 280 00e6 03F00303 		and	r3, r3, #3
+ 281 00ea 43EA8403 		orr	r3, r3, r4, lsl #2
+ 282 00ee 0373     		strb	r3, [r0, #12]
+ 283 00f0 C1F38411 		ubfx	r1, r1, #6, #5
+ 284 00f4 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 285 00f6 23F01F03 		bic	r3, r3, #31
+ 286 00fa 0B43     		orrs	r3, r3, r1
+ 287 00fc 4373     		strb	r3, [r0, #13]
+ 288 00fe 089B     		ldr	r3, [sp, #32]
+ 289 0100 03F00701 		and	r1, r3, #7
+ 290 0104 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 6
+
+
+ 291 0106 03F01F03 		and	r3, r3, #31
+ 292 010a 43EA4113 		orr	r3, r3, r1, lsl #5
+ 293 010e 4373     		strb	r3, [r0, #13]
+ 294 0110 089B     		ldr	r3, [sp, #32]
+ 295 0112 C3F3C702 		ubfx	r2, r3, #3, #8
+ 296 0116 8273     		strb	r2, [r0, #14]
+ 297 0118 30BD     		pop	{r4, r5, pc}
+ 299              		.section	.text.UICircleDraw,"ax",%progbits
+ 300              		.align	1
+ 301              		.global	UICircleDraw
+ 302              		.syntax unified
+ 303              		.thumb
+ 304              		.thumb_func
+ 306              	UICircleDraw:
+ 307              		@ args = 20, pretend = 0, frame = 0
+ 308              		@ frame_needed = 0, uses_anonymous_args = 0
+ 309 0000 30B5     		push	{r4, r5, lr}
+ 310 0002 0C46     		mov	r4, r1
+ 311 0004 9E46     		mov	lr, r3
+ 312 0006 0699     		ldr	r1, [sp, #24]
+ 313 0008 4FF0000C 		mov	ip, #0
+ 314 000c 04E0     		b	.L16
+ 315              	.L18:
+ 316 000e CCF10205 		rsb	r5, ip, #2
+ 317 0012 4355     		strb	r3, [r0, r5]
+ 318 0014 0CF1010C 		add	ip, ip, #1
+ 319              	.L16:
+ 320 0018 BCF1020F 		cmp	ip, #2
+ 321 001c 03DC     		bgt	.L17
+ 322 001e 14F80C30 		ldrb	r3, [r4, ip]	@ zero_extendqisi2
+ 323 0022 002B     		cmp	r3, #0
+ 324 0024 F3D1     		bne	.L18
+ 325              	.L17:
+ 326 0026 C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+ 327 0028 0224     		movs	r4, #2
+ 328 002a 64F3C503 		bfi	r3, r4, #3, #3
+ 329 002e C370     		strb	r3, [r0, #3]
+ 330 0030 DBB2     		uxtb	r3, r3
+ 331 0032 62F30203 		bfi	r3, r2, #0, #3
+ 332 0036 C370     		strb	r3, [r0, #3]
+ 333 0038 0EF00304 		and	r4, lr, #3
+ 334 003c DBB2     		uxtb	r3, r3
+ 335 003e 03F03F03 		and	r3, r3, #63
+ 336 0042 43EA8413 		orr	r3, r3, r4, lsl #6
+ 337 0046 C370     		strb	r3, [r0, #3]
+ 338 0048 CEF3810E 		ubfx	lr, lr, #2, #2
+ 339 004c 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 340 004e 23F00303 		bic	r3, r3, #3
+ 341 0052 43EA0E0E 		orr	lr, r3, lr
+ 342 0056 80F804E0 		strb	lr, [r0, #4]
+ 343 005a 5FFA8EF3 		uxtb	r3, lr
+ 344 005e 039C     		ldr	r4, [sp, #12]
+ 345 0060 64F38503 		bfi	r3, r4, #2, #4
+ 346 0064 0371     		strb	r3, [r0, #4]
+ 347 0066 DBB2     		uxtb	r3, r3
+ 348 0068 03F03F03 		and	r3, r3, #63
+ 349 006c 0371     		strb	r3, [r0, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 7
+
+
+ 350 006e 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 351 0070 23F07F03 		bic	r3, r3, #127
+ 352 0074 4371     		strb	r3, [r0, #5]
+ 353 0076 DBB2     		uxtb	r3, r3
+ 354 0078 03F07F03 		and	r3, r3, #127
+ 355 007c 4371     		strb	r3, [r0, #5]
+ 356 007e 4FF0000C 		mov	ip, #0
+ 357 0082 80F806C0 		strb	ip, [r0, #6]
+ 358 0086 049B     		ldr	r3, [sp, #16]
+ 359 0088 C371     		strb	r3, [r0, #7]
+ 360 008a C3F30124 		ubfx	r4, r3, #8, #2
+ 361 008e 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 362 0090 23F00303 		bic	r3, r3, #3
+ 363 0094 2343     		orrs	r3, r3, r4
+ 364 0096 0372     		strb	r3, [r0, #8]
+ 365 0098 059B     		ldr	r3, [sp, #20]
+ 366 009a 03F03F04 		and	r4, r3, #63
+ 367 009e 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 368 00a0 03F00303 		and	r3, r3, #3
+ 369 00a4 43EA8403 		orr	r3, r3, r4, lsl #2
+ 370 00a8 0372     		strb	r3, [r0, #8]
+ 371 00aa 059B     		ldr	r3, [sp, #20]
+ 372 00ac C3F38414 		ubfx	r4, r3, #6, #5
+ 373 00b0 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 374 00b2 23F01F03 		bic	r3, r3, #31
+ 375 00b6 2343     		orrs	r3, r3, r4
+ 376 00b8 4372     		strb	r3, [r0, #9]
+ 377 00ba 01F00704 		and	r4, r1, #7
+ 378 00be DBB2     		uxtb	r3, r3
+ 379 00c0 03F01F03 		and	r3, r3, #31
+ 380 00c4 43EA4413 		orr	r3, r3, r4, lsl #5
+ 381 00c8 4372     		strb	r3, [r0, #9]
+ 382 00ca C1F3C701 		ubfx	r1, r1, #3, #8
+ 383 00ce 8172     		strb	r1, [r0, #10]
+ 384 00d0 079B     		ldr	r3, [sp, #28]
+ 385 00d2 C372     		strb	r3, [r0, #11]
+ 386 00d4 C3F30122 		ubfx	r2, r3, #8, #2
+ 387 00d8 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 388 00da 23F00303 		bic	r3, r3, #3
+ 389 00de 1343     		orrs	r3, r3, r2
+ 390 00e0 0373     		strb	r3, [r0, #12]
+ 391 00e2 DBB2     		uxtb	r3, r3
+ 392 00e4 03F00303 		and	r3, r3, #3
+ 393 00e8 0373     		strb	r3, [r0, #12]
+ 394 00ea 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 395 00ec 23F01F03 		bic	r3, r3, #31
+ 396 00f0 4373     		strb	r3, [r0, #13]
+ 397 00f2 DBB2     		uxtb	r3, r3
+ 398 00f4 03F01F03 		and	r3, r3, #31
+ 399 00f8 4373     		strb	r3, [r0, #13]
+ 400 00fa 80F80EC0 		strb	ip, [r0, #14]
+ 401 00fe 30BD     		pop	{r4, r5, pc}
+ 403              		.section	.text.UIOvalDraw,"ax",%progbits
+ 404              		.align	1
+ 405              		.global	UIOvalDraw
+ 406              		.syntax unified
+ 407              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 8
+
+
+ 408              		.thumb_func
+ 410              	UIOvalDraw:
+ 411              		@ args = 24, pretend = 0, frame = 0
+ 412              		@ frame_needed = 0, uses_anonymous_args = 0
+ 413 0000 30B5     		push	{r4, r5, lr}
+ 414 0002 0C46     		mov	r4, r1
+ 415 0004 9E46     		mov	lr, r3
+ 416 0006 0799     		ldr	r1, [sp, #28]
+ 417 0008 4FF0000C 		mov	ip, #0
+ 418 000c 04E0     		b	.L21
+ 419              	.L23:
+ 420 000e CCF10205 		rsb	r5, ip, #2
+ 421 0012 4355     		strb	r3, [r0, r5]
+ 422 0014 0CF1010C 		add	ip, ip, #1
+ 423              	.L21:
+ 424 0018 BCF1020F 		cmp	ip, #2
+ 425 001c 03DC     		bgt	.L22
+ 426 001e 14F80C30 		ldrb	r3, [r4, ip]	@ zero_extendqisi2
+ 427 0022 002B     		cmp	r3, #0
+ 428 0024 F3D1     		bne	.L23
+ 429              	.L22:
+ 430 0026 C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+ 431 0028 0324     		movs	r4, #3
+ 432 002a 64F3C503 		bfi	r3, r4, #3, #3
+ 433 002e C370     		strb	r3, [r0, #3]
+ 434 0030 DBB2     		uxtb	r3, r3
+ 435 0032 62F30203 		bfi	r3, r2, #0, #3
+ 436 0036 C370     		strb	r3, [r0, #3]
+ 437 0038 0EEA0404 		and	r4, lr, r4
+ 438 003c DBB2     		uxtb	r3, r3
+ 439 003e 03F03F03 		and	r3, r3, #63
+ 440 0042 43EA8413 		orr	r3, r3, r4, lsl #6
+ 441 0046 C370     		strb	r3, [r0, #3]
+ 442 0048 CEF3810E 		ubfx	lr, lr, #2, #2
+ 443 004c 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 444 004e 23F00303 		bic	r3, r3, #3
+ 445 0052 43EA0E0E 		orr	lr, r3, lr
+ 446 0056 80F804E0 		strb	lr, [r0, #4]
+ 447 005a 5FFA8EF3 		uxtb	r3, lr
+ 448 005e 039C     		ldr	r4, [sp, #12]
+ 449 0060 64F38503 		bfi	r3, r4, #2, #4
+ 450 0064 0371     		strb	r3, [r0, #4]
+ 451 0066 4FF0000C 		mov	ip, #0
+ 452 006a 049B     		ldr	r3, [sp, #16]
+ 453 006c C371     		strb	r3, [r0, #7]
+ 454 006e C3F30124 		ubfx	r4, r3, #8, #2
+ 455 0072 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 456 0074 23F00303 		bic	r3, r3, #3
+ 457 0078 2343     		orrs	r3, r3, r4
+ 458 007a 0372     		strb	r3, [r0, #8]
+ 459 007c 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 460 007e 03F03F03 		and	r3, r3, #63
+ 461 0082 0371     		strb	r3, [r0, #4]
+ 462 0084 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 463 0086 23F07F03 		bic	r3, r3, #127
+ 464 008a 4371     		strb	r3, [r0, #5]
+ 465 008c DBB2     		uxtb	r3, r3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 9
+
+
+ 466 008e 03F07F03 		and	r3, r3, #127
+ 467 0092 4371     		strb	r3, [r0, #5]
+ 468 0094 80F806C0 		strb	ip, [r0, #6]
+ 469 0098 059B     		ldr	r3, [sp, #20]
+ 470 009a 03F03F04 		and	r4, r3, #63
+ 471 009e 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 472 00a0 03F00303 		and	r3, r3, #3
+ 473 00a4 43EA8403 		orr	r3, r3, r4, lsl #2
+ 474 00a8 0372     		strb	r3, [r0, #8]
+ 475 00aa 059B     		ldr	r3, [sp, #20]
+ 476 00ac C3F38414 		ubfx	r4, r3, #6, #5
+ 477 00b0 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 478 00b2 23F01F03 		bic	r3, r3, #31
+ 479 00b6 2343     		orrs	r3, r3, r4
+ 480 00b8 4372     		strb	r3, [r0, #9]
+ 481 00ba 069B     		ldr	r3, [sp, #24]
+ 482 00bc 03F00704 		and	r4, r3, #7
+ 483 00c0 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 484 00c2 03F01F03 		and	r3, r3, #31
+ 485 00c6 43EA4413 		orr	r3, r3, r4, lsl #5
+ 486 00ca 4372     		strb	r3, [r0, #9]
+ 487 00cc 069B     		ldr	r3, [sp, #24]
+ 488 00ce C3F3C703 		ubfx	r3, r3, #3, #8
+ 489 00d2 8372     		strb	r3, [r0, #10]
+ 490 00d4 80F80BC0 		strb	ip, [r0, #11]
+ 491 00d8 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 492 00da 23F00303 		bic	r3, r3, #3
+ 493 00de 0373     		strb	r3, [r0, #12]
+ 494 00e0 01F03F04 		and	r4, r1, #63
+ 495 00e4 DBB2     		uxtb	r3, r3
+ 496 00e6 03F00303 		and	r3, r3, #3
+ 497 00ea 43EA8403 		orr	r3, r3, r4, lsl #2
+ 498 00ee 0373     		strb	r3, [r0, #12]
+ 499 00f0 C1F38411 		ubfx	r1, r1, #6, #5
+ 500 00f4 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 501 00f6 23F01F03 		bic	r3, r3, #31
+ 502 00fa 0B43     		orrs	r3, r3, r1
+ 503 00fc 4373     		strb	r3, [r0, #13]
+ 504 00fe 089B     		ldr	r3, [sp, #32]
+ 505 0100 03F00701 		and	r1, r3, #7
+ 506 0104 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 507 0106 03F01F03 		and	r3, r3, #31
+ 508 010a 43EA4113 		orr	r3, r3, r1, lsl #5
+ 509 010e 4373     		strb	r3, [r0, #13]
+ 510 0110 089B     		ldr	r3, [sp, #32]
+ 511 0112 C3F3C702 		ubfx	r2, r3, #3, #8
+ 512 0116 8273     		strb	r2, [r0, #14]
+ 513 0118 30BD     		pop	{r4, r5, pc}
+ 515              		.section	.text.UIArcDraw,"ax",%progbits
+ 516              		.align	1
+ 517              		.global	UIArcDraw
+ 518              		.syntax unified
+ 519              		.thumb
+ 520              		.thumb_func
+ 522              	UIArcDraw:
+ 523              		@ args = 32, pretend = 0, frame = 0
+ 524              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 10
+
+
+ 525 0000 30B5     		push	{r4, r5, lr}
+ 526 0002 0C46     		mov	r4, r1
+ 527 0004 9E46     		mov	lr, r3
+ 528 0006 0999     		ldr	r1, [sp, #36]
+ 529 0008 4FF0000C 		mov	ip, #0
+ 530 000c 04E0     		b	.L26
+ 531              	.L28:
+ 532 000e CCF10205 		rsb	r5, ip, #2
+ 533 0012 4355     		strb	r3, [r0, r5]
+ 534 0014 0CF1010C 		add	ip, ip, #1
+ 535              	.L26:
+ 536 0018 BCF1020F 		cmp	ip, #2
+ 537 001c 03DC     		bgt	.L27
+ 538 001e 14F80C30 		ldrb	r3, [r4, ip]	@ zero_extendqisi2
+ 539 0022 002B     		cmp	r3, #0
+ 540 0024 F3D1     		bne	.L28
+ 541              	.L27:
+ 542 0026 C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+ 543 0028 0424     		movs	r4, #4
+ 544 002a 64F3C503 		bfi	r3, r4, #3, #3
+ 545 002e C370     		strb	r3, [r0, #3]
+ 546 0030 DBB2     		uxtb	r3, r3
+ 547 0032 62F30203 		bfi	r3, r2, #0, #3
+ 548 0036 C370     		strb	r3, [r0, #3]
+ 549 0038 0EF00304 		and	r4, lr, #3
+ 550 003c DBB2     		uxtb	r3, r3
+ 551 003e 03F03F03 		and	r3, r3, #63
+ 552 0042 43EA8413 		orr	r3, r3, r4, lsl #6
+ 553 0046 C370     		strb	r3, [r0, #3]
+ 554 0048 CEF3810E 		ubfx	lr, lr, #2, #2
+ 555 004c 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 556 004e 23F00303 		bic	r3, r3, #3
+ 557 0052 43EA0E0E 		orr	lr, r3, lr
+ 558 0056 80F804E0 		strb	lr, [r0, #4]
+ 559 005a 5FFA8EF4 		uxtb	r4, lr
+ 560 005e 039B     		ldr	r3, [sp, #12]
+ 561 0060 63F38504 		bfi	r4, r3, #2, #4
+ 562 0064 0471     		strb	r4, [r0, #4]
+ 563 0066 049B     		ldr	r3, [sp, #16]
+ 564 0068 03F00304 		and	r4, r3, #3
+ 565 006c 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 566 006e 03F03F03 		and	r3, r3, #63
+ 567 0072 43EA8413 		orr	r3, r3, r4, lsl #6
+ 568 0076 0371     		strb	r3, [r0, #4]
+ 569 0078 049B     		ldr	r3, [sp, #16]
+ 570 007a C3F38604 		ubfx	r4, r3, #2, #7
+ 571 007e 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 572 0080 23F07F03 		bic	r3, r3, #127
+ 573 0084 2343     		orrs	r3, r3, r4
+ 574 0086 4371     		strb	r3, [r0, #5]
+ 575 0088 059B     		ldr	r3, [sp, #20]
+ 576 008a 03F00104 		and	r4, r3, #1
+ 577 008e 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 578 0090 03F07F03 		and	r3, r3, #127
+ 579 0094 43EAC413 		orr	r3, r3, r4, lsl #7
+ 580 0098 4371     		strb	r3, [r0, #5]
+ 581 009a 059B     		ldr	r3, [sp, #20]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 11
+
+
+ 582 009c C3F34703 		ubfx	r3, r3, #1, #8
+ 583 00a0 8371     		strb	r3, [r0, #6]
+ 584 00a2 069B     		ldr	r3, [sp, #24]
+ 585 00a4 C371     		strb	r3, [r0, #7]
+ 586 00a6 C3F30124 		ubfx	r4, r3, #8, #2
+ 587 00aa 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 588 00ac 23F00303 		bic	r3, r3, #3
+ 589 00b0 2343     		orrs	r3, r3, r4
+ 590 00b2 0372     		strb	r3, [r0, #8]
+ 591 00b4 079B     		ldr	r3, [sp, #28]
+ 592 00b6 03F03F04 		and	r4, r3, #63
+ 593 00ba 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 594 00bc 03F00303 		and	r3, r3, #3
+ 595 00c0 43EA8403 		orr	r3, r3, r4, lsl #2
+ 596 00c4 0372     		strb	r3, [r0, #8]
+ 597 00c6 079B     		ldr	r3, [sp, #28]
+ 598 00c8 C3F38414 		ubfx	r4, r3, #6, #5
+ 599 00cc 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 600 00ce 23F01F03 		bic	r3, r3, #31
+ 601 00d2 2343     		orrs	r3, r3, r4
+ 602 00d4 4372     		strb	r3, [r0, #9]
+ 603 00d6 089B     		ldr	r3, [sp, #32]
+ 604 00d8 03F00704 		and	r4, r3, #7
+ 605 00dc 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 606 00de 03F01F03 		and	r3, r3, #31
+ 607 00e2 43EA4413 		orr	r3, r3, r4, lsl #5
+ 608 00e6 4372     		strb	r3, [r0, #9]
+ 609 00e8 089B     		ldr	r3, [sp, #32]
+ 610 00ea C3F3C703 		ubfx	r3, r3, #3, #8
+ 611 00ee 8372     		strb	r3, [r0, #10]
+ 612 00f0 0023     		movs	r3, #0
+ 613 00f2 C372     		strb	r3, [r0, #11]
+ 614 00f4 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 615 00f6 23F00303 		bic	r3, r3, #3
+ 616 00fa 0373     		strb	r3, [r0, #12]
+ 617 00fc 01F03F04 		and	r4, r1, #63
+ 618 0100 DBB2     		uxtb	r3, r3
+ 619 0102 03F00303 		and	r3, r3, #3
+ 620 0106 43EA8403 		orr	r3, r3, r4, lsl #2
+ 621 010a 0373     		strb	r3, [r0, #12]
+ 622 010c C1F38411 		ubfx	r1, r1, #6, #5
+ 623 0110 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 624 0112 23F01F03 		bic	r3, r3, #31
+ 625 0116 0B43     		orrs	r3, r3, r1
+ 626 0118 4373     		strb	r3, [r0, #13]
+ 627 011a 0A9B     		ldr	r3, [sp, #40]
+ 628 011c 03F00701 		and	r1, r3, #7
+ 629 0120 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 630 0122 03F01F03 		and	r3, r3, #31
+ 631 0126 43EA4113 		orr	r3, r3, r1, lsl #5
+ 632 012a 4373     		strb	r3, [r0, #13]
+ 633 012c 0A9B     		ldr	r3, [sp, #40]
+ 634 012e C3F3C702 		ubfx	r2, r3, #3, #8
+ 635 0132 8273     		strb	r2, [r0, #14]
+ 636 0134 30BD     		pop	{r4, r5, pc}
+ 638              		.section	.text.UIFloatDraw,"ax",%progbits
+ 639              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 12
+
+
+ 640              		.global	UIFloatDraw
+ 641              		.syntax unified
+ 642              		.thumb
+ 643              		.thumb_func
+ 645              	UIFloatDraw:
+ 646              		@ args = 28, pretend = 0, frame = 0
+ 647              		@ frame_needed = 0, uses_anonymous_args = 0
+ 648 0000 30B5     		push	{r4, r5, lr}
+ 649 0002 0C46     		mov	r4, r1
+ 650 0004 1146     		mov	r1, r2
+ 651 0006 9E46     		mov	lr, r3
+ 652 0008 099B     		ldr	r3, [sp, #36]
+ 653 000a 4FF0000C 		mov	ip, #0
+ 654 000e 04E0     		b	.L31
+ 655              	.L33:
+ 656 0010 CCF10205 		rsb	r5, ip, #2
+ 657 0014 4255     		strb	r2, [r0, r5]
+ 658 0016 0CF1010C 		add	ip, ip, #1
+ 659              	.L31:
+ 660 001a BCF1020F 		cmp	ip, #2
+ 661 001e 03DC     		bgt	.L32
+ 662 0020 14F80C20 		ldrb	r2, [r4, ip]	@ zero_extendqisi2
+ 663 0024 002A     		cmp	r2, #0
+ 664 0026 F3D1     		bne	.L33
+ 665              	.L32:
+ 666 0028 C278     		ldrb	r2, [r0, #3]	@ zero_extendqisi2
+ 667 002a 0524     		movs	r4, #5
+ 668 002c 64F3C502 		bfi	r2, r4, #3, #3
+ 669 0030 C270     		strb	r2, [r0, #3]
+ 670 0032 D2B2     		uxtb	r2, r2
+ 671 0034 61F30202 		bfi	r2, r1, #0, #3
+ 672 0038 C270     		strb	r2, [r0, #3]
+ 673 003a 0EF00304 		and	r4, lr, #3
+ 674 003e D2B2     		uxtb	r2, r2
+ 675 0040 02F03F02 		and	r2, r2, #63
+ 676 0044 42EA8412 		orr	r2, r2, r4, lsl #6
+ 677 0048 C270     		strb	r2, [r0, #3]
+ 678 004a CEF3810E 		ubfx	lr, lr, #2, #2
+ 679 004e 0279     		ldrb	r2, [r0, #4]	@ zero_extendqisi2
+ 680 0050 22F00302 		bic	r2, r2, #3
+ 681 0054 42EA0E0E 		orr	lr, r2, lr
+ 682 0058 80F804E0 		strb	lr, [r0, #4]
+ 683 005c 5FFA8EF4 		uxtb	r4, lr
+ 684 0060 039A     		ldr	r2, [sp, #12]
+ 685 0062 62F38504 		bfi	r4, r2, #2, #4
+ 686 0066 0471     		strb	r4, [r0, #4]
+ 687 0068 069A     		ldr	r2, [sp, #24]
+ 688 006a C271     		strb	r2, [r0, #7]
+ 689 006c C2F30124 		ubfx	r4, r2, #8, #2
+ 690 0070 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 691 0072 22F00302 		bic	r2, r2, #3
+ 692 0076 2243     		orrs	r2, r2, r4
+ 693 0078 0272     		strb	r2, [r0, #8]
+ 694 007a 079A     		ldr	r2, [sp, #28]
+ 695 007c 02F03F04 		and	r4, r2, #63
+ 696 0080 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 697 0082 02F00302 		and	r2, r2, #3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 13
+
+
+ 698 0086 42EA8402 		orr	r2, r2, r4, lsl #2
+ 699 008a 0272     		strb	r2, [r0, #8]
+ 700 008c 079A     		ldr	r2, [sp, #28]
+ 701 008e C2F38414 		ubfx	r4, r2, #6, #5
+ 702 0092 427A     		ldrb	r2, [r0, #9]	@ zero_extendqisi2
+ 703 0094 22F01F02 		bic	r2, r2, #31
+ 704 0098 2243     		orrs	r2, r2, r4
+ 705 009a 4272     		strb	r2, [r0, #9]
+ 706 009c 089A     		ldr	r2, [sp, #32]
+ 707 009e 02F00704 		and	r4, r2, #7
+ 708 00a2 427A     		ldrb	r2, [r0, #9]	@ zero_extendqisi2
+ 709 00a4 02F01F02 		and	r2, r2, #31
+ 710 00a8 42EA4412 		orr	r2, r2, r4, lsl #5
+ 711 00ac 4272     		strb	r2, [r0, #9]
+ 712 00ae 089A     		ldr	r2, [sp, #32]
+ 713 00b0 C2F3C702 		ubfx	r2, r2, #3, #8
+ 714 00b4 8272     		strb	r2, [r0, #10]
+ 715 00b6 049A     		ldr	r2, [sp, #16]
+ 716 00b8 02F00304 		and	r4, r2, #3
+ 717 00bc 0279     		ldrb	r2, [r0, #4]	@ zero_extendqisi2
+ 718 00be 02F03F02 		and	r2, r2, #63
+ 719 00c2 42EA8412 		orr	r2, r2, r4, lsl #6
+ 720 00c6 0271     		strb	r2, [r0, #4]
+ 721 00c8 049A     		ldr	r2, [sp, #16]
+ 722 00ca C2F38604 		ubfx	r4, r2, #2, #7
+ 723 00ce 4279     		ldrb	r2, [r0, #5]	@ zero_extendqisi2
+ 724 00d0 22F07F02 		bic	r2, r2, #127
+ 725 00d4 2243     		orrs	r2, r2, r4
+ 726 00d6 4271     		strb	r2, [r0, #5]
+ 727 00d8 059A     		ldr	r2, [sp, #20]
+ 728 00da 02F00104 		and	r4, r2, #1
+ 729 00de 4279     		ldrb	r2, [r0, #5]	@ zero_extendqisi2
+ 730 00e0 02F07F02 		and	r2, r2, #127
+ 731 00e4 42EAC412 		orr	r2, r2, r4, lsl #7
+ 732 00e8 4271     		strb	r2, [r0, #5]
+ 733 00ea 059A     		ldr	r2, [sp, #20]
+ 734 00ec C2F34701 		ubfx	r1, r2, #1, #8
+ 735 00f0 8171     		strb	r1, [r0, #6]
+ 736 00f2 C372     		strb	r3, [r0, #11]
+ 737 00f4 C3F30121 		ubfx	r1, r3, #8, #2
+ 738 00f8 027B     		ldrb	r2, [r0, #12]	@ zero_extendqisi2
+ 739 00fa 22F00302 		bic	r2, r2, #3
+ 740 00fe 0A43     		orrs	r2, r2, r1
+ 741 0100 0273     		strb	r2, [r0, #12]
+ 742 0102 C3F38521 		ubfx	r1, r3, #10, #6
+ 743 0106 D2B2     		uxtb	r2, r2
+ 744 0108 02F00302 		and	r2, r2, #3
+ 745 010c 42EA8102 		orr	r2, r2, r1, lsl #2
+ 746 0110 0273     		strb	r2, [r0, #12]
+ 747 0112 C3F30441 		ubfx	r1, r3, #16, #5
+ 748 0116 427B     		ldrb	r2, [r0, #13]	@ zero_extendqisi2
+ 749 0118 22F01F02 		bic	r2, r2, #31
+ 750 011c 0A43     		orrs	r2, r2, r1
+ 751 011e 4273     		strb	r2, [r0, #13]
+ 752 0120 C3F34251 		ubfx	r1, r3, #21, #3
+ 753 0124 D2B2     		uxtb	r2, r2
+ 754 0126 02F01F02 		and	r2, r2, #31
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 14
+
+
+ 755 012a 42EA4112 		orr	r2, r2, r1, lsl #5
+ 756 012e 4273     		strb	r2, [r0, #13]
+ 757 0130 1B0E     		lsrs	r3, r3, #24
+ 758 0132 8373     		strb	r3, [r0, #14]
+ 759 0134 30BD     		pop	{r4, r5, pc}
+ 761              		.section	.text.UIIntDraw,"ax",%progbits
+ 762              		.align	1
+ 763              		.global	UIIntDraw
+ 764              		.syntax unified
+ 765              		.thumb
+ 766              		.thumb_func
+ 768              	UIIntDraw:
+ 769              		@ args = 24, pretend = 0, frame = 0
+ 770              		@ frame_needed = 0, uses_anonymous_args = 0
+ 771 0000 30B5     		push	{r4, r5, lr}
+ 772 0002 0C46     		mov	r4, r1
+ 773 0004 1146     		mov	r1, r2
+ 774 0006 9E46     		mov	lr, r3
+ 775 0008 089B     		ldr	r3, [sp, #32]
+ 776 000a 4FF0000C 		mov	ip, #0
+ 777 000e 04E0     		b	.L36
+ 778              	.L38:
+ 779 0010 CCF10205 		rsb	r5, ip, #2
+ 780 0014 4255     		strb	r2, [r0, r5]
+ 781 0016 0CF1010C 		add	ip, ip, #1
+ 782              	.L36:
+ 783 001a BCF1020F 		cmp	ip, #2
+ 784 001e 03DC     		bgt	.L37
+ 785 0020 14F80C20 		ldrb	r2, [r4, ip]	@ zero_extendqisi2
+ 786 0024 002A     		cmp	r2, #0
+ 787 0026 F3D1     		bne	.L38
+ 788              	.L37:
+ 789 0028 C278     		ldrb	r2, [r0, #3]	@ zero_extendqisi2
+ 790 002a 0624     		movs	r4, #6
+ 791 002c 64F3C502 		bfi	r2, r4, #3, #3
+ 792 0030 C270     		strb	r2, [r0, #3]
+ 793 0032 D2B2     		uxtb	r2, r2
+ 794 0034 61F30202 		bfi	r2, r1, #0, #3
+ 795 0038 C270     		strb	r2, [r0, #3]
+ 796 003a 0EF00304 		and	r4, lr, #3
+ 797 003e D2B2     		uxtb	r2, r2
+ 798 0040 02F03F02 		and	r2, r2, #63
+ 799 0044 42EA8412 		orr	r2, r2, r4, lsl #6
+ 800 0048 C270     		strb	r2, [r0, #3]
+ 801 004a CEF3810E 		ubfx	lr, lr, #2, #2
+ 802 004e 0279     		ldrb	r2, [r0, #4]	@ zero_extendqisi2
+ 803 0050 22F00302 		bic	r2, r2, #3
+ 804 0054 42EA0E0E 		orr	lr, r2, lr
+ 805 0058 80F804E0 		strb	lr, [r0, #4]
+ 806 005c 5FFA8EF2 		uxtb	r2, lr
+ 807 0060 039C     		ldr	r4, [sp, #12]
+ 808 0062 64F38502 		bfi	r2, r4, #2, #4
+ 809 0066 0271     		strb	r2, [r0, #4]
+ 810 0068 049A     		ldr	r2, [sp, #16]
+ 811 006a 02F00304 		and	r4, r2, #3
+ 812 006e 0279     		ldrb	r2, [r0, #4]	@ zero_extendqisi2
+ 813 0070 02F03F02 		and	r2, r2, #63
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 15
+
+
+ 814 0074 42EA8412 		orr	r2, r2, r4, lsl #6
+ 815 0078 0271     		strb	r2, [r0, #4]
+ 816 007a 049A     		ldr	r2, [sp, #16]
+ 817 007c C2F38604 		ubfx	r4, r2, #2, #7
+ 818 0080 4279     		ldrb	r2, [r0, #5]	@ zero_extendqisi2
+ 819 0082 22F07F02 		bic	r2, r2, #127
+ 820 0086 2243     		orrs	r2, r2, r4
+ 821 0088 4271     		strb	r2, [r0, #5]
+ 822 008a D2B2     		uxtb	r2, r2
+ 823 008c 02F07F02 		and	r2, r2, #127
+ 824 0090 4271     		strb	r2, [r0, #5]
+ 825 0092 0022     		movs	r2, #0
+ 826 0094 8271     		strb	r2, [r0, #6]
+ 827 0096 059A     		ldr	r2, [sp, #20]
+ 828 0098 C271     		strb	r2, [r0, #7]
+ 829 009a C2F30124 		ubfx	r4, r2, #8, #2
+ 830 009e 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 831 00a0 22F00302 		bic	r2, r2, #3
+ 832 00a4 2243     		orrs	r2, r2, r4
+ 833 00a6 0272     		strb	r2, [r0, #8]
+ 834 00a8 069A     		ldr	r2, [sp, #24]
+ 835 00aa 02F03F04 		and	r4, r2, #63
+ 836 00ae 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 837 00b0 02F00302 		and	r2, r2, #3
+ 838 00b4 42EA8402 		orr	r2, r2, r4, lsl #2
+ 839 00b8 0272     		strb	r2, [r0, #8]
+ 840 00ba 069A     		ldr	r2, [sp, #24]
+ 841 00bc C2F38414 		ubfx	r4, r2, #6, #5
+ 842 00c0 427A     		ldrb	r2, [r0, #9]	@ zero_extendqisi2
+ 843 00c2 22F01F02 		bic	r2, r2, #31
+ 844 00c6 2243     		orrs	r2, r2, r4
+ 845 00c8 4272     		strb	r2, [r0, #9]
+ 846 00ca 079A     		ldr	r2, [sp, #28]
+ 847 00cc 02F00704 		and	r4, r2, #7
+ 848 00d0 427A     		ldrb	r2, [r0, #9]	@ zero_extendqisi2
+ 849 00d2 02F01F02 		and	r2, r2, #31
+ 850 00d6 42EA4412 		orr	r2, r2, r4, lsl #5
+ 851 00da 4272     		strb	r2, [r0, #9]
+ 852 00dc 079A     		ldr	r2, [sp, #28]
+ 853 00de C2F3C701 		ubfx	r1, r2, #3, #8
+ 854 00e2 8172     		strb	r1, [r0, #10]
+ 855 00e4 C372     		strb	r3, [r0, #11]
+ 856 00e6 C3F30121 		ubfx	r1, r3, #8, #2
+ 857 00ea 027B     		ldrb	r2, [r0, #12]	@ zero_extendqisi2
+ 858 00ec 22F00302 		bic	r2, r2, #3
+ 859 00f0 0A43     		orrs	r2, r2, r1
+ 860 00f2 0273     		strb	r2, [r0, #12]
+ 861 00f4 C3F38521 		ubfx	r1, r3, #10, #6
+ 862 00f8 D2B2     		uxtb	r2, r2
+ 863 00fa 02F00302 		and	r2, r2, #3
+ 864 00fe 42EA8102 		orr	r2, r2, r1, lsl #2
+ 865 0102 0273     		strb	r2, [r0, #12]
+ 866 0104 C3F30441 		ubfx	r1, r3, #16, #5
+ 867 0108 427B     		ldrb	r2, [r0, #13]	@ zero_extendqisi2
+ 868 010a 22F01F02 		bic	r2, r2, #31
+ 869 010e 0A43     		orrs	r2, r2, r1
+ 870 0110 4273     		strb	r2, [r0, #13]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 16
+
+
+ 871 0112 C3F34251 		ubfx	r1, r3, #21, #3
+ 872 0116 D2B2     		uxtb	r2, r2
+ 873 0118 02F01F02 		and	r2, r2, #31
+ 874 011c 42EA4112 		orr	r2, r2, r1, lsl #5
+ 875 0120 4273     		strb	r2, [r0, #13]
+ 876 0122 1B0E     		lsrs	r3, r3, #24
+ 877 0124 8373     		strb	r3, [r0, #14]
+ 878 0126 30BD     		pop	{r4, r5, pc}
+ 880              		.section	.text.UICharDraw,"ax",%progbits
+ 881              		.align	1
+ 882              		.global	UICharDraw
+ 883              		.syntax unified
+ 884              		.thumb
+ 885              		.thumb_func
+ 887              	UICharDraw:
+ 888              		@ args = 24, pretend = 0, frame = 8
+ 889              		@ frame_needed = 0, uses_anonymous_args = 1
+ 890 0000 30B5     		push	{r4, r5, lr}
+ 891 0002 83B0     		sub	sp, sp, #12
+ 892 0004 0446     		mov	r4, r0
+ 893 0006 9C46     		mov	ip, r3
+ 894 0008 DDF828E0 		ldr	lr, [sp, #40]
+ 895 000c 0020     		movs	r0, #0
+ 896 000e 03E0     		b	.L41
+ 897              	.L43:
+ 898 0010 C0F10205 		rsb	r5, r0, #2
+ 899 0014 6355     		strb	r3, [r4, r5]
+ 900 0016 0130     		adds	r0, r0, #1
+ 901              	.L41:
+ 902 0018 0228     		cmp	r0, #2
+ 903 001a 02DC     		bgt	.L42
+ 904 001c 0B5C     		ldrb	r3, [r1, r0]	@ zero_extendqisi2
+ 905 001e 002B     		cmp	r3, #0
+ 906 0020 F6D1     		bne	.L43
+ 907              	.L42:
+ 908 0022 E378     		ldrb	r3, [r4, #3]	@ zero_extendqisi2
+ 909 0024 43F03803 		orr	r3, r3, #56
+ 910 0028 E370     		strb	r3, [r4, #3]
+ 911 002a DBB2     		uxtb	r3, r3
+ 912 002c 62F30203 		bfi	r3, r2, #0, #3
+ 913 0030 E370     		strb	r3, [r4, #3]
+ 914 0032 0CF00301 		and	r1, ip, #3
+ 915 0036 DBB2     		uxtb	r3, r3
+ 916 0038 03F03F03 		and	r3, r3, #63
+ 917 003c 43EA8113 		orr	r3, r3, r1, lsl #6
+ 918 0040 E370     		strb	r3, [r4, #3]
+ 919 0042 CCF3810C 		ubfx	ip, ip, #2, #2
+ 920 0046 2379     		ldrb	r3, [r4, #4]	@ zero_extendqisi2
+ 921 0048 23F00303 		bic	r3, r3, #3
+ 922 004c 43EA0C0C 		orr	ip, r3, ip
+ 923 0050 84F804C0 		strb	ip, [r4, #4]
+ 924 0054 5FFA8CF3 		uxtb	r3, ip
+ 925 0058 0699     		ldr	r1, [sp, #24]
+ 926 005a 61F38503 		bfi	r3, r1, #2, #4
+ 927 005e 2371     		strb	r3, [r4, #4]
+ 928 0060 0021     		movs	r1, #0
+ 929 0062 089B     		ldr	r3, [sp, #32]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 17
+
+
+ 930 0064 E371     		strb	r3, [r4, #7]
+ 931 0066 C3F30120 		ubfx	r0, r3, #8, #2
+ 932 006a 237A     		ldrb	r3, [r4, #8]	@ zero_extendqisi2
+ 933 006c 23F00303 		bic	r3, r3, #3
+ 934 0070 0343     		orrs	r3, r3, r0
+ 935 0072 2372     		strb	r3, [r4, #8]
+ 936 0074 099B     		ldr	r3, [sp, #36]
+ 937 0076 03F03F00 		and	r0, r3, #63
+ 938 007a 237A     		ldrb	r3, [r4, #8]	@ zero_extendqisi2
+ 939 007c 03F00303 		and	r3, r3, #3
+ 940 0080 43EA8003 		orr	r3, r3, r0, lsl #2
+ 941 0084 2372     		strb	r3, [r4, #8]
+ 942 0086 099B     		ldr	r3, [sp, #36]
+ 943 0088 C3F38410 		ubfx	r0, r3, #6, #5
+ 944 008c 637A     		ldrb	r3, [r4, #9]	@ zero_extendqisi2
+ 945 008e 23F01F03 		bic	r3, r3, #31
+ 946 0092 0343     		orrs	r3, r3, r0
+ 947 0094 6372     		strb	r3, [r4, #9]
+ 948 0096 0EF00700 		and	r0, lr, #7
+ 949 009a DBB2     		uxtb	r3, r3
+ 950 009c 03F01F03 		and	r3, r3, #31
+ 951 00a0 43EA4013 		orr	r3, r3, r0, lsl #5
+ 952 00a4 6372     		strb	r3, [r4, #9]
+ 953 00a6 CEF3C70E 		ubfx	lr, lr, #3, #8
+ 954 00aa 84F80AE0 		strb	lr, [r4, #10]
+ 955 00ae 079B     		ldr	r3, [sp, #28]
+ 956 00b0 03F00300 		and	r0, r3, #3
+ 957 00b4 2379     		ldrb	r3, [r4, #4]	@ zero_extendqisi2
+ 958 00b6 03F03F03 		and	r3, r3, #63
+ 959 00ba 43EA8013 		orr	r3, r3, r0, lsl #6
+ 960 00be 2371     		strb	r3, [r4, #4]
+ 961 00c0 079B     		ldr	r3, [sp, #28]
+ 962 00c2 C3F38602 		ubfx	r2, r3, #2, #7
+ 963 00c6 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 964 00c8 23F07F03 		bic	r3, r3, #127
+ 965 00cc 1343     		orrs	r3, r3, r2
+ 966 00ce 6371     		strb	r3, [r4, #5]
+ 967 00d0 E172     		strb	r1, [r4, #11]
+ 968 00d2 237B     		ldrb	r3, [r4, #12]	@ zero_extendqisi2
+ 969 00d4 23F00303 		bic	r3, r3, #3
+ 970 00d8 2373     		strb	r3, [r4, #12]
+ 971 00da DBB2     		uxtb	r3, r3
+ 972 00dc 03F00303 		and	r3, r3, #3
+ 973 00e0 2373     		strb	r3, [r4, #12]
+ 974 00e2 637B     		ldrb	r3, [r4, #13]	@ zero_extendqisi2
+ 975 00e4 23F01F03 		bic	r3, r3, #31
+ 976 00e8 6373     		strb	r3, [r4, #13]
+ 977 00ea DBB2     		uxtb	r3, r3
+ 978 00ec 03F01F03 		and	r3, r3, #31
+ 979 00f0 6373     		strb	r3, [r4, #13]
+ 980 00f2 A173     		strb	r1, [r4, #14]
+ 981 00f4 0CAA     		add	r2, sp, #48
+ 982 00f6 0192     		str	r2, [sp, #4]
+ 983 00f8 04F10F05 		add	r5, r4, #15
+ 984 00fc 0B99     		ldr	r1, [sp, #44]
+ 985 00fe 2846     		mov	r0, r5
+ 986 0100 FFF7FEFF 		bl	vsprintf
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 18
+
+
+ 987 0104 2846     		mov	r0, r5
+ 988 0106 FFF7FEFF 		bl	strlen
+ 989 010a 00F00102 		and	r2, r0, #1
+ 990 010e 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 991 0110 03F07F03 		and	r3, r3, #127
+ 992 0114 43EAC213 		orr	r3, r3, r2, lsl #7
+ 993 0118 6371     		strb	r3, [r4, #5]
+ 994 011a C0F34700 		ubfx	r0, r0, #1, #8
+ 995 011e A071     		strb	r0, [r4, #6]
+ 996 0120 03B0     		add	sp, sp, #12
+ 997              		@ sp needed
+ 998 0122 30BD     		pop	{r4, r5, pc}
+ 1000              		.section	.text.UIGraphRefresh,"ax",%progbits
+ 1001              		.align	1
+ 1002              		.global	UIGraphRefresh
+ 1003              		.syntax unified
+ 1004              		.thumb
+ 1005              		.thumb_func
+ 1007              	UIGraphRefresh:
+ 1008              		@ args = 4, pretend = 12, frame = 40
+ 1009              		@ frame_needed = 0, uses_anonymous_args = 1
+ 1010 0000 0EB4     		push	{r1, r2, r3}
+ 1011 0002 F0B5     		push	{r4, r5, r6, r7, lr}
+ 1012 0004 8AB0     		sub	sp, sp, #40
+ 1013 0006 0446     		mov	r4, r0
+ 1014 0008 0FAB     		add	r3, sp, #60
+ 1015 000a 53F8045B 		ldr	r5, [r3], #4
+ 1016 000e 6E1C     		adds	r6, r5, #1
+ 1017 0010 C6EB0616 		rsb	r6, r6, r6, lsl #4
+ 1018 0014 F6B2     		uxtb	r6, r6
+ 1019 0016 0193     		str	r3, [sp, #4]
+ 1020 0018 A523     		movs	r3, #165
+ 1021 001a 8DF81830 		strb	r3, [sp, #24]
+ 1022 001e C5EB0513 		rsb	r3, r5, r5, lsl #4
+ 1023 0022 0633     		adds	r3, r3, #6
+ 1024 0024 ADF81930 		strh	r3, [sp, #25]	@ unaligned
+ 1025 0028 3C4B     		ldr	r3, .L55
+ 1026 002a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1027 002c 8DF81B30 		strb	r3, [sp, #27]
+ 1028 0030 FF22     		movs	r2, #255
+ 1029 0032 0421     		movs	r1, #4
+ 1030 0034 06A8     		add	r0, sp, #24
+ 1031 0036 FFF7FEFF 		bl	Get_CRC8_Check_Sum
+ 1032 003a 8DF81C00 		strb	r0, [sp, #28]
+ 1033 003e 0123     		movs	r3, #1
+ 1034 0040 8DF81D30 		strb	r3, [sp, #29]
+ 1035 0044 0323     		movs	r3, #3
+ 1036 0046 8DF81E30 		strb	r3, [sp, #30]
+ 1037 004a 052D     		cmp	r5, #5
+ 1038 004c 2AD0     		beq	.L46
+ 1039 004e 0ADC     		bgt	.L47
+ 1040 0050 012D     		cmp	r5, #1
+ 1041 0052 11D0     		beq	.L48
+ 1042 0054 022D     		cmp	r5, #2
+ 1043 0056 14D1     		bne	.L50
+ 1044 0058 0223     		movs	r3, #2
+ 1045 005a 8DF81F30 		strb	r3, [sp, #31]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 19
+
+
+ 1046 005e 0123     		movs	r3, #1
+ 1047 0060 8DF82030 		strb	r3, [sp, #32]
+ 1048 0064 0DE0     		b	.L50
+ 1049              	.L47:
+ 1050 0066 072D     		cmp	r5, #7
+ 1051 0068 0BD1     		bne	.L50
+ 1052 006a 0423     		movs	r3, #4
+ 1053 006c 8DF81F30 		strb	r3, [sp, #31]
+ 1054 0070 0123     		movs	r3, #1
+ 1055 0072 8DF82030 		strb	r3, [sp, #32]
+ 1056 0076 04E0     		b	.L50
+ 1057              	.L48:
+ 1058 0078 0123     		movs	r3, #1
+ 1059 007a 8DF81F30 		strb	r3, [sp, #31]
+ 1060 007e 8DF82030 		strb	r3, [sp, #32]
+ 1061              	.L50:
+ 1062 0082 B4F80330 		ldrh	r3, [r4, #3]	@ unaligned
+ 1063 0086 ADF82330 		strh	r3, [sp, #35]	@ unaligned
+ 1064 008a B4F80130 		ldrh	r3, [r4, #1]	@ unaligned
+ 1065 008e ADF82130 		strh	r3, [sp, #33]	@ unaligned
+ 1066 0092 234C     		ldr	r4, .L55+4
+ 1067 0094 0AAB     		add	r3, sp, #40
+ 1068 0096 13E90F00 		ldmdb	r3, {r0, r1, r2, r3}
+ 1069 009a 07C4     		stmia	r4!, {r0, r1, r2}
+ 1070 009c 2370     		strb	r3, [r4]
+ 1071 009e 4FF0000C 		mov	ip, #0
+ 1072 00a2 2AE0     		b	.L52
+ 1073              	.L46:
+ 1074 00a4 0323     		movs	r3, #3
+ 1075 00a6 8DF81F30 		strb	r3, [sp, #31]
+ 1076 00aa 0123     		movs	r3, #1
+ 1077 00ac 8DF82030 		strb	r3, [sp, #32]
+ 1078 00b0 E7E7     		b	.L50
+ 1079              	.L53:
+ 1080 00b2 019C     		ldr	r4, [sp, #4]
+ 1081 00b4 04F11003 		add	r3, r4, #16
+ 1082 00b8 0193     		str	r3, [sp, #4]
+ 1083 00ba 02AB     		add	r3, sp, #8
+ 1084 00bc 2068     		ldr	r0, [r4]	@ unaligned
+ 1085 00be 6168     		ldr	r1, [r4, #4]	@ unaligned
+ 1086 00c0 A268     		ldr	r2, [r4, #8]	@ unaligned
+ 1087 00c2 07C3     		stmia	r3!, {r0, r1, r2}
+ 1088 00c4 A189     		ldrh	r1, [r4, #12]	@ unaligned
+ 1089 00c6 A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+ 1090 00c8 1980     		strh	r1, [r3]	@ unaligned
+ 1091 00ca 9A70     		strb	r2, [r3, #2]
+ 1092 00cc CCEB0C14 		rsb	r4, ip, ip, lsl #4
+ 1093 00d0 0D34     		adds	r4, r4, #13
+ 1094 00d2 134F     		ldr	r7, .L55+4
+ 1095 00d4 04EB070E 		add	lr, r4, r7
+ 1096 00d8 02AB     		add	r3, sp, #8
+ 1097 00da 07CB     		ldmia	r3!, {r0, r1, r2}
+ 1098 00dc 3851     		str	r0, [r7, r4]	@ unaligned
+ 1099 00de CEF80410 		str	r1, [lr, #4]	@ unaligned
+ 1100 00e2 CEF80820 		str	r2, [lr, #8]	@ unaligned
+ 1101 00e6 1A88     		ldrh	r2, [r3]	@ unaligned
+ 1102 00e8 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 20
+
+
+ 1103 00ea AEF80C20 		strh	r2, [lr, #12]	@ unaligned
+ 1104 00ee 8EF80E30 		strb	r3, [lr, #14]
+ 1105 00f2 0CF1010C 		add	ip, ip, #1
+ 1106 00f6 5FFA8CFC 		uxtb	ip, ip
+ 1107              	.L52:
+ 1108 00fa AC45     		cmp	ip, r5
+ 1109 00fc D9DB     		blt	.L53
+ 1110 00fe 084C     		ldr	r4, .L55+4
+ 1111 0100 3146     		mov	r1, r6
+ 1112 0102 2046     		mov	r0, r4
+ 1113 0104 FFF7FEFF 		bl	Append_CRC16_Check_Sum
+ 1114 0108 3146     		mov	r1, r6
+ 1115 010a 2046     		mov	r0, r4
+ 1116 010c FFF7FEFF 		bl	RefereeSend
+ 1117 0110 0AB0     		add	sp, sp, #40
+ 1118              		@ sp needed
+ 1119 0112 BDE8F040 		pop	{r4, r5, r6, r7, lr}
+ 1120 0116 03B0     		add	sp, sp, #12
+ 1121 0118 7047     		bx	lr
+ 1122              	.L56:
+ 1123 011a 00BF     		.align	2
+ 1124              	.L55:
+ 1125 011c 00000000 		.word	UI_Seq
+ 1126 0120 00000000 		.word	buffer.1
+ 1128              		.section	.text.UICharRefresh,"ax",%progbits
+ 1129              		.align	1
+ 1130              		.global	UICharRefresh
+ 1131              		.syntax unified
+ 1132              		.thumb
+ 1133              		.thumb_func
+ 1135              	UICharRefresh:
+ 1136              		@ args = 52, pretend = 16, frame = 0
+ 1137              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1138 0000 84B0     		sub	sp, sp, #16
+ 1139 0002 70B5     		push	{r4, r5, r6, lr}
+ 1140 0004 0646     		mov	r6, r0
+ 1141 0006 05AD     		add	r5, sp, #20
+ 1142 0008 85E80E00 		stm	r5, {r1, r2, r3}
+ 1143 000c 234C     		ldr	r4, .L60
+ 1144 000e A523     		movs	r3, #165
+ 1145 0010 2370     		strb	r3, [r4]
+ 1146 0012 3323     		movs	r3, #51
+ 1147 0014 6370     		strb	r3, [r4, #1]
+ 1148 0016 0023     		movs	r3, #0
+ 1149 0018 A370     		strb	r3, [r4, #2]
+ 1150 001a 214B     		ldr	r3, .L60+4
+ 1151 001c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1152 001e E370     		strb	r3, [r4, #3]
+ 1153 0020 FF22     		movs	r2, #255
+ 1154 0022 0421     		movs	r1, #4
+ 1155 0024 2046     		mov	r0, r4
+ 1156 0026 FFF7FEFF 		bl	Get_CRC8_Check_Sum
+ 1157 002a 2071     		strb	r0, [r4, #4]
+ 1158 002c 0123     		movs	r3, #1
+ 1159 002e 6371     		strb	r3, [r4, #5]
+ 1160 0030 0322     		movs	r2, #3
+ 1161 0032 A271     		strb	r2, [r4, #6]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 21
+
+
+ 1162 0034 1022     		movs	r2, #16
+ 1163 0036 E271     		strb	r2, [r4, #7]
+ 1164 0038 2372     		strb	r3, [r4, #8]
+ 1165 003a B6F80330 		ldrh	r3, [r6, #3]	@ unaligned
+ 1166 003e A4F80B30 		strh	r3, [r4, #11]	@ unaligned
+ 1167 0042 B6F80130 		ldrh	r3, [r6, #1]	@ unaligned
+ 1168 0046 A4F80930 		strh	r3, [r4, #9]	@ unaligned
+ 1169 004a AC46     		mov	ip, r5
+ 1170 004c 0D34     		adds	r4, r4, #13
+ 1171 004e 0DAE     		add	r6, sp, #52
+ 1172              	.L58:
+ 1173 0050 6546     		mov	r5, ip
+ 1174 0052 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 1175 0054 2060     		str	r0, [r4]	@ unaligned
+ 1176 0056 6160     		str	r1, [r4, #4]	@ unaligned
+ 1177 0058 A260     		str	r2, [r4, #8]	@ unaligned
+ 1178 005a E360     		str	r3, [r4, #12]	@ unaligned
+ 1179 005c AC46     		mov	ip, r5
+ 1180 005e 1034     		adds	r4, r4, #16
+ 1181 0060 B542     		cmp	r5, r6
+ 1182 0062 F5D1     		bne	.L58
+ 1183 0064 BCE80700 		ldmia	ip!, {r0, r1, r2}
+ 1184 0068 2060     		str	r0, [r4]	@ unaligned
+ 1185 006a 6160     		str	r1, [r4, #4]	@ unaligned
+ 1186 006c A260     		str	r2, [r4, #8]	@ unaligned
+ 1187 006e 9CF80030 		ldrb	r3, [ip]	@ zero_extendqisi2
+ 1188 0072 2373     		strb	r3, [r4, #12]
+ 1189 0074 094C     		ldr	r4, .L60
+ 1190 0076 4FF6FF72 		movw	r2, #65535
+ 1191 007a 3A21     		movs	r1, #58
+ 1192 007c 2046     		mov	r0, r4
+ 1193 007e FFF7FEFF 		bl	Get_CRC16_Check_Sum
+ 1194 0082 6087     		strh	r0, [r4, #58]	@ movhi
+ 1195 0084 3C21     		movs	r1, #60
+ 1196 0086 2046     		mov	r0, r4
+ 1197 0088 FFF7FEFF 		bl	RefereeSend
+ 1198 008c 044A     		ldr	r2, .L60+4
+ 1199 008e 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 1200 0090 0133     		adds	r3, r3, #1
+ 1201 0092 1370     		strb	r3, [r2]
+ 1202 0094 BDE87040 		pop	{r4, r5, r6, lr}
+ 1203 0098 04B0     		add	sp, sp, #16
+ 1204 009a 7047     		bx	lr
+ 1205              	.L61:
+ 1206              		.align	2
+ 1207              	.L60:
+ 1208 009c 00000000 		.word	UI_CharReFresh_data.0
+ 1209 00a0 00000000 		.word	UI_Seq
+ 1211              		.section	.bss.UI_CharReFresh_data.0,"aw",%nobits
+ 1212              		.align	2
+ 1215              	UI_CharReFresh_data.0:
+ 1216 0000 00000000 		.space	60
+ 1216      00000000 
+ 1216      00000000 
+ 1216      00000000 
+ 1216      00000000 
+ 1217              		.section	.bss.buffer.1,"aw",%nobits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 22
+
+
+ 1218              		.align	2
+ 1221              	buffer.1:
+ 1222 0000 00000000 		.space	512
+ 1222      00000000 
+ 1222      00000000 
+ 1222      00000000 
+ 1222      00000000 
+ 1223              		.section	.bss.UI_delete_data.2,"aw",%nobits
+ 1224              		.align	2
+ 1227              	UI_delete_data.2:
+ 1228 0000 00000000 		.space	17
+ 1228      00000000 
+ 1228      00000000 
+ 1228      00000000 
+ 1228      00
+ 1229              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s 			page 23
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 referee_UI.c
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:18     .text.UIDelete:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:24     .text.UIDelete:00000000 UIDelete
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:73     .text.UIDelete:00000070 $d
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:1227   .bss.UI_delete_data.2:00000000 UI_delete_data.2
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:77     .text.UILineDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:83     .text.UILineDraw:00000000 UILineDraw
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:188    .text.UIRectangleDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:194    .text.UIRectangleDraw:00000000 UIRectangleDraw
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:300    .text.UICircleDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:306    .text.UICircleDraw:00000000 UICircleDraw
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:404    .text.UIOvalDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:410    .text.UIOvalDraw:00000000 UIOvalDraw
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:516    .text.UIArcDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:522    .text.UIArcDraw:00000000 UIArcDraw
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:639    .text.UIFloatDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:645    .text.UIFloatDraw:00000000 UIFloatDraw
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:762    .text.UIIntDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:768    .text.UIIntDraw:00000000 UIIntDraw
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:881    .text.UICharDraw:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:887    .text.UICharDraw:00000000 UICharDraw
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:1001   .text.UIGraphRefresh:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:1007   .text.UIGraphRefresh:00000000 UIGraphRefresh
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:1125   .text.UIGraphRefresh:0000011c $d
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:1221   .bss.buffer.1:00000000 buffer.1
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:1129   .text.UICharRefresh:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:1135   .text.UICharRefresh:00000000 UICharRefresh
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:1208   .text.UICharRefresh:0000009c $d
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:1215   .bss.UI_CharReFresh_data.0:00000000 UI_CharReFresh_data.0
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:1212   .bss.UI_CharReFresh_data.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:1218   .bss.buffer.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccwsd2j3.s:1224   .bss.UI_delete_data.2:00000000 $d
+
+UNDEFINED SYMBOLS
+Get_CRC8_Check_Sum
+Get_CRC16_Check_Sum
+RefereeSend
+UI_Seq
+vsprintf
+strlen
+Append_CRC16_Check_Sum

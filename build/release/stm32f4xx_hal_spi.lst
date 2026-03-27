@@ -1,0 +1,3783 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"stm32f4xx_hal_spi.c"
+  16              		.text
+  17              		.section	.text.SPI_AbortRx_ISR,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	SPI_AbortRx_ISR:
+  24              		@ args = 0, pretend = 0, frame = 8
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 82B0     		sub	sp, sp, #8
+  28 0002 0023     		movs	r3, #0
+  29 0004 0193     		str	r3, [sp, #4]
+  30 0006 164B     		ldr	r3, .L7
+  31 0008 1B68     		ldr	r3, [r3]
+  32 000a 164A     		ldr	r2, .L7+4
+  33 000c A2FB0323 		umull	r2, r3, r2, r3
+  34 0010 5B0A     		lsrs	r3, r3, #9
+  35 0012 6422     		movs	r2, #100
+  36 0014 02FB03F3 		mul	r3, r2, r3
+  37 0018 0093     		str	r3, [sp]
+  38              	.L4:
+  39 001a 009B     		ldr	r3, [sp]
+  40 001c 43B1     		cbz	r3, .L6
+  41 001e 009B     		ldr	r3, [sp]
+  42 0020 013B     		subs	r3, r3, #1
+  43 0022 0093     		str	r3, [sp]
+  44 0024 0368     		ldr	r3, [r0]
+  45 0026 9B68     		ldr	r3, [r3, #8]
+  46 0028 13F0020F 		tst	r3, #2
+  47 002c F5D0     		beq	.L4
+  48 002e 03E0     		b	.L3
+  49              	.L6:
+  50 0030 436D     		ldr	r3, [r0, #84]
+  51 0032 43F04003 		orr	r3, r3, #64
+  52 0036 4365     		str	r3, [r0, #84]
+  53              	.L3:
+  54 0038 0268     		ldr	r2, [r0]
+  55 003a 1368     		ldr	r3, [r2]
+  56 003c 23F04003 		bic	r3, r3, #64
+  57 0040 1360     		str	r3, [r2]
+  58 0042 0268     		ldr	r2, [r0]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 2
+
+
+  59 0044 5368     		ldr	r3, [r2, #4]
+  60 0046 23F0E003 		bic	r3, r3, #224
+  61 004a 5360     		str	r3, [r2, #4]
+  62 004c 0368     		ldr	r3, [r0]
+  63 004e DB68     		ldr	r3, [r3, #12]
+  64 0050 0193     		str	r3, [sp, #4]
+  65 0052 019B     		ldr	r3, [sp, #4]
+  66 0054 0723     		movs	r3, #7
+  67 0056 80F85130 		strb	r3, [r0, #81]
+  68 005a 02B0     		add	sp, sp, #8
+  69              		@ sp needed
+  70 005c 7047     		bx	lr
+  71              	.L8:
+  72 005e 00BF     		.align	2
+  73              	.L7:
+  74 0060 00000000 		.word	SystemCoreClock
+  75 0064 F1197605 		.word	91625969
+  77              		.section	.text.SPI_AbortTx_ISR,"ax",%progbits
+  78              		.align	1
+  79              		.syntax unified
+  80              		.thumb
+  81              		.thumb_func
+  83              	SPI_AbortTx_ISR:
+  84              		@ args = 0, pretend = 0, frame = 0
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86              		@ link register save eliminated.
+  87 0000 0268     		ldr	r2, [r0]
+  88 0002 5368     		ldr	r3, [r2, #4]
+  89 0004 23F08003 		bic	r3, r3, #128
+  90 0008 5360     		str	r3, [r2, #4]
+  91 000a 0268     		ldr	r2, [r0]
+  92 000c 1368     		ldr	r3, [r2]
+  93 000e 23F04003 		bic	r3, r3, #64
+  94 0012 1360     		str	r3, [r2]
+  95 0014 0723     		movs	r3, #7
+  96 0016 80F85130 		strb	r3, [r0, #81]
+  97 001a 7047     		bx	lr
+  99              		.section	.text.SPI_WaitFlagStateUntilTimeout,"ax",%progbits
+ 100              		.align	1
+ 101              		.syntax unified
+ 102              		.thumb
+ 103              		.thumb_func
+ 105              	SPI_WaitFlagStateUntilTimeout:
+ 106              		@ args = 4, pretend = 0, frame = 8
+ 107              		@ frame_needed = 0, uses_anonymous_args = 0
+ 108 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 109 0004 83B0     		sub	sp, sp, #12
+ 110 0006 0446     		mov	r4, r0
+ 111 0008 0F46     		mov	r7, r1
+ 112 000a 1646     		mov	r6, r2
+ 113 000c 1D46     		mov	r5, r3
+ 114 000e FFF7FEFF 		bl	HAL_GetTick
+ 115 0012 0A9B     		ldr	r3, [sp, #40]
+ 116 0014 1B1A     		subs	r3, r3, r0
+ 117 0016 03EB0508 		add	r8, r3, r5
+ 118 001a FFF7FEFF 		bl	HAL_GetTick
+ 119 001e 8146     		mov	r9, r0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 3
+
+
+ 120 0020 284B     		ldr	r3, .L25
+ 121 0022 1B68     		ldr	r3, [r3]
+ 122 0024 C3F3CB33 		ubfx	r3, r3, #15, #12
+ 123 0028 08FB03F3 		mul	r3, r8, r3
+ 124 002c 0193     		str	r3, [sp, #4]
+ 125              	.L12:
+ 126 002e 2368     		ldr	r3, [r4]
+ 127 0030 9B68     		ldr	r3, [r3, #8]
+ 128 0032 37EA0303 		bics	r3, r7, r3
+ 129 0036 0CBF     		ite	eq
+ 130 0038 0123     		moveq	r3, #1
+ 131 003a 0023     		movne	r3, #0
+ 132 003c B342     		cmp	r3, r6
+ 133 003e 3DD0     		beq	.L21
+ 134 0040 B5F1FF3F 		cmp	r5, #-1
+ 135 0044 F3D0     		beq	.L12
+ 136 0046 FFF7FEFF 		bl	HAL_GetTick
+ 137 004a 4B46     		mov	r3, r9
+ 138 004c C01A     		subs	r0, r0, r3
+ 139 004e 4045     		cmp	r0, r8
+ 140 0050 07D2     		bcs	.L22
+ 141 0052 019A     		ldr	r2, [sp, #4]
+ 142 0054 02B1     		cbz	r2, .L18
+ 143 0056 4246     		mov	r2, r8
+ 144              	.L18:
+ 145 0058 019B     		ldr	r3, [sp, #4]
+ 146 005a 013B     		subs	r3, r3, #1
+ 147 005c 0193     		str	r3, [sp, #4]
+ 148 005e 9046     		mov	r8, r2
+ 149 0060 E5E7     		b	.L12
+ 150              	.L22:
+ 151 0062 2268     		ldr	r2, [r4]
+ 152 0064 5368     		ldr	r3, [r2, #4]
+ 153 0066 23F0E003 		bic	r3, r3, #224
+ 154 006a 5360     		str	r3, [r2, #4]
+ 155 006c 6368     		ldr	r3, [r4, #4]
+ 156 006e B3F5827F 		cmp	r3, #260
+ 157 0072 0BD0     		beq	.L23
+ 158              	.L14:
+ 159 0074 A36A     		ldr	r3, [r4, #40]
+ 160 0076 B3F5005F 		cmp	r3, #8192
+ 161 007a 14D0     		beq	.L24
+ 162              	.L16:
+ 163 007c 0123     		movs	r3, #1
+ 164 007e 84F85130 		strb	r3, [r4, #81]
+ 165 0082 0023     		movs	r3, #0
+ 166 0084 84F85030 		strb	r3, [r4, #80]
+ 167 0088 0320     		movs	r0, #3
+ 168 008a 18E0     		b	.L17
+ 169              	.L23:
+ 170 008c A368     		ldr	r3, [r4, #8]
+ 171 008e B3F5004F 		cmp	r3, #32768
+ 172 0092 02D0     		beq	.L15
+ 173 0094 B3F5806F 		cmp	r3, #1024
+ 174 0098 ECD1     		bne	.L14
+ 175              	.L15:
+ 176 009a 2268     		ldr	r2, [r4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 4
+
+
+ 177 009c 1368     		ldr	r3, [r2]
+ 178 009e 23F04003 		bic	r3, r3, #64
+ 179 00a2 1360     		str	r3, [r2]
+ 180 00a4 E6E7     		b	.L14
+ 181              	.L24:
+ 182 00a6 2268     		ldr	r2, [r4]
+ 183 00a8 1368     		ldr	r3, [r2]
+ 184 00aa 23F40053 		bic	r3, r3, #8192
+ 185 00ae 1360     		str	r3, [r2]
+ 186 00b0 2268     		ldr	r2, [r4]
+ 187 00b2 1368     		ldr	r3, [r2]
+ 188 00b4 43F40053 		orr	r3, r3, #8192
+ 189 00b8 1360     		str	r3, [r2]
+ 190 00ba DFE7     		b	.L16
+ 191              	.L21:
+ 192 00bc 0020     		movs	r0, #0
+ 193              	.L17:
+ 194 00be 03B0     		add	sp, sp, #12
+ 195              		@ sp needed
+ 196 00c0 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 197              	.L26:
+ 198              		.align	2
+ 199              	.L25:
+ 200 00c4 00000000 		.word	SystemCoreClock
+ 202              		.section	.text.SPI_EndRxTxTransaction,"ax",%progbits
+ 203              		.align	1
+ 204              		.syntax unified
+ 205              		.thumb
+ 206              		.thumb_func
+ 208              	SPI_EndRxTxTransaction:
+ 209              		@ args = 0, pretend = 0, frame = 8
+ 210              		@ frame_needed = 0, uses_anonymous_args = 0
+ 211 0000 10B5     		push	{r4, lr}
+ 212 0002 84B0     		sub	sp, sp, #16
+ 213 0004 0446     		mov	r4, r0
+ 214 0006 164B     		ldr	r3, .L33
+ 215 0008 1868     		ldr	r0, [r3]
+ 216 000a 164B     		ldr	r3, .L33+4
+ 217 000c A3FB0030 		umull	r3, r0, r3, r0
+ 218 0010 400D     		lsrs	r0, r0, #21
+ 219 0012 4FF47A73 		mov	r3, #1000
+ 220 0016 03FB00F0 		mul	r0, r3, r0
+ 221 001a 0390     		str	r0, [sp, #12]
+ 222 001c 6368     		ldr	r3, [r4, #4]
+ 223 001e B3F5827F 		cmp	r3, #260
+ 224 0022 0BD0     		beq	.L32
+ 225              	.L28:
+ 226 0024 039B     		ldr	r3, [sp, #12]
+ 227 0026 BBB1     		cbz	r3, .L30
+ 228 0028 039B     		ldr	r3, [sp, #12]
+ 229 002a 013B     		subs	r3, r3, #1
+ 230 002c 0393     		str	r3, [sp, #12]
+ 231 002e 2368     		ldr	r3, [r4]
+ 232 0030 9B68     		ldr	r3, [r3, #8]
+ 233 0032 13F0800F 		tst	r3, #128
+ 234 0036 F5D1     		bne	.L28
+ 235 0038 0020     		movs	r0, #0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 5
+
+
+ 236 003a 0EE0     		b	.L29
+ 237              	.L32:
+ 238 003c 0092     		str	r2, [sp]
+ 239 003e 0B46     		mov	r3, r1
+ 240 0040 0022     		movs	r2, #0
+ 241 0042 8021     		movs	r1, #128
+ 242 0044 2046     		mov	r0, r4
+ 243 0046 FFF7FEFF 		bl	SPI_WaitFlagStateUntilTimeout
+ 244 004a 30B1     		cbz	r0, .L29
+ 245 004c 636D     		ldr	r3, [r4, #84]
+ 246 004e 43F02003 		orr	r3, r3, #32
+ 247 0052 6365     		str	r3, [r4, #84]
+ 248 0054 0320     		movs	r0, #3
+ 249 0056 00E0     		b	.L29
+ 250              	.L30:
+ 251 0058 1846     		mov	r0, r3
+ 252              	.L29:
+ 253 005a 04B0     		add	sp, sp, #16
+ 254              		@ sp needed
+ 255 005c 10BD     		pop	{r4, pc}
+ 256              	.L34:
+ 257 005e 00BF     		.align	2
+ 258              	.L33:
+ 259 0060 00000000 		.word	SystemCoreClock
+ 260 0064 819F5E16 		.word	375299969
+ 262              		.section	.text.SPI_EndRxTransaction,"ax",%progbits
+ 263              		.align	1
+ 264              		.syntax unified
+ 265              		.thumb
+ 266              		.thumb_func
+ 268              	SPI_EndRxTransaction:
+ 269              		@ args = 0, pretend = 0, frame = 0
+ 270              		@ frame_needed = 0, uses_anonymous_args = 0
+ 271 0000 10B5     		push	{r4, lr}
+ 272 0002 82B0     		sub	sp, sp, #8
+ 273 0004 0446     		mov	r4, r0
+ 274 0006 0B46     		mov	r3, r1
+ 275 0008 4168     		ldr	r1, [r0, #4]
+ 276 000a B1F5827F 		cmp	r1, #260
+ 277 000e 14D0     		beq	.L42
+ 278              	.L36:
+ 279 0010 6168     		ldr	r1, [r4, #4]
+ 280 0012 B1F5827F 		cmp	r1, #260
+ 281 0016 2AD1     		bne	.L38
+ 282 0018 A168     		ldr	r1, [r4, #8]
+ 283 001a B1F5806F 		cmp	r1, #1024
+ 284 001e 19D0     		beq	.L39
+ 285 0020 0092     		str	r2, [sp]
+ 286 0022 0022     		movs	r2, #0
+ 287 0024 8021     		movs	r1, #128
+ 288 0026 2046     		mov	r0, r4
+ 289 0028 FFF7FEFF 		bl	SPI_WaitFlagStateUntilTimeout
+ 290 002c 30B3     		cbz	r0, .L40
+ 291 002e 636D     		ldr	r3, [r4, #84]
+ 292 0030 43F02003 		orr	r3, r3, #32
+ 293 0034 6365     		str	r3, [r4, #84]
+ 294 0036 0320     		movs	r0, #3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 6
+
+
+ 295 0038 20E0     		b	.L40
+ 296              	.L42:
+ 297 003a 8168     		ldr	r1, [r0, #8]
+ 298 003c B1F5004F 		cmp	r1, #32768
+ 299 0040 02D0     		beq	.L37
+ 300 0042 B1F5806F 		cmp	r1, #1024
+ 301 0046 E3D1     		bne	.L36
+ 302              	.L37:
+ 303 0048 2068     		ldr	r0, [r4]
+ 304 004a 0168     		ldr	r1, [r0]
+ 305 004c 21F04001 		bic	r1, r1, #64
+ 306 0050 0160     		str	r1, [r0]
+ 307 0052 DDE7     		b	.L36
+ 308              	.L39:
+ 309 0054 0092     		str	r2, [sp]
+ 310 0056 0022     		movs	r2, #0
+ 311 0058 0121     		movs	r1, #1
+ 312 005a 2046     		mov	r0, r4
+ 313 005c FFF7FEFF 		bl	SPI_WaitFlagStateUntilTimeout
+ 314 0060 60B1     		cbz	r0, .L40
+ 315 0062 636D     		ldr	r3, [r4, #84]
+ 316 0064 43F02003 		orr	r3, r3, #32
+ 317 0068 6365     		str	r3, [r4, #84]
+ 318 006a 0320     		movs	r0, #3
+ 319 006c 06E0     		b	.L40
+ 320              	.L38:
+ 321 006e 0092     		str	r2, [sp]
+ 322 0070 0022     		movs	r2, #0
+ 323 0072 0121     		movs	r1, #1
+ 324 0074 2046     		mov	r0, r4
+ 325 0076 FFF7FEFF 		bl	SPI_WaitFlagStateUntilTimeout
+ 326 007a 08B9     		cbnz	r0, .L43
+ 327              	.L40:
+ 328 007c 02B0     		add	sp, sp, #8
+ 329              		@ sp needed
+ 330 007e 10BD     		pop	{r4, pc}
+ 331              	.L43:
+ 332 0080 636D     		ldr	r3, [r4, #84]
+ 333 0082 43F02003 		orr	r3, r3, #32
+ 334 0086 6365     		str	r3, [r4, #84]
+ 335 0088 0320     		movs	r0, #3
+ 336 008a F7E7     		b	.L40
+ 338              		.section	.text.HAL_SPI_MspInit,"ax",%progbits
+ 339              		.align	1
+ 340              		.weak	HAL_SPI_MspInit
+ 341              		.syntax unified
+ 342              		.thumb
+ 343              		.thumb_func
+ 345              	HAL_SPI_MspInit:
+ 346              		@ args = 0, pretend = 0, frame = 0
+ 347              		@ frame_needed = 0, uses_anonymous_args = 0
+ 348              		@ link register save eliminated.
+ 349 0000 7047     		bx	lr
+ 351              		.section	.text.HAL_SPI_Init,"ax",%progbits
+ 352              		.align	1
+ 353              		.global	HAL_SPI_Init
+ 354              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 7
+
+
+ 355              		.thumb
+ 356              		.thumb_func
+ 358              	HAL_SPI_Init:
+ 359              		@ args = 0, pretend = 0, frame = 0
+ 360              		@ frame_needed = 0, uses_anonymous_args = 0
+ 361 0000 0028     		cmp	r0, #0
+ 362 0002 5AD0     		beq	.L50
+ 363 0004 10B5     		push	{r4, lr}
+ 364 0006 0446     		mov	r4, r0
+ 365 0008 436A     		ldr	r3, [r0, #36]
+ 366 000a 33B9     		cbnz	r3, .L47
+ 367 000c 4368     		ldr	r3, [r0, #4]
+ 368 000e B3F5827F 		cmp	r3, #260
+ 369 0012 05D0     		beq	.L48
+ 370 0014 0023     		movs	r3, #0
+ 371 0016 C361     		str	r3, [r0, #28]
+ 372 0018 02E0     		b	.L48
+ 373              	.L47:
+ 374 001a 0023     		movs	r3, #0
+ 375 001c 0361     		str	r3, [r0, #16]
+ 376 001e 4361     		str	r3, [r0, #20]
+ 377              	.L48:
+ 378 0020 0023     		movs	r3, #0
+ 379 0022 A362     		str	r3, [r4, #40]
+ 380 0024 94F85130 		ldrb	r3, [r4, #81]	@ zero_extendqisi2
+ 381 0028 002B     		cmp	r3, #0
+ 382 002a 40D0     		beq	.L55
+ 383              	.L49:
+ 384 002c 0223     		movs	r3, #2
+ 385 002e 84F85130 		strb	r3, [r4, #81]
+ 386 0032 2268     		ldr	r2, [r4]
+ 387 0034 1368     		ldr	r3, [r2]
+ 388 0036 23F04003 		bic	r3, r3, #64
+ 389 003a 1360     		str	r3, [r2]
+ 390 003c 6368     		ldr	r3, [r4, #4]
+ 391 003e 03F48273 		and	r3, r3, #260
+ 392 0042 A268     		ldr	r2, [r4, #8]
+ 393 0044 02F40442 		and	r2, r2, #33792
+ 394 0048 1343     		orrs	r3, r3, r2
+ 395 004a E268     		ldr	r2, [r4, #12]
+ 396 004c 02F40062 		and	r2, r2, #2048
+ 397 0050 1343     		orrs	r3, r3, r2
+ 398 0052 2269     		ldr	r2, [r4, #16]
+ 399 0054 02F00202 		and	r2, r2, #2
+ 400 0058 1343     		orrs	r3, r3, r2
+ 401 005a 6269     		ldr	r2, [r4, #20]
+ 402 005c 02F00102 		and	r2, r2, #1
+ 403 0060 1343     		orrs	r3, r3, r2
+ 404 0062 A269     		ldr	r2, [r4, #24]
+ 405 0064 02F40072 		and	r2, r2, #512
+ 406 0068 1343     		orrs	r3, r3, r2
+ 407 006a E269     		ldr	r2, [r4, #28]
+ 408 006c 02F03802 		and	r2, r2, #56
+ 409 0070 1343     		orrs	r3, r3, r2
+ 410 0072 226A     		ldr	r2, [r4, #32]
+ 411 0074 02F08002 		and	r2, r2, #128
+ 412 0078 1343     		orrs	r3, r3, r2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 8
+
+
+ 413 007a A26A     		ldr	r2, [r4, #40]
+ 414 007c 02F40052 		and	r2, r2, #8192
+ 415 0080 2168     		ldr	r1, [r4]
+ 416 0082 1343     		orrs	r3, r3, r2
+ 417 0084 0B60     		str	r3, [r1]
+ 418 0086 638B     		ldrh	r3, [r4, #26]
+ 419 0088 03F00403 		and	r3, r3, #4
+ 420 008c 626A     		ldr	r2, [r4, #36]
+ 421 008e 02F01002 		and	r2, r2, #16
+ 422 0092 2168     		ldr	r1, [r4]
+ 423 0094 1343     		orrs	r3, r3, r2
+ 424 0096 4B60     		str	r3, [r1, #4]
+ 425 0098 2268     		ldr	r2, [r4]
+ 426 009a D369     		ldr	r3, [r2, #28]
+ 427 009c 23F40063 		bic	r3, r3, #2048
+ 428 00a0 D361     		str	r3, [r2, #28]
+ 429 00a2 0020     		movs	r0, #0
+ 430 00a4 6065     		str	r0, [r4, #84]
+ 431 00a6 0123     		movs	r3, #1
+ 432 00a8 84F85130 		strb	r3, [r4, #81]
+ 433 00ac 10BD     		pop	{r4, pc}
+ 434              	.L55:
+ 435 00ae 84F85030 		strb	r3, [r4, #80]
+ 436 00b2 2046     		mov	r0, r4
+ 437 00b4 FFF7FEFF 		bl	HAL_SPI_MspInit
+ 438 00b8 B8E7     		b	.L49
+ 439              	.L50:
+ 440 00ba 0120     		movs	r0, #1
+ 441 00bc 7047     		bx	lr
+ 443              		.section	.text.HAL_SPI_MspDeInit,"ax",%progbits
+ 444              		.align	1
+ 445              		.weak	HAL_SPI_MspDeInit
+ 446              		.syntax unified
+ 447              		.thumb
+ 448              		.thumb_func
+ 450              	HAL_SPI_MspDeInit:
+ 451              		@ args = 0, pretend = 0, frame = 0
+ 452              		@ frame_needed = 0, uses_anonymous_args = 0
+ 453              		@ link register save eliminated.
+ 454 0000 7047     		bx	lr
+ 456              		.section	.text.HAL_SPI_DeInit,"ax",%progbits
+ 457              		.align	1
+ 458              		.global	HAL_SPI_DeInit
+ 459              		.syntax unified
+ 460              		.thumb
+ 461              		.thumb_func
+ 463              	HAL_SPI_DeInit:
+ 464              		@ args = 0, pretend = 0, frame = 0
+ 465              		@ frame_needed = 0, uses_anonymous_args = 0
+ 466 0000 90B1     		cbz	r0, .L59
+ 467 0002 10B5     		push	{r4, lr}
+ 468 0004 0446     		mov	r4, r0
+ 469 0006 0223     		movs	r3, #2
+ 470 0008 80F85130 		strb	r3, [r0, #81]
+ 471 000c 0268     		ldr	r2, [r0]
+ 472 000e 1368     		ldr	r3, [r2]
+ 473 0010 23F04003 		bic	r3, r3, #64
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 9
+
+
+ 474 0014 1360     		str	r3, [r2]
+ 475 0016 FFF7FEFF 		bl	HAL_SPI_MspDeInit
+ 476 001a 0020     		movs	r0, #0
+ 477 001c 6065     		str	r0, [r4, #84]
+ 478 001e 84F85100 		strb	r0, [r4, #81]
+ 479 0022 84F85000 		strb	r0, [r4, #80]
+ 480 0026 10BD     		pop	{r4, pc}
+ 481              	.L59:
+ 482 0028 0120     		movs	r0, #1
+ 483 002a 7047     		bx	lr
+ 485              		.section	.text.HAL_SPI_Transmit,"ax",%progbits
+ 486              		.align	1
+ 487              		.global	HAL_SPI_Transmit
+ 488              		.syntax unified
+ 489              		.thumb
+ 490              		.thumb_func
+ 492              	HAL_SPI_Transmit:
+ 493              		@ args = 0, pretend = 0, frame = 8
+ 494              		@ frame_needed = 0, uses_anonymous_args = 0
+ 495 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 496 0004 83B0     		sub	sp, sp, #12
+ 497 0006 1D46     		mov	r5, r3
+ 498 0008 90F85030 		ldrb	r3, [r0, #80]	@ zero_extendqisi2
+ 499 000c 012B     		cmp	r3, #1
+ 500 000e 00F0CE80 		beq	.L87
+ 501 0012 0446     		mov	r4, r0
+ 502 0014 8846     		mov	r8, r1
+ 503 0016 1746     		mov	r7, r2
+ 504 0018 0123     		movs	r3, #1
+ 505 001a 80F85030 		strb	r3, [r0, #80]
+ 506 001e FFF7FEFF 		bl	HAL_GetTick
+ 507 0022 8146     		mov	r9, r0
+ 508 0024 94F85130 		ldrb	r3, [r4, #81]	@ zero_extendqisi2
+ 509 0028 DEB2     		uxtb	r6, r3
+ 510 002a 012B     		cmp	r3, #1
+ 511 002c 40F0AC80 		bne	.L88
+ 512 0030 4146     		mov	r1, r8
+ 513 0032 0029     		cmp	r1, #0
+ 514 0034 00F0A980 		beq	.L66
+ 515 0038 002F     		cmp	r7, #0
+ 516 003a 00F0A680 		beq	.L66
+ 517 003e 0323     		movs	r3, #3
+ 518 0040 84F85130 		strb	r3, [r4, #81]
+ 519 0044 0023     		movs	r3, #0
+ 520 0046 6365     		str	r3, [r4, #84]
+ 521 0048 C4F83080 		str	r8, [r4, #48]
+ 522 004c A786     		strh	r7, [r4, #52]	@ movhi
+ 523 004e E786     		strh	r7, [r4, #54]	@ movhi
+ 524 0050 A363     		str	r3, [r4, #56]
+ 525 0052 A387     		strh	r3, [r4, #60]	@ movhi
+ 526 0054 E387     		strh	r3, [r4, #62]	@ movhi
+ 527 0056 6364     		str	r3, [r4, #68]
+ 528 0058 2364     		str	r3, [r4, #64]
+ 529 005a A368     		ldr	r3, [r4, #8]
+ 530 005c B3F5004F 		cmp	r3, #32768
+ 531 0060 1DD0     		beq	.L94
+ 532              	.L67:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 10
+
+
+ 533 0062 2368     		ldr	r3, [r4]
+ 534 0064 1A68     		ldr	r2, [r3]
+ 535 0066 12F0400F 		tst	r2, #64
+ 536 006a 03D1     		bne	.L68
+ 537 006c 1A68     		ldr	r2, [r3]
+ 538 006e 42F04002 		orr	r2, r2, #64
+ 539 0072 1A60     		str	r2, [r3]
+ 540              	.L68:
+ 541 0074 E368     		ldr	r3, [r4, #12]
+ 542 0076 B3F5006F 		cmp	r3, #2048
+ 543 007a 1BD0     		beq	.L95
+ 544 007c 6368     		ldr	r3, [r4, #4]
+ 545 007e 0BB1     		cbz	r3, .L78
+ 546 0080 012F     		cmp	r7, #1
+ 547 0082 53D1     		bne	.L83
+ 548              	.L78:
+ 549 0084 226B     		ldr	r2, [r4, #48]
+ 550 0086 2368     		ldr	r3, [r4]
+ 551 0088 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 552 008a 1A73     		strb	r2, [r3, #12]
+ 553 008c 236B     		ldr	r3, [r4, #48]
+ 554 008e 0133     		adds	r3, r3, #1
+ 555 0090 2363     		str	r3, [r4, #48]
+ 556 0092 E38E     		ldrh	r3, [r4, #54]
+ 557 0094 9BB2     		uxth	r3, r3
+ 558 0096 013B     		subs	r3, r3, #1
+ 559 0098 9BB2     		uxth	r3, r3
+ 560 009a E386     		strh	r3, [r4, #54]	@ movhi
+ 561 009c 46E0     		b	.L83
+ 562              	.L94:
+ 563 009e 2268     		ldr	r2, [r4]
+ 564 00a0 1368     		ldr	r3, [r2]
+ 565 00a2 23F04003 		bic	r3, r3, #64
+ 566 00a6 1360     		str	r3, [r2]
+ 567 00a8 2268     		ldr	r2, [r4]
+ 568 00aa 1368     		ldr	r3, [r2]
+ 569 00ac 43F48043 		orr	r3, r3, #16384
+ 570 00b0 1360     		str	r3, [r2]
+ 571 00b2 D6E7     		b	.L67
+ 572              	.L95:
+ 573 00b4 6368     		ldr	r3, [r4, #4]
+ 574 00b6 0BB1     		cbz	r3, .L70
+ 575 00b8 012F     		cmp	r7, #1
+ 576 00ba 17D1     		bne	.L75
+ 577              	.L70:
+ 578 00bc 226B     		ldr	r2, [r4, #48]
+ 579 00be 2368     		ldr	r3, [r4]
+ 580 00c0 1288     		ldrh	r2, [r2]
+ 581 00c2 DA60     		str	r2, [r3, #12]
+ 582 00c4 236B     		ldr	r3, [r4, #48]
+ 583 00c6 0233     		adds	r3, r3, #2
+ 584 00c8 2363     		str	r3, [r4, #48]
+ 585 00ca E38E     		ldrh	r3, [r4, #54]
+ 586 00cc 9BB2     		uxth	r3, r3
+ 587 00ce 013B     		subs	r3, r3, #1
+ 588 00d0 9BB2     		uxth	r3, r3
+ 589 00d2 E386     		strh	r3, [r4, #54]	@ movhi
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 11
+
+
+ 590 00d4 0AE0     		b	.L75
+ 591              	.L72:
+ 592 00d6 FFF7FEFF 		bl	HAL_GetTick
+ 593 00da 4B46     		mov	r3, r9
+ 594 00dc C01A     		subs	r0, r0, r3
+ 595 00de A842     		cmp	r0, r5
+ 596 00e0 02D3     		bcc	.L74
+ 597 00e2 B5F1FF3F 		cmp	r5, #-1
+ 598 00e6 5AD1     		bne	.L89
+ 599              	.L74:
+ 600 00e8 002D     		cmp	r5, #0
+ 601 00ea 5AD0     		beq	.L90
+ 602              	.L75:
+ 603 00ec E38E     		ldrh	r3, [r4, #54]
+ 604 00ee 9BB2     		uxth	r3, r3
+ 605 00f0 002B     		cmp	r3, #0
+ 606 00f2 34D0     		beq	.L77
+ 607 00f4 2368     		ldr	r3, [r4]
+ 608 00f6 9A68     		ldr	r2, [r3, #8]
+ 609 00f8 12F0020F 		tst	r2, #2
+ 610 00fc EBD0     		beq	.L72
+ 611 00fe 226B     		ldr	r2, [r4, #48]
+ 612 0100 1288     		ldrh	r2, [r2]
+ 613 0102 DA60     		str	r2, [r3, #12]
+ 614 0104 236B     		ldr	r3, [r4, #48]
+ 615 0106 0233     		adds	r3, r3, #2
+ 616 0108 2363     		str	r3, [r4, #48]
+ 617 010a E38E     		ldrh	r3, [r4, #54]
+ 618 010c 9BB2     		uxth	r3, r3
+ 619 010e 013B     		subs	r3, r3, #1
+ 620 0110 9BB2     		uxth	r3, r3
+ 621 0112 E386     		strh	r3, [r4, #54]	@ movhi
+ 622 0114 EAE7     		b	.L75
+ 623              	.L80:
+ 624 0116 FFF7FEFF 		bl	HAL_GetTick
+ 625 011a 4B46     		mov	r3, r9
+ 626 011c C01A     		subs	r0, r0, r3
+ 627 011e A842     		cmp	r0, r5
+ 628 0120 02D3     		bcc	.L82
+ 629 0122 B5F1FF3F 		cmp	r5, #-1
+ 630 0126 3ED1     		bne	.L91
+ 631              	.L82:
+ 632 0128 002D     		cmp	r5, #0
+ 633 012a 3ED0     		beq	.L92
+ 634              	.L83:
+ 635 012c E38E     		ldrh	r3, [r4, #54]
+ 636 012e 9BB2     		uxth	r3, r3
+ 637 0130 ABB1     		cbz	r3, .L77
+ 638 0132 2368     		ldr	r3, [r4]
+ 639 0134 9A68     		ldr	r2, [r3, #8]
+ 640 0136 12F0020F 		tst	r2, #2
+ 641 013a ECD0     		beq	.L80
+ 642 013c 226B     		ldr	r2, [r4, #48]
+ 643 013e 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 644 0140 1A73     		strb	r2, [r3, #12]
+ 645 0142 236B     		ldr	r3, [r4, #48]
+ 646 0144 0133     		adds	r3, r3, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 12
+
+
+ 647 0146 2363     		str	r3, [r4, #48]
+ 648 0148 B4F836C0 		ldrh	ip, [r4, #54]
+ 649 014c 1FFA8CFC 		uxth	ip, ip
+ 650 0150 0CF1FF3C 		add	ip, ip, #-1
+ 651 0154 1FFA8CFC 		uxth	ip, ip
+ 652 0158 A4F836C0 		strh	ip, [r4, #54]	@ movhi
+ 653 015c E6E7     		b	.L83
+ 654              	.L77:
+ 655 015e 4A46     		mov	r2, r9
+ 656 0160 2946     		mov	r1, r5
+ 657 0162 2046     		mov	r0, r4
+ 658 0164 FFF7FEFF 		bl	SPI_EndRxTxTransaction
+ 659 0168 08B1     		cbz	r0, .L85
+ 660 016a 2023     		movs	r3, #32
+ 661 016c 6365     		str	r3, [r4, #84]
+ 662              	.L85:
+ 663 016e A368     		ldr	r3, [r4, #8]
+ 664 0170 33B9     		cbnz	r3, .L86
+ 665 0172 0193     		str	r3, [sp, #4]
+ 666 0174 2368     		ldr	r3, [r4]
+ 667 0176 DA68     		ldr	r2, [r3, #12]
+ 668 0178 0192     		str	r2, [sp, #4]
+ 669 017a 9B68     		ldr	r3, [r3, #8]
+ 670 017c 0193     		str	r3, [sp, #4]
+ 671 017e 019B     		ldr	r3, [sp, #4]
+ 672              	.L86:
+ 673 0180 636D     		ldr	r3, [r4, #84]
+ 674 0182 13B9     		cbnz	r3, .L66
+ 675 0184 1E46     		mov	r6, r3
+ 676 0186 00E0     		b	.L66
+ 677              	.L88:
+ 678 0188 0226     		movs	r6, #2
+ 679              	.L66:
+ 680 018a 0123     		movs	r3, #1
+ 681 018c 84F85130 		strb	r3, [r4, #81]
+ 682 0190 0023     		movs	r3, #0
+ 683 0192 84F85030 		strb	r3, [r4, #80]
+ 684              	.L65:
+ 685 0196 3046     		mov	r0, r6
+ 686 0198 03B0     		add	sp, sp, #12
+ 687              		@ sp needed
+ 688 019a BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 689              	.L89:
+ 690 019e 0326     		movs	r6, #3
+ 691 01a0 F3E7     		b	.L66
+ 692              	.L90:
+ 693 01a2 0326     		movs	r6, #3
+ 694 01a4 F1E7     		b	.L66
+ 695              	.L91:
+ 696 01a6 0326     		movs	r6, #3
+ 697 01a8 EFE7     		b	.L66
+ 698              	.L92:
+ 699 01aa 0326     		movs	r6, #3
+ 700 01ac EDE7     		b	.L66
+ 701              	.L87:
+ 702 01ae 0226     		movs	r6, #2
+ 703 01b0 F1E7     		b	.L65
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 13
+
+
+ 705              		.section	.text.HAL_SPI_TransmitReceive,"ax",%progbits
+ 706              		.align	1
+ 707              		.global	HAL_SPI_TransmitReceive
+ 708              		.syntax unified
+ 709              		.thumb
+ 710              		.thumb_func
+ 712              	HAL_SPI_TransmitReceive:
+ 713              		@ args = 4, pretend = 0, frame = 8
+ 714              		@ frame_needed = 0, uses_anonymous_args = 0
+ 715 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 716 0004 83B0     		sub	sp, sp, #12
+ 717 0006 0446     		mov	r4, r0
+ 718 0008 0A9D     		ldr	r5, [sp, #40]
+ 719 000a 90F85000 		ldrb	r0, [r0, #80]	@ zero_extendqisi2
+ 720 000e 0128     		cmp	r0, #1
+ 721 0010 00F01881 		beq	.L118
+ 722 0014 0F46     		mov	r7, r1
+ 723 0016 9146     		mov	r9, r2
+ 724 0018 9846     		mov	r8, r3
+ 725 001a 0123     		movs	r3, #1
+ 726 001c 84F85030 		strb	r3, [r4, #80]
+ 727 0020 FFF7FEFF 		bl	HAL_GetTick
+ 728 0024 0646     		mov	r6, r0
+ 729 0026 94F85100 		ldrb	r0, [r4, #81]	@ zero_extendqisi2
+ 730 002a C2B2     		uxtb	r2, r0
+ 731 002c 6368     		ldr	r3, [r4, #4]
+ 732 002e 0128     		cmp	r0, #1
+ 733 0030 0AD0     		beq	.L98
+ 734 0032 B3F5827F 		cmp	r3, #260
+ 735 0036 40F0EB80 		bne	.L119
+ 736 003a A368     		ldr	r3, [r4, #8]
+ 737 003c 002B     		cmp	r3, #0
+ 738 003e 40F0F180 		bne	.L120
+ 739 0042 042A     		cmp	r2, #4
+ 740 0044 40F0F080 		bne	.L121
+ 741              	.L98:
+ 742 0048 002F     		cmp	r7, #0
+ 743 004a 00F0EF80 		beq	.L122
+ 744 004e 4B46     		mov	r3, r9
+ 745 0050 002B     		cmp	r3, #0
+ 746 0052 00F0ED80 		beq	.L123
+ 747 0056 4346     		mov	r3, r8
+ 748 0058 002B     		cmp	r3, #0
+ 749 005a 00F0EB80 		beq	.L124
+ 750 005e 94F85130 		ldrb	r3, [r4, #81]	@ zero_extendqisi2
+ 751 0062 042B     		cmp	r3, #4
+ 752 0064 02D0     		beq	.L100
+ 753 0066 0523     		movs	r3, #5
+ 754 0068 84F85130 		strb	r3, [r4, #81]
+ 755              	.L100:
+ 756 006c 0023     		movs	r3, #0
+ 757 006e 6365     		str	r3, [r4, #84]
+ 758 0070 C4F83890 		str	r9, [r4, #56]
+ 759 0074 A4F83E80 		strh	r8, [r4, #62]	@ movhi
+ 760 0078 A4F83C80 		strh	r8, [r4, #60]	@ movhi
+ 761 007c 2763     		str	r7, [r4, #48]
+ 762 007e A4F83680 		strh	r8, [r4, #54]	@ movhi
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 14
+
+
+ 763 0082 A4F83480 		strh	r8, [r4, #52]	@ movhi
+ 764 0086 2364     		str	r3, [r4, #64]
+ 765 0088 6364     		str	r3, [r4, #68]
+ 766 008a 2368     		ldr	r3, [r4]
+ 767 008c 1A68     		ldr	r2, [r3]
+ 768 008e 12F0400F 		tst	r2, #64
+ 769 0092 03D1     		bne	.L101
+ 770 0094 1A68     		ldr	r2, [r3]
+ 771 0096 42F04002 		orr	r2, r2, #64
+ 772 009a 1A60     		str	r2, [r3]
+ 773              	.L101:
+ 774 009c E368     		ldr	r3, [r4, #12]
+ 775 009e B3F5006F 		cmp	r3, #2048
+ 776 00a2 13D0     		beq	.L129
+ 777 00a4 6368     		ldr	r3, [r4, #4]
+ 778 00a6 13B1     		cbz	r3, .L110
+ 779 00a8 4346     		mov	r3, r8
+ 780 00aa 012B     		cmp	r3, #1
+ 781 00ac 0BD1     		bne	.L111
+ 782              	.L110:
+ 783 00ae 226B     		ldr	r2, [r4, #48]
+ 784 00b0 2368     		ldr	r3, [r4]
+ 785 00b2 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 786 00b4 1A73     		strb	r2, [r3, #12]
+ 787 00b6 236B     		ldr	r3, [r4, #48]
+ 788 00b8 0133     		adds	r3, r3, #1
+ 789 00ba 2363     		str	r3, [r4, #48]
+ 790 00bc E38E     		ldrh	r3, [r4, #54]
+ 791 00be 9BB2     		uxth	r3, r3
+ 792 00c0 013B     		subs	r3, r3, #1
+ 793 00c2 9BB2     		uxth	r3, r3
+ 794 00c4 E386     		strh	r3, [r4, #54]	@ movhi
+ 795              	.L111:
+ 796 00c6 0123     		movs	r3, #1
+ 797 00c8 1F46     		mov	r7, r3
+ 798 00ca 6EE0     		b	.L115
+ 799              	.L129:
+ 800 00cc 6368     		ldr	r3, [r4, #4]
+ 801 00ce 13B1     		cbz	r3, .L103
+ 802 00d0 4346     		mov	r3, r8
+ 803 00d2 012B     		cmp	r3, #1
+ 804 00d4 0BD1     		bne	.L104
+ 805              	.L103:
+ 806 00d6 226B     		ldr	r2, [r4, #48]
+ 807 00d8 2368     		ldr	r3, [r4]
+ 808 00da 1288     		ldrh	r2, [r2]
+ 809 00dc DA60     		str	r2, [r3, #12]
+ 810 00de 236B     		ldr	r3, [r4, #48]
+ 811 00e0 0233     		adds	r3, r3, #2
+ 812 00e2 2363     		str	r3, [r4, #48]
+ 813 00e4 E38E     		ldrh	r3, [r4, #54]
+ 814 00e6 9BB2     		uxth	r3, r3
+ 815 00e8 013B     		subs	r3, r3, #1
+ 816 00ea 9BB2     		uxth	r3, r3
+ 817 00ec E386     		strh	r3, [r4, #54]	@ movhi
+ 818              	.L104:
+ 819 00ee 0123     		movs	r3, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 15
+
+
+ 820 00f0 1F46     		mov	r7, r3
+ 821 00f2 1CE0     		b	.L107
+ 822              	.L105:
+ 823 00f4 2268     		ldr	r2, [r4]
+ 824 00f6 9368     		ldr	r3, [r2, #8]
+ 825 00f8 13F00103 		ands	r3, r3, #1
+ 826 00fc 0ED0     		beq	.L106
+ 827 00fe E18F     		ldrh	r1, [r4, #62]
+ 828 0100 89B2     		uxth	r1, r1
+ 829 0102 59B1     		cbz	r1, .L106
+ 830 0104 D168     		ldr	r1, [r2, #12]
+ 831 0106 A26B     		ldr	r2, [r4, #56]
+ 832 0108 1180     		strh	r1, [r2]	@ movhi
+ 833 010a A26B     		ldr	r2, [r4, #56]
+ 834 010c 0232     		adds	r2, r2, #2
+ 835 010e A263     		str	r2, [r4, #56]
+ 836 0110 E28F     		ldrh	r2, [r4, #62]
+ 837 0112 92B2     		uxth	r2, r2
+ 838 0114 013A     		subs	r2, r2, #1
+ 839 0116 92B2     		uxth	r2, r2
+ 840 0118 E287     		strh	r2, [r4, #62]	@ movhi
+ 841 011a 1F46     		mov	r7, r3
+ 842              	.L106:
+ 843 011c FFF7FEFF 		bl	HAL_GetTick
+ 844 0120 801B     		subs	r0, r0, r6
+ 845 0122 A842     		cmp	r0, r5
+ 846 0124 03D3     		bcc	.L107
+ 847 0126 B5F1FF3F 		cmp	r5, #-1
+ 848 012a 40F08580 		bne	.L130
+ 849              	.L107:
+ 850 012e E38E     		ldrh	r3, [r4, #54]
+ 851 0130 9BB2     		uxth	r3, r3
+ 852 0132 1BB9     		cbnz	r3, .L108
+ 853 0134 E38F     		ldrh	r3, [r4, #62]
+ 854 0136 9BB2     		uxth	r3, r3
+ 855 0138 002B     		cmp	r3, #0
+ 856 013a 55D0     		beq	.L109
+ 857              	.L108:
+ 858 013c 2368     		ldr	r3, [r4]
+ 859 013e 9A68     		ldr	r2, [r3, #8]
+ 860 0140 12F0020F 		tst	r2, #2
+ 861 0144 D6D0     		beq	.L105
+ 862 0146 E28E     		ldrh	r2, [r4, #54]
+ 863 0148 92B2     		uxth	r2, r2
+ 864 014a 002A     		cmp	r2, #0
+ 865 014c D2D0     		beq	.L105
+ 866 014e 002F     		cmp	r7, #0
+ 867 0150 D0D0     		beq	.L105
+ 868 0152 226B     		ldr	r2, [r4, #48]
+ 869 0154 1288     		ldrh	r2, [r2]
+ 870 0156 DA60     		str	r2, [r3, #12]
+ 871 0158 236B     		ldr	r3, [r4, #48]
+ 872 015a 0233     		adds	r3, r3, #2
+ 873 015c 2363     		str	r3, [r4, #48]
+ 874 015e E38E     		ldrh	r3, [r4, #54]
+ 875 0160 9BB2     		uxth	r3, r3
+ 876 0162 013B     		subs	r3, r3, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 16
+
+
+ 877 0164 9BB2     		uxth	r3, r3
+ 878 0166 E386     		strh	r3, [r4, #54]	@ movhi
+ 879 0168 0023     		movs	r3, #0
+ 880 016a 1F46     		mov	r7, r3
+ 881 016c C2E7     		b	.L105
+ 882              	.L112:
+ 883 016e 2268     		ldr	r2, [r4]
+ 884 0170 9368     		ldr	r3, [r2, #8]
+ 885 0172 13F00103 		ands	r3, r3, #1
+ 886 0176 0ED0     		beq	.L113
+ 887 0178 E18F     		ldrh	r1, [r4, #62]
+ 888 017a 89B2     		uxth	r1, r1
+ 889 017c 59B1     		cbz	r1, .L113
+ 890 017e D168     		ldr	r1, [r2, #12]
+ 891 0180 A26B     		ldr	r2, [r4, #56]
+ 892 0182 1170     		strb	r1, [r2]
+ 893 0184 A26B     		ldr	r2, [r4, #56]
+ 894 0186 0132     		adds	r2, r2, #1
+ 895 0188 A263     		str	r2, [r4, #56]
+ 896 018a E28F     		ldrh	r2, [r4, #62]
+ 897 018c 92B2     		uxth	r2, r2
+ 898 018e 013A     		subs	r2, r2, #1
+ 899 0190 92B2     		uxth	r2, r2
+ 900 0192 E287     		strh	r2, [r4, #62]	@ movhi
+ 901 0194 1F46     		mov	r7, r3
+ 902              	.L113:
+ 903 0196 FFF7FEFF 		bl	HAL_GetTick
+ 904 019a 831B     		subs	r3, r0, r6
+ 905 019c AB42     		cmp	r3, r5
+ 906 019e 02D3     		bcc	.L114
+ 907 01a0 B5F1FF3F 		cmp	r5, #-1
+ 908 01a4 4AD1     		bne	.L126
+ 909              	.L114:
+ 910 01a6 002D     		cmp	r5, #0
+ 911 01a8 4AD0     		beq	.L131
+ 912              	.L115:
+ 913 01aa E38E     		ldrh	r3, [r4, #54]
+ 914 01ac 9BB2     		uxth	r3, r3
+ 915 01ae 13B9     		cbnz	r3, .L116
+ 916 01b0 E38F     		ldrh	r3, [r4, #62]
+ 917 01b2 9BB2     		uxth	r3, r3
+ 918 01b4 C3B1     		cbz	r3, .L109
+ 919              	.L116:
+ 920 01b6 2368     		ldr	r3, [r4]
+ 921 01b8 9A68     		ldr	r2, [r3, #8]
+ 922 01ba 12F0020F 		tst	r2, #2
+ 923 01be D6D0     		beq	.L112
+ 924 01c0 E28E     		ldrh	r2, [r4, #54]
+ 925 01c2 92B2     		uxth	r2, r2
+ 926 01c4 002A     		cmp	r2, #0
+ 927 01c6 D2D0     		beq	.L112
+ 928 01c8 002F     		cmp	r7, #0
+ 929 01ca D0D0     		beq	.L112
+ 930 01cc 226B     		ldr	r2, [r4, #48]
+ 931 01ce 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 932 01d0 1A73     		strb	r2, [r3, #12]
+ 933 01d2 236B     		ldr	r3, [r4, #48]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 17
+
+
+ 934 01d4 0133     		adds	r3, r3, #1
+ 935 01d6 2363     		str	r3, [r4, #48]
+ 936 01d8 E38E     		ldrh	r3, [r4, #54]
+ 937 01da 9BB2     		uxth	r3, r3
+ 938 01dc 013B     		subs	r3, r3, #1
+ 939 01de 9BB2     		uxth	r3, r3
+ 940 01e0 E386     		strh	r3, [r4, #54]	@ movhi
+ 941 01e2 0023     		movs	r3, #0
+ 942 01e4 1F46     		mov	r7, r3
+ 943 01e6 C2E7     		b	.L112
+ 944              	.L109:
+ 945 01e8 3246     		mov	r2, r6
+ 946 01ea 2946     		mov	r1, r5
+ 947 01ec 2046     		mov	r0, r4
+ 948 01ee FFF7FEFF 		bl	SPI_EndRxTxTransaction
+ 949 01f2 48B9     		cbnz	r0, .L132
+ 950 01f4 A368     		ldr	r3, [r4, #8]
+ 951 01f6 63B9     		cbnz	r3, .L99
+ 952 01f8 0193     		str	r3, [sp, #4]
+ 953 01fa 2368     		ldr	r3, [r4]
+ 954 01fc DA68     		ldr	r2, [r3, #12]
+ 955 01fe 0192     		str	r2, [sp, #4]
+ 956 0200 9B68     		ldr	r3, [r3, #8]
+ 957 0202 0193     		str	r3, [sp, #4]
+ 958 0204 019B     		ldr	r3, [sp, #4]
+ 959 0206 04E0     		b	.L99
+ 960              	.L132:
+ 961 0208 2023     		movs	r3, #32
+ 962 020a 6365     		str	r3, [r4, #84]
+ 963 020c 0120     		movs	r0, #1
+ 964 020e 00E0     		b	.L99
+ 965              	.L119:
+ 966 0210 0220     		movs	r0, #2
+ 967              	.L99:
+ 968 0212 0123     		movs	r3, #1
+ 969 0214 84F85130 		strb	r3, [r4, #81]
+ 970 0218 0023     		movs	r3, #0
+ 971 021a 84F85030 		strb	r3, [r4, #80]
+ 972              	.L97:
+ 973 021e 03B0     		add	sp, sp, #12
+ 974              		@ sp needed
+ 975 0220 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 976              	.L120:
+ 977 0224 0220     		movs	r0, #2
+ 978 0226 F4E7     		b	.L99
+ 979              	.L121:
+ 980 0228 0220     		movs	r0, #2
+ 981 022a F2E7     		b	.L99
+ 982              	.L122:
+ 983 022c 0120     		movs	r0, #1
+ 984 022e F0E7     		b	.L99
+ 985              	.L123:
+ 986 0230 0120     		movs	r0, #1
+ 987 0232 EEE7     		b	.L99
+ 988              	.L124:
+ 989 0234 0120     		movs	r0, #1
+ 990 0236 ECE7     		b	.L99
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 18
+
+
+ 991              	.L130:
+ 992 0238 0320     		movs	r0, #3
+ 993 023a EAE7     		b	.L99
+ 994              	.L126:
+ 995 023c 0320     		movs	r0, #3
+ 996 023e E8E7     		b	.L99
+ 997              	.L131:
+ 998 0240 0320     		movs	r0, #3
+ 999 0242 E6E7     		b	.L99
+ 1000              	.L118:
+ 1001 0244 0220     		movs	r0, #2
+ 1002 0246 EAE7     		b	.L97
+ 1004              		.section	.text.HAL_SPI_Receive,"ax",%progbits
+ 1005              		.align	1
+ 1006              		.global	HAL_SPI_Receive
+ 1007              		.syntax unified
+ 1008              		.thumb
+ 1009              		.thumb_func
+ 1011              	HAL_SPI_Receive:
+ 1012              		@ args = 0, pretend = 0, frame = 0
+ 1013              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1014 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 1015 0004 83B0     		sub	sp, sp, #12
+ 1016 0006 0446     		mov	r4, r0
+ 1017 0008 8846     		mov	r8, r1
+ 1018 000a 9146     		mov	r9, r2
+ 1019 000c 1D46     		mov	r5, r3
+ 1020 000e 4368     		ldr	r3, [r0, #4]
+ 1021 0010 B3F5827F 		cmp	r3, #260
+ 1022 0014 39D0     		beq	.L158
+ 1023              	.L134:
+ 1024 0016 94F85030 		ldrb	r3, [r4, #80]	@ zero_extendqisi2
+ 1025 001a 012B     		cmp	r3, #1
+ 1026 001c 00F0B380 		beq	.L151
+ 1027 0020 0123     		movs	r3, #1
+ 1028 0022 84F85030 		strb	r3, [r4, #80]
+ 1029 0026 FFF7FEFF 		bl	HAL_GetTick
+ 1030 002a 0746     		mov	r7, r0
+ 1031 002c 94F85130 		ldrb	r3, [r4, #81]	@ zero_extendqisi2
+ 1032 0030 DAB2     		uxtb	r2, r3
+ 1033 0032 1646     		mov	r6, r2
+ 1034 0034 012B     		cmp	r3, #1
+ 1035 0036 40F08E80 		bne	.L152
+ 1036 003a 4146     		mov	r1, r8
+ 1037 003c 0029     		cmp	r1, #0
+ 1038 003e 00F08C80 		beq	.L136
+ 1039 0042 4A46     		mov	r2, r9
+ 1040 0044 002A     		cmp	r2, #0
+ 1041 0046 00F08880 		beq	.L136
+ 1042 004a 0423     		movs	r3, #4
+ 1043 004c 84F85130 		strb	r3, [r4, #81]
+ 1044 0050 0023     		movs	r3, #0
+ 1045 0052 6365     		str	r3, [r4, #84]
+ 1046 0054 C4F83880 		str	r8, [r4, #56]
+ 1047 0058 A4F83C90 		strh	r9, [r4, #60]	@ movhi
+ 1048 005c A4F83E90 		strh	r9, [r4, #62]	@ movhi
+ 1049 0060 2363     		str	r3, [r4, #48]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 19
+
+
+ 1050 0062 A386     		strh	r3, [r4, #52]	@ movhi
+ 1051 0064 E386     		strh	r3, [r4, #54]	@ movhi
+ 1052 0066 2364     		str	r3, [r4, #64]
+ 1053 0068 6364     		str	r3, [r4, #68]
+ 1054 006a A368     		ldr	r3, [r4, #8]
+ 1055 006c B3F5004F 		cmp	r3, #32768
+ 1056 0070 18D0     		beq	.L159
+ 1057              	.L137:
+ 1058 0072 2368     		ldr	r3, [r4]
+ 1059 0074 1A68     		ldr	r2, [r3]
+ 1060 0076 12F0400F 		tst	r2, #64
+ 1061 007a 03D1     		bne	.L138
+ 1062 007c 1A68     		ldr	r2, [r3]
+ 1063 007e 42F04002 		orr	r2, r2, #64
+ 1064 0082 1A60     		str	r2, [r3]
+ 1065              	.L138:
+ 1066 0084 E368     		ldr	r3, [r4, #12]
+ 1067 0086 13B3     		cbz	r3, .L139
+ 1068 0088 40E0     		b	.L140
+ 1069              	.L158:
+ 1070 008a 8368     		ldr	r3, [r0, #8]
+ 1071 008c 002B     		cmp	r3, #0
+ 1072 008e C2D1     		bne	.L134
+ 1073 0090 0423     		movs	r3, #4
+ 1074 0092 80F85130 		strb	r3, [r0, #81]
+ 1075 0096 0095     		str	r5, [sp]
+ 1076 0098 1346     		mov	r3, r2
+ 1077 009a 0A46     		mov	r2, r1
+ 1078 009c FFF7FEFF 		bl	HAL_SPI_TransmitReceive
+ 1079 00a0 0646     		mov	r6, r0
+ 1080 00a2 60E0     		b	.L135
+ 1081              	.L159:
+ 1082 00a4 2268     		ldr	r2, [r4]
+ 1083 00a6 1368     		ldr	r3, [r2]
+ 1084 00a8 23F04003 		bic	r3, r3, #64
+ 1085 00ac 1360     		str	r3, [r2]
+ 1086 00ae 2268     		ldr	r2, [r4]
+ 1087 00b0 1368     		ldr	r3, [r2]
+ 1088 00b2 23F48043 		bic	r3, r3, #16384
+ 1089 00b6 1360     		str	r3, [r2]
+ 1090 00b8 DBE7     		b	.L137
+ 1091              	.L141:
+ 1092 00ba FFF7FEFF 		bl	HAL_GetTick
+ 1093 00be C01B     		subs	r0, r0, r7
+ 1094 00c0 A842     		cmp	r0, r5
+ 1095 00c2 02D3     		bcc	.L143
+ 1096 00c4 B5F1FF3F 		cmp	r5, #-1
+ 1097 00c8 51D1     		bne	.L153
+ 1098              	.L143:
+ 1099 00ca 002D     		cmp	r5, #0
+ 1100 00cc 52D0     		beq	.L154
+ 1101              	.L139:
+ 1102 00ce E38F     		ldrh	r3, [r4, #62]
+ 1103 00d0 9BB2     		uxth	r3, r3
+ 1104 00d2 002B     		cmp	r3, #0
+ 1105 00d4 33D0     		beq	.L145
+ 1106 00d6 2368     		ldr	r3, [r4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 20
+
+
+ 1107 00d8 9A68     		ldr	r2, [r3, #8]
+ 1108 00da 12F0010F 		tst	r2, #1
+ 1109 00de ECD0     		beq	.L141
+ 1110 00e0 A26B     		ldr	r2, [r4, #56]
+ 1111 00e2 1B7B     		ldrb	r3, [r3, #12]	@ zero_extendqisi2
+ 1112 00e4 1370     		strb	r3, [r2]
+ 1113 00e6 A36B     		ldr	r3, [r4, #56]
+ 1114 00e8 0133     		adds	r3, r3, #1
+ 1115 00ea A363     		str	r3, [r4, #56]
+ 1116 00ec E38F     		ldrh	r3, [r4, #62]
+ 1117 00ee 9BB2     		uxth	r3, r3
+ 1118 00f0 013B     		subs	r3, r3, #1
+ 1119 00f2 9BB2     		uxth	r3, r3
+ 1120 00f4 E387     		strh	r3, [r4, #62]	@ movhi
+ 1121 00f6 EAE7     		b	.L139
+ 1122              	.L146:
+ 1123 00f8 FFF7FEFF 		bl	HAL_GetTick
+ 1124 00fc C01B     		subs	r0, r0, r7
+ 1125 00fe A842     		cmp	r0, r5
+ 1126 0100 02D3     		bcc	.L148
+ 1127 0102 B5F1FF3F 		cmp	r5, #-1
+ 1128 0106 38D1     		bne	.L155
+ 1129              	.L148:
+ 1130 0108 002D     		cmp	r5, #0
+ 1131 010a 39D0     		beq	.L156
+ 1132              	.L140:
+ 1133 010c E38F     		ldrh	r3, [r4, #62]
+ 1134 010e 9BB2     		uxth	r3, r3
+ 1135 0110 ABB1     		cbz	r3, .L145
+ 1136 0112 2368     		ldr	r3, [r4]
+ 1137 0114 9A68     		ldr	r2, [r3, #8]
+ 1138 0116 12F0010F 		tst	r2, #1
+ 1139 011a EDD0     		beq	.L146
+ 1140 011c DA68     		ldr	r2, [r3, #12]
+ 1141 011e A36B     		ldr	r3, [r4, #56]
+ 1142 0120 1A80     		strh	r2, [r3]	@ movhi
+ 1143 0122 A36B     		ldr	r3, [r4, #56]
+ 1144 0124 0233     		adds	r3, r3, #2
+ 1145 0126 A363     		str	r3, [r4, #56]
+ 1146 0128 B4F83EC0 		ldrh	ip, [r4, #62]
+ 1147 012c 1FFA8CFC 		uxth	ip, ip
+ 1148 0130 0CF1FF3C 		add	ip, ip, #-1
+ 1149 0134 1FFA8CFC 		uxth	ip, ip
+ 1150 0138 A4F83EC0 		strh	ip, [r4, #62]	@ movhi
+ 1151 013c E6E7     		b	.L140
+ 1152              	.L145:
+ 1153 013e 3A46     		mov	r2, r7
+ 1154 0140 2946     		mov	r1, r5
+ 1155 0142 2046     		mov	r0, r4
+ 1156 0144 FFF7FEFF 		bl	SPI_EndRxTransaction
+ 1157 0148 08B1     		cbz	r0, .L150
+ 1158 014a 2023     		movs	r3, #32
+ 1159 014c 6365     		str	r3, [r4, #84]
+ 1160              	.L150:
+ 1161 014e 636D     		ldr	r3, [r4, #84]
+ 1162 0150 1BB9     		cbnz	r3, .L136
+ 1163 0152 1E46     		mov	r6, r3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 21
+
+
+ 1164 0154 01E0     		b	.L136
+ 1165              	.L152:
+ 1166 0156 0223     		movs	r3, #2
+ 1167 0158 1E46     		mov	r6, r3
+ 1168              	.L136:
+ 1169 015a 0123     		movs	r3, #1
+ 1170 015c 84F85130 		strb	r3, [r4, #81]
+ 1171 0160 0023     		movs	r3, #0
+ 1172 0162 84F85030 		strb	r3, [r4, #80]
+ 1173              	.L135:
+ 1174 0166 3046     		mov	r0, r6
+ 1175 0168 03B0     		add	sp, sp, #12
+ 1176              		@ sp needed
+ 1177 016a BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 1178              	.L153:
+ 1179 016e 0323     		movs	r3, #3
+ 1180 0170 1E46     		mov	r6, r3
+ 1181 0172 F2E7     		b	.L136
+ 1182              	.L154:
+ 1183 0174 0323     		movs	r3, #3
+ 1184 0176 1E46     		mov	r6, r3
+ 1185 0178 EFE7     		b	.L136
+ 1186              	.L155:
+ 1187 017a 0323     		movs	r3, #3
+ 1188 017c 1E46     		mov	r6, r3
+ 1189 017e ECE7     		b	.L136
+ 1190              	.L156:
+ 1191 0180 0323     		movs	r3, #3
+ 1192 0182 1E46     		mov	r6, r3
+ 1193 0184 E9E7     		b	.L136
+ 1194              	.L151:
+ 1195 0186 0223     		movs	r3, #2
+ 1196 0188 1E46     		mov	r6, r3
+ 1197 018a ECE7     		b	.L135
+ 1199              		.section	.text.HAL_SPI_Transmit_IT,"ax",%progbits
+ 1200              		.align	1
+ 1201              		.global	HAL_SPI_Transmit_IT
+ 1202              		.syntax unified
+ 1203              		.thumb
+ 1204              		.thumb_func
+ 1206              	HAL_SPI_Transmit_IT:
+ 1207              		@ args = 0, pretend = 0, frame = 0
+ 1208              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1209              		@ link register save eliminated.
+ 1210 0000 0346     		mov	r3, r0
+ 1211 0002 90F85000 		ldrb	r0, [r0, #80]	@ zero_extendqisi2
+ 1212 0006 0128     		cmp	r0, #1
+ 1213 0008 47D0     		beq	.L166
+ 1214 000a 0120     		movs	r0, #1
+ 1215 000c 83F85000 		strb	r0, [r3, #80]
+ 1216 0010 0029     		cmp	r1, #0
+ 1217 0012 37D0     		beq	.L167
+ 1218 0014 002A     		cmp	r2, #0
+ 1219 0016 37D0     		beq	.L168
+ 1220 0018 93F85100 		ldrb	r0, [r3, #81]	@ zero_extendqisi2
+ 1221 001c 0128     		cmp	r0, #1
+ 1222 001e 38D1     		bne	.L169
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 22
+
+
+ 1223 0020 0320     		movs	r0, #3
+ 1224 0022 83F85100 		strb	r0, [r3, #81]
+ 1225 0026 0020     		movs	r0, #0
+ 1226 0028 5865     		str	r0, [r3, #84]
+ 1227 002a 1963     		str	r1, [r3, #48]
+ 1228 002c 9A86     		strh	r2, [r3, #52]	@ movhi
+ 1229 002e DA86     		strh	r2, [r3, #54]	@ movhi
+ 1230 0030 9863     		str	r0, [r3, #56]
+ 1231 0032 9887     		strh	r0, [r3, #60]	@ movhi
+ 1232 0034 D887     		strh	r0, [r3, #62]	@ movhi
+ 1233 0036 1864     		str	r0, [r3, #64]
+ 1234 0038 DA68     		ldr	r2, [r3, #12]
+ 1235 003a AAB1     		cbz	r2, .L163
+ 1236 003c 184A     		ldr	r2, .L172
+ 1237 003e 5A64     		str	r2, [r3, #68]
+ 1238              	.L164:
+ 1239 0040 9A68     		ldr	r2, [r3, #8]
+ 1240 0042 B2F5004F 		cmp	r2, #32768
+ 1241 0046 12D0     		beq	.L171
+ 1242              	.L165:
+ 1243 0048 1968     		ldr	r1, [r3]
+ 1244 004a 4A68     		ldr	r2, [r1, #4]
+ 1245 004c 42F0A002 		orr	r2, r2, #160
+ 1246 0050 4A60     		str	r2, [r1, #4]
+ 1247 0052 1A68     		ldr	r2, [r3]
+ 1248 0054 1168     		ldr	r1, [r2]
+ 1249 0056 11F0400F 		tst	r1, #64
+ 1250 005a 1CD1     		bne	.L170
+ 1251 005c 1168     		ldr	r1, [r2]
+ 1252 005e 41F04001 		orr	r1, r1, #64
+ 1253 0062 1160     		str	r1, [r2]
+ 1254 0064 0020     		movs	r0, #0
+ 1255 0066 10E0     		b	.L162
+ 1256              	.L163:
+ 1257 0068 0E4A     		ldr	r2, .L172+4
+ 1258 006a 5A64     		str	r2, [r3, #68]
+ 1259 006c E8E7     		b	.L164
+ 1260              	.L171:
+ 1261 006e 1968     		ldr	r1, [r3]
+ 1262 0070 0A68     		ldr	r2, [r1]
+ 1263 0072 22F04002 		bic	r2, r2, #64
+ 1264 0076 0A60     		str	r2, [r1]
+ 1265 0078 1968     		ldr	r1, [r3]
+ 1266 007a 0A68     		ldr	r2, [r1]
+ 1267 007c 42F48042 		orr	r2, r2, #16384
+ 1268 0080 0A60     		str	r2, [r1]
+ 1269 0082 E1E7     		b	.L165
+ 1270              	.L167:
+ 1271 0084 0120     		movs	r0, #1
+ 1272 0086 00E0     		b	.L162
+ 1273              	.L168:
+ 1274 0088 0120     		movs	r0, #1
+ 1275              	.L162:
+ 1276 008a 0022     		movs	r2, #0
+ 1277 008c 83F85020 		strb	r2, [r3, #80]
+ 1278 0090 7047     		bx	lr
+ 1279              	.L169:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 23
+
+
+ 1280 0092 0220     		movs	r0, #2
+ 1281 0094 F9E7     		b	.L162
+ 1282              	.L170:
+ 1283 0096 0020     		movs	r0, #0
+ 1284 0098 F7E7     		b	.L162
+ 1285              	.L166:
+ 1286 009a 0220     		movs	r0, #2
+ 1287 009c 7047     		bx	lr
+ 1288              	.L173:
+ 1289 009e 00BF     		.align	2
+ 1290              	.L172:
+ 1291 00a0 00000000 		.word	SPI_TxISR_16BIT
+ 1292 00a4 00000000 		.word	SPI_TxISR_8BIT
+ 1294              		.section	.text.HAL_SPI_TransmitReceive_IT,"ax",%progbits
+ 1295              		.align	1
+ 1296              		.global	HAL_SPI_TransmitReceive_IT
+ 1297              		.syntax unified
+ 1298              		.thumb
+ 1299              		.thumb_func
+ 1301              	HAL_SPI_TransmitReceive_IT:
+ 1302              		@ args = 0, pretend = 0, frame = 0
+ 1303              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1304 0000 8446     		mov	ip, r0
+ 1305 0002 90F85000 		ldrb	r0, [r0, #80]	@ zero_extendqisi2
+ 1306 0006 0128     		cmp	r0, #1
+ 1307 0008 63D0     		beq	.L181
+ 1308 000a 10B5     		push	{r4, lr}
+ 1309 000c 1446     		mov	r4, r2
+ 1310 000e 0120     		movs	r0, #1
+ 1311 0010 8CF85000 		strb	r0, [ip, #80]
+ 1312 0014 9CF85100 		ldrb	r0, [ip, #81]	@ zero_extendqisi2
+ 1313 0018 C2B2     		uxtb	r2, r0
+ 1314 001a DCF804E0 		ldr	lr, [ip, #4]
+ 1315 001e 0128     		cmp	r0, #1
+ 1316 0020 08D0     		beq	.L176
+ 1317 0022 BEF5827F 		cmp	lr, #260
+ 1318 0026 43D1     		bne	.L182
+ 1319 0028 DCF80800 		ldr	r0, [ip, #8]
+ 1320 002c 0028     		cmp	r0, #0
+ 1321 002e 44D1     		bne	.L183
+ 1322 0030 042A     		cmp	r2, #4
+ 1323 0032 44D1     		bne	.L184
+ 1324              	.L176:
+ 1325 0034 0029     		cmp	r1, #0
+ 1326 0036 44D0     		beq	.L185
+ 1327 0038 002C     		cmp	r4, #0
+ 1328 003a 44D0     		beq	.L186
+ 1329 003c 002B     		cmp	r3, #0
+ 1330 003e 44D0     		beq	.L187
+ 1331 0040 9CF85100 		ldrb	r0, [ip, #81]	@ zero_extendqisi2
+ 1332 0044 0428     		cmp	r0, #4
+ 1333 0046 02D0     		beq	.L178
+ 1334 0048 0520     		movs	r0, #5
+ 1335 004a 8CF85100 		strb	r0, [ip, #81]
+ 1336              	.L178:
+ 1337 004e 0020     		movs	r0, #0
+ 1338 0050 CCF85400 		str	r0, [ip, #84]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 24
+
+
+ 1339 0054 CCF83010 		str	r1, [ip, #48]
+ 1340 0058 ACF83430 		strh	r3, [ip, #52]	@ movhi
+ 1341 005c ACF83630 		strh	r3, [ip, #54]	@ movhi
+ 1342 0060 CCF83840 		str	r4, [ip, #56]
+ 1343 0064 ACF83C30 		strh	r3, [ip, #60]	@ movhi
+ 1344 0068 ACF83E30 		strh	r3, [ip, #62]	@ movhi
+ 1345 006c DCF80C30 		ldr	r3, [ip, #12]
+ 1346 0070 BBB1     		cbz	r3, .L179
+ 1347 0072 194B     		ldr	r3, .L193
+ 1348 0074 CCF84030 		str	r3, [ip, #64]
+ 1349 0078 184B     		ldr	r3, .L193+4
+ 1350 007a CCF84430 		str	r3, [ip, #68]
+ 1351              	.L180:
+ 1352 007e DCF80020 		ldr	r2, [ip]
+ 1353 0082 5368     		ldr	r3, [r2, #4]
+ 1354 0084 43F0E003 		orr	r3, r3, #224
+ 1355 0088 5360     		str	r3, [r2, #4]
+ 1356 008a DCF80030 		ldr	r3, [ip]
+ 1357 008e 1A68     		ldr	r2, [r3]
+ 1358 0090 12F0400F 		tst	r2, #64
+ 1359 0094 1BD1     		bne	.L188
+ 1360 0096 1A68     		ldr	r2, [r3]
+ 1361 0098 42F04002 		orr	r2, r2, #64
+ 1362 009c 1A60     		str	r2, [r3]
+ 1363 009e 0020     		movs	r0, #0
+ 1364 00a0 07E0     		b	.L177
+ 1365              	.L179:
+ 1366 00a2 0F4B     		ldr	r3, .L193+8
+ 1367 00a4 CCF84030 		str	r3, [ip, #64]
+ 1368 00a8 0E4B     		ldr	r3, .L193+12
+ 1369 00aa CCF84430 		str	r3, [ip, #68]
+ 1370 00ae E6E7     		b	.L180
+ 1371              	.L182:
+ 1372 00b0 0220     		movs	r0, #2
+ 1373              	.L177:
+ 1374 00b2 0023     		movs	r3, #0
+ 1375 00b4 8CF85030 		strb	r3, [ip, #80]
+ 1376 00b8 10BD     		pop	{r4, pc}
+ 1377              	.L183:
+ 1378 00ba 0220     		movs	r0, #2
+ 1379 00bc F9E7     		b	.L177
+ 1380              	.L184:
+ 1381 00be 0220     		movs	r0, #2
+ 1382 00c0 F7E7     		b	.L177
+ 1383              	.L185:
+ 1384 00c2 0120     		movs	r0, #1
+ 1385 00c4 F5E7     		b	.L177
+ 1386              	.L186:
+ 1387 00c6 0120     		movs	r0, #1
+ 1388 00c8 F3E7     		b	.L177
+ 1389              	.L187:
+ 1390 00ca 0120     		movs	r0, #1
+ 1391 00cc F1E7     		b	.L177
+ 1392              	.L188:
+ 1393 00ce 0020     		movs	r0, #0
+ 1394 00d0 EFE7     		b	.L177
+ 1395              	.L181:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 25
+
+
+ 1396 00d2 0220     		movs	r0, #2
+ 1397 00d4 7047     		bx	lr
+ 1398              	.L194:
+ 1399 00d6 00BF     		.align	2
+ 1400              	.L193:
+ 1401 00d8 00000000 		.word	SPI_2linesRxISR_16BIT
+ 1402 00dc 00000000 		.word	SPI_2linesTxISR_16BIT
+ 1403 00e0 00000000 		.word	SPI_2linesRxISR_8BIT
+ 1404 00e4 00000000 		.word	SPI_2linesTxISR_8BIT
+ 1406              		.section	.text.HAL_SPI_Receive_IT,"ax",%progbits
+ 1407              		.align	1
+ 1408              		.global	HAL_SPI_Receive_IT
+ 1409              		.syntax unified
+ 1410              		.thumb
+ 1411              		.thumb_func
+ 1413              	HAL_SPI_Receive_IT:
+ 1414              		@ args = 0, pretend = 0, frame = 0
+ 1415              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1416 0000 08B5     		push	{r3, lr}
+ 1417 0002 8446     		mov	ip, r0
+ 1418 0004 8E46     		mov	lr, r1
+ 1419 0006 8168     		ldr	r1, [r0, #8]
+ 1420 0008 19B9     		cbnz	r1, .L196
+ 1421 000a 4368     		ldr	r3, [r0, #4]
+ 1422 000c B3F5827F 		cmp	r3, #260
+ 1423 0010 3FD0     		beq	.L206
+ 1424              	.L196:
+ 1425 0012 9CF85030 		ldrb	r3, [ip, #80]	@ zero_extendqisi2
+ 1426 0016 012B     		cmp	r3, #1
+ 1427 0018 5CD0     		beq	.L202
+ 1428 001a 0123     		movs	r3, #1
+ 1429 001c 8CF85030 		strb	r3, [ip, #80]
+ 1430 0020 9CF85130 		ldrb	r3, [ip, #81]	@ zero_extendqisi2
+ 1431 0024 D8B2     		uxtb	r0, r3
+ 1432 0026 012B     		cmp	r3, #1
+ 1433 0028 4DD1     		bne	.L203
+ 1434 002a BEF1000F 		cmp	lr, #0
+ 1435 002e 4BD0     		beq	.L198
+ 1436 0030 002A     		cmp	r2, #0
+ 1437 0032 49D0     		beq	.L198
+ 1438 0034 0423     		movs	r3, #4
+ 1439 0036 8CF85130 		strb	r3, [ip, #81]
+ 1440 003a 0023     		movs	r3, #0
+ 1441 003c CCF85430 		str	r3, [ip, #84]
+ 1442 0040 CCF838E0 		str	lr, [ip, #56]
+ 1443 0044 ACF83C20 		strh	r2, [ip, #60]	@ movhi
+ 1444 0048 ACF83E20 		strh	r2, [ip, #62]	@ movhi
+ 1445 004c CCF83030 		str	r3, [ip, #48]
+ 1446 0050 ACF83430 		strh	r3, [ip, #52]	@ movhi
+ 1447 0054 ACF83630 		strh	r3, [ip, #54]	@ movhi
+ 1448 0058 CCF84430 		str	r3, [ip, #68]
+ 1449 005c DCF80C30 		ldr	r3, [ip, #12]
+ 1450 0060 03B3     		cbz	r3, .L199
+ 1451 0062 1D4B     		ldr	r3, .L208
+ 1452 0064 CCF84030 		str	r3, [ip, #64]
+ 1453              	.L200:
+ 1454 0068 B1F5004F 		cmp	r1, #32768
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 26
+
+
+ 1455 006c 1ED0     		beq	.L207
+ 1456              	.L201:
+ 1457 006e DCF80020 		ldr	r2, [ip]
+ 1458 0072 5368     		ldr	r3, [r2, #4]
+ 1459 0074 43F06003 		orr	r3, r3, #96
+ 1460 0078 5360     		str	r3, [r2, #4]
+ 1461 007a DCF80030 		ldr	r3, [ip]
+ 1462 007e 1A68     		ldr	r2, [r3]
+ 1463 0080 12F0400F 		tst	r2, #64
+ 1464 0084 24D1     		bne	.L204
+ 1465 0086 1A68     		ldr	r2, [r3]
+ 1466 0088 42F04002 		orr	r2, r2, #64
+ 1467 008c 1A60     		str	r2, [r3]
+ 1468 008e 0020     		movs	r0, #0
+ 1469 0090 1AE0     		b	.L198
+ 1470              	.L206:
+ 1471 0092 0423     		movs	r3, #4
+ 1472 0094 80F85130 		strb	r3, [r0, #81]
+ 1473 0098 1346     		mov	r3, r2
+ 1474 009a 7246     		mov	r2, lr
+ 1475 009c 7146     		mov	r1, lr
+ 1476 009e FFF7FEFF 		bl	HAL_SPI_TransmitReceive_IT
+ 1477 00a2 14E0     		b	.L197
+ 1478              	.L199:
+ 1479 00a4 0D4B     		ldr	r3, .L208+4
+ 1480 00a6 CCF84030 		str	r3, [ip, #64]
+ 1481 00aa DDE7     		b	.L200
+ 1482              	.L207:
+ 1483 00ac DCF80020 		ldr	r2, [ip]
+ 1484 00b0 1368     		ldr	r3, [r2]
+ 1485 00b2 23F04003 		bic	r3, r3, #64
+ 1486 00b6 1360     		str	r3, [r2]
+ 1487 00b8 DCF80020 		ldr	r2, [ip]
+ 1488 00bc 1368     		ldr	r3, [r2]
+ 1489 00be 23F48043 		bic	r3, r3, #16384
+ 1490 00c2 1360     		str	r3, [r2]
+ 1491 00c4 D3E7     		b	.L201
+ 1492              	.L203:
+ 1493 00c6 0220     		movs	r0, #2
+ 1494              	.L198:
+ 1495 00c8 0023     		movs	r3, #0
+ 1496 00ca 8CF85030 		strb	r3, [ip, #80]
+ 1497              	.L197:
+ 1498 00ce 08BD     		pop	{r3, pc}
+ 1499              	.L204:
+ 1500 00d0 0020     		movs	r0, #0
+ 1501 00d2 F9E7     		b	.L198
+ 1502              	.L202:
+ 1503 00d4 0220     		movs	r0, #2
+ 1504 00d6 FAE7     		b	.L197
+ 1505              	.L209:
+ 1506              		.align	2
+ 1507              	.L208:
+ 1508 00d8 00000000 		.word	SPI_RxISR_16BIT
+ 1509 00dc 00000000 		.word	SPI_RxISR_8BIT
+ 1511              		.section	.text.HAL_SPI_Transmit_DMA,"ax",%progbits
+ 1512              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 27
+
+
+ 1513              		.global	HAL_SPI_Transmit_DMA
+ 1514              		.syntax unified
+ 1515              		.thumb
+ 1516              		.thumb_func
+ 1518              	HAL_SPI_Transmit_DMA:
+ 1519              		@ args = 0, pretend = 0, frame = 0
+ 1520              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1521 0000 38B5     		push	{r3, r4, r5, lr}
+ 1522 0002 90F85030 		ldrb	r3, [r0, #80]	@ zero_extendqisi2
+ 1523 0006 012B     		cmp	r3, #1
+ 1524 0008 61D0     		beq	.L216
+ 1525 000a 0446     		mov	r4, r0
+ 1526 000c 0123     		movs	r3, #1
+ 1527 000e 80F85030 		strb	r3, [r0, #80]
+ 1528 0012 90F85130 		ldrb	r3, [r0, #81]	@ zero_extendqisi2
+ 1529 0016 DDB2     		uxtb	r5, r3
+ 1530 0018 012B     		cmp	r3, #1
+ 1531 001a 52D1     		bne	.L217
+ 1532 001c 0029     		cmp	r1, #0
+ 1533 001e 51D0     		beq	.L212
+ 1534 0020 002A     		cmp	r2, #0
+ 1535 0022 4FD0     		beq	.L212
+ 1536 0024 0323     		movs	r3, #3
+ 1537 0026 80F85130 		strb	r3, [r0, #81]
+ 1538 002a 0023     		movs	r3, #0
+ 1539 002c 4365     		str	r3, [r0, #84]
+ 1540 002e 0163     		str	r1, [r0, #48]
+ 1541 0030 8286     		strh	r2, [r0, #52]	@ movhi
+ 1542 0032 C286     		strh	r2, [r0, #54]	@ movhi
+ 1543 0034 8363     		str	r3, [r0, #56]
+ 1544 0036 4364     		str	r3, [r0, #68]
+ 1545 0038 0364     		str	r3, [r0, #64]
+ 1546 003a 8387     		strh	r3, [r0, #60]	@ movhi
+ 1547 003c C387     		strh	r3, [r0, #62]	@ movhi
+ 1548 003e 8368     		ldr	r3, [r0, #8]
+ 1549 0040 B3F5004F 		cmp	r3, #32768
+ 1550 0044 2AD0     		beq	.L219
+ 1551              	.L213:
+ 1552 0046 A36C     		ldr	r3, [r4, #72]
+ 1553 0048 224A     		ldr	r2, .L221
+ 1554 004a 1A64     		str	r2, [r3, #64]
+ 1555 004c A36C     		ldr	r3, [r4, #72]
+ 1556 004e 224A     		ldr	r2, .L221+4
+ 1557 0050 DA63     		str	r2, [r3, #60]
+ 1558 0052 A36C     		ldr	r3, [r4, #72]
+ 1559 0054 214A     		ldr	r2, .L221+8
+ 1560 0056 DA64     		str	r2, [r3, #76]
+ 1561 0058 A36C     		ldr	r3, [r4, #72]
+ 1562 005a 0022     		movs	r2, #0
+ 1563 005c 1A65     		str	r2, [r3, #80]
+ 1564 005e 2268     		ldr	r2, [r4]
+ 1565 0060 E38E     		ldrh	r3, [r4, #54]
+ 1566 0062 9BB2     		uxth	r3, r3
+ 1567 0064 0C32     		adds	r2, r2, #12
+ 1568 0066 216B     		ldr	r1, [r4, #48]
+ 1569 0068 A06C     		ldr	r0, [r4, #72]
+ 1570 006a FFF7FEFF 		bl	HAL_DMA_Start_IT
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 28
+
+
+ 1571 006e 0146     		mov	r1, r0
+ 1572 0070 F8B9     		cbnz	r0, .L220
+ 1573 0072 2368     		ldr	r3, [r4]
+ 1574 0074 1A68     		ldr	r2, [r3]
+ 1575 0076 12F0400F 		tst	r2, #64
+ 1576 007a 03D1     		bne	.L215
+ 1577 007c 1A68     		ldr	r2, [r3]
+ 1578 007e 42F04002 		orr	r2, r2, #64
+ 1579 0082 1A60     		str	r2, [r3]
+ 1580              	.L215:
+ 1581 0084 2268     		ldr	r2, [r4]
+ 1582 0086 5368     		ldr	r3, [r2, #4]
+ 1583 0088 43F02003 		orr	r3, r3, #32
+ 1584 008c 5360     		str	r3, [r2, #4]
+ 1585 008e 2268     		ldr	r2, [r4]
+ 1586 0090 5368     		ldr	r3, [r2, #4]
+ 1587 0092 43F00203 		orr	r3, r3, #2
+ 1588 0096 5360     		str	r3, [r2, #4]
+ 1589 0098 0D46     		mov	r5, r1
+ 1590 009a 13E0     		b	.L212
+ 1591              	.L219:
+ 1592 009c 0268     		ldr	r2, [r0]
+ 1593 009e 1368     		ldr	r3, [r2]
+ 1594 00a0 23F04003 		bic	r3, r3, #64
+ 1595 00a4 1360     		str	r3, [r2]
+ 1596 00a6 0268     		ldr	r2, [r0]
+ 1597 00a8 1368     		ldr	r3, [r2]
+ 1598 00aa 43F48043 		orr	r3, r3, #16384
+ 1599 00ae 1360     		str	r3, [r2]
+ 1600 00b0 C9E7     		b	.L213
+ 1601              	.L220:
+ 1602 00b2 636D     		ldr	r3, [r4, #84]
+ 1603 00b4 43F01003 		orr	r3, r3, #16
+ 1604 00b8 6365     		str	r3, [r4, #84]
+ 1605 00ba 0123     		movs	r3, #1
+ 1606 00bc 84F85130 		strb	r3, [r4, #81]
+ 1607 00c0 00E0     		b	.L212
+ 1608              	.L217:
+ 1609 00c2 0225     		movs	r5, #2
+ 1610              	.L212:
+ 1611 00c4 0023     		movs	r3, #0
+ 1612 00c6 84F85030 		strb	r3, [r4, #80]
+ 1613              	.L211:
+ 1614 00ca 2846     		mov	r0, r5
+ 1615 00cc 38BD     		pop	{r3, r4, r5, pc}
+ 1616              	.L216:
+ 1617 00ce 0225     		movs	r5, #2
+ 1618 00d0 FBE7     		b	.L211
+ 1619              	.L222:
+ 1620 00d2 00BF     		.align	2
+ 1621              	.L221:
+ 1622 00d4 00000000 		.word	SPI_DMAHalfTransmitCplt
+ 1623 00d8 00000000 		.word	SPI_DMATransmitCplt
+ 1624 00dc 00000000 		.word	SPI_DMAError
+ 1626              		.section	.text.HAL_SPI_TransmitReceive_DMA,"ax",%progbits
+ 1627              		.align	1
+ 1628              		.global	HAL_SPI_TransmitReceive_DMA
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 29
+
+
+ 1629              		.syntax unified
+ 1630              		.thumb
+ 1631              		.thumb_func
+ 1633              	HAL_SPI_TransmitReceive_DMA:
+ 1634              		@ args = 0, pretend = 0, frame = 0
+ 1635              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1636 0000 10B5     		push	{r4, lr}
+ 1637 0002 0446     		mov	r4, r0
+ 1638 0004 90F85000 		ldrb	r0, [r0, #80]	@ zero_extendqisi2
+ 1639 0008 0128     		cmp	r0, #1
+ 1640 000a 00F09480 		beq	.L233
+ 1641 000e 0120     		movs	r0, #1
+ 1642 0010 84F85000 		strb	r0, [r4, #80]
+ 1643 0014 94F85100 		ldrb	r0, [r4, #81]	@ zero_extendqisi2
+ 1644 0018 5FFA80FE 		uxtb	lr, r0
+ 1645 001c D4F804C0 		ldr	ip, [r4, #4]
+ 1646 0020 0128     		cmp	r0, #1
+ 1647 0022 08D0     		beq	.L225
+ 1648 0024 BCF5827F 		cmp	ip, #260
+ 1649 0028 76D1     		bne	.L234
+ 1650 002a A068     		ldr	r0, [r4, #8]
+ 1651 002c 0028     		cmp	r0, #0
+ 1652 002e 78D1     		bne	.L235
+ 1653 0030 BEF1040F 		cmp	lr, #4
+ 1654 0034 77D1     		bne	.L236
+ 1655              	.L225:
+ 1656 0036 0029     		cmp	r1, #0
+ 1657 0038 77D0     		beq	.L237
+ 1658 003a 002A     		cmp	r2, #0
+ 1659 003c 77D0     		beq	.L238
+ 1660 003e 002B     		cmp	r3, #0
+ 1661 0040 77D0     		beq	.L239
+ 1662 0042 94F85100 		ldrb	r0, [r4, #81]	@ zero_extendqisi2
+ 1663 0046 0428     		cmp	r0, #4
+ 1664 0048 02D0     		beq	.L227
+ 1665 004a 0520     		movs	r0, #5
+ 1666 004c 84F85100 		strb	r0, [r4, #81]
+ 1667              	.L227:
+ 1668 0050 0020     		movs	r0, #0
+ 1669 0052 6065     		str	r0, [r4, #84]
+ 1670 0054 2163     		str	r1, [r4, #48]
+ 1671 0056 A386     		strh	r3, [r4, #52]	@ movhi
+ 1672 0058 E386     		strh	r3, [r4, #54]	@ movhi
+ 1673 005a A263     		str	r2, [r4, #56]
+ 1674 005c A387     		strh	r3, [r4, #60]	@ movhi
+ 1675 005e E387     		strh	r3, [r4, #62]	@ movhi
+ 1676 0060 2064     		str	r0, [r4, #64]
+ 1677 0062 6064     		str	r0, [r4, #68]
+ 1678 0064 94F85130 		ldrb	r3, [r4, #81]	@ zero_extendqisi2
+ 1679 0068 042B     		cmp	r3, #4
+ 1680 006a 1CD0     		beq	.L241
+ 1681 006c E36C     		ldr	r3, [r4, #76]
+ 1682 006e 334A     		ldr	r2, .L243
+ 1683 0070 1A64     		str	r2, [r3, #64]
+ 1684 0072 E36C     		ldr	r3, [r4, #76]
+ 1685 0074 324A     		ldr	r2, .L243+4
+ 1686 0076 DA63     		str	r2, [r3, #60]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 30
+
+
+ 1687              	.L229:
+ 1688 0078 E36C     		ldr	r3, [r4, #76]
+ 1689 007a 324A     		ldr	r2, .L243+8
+ 1690 007c DA64     		str	r2, [r3, #76]
+ 1691 007e E36C     		ldr	r3, [r4, #76]
+ 1692 0080 0022     		movs	r2, #0
+ 1693 0082 1A65     		str	r2, [r3, #80]
+ 1694 0084 2168     		ldr	r1, [r4]
+ 1695 0086 E38F     		ldrh	r3, [r4, #62]
+ 1696 0088 9BB2     		uxth	r3, r3
+ 1697 008a A26B     		ldr	r2, [r4, #56]
+ 1698 008c 0C31     		adds	r1, r1, #12
+ 1699 008e E06C     		ldr	r0, [r4, #76]
+ 1700 0090 FFF7FEFF 		bl	HAL_DMA_Start_IT
+ 1701 0094 70B1     		cbz	r0, .L230
+ 1702 0096 636D     		ldr	r3, [r4, #84]
+ 1703 0098 43F01003 		orr	r3, r3, #16
+ 1704 009c 6365     		str	r3, [r4, #84]
+ 1705 009e 0120     		movs	r0, #1
+ 1706 00a0 84F85100 		strb	r0, [r4, #81]
+ 1707 00a4 39E0     		b	.L226
+ 1708              	.L241:
+ 1709 00a6 E36C     		ldr	r3, [r4, #76]
+ 1710 00a8 274A     		ldr	r2, .L243+12
+ 1711 00aa 1A64     		str	r2, [r3, #64]
+ 1712 00ac E36C     		ldr	r3, [r4, #76]
+ 1713 00ae 274A     		ldr	r2, .L243+16
+ 1714 00b0 DA63     		str	r2, [r3, #60]
+ 1715 00b2 E1E7     		b	.L229
+ 1716              	.L230:
+ 1717 00b4 2268     		ldr	r2, [r4]
+ 1718 00b6 5368     		ldr	r3, [r2, #4]
+ 1719 00b8 43F00103 		orr	r3, r3, #1
+ 1720 00bc 5360     		str	r3, [r2, #4]
+ 1721 00be A26C     		ldr	r2, [r4, #72]
+ 1722 00c0 1064     		str	r0, [r2, #64]
+ 1723 00c2 A26C     		ldr	r2, [r4, #72]
+ 1724 00c4 D063     		str	r0, [r2, #60]
+ 1725 00c6 A26C     		ldr	r2, [r4, #72]
+ 1726 00c8 D064     		str	r0, [r2, #76]
+ 1727 00ca A26C     		ldr	r2, [r4, #72]
+ 1728 00cc 1065     		str	r0, [r2, #80]
+ 1729 00ce 2268     		ldr	r2, [r4]
+ 1730 00d0 E38E     		ldrh	r3, [r4, #54]
+ 1731 00d2 9BB2     		uxth	r3, r3
+ 1732 00d4 0C32     		adds	r2, r2, #12
+ 1733 00d6 216B     		ldr	r1, [r4, #48]
+ 1734 00d8 A06C     		ldr	r0, [r4, #72]
+ 1735 00da FFF7FEFF 		bl	HAL_DMA_Start_IT
+ 1736 00de 98B9     		cbnz	r0, .L242
+ 1737 00e0 2368     		ldr	r3, [r4]
+ 1738 00e2 1A68     		ldr	r2, [r3]
+ 1739 00e4 12F0400F 		tst	r2, #64
+ 1740 00e8 03D1     		bne	.L232
+ 1741 00ea 1A68     		ldr	r2, [r3]
+ 1742 00ec 42F04002 		orr	r2, r2, #64
+ 1743 00f0 1A60     		str	r2, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 31
+
+
+ 1744              	.L232:
+ 1745 00f2 2268     		ldr	r2, [r4]
+ 1746 00f4 5368     		ldr	r3, [r2, #4]
+ 1747 00f6 43F02003 		orr	r3, r3, #32
+ 1748 00fa 5360     		str	r3, [r2, #4]
+ 1749 00fc 2268     		ldr	r2, [r4]
+ 1750 00fe 5368     		ldr	r3, [r2, #4]
+ 1751 0100 43F00203 		orr	r3, r3, #2
+ 1752 0104 5360     		str	r3, [r2, #4]
+ 1753 0106 08E0     		b	.L226
+ 1754              	.L242:
+ 1755 0108 636D     		ldr	r3, [r4, #84]
+ 1756 010a 43F01003 		orr	r3, r3, #16
+ 1757 010e 6365     		str	r3, [r4, #84]
+ 1758 0110 0120     		movs	r0, #1
+ 1759 0112 84F85100 		strb	r0, [r4, #81]
+ 1760 0116 00E0     		b	.L226
+ 1761              	.L234:
+ 1762 0118 0220     		movs	r0, #2
+ 1763              	.L226:
+ 1764 011a 0023     		movs	r3, #0
+ 1765 011c 84F85030 		strb	r3, [r4, #80]
+ 1766              	.L224:
+ 1767 0120 10BD     		pop	{r4, pc}
+ 1768              	.L235:
+ 1769 0122 0220     		movs	r0, #2
+ 1770 0124 F9E7     		b	.L226
+ 1771              	.L236:
+ 1772 0126 0220     		movs	r0, #2
+ 1773 0128 F7E7     		b	.L226
+ 1774              	.L237:
+ 1775 012a 0120     		movs	r0, #1
+ 1776 012c F5E7     		b	.L226
+ 1777              	.L238:
+ 1778 012e 0120     		movs	r0, #1
+ 1779 0130 F3E7     		b	.L226
+ 1780              	.L239:
+ 1781 0132 0120     		movs	r0, #1
+ 1782 0134 F1E7     		b	.L226
+ 1783              	.L233:
+ 1784 0136 0220     		movs	r0, #2
+ 1785 0138 F2E7     		b	.L224
+ 1786              	.L244:
+ 1787 013a 00BF     		.align	2
+ 1788              	.L243:
+ 1789 013c 00000000 		.word	SPI_DMAHalfTransmitReceiveCplt
+ 1790 0140 00000000 		.word	SPI_DMATransmitReceiveCplt
+ 1791 0144 00000000 		.word	SPI_DMAError
+ 1792 0148 00000000 		.word	SPI_DMAHalfReceiveCplt
+ 1793 014c 00000000 		.word	SPI_DMAReceiveCplt
+ 1795              		.section	.text.HAL_SPI_Receive_DMA,"ax",%progbits
+ 1796              		.align	1
+ 1797              		.global	HAL_SPI_Receive_DMA
+ 1798              		.syntax unified
+ 1799              		.thumb
+ 1800              		.thumb_func
+ 1802              	HAL_SPI_Receive_DMA:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 32
+
+
+ 1803              		@ args = 0, pretend = 0, frame = 0
+ 1804              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1805 0000 38B5     		push	{r3, r4, r5, lr}
+ 1806 0002 0446     		mov	r4, r0
+ 1807 0004 8068     		ldr	r0, [r0, #8]
+ 1808 0006 18B9     		cbnz	r0, .L246
+ 1809 0008 6368     		ldr	r3, [r4, #4]
+ 1810 000a B3F5827F 		cmp	r3, #260
+ 1811 000e 49D0     		beq	.L255
+ 1812              	.L246:
+ 1813 0010 94F85030 		ldrb	r3, [r4, #80]	@ zero_extendqisi2
+ 1814 0014 012B     		cmp	r3, #1
+ 1815 0016 68D0     		beq	.L252
+ 1816 0018 0123     		movs	r3, #1
+ 1817 001a 84F85030 		strb	r3, [r4, #80]
+ 1818 001e 94F85130 		ldrb	r3, [r4, #81]	@ zero_extendqisi2
+ 1819 0022 DDB2     		uxtb	r5, r3
+ 1820 0024 012B     		cmp	r3, #1
+ 1821 0026 5AD1     		bne	.L253
+ 1822 0028 0029     		cmp	r1, #0
+ 1823 002a 59D0     		beq	.L248
+ 1824 002c 002A     		cmp	r2, #0
+ 1825 002e 57D0     		beq	.L248
+ 1826 0030 0423     		movs	r3, #4
+ 1827 0032 84F85130 		strb	r3, [r4, #81]
+ 1828 0036 0023     		movs	r3, #0
+ 1829 0038 6365     		str	r3, [r4, #84]
+ 1830 003a A163     		str	r1, [r4, #56]
+ 1831 003c A287     		strh	r2, [r4, #60]	@ movhi
+ 1832 003e E287     		strh	r2, [r4, #62]	@ movhi
+ 1833 0040 2364     		str	r3, [r4, #64]
+ 1834 0042 6364     		str	r3, [r4, #68]
+ 1835 0044 A386     		strh	r3, [r4, #52]	@ movhi
+ 1836 0046 E386     		strh	r3, [r4, #54]	@ movhi
+ 1837 0048 B0F5004F 		cmp	r0, #32768
+ 1838 004c 34D0     		beq	.L256
+ 1839              	.L249:
+ 1840 004e E36C     		ldr	r3, [r4, #76]
+ 1841 0050 274A     		ldr	r2, .L258
+ 1842 0052 1A64     		str	r2, [r3, #64]
+ 1843 0054 E36C     		ldr	r3, [r4, #76]
+ 1844 0056 274A     		ldr	r2, .L258+4
+ 1845 0058 DA63     		str	r2, [r3, #60]
+ 1846 005a E36C     		ldr	r3, [r4, #76]
+ 1847 005c 264A     		ldr	r2, .L258+8
+ 1848 005e DA64     		str	r2, [r3, #76]
+ 1849 0060 E36C     		ldr	r3, [r4, #76]
+ 1850 0062 0022     		movs	r2, #0
+ 1851 0064 1A65     		str	r2, [r3, #80]
+ 1852 0066 2168     		ldr	r1, [r4]
+ 1853 0068 E38F     		ldrh	r3, [r4, #62]
+ 1854 006a 9BB2     		uxth	r3, r3
+ 1855 006c A26B     		ldr	r2, [r4, #56]
+ 1856 006e 0C31     		adds	r1, r1, #12
+ 1857 0070 E06C     		ldr	r0, [r4, #76]
+ 1858 0072 FFF7FEFF 		bl	HAL_DMA_Start_IT
+ 1859 0076 0146     		mov	r1, r0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 33
+
+
+ 1860 0078 48BB     		cbnz	r0, .L257
+ 1861 007a 2368     		ldr	r3, [r4]
+ 1862 007c 1A68     		ldr	r2, [r3]
+ 1863 007e 12F0400F 		tst	r2, #64
+ 1864 0082 03D1     		bne	.L251
+ 1865 0084 1A68     		ldr	r2, [r3]
+ 1866 0086 42F04002 		orr	r2, r2, #64
+ 1867 008a 1A60     		str	r2, [r3]
+ 1868              	.L251:
+ 1869 008c 2268     		ldr	r2, [r4]
+ 1870 008e 5368     		ldr	r3, [r2, #4]
+ 1871 0090 43F02003 		orr	r3, r3, #32
+ 1872 0094 5360     		str	r3, [r2, #4]
+ 1873 0096 2268     		ldr	r2, [r4]
+ 1874 0098 5368     		ldr	r3, [r2, #4]
+ 1875 009a 43F00103 		orr	r3, r3, #1
+ 1876 009e 5360     		str	r3, [r2, #4]
+ 1877 00a0 0D46     		mov	r5, r1
+ 1878 00a2 1DE0     		b	.L248
+ 1879              	.L255:
+ 1880 00a4 0423     		movs	r3, #4
+ 1881 00a6 84F85130 		strb	r3, [r4, #81]
+ 1882 00aa 1346     		mov	r3, r2
+ 1883 00ac 0A46     		mov	r2, r1
+ 1884 00ae 2046     		mov	r0, r4
+ 1885 00b0 FFF7FEFF 		bl	HAL_SPI_TransmitReceive_DMA
+ 1886 00b4 0546     		mov	r5, r0
+ 1887 00b6 16E0     		b	.L247
+ 1888              	.L256:
+ 1889 00b8 2268     		ldr	r2, [r4]
+ 1890 00ba 1368     		ldr	r3, [r2]
+ 1891 00bc 23F04003 		bic	r3, r3, #64
+ 1892 00c0 1360     		str	r3, [r2]
+ 1893 00c2 2268     		ldr	r2, [r4]
+ 1894 00c4 1368     		ldr	r3, [r2]
+ 1895 00c6 23F48043 		bic	r3, r3, #16384
+ 1896 00ca 1360     		str	r3, [r2]
+ 1897 00cc BFE7     		b	.L249
+ 1898              	.L257:
+ 1899 00ce 636D     		ldr	r3, [r4, #84]
+ 1900 00d0 43F01003 		orr	r3, r3, #16
+ 1901 00d4 6365     		str	r3, [r4, #84]
+ 1902 00d6 0123     		movs	r3, #1
+ 1903 00d8 84F85130 		strb	r3, [r4, #81]
+ 1904 00dc 00E0     		b	.L248
+ 1905              	.L253:
+ 1906 00de 0225     		movs	r5, #2
+ 1907              	.L248:
+ 1908 00e0 0023     		movs	r3, #0
+ 1909 00e2 84F85030 		strb	r3, [r4, #80]
+ 1910              	.L247:
+ 1911 00e6 2846     		mov	r0, r5
+ 1912 00e8 38BD     		pop	{r3, r4, r5, pc}
+ 1913              	.L252:
+ 1914 00ea 0225     		movs	r5, #2
+ 1915 00ec FBE7     		b	.L247
+ 1916              	.L259:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 34
+
+
+ 1917 00ee 00BF     		.align	2
+ 1918              	.L258:
+ 1919 00f0 00000000 		.word	SPI_DMAHalfReceiveCplt
+ 1920 00f4 00000000 		.word	SPI_DMAReceiveCplt
+ 1921 00f8 00000000 		.word	SPI_DMAError
+ 1923              		.section	.text.HAL_SPI_Abort,"ax",%progbits
+ 1924              		.align	1
+ 1925              		.global	HAL_SPI_Abort
+ 1926              		.syntax unified
+ 1927              		.thumb
+ 1928              		.thumb_func
+ 1930              	HAL_SPI_Abort:
+ 1931              		@ args = 0, pretend = 0, frame = 16
+ 1932              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1933 0000 10B5     		push	{r4, lr}
+ 1934 0002 84B0     		sub	sp, sp, #16
+ 1935 0004 0446     		mov	r4, r0
+ 1936 0006 4A4B     		ldr	r3, .L281
+ 1937 0008 1B68     		ldr	r3, [r3]
+ 1938 000a 4A4A     		ldr	r2, .L281+4
+ 1939 000c A2FB0323 		umull	r2, r3, r2, r3
+ 1940 0010 5B0A     		lsrs	r3, r3, #9
+ 1941 0012 6422     		movs	r2, #100
+ 1942 0014 02FB03F3 		mul	r3, r2, r3
+ 1943 0018 0293     		str	r3, [sp, #8]
+ 1944 001a 029B     		ldr	r3, [sp, #8]
+ 1945 001c 0393     		str	r3, [sp, #12]
+ 1946 001e 0268     		ldr	r2, [r0]
+ 1947 0020 5368     		ldr	r3, [r2, #4]
+ 1948 0022 23F02003 		bic	r3, r3, #32
+ 1949 0026 5360     		str	r3, [r2, #4]
+ 1950 0028 0268     		ldr	r2, [r0]
+ 1951 002a 5368     		ldr	r3, [r2, #4]
+ 1952 002c 13F0800F 		tst	r3, #128
+ 1953 0030 11D0     		beq	.L261
+ 1954 0032 414B     		ldr	r3, .L281+8
+ 1955 0034 4364     		str	r3, [r0, #68]
+ 1956              	.L264:
+ 1957 0036 039B     		ldr	r3, [sp, #12]
+ 1958 0038 3BB1     		cbz	r3, .L278
+ 1959 003a 039B     		ldr	r3, [sp, #12]
+ 1960 003c 013B     		subs	r3, r3, #1
+ 1961 003e 0393     		str	r3, [sp, #12]
+ 1962 0040 94F85130 		ldrb	r3, [r4, #81]	@ zero_extendqisi2
+ 1963 0044 072B     		cmp	r3, #7
+ 1964 0046 F6D1     		bne	.L264
+ 1965 0048 03E0     		b	.L263
+ 1966              	.L278:
+ 1967 004a 636D     		ldr	r3, [r4, #84]
+ 1968 004c 43F04003 		orr	r3, r3, #64
+ 1969 0050 6365     		str	r3, [r4, #84]
+ 1970              	.L263:
+ 1971 0052 029B     		ldr	r3, [sp, #8]
+ 1972 0054 0393     		str	r3, [sp, #12]
+ 1973              	.L261:
+ 1974 0056 5368     		ldr	r3, [r2, #4]
+ 1975 0058 13F0400F 		tst	r3, #64
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 35
+
+
+ 1976 005c 11D0     		beq	.L265
+ 1977 005e 374B     		ldr	r3, .L281+12
+ 1978 0060 2364     		str	r3, [r4, #64]
+ 1979              	.L268:
+ 1980 0062 039B     		ldr	r3, [sp, #12]
+ 1981 0064 3BB1     		cbz	r3, .L279
+ 1982 0066 039B     		ldr	r3, [sp, #12]
+ 1983 0068 013B     		subs	r3, r3, #1
+ 1984 006a 0393     		str	r3, [sp, #12]
+ 1985 006c 94F85130 		ldrb	r3, [r4, #81]	@ zero_extendqisi2
+ 1986 0070 072B     		cmp	r3, #7
+ 1987 0072 F6D1     		bne	.L268
+ 1988 0074 03E0     		b	.L267
+ 1989              	.L279:
+ 1990 0076 636D     		ldr	r3, [r4, #84]
+ 1991 0078 43F04003 		orr	r3, r3, #64
+ 1992 007c 6365     		str	r3, [r4, #84]
+ 1993              	.L267:
+ 1994 007e 029B     		ldr	r3, [sp, #8]
+ 1995 0080 0393     		str	r3, [sp, #12]
+ 1996              	.L265:
+ 1997 0082 5368     		ldr	r3, [r2, #4]
+ 1998 0084 13F0020F 		tst	r3, #2
+ 1999 0088 1DD0     		beq	.L269
+ 2000 008a A36C     		ldr	r3, [r4, #72]
+ 2001 008c DBB1     		cbz	r3, .L269
+ 2002 008e 0022     		movs	r2, #0
+ 2003 0090 1A65     		str	r2, [r3, #80]
+ 2004 0092 A06C     		ldr	r0, [r4, #72]
+ 2005 0094 FFF7FEFF 		bl	HAL_DMA_Abort
+ 2006 0098 08B1     		cbz	r0, .L270
+ 2007 009a 4023     		movs	r3, #64
+ 2008 009c 6365     		str	r3, [r4, #84]
+ 2009              	.L270:
+ 2010 009e 2268     		ldr	r2, [r4]
+ 2011 00a0 5368     		ldr	r3, [r2, #4]
+ 2012 00a2 23F00203 		bic	r3, r3, #2
+ 2013 00a6 5360     		str	r3, [r2, #4]
+ 2014              	.L272:
+ 2015 00a8 039B     		ldr	r3, [sp, #12]
+ 2016 00aa 43B1     		cbz	r3, .L280
+ 2017 00ac 039B     		ldr	r3, [sp, #12]
+ 2018 00ae 013B     		subs	r3, r3, #1
+ 2019 00b0 0393     		str	r3, [sp, #12]
+ 2020 00b2 2368     		ldr	r3, [r4]
+ 2021 00b4 9B68     		ldr	r3, [r3, #8]
+ 2022 00b6 13F0020F 		tst	r3, #2
+ 2023 00ba F5D0     		beq	.L272
+ 2024 00bc 03E0     		b	.L269
+ 2025              	.L280:
+ 2026 00be 636D     		ldr	r3, [r4, #84]
+ 2027 00c0 43F04003 		orr	r3, r3, #64
+ 2028 00c4 6365     		str	r3, [r4, #84]
+ 2029              	.L269:
+ 2030 00c6 2368     		ldr	r3, [r4]
+ 2031 00c8 5B68     		ldr	r3, [r3, #4]
+ 2032 00ca 13F0010F 		tst	r3, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 36
+
+
+ 2033 00ce 13D0     		beq	.L273
+ 2034 00d0 E36C     		ldr	r3, [r4, #76]
+ 2035 00d2 8BB1     		cbz	r3, .L273
+ 2036 00d4 0022     		movs	r2, #0
+ 2037 00d6 1A65     		str	r2, [r3, #80]
+ 2038 00d8 E06C     		ldr	r0, [r4, #76]
+ 2039 00da FFF7FEFF 		bl	HAL_DMA_Abort
+ 2040 00de 08B1     		cbz	r0, .L274
+ 2041 00e0 4023     		movs	r3, #64
+ 2042 00e2 6365     		str	r3, [r4, #84]
+ 2043              	.L274:
+ 2044 00e4 2268     		ldr	r2, [r4]
+ 2045 00e6 1368     		ldr	r3, [r2]
+ 2046 00e8 23F04003 		bic	r3, r3, #64
+ 2047 00ec 1360     		str	r3, [r2]
+ 2048 00ee 2268     		ldr	r2, [r4]
+ 2049 00f0 5368     		ldr	r3, [r2, #4]
+ 2050 00f2 23F00103 		bic	r3, r3, #1
+ 2051 00f6 5360     		str	r3, [r2, #4]
+ 2052              	.L273:
+ 2053 00f8 0023     		movs	r3, #0
+ 2054 00fa E387     		strh	r3, [r4, #62]	@ movhi
+ 2055 00fc E386     		strh	r3, [r4, #54]	@ movhi
+ 2056 00fe 636D     		ldr	r3, [r4, #84]
+ 2057 0100 402B     		cmp	r3, #64
+ 2058 0102 12D0     		beq	.L276
+ 2059 0104 0020     		movs	r0, #0
+ 2060 0106 6065     		str	r0, [r4, #84]
+ 2061              	.L275:
+ 2062 0108 0022     		movs	r2, #0
+ 2063 010a 0092     		str	r2, [sp]
+ 2064 010c 2368     		ldr	r3, [r4]
+ 2065 010e D968     		ldr	r1, [r3, #12]
+ 2066 0110 0091     		str	r1, [sp]
+ 2067 0112 9968     		ldr	r1, [r3, #8]
+ 2068 0114 0091     		str	r1, [sp]
+ 2069 0116 0099     		ldr	r1, [sp]
+ 2070 0118 0192     		str	r2, [sp, #4]
+ 2071 011a 9B68     		ldr	r3, [r3, #8]
+ 2072 011c 0193     		str	r3, [sp, #4]
+ 2073 011e 019B     		ldr	r3, [sp, #4]
+ 2074 0120 0123     		movs	r3, #1
+ 2075 0122 84F85130 		strb	r3, [r4, #81]
+ 2076 0126 04B0     		add	sp, sp, #16
+ 2077              		@ sp needed
+ 2078 0128 10BD     		pop	{r4, pc}
+ 2079              	.L276:
+ 2080 012a 0120     		movs	r0, #1
+ 2081 012c ECE7     		b	.L275
+ 2082              	.L282:
+ 2083 012e 00BF     		.align	2
+ 2084              	.L281:
+ 2085 0130 00000000 		.word	SystemCoreClock
+ 2086 0134 F1197605 		.word	91625969
+ 2087 0138 00000000 		.word	SPI_AbortTx_ISR
+ 2088 013c 00000000 		.word	SPI_AbortRx_ISR
+ 2090              		.section	.text.HAL_SPI_DMAPause,"ax",%progbits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 37
+
+
+ 2091              		.align	1
+ 2092              		.global	HAL_SPI_DMAPause
+ 2093              		.syntax unified
+ 2094              		.thumb
+ 2095              		.thumb_func
+ 2097              	HAL_SPI_DMAPause:
+ 2098              		@ args = 0, pretend = 0, frame = 0
+ 2099              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2100              		@ link register save eliminated.
+ 2101 0000 90F85030 		ldrb	r3, [r0, #80]	@ zero_extendqisi2
+ 2102 0004 012B     		cmp	r3, #1
+ 2103 0006 0CD0     		beq	.L285
+ 2104 0008 0123     		movs	r3, #1
+ 2105 000a 80F85030 		strb	r3, [r0, #80]
+ 2106 000e 0268     		ldr	r2, [r0]
+ 2107 0010 5368     		ldr	r3, [r2, #4]
+ 2108 0012 23F00303 		bic	r3, r3, #3
+ 2109 0016 5360     		str	r3, [r2, #4]
+ 2110 0018 0023     		movs	r3, #0
+ 2111 001a 80F85030 		strb	r3, [r0, #80]
+ 2112 001e 1846     		mov	r0, r3
+ 2113 0020 7047     		bx	lr
+ 2114              	.L285:
+ 2115 0022 0220     		movs	r0, #2
+ 2116 0024 7047     		bx	lr
+ 2118              		.section	.text.HAL_SPI_DMAResume,"ax",%progbits
+ 2119              		.align	1
+ 2120              		.global	HAL_SPI_DMAResume
+ 2121              		.syntax unified
+ 2122              		.thumb
+ 2123              		.thumb_func
+ 2125              	HAL_SPI_DMAResume:
+ 2126              		@ args = 0, pretend = 0, frame = 0
+ 2127              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2128              		@ link register save eliminated.
+ 2129 0000 90F85030 		ldrb	r3, [r0, #80]	@ zero_extendqisi2
+ 2130 0004 012B     		cmp	r3, #1
+ 2131 0006 0CD0     		beq	.L288
+ 2132 0008 0123     		movs	r3, #1
+ 2133 000a 80F85030 		strb	r3, [r0, #80]
+ 2134 000e 0268     		ldr	r2, [r0]
+ 2135 0010 5368     		ldr	r3, [r2, #4]
+ 2136 0012 43F00303 		orr	r3, r3, #3
+ 2137 0016 5360     		str	r3, [r2, #4]
+ 2138 0018 0023     		movs	r3, #0
+ 2139 001a 80F85030 		strb	r3, [r0, #80]
+ 2140 001e 1846     		mov	r0, r3
+ 2141 0020 7047     		bx	lr
+ 2142              	.L288:
+ 2143 0022 0220     		movs	r0, #2
+ 2144 0024 7047     		bx	lr
+ 2146              		.section	.text.HAL_SPI_DMAStop,"ax",%progbits
+ 2147              		.align	1
+ 2148              		.global	HAL_SPI_DMAStop
+ 2149              		.syntax unified
+ 2150              		.thumb
+ 2151              		.thumb_func
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 38
+
+
+ 2153              	HAL_SPI_DMAStop:
+ 2154              		@ args = 0, pretend = 0, frame = 0
+ 2155              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2156 0000 38B5     		push	{r3, r4, r5, lr}
+ 2157 0002 0446     		mov	r4, r0
+ 2158 0004 806C     		ldr	r0, [r0, #72]
+ 2159 0006 50B1     		cbz	r0, .L292
+ 2160 0008 FFF7FEFF 		bl	HAL_DMA_Abort
+ 2161 000c 0546     		mov	r5, r0
+ 2162 000e 38B1     		cbz	r0, .L290
+ 2163 0010 636D     		ldr	r3, [r4, #84]
+ 2164 0012 43F01003 		orr	r3, r3, #16
+ 2165 0016 6365     		str	r3, [r4, #84]
+ 2166 0018 0123     		movs	r3, #1
+ 2167 001a 1D46     		mov	r5, r3
+ 2168 001c 00E0     		b	.L290
+ 2169              	.L292:
+ 2170 001e 0546     		mov	r5, r0
+ 2171              	.L290:
+ 2172 0020 E06C     		ldr	r0, [r4, #76]
+ 2173 0022 40B1     		cbz	r0, .L291
+ 2174 0024 FFF7FEFF 		bl	HAL_DMA_Abort
+ 2175 0028 28B1     		cbz	r0, .L291
+ 2176 002a 636D     		ldr	r3, [r4, #84]
+ 2177 002c 43F01003 		orr	r3, r3, #16
+ 2178 0030 6365     		str	r3, [r4, #84]
+ 2179 0032 0123     		movs	r3, #1
+ 2180 0034 1D46     		mov	r5, r3
+ 2181              	.L291:
+ 2182 0036 2268     		ldr	r2, [r4]
+ 2183 0038 5368     		ldr	r3, [r2, #4]
+ 2184 003a 23F00303 		bic	r3, r3, #3
+ 2185 003e 5360     		str	r3, [r2, #4]
+ 2186 0040 0123     		movs	r3, #1
+ 2187 0042 84F85130 		strb	r3, [r4, #81]
+ 2188 0046 2846     		mov	r0, r5
+ 2189 0048 38BD     		pop	{r3, r4, r5, pc}
+ 2191              		.section	.text.HAL_SPI_TxCpltCallback,"ax",%progbits
+ 2192              		.align	1
+ 2193              		.weak	HAL_SPI_TxCpltCallback
+ 2194              		.syntax unified
+ 2195              		.thumb
+ 2196              		.thumb_func
+ 2198              	HAL_SPI_TxCpltCallback:
+ 2199              		@ args = 0, pretend = 0, frame = 0
+ 2200              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2201              		@ link register save eliminated.
+ 2202 0000 7047     		bx	lr
+ 2204              		.section	.text.HAL_SPI_RxCpltCallback,"ax",%progbits
+ 2205              		.align	1
+ 2206              		.weak	HAL_SPI_RxCpltCallback
+ 2207              		.syntax unified
+ 2208              		.thumb
+ 2209              		.thumb_func
+ 2211              	HAL_SPI_RxCpltCallback:
+ 2212              		@ args = 0, pretend = 0, frame = 0
+ 2213              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 39
+
+
+ 2214              		@ link register save eliminated.
+ 2215 0000 7047     		bx	lr
+ 2217              		.section	.text.HAL_SPI_TxRxCpltCallback,"ax",%progbits
+ 2218              		.align	1
+ 2219              		.weak	HAL_SPI_TxRxCpltCallback
+ 2220              		.syntax unified
+ 2221              		.thumb
+ 2222              		.thumb_func
+ 2224              	HAL_SPI_TxRxCpltCallback:
+ 2225              		@ args = 0, pretend = 0, frame = 0
+ 2226              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2227              		@ link register save eliminated.
+ 2228 0000 7047     		bx	lr
+ 2230              		.section	.text.HAL_SPI_TxHalfCpltCallback,"ax",%progbits
+ 2231              		.align	1
+ 2232              		.weak	HAL_SPI_TxHalfCpltCallback
+ 2233              		.syntax unified
+ 2234              		.thumb
+ 2235              		.thumb_func
+ 2237              	HAL_SPI_TxHalfCpltCallback:
+ 2238              		@ args = 0, pretend = 0, frame = 0
+ 2239              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2240              		@ link register save eliminated.
+ 2241 0000 7047     		bx	lr
+ 2243              		.section	.text.SPI_DMAHalfTransmitCplt,"ax",%progbits
+ 2244              		.align	1
+ 2245              		.syntax unified
+ 2246              		.thumb
+ 2247              		.thumb_func
+ 2249              	SPI_DMAHalfTransmitCplt:
+ 2250              		@ args = 0, pretend = 0, frame = 0
+ 2251              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2252 0000 08B5     		push	{r3, lr}
+ 2253 0002 806B     		ldr	r0, [r0, #56]
+ 2254 0004 FFF7FEFF 		bl	HAL_SPI_TxHalfCpltCallback
+ 2255 0008 08BD     		pop	{r3, pc}
+ 2257              		.section	.text.HAL_SPI_RxHalfCpltCallback,"ax",%progbits
+ 2258              		.align	1
+ 2259              		.weak	HAL_SPI_RxHalfCpltCallback
+ 2260              		.syntax unified
+ 2261              		.thumb
+ 2262              		.thumb_func
+ 2264              	HAL_SPI_RxHalfCpltCallback:
+ 2265              		@ args = 0, pretend = 0, frame = 0
+ 2266              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2267              		@ link register save eliminated.
+ 2268 0000 7047     		bx	lr
+ 2270              		.section	.text.SPI_DMAHalfReceiveCplt,"ax",%progbits
+ 2271              		.align	1
+ 2272              		.syntax unified
+ 2273              		.thumb
+ 2274              		.thumb_func
+ 2276              	SPI_DMAHalfReceiveCplt:
+ 2277              		@ args = 0, pretend = 0, frame = 0
+ 2278              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2279 0000 08B5     		push	{r3, lr}
+ 2280 0002 806B     		ldr	r0, [r0, #56]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 40
+
+
+ 2281 0004 FFF7FEFF 		bl	HAL_SPI_RxHalfCpltCallback
+ 2282 0008 08BD     		pop	{r3, pc}
+ 2284              		.section	.text.HAL_SPI_TxRxHalfCpltCallback,"ax",%progbits
+ 2285              		.align	1
+ 2286              		.weak	HAL_SPI_TxRxHalfCpltCallback
+ 2287              		.syntax unified
+ 2288              		.thumb
+ 2289              		.thumb_func
+ 2291              	HAL_SPI_TxRxHalfCpltCallback:
+ 2292              		@ args = 0, pretend = 0, frame = 0
+ 2293              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2294              		@ link register save eliminated.
+ 2295 0000 7047     		bx	lr
+ 2297              		.section	.text.SPI_DMAHalfTransmitReceiveCplt,"ax",%progbits
+ 2298              		.align	1
+ 2299              		.syntax unified
+ 2300              		.thumb
+ 2301              		.thumb_func
+ 2303              	SPI_DMAHalfTransmitReceiveCplt:
+ 2304              		@ args = 0, pretend = 0, frame = 0
+ 2305              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2306 0000 08B5     		push	{r3, lr}
+ 2307 0002 806B     		ldr	r0, [r0, #56]
+ 2308 0004 FFF7FEFF 		bl	HAL_SPI_TxRxHalfCpltCallback
+ 2309 0008 08BD     		pop	{r3, pc}
+ 2311              		.section	.text.HAL_SPI_ErrorCallback,"ax",%progbits
+ 2312              		.align	1
+ 2313              		.weak	HAL_SPI_ErrorCallback
+ 2314              		.syntax unified
+ 2315              		.thumb
+ 2316              		.thumb_func
+ 2318              	HAL_SPI_ErrorCallback:
+ 2319              		@ args = 0, pretend = 0, frame = 0
+ 2320              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2321              		@ link register save eliminated.
+ 2322 0000 7047     		bx	lr
+ 2324              		.section	.text.SPI_CloseTx_ISR,"ax",%progbits
+ 2325              		.align	1
+ 2326              		.syntax unified
+ 2327              		.thumb
+ 2328              		.thumb_func
+ 2330              	SPI_CloseTx_ISR:
+ 2331              		@ args = 0, pretend = 0, frame = 8
+ 2332              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2333 0000 10B5     		push	{r4, lr}
+ 2334 0002 82B0     		sub	sp, sp, #8
+ 2335 0004 0446     		mov	r4, r0
+ 2336 0006 204B     		ldr	r3, .L317
+ 2337 0008 1B68     		ldr	r3, [r3]
+ 2338 000a 204A     		ldr	r2, .L317+4
+ 2339 000c A2FB0323 		umull	r2, r3, r2, r3
+ 2340 0010 5B0A     		lsrs	r3, r3, #9
+ 2341 0012 6422     		movs	r2, #100
+ 2342 0014 02FB03F3 		mul	r3, r2, r3
+ 2343 0018 0193     		str	r3, [sp, #4]
+ 2344 001a FFF7FEFF 		bl	HAL_GetTick
+ 2345 001e 0246     		mov	r2, r0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 41
+
+
+ 2346              	.L310:
+ 2347 0020 019B     		ldr	r3, [sp, #4]
+ 2348 0022 43B1     		cbz	r3, .L316
+ 2349 0024 019B     		ldr	r3, [sp, #4]
+ 2350 0026 013B     		subs	r3, r3, #1
+ 2351 0028 0193     		str	r3, [sp, #4]
+ 2352 002a 2368     		ldr	r3, [r4]
+ 2353 002c 9B68     		ldr	r3, [r3, #8]
+ 2354 002e 13F0020F 		tst	r3, #2
+ 2355 0032 F5D0     		beq	.L310
+ 2356 0034 03E0     		b	.L309
+ 2357              	.L316:
+ 2358 0036 636D     		ldr	r3, [r4, #84]
+ 2359 0038 43F02003 		orr	r3, r3, #32
+ 2360 003c 6365     		str	r3, [r4, #84]
+ 2361              	.L309:
+ 2362 003e 2168     		ldr	r1, [r4]
+ 2363 0040 4B68     		ldr	r3, [r1, #4]
+ 2364 0042 23F0A003 		bic	r3, r3, #160
+ 2365 0046 4B60     		str	r3, [r1, #4]
+ 2366 0048 6421     		movs	r1, #100
+ 2367 004a 2046     		mov	r0, r4
+ 2368 004c FFF7FEFF 		bl	SPI_EndRxTxTransaction
+ 2369 0050 18B1     		cbz	r0, .L311
+ 2370 0052 636D     		ldr	r3, [r4, #84]
+ 2371 0054 43F02003 		orr	r3, r3, #32
+ 2372 0058 6365     		str	r3, [r4, #84]
+ 2373              	.L311:
+ 2374 005a A368     		ldr	r3, [r4, #8]
+ 2375 005c 33B9     		cbnz	r3, .L312
+ 2376 005e 0093     		str	r3, [sp]
+ 2377 0060 2368     		ldr	r3, [r4]
+ 2378 0062 DA68     		ldr	r2, [r3, #12]
+ 2379 0064 0092     		str	r2, [sp]
+ 2380 0066 9B68     		ldr	r3, [r3, #8]
+ 2381 0068 0093     		str	r3, [sp]
+ 2382 006a 009B     		ldr	r3, [sp]
+ 2383              	.L312:
+ 2384 006c 0123     		movs	r3, #1
+ 2385 006e 84F85130 		strb	r3, [r4, #81]
+ 2386 0072 636D     		ldr	r3, [r4, #84]
+ 2387 0074 23B1     		cbz	r3, .L313
+ 2388 0076 2046     		mov	r0, r4
+ 2389 0078 FFF7FEFF 		bl	HAL_SPI_ErrorCallback
+ 2390              	.L307:
+ 2391 007c 02B0     		add	sp, sp, #8
+ 2392              		@ sp needed
+ 2393 007e 10BD     		pop	{r4, pc}
+ 2394              	.L313:
+ 2395 0080 2046     		mov	r0, r4
+ 2396 0082 FFF7FEFF 		bl	HAL_SPI_TxCpltCallback
+ 2397 0086 F9E7     		b	.L307
+ 2398              	.L318:
+ 2399              		.align	2
+ 2400              	.L317:
+ 2401 0088 00000000 		.word	SystemCoreClock
+ 2402 008c F1197605 		.word	91625969
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 42
+
+
+ 2404              		.section	.text.SPI_TxISR_8BIT,"ax",%progbits
+ 2405              		.align	1
+ 2406              		.syntax unified
+ 2407              		.thumb
+ 2408              		.thumb_func
+ 2410              	SPI_TxISR_8BIT:
+ 2411              		@ args = 0, pretend = 0, frame = 0
+ 2412              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2413 0000 08B5     		push	{r3, lr}
+ 2414 0002 026B     		ldr	r2, [r0, #48]
+ 2415 0004 0368     		ldr	r3, [r0]
+ 2416 0006 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 2417 0008 1A73     		strb	r2, [r3, #12]
+ 2418 000a 036B     		ldr	r3, [r0, #48]
+ 2419 000c 0133     		adds	r3, r3, #1
+ 2420 000e 0363     		str	r3, [r0, #48]
+ 2421 0010 C38E     		ldrh	r3, [r0, #54]
+ 2422 0012 9BB2     		uxth	r3, r3
+ 2423 0014 013B     		subs	r3, r3, #1
+ 2424 0016 9BB2     		uxth	r3, r3
+ 2425 0018 C386     		strh	r3, [r0, #54]	@ movhi
+ 2426 001a C38E     		ldrh	r3, [r0, #54]
+ 2427 001c 9BB2     		uxth	r3, r3
+ 2428 001e 03B1     		cbz	r3, .L322
+ 2429              	.L319:
+ 2430 0020 08BD     		pop	{r3, pc}
+ 2431              	.L322:
+ 2432 0022 FFF7FEFF 		bl	SPI_CloseTx_ISR
+ 2433 0026 FBE7     		b	.L319
+ 2435              		.section	.text.SPI_TxISR_16BIT,"ax",%progbits
+ 2436              		.align	1
+ 2437              		.syntax unified
+ 2438              		.thumb
+ 2439              		.thumb_func
+ 2441              	SPI_TxISR_16BIT:
+ 2442              		@ args = 0, pretend = 0, frame = 0
+ 2443              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2444 0000 08B5     		push	{r3, lr}
+ 2445 0002 026B     		ldr	r2, [r0, #48]
+ 2446 0004 0368     		ldr	r3, [r0]
+ 2447 0006 1288     		ldrh	r2, [r2]
+ 2448 0008 DA60     		str	r2, [r3, #12]
+ 2449 000a 036B     		ldr	r3, [r0, #48]
+ 2450 000c 0233     		adds	r3, r3, #2
+ 2451 000e 0363     		str	r3, [r0, #48]
+ 2452 0010 C38E     		ldrh	r3, [r0, #54]
+ 2453 0012 9BB2     		uxth	r3, r3
+ 2454 0014 013B     		subs	r3, r3, #1
+ 2455 0016 9BB2     		uxth	r3, r3
+ 2456 0018 C386     		strh	r3, [r0, #54]	@ movhi
+ 2457 001a C38E     		ldrh	r3, [r0, #54]
+ 2458 001c 9BB2     		uxth	r3, r3
+ 2459 001e 03B1     		cbz	r3, .L326
+ 2460              	.L323:
+ 2461 0020 08BD     		pop	{r3, pc}
+ 2462              	.L326:
+ 2463 0022 FFF7FEFF 		bl	SPI_CloseTx_ISR
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 43
+
+
+ 2464 0026 FBE7     		b	.L323
+ 2466              		.section	.text.SPI_CloseRx_ISR,"ax",%progbits
+ 2467              		.align	1
+ 2468              		.syntax unified
+ 2469              		.thumb
+ 2470              		.thumb_func
+ 2472              	SPI_CloseRx_ISR:
+ 2473              		@ args = 0, pretend = 0, frame = 8
+ 2474              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2475 0000 10B5     		push	{r4, lr}
+ 2476 0002 82B0     		sub	sp, sp, #8
+ 2477 0004 0446     		mov	r4, r0
+ 2478 0006 0268     		ldr	r2, [r0]
+ 2479 0008 5368     		ldr	r3, [r2, #4]
+ 2480 000a 23F06003 		bic	r3, r3, #96
+ 2481 000e 5360     		str	r3, [r2, #4]
+ 2482 0010 FFF7FEFF 		bl	HAL_GetTick
+ 2483 0014 0246     		mov	r2, r0
+ 2484 0016 6421     		movs	r1, #100
+ 2485 0018 2046     		mov	r0, r4
+ 2486 001a FFF7FEFF 		bl	SPI_EndRxTransaction
+ 2487 001e 18B1     		cbz	r0, .L328
+ 2488 0020 636D     		ldr	r3, [r4, #84]
+ 2489 0022 43F02003 		orr	r3, r3, #32
+ 2490 0026 6365     		str	r3, [r4, #84]
+ 2491              	.L328:
+ 2492 0028 A368     		ldr	r3, [r4, #8]
+ 2493 002a 33B9     		cbnz	r3, .L329
+ 2494 002c 0193     		str	r3, [sp, #4]
+ 2495 002e 2368     		ldr	r3, [r4]
+ 2496 0030 DA68     		ldr	r2, [r3, #12]
+ 2497 0032 0192     		str	r2, [sp, #4]
+ 2498 0034 9B68     		ldr	r3, [r3, #8]
+ 2499 0036 0193     		str	r3, [sp, #4]
+ 2500 0038 019B     		ldr	r3, [sp, #4]
+ 2501              	.L329:
+ 2502 003a 0123     		movs	r3, #1
+ 2503 003c 84F85130 		strb	r3, [r4, #81]
+ 2504 0040 636D     		ldr	r3, [r4, #84]
+ 2505 0042 23B9     		cbnz	r3, .L330
+ 2506 0044 2046     		mov	r0, r4
+ 2507 0046 FFF7FEFF 		bl	HAL_SPI_RxCpltCallback
+ 2508              	.L327:
+ 2509 004a 02B0     		add	sp, sp, #8
+ 2510              		@ sp needed
+ 2511 004c 10BD     		pop	{r4, pc}
+ 2512              	.L330:
+ 2513 004e 2046     		mov	r0, r4
+ 2514 0050 FFF7FEFF 		bl	HAL_SPI_ErrorCallback
+ 2515 0054 F9E7     		b	.L327
+ 2517              		.section	.text.SPI_RxISR_8BIT,"ax",%progbits
+ 2518              		.align	1
+ 2519              		.syntax unified
+ 2520              		.thumb
+ 2521              		.thumb_func
+ 2523              	SPI_RxISR_8BIT:
+ 2524              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 44
+
+
+ 2525              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2526 0000 08B5     		push	{r3, lr}
+ 2527 0002 0268     		ldr	r2, [r0]
+ 2528 0004 836B     		ldr	r3, [r0, #56]
+ 2529 0006 127B     		ldrb	r2, [r2, #12]	@ zero_extendqisi2
+ 2530 0008 1A70     		strb	r2, [r3]
+ 2531 000a 836B     		ldr	r3, [r0, #56]
+ 2532 000c 0133     		adds	r3, r3, #1
+ 2533 000e 8363     		str	r3, [r0, #56]
+ 2534 0010 C38F     		ldrh	r3, [r0, #62]
+ 2535 0012 9BB2     		uxth	r3, r3
+ 2536 0014 013B     		subs	r3, r3, #1
+ 2537 0016 9BB2     		uxth	r3, r3
+ 2538 0018 C387     		strh	r3, [r0, #62]	@ movhi
+ 2539 001a C38F     		ldrh	r3, [r0, #62]
+ 2540 001c 9BB2     		uxth	r3, r3
+ 2541 001e 03B1     		cbz	r3, .L336
+ 2542              	.L333:
+ 2543 0020 08BD     		pop	{r3, pc}
+ 2544              	.L336:
+ 2545 0022 FFF7FEFF 		bl	SPI_CloseRx_ISR
+ 2546 0026 FBE7     		b	.L333
+ 2548              		.section	.text.SPI_RxISR_16BIT,"ax",%progbits
+ 2549              		.align	1
+ 2550              		.syntax unified
+ 2551              		.thumb
+ 2552              		.thumb_func
+ 2554              	SPI_RxISR_16BIT:
+ 2555              		@ args = 0, pretend = 0, frame = 0
+ 2556              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2557 0000 08B5     		push	{r3, lr}
+ 2558 0002 0368     		ldr	r3, [r0]
+ 2559 0004 DA68     		ldr	r2, [r3, #12]
+ 2560 0006 836B     		ldr	r3, [r0, #56]
+ 2561 0008 1A80     		strh	r2, [r3]	@ movhi
+ 2562 000a 836B     		ldr	r3, [r0, #56]
+ 2563 000c 0233     		adds	r3, r3, #2
+ 2564 000e 8363     		str	r3, [r0, #56]
+ 2565 0010 C38F     		ldrh	r3, [r0, #62]
+ 2566 0012 9BB2     		uxth	r3, r3
+ 2567 0014 013B     		subs	r3, r3, #1
+ 2568 0016 9BB2     		uxth	r3, r3
+ 2569 0018 C387     		strh	r3, [r0, #62]	@ movhi
+ 2570 001a C38F     		ldrh	r3, [r0, #62]
+ 2571 001c 9BB2     		uxth	r3, r3
+ 2572 001e 03B1     		cbz	r3, .L340
+ 2573              	.L337:
+ 2574 0020 08BD     		pop	{r3, pc}
+ 2575              	.L340:
+ 2576 0022 FFF7FEFF 		bl	SPI_CloseRx_ISR
+ 2577 0026 FBE7     		b	.L337
+ 2579              		.section	.text.SPI_CloseRxTx_ISR,"ax",%progbits
+ 2580              		.align	1
+ 2581              		.syntax unified
+ 2582              		.thumb
+ 2583              		.thumb_func
+ 2585              	SPI_CloseRxTx_ISR:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 45
+
+
+ 2586              		@ args = 0, pretend = 0, frame = 8
+ 2587              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2588 0000 10B5     		push	{r4, lr}
+ 2589 0002 82B0     		sub	sp, sp, #8
+ 2590 0004 0446     		mov	r4, r0
+ 2591 0006 274B     		ldr	r3, .L353
+ 2592 0008 1B68     		ldr	r3, [r3]
+ 2593 000a 274A     		ldr	r2, .L353+4
+ 2594 000c A2FB0323 		umull	r2, r3, r2, r3
+ 2595 0010 5B0A     		lsrs	r3, r3, #9
+ 2596 0012 6422     		movs	r2, #100
+ 2597 0014 02FB03F3 		mul	r3, r2, r3
+ 2598 0018 0193     		str	r3, [sp, #4]
+ 2599 001a FFF7FEFF 		bl	HAL_GetTick
+ 2600 001e 0246     		mov	r2, r0
+ 2601 0020 2168     		ldr	r1, [r4]
+ 2602 0022 4B68     		ldr	r3, [r1, #4]
+ 2603 0024 23F02003 		bic	r3, r3, #32
+ 2604 0028 4B60     		str	r3, [r1, #4]
+ 2605              	.L344:
+ 2606 002a 019B     		ldr	r3, [sp, #4]
+ 2607 002c 43B1     		cbz	r3, .L351
+ 2608 002e 019B     		ldr	r3, [sp, #4]
+ 2609 0030 013B     		subs	r3, r3, #1
+ 2610 0032 0193     		str	r3, [sp, #4]
+ 2611 0034 2368     		ldr	r3, [r4]
+ 2612 0036 9B68     		ldr	r3, [r3, #8]
+ 2613 0038 13F0020F 		tst	r3, #2
+ 2614 003c F5D0     		beq	.L344
+ 2615 003e 03E0     		b	.L343
+ 2616              	.L351:
+ 2617 0040 636D     		ldr	r3, [r4, #84]
+ 2618 0042 43F02003 		orr	r3, r3, #32
+ 2619 0046 6365     		str	r3, [r4, #84]
+ 2620              	.L343:
+ 2621 0048 6421     		movs	r1, #100
+ 2622 004a 2046     		mov	r0, r4
+ 2623 004c FFF7FEFF 		bl	SPI_EndRxTxTransaction
+ 2624 0050 18B1     		cbz	r0, .L345
+ 2625 0052 636D     		ldr	r3, [r4, #84]
+ 2626 0054 43F02003 		orr	r3, r3, #32
+ 2627 0058 6365     		str	r3, [r4, #84]
+ 2628              	.L345:
+ 2629 005a A368     		ldr	r3, [r4, #8]
+ 2630 005c 33B9     		cbnz	r3, .L346
+ 2631 005e 0093     		str	r3, [sp]
+ 2632 0060 2368     		ldr	r3, [r4]
+ 2633 0062 DA68     		ldr	r2, [r3, #12]
+ 2634 0064 0092     		str	r2, [sp]
+ 2635 0066 9B68     		ldr	r3, [r3, #8]
+ 2636 0068 0093     		str	r3, [sp]
+ 2637 006a 009B     		ldr	r3, [sp]
+ 2638              	.L346:
+ 2639 006c 636D     		ldr	r3, [r4, #84]
+ 2640 006e 93B9     		cbnz	r3, .L347
+ 2641 0070 94F85130 		ldrb	r3, [r4, #81]	@ zero_extendqisi2
+ 2642 0074 042B     		cmp	r3, #4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 46
+
+
+ 2643 0076 07D0     		beq	.L352
+ 2644 0078 0123     		movs	r3, #1
+ 2645 007a 84F85130 		strb	r3, [r4, #81]
+ 2646 007e 2046     		mov	r0, r4
+ 2647 0080 FFF7FEFF 		bl	HAL_SPI_TxRxCpltCallback
+ 2648              	.L341:
+ 2649 0084 02B0     		add	sp, sp, #8
+ 2650              		@ sp needed
+ 2651 0086 10BD     		pop	{r4, pc}
+ 2652              	.L352:
+ 2653 0088 0123     		movs	r3, #1
+ 2654 008a 84F85130 		strb	r3, [r4, #81]
+ 2655 008e 2046     		mov	r0, r4
+ 2656 0090 FFF7FEFF 		bl	HAL_SPI_RxCpltCallback
+ 2657 0094 F6E7     		b	.L341
+ 2658              	.L347:
+ 2659 0096 0123     		movs	r3, #1
+ 2660 0098 84F85130 		strb	r3, [r4, #81]
+ 2661 009c 2046     		mov	r0, r4
+ 2662 009e FFF7FEFF 		bl	HAL_SPI_ErrorCallback
+ 2663 00a2 EFE7     		b	.L341
+ 2664              	.L354:
+ 2665              		.align	2
+ 2666              	.L353:
+ 2667 00a4 00000000 		.word	SystemCoreClock
+ 2668 00a8 F1197605 		.word	91625969
+ 2670              		.section	.text.SPI_2linesTxISR_8BIT,"ax",%progbits
+ 2671              		.align	1
+ 2672              		.syntax unified
+ 2673              		.thumb
+ 2674              		.thumb_func
+ 2676              	SPI_2linesTxISR_8BIT:
+ 2677              		@ args = 0, pretend = 0, frame = 0
+ 2678              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2679 0000 08B5     		push	{r3, lr}
+ 2680 0002 026B     		ldr	r2, [r0, #48]
+ 2681 0004 0368     		ldr	r3, [r0]
+ 2682 0006 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 2683 0008 1A73     		strb	r2, [r3, #12]
+ 2684 000a 036B     		ldr	r3, [r0, #48]
+ 2685 000c 0133     		adds	r3, r3, #1
+ 2686 000e 0363     		str	r3, [r0, #48]
+ 2687 0010 C38E     		ldrh	r3, [r0, #54]
+ 2688 0012 9BB2     		uxth	r3, r3
+ 2689 0014 013B     		subs	r3, r3, #1
+ 2690 0016 9BB2     		uxth	r3, r3
+ 2691 0018 C386     		strh	r3, [r0, #54]	@ movhi
+ 2692 001a C38E     		ldrh	r3, [r0, #54]
+ 2693 001c 9BB2     		uxth	r3, r3
+ 2694 001e 3BB9     		cbnz	r3, .L355
+ 2695 0020 0268     		ldr	r2, [r0]
+ 2696 0022 5368     		ldr	r3, [r2, #4]
+ 2697 0024 23F08003 		bic	r3, r3, #128
+ 2698 0028 5360     		str	r3, [r2, #4]
+ 2699 002a C38F     		ldrh	r3, [r0, #62]
+ 2700 002c 9BB2     		uxth	r3, r3
+ 2701 002e 03B1     		cbz	r3, .L358
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 47
+
+
+ 2702              	.L355:
+ 2703 0030 08BD     		pop	{r3, pc}
+ 2704              	.L358:
+ 2705 0032 FFF7FEFF 		bl	SPI_CloseRxTx_ISR
+ 2706 0036 FBE7     		b	.L355
+ 2708              		.section	.text.SPI_2linesRxISR_8BIT,"ax",%progbits
+ 2709              		.align	1
+ 2710              		.syntax unified
+ 2711              		.thumb
+ 2712              		.thumb_func
+ 2714              	SPI_2linesRxISR_8BIT:
+ 2715              		@ args = 0, pretend = 0, frame = 0
+ 2716              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2717 0000 08B5     		push	{r3, lr}
+ 2718 0002 0268     		ldr	r2, [r0]
+ 2719 0004 836B     		ldr	r3, [r0, #56]
+ 2720 0006 127B     		ldrb	r2, [r2, #12]	@ zero_extendqisi2
+ 2721 0008 1A70     		strb	r2, [r3]
+ 2722 000a 836B     		ldr	r3, [r0, #56]
+ 2723 000c 0133     		adds	r3, r3, #1
+ 2724 000e 8363     		str	r3, [r0, #56]
+ 2725 0010 C38F     		ldrh	r3, [r0, #62]
+ 2726 0012 9BB2     		uxth	r3, r3
+ 2727 0014 013B     		subs	r3, r3, #1
+ 2728 0016 9BB2     		uxth	r3, r3
+ 2729 0018 C387     		strh	r3, [r0, #62]	@ movhi
+ 2730 001a C38F     		ldrh	r3, [r0, #62]
+ 2731 001c 9BB2     		uxth	r3, r3
+ 2732 001e 3BB9     		cbnz	r3, .L359
+ 2733 0020 0268     		ldr	r2, [r0]
+ 2734 0022 5368     		ldr	r3, [r2, #4]
+ 2735 0024 23F06003 		bic	r3, r3, #96
+ 2736 0028 5360     		str	r3, [r2, #4]
+ 2737 002a C38E     		ldrh	r3, [r0, #54]
+ 2738 002c 9BB2     		uxth	r3, r3
+ 2739 002e 03B1     		cbz	r3, .L362
+ 2740              	.L359:
+ 2741 0030 08BD     		pop	{r3, pc}
+ 2742              	.L362:
+ 2743 0032 FFF7FEFF 		bl	SPI_CloseRxTx_ISR
+ 2744 0036 FBE7     		b	.L359
+ 2746              		.section	.text.SPI_2linesTxISR_16BIT,"ax",%progbits
+ 2747              		.align	1
+ 2748              		.syntax unified
+ 2749              		.thumb
+ 2750              		.thumb_func
+ 2752              	SPI_2linesTxISR_16BIT:
+ 2753              		@ args = 0, pretend = 0, frame = 0
+ 2754              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2755 0000 08B5     		push	{r3, lr}
+ 2756 0002 026B     		ldr	r2, [r0, #48]
+ 2757 0004 0368     		ldr	r3, [r0]
+ 2758 0006 1288     		ldrh	r2, [r2]
+ 2759 0008 DA60     		str	r2, [r3, #12]
+ 2760 000a 036B     		ldr	r3, [r0, #48]
+ 2761 000c 0233     		adds	r3, r3, #2
+ 2762 000e 0363     		str	r3, [r0, #48]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 48
+
+
+ 2763 0010 C38E     		ldrh	r3, [r0, #54]
+ 2764 0012 9BB2     		uxth	r3, r3
+ 2765 0014 013B     		subs	r3, r3, #1
+ 2766 0016 9BB2     		uxth	r3, r3
+ 2767 0018 C386     		strh	r3, [r0, #54]	@ movhi
+ 2768 001a C38E     		ldrh	r3, [r0, #54]
+ 2769 001c 9BB2     		uxth	r3, r3
+ 2770 001e 3BB9     		cbnz	r3, .L363
+ 2771 0020 0268     		ldr	r2, [r0]
+ 2772 0022 5368     		ldr	r3, [r2, #4]
+ 2773 0024 23F08003 		bic	r3, r3, #128
+ 2774 0028 5360     		str	r3, [r2, #4]
+ 2775 002a C38F     		ldrh	r3, [r0, #62]
+ 2776 002c 9BB2     		uxth	r3, r3
+ 2777 002e 03B1     		cbz	r3, .L366
+ 2778              	.L363:
+ 2779 0030 08BD     		pop	{r3, pc}
+ 2780              	.L366:
+ 2781 0032 FFF7FEFF 		bl	SPI_CloseRxTx_ISR
+ 2782 0036 FBE7     		b	.L363
+ 2784              		.section	.text.SPI_2linesRxISR_16BIT,"ax",%progbits
+ 2785              		.align	1
+ 2786              		.syntax unified
+ 2787              		.thumb
+ 2788              		.thumb_func
+ 2790              	SPI_2linesRxISR_16BIT:
+ 2791              		@ args = 0, pretend = 0, frame = 0
+ 2792              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2793 0000 08B5     		push	{r3, lr}
+ 2794 0002 0368     		ldr	r3, [r0]
+ 2795 0004 DA68     		ldr	r2, [r3, #12]
+ 2796 0006 836B     		ldr	r3, [r0, #56]
+ 2797 0008 1A80     		strh	r2, [r3]	@ movhi
+ 2798 000a 836B     		ldr	r3, [r0, #56]
+ 2799 000c 0233     		adds	r3, r3, #2
+ 2800 000e 8363     		str	r3, [r0, #56]
+ 2801 0010 C38F     		ldrh	r3, [r0, #62]
+ 2802 0012 9BB2     		uxth	r3, r3
+ 2803 0014 013B     		subs	r3, r3, #1
+ 2804 0016 9BB2     		uxth	r3, r3
+ 2805 0018 C387     		strh	r3, [r0, #62]	@ movhi
+ 2806 001a C38F     		ldrh	r3, [r0, #62]
+ 2807 001c 9BB2     		uxth	r3, r3
+ 2808 001e 3BB9     		cbnz	r3, .L367
+ 2809 0020 0268     		ldr	r2, [r0]
+ 2810 0022 5368     		ldr	r3, [r2, #4]
+ 2811 0024 23F04003 		bic	r3, r3, #64
+ 2812 0028 5360     		str	r3, [r2, #4]
+ 2813 002a C38E     		ldrh	r3, [r0, #54]
+ 2814 002c 9BB2     		uxth	r3, r3
+ 2815 002e 03B1     		cbz	r3, .L370
+ 2816              	.L367:
+ 2817 0030 08BD     		pop	{r3, pc}
+ 2818              	.L370:
+ 2819 0032 FFF7FEFF 		bl	SPI_CloseRxTx_ISR
+ 2820 0036 FBE7     		b	.L367
+ 2822              		.section	.text.SPI_DMAError,"ax",%progbits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 49
+
+
+ 2823              		.align	1
+ 2824              		.syntax unified
+ 2825              		.thumb
+ 2826              		.thumb_func
+ 2828              	SPI_DMAError:
+ 2829              		@ args = 0, pretend = 0, frame = 0
+ 2830              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2831 0000 08B5     		push	{r3, lr}
+ 2832 0002 806B     		ldr	r0, [r0, #56]
+ 2833 0004 0268     		ldr	r2, [r0]
+ 2834 0006 5368     		ldr	r3, [r2, #4]
+ 2835 0008 23F00303 		bic	r3, r3, #3
+ 2836 000c 5360     		str	r3, [r2, #4]
+ 2837 000e 436D     		ldr	r3, [r0, #84]
+ 2838 0010 43F01003 		orr	r3, r3, #16
+ 2839 0014 4365     		str	r3, [r0, #84]
+ 2840 0016 0123     		movs	r3, #1
+ 2841 0018 80F85130 		strb	r3, [r0, #81]
+ 2842 001c FFF7FEFF 		bl	HAL_SPI_ErrorCallback
+ 2843 0020 08BD     		pop	{r3, pc}
+ 2845              		.section	.text.SPI_DMATransmitCplt,"ax",%progbits
+ 2846              		.align	1
+ 2847              		.syntax unified
+ 2848              		.thumb
+ 2849              		.thumb_func
+ 2851              	SPI_DMATransmitCplt:
+ 2852              		@ args = 0, pretend = 0, frame = 8
+ 2853              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2854 0000 30B5     		push	{r4, r5, lr}
+ 2855 0002 83B0     		sub	sp, sp, #12
+ 2856 0004 0546     		mov	r5, r0
+ 2857 0006 846B     		ldr	r4, [r0, #56]
+ 2858 0008 FFF7FEFF 		bl	HAL_GetTick
+ 2859 000c 2B68     		ldr	r3, [r5]
+ 2860 000e 1B68     		ldr	r3, [r3]
+ 2861 0010 13F4807F 		tst	r3, #256
+ 2862 0014 23D1     		bne	.L374
+ 2863 0016 0246     		mov	r2, r0
+ 2864 0018 2168     		ldr	r1, [r4]
+ 2865 001a 4B68     		ldr	r3, [r1, #4]
+ 2866 001c 23F02003 		bic	r3, r3, #32
+ 2867 0020 4B60     		str	r3, [r1, #4]
+ 2868 0022 2168     		ldr	r1, [r4]
+ 2869 0024 4B68     		ldr	r3, [r1, #4]
+ 2870 0026 23F00203 		bic	r3, r3, #2
+ 2871 002a 4B60     		str	r3, [r1, #4]
+ 2872 002c 6421     		movs	r1, #100
+ 2873 002e 2046     		mov	r0, r4
+ 2874 0030 FFF7FEFF 		bl	SPI_EndRxTxTransaction
+ 2875 0034 18B1     		cbz	r0, .L375
+ 2876 0036 636D     		ldr	r3, [r4, #84]
+ 2877 0038 43F02003 		orr	r3, r3, #32
+ 2878 003c 6365     		str	r3, [r4, #84]
+ 2879              	.L375:
+ 2880 003e A368     		ldr	r3, [r4, #8]
+ 2881 0040 33B9     		cbnz	r3, .L376
+ 2882 0042 0193     		str	r3, [sp, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 50
+
+
+ 2883 0044 2368     		ldr	r3, [r4]
+ 2884 0046 DA68     		ldr	r2, [r3, #12]
+ 2885 0048 0192     		str	r2, [sp, #4]
+ 2886 004a 9B68     		ldr	r3, [r3, #8]
+ 2887 004c 0193     		str	r3, [sp, #4]
+ 2888 004e 019B     		ldr	r3, [sp, #4]
+ 2889              	.L376:
+ 2890 0050 0023     		movs	r3, #0
+ 2891 0052 E386     		strh	r3, [r4, #54]	@ movhi
+ 2892 0054 0123     		movs	r3, #1
+ 2893 0056 84F85130 		strb	r3, [r4, #81]
+ 2894 005a 636D     		ldr	r3, [r4, #84]
+ 2895 005c 23B9     		cbnz	r3, .L379
+ 2896              	.L374:
+ 2897 005e 2046     		mov	r0, r4
+ 2898 0060 FFF7FEFF 		bl	HAL_SPI_TxCpltCallback
+ 2899              	.L373:
+ 2900 0064 03B0     		add	sp, sp, #12
+ 2901              		@ sp needed
+ 2902 0066 30BD     		pop	{r4, r5, pc}
+ 2903              	.L379:
+ 2904 0068 2046     		mov	r0, r4
+ 2905 006a FFF7FEFF 		bl	HAL_SPI_ErrorCallback
+ 2906 006e F9E7     		b	.L373
+ 2908              		.section	.text.SPI_DMAReceiveCplt,"ax",%progbits
+ 2909              		.align	1
+ 2910              		.syntax unified
+ 2911              		.thumb
+ 2912              		.thumb_func
+ 2914              	SPI_DMAReceiveCplt:
+ 2915              		@ args = 0, pretend = 0, frame = 0
+ 2916              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2917 0000 38B5     		push	{r3, r4, r5, lr}
+ 2918 0002 0546     		mov	r5, r0
+ 2919 0004 846B     		ldr	r4, [r0, #56]
+ 2920 0006 FFF7FEFF 		bl	HAL_GetTick
+ 2921 000a 2B68     		ldr	r3, [r5]
+ 2922 000c 1B68     		ldr	r3, [r3]
+ 2923 000e 13F4807F 		tst	r3, #256
+ 2924 0012 1ED1     		bne	.L381
+ 2925 0014 0246     		mov	r2, r0
+ 2926 0016 2168     		ldr	r1, [r4]
+ 2927 0018 4B68     		ldr	r3, [r1, #4]
+ 2928 001a 23F02003 		bic	r3, r3, #32
+ 2929 001e 4B60     		str	r3, [r1, #4]
+ 2930 0020 A368     		ldr	r3, [r4, #8]
+ 2931 0022 1BB9     		cbnz	r3, .L382
+ 2932 0024 6368     		ldr	r3, [r4, #4]
+ 2933 0026 B3F5827F 		cmp	r3, #260
+ 2934 002a 16D0     		beq	.L387
+ 2935              	.L382:
+ 2936 002c 2168     		ldr	r1, [r4]
+ 2937 002e 4B68     		ldr	r3, [r1, #4]
+ 2938 0030 23F00103 		bic	r3, r3, #1
+ 2939 0034 4B60     		str	r3, [r1, #4]
+ 2940              	.L383:
+ 2941 0036 6421     		movs	r1, #100
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 51
+
+
+ 2942 0038 2046     		mov	r0, r4
+ 2943 003a FFF7FEFF 		bl	SPI_EndRxTransaction
+ 2944 003e 08B1     		cbz	r0, .L384
+ 2945 0040 2023     		movs	r3, #32
+ 2946 0042 6365     		str	r3, [r4, #84]
+ 2947              	.L384:
+ 2948 0044 0023     		movs	r3, #0
+ 2949 0046 E387     		strh	r3, [r4, #62]	@ movhi
+ 2950 0048 0123     		movs	r3, #1
+ 2951 004a 84F85130 		strb	r3, [r4, #81]
+ 2952 004e 636D     		ldr	r3, [r4, #84]
+ 2953 0050 4BB9     		cbnz	r3, .L388
+ 2954              	.L381:
+ 2955 0052 2046     		mov	r0, r4
+ 2956 0054 FFF7FEFF 		bl	HAL_SPI_RxCpltCallback
+ 2957              	.L380:
+ 2958 0058 38BD     		pop	{r3, r4, r5, pc}
+ 2959              	.L387:
+ 2960 005a 2168     		ldr	r1, [r4]
+ 2961 005c 4B68     		ldr	r3, [r1, #4]
+ 2962 005e 23F00303 		bic	r3, r3, #3
+ 2963 0062 4B60     		str	r3, [r1, #4]
+ 2964 0064 E7E7     		b	.L383
+ 2965              	.L388:
+ 2966 0066 2046     		mov	r0, r4
+ 2967 0068 FFF7FEFF 		bl	HAL_SPI_ErrorCallback
+ 2968 006c F4E7     		b	.L380
+ 2970              		.section	.text.SPI_DMATransmitReceiveCplt,"ax",%progbits
+ 2971              		.align	1
+ 2972              		.syntax unified
+ 2973              		.thumb
+ 2974              		.thumb_func
+ 2976              	SPI_DMATransmitReceiveCplt:
+ 2977              		@ args = 0, pretend = 0, frame = 0
+ 2978              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2979 0000 38B5     		push	{r3, r4, r5, lr}
+ 2980 0002 0546     		mov	r5, r0
+ 2981 0004 846B     		ldr	r4, [r0, #56]
+ 2982 0006 FFF7FEFF 		bl	HAL_GetTick
+ 2983 000a 2B68     		ldr	r3, [r5]
+ 2984 000c 1B68     		ldr	r3, [r3]
+ 2985 000e 13F4807F 		tst	r3, #256
+ 2986 0012 1BD1     		bne	.L390
+ 2987 0014 0246     		mov	r2, r0
+ 2988 0016 2168     		ldr	r1, [r4]
+ 2989 0018 4B68     		ldr	r3, [r1, #4]
+ 2990 001a 23F02003 		bic	r3, r3, #32
+ 2991 001e 4B60     		str	r3, [r1, #4]
+ 2992 0020 6421     		movs	r1, #100
+ 2993 0022 2046     		mov	r0, r4
+ 2994 0024 FFF7FEFF 		bl	SPI_EndRxTxTransaction
+ 2995 0028 18B1     		cbz	r0, .L391
+ 2996 002a 636D     		ldr	r3, [r4, #84]
+ 2997 002c 43F02003 		orr	r3, r3, #32
+ 2998 0030 6365     		str	r3, [r4, #84]
+ 2999              	.L391:
+ 3000 0032 2268     		ldr	r2, [r4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 52
+
+
+ 3001 0034 5368     		ldr	r3, [r2, #4]
+ 3002 0036 23F00303 		bic	r3, r3, #3
+ 3003 003a 5360     		str	r3, [r2, #4]
+ 3004 003c 0023     		movs	r3, #0
+ 3005 003e E386     		strh	r3, [r4, #54]	@ movhi
+ 3006 0040 E387     		strh	r3, [r4, #62]	@ movhi
+ 3007 0042 0123     		movs	r3, #1
+ 3008 0044 84F85130 		strb	r3, [r4, #81]
+ 3009 0048 636D     		ldr	r3, [r4, #84]
+ 3010 004a 1BB9     		cbnz	r3, .L394
+ 3011              	.L390:
+ 3012 004c 2046     		mov	r0, r4
+ 3013 004e FFF7FEFF 		bl	HAL_SPI_TxRxCpltCallback
+ 3014              	.L389:
+ 3015 0052 38BD     		pop	{r3, r4, r5, pc}
+ 3016              	.L394:
+ 3017 0054 2046     		mov	r0, r4
+ 3018 0056 FFF7FEFF 		bl	HAL_SPI_ErrorCallback
+ 3019 005a FAE7     		b	.L389
+ 3021              		.section	.text.HAL_SPI_IRQHandler,"ax",%progbits
+ 3022              		.align	1
+ 3023              		.global	HAL_SPI_IRQHandler
+ 3024              		.syntax unified
+ 3025              		.thumb
+ 3026              		.thumb_func
+ 3028              	HAL_SPI_IRQHandler:
+ 3029              		@ args = 0, pretend = 0, frame = 16
+ 3030              		@ frame_needed = 0, uses_anonymous_args = 0
+ 3031 0000 10B5     		push	{r4, lr}
+ 3032 0002 84B0     		sub	sp, sp, #16
+ 3033 0004 0446     		mov	r4, r0
+ 3034 0006 0268     		ldr	r2, [r0]
+ 3035 0008 5168     		ldr	r1, [r2, #4]
+ 3036 000a 9368     		ldr	r3, [r2, #8]
+ 3037 000c C3F38010 		ubfx	r0, r3, #6, #1
+ 3038 0010 13F0400F 		tst	r3, #64
+ 3039 0014 05D1     		bne	.L396
+ 3040 0016 13F0010F 		tst	r3, #1
+ 3041 001a 02D0     		beq	.L396
+ 3042 001c 11F0400F 		tst	r1, #64
+ 3043 0020 6DD1     		bne	.L409
+ 3044              	.L396:
+ 3045 0022 13F0020F 		tst	r3, #2
+ 3046 0026 02D0     		beq	.L398
+ 3047 0028 11F0800F 		tst	r1, #128
+ 3048 002c 6BD1     		bne	.L410
+ 3049              	.L398:
+ 3050 002e C3F3401C 		ubfx	ip, r3, #5, #1
+ 3051 0032 13F0200F 		tst	r3, #32
+ 3052 0036 03D1     		bne	.L399
+ 3053 0038 10B9     		cbnz	r0, .L399
+ 3054 003a 13F4807F 		tst	r3, #256
+ 3055 003e 65D0     		beq	.L395
+ 3056              	.L399:
+ 3057 0040 11F0200F 		tst	r1, #32
+ 3058 0044 62D0     		beq	.L395
+ 3059 0046 70B1     		cbz	r0, .L400
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 53
+
+
+ 3060 0048 94F85100 		ldrb	r0, [r4, #81]	@ zero_extendqisi2
+ 3061 004c 0328     		cmp	r0, #3
+ 3062 004e 5FD0     		beq	.L401
+ 3063 0050 606D     		ldr	r0, [r4, #84]
+ 3064 0052 40F00400 		orr	r0, r0, #4
+ 3065 0056 6065     		str	r0, [r4, #84]
+ 3066 0058 0020     		movs	r0, #0
+ 3067 005a 0090     		str	r0, [sp]
+ 3068 005c D068     		ldr	r0, [r2, #12]
+ 3069 005e 0090     		str	r0, [sp]
+ 3070 0060 9068     		ldr	r0, [r2, #8]
+ 3071 0062 0090     		str	r0, [sp]
+ 3072 0064 0098     		ldr	r0, [sp]
+ 3073              	.L400:
+ 3074 0066 BCF1000F 		cmp	ip, #0
+ 3075 006a 0CD0     		beq	.L402
+ 3076 006c 606D     		ldr	r0, [r4, #84]
+ 3077 006e 40F00100 		orr	r0, r0, #1
+ 3078 0072 6065     		str	r0, [r4, #84]
+ 3079 0074 0020     		movs	r0, #0
+ 3080 0076 0290     		str	r0, [sp, #8]
+ 3081 0078 9068     		ldr	r0, [r2, #8]
+ 3082 007a 0290     		str	r0, [sp, #8]
+ 3083 007c 1068     		ldr	r0, [r2]
+ 3084 007e 20F04000 		bic	r0, r0, #64
+ 3085 0082 1060     		str	r0, [r2]
+ 3086 0084 029A     		ldr	r2, [sp, #8]
+ 3087              	.L402:
+ 3088 0086 13F4807F 		tst	r3, #256
+ 3089 008a 09D0     		beq	.L403
+ 3090 008c 636D     		ldr	r3, [r4, #84]
+ 3091 008e 43F00803 		orr	r3, r3, #8
+ 3092 0092 6365     		str	r3, [r4, #84]
+ 3093 0094 0023     		movs	r3, #0
+ 3094 0096 0393     		str	r3, [sp, #12]
+ 3095 0098 2368     		ldr	r3, [r4]
+ 3096 009a 9B68     		ldr	r3, [r3, #8]
+ 3097 009c 0393     		str	r3, [sp, #12]
+ 3098 009e 039B     		ldr	r3, [sp, #12]
+ 3099              	.L403:
+ 3100 00a0 636D     		ldr	r3, [r4, #84]
+ 3101 00a2 002B     		cmp	r3, #0
+ 3102 00a4 32D0     		beq	.L395
+ 3103 00a6 2268     		ldr	r2, [r4]
+ 3104 00a8 5368     		ldr	r3, [r2, #4]
+ 3105 00aa 23F0E003 		bic	r3, r3, #224
+ 3106 00ae 5360     		str	r3, [r2, #4]
+ 3107 00b0 0123     		movs	r3, #1
+ 3108 00b2 84F85130 		strb	r3, [r4, #81]
+ 3109 00b6 11F0020F 		tst	r1, #2
+ 3110 00ba 02D1     		bne	.L405
+ 3111 00bc 11F0010F 		tst	r1, #1
+ 3112 00c0 2ED0     		beq	.L406
+ 3113              	.L405:
+ 3114 00c2 2268     		ldr	r2, [r4]
+ 3115 00c4 5368     		ldr	r3, [r2, #4]
+ 3116 00c6 23F00303 		bic	r3, r3, #3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 54
+
+
+ 3117 00ca 5360     		str	r3, [r2, #4]
+ 3118 00cc E36C     		ldr	r3, [r4, #76]
+ 3119 00ce 4BB1     		cbz	r3, .L407
+ 3120 00d0 154A     		ldr	r2, .L411
+ 3121 00d2 1A65     		str	r2, [r3, #80]
+ 3122 00d4 E06C     		ldr	r0, [r4, #76]
+ 3123 00d6 FFF7FEFF 		bl	HAL_DMA_Abort_IT
+ 3124 00da 18B1     		cbz	r0, .L407
+ 3125 00dc 636D     		ldr	r3, [r4, #84]
+ 3126 00de 43F04003 		orr	r3, r3, #64
+ 3127 00e2 6365     		str	r3, [r4, #84]
+ 3128              	.L407:
+ 3129 00e4 A36C     		ldr	r3, [r4, #72]
+ 3130 00e6 8BB1     		cbz	r3, .L395
+ 3131 00e8 0F4A     		ldr	r2, .L411
+ 3132 00ea 1A65     		str	r2, [r3, #80]
+ 3133 00ec A06C     		ldr	r0, [r4, #72]
+ 3134 00ee FFF7FEFF 		bl	HAL_DMA_Abort_IT
+ 3135 00f2 58B1     		cbz	r0, .L395
+ 3136 00f4 636D     		ldr	r3, [r4, #84]
+ 3137 00f6 43F04003 		orr	r3, r3, #64
+ 3138 00fa 6365     		str	r3, [r4, #84]
+ 3139 00fc 06E0     		b	.L395
+ 3140              	.L409:
+ 3141 00fe 236C     		ldr	r3, [r4, #64]
+ 3142 0100 2046     		mov	r0, r4
+ 3143 0102 9847     		blx	r3
+ 3144 0104 02E0     		b	.L395
+ 3145              	.L410:
+ 3146 0106 636C     		ldr	r3, [r4, #68]
+ 3147 0108 2046     		mov	r0, r4
+ 3148 010a 9847     		blx	r3
+ 3149              	.L395:
+ 3150 010c 04B0     		add	sp, sp, #16
+ 3151              		@ sp needed
+ 3152 010e 10BD     		pop	{r4, pc}
+ 3153              	.L401:
+ 3154 0110 0023     		movs	r3, #0
+ 3155 0112 0193     		str	r3, [sp, #4]
+ 3156 0114 D368     		ldr	r3, [r2, #12]
+ 3157 0116 0193     		str	r3, [sp, #4]
+ 3158 0118 9368     		ldr	r3, [r2, #8]
+ 3159 011a 0193     		str	r3, [sp, #4]
+ 3160 011c 019B     		ldr	r3, [sp, #4]
+ 3161 011e F5E7     		b	.L395
+ 3162              	.L406:
+ 3163 0120 2046     		mov	r0, r4
+ 3164 0122 FFF7FEFF 		bl	HAL_SPI_ErrorCallback
+ 3165 0126 F1E7     		b	.L395
+ 3166              	.L412:
+ 3167              		.align	2
+ 3168              	.L411:
+ 3169 0128 00000000 		.word	SPI_DMAAbortOnError
+ 3171              		.section	.text.SPI_DMAAbortOnError,"ax",%progbits
+ 3172              		.align	1
+ 3173              		.syntax unified
+ 3174              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 55
+
+
+ 3175              		.thumb_func
+ 3177              	SPI_DMAAbortOnError:
+ 3178              		@ args = 0, pretend = 0, frame = 0
+ 3179              		@ frame_needed = 0, uses_anonymous_args = 0
+ 3180 0000 08B5     		push	{r3, lr}
+ 3181 0002 806B     		ldr	r0, [r0, #56]
+ 3182 0004 0023     		movs	r3, #0
+ 3183 0006 C387     		strh	r3, [r0, #62]	@ movhi
+ 3184 0008 C386     		strh	r3, [r0, #54]	@ movhi
+ 3185 000a FFF7FEFF 		bl	HAL_SPI_ErrorCallback
+ 3186 000e 08BD     		pop	{r3, pc}
+ 3188              		.section	.text.HAL_SPI_AbortCpltCallback,"ax",%progbits
+ 3189              		.align	1
+ 3190              		.weak	HAL_SPI_AbortCpltCallback
+ 3191              		.syntax unified
+ 3192              		.thumb
+ 3193              		.thumb_func
+ 3195              	HAL_SPI_AbortCpltCallback:
+ 3196              		@ args = 0, pretend = 0, frame = 0
+ 3197              		@ frame_needed = 0, uses_anonymous_args = 0
+ 3198              		@ link register save eliminated.
+ 3199 0000 7047     		bx	lr
+ 3201              		.section	.text.HAL_SPI_Abort_IT,"ax",%progbits
+ 3202              		.align	1
+ 3203              		.global	HAL_SPI_Abort_IT
+ 3204              		.syntax unified
+ 3205              		.thumb
+ 3206              		.thumb_func
+ 3208              	HAL_SPI_Abort_IT:
+ 3209              		@ args = 0, pretend = 0, frame = 16
+ 3210              		@ frame_needed = 0, uses_anonymous_args = 0
+ 3211 0000 70B5     		push	{r4, r5, r6, lr}
+ 3212 0002 84B0     		sub	sp, sp, #16
+ 3213 0004 0446     		mov	r4, r0
+ 3214 0006 514B     		ldr	r3, .L442
+ 3215 0008 1B68     		ldr	r3, [r3]
+ 3216 000a 514A     		ldr	r2, .L442+4
+ 3217 000c A2FB0323 		umull	r2, r3, r2, r3
+ 3218 0010 5B0A     		lsrs	r3, r3, #9
+ 3219 0012 6422     		movs	r2, #100
+ 3220 0014 02FB03F3 		mul	r3, r2, r3
+ 3221 0018 0293     		str	r3, [sp, #8]
+ 3222 001a 029B     		ldr	r3, [sp, #8]
+ 3223 001c 0393     		str	r3, [sp, #12]
+ 3224 001e 0268     		ldr	r2, [r0]
+ 3225 0020 5368     		ldr	r3, [r2, #4]
+ 3226 0022 23F02003 		bic	r3, r3, #32
+ 3227 0026 5360     		str	r3, [r2, #4]
+ 3228 0028 0268     		ldr	r2, [r0]
+ 3229 002a 5368     		ldr	r3, [r2, #4]
+ 3230 002c 13F0800F 		tst	r3, #128
+ 3231 0030 11D0     		beq	.L417
+ 3232 0032 484B     		ldr	r3, .L442+8
+ 3233 0034 4364     		str	r3, [r0, #68]
+ 3234              	.L420:
+ 3235 0036 039B     		ldr	r3, [sp, #12]
+ 3236 0038 3BB1     		cbz	r3, .L439
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 56
+
+
+ 3237 003a 039B     		ldr	r3, [sp, #12]
+ 3238 003c 013B     		subs	r3, r3, #1
+ 3239 003e 0393     		str	r3, [sp, #12]
+ 3240 0040 94F85130 		ldrb	r3, [r4, #81]	@ zero_extendqisi2
+ 3241 0044 072B     		cmp	r3, #7
+ 3242 0046 F6D1     		bne	.L420
+ 3243 0048 03E0     		b	.L419
+ 3244              	.L439:
+ 3245 004a 636D     		ldr	r3, [r4, #84]
+ 3246 004c 43F04003 		orr	r3, r3, #64
+ 3247 0050 6365     		str	r3, [r4, #84]
+ 3248              	.L419:
+ 3249 0052 029B     		ldr	r3, [sp, #8]
+ 3250 0054 0393     		str	r3, [sp, #12]
+ 3251              	.L417:
+ 3252 0056 5368     		ldr	r3, [r2, #4]
+ 3253 0058 13F0400F 		tst	r3, #64
+ 3254 005c 11D0     		beq	.L421
+ 3255 005e 3E4B     		ldr	r3, .L442+12
+ 3256 0060 2364     		str	r3, [r4, #64]
+ 3257              	.L424:
+ 3258 0062 039B     		ldr	r3, [sp, #12]
+ 3259 0064 3BB1     		cbz	r3, .L440
+ 3260 0066 039B     		ldr	r3, [sp, #12]
+ 3261 0068 013B     		subs	r3, r3, #1
+ 3262 006a 0393     		str	r3, [sp, #12]
+ 3263 006c 94F85130 		ldrb	r3, [r4, #81]	@ zero_extendqisi2
+ 3264 0070 072B     		cmp	r3, #7
+ 3265 0072 F6D1     		bne	.L424
+ 3266 0074 03E0     		b	.L423
+ 3267              	.L440:
+ 3268 0076 636D     		ldr	r3, [r4, #84]
+ 3269 0078 43F04003 		orr	r3, r3, #64
+ 3270 007c 6365     		str	r3, [r4, #84]
+ 3271              	.L423:
+ 3272 007e 029B     		ldr	r3, [sp, #8]
+ 3273 0080 0393     		str	r3, [sp, #12]
+ 3274              	.L421:
+ 3275 0082 A36C     		ldr	r3, [r4, #72]
+ 3276 0084 2BB1     		cbz	r3, .L425
+ 3277 0086 5268     		ldr	r2, [r2, #4]
+ 3278 0088 12F0020F 		tst	r2, #2
+ 3279 008c 1CD0     		beq	.L426
+ 3280 008e 334A     		ldr	r2, .L442+16
+ 3281 0090 1A65     		str	r2, [r3, #80]
+ 3282              	.L425:
+ 3283 0092 E36C     		ldr	r3, [r4, #76]
+ 3284 0094 33B1     		cbz	r3, .L427
+ 3285 0096 2268     		ldr	r2, [r4]
+ 3286 0098 5268     		ldr	r2, [r2, #4]
+ 3287 009a 12F0010F 		tst	r2, #1
+ 3288 009e 16D0     		beq	.L428
+ 3289 00a0 2F4A     		ldr	r2, .L442+20
+ 3290 00a2 1A65     		str	r2, [r3, #80]
+ 3291              	.L427:
+ 3292 00a4 2368     		ldr	r3, [r4]
+ 3293 00a6 5B68     		ldr	r3, [r3, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 57
+
+
+ 3294 00a8 13F0020F 		tst	r3, #2
+ 3295 00ac 12D0     		beq	.L433
+ 3296 00ae A06C     		ldr	r0, [r4, #72]
+ 3297 00b0 38B3     		cbz	r0, .L434
+ 3298 00b2 FFF7FEFF 		bl	HAL_DMA_Abort_IT
+ 3299 00b6 38B3     		cbz	r0, .L435
+ 3300 00b8 A36C     		ldr	r3, [r4, #72]
+ 3301 00ba 0022     		movs	r2, #0
+ 3302 00bc 1A65     		str	r2, [r3, #80]
+ 3303 00be 4023     		movs	r3, #64
+ 3304 00c0 6365     		str	r3, [r4, #84]
+ 3305 00c2 0123     		movs	r3, #1
+ 3306 00c4 1E46     		mov	r6, r3
+ 3307 00c6 07E0     		b	.L429
+ 3308              	.L426:
+ 3309 00c8 0022     		movs	r2, #0
+ 3310 00ca 1A65     		str	r2, [r3, #80]
+ 3311 00cc E1E7     		b	.L425
+ 3312              	.L428:
+ 3313 00ce 0022     		movs	r2, #0
+ 3314 00d0 1A65     		str	r2, [r3, #80]
+ 3315 00d2 E7E7     		b	.L427
+ 3316              	.L433:
+ 3317 00d4 0123     		movs	r3, #1
+ 3318 00d6 1E46     		mov	r6, r3
+ 3319              	.L429:
+ 3320 00d8 2368     		ldr	r3, [r4]
+ 3321 00da 5B68     		ldr	r3, [r3, #4]
+ 3322 00dc 13F0010F 		tst	r3, #1
+ 3323 00e0 0AD0     		beq	.L430
+ 3324 00e2 E06C     		ldr	r0, [r4, #76]
+ 3325 00e4 40B1     		cbz	r0, .L430
+ 3326 00e6 FFF7FEFF 		bl	HAL_DMA_Abort_IT
+ 3327 00ea 0546     		mov	r5, r0
+ 3328 00ec 30B1     		cbz	r0, .L431
+ 3329 00ee E36C     		ldr	r3, [r4, #76]
+ 3330 00f0 0022     		movs	r2, #0
+ 3331 00f2 1A65     		str	r2, [r3, #80]
+ 3332 00f4 4023     		movs	r3, #64
+ 3333 00f6 6365     		str	r3, [r4, #84]
+ 3334              	.L430:
+ 3335 00f8 46B9     		cbnz	r6, .L441
+ 3336 00fa 3546     		mov	r5, r6
+ 3337              	.L431:
+ 3338 00fc 2846     		mov	r0, r5
+ 3339 00fe 04B0     		add	sp, sp, #16
+ 3340              		@ sp needed
+ 3341 0100 70BD     		pop	{r4, r5, r6, pc}
+ 3342              	.L434:
+ 3343 0102 0123     		movs	r3, #1
+ 3344 0104 1E46     		mov	r6, r3
+ 3345 0106 E7E7     		b	.L429
+ 3346              	.L435:
+ 3347 0108 0646     		mov	r6, r0
+ 3348 010a E5E7     		b	.L429
+ 3349              	.L441:
+ 3350 010c 0023     		movs	r3, #0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 58
+
+
+ 3351 010e E387     		strh	r3, [r4, #62]	@ movhi
+ 3352 0110 E386     		strh	r3, [r4, #54]	@ movhi
+ 3353 0112 636D     		ldr	r3, [r4, #84]
+ 3354 0114 402B     		cmp	r3, #64
+ 3355 0116 15D0     		beq	.L437
+ 3356 0118 0023     		movs	r3, #0
+ 3357 011a 6365     		str	r3, [r4, #84]
+ 3358 011c 1D46     		mov	r5, r3
+ 3359              	.L432:
+ 3360 011e 0022     		movs	r2, #0
+ 3361 0120 0092     		str	r2, [sp]
+ 3362 0122 2368     		ldr	r3, [r4]
+ 3363 0124 D968     		ldr	r1, [r3, #12]
+ 3364 0126 0091     		str	r1, [sp]
+ 3365 0128 9968     		ldr	r1, [r3, #8]
+ 3366 012a 0091     		str	r1, [sp]
+ 3367 012c 0099     		ldr	r1, [sp]
+ 3368 012e 0192     		str	r2, [sp, #4]
+ 3369 0130 9B68     		ldr	r3, [r3, #8]
+ 3370 0132 0193     		str	r3, [sp, #4]
+ 3371 0134 019B     		ldr	r3, [sp, #4]
+ 3372 0136 0123     		movs	r3, #1
+ 3373 0138 84F85130 		strb	r3, [r4, #81]
+ 3374 013c 2046     		mov	r0, r4
+ 3375 013e FFF7FEFF 		bl	HAL_SPI_AbortCpltCallback
+ 3376 0142 DBE7     		b	.L431
+ 3377              	.L437:
+ 3378 0144 0123     		movs	r3, #1
+ 3379 0146 1D46     		mov	r5, r3
+ 3380 0148 E9E7     		b	.L432
+ 3381              	.L443:
+ 3382 014a 00BF     		.align	2
+ 3383              	.L442:
+ 3384 014c 00000000 		.word	SystemCoreClock
+ 3385 0150 F1197605 		.word	91625969
+ 3386 0154 00000000 		.word	SPI_AbortTx_ISR
+ 3387 0158 00000000 		.word	SPI_AbortRx_ISR
+ 3388 015c 00000000 		.word	SPI_DMATxAbortCallback
+ 3389 0160 00000000 		.word	SPI_DMARxAbortCallback
+ 3391              		.section	.text.SPI_DMARxAbortCallback,"ax",%progbits
+ 3392              		.align	1
+ 3393              		.syntax unified
+ 3394              		.thumb
+ 3395              		.thumb_func
+ 3397              	SPI_DMARxAbortCallback:
+ 3398              		@ args = 0, pretend = 0, frame = 8
+ 3399              		@ frame_needed = 0, uses_anonymous_args = 0
+ 3400 0000 10B5     		push	{r4, lr}
+ 3401 0002 82B0     		sub	sp, sp, #8
+ 3402 0004 846B     		ldr	r4, [r0, #56]
+ 3403 0006 2268     		ldr	r2, [r4]
+ 3404 0008 1368     		ldr	r3, [r2]
+ 3405 000a 23F04003 		bic	r3, r3, #64
+ 3406 000e 1360     		str	r3, [r2]
+ 3407 0010 E36C     		ldr	r3, [r4, #76]
+ 3408 0012 0022     		movs	r2, #0
+ 3409 0014 1A65     		str	r2, [r3, #80]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 59
+
+
+ 3410 0016 2268     		ldr	r2, [r4]
+ 3411 0018 5368     		ldr	r3, [r2, #4]
+ 3412 001a 23F00103 		bic	r3, r3, #1
+ 3413 001e 5360     		str	r3, [r2, #4]
+ 3414 0020 FFF7FEFF 		bl	HAL_GetTick
+ 3415 0024 0246     		mov	r2, r0
+ 3416 0026 6421     		movs	r1, #100
+ 3417 0028 2046     		mov	r0, r4
+ 3418 002a FFF7FEFF 		bl	SPI_EndRxTxTransaction
+ 3419 002e 18B1     		cbz	r0, .L445
+ 3420 0030 636D     		ldr	r3, [r4, #84]
+ 3421 0032 43F04003 		orr	r3, r3, #64
+ 3422 0036 6365     		str	r3, [r4, #84]
+ 3423              	.L445:
+ 3424 0038 A36C     		ldr	r3, [r4, #72]
+ 3425 003a 0BB1     		cbz	r3, .L446
+ 3426 003c 1B6D     		ldr	r3, [r3, #80]
+ 3427 003e C3B9     		cbnz	r3, .L444
+ 3428              	.L446:
+ 3429 0040 E387     		strh	r3, [r4, #62]	@ movhi
+ 3430 0042 E386     		strh	r3, [r4, #54]	@ movhi
+ 3431 0044 636D     		ldr	r3, [r4, #84]
+ 3432 0046 402B     		cmp	r3, #64
+ 3433 0048 01D0     		beq	.L448
+ 3434 004a 0023     		movs	r3, #0
+ 3435 004c 6365     		str	r3, [r4, #84]
+ 3436              	.L448:
+ 3437 004e 0022     		movs	r2, #0
+ 3438 0050 0092     		str	r2, [sp]
+ 3439 0052 2368     		ldr	r3, [r4]
+ 3440 0054 D968     		ldr	r1, [r3, #12]
+ 3441 0056 0091     		str	r1, [sp]
+ 3442 0058 9968     		ldr	r1, [r3, #8]
+ 3443 005a 0091     		str	r1, [sp]
+ 3444 005c 0099     		ldr	r1, [sp]
+ 3445 005e 0192     		str	r2, [sp, #4]
+ 3446 0060 9B68     		ldr	r3, [r3, #8]
+ 3447 0062 0193     		str	r3, [sp, #4]
+ 3448 0064 019B     		ldr	r3, [sp, #4]
+ 3449 0066 0123     		movs	r3, #1
+ 3450 0068 84F85130 		strb	r3, [r4, #81]
+ 3451 006c 2046     		mov	r0, r4
+ 3452 006e FFF7FEFF 		bl	HAL_SPI_AbortCpltCallback
+ 3453              	.L444:
+ 3454 0072 02B0     		add	sp, sp, #8
+ 3455              		@ sp needed
+ 3456 0074 10BD     		pop	{r4, pc}
+ 3458              		.section	.text.SPI_DMATxAbortCallback,"ax",%progbits
+ 3459              		.align	1
+ 3460              		.syntax unified
+ 3461              		.thumb
+ 3462              		.thumb_func
+ 3464              	SPI_DMATxAbortCallback:
+ 3465              		@ args = 0, pretend = 0, frame = 16
+ 3466              		@ frame_needed = 0, uses_anonymous_args = 0
+ 3467 0000 00B5     		push	{lr}
+ 3468 0002 85B0     		sub	sp, sp, #20
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 60
+
+
+ 3469 0004 806B     		ldr	r0, [r0, #56]
+ 3470 0006 836C     		ldr	r3, [r0, #72]
+ 3471 0008 0022     		movs	r2, #0
+ 3472 000a 1A65     		str	r2, [r3, #80]
+ 3473 000c 1D4B     		ldr	r3, .L459
+ 3474 000e 1B68     		ldr	r3, [r3]
+ 3475 0010 1D4A     		ldr	r2, .L459+4
+ 3476 0012 A2FB0323 		umull	r2, r3, r2, r3
+ 3477 0016 5B0A     		lsrs	r3, r3, #9
+ 3478 0018 6422     		movs	r2, #100
+ 3479 001a 02FB03F3 		mul	r3, r2, r3
+ 3480 001e 0393     		str	r3, [sp, #12]
+ 3481 0020 0268     		ldr	r2, [r0]
+ 3482 0022 5368     		ldr	r3, [r2, #4]
+ 3483 0024 23F00203 		bic	r3, r3, #2
+ 3484 0028 5360     		str	r3, [r2, #4]
+ 3485              	.L453:
+ 3486 002a 039B     		ldr	r3, [sp, #12]
+ 3487 002c 43B1     		cbz	r3, .L458
+ 3488 002e 039B     		ldr	r3, [sp, #12]
+ 3489 0030 013B     		subs	r3, r3, #1
+ 3490 0032 0393     		str	r3, [sp, #12]
+ 3491 0034 0368     		ldr	r3, [r0]
+ 3492 0036 9B68     		ldr	r3, [r3, #8]
+ 3493 0038 13F0020F 		tst	r3, #2
+ 3494 003c F5D0     		beq	.L453
+ 3495 003e 03E0     		b	.L452
+ 3496              	.L458:
+ 3497 0040 436D     		ldr	r3, [r0, #84]
+ 3498 0042 43F04003 		orr	r3, r3, #64
+ 3499 0046 4365     		str	r3, [r0, #84]
+ 3500              	.L452:
+ 3501 0048 C36C     		ldr	r3, [r0, #76]
+ 3502 004a 0BB1     		cbz	r3, .L454
+ 3503 004c 1B6D     		ldr	r3, [r3, #80]
+ 3504 004e BBB9     		cbnz	r3, .L450
+ 3505              	.L454:
+ 3506 0050 C387     		strh	r3, [r0, #62]	@ movhi
+ 3507 0052 C386     		strh	r3, [r0, #54]	@ movhi
+ 3508 0054 436D     		ldr	r3, [r0, #84]
+ 3509 0056 402B     		cmp	r3, #64
+ 3510 0058 01D0     		beq	.L456
+ 3511 005a 0023     		movs	r3, #0
+ 3512 005c 4365     		str	r3, [r0, #84]
+ 3513              	.L456:
+ 3514 005e 0022     		movs	r2, #0
+ 3515 0060 0192     		str	r2, [sp, #4]
+ 3516 0062 0368     		ldr	r3, [r0]
+ 3517 0064 D968     		ldr	r1, [r3, #12]
+ 3518 0066 0191     		str	r1, [sp, #4]
+ 3519 0068 9968     		ldr	r1, [r3, #8]
+ 3520 006a 0191     		str	r1, [sp, #4]
+ 3521 006c 0199     		ldr	r1, [sp, #4]
+ 3522 006e 0292     		str	r2, [sp, #8]
+ 3523 0070 9B68     		ldr	r3, [r3, #8]
+ 3524 0072 0293     		str	r3, [sp, #8]
+ 3525 0074 029B     		ldr	r3, [sp, #8]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 61
+
+
+ 3526 0076 0123     		movs	r3, #1
+ 3527 0078 80F85130 		strb	r3, [r0, #81]
+ 3528 007c FFF7FEFF 		bl	HAL_SPI_AbortCpltCallback
+ 3529              	.L450:
+ 3530 0080 05B0     		add	sp, sp, #20
+ 3531              		@ sp needed
+ 3532 0082 00BD     		pop	{pc}
+ 3533              	.L460:
+ 3534              		.align	2
+ 3535              	.L459:
+ 3536 0084 00000000 		.word	SystemCoreClock
+ 3537 0088 F1197605 		.word	91625969
+ 3539              		.section	.text.HAL_SPI_GetState,"ax",%progbits
+ 3540              		.align	1
+ 3541              		.global	HAL_SPI_GetState
+ 3542              		.syntax unified
+ 3543              		.thumb
+ 3544              		.thumb_func
+ 3546              	HAL_SPI_GetState:
+ 3547              		@ args = 0, pretend = 0, frame = 0
+ 3548              		@ frame_needed = 0, uses_anonymous_args = 0
+ 3549              		@ link register save eliminated.
+ 3550 0000 90F85100 		ldrb	r0, [r0, #81]	@ zero_extendqisi2
+ 3551 0004 7047     		bx	lr
+ 3553              		.section	.text.HAL_SPI_GetError,"ax",%progbits
+ 3554              		.align	1
+ 3555              		.global	HAL_SPI_GetError
+ 3556              		.syntax unified
+ 3557              		.thumb
+ 3558              		.thumb_func
+ 3560              	HAL_SPI_GetError:
+ 3561              		@ args = 0, pretend = 0, frame = 0
+ 3562              		@ frame_needed = 0, uses_anonymous_args = 0
+ 3563              		@ link register save eliminated.
+ 3564 0000 406D     		ldr	r0, [r0, #84]
+ 3565 0002 7047     		bx	lr
+ 3567              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 62
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f4xx_hal_spi.c
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:18     .text.SPI_AbortRx_ISR:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:23     .text.SPI_AbortRx_ISR:00000000 SPI_AbortRx_ISR
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:74     .text.SPI_AbortRx_ISR:00000060 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:78     .text.SPI_AbortTx_ISR:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:83     .text.SPI_AbortTx_ISR:00000000 SPI_AbortTx_ISR
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:100    .text.SPI_WaitFlagStateUntilTimeout:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:105    .text.SPI_WaitFlagStateUntilTimeout:00000000 SPI_WaitFlagStateUntilTimeout
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:200    .text.SPI_WaitFlagStateUntilTimeout:000000c4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:203    .text.SPI_EndRxTxTransaction:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:208    .text.SPI_EndRxTxTransaction:00000000 SPI_EndRxTxTransaction
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:259    .text.SPI_EndRxTxTransaction:00000060 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:263    .text.SPI_EndRxTransaction:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:268    .text.SPI_EndRxTransaction:00000000 SPI_EndRxTransaction
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:339    .text.HAL_SPI_MspInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:345    .text.HAL_SPI_MspInit:00000000 HAL_SPI_MspInit
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:352    .text.HAL_SPI_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:358    .text.HAL_SPI_Init:00000000 HAL_SPI_Init
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:444    .text.HAL_SPI_MspDeInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:450    .text.HAL_SPI_MspDeInit:00000000 HAL_SPI_MspDeInit
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:457    .text.HAL_SPI_DeInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:463    .text.HAL_SPI_DeInit:00000000 HAL_SPI_DeInit
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:486    .text.HAL_SPI_Transmit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:492    .text.HAL_SPI_Transmit:00000000 HAL_SPI_Transmit
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:706    .text.HAL_SPI_TransmitReceive:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:712    .text.HAL_SPI_TransmitReceive:00000000 HAL_SPI_TransmitReceive
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1005   .text.HAL_SPI_Receive:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1011   .text.HAL_SPI_Receive:00000000 HAL_SPI_Receive
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1200   .text.HAL_SPI_Transmit_IT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1206   .text.HAL_SPI_Transmit_IT:00000000 HAL_SPI_Transmit_IT
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1291   .text.HAL_SPI_Transmit_IT:000000a0 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2441   .text.SPI_TxISR_16BIT:00000000 SPI_TxISR_16BIT
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2410   .text.SPI_TxISR_8BIT:00000000 SPI_TxISR_8BIT
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1295   .text.HAL_SPI_TransmitReceive_IT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1301   .text.HAL_SPI_TransmitReceive_IT:00000000 HAL_SPI_TransmitReceive_IT
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1401   .text.HAL_SPI_TransmitReceive_IT:000000d8 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2790   .text.SPI_2linesRxISR_16BIT:00000000 SPI_2linesRxISR_16BIT
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2752   .text.SPI_2linesTxISR_16BIT:00000000 SPI_2linesTxISR_16BIT
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2714   .text.SPI_2linesRxISR_8BIT:00000000 SPI_2linesRxISR_8BIT
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2676   .text.SPI_2linesTxISR_8BIT:00000000 SPI_2linesTxISR_8BIT
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1407   .text.HAL_SPI_Receive_IT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1413   .text.HAL_SPI_Receive_IT:00000000 HAL_SPI_Receive_IT
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1508   .text.HAL_SPI_Receive_IT:000000d8 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2554   .text.SPI_RxISR_16BIT:00000000 SPI_RxISR_16BIT
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2523   .text.SPI_RxISR_8BIT:00000000 SPI_RxISR_8BIT
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1512   .text.HAL_SPI_Transmit_DMA:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1518   .text.HAL_SPI_Transmit_DMA:00000000 HAL_SPI_Transmit_DMA
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1622   .text.HAL_SPI_Transmit_DMA:000000d4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2249   .text.SPI_DMAHalfTransmitCplt:00000000 SPI_DMAHalfTransmitCplt
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2851   .text.SPI_DMATransmitCplt:00000000 SPI_DMATransmitCplt
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2828   .text.SPI_DMAError:00000000 SPI_DMAError
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1627   .text.HAL_SPI_TransmitReceive_DMA:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1633   .text.HAL_SPI_TransmitReceive_DMA:00000000 HAL_SPI_TransmitReceive_DMA
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1789   .text.HAL_SPI_TransmitReceive_DMA:0000013c $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2303   .text.SPI_DMAHalfTransmitReceiveCplt:00000000 SPI_DMAHalfTransmitReceiveCplt
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2976   .text.SPI_DMATransmitReceiveCplt:00000000 SPI_DMATransmitReceiveCplt
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 63
+
+
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2276   .text.SPI_DMAHalfReceiveCplt:00000000 SPI_DMAHalfReceiveCplt
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2914   .text.SPI_DMAReceiveCplt:00000000 SPI_DMAReceiveCplt
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1796   .text.HAL_SPI_Receive_DMA:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1802   .text.HAL_SPI_Receive_DMA:00000000 HAL_SPI_Receive_DMA
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1919   .text.HAL_SPI_Receive_DMA:000000f0 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1924   .text.HAL_SPI_Abort:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:1930   .text.HAL_SPI_Abort:00000000 HAL_SPI_Abort
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2085   .text.HAL_SPI_Abort:00000130 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2091   .text.HAL_SPI_DMAPause:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2097   .text.HAL_SPI_DMAPause:00000000 HAL_SPI_DMAPause
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2119   .text.HAL_SPI_DMAResume:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2125   .text.HAL_SPI_DMAResume:00000000 HAL_SPI_DMAResume
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2147   .text.HAL_SPI_DMAStop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2153   .text.HAL_SPI_DMAStop:00000000 HAL_SPI_DMAStop
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2192   .text.HAL_SPI_TxCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2198   .text.HAL_SPI_TxCpltCallback:00000000 HAL_SPI_TxCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2205   .text.HAL_SPI_RxCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2211   .text.HAL_SPI_RxCpltCallback:00000000 HAL_SPI_RxCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2218   .text.HAL_SPI_TxRxCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2224   .text.HAL_SPI_TxRxCpltCallback:00000000 HAL_SPI_TxRxCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2231   .text.HAL_SPI_TxHalfCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2237   .text.HAL_SPI_TxHalfCpltCallback:00000000 HAL_SPI_TxHalfCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2244   .text.SPI_DMAHalfTransmitCplt:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2258   .text.HAL_SPI_RxHalfCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2264   .text.HAL_SPI_RxHalfCpltCallback:00000000 HAL_SPI_RxHalfCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2271   .text.SPI_DMAHalfReceiveCplt:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2285   .text.HAL_SPI_TxRxHalfCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2291   .text.HAL_SPI_TxRxHalfCpltCallback:00000000 HAL_SPI_TxRxHalfCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2298   .text.SPI_DMAHalfTransmitReceiveCplt:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2312   .text.HAL_SPI_ErrorCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2318   .text.HAL_SPI_ErrorCallback:00000000 HAL_SPI_ErrorCallback
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2325   .text.SPI_CloseTx_ISR:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2330   .text.SPI_CloseTx_ISR:00000000 SPI_CloseTx_ISR
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2401   .text.SPI_CloseTx_ISR:00000088 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2405   .text.SPI_TxISR_8BIT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2436   .text.SPI_TxISR_16BIT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2467   .text.SPI_CloseRx_ISR:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2472   .text.SPI_CloseRx_ISR:00000000 SPI_CloseRx_ISR
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2518   .text.SPI_RxISR_8BIT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2549   .text.SPI_RxISR_16BIT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2580   .text.SPI_CloseRxTx_ISR:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2585   .text.SPI_CloseRxTx_ISR:00000000 SPI_CloseRxTx_ISR
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2667   .text.SPI_CloseRxTx_ISR:000000a4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2671   .text.SPI_2linesTxISR_8BIT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2709   .text.SPI_2linesRxISR_8BIT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2747   .text.SPI_2linesTxISR_16BIT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2785   .text.SPI_2linesRxISR_16BIT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2823   .text.SPI_DMAError:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2846   .text.SPI_DMATransmitCplt:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2909   .text.SPI_DMAReceiveCplt:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:2971   .text.SPI_DMATransmitReceiveCplt:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3022   .text.HAL_SPI_IRQHandler:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3028   .text.HAL_SPI_IRQHandler:00000000 HAL_SPI_IRQHandler
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3169   .text.HAL_SPI_IRQHandler:00000128 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3177   .text.SPI_DMAAbortOnError:00000000 SPI_DMAAbortOnError
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3172   .text.SPI_DMAAbortOnError:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3189   .text.HAL_SPI_AbortCpltCallback:00000000 $t
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s 			page 64
+
+
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3195   .text.HAL_SPI_AbortCpltCallback:00000000 HAL_SPI_AbortCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3202   .text.HAL_SPI_Abort_IT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3208   .text.HAL_SPI_Abort_IT:00000000 HAL_SPI_Abort_IT
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3384   .text.HAL_SPI_Abort_IT:0000014c $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3464   .text.SPI_DMATxAbortCallback:00000000 SPI_DMATxAbortCallback
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3397   .text.SPI_DMARxAbortCallback:00000000 SPI_DMARxAbortCallback
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3392   .text.SPI_DMARxAbortCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3459   .text.SPI_DMATxAbortCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3536   .text.SPI_DMATxAbortCallback:00000084 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3540   .text.HAL_SPI_GetState:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3546   .text.HAL_SPI_GetState:00000000 HAL_SPI_GetState
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3554   .text.HAL_SPI_GetError:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpbSdXk.s:3560   .text.HAL_SPI_GetError:00000000 HAL_SPI_GetError
+
+UNDEFINED SYMBOLS
+SystemCoreClock
+HAL_GetTick
+HAL_DMA_Start_IT
+HAL_DMA_Abort
+HAL_DMA_Abort_IT

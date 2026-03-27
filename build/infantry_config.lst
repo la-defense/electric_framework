@@ -1,0 +1,2636 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"infantry_config.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "application/config/infantry_robot/infantry_config.c"
+  20              		.section	.text.InfantryConfigInit,"ax",%progbits
+  21              		.align	1
+  22              		.global	InfantryConfigInit
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	InfantryConfigInit:
+  28              	.LVL0:
+  29              	.LFB276:
+   1:application/config/infantry_robot/infantry_config.c **** #include "infantry_config.h"
+   2:application/config/infantry_robot/infantry_config.c **** 
+   3:application/config/infantry_robot/infantry_config.c **** Robot_Config_s *InfantryConfigInit(uint8_t robot_id) 
+   4:application/config/infantry_robot/infantry_config.c **** {
+  30              		.loc 1 4 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+   5:application/config/infantry_robot/infantry_config.c ****     switch (robot_id)
+  35              		.loc 1 5 5 view .LVU1
+  36 0000 0328     		cmp	r0, #3
+  37 0002 02D0     		beq	.L3
+  38 0004 0428     		cmp	r0, #4
+  39 0006 02D0     		beq	.L4
+  40              	.LVL1:
+   6:application/config/infantry_robot/infantry_config.c ****     {
+   7:application/config/infantry_robot/infantry_config.c ****     /*******************************************************三号步兵***************************
+   8:application/config/infantry_robot/infantry_config.c ****     case INFANTRY_ROBOT_3:
+   9:application/config/infantry_robot/infantry_config.c ****         static Robot_Config_s infantry_config_3 = { 
+  10:application/config/infantry_robot/infantry_config.c ****             .chassis_param = {
+  11:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_LF] = 1,
+  12:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_RF] = 2,
+  13:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_RB] = 3,
+  14:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_LB] = 4,
+  15:application/config/infantry_robot/infantry_config.c **** 
+  16:application/config/infantry_robot/infantry_config.c ****                 .wheel_type = MECANUM_WHEEL,
+  17:application/config/infantry_robot/infantry_config.c ****                 .wheel_measure = {
+  18:application/config/infantry_robot/infantry_config.c ****                     .center_gimbal_offset_x = 0.0,
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 2
+
+
+  19:application/config/infantry_robot/infantry_config.c ****                     .center_gimbal_offset_y = 0.0,
+  20:application/config/infantry_robot/infantry_config.c ****                     .wheel_base = 370,
+  21:application/config/infantry_robot/infantry_config.c ****                     .track_width = 420,
+  22:application/config/infantry_robot/infantry_config.c ****                     .radius_wheel = 75,
+  23:application/config/infantry_robot/infantry_config.c ****                     .reduction_ratio_wheel = 19.0,
+  24:application/config/infantry_robot/infantry_config.c ****                 },
+  25:application/config/infantry_robot/infantry_config.c **** 
+  26:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_config = {
+  27:application/config/infantry_robot/infantry_config.c ****                     .can_init_config.can_handle = &hcan1,
+  28:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+  29:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+  30:application/config/infantry_robot/infantry_config.c ****                             .Kp = 5.0,
+  31:application/config/infantry_robot/infantry_config.c ****                             .Ki = 1.0,
+  32:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0, 
+  33:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 3000,
+  34:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+  35:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 12000,
+  36:application/config/infantry_robot/infantry_config.c ****                         },
+  37:application/config/infantry_robot/infantry_config.c ****                         .current_PID = {
+  38:application/config/infantry_robot/infantry_config.c ****                             .Kp = 0.5, 
+  39:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0,   
+  40:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+  41:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 3000,
+  42:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+  43:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 15000,
+  44:application/config/infantry_robot/infantry_config.c ****                         },
+  45:application/config/infantry_robot/infantry_config.c ****                     },   
+  46:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+  47:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = MOTOR_FEED,
+  48:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = MOTOR_FEED,
+  49:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = SPEED_LOOP,
+  50:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = CURRENT_LOOP | SPEED_LOOP,
+  51:application/config/infantry_robot/infantry_config.c ****                     },
+  52:application/config/infantry_robot/infantry_config.c ****                     .motor_type = M3508,             
+  53:application/config/infantry_robot/infantry_config.c ****                 }
+  54:application/config/infantry_robot/infantry_config.c ****             },
+  55:application/config/infantry_robot/infantry_config.c **** 
+  56:application/config/infantry_robot/infantry_config.c **** 
+  57:application/config/infantry_robot/infantry_config.c ****             .gimbal_param = {
+  58:application/config/infantry_robot/infantry_config.c ****                 .gimbal_type = SINGLE_GIMBAL,
+  59:application/config/infantry_robot/infantry_config.c ****                 .gimbal_offset = {
+  60:application/config/infantry_robot/infantry_config.c ****                     .yaw_offset = 2640,
+  61:application/config/infantry_robot/infantry_config.c ****                     .pitch_min_angle = -10.0f,//-18
+  62:application/config/infantry_robot/infantry_config.c ****                     .pitch_max_angle = 20.0f,//35
+  63:application/config/infantry_robot/infantry_config.c ****                 },
+  64:application/config/infantry_robot/infantry_config.c **** 
+  65:application/config/infantry_robot/infantry_config.c ****                 .yaw_motor_config = {
+  66:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+  67:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan1,
+  68:application/config/infantry_robot/infantry_config.c ****                         .tx_id = 1,
+  69:application/config/infantry_robot/infantry_config.c ****                     },
+  70:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+  71:application/config/infantry_robot/infantry_config.c ****                         .angle_PID = {
+  72:application/config/infantry_robot/infantry_config.c ****                             .Kp = 8.0,
+  73:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+  74:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.4, 
+  75:application/config/infantry_robot/infantry_config.c ****                             .DeadBand = 0.1,
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 3
+
+
+  76:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+  77:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 100,
+  78:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 500,
+  79:application/config/infantry_robot/infantry_config.c ****                         },
+  80:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+  81:application/config/infantry_robot/infantry_config.c ****                             .Kp = 300.0, 
+  82:application/config/infantry_robot/infantry_config.c ****                             .Ki = 100.0, 
+  83:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0, 
+  84:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+  85:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 3000,
+  86:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 20000,
+  87:application/config/infantry_robot/infantry_config.c ****                         },
+  88:application/config/infantry_robot/infantry_config.c ****                     },
+  89:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+  90:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = OTHER_FEED,
+  91:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = OTHER_FEED,
+  92:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = ANGLE_LOOP,
+  93:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+  94:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+  95:application/config/infantry_robot/infantry_config.c ****                         .feedback_reverse_flag = FEEDBACK_DIRECTION_NORMAL,
+  96:application/config/infantry_robot/infantry_config.c ****                     },
+  97:application/config/infantry_robot/infantry_config.c ****                     .motor_type = GM6020
+  98:application/config/infantry_robot/infantry_config.c ****                 },        
+  99:application/config/infantry_robot/infantry_config.c **** 
+ 100:application/config/infantry_robot/infantry_config.c ****                 .pitch_motor_config = {
+ 101:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 102:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan1,
+ 103:application/config/infantry_robot/infantry_config.c ****                         .tx_id = 2,
+ 104:application/config/infantry_robot/infantry_config.c ****                     },
+ 105:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 106:application/config/infantry_robot/infantry_config.c ****                         .angle_PID = {
+ 107:application/config/infantry_robot/infantry_config.c ****                             .Kp = 15.0,//15
+ 108:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 109:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.4, //0.4
+ 110:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 111:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 100,
+ 112:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 500,
+ 113:application/config/infantry_robot/infantry_config.c ****                         },
+ 114:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 115:application/config/infantry_robot/infantry_config.c ****                             .Kp = 250.0, 
+ 116:application/config/infantry_robot/infantry_config.c ****                             .Ki = 100.0, 
+ 117:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 118:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 119:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 2500,
+ 120:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 20000,
+ 121:application/config/infantry_robot/infantry_config.c ****                         },
+ 122:application/config/infantry_robot/infantry_config.c ****                     },
+ 123:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 124:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = OTHER_FEED,
+ 125:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = OTHER_FEED,
+ 126:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = ANGLE_LOOP,
+ 127:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+ 128:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+ 129:application/config/infantry_robot/infantry_config.c ****                         .feedback_reverse_flag = FEEDBACK_DIRECTION_NORMAL,
+ 130:application/config/infantry_robot/infantry_config.c ****                     },
+ 131:application/config/infantry_robot/infantry_config.c ****                     .motor_type = GM6020
+ 132:application/config/infantry_robot/infantry_config.c ****                 }                
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 4
+
+
+ 133:application/config/infantry_robot/infantry_config.c ****             },
+ 134:application/config/infantry_robot/infantry_config.c **** 
+ 135:application/config/infantry_robot/infantry_config.c ****             .shoot_param = {
+ 136:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_id[MOTOR_LF] = 1,
+ 137:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_id[MOTOR_RF] = 2,
+ 138:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_reverse_flag[MOTOR_LF] = MOTOR_DIRECTION_NORMAL,
+ 139:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_reverse_flag[MOTOR_RF] = MOTOR_DIRECTION_REVERSE,    
+ 140:application/config/infantry_robot/infantry_config.c **** 
+ 141:application/config/infantry_robot/infantry_config.c ****                 .shoot_type = DUAL_SHOOT,
+ 142:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_config = {
+ 143:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 144:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan2,
+ 145:application/config/infantry_robot/infantry_config.c ****                     },
+ 146:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 147:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 148:application/config/infantry_robot/infantry_config.c ****                             .Kp = 10.0, 
+ 149:application/config/infantry_robot/infantry_config.c ****                             .Ki = 1.0, 
+ 150:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 151:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 152:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 10000,
+ 153:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 25000,
+ 154:application/config/infantry_robot/infantry_config.c ****                         },
+ 155:application/config/infantry_robot/infantry_config.c ****                         .current_PID = {
+ 156:application/config/infantry_robot/infantry_config.c ****                             .Kp = 0.4, 
+ 157:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 158:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 159:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 160:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 10000,
+ 161:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 15000,
+ 162:application/config/infantry_robot/infantry_config.c ****                         },
+ 163:application/config/infantry_robot/infantry_config.c ****                     },
+ 164:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 165:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = MOTOR_FEED,
+ 166:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = MOTOR_FEED,
+ 167:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = SPEED_LOOP,
+ 168:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = SPEED_LOOP | CURRENT_LOOP,
+ 169:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+ 170:application/config/infantry_robot/infantry_config.c ****                     },
+ 171:application/config/infantry_robot/infantry_config.c ****                     .motor_type = M3508
+ 172:application/config/infantry_robot/infantry_config.c ****                 },
+ 173:application/config/infantry_robot/infantry_config.c **** 
+ 174:application/config/infantry_robot/infantry_config.c ****                 .loader_motor_config = {
+ 175:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 176:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan2,
+ 177:application/config/infantry_robot/infantry_config.c ****                         .tx_id = 5,
+ 178:application/config/infantry_robot/infantry_config.c ****                     },
+ 179:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 180:application/config/infantry_robot/infantry_config.c ****                         .angle_PID = {
+ 181:application/config/infantry_robot/infantry_config.c ****                             // 如果启用位置环来控制发弹,需要较大的I值保证输出
+ 182:application/config/infantry_robot/infantry_config.c ****                             .Kp = 15.0, 
+ 183:application/config/infantry_robot/infantry_config.c ****                             .Ki = 1.0,
+ 184:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 185:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 5000, 
+ 186:application/config/infantry_robot/infantry_config.c ****                         },
+ 187:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 188:application/config/infantry_robot/infantry_config.c ****                             .Kp = 3.0, 
+ 189:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 5
+
+
+ 190:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 191:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 192:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 8000,
+ 193:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 8000,
+ 194:application/config/infantry_robot/infantry_config.c ****                         },
+ 195:application/config/infantry_robot/infantry_config.c ****                         .current_PID = {
+ 196:application/config/infantry_robot/infantry_config.c ****                             .Kp = 0.4, 
+ 197:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 198:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 199:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 200:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 5000,
+ 201:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 5000,
+ 202:application/config/infantry_robot/infantry_config.c ****                         },
+ 203:application/config/infantry_robot/infantry_config.c ****                     },
+ 204:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 205:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = MOTOR_FEED, 
+ 206:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = MOTOR_FEED,
+ 207:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = SPEED_LOOP, // 初始化成SPEED_LOOP,让拨盘停在原
+ 208:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+ 209:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+ 210:application/config/infantry_robot/infantry_config.c ****                     },
+ 211:application/config/infantry_robot/infantry_config.c ****                     .motor_type = M2006 // 英雄使用M3508
+ 212:application/config/infantry_robot/infantry_config.c ****                 }
+ 213:application/config/infantry_robot/infantry_config.c ****             }
+ 214:application/config/infantry_robot/infantry_config.c ****         };
+ 215:application/config/infantry_robot/infantry_config.c ****         return &infantry_config_3;
+ 216:application/config/infantry_robot/infantry_config.c ****         break;
+ 217:application/config/infantry_robot/infantry_config.c ****     /*******************************************************四号步兵***************************
+ 218:application/config/infantry_robot/infantry_config.c ****     case INFANTRY_ROBOT_4:
+ 219:application/config/infantry_robot/infantry_config.c ****         static Robot_Config_s infantry_config_5 = { 
+ 220:application/config/infantry_robot/infantry_config.c ****             .chassis_param = {
+ 221:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_LF] = 3,  
+ 222:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_RF] = 2,  
+ 223:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_RB] = 1, 
+ 224:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_LB] = 4, 
+ 225:application/config/infantry_robot/infantry_config.c **** 
+ 226:application/config/infantry_robot/infantry_config.c ****                 .wheel_type = MECANUM_WHEEL,
+ 227:application/config/infantry_robot/infantry_config.c ****                 .wheel_measure = {
+ 228:application/config/infantry_robot/infantry_config.c ****                     .center_gimbal_offset_x = 0.0,
+ 229:application/config/infantry_robot/infantry_config.c ****                     .center_gimbal_offset_y = 0.0,
+ 230:application/config/infantry_robot/infantry_config.c ****                     .wheel_base = 370,
+ 231:application/config/infantry_robot/infantry_config.c ****                     .track_width = 420,
+ 232:application/config/infantry_robot/infantry_config.c ****                     .radius_wheel = 75,
+ 233:application/config/infantry_robot/infantry_config.c ****                     .reduction_ratio_wheel = 19.0,
+ 234:application/config/infantry_robot/infantry_config.c ****                 },
+ 235:application/config/infantry_robot/infantry_config.c **** 
+ 236:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_config = {
+ 237:application/config/infantry_robot/infantry_config.c ****                     .can_init_config.can_handle = &hcan1,
+ 238:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 239:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 240:application/config/infantry_robot/infantry_config.c ****                             .Kp = 5.0,
+ 241:application/config/infantry_robot/infantry_config.c ****                             .Ki = 1.0,
+ 242:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0, 
+ 243:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 3000,
+ 244:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 245:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 12000,
+ 246:application/config/infantry_robot/infantry_config.c ****                         },
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 6
+
+
+ 247:application/config/infantry_robot/infantry_config.c ****                         .current_PID = {
+ 248:application/config/infantry_robot/infantry_config.c ****                             .Kp = 0.5, 
+ 249:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0,   
+ 250:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 251:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 3000,
+ 252:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 253:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 15000,
+ 254:application/config/infantry_robot/infantry_config.c ****                         },
+ 255:application/config/infantry_robot/infantry_config.c ****                     },   
+ 256:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 257:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = MOTOR_FEED,
+ 258:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = MOTOR_FEED,
+ 259:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = SPEED_LOOP,
+ 260:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = CURRENT_LOOP | SPEED_LOOP,
+ 261:application/config/infantry_robot/infantry_config.c ****                     },
+ 262:application/config/infantry_robot/infantry_config.c ****                     .motor_type = M3508,             
+ 263:application/config/infantry_robot/infantry_config.c ****                 }
+ 264:application/config/infantry_robot/infantry_config.c ****             },
+ 265:application/config/infantry_robot/infantry_config.c **** 
+ 266:application/config/infantry_robot/infantry_config.c **** 
+ 267:application/config/infantry_robot/infantry_config.c ****             .gimbal_param = {
+ 268:application/config/infantry_robot/infantry_config.c ****                 .gimbal_type = SINGLE_GIMBAL,
+ 269:application/config/infantry_robot/infantry_config.c ****                 .gimbal_offset = {
+ 270:application/config/infantry_robot/infantry_config.c ****                     .yaw_offset = 5932,
+ 271:application/config/infantry_robot/infantry_config.c ****                     .pitch_min_angle = -40.0f,
+ 272:application/config/infantry_robot/infantry_config.c ****                     .pitch_max_angle = 15.0f,
+ 273:application/config/infantry_robot/infantry_config.c ****                 },
+ 274:application/config/infantry_robot/infantry_config.c **** 
+ 275:application/config/infantry_robot/infantry_config.c ****                 .yaw_motor_config = {
+ 276:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 277:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan1,
+ 278:application/config/infantry_robot/infantry_config.c ****                         .tx_id = 1,
+ 279:application/config/infantry_robot/infantry_config.c ****                     },
+ 280:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 281:application/config/infantry_robot/infantry_config.c ****                         .angle_PID = {
+ 282:application/config/infantry_robot/infantry_config.c ****                             .Kp = 15.0,
+ 283:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 284:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.7, 
+ 285:application/config/infantry_robot/infantry_config.c ****                             .DeadBand = 0.1,
+ 286:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 287:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 100,
+ 288:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 500,
+ 289:application/config/infantry_robot/infantry_config.c ****                         },
+ 290:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 291:application/config/infantry_robot/infantry_config.c ****                             .Kp = 300.0, 
+ 292:application/config/infantry_robot/infantry_config.c ****                             .Ki = 150.0, 
+ 293:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 294:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 295:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 3000,
+ 296:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 20000,
+ 297:application/config/infantry_robot/infantry_config.c ****                         },
+ 298:application/config/infantry_robot/infantry_config.c ****                     },
+ 299:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 300:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = OTHER_FEED,
+ 301:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = OTHER_FEED,
+ 302:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = ANGLE_LOOP,
+ 303:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 7
+
+
+ 304:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+ 305:application/config/infantry_robot/infantry_config.c ****                         .feedback_reverse_flag = FEEDBACK_DIRECTION_NORMAL,
+ 306:application/config/infantry_robot/infantry_config.c ****                     },
+ 307:application/config/infantry_robot/infantry_config.c ****                     .motor_type = GM6020
+ 308:application/config/infantry_robot/infantry_config.c ****                 },        
+ 309:application/config/infantry_robot/infantry_config.c **** 
+ 310:application/config/infantry_robot/infantry_config.c ****                 .pitch_motor_config = {
+ 311:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 312:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan2,
+ 313:application/config/infantry_robot/infantry_config.c ****                         .tx_id = 2,
+ 314:application/config/infantry_robot/infantry_config.c ****                     },
+ 315:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 316:application/config/infantry_robot/infantry_config.c ****                         .angle_PID = {
+ 317:application/config/infantry_robot/infantry_config.c ****                             .Kp = 20.0,
+ 318:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 319:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.4, 
+ 320:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 321:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 100,
+ 322:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 500,
+ 323:application/config/infantry_robot/infantry_config.c ****                         },
+ 324:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 325:application/config/infantry_robot/infantry_config.c ****                             .Kp = 200.0, 
+ 326:application/config/infantry_robot/infantry_config.c ****                             .Ki = 100.0, 
+ 327:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 328:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 329:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 2500,
+ 330:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 20000,
+ 331:application/config/infantry_robot/infantry_config.c ****                         },
+ 332:application/config/infantry_robot/infantry_config.c ****                     },
+ 333:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 334:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = OTHER_FEED,
+ 335:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = OTHER_FEED,
+ 336:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = ANGLE_LOOP,
+ 337:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+ 338:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+ 339:application/config/infantry_robot/infantry_config.c ****                         .feedback_reverse_flag = FEEDBACK_DIRECTION_REVERSE,
+ 340:application/config/infantry_robot/infantry_config.c ****                     },
+ 341:application/config/infantry_robot/infantry_config.c ****                     .motor_type = GM6020
+ 342:application/config/infantry_robot/infantry_config.c ****                 }                
+ 343:application/config/infantry_robot/infantry_config.c ****             },
+ 344:application/config/infantry_robot/infantry_config.c **** 
+ 345:application/config/infantry_robot/infantry_config.c ****             .shoot_param = {
+ 346:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_id[MOTOR_LF] = 3,
+ 347:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_id[MOTOR_RF] = 4,
+ 348:application/config/infantry_robot/infantry_config.c **** 
+ 349:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_reverse_flag[MOTOR_LF] = MOTOR_DIRECTION_REVERSE,
+ 350:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_reverse_flag[MOTOR_RF] = MOTOR_DIRECTION_NORMAL,    
+ 351:application/config/infantry_robot/infantry_config.c ****                 .shoot_type = DUAL_SHOOT,
+ 352:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_config = {
+ 353:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 354:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan2,
+ 355:application/config/infantry_robot/infantry_config.c ****                     },
+ 356:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 357:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 358:application/config/infantry_robot/infantry_config.c ****                             .Kp = 15.0, 
+ 359:application/config/infantry_robot/infantry_config.c ****                             .Ki = 1.0, 
+ 360:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 8
+
+
+ 361:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 362:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 10000,
+ 363:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 15000,
+ 364:application/config/infantry_robot/infantry_config.c ****                         },
+ 365:application/config/infantry_robot/infantry_config.c ****                         .current_PID = {
+ 366:application/config/infantry_robot/infantry_config.c ****                             .Kp = 0.4, 
+ 367:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 368:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 369:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 370:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 10000,
+ 371:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 15000,
+ 372:application/config/infantry_robot/infantry_config.c ****                         },
+ 373:application/config/infantry_robot/infantry_config.c ****                     },
+ 374:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 375:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = MOTOR_FEED,
+ 376:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = MOTOR_FEED,
+ 377:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = SPEED_LOOP,
+ 378:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = SPEED_LOOP | CURRENT_LOOP,
+ 379:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+ 380:application/config/infantry_robot/infantry_config.c ****                     },
+ 381:application/config/infantry_robot/infantry_config.c ****                     .motor_type = M3508
+ 382:application/config/infantry_robot/infantry_config.c ****                 },
+ 383:application/config/infantry_robot/infantry_config.c **** 
+ 384:application/config/infantry_robot/infantry_config.c ****                 .loader_motor_config = {
+ 385:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 386:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan2,
+ 387:application/config/infantry_robot/infantry_config.c ****                         .tx_id = 7,
+ 388:application/config/infantry_robot/infantry_config.c ****                     },
+ 389:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 390:application/config/infantry_robot/infantry_config.c ****                         .angle_PID = {
+ 391:application/config/infantry_robot/infantry_config.c ****                             // 如果启用位置环来控制发弹,需要较大的I值保证输出
+ 392:application/config/infantry_robot/infantry_config.c ****                             .Kp = 10.0, 
+ 393:application/config/infantry_robot/infantry_config.c ****                             .Ki = 1.0,
+ 394:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 395:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 5000, 
+ 396:application/config/infantry_robot/infantry_config.c ****                         },
+ 397:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 398:application/config/infantry_robot/infantry_config.c ****                             .Kp = 3.0, 
+ 399:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 400:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 401:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 402:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 8000,
+ 403:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 10000,
+ 404:application/config/infantry_robot/infantry_config.c ****                         },
+ 405:application/config/infantry_robot/infantry_config.c ****                         .current_PID = {
+ 406:application/config/infantry_robot/infantry_config.c ****                             .Kp = 0.4, 
+ 407:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 408:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 409:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 410:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 5000,
+ 411:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 5000,
+ 412:application/config/infantry_robot/infantry_config.c ****                         },
+ 413:application/config/infantry_robot/infantry_config.c ****                     },
+ 414:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 415:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = MOTOR_FEED, 
+ 416:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = MOTOR_FEED,
+ 417:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = SPEED_LOOP, // 初始化成SPEED_LOOP,让拨盘停在原
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 9
+
+
+ 418:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+ 419:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+ 420:application/config/infantry_robot/infantry_config.c ****                     },
+ 421:application/config/infantry_robot/infantry_config.c ****                     .motor_type = M2006 // 英雄使用M3508
+ 422:application/config/infantry_robot/infantry_config.c ****                 }
+ 423:application/config/infantry_robot/infantry_config.c ****             }
+ 424:application/config/infantry_robot/infantry_config.c ****         };
+ 425:application/config/infantry_robot/infantry_config.c ****         return &infantry_config_5;
+ 426:application/config/infantry_robot/infantry_config.c ****         break;
+ 427:application/config/infantry_robot/infantry_config.c ****     /*******************************************************五号步兵***************************
+ 428:application/config/infantry_robot/infantry_config.c ****     case INFANTRY_ROBOT_5:
+ 429:application/config/infantry_robot/infantry_config.c ****         break;
+ 430:application/config/infantry_robot/infantry_config.c ****     default:
+ 431:application/config/infantry_robot/infantry_config.c ****         break;
+ 432:application/config/infantry_robot/infantry_config.c ****     }
+ 433:application/config/infantry_robot/infantry_config.c **** } 
+  41              		.loc 1 433 1 is_stmt 0 view .LVU2
+  42 0008 7047     		bx	lr
+  43              	.LVL2:
+  44              	.L3:
+   5:application/config/infantry_robot/infantry_config.c ****     switch (robot_id)
+  45              		.loc 1 5 5 view .LVU3
+  46 000a 0248     		ldr	r0, .L5
+  47              	.LVL3:
+   5:application/config/infantry_robot/infantry_config.c ****     switch (robot_id)
+  48              		.loc 1 5 5 view .LVU4
+  49 000c 7047     		bx	lr
+  50              	.LVL4:
+  51              	.L4:
+  52              	.LBB2:
+ 425:application/config/infantry_robot/infantry_config.c ****         break;
+  53              		.loc 1 425 16 view .LVU5
+  54 000e 0248     		ldr	r0, .L5+4
+  55              	.LVL5:
+ 425:application/config/infantry_robot/infantry_config.c ****         break;
+  56              		.loc 1 425 16 view .LVU6
+  57              	.LBE2:
+  58              		.loc 1 433 1 view .LVU7
+  59 0010 7047     		bx	lr
+  60              	.L6:
+  61 0012 00BF     		.align	2
+  62              	.L5:
+  63 0014 00000000 		.word	infantry_config_3.1
+  64 0018 00000000 		.word	infantry_config_5.0
+  65              		.cfi_endproc
+  66              	.LFE276:
+  68              		.section	.rodata.InfantryStaticUI.str1.4,"aMS",%progbits,1
+  69              		.align	2
+  70              	.LC0:
+  71 0000 736C3000 		.ascii	"sl0\000"
+  72              		.align	2
+  73              	.LC1:
+  74 0004 736C3100 		.ascii	"sl1\000"
+  75              		.align	2
+  76              	.LC2:
+  77 0008 736C3200 		.ascii	"sl2\000"
+  78              		.align	2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 10
+
+
+  79              	.LC3:
+  80 000c 736C3300 		.ascii	"sl3\000"
+  81              		.align	2
+  82              	.LC4:
+  83 0010 736C3400 		.ascii	"sl4\000"
+  84              		.align	2
+  85              	.LC5:
+  86 0014 736C3500 		.ascii	"sl5\000"
+  87              		.align	2
+  88              	.LC6:
+  89 0018 736F3100 		.ascii	"so1\000"
+  90              		.align	2
+  91              	.LC7:
+  92 001c 736F3200 		.ascii	"so2\000"
+  93              		.align	2
+  94              	.LC8:
+  95 0020 736F3300 		.ascii	"so3\000"
+  96              		.align	2
+  97              	.LC9:
+  98 0024 736F3400 		.ascii	"so4\000"
+  99              		.align	2
+ 100              	.LC10:
+ 101 0028 736F3500 		.ascii	"so5\000"
+ 102              		.align	2
+ 103              	.LC11:
+ 104 002c 736F3600 		.ascii	"so6\000"
+ 105              		.align	2
+ 106              	.LC12:
+ 107 0030 73733000 		.ascii	"ss0\000"
+ 108              		.align	2
+ 109              	.LC13:
+ 110 0034 73733100 		.ascii	"ss1\000"
+ 111              		.align	2
+ 112              	.LC14:
+ 113 0038 73733200 		.ascii	"ss2\000"
+ 114              		.align	2
+ 115              	.LC15:
+ 116 003c 73733300 		.ascii	"ss3\000"
+ 117              		.align	2
+ 118              	.LC16:
+ 119 0040 736A3100 		.ascii	"sj1\000"
+ 120              		.align	2
+ 121              	.LC17:
+ 122 0044 736A3200 		.ascii	"sj2\000"
+ 123              		.align	2
+ 124              	.LC18:
+ 125 0048 736A3300 		.ascii	"sj3\000"
+ 126              		.align	2
+ 127              	.LC19:
+ 128 004c 736C3600 		.ascii	"sl6\000"
+ 129              		.align	2
+ 130              	.LC20:
+ 131 0050 736C3700 		.ascii	"sl7\000"
+ 132              		.section	.text.InfantryStaticUI,"ax",%progbits
+ 133              		.align	1
+ 134              		.global	InfantryStaticUI
+ 135              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 11
+
+
+ 136              		.thumb
+ 137              		.thumb_func
+ 139              	InfantryStaticUI:
+ 140              	.LVL6:
+ 141              	.LFB277:
+ 434:application/config/infantry_robot/infantry_config.c **** 
+ 435:application/config/infantry_robot/infantry_config.c **** static Graph_Data_t UI_pitch_line[10]; // pitch准线
+ 436:application/config/infantry_robot/infantry_config.c **** static Graph_Data_t UI_shoot_line[10]; // 射击准线
+ 437:application/config/infantry_robot/infantry_config.c **** static Graph_Data_t UI_shoot_oval[10]; // 瞄准框架
+ 438:application/config/infantry_robot/infantry_config.c **** static Graph_Data_t UI_graph_Arc[3];   // 功率圆弧
+ 439:application/config/infantry_robot/infantry_config.c **** static Graph_Data_t UI_graph_Rectangle[3]; // 绘制射速矩形
+ 440:application/config/infantry_robot/infantry_config.c **** 
+ 441:application/config/infantry_robot/infantry_config.c **** static Graph_Data_t UI_State_dyn[6];  // 机器人状态,动态先add才能change
+ 442:application/config/infantry_robot/infantry_config.c **** 
+ 443:application/config/infantry_robot/infantry_config.c **** static uint32_t shoot_line_location[7] = {460, 380, 300, 538, 538, 959};
+ 444:application/config/infantry_robot/infantry_config.c **** void InfantryStaticUI(referee_info_t *referee_recv_info)
+ 445:application/config/infantry_robot/infantry_config.c **** {
+ 142              		.loc 1 445 1 is_stmt 1 view -0
+ 143              		.cfi_startproc
+ 144              		@ args = 0, pretend = 0, frame = 8
+ 145              		@ frame_needed = 0, uses_anonymous_args = 0
+ 146              		.loc 1 445 1 is_stmt 0 view .LVU9
+ 147 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 148              	.LCFI0:
+ 149              		.cfi_def_cfa_offset 36
+ 150              		.cfi_offset 4, -36
+ 151              		.cfi_offset 5, -32
+ 152              		.cfi_offset 6, -28
+ 153              		.cfi_offset 7, -24
+ 154              		.cfi_offset 8, -20
+ 155              		.cfi_offset 9, -16
+ 156              		.cfi_offset 10, -12
+ 157              		.cfi_offset 11, -8
+ 158              		.cfi_offset 14, -4
+ 159 0004 95B0     		sub	sp, sp, #84
+ 160              	.LCFI1:
+ 161              		.cfi_def_cfa_offset 120
+ 162 0006 1390     		str	r0, [sp, #76]
+ 446:application/config/infantry_robot/infantry_config.c ****     // 绘制发射基准线
+ 447:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[0], "sl0", UI_Graph_ADD, 7, UI_Color_Cyan, 2, 1029, shoot_line_locati
+ 163              		.loc 1 447 5 is_stmt 1 view .LVU10
+ 164 0008 CF4C     		ldr	r4, .L9
+ 165 000a 4FF4E673 		mov	r3, #460
+ 166 000e 0593     		str	r3, [sp, #20]
+ 167 0010 4FF45C72 		mov	r2, #880
+ 168 0014 0492     		str	r2, [sp, #16]
+ 169 0016 0393     		str	r3, [sp, #12]
+ 170 0018 40F20543 		movw	r3, #1029
+ 171 001c 0293     		str	r3, [sp, #8]
+ 172 001e 0223     		movs	r3, #2
+ 173 0020 0193     		str	r3, [sp, #4]
+ 174 0022 0625     		movs	r5, #6
+ 175 0024 0095     		str	r5, [sp]
+ 176 0026 0723     		movs	r3, #7
+ 177 0028 0122     		movs	r2, #1
+ 178 002a C849     		ldr	r1, .L9+4
+ 179 002c 2046     		mov	r0, r4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 12
+
+
+ 180              	.LVL7:
+ 181              		.loc 1 447 5 is_stmt 0 view .LVU11
+ 182 002e FFF7FEFF 		bl	UILineDraw
+ 183              	.LVL8:
+ 448:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[1], "sl1", UI_Graph_ADD, 7, UI_Color_Cyan, 3, 750, shoot_line_locatio
+ 184              		.loc 1 448 5 is_stmt 1 view .LVU12
+ 185 0032 04F10F06 		add	r6, r4, #15
+ 186 0036 4FF4BE73 		mov	r3, #380
+ 187 003a 0593     		str	r3, [sp, #20]
+ 188 003c 4FF49162 		mov	r2, #1160
+ 189 0040 0492     		str	r2, [sp, #16]
+ 190 0042 0393     		str	r3, [sp, #12]
+ 191 0044 40F2EE23 		movw	r3, #750
+ 192 0048 0293     		str	r3, [sp, #8]
+ 193 004a 0323     		movs	r3, #3
+ 194 004c 0193     		str	r3, [sp, #4]
+ 195 004e 0095     		str	r5, [sp]
+ 196 0050 0723     		movs	r3, #7
+ 197 0052 0122     		movs	r2, #1
+ 198 0054 BE49     		ldr	r1, .L9+8
+ 199 0056 3046     		mov	r0, r6
+ 200 0058 FFF7FEFF 		bl	UILineDraw
+ 201              	.LVL9:
+ 449:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[2], "sl2", UI_Graph_ADD, 7, UI_Color_Cyan, 4, 645, shoot_line_locatio
+ 202              		.loc 1 449 5 view .LVU13
+ 203 005c 04F11E07 		add	r7, r4, #30
+ 204 0060 4FF4967A 		mov	r10, #300
+ 205 0064 CDF814A0 		str	r10, [sp, #20]
+ 206 0068 40F2FA43 		movw	r3, #1274
+ 207 006c 0493     		str	r3, [sp, #16]
+ 208 006e CDF80CA0 		str	r10, [sp, #12]
+ 209 0072 40F28523 		movw	r3, #645
+ 210 0076 0293     		str	r3, [sp, #8]
+ 211 0078 4FF0040B 		mov	fp, #4
+ 212 007c CDF804B0 		str	fp, [sp, #4]
+ 213 0080 0095     		str	r5, [sp]
+ 214 0082 0723     		movs	r3, #7
+ 215 0084 0122     		movs	r2, #1
+ 216 0086 B349     		ldr	r1, .L9+12
+ 217 0088 3846     		mov	r0, r7
+ 218 008a FFF7FEFF 		bl	UILineDraw
+ 219              	.LVL10:
+ 450:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[3], "sl3", UI_Graph_ADD, 7, UI_Color_Cyan, 4, 600, shoot_line_locatio
+ 220              		.loc 1 450 5 view .LVU14
+ 221 008e 04F12D08 		add	r8, r4, #45
+ 222 0092 40F21A22 		movw	r2, #538
+ 223 0096 0592     		str	r2, [sp, #20]
+ 224 0098 4FF46673 		mov	r3, #920
+ 225 009c 0493     		str	r3, [sp, #16]
+ 226 009e 0392     		str	r2, [sp, #12]
+ 227 00a0 4FF41673 		mov	r3, #600
+ 228 00a4 0293     		str	r3, [sp, #8]
+ 229 00a6 CDF804B0 		str	fp, [sp, #4]
+ 230 00aa 0095     		str	r5, [sp]
+ 231 00ac 0723     		movs	r3, #7
+ 232 00ae 0122     		movs	r2, #1
+ 233 00b0 A949     		ldr	r1, .L9+16
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 13
+
+
+ 234 00b2 4046     		mov	r0, r8
+ 235 00b4 FFF7FEFF 		bl	UILineDraw
+ 236              	.LVL11:
+ 451:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[4], "sl4", UI_Graph_ADD, 7, UI_Color_Cyan, 4, 1000, shoot_line_locati
+ 237              		.loc 1 451 5 view .LVU15
+ 238 00b8 04F13C09 		add	r9, r4, #60
+ 239 00bc 40F21A22 		movw	r2, #538
+ 240 00c0 0592     		str	r2, [sp, #20]
+ 241 00c2 40F2C443 		movw	r3, #1220
+ 242 00c6 0493     		str	r3, [sp, #16]
+ 243 00c8 0392     		str	r2, [sp, #12]
+ 244 00ca 4FF47A73 		mov	r3, #1000
+ 245 00ce 0293     		str	r3, [sp, #8]
+ 246 00d0 CDF804B0 		str	fp, [sp, #4]
+ 247 00d4 0095     		str	r5, [sp]
+ 248 00d6 0723     		movs	r3, #7
+ 249 00d8 0122     		movs	r2, #1
+ 250 00da A049     		ldr	r1, .L9+20
+ 251 00dc 4846     		mov	r0, r9
+ 252 00de FFF7FEFF 		bl	UILineDraw
+ 253              	.LVL12:
+ 452:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 5, UI_shoot_line[0], UI_shoot_line[1], UI_shoot_
+ 254              		.loc 1 452 5 view .LVU16
+ 255 00e2 0DF1380C 		add	ip, sp, #56
+ 256 00e6 99E80F00 		ldm	r9, {r0, r1, r2, r3}
+ 257 00ea ACE80700 		stmia	ip!, {r0, r1, r2}
+ 258 00ee 2CF8023B 		strh	r3, [ip], #2	@ movhi
+ 259 00f2 1B0C     		lsrs	r3, r3, #16
+ 260 00f4 8CF80030 		strb	r3, [ip]
+ 261 00f8 0AAB     		add	r3, sp, #40
+ 262 00fa D4F82D00 		ldr	r0, [r4, #45]	@ unaligned
+ 263 00fe D4F83110 		ldr	r1, [r4, #49]	@ unaligned
+ 264 0102 D4F83520 		ldr	r2, [r4, #53]	@ unaligned
+ 265 0106 07C3     		stmia	r3!, {r0, r1, r2}
+ 266 0108 B4F83910 		ldrh	r1, [r4, #57]	@ unaligned
+ 267 010c 94F83B20 		ldrb	r2, [r4, #59]	@ zero_extendqisi2
+ 268 0110 1980     		strh	r1, [r3]	@ unaligned
+ 269 0112 9A70     		strb	r2, [r3, #2]
+ 270 0114 06AB     		add	r3, sp, #24
+ 271 0116 D4F81E00 		ldr	r0, [r4, #30]	@ unaligned
+ 272 011a D4F82210 		ldr	r1, [r4, #34]	@ unaligned
+ 273 011e D4F82620 		ldr	r2, [r4, #38]	@ unaligned
+ 274 0122 07C3     		stmia	r3!, {r0, r1, r2}
+ 275 0124 618D     		ldrh	r1, [r4, #42]	@ unaligned
+ 276 0126 94F82C20 		ldrb	r2, [r4, #44]	@ zero_extendqisi2
+ 277 012a 1980     		strh	r1, [r3]	@ unaligned
+ 278 012c 9A70     		strb	r2, [r3, #2]
+ 279 012e 02AB     		add	r3, sp, #8
+ 280 0130 D4F80F00 		ldr	r0, [r4, #15]	@ unaligned
+ 281 0134 D4F81310 		ldr	r1, [r4, #19]	@ unaligned
+ 282 0138 D4F81720 		ldr	r2, [r4, #23]	@ unaligned
+ 283 013c 07C3     		stmia	r3!, {r0, r1, r2}
+ 284 013e B4F81B10 		ldrh	r1, [r4, #27]	@ unaligned
+ 285 0142 627F     		ldrb	r2, [r4, #29]	@ zero_extendqisi2
+ 286 0144 1980     		strh	r1, [r3]	@ unaligned
+ 287 0146 9A70     		strb	r2, [r3, #2]
+ 288 0148 04F10803 		add	r3, r4, #8
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 14
+
+
+ 289 014c 93E80300 		ldm	r3, {r0, r1}
+ 290 0150 0090     		str	r0, [sp]
+ 291 0152 ADF80410 		strh	r1, [sp, #4]	@ movhi
+ 292 0156 090C     		lsrs	r1, r1, #16
+ 293 0158 8DF80610 		strb	r1, [sp, #6]
+ 294 015c 94E80C00 		ldm	r4, {r2, r3}
+ 295 0160 0521     		movs	r1, #5
+ 296 0162 DDF84C80 		ldr	r8, [sp, #76]
+ 297 0166 4046     		mov	r0, r8
+ 298 0168 FFF7FEFF 		bl	UIGraphRefresh
+ 299              	.LVL13:
+ 453:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[5], "sl5", UI_Graph_ADD, 7, UI_Color_Cyan, 4, shoot_line_location[5],
+ 300              		.loc 1 453 5 view .LVU17
+ 301 016c 40F2F913 		movw	r3, #505
+ 302 0170 0593     		str	r3, [sp, #20]
+ 303 0172 40F2BF33 		movw	r3, #959
+ 304 0176 0493     		str	r3, [sp, #16]
+ 305 0178 CDF80CA0 		str	r10, [sp, #12]
+ 306 017c 0293     		str	r3, [sp, #8]
+ 307 017e CDF804B0 		str	fp, [sp, #4]
+ 308 0182 0095     		str	r5, [sp]
+ 309 0184 0723     		movs	r3, #7
+ 310 0186 0122     		movs	r2, #1
+ 311 0188 7549     		ldr	r1, .L9+24
+ 312 018a 04F14B00 		add	r0, r4, #75
+ 313 018e FFF7FEFF 		bl	UILineDraw
+ 314              	.LVL14:
+ 454:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_shoot_line[5]);
+ 315              		.loc 1 454 5 view .LVU18
+ 316 0192 D4F85300 		ldr	r0, [r4, #83]	@ unaligned
+ 317 0196 0090     		str	r0, [sp]
+ 318 0198 B4F85720 		ldrh	r2, [r4, #87]	@ unaligned
+ 319 019c 94F85930 		ldrb	r3, [r4, #89]	@ zero_extendqisi2
+ 320 01a0 ADF80420 		strh	r2, [sp, #4]	@ unaligned
+ 321 01a4 8DF80630 		strb	r3, [sp, #6]
+ 322 01a8 D4F84B20 		ldr	r2, [r4, #75]	@ unaligned
+ 323 01ac D4F84F30 		ldr	r3, [r4, #79]	@ unaligned
+ 324 01b0 0121     		movs	r1, #1
+ 325 01b2 CDF84C80 		str	r8, [sp, #76]
+ 326              	.LVL15:
+ 327              		.loc 1 454 5 is_stmt 0 view .LVU19
+ 328 01b6 4046     		mov	r0, r8
+ 329 01b8 FFF7FEFF 		bl	UIGraphRefresh
+ 330              	.LVL16:
+ 455:application/config/infantry_robot/infantry_config.c **** 
+ 456:application/config/infantry_robot/infantry_config.c ****     // 绘制pitch基准线
+ 457:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_pitch_line[0], "so1", UI_Graph_ADD, 7, UI_Color_Cyan, 10, 1320, 538, 1341, 538);
+ 331              		.loc 1 457 5 is_stmt 1 view .LVU20
+ 332 01bc 694E     		ldr	r6, .L9+28
+ 333 01be 40F21A22 		movw	r2, #538
+ 334 01c2 0592     		str	r2, [sp, #20]
+ 335 01c4 40F23D53 		movw	r3, #1341
+ 336 01c8 0493     		str	r3, [sp, #16]
+ 337 01ca 0392     		str	r2, [sp, #12]
+ 338 01cc 4FF4A563 		mov	r3, #1320
+ 339 01d0 0293     		str	r3, [sp, #8]
+ 340 01d2 0A23     		movs	r3, #10
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 15
+
+
+ 341 01d4 0193     		str	r3, [sp, #4]
+ 342 01d6 0095     		str	r5, [sp]
+ 343 01d8 0723     		movs	r3, #7
+ 344 01da 0122     		movs	r2, #1
+ 345 01dc 6249     		ldr	r1, .L9+32
+ 346 01de 3046     		mov	r0, r6
+ 347 01e0 FFF7FEFF 		bl	UILineDraw
+ 348              	.LVL17:
+ 458:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_pitch_line[1], "so2", UI_Graph_ADD, 7, UI_Color_Cyan, 15, 1307, 679, 1258, 651);
+ 349              		.loc 1 458 5 view .LVU21
+ 350 01e4 06F10F07 		add	r7, r6, #15
+ 351 01e8 40F28B23 		movw	r3, #651
+ 352 01ec 0593     		str	r3, [sp, #20]
+ 353 01ee 40F2EA43 		movw	r3, #1258
+ 354 01f2 0493     		str	r3, [sp, #16]
+ 355 01f4 40F2A723 		movw	r3, #679
+ 356 01f8 0393     		str	r3, [sp, #12]
+ 357 01fa 40F21B53 		movw	r3, #1307
+ 358 01fe 0293     		str	r3, [sp, #8]
+ 359 0200 4FF00F0A 		mov	r10, #15
+ 360 0204 CDF804A0 		str	r10, [sp, #4]
+ 361 0208 0095     		str	r5, [sp]
+ 362 020a 0723     		movs	r3, #7
+ 363 020c 0122     		movs	r2, #1
+ 364 020e 5749     		ldr	r1, .L9+36
+ 365 0210 3846     		mov	r0, r7
+ 366 0212 FFF7FEFF 		bl	UILineDraw
+ 367              	.LVL18:
+ 459:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_pitch_line[2], "so3", UI_Graph_ADD, 7, UI_Color_Cyan, 10, 1297, 600, 1329, 613);
+ 368              		.loc 1 459 5 view .LVU22
+ 369 0216 06F11E08 		add	r8, r6, #30
+ 370 021a 40F26523 		movw	r3, #613
+ 371 021e 0593     		str	r3, [sp, #20]
+ 372 0220 40F23153 		movw	r3, #1329
+ 373 0224 0493     		str	r3, [sp, #16]
+ 374 0226 4FF41671 		mov	r1, #600
+ 375 022a 0391     		str	r1, [sp, #12]
+ 376 022c 40F21153 		movw	r3, #1297
+ 377 0230 0293     		str	r3, [sp, #8]
+ 378 0232 0A23     		movs	r3, #10
+ 379 0234 0193     		str	r3, [sp, #4]
+ 380 0236 0095     		str	r5, [sp]
+ 381 0238 0723     		movs	r3, #7
+ 382 023a 0122     		movs	r2, #1
+ 383 023c 4C49     		ldr	r1, .L9+40
+ 384 023e 4046     		mov	r0, r8
+ 385 0240 FFF7FEFF 		bl	UILineDraw
+ 386              	.LVL19:
+ 460:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_pitch_line[3], "so4", UI_Graph_ADD, 7, UI_Color_Cyan, 15, 1191, 768, 1227, 804);
+ 387              		.loc 1 460 5 view .LVU23
+ 388 0244 06F12D09 		add	r9, r6, #45
+ 389 0248 4FF44973 		mov	r3, #804
+ 390 024c 0593     		str	r3, [sp, #20]
+ 391 024e 40F2CB43 		movw	r3, #1227
+ 392 0252 0493     		str	r3, [sp, #16]
+ 393 0254 4FF44073 		mov	r3, #768
+ 394 0258 0393     		str	r3, [sp, #12]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 16
+
+
+ 395 025a 40F2A743 		movw	r3, #1191
+ 396 025e 0293     		str	r3, [sp, #8]
+ 397 0260 CDF804A0 		str	r10, [sp, #4]
+ 398 0264 0095     		str	r5, [sp]
+ 399 0266 0723     		movs	r3, #7
+ 400 0268 0122     		movs	r2, #1
+ 401 026a 4249     		ldr	r1, .L9+44
+ 402 026c 4846     		mov	r0, r9
+ 403 026e FFF7FEFF 		bl	UILineDraw
+ 404              	.LVL20:
+ 461:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_pitch_line[4], "so5", UI_Graph_ADD, 7, UI_Color_Cyan, 10, 1254, 725, 1282, 742);
+ 405              		.loc 1 461 5 view .LVU24
+ 406 0272 40F2E623 		movw	r3, #742
+ 407 0276 0593     		str	r3, [sp, #20]
+ 408 0278 40F20253 		movw	r3, #1282
+ 409 027c 0493     		str	r3, [sp, #16]
+ 410 027e 40F2D521 		movw	r1, #725
+ 411 0282 0391     		str	r1, [sp, #12]
+ 412 0284 40F2E643 		movw	r3, #1254
+ 413 0288 0293     		str	r3, [sp, #8]
+ 414 028a 0A23     		movs	r3, #10
+ 415 028c 0193     		str	r3, [sp, #4]
+ 416 028e 0095     		str	r5, [sp]
+ 417 0290 0723     		movs	r3, #7
+ 418 0292 0122     		movs	r2, #1
+ 419 0294 3849     		ldr	r1, .L9+48
+ 420 0296 06F13C00 		add	r0, r6, #60
+ 421 029a FFF7FEFF 		bl	UILineDraw
+ 422              	.LVL21:
+ 462:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 5, UI_pitch_line[0], UI_pitch_line[1], UI_pitch_
+ 423              		.loc 1 462 5 view .LVU25
+ 424 029e 0DF1380C 		add	ip, sp, #56
+ 425 02a2 06F13C03 		add	r3, r6, #60
+ 426 02a6 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 427 02a8 ACE80700 		stmia	ip!, {r0, r1, r2}
+ 428 02ac 2CF8023B 		strh	r3, [ip], #2	@ movhi
+ 429 02b0 1B0C     		lsrs	r3, r3, #16
+ 430 02b2 8CF80030 		strb	r3, [ip]
+ 431 02b6 0AAB     		add	r3, sp, #40
+ 432 02b8 D6F82D00 		ldr	r0, [r6, #45]	@ unaligned
+ 433 02bc D6F83110 		ldr	r1, [r6, #49]	@ unaligned
+ 434 02c0 D6F83520 		ldr	r2, [r6, #53]	@ unaligned
+ 435 02c4 07C3     		stmia	r3!, {r0, r1, r2}
+ 436 02c6 B6F83910 		ldrh	r1, [r6, #57]	@ unaligned
+ 437 02ca 96F83B20 		ldrb	r2, [r6, #59]	@ zero_extendqisi2
+ 438 02ce 1980     		strh	r1, [r3]	@ unaligned
+ 439 02d0 9A70     		strb	r2, [r3, #2]
+ 440 02d2 06AB     		add	r3, sp, #24
+ 441 02d4 D6F81E00 		ldr	r0, [r6, #30]	@ unaligned
+ 442 02d8 D6F82210 		ldr	r1, [r6, #34]	@ unaligned
+ 443 02dc D6F82620 		ldr	r2, [r6, #38]	@ unaligned
+ 444 02e0 07C3     		stmia	r3!, {r0, r1, r2}
+ 445 02e2 718D     		ldrh	r1, [r6, #42]	@ unaligned
+ 446 02e4 96F82C20 		ldrb	r2, [r6, #44]	@ zero_extendqisi2
+ 447 02e8 1980     		strh	r1, [r3]	@ unaligned
+ 448 02ea 9A70     		strb	r2, [r3, #2]
+ 449 02ec 02AB     		add	r3, sp, #8
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 17
+
+
+ 450 02ee D6F80F00 		ldr	r0, [r6, #15]	@ unaligned
+ 451 02f2 D6F81310 		ldr	r1, [r6, #19]	@ unaligned
+ 452 02f6 D6F81720 		ldr	r2, [r6, #23]	@ unaligned
+ 453 02fa 07C3     		stmia	r3!, {r0, r1, r2}
+ 454 02fc B6F81B10 		ldrh	r1, [r6, #27]	@ unaligned
+ 455 0300 727F     		ldrb	r2, [r6, #29]	@ zero_extendqisi2
+ 456 0302 1980     		strh	r1, [r3]	@ unaligned
+ 457 0304 9A70     		strb	r2, [r3, #2]
+ 458 0306 06F10803 		add	r3, r6, #8
+ 459 030a 93E80300 		ldm	r3, {r0, r1}
+ 460 030e 0090     		str	r0, [sp]
+ 461 0310 ADF80410 		strh	r1, [sp, #4]	@ movhi
+ 462 0314 090C     		lsrs	r1, r1, #16
+ 463 0316 8DF80610 		strb	r1, [sp, #6]
+ 464 031a 96E80C00 		ldm	r6, {r2, r3}
+ 465 031e 0521     		movs	r1, #5
+ 466 0320 DDF84C80 		ldr	r8, [sp, #76]
+ 467 0324 4046     		mov	r0, r8
+ 468 0326 FFF7FEFF 		bl	UIGraphRefresh
+ 469              	.LVL22:
+ 463:application/config/infantry_robot/infantry_config.c ****     
+ 464:application/config/infantry_robot/infantry_config.c ****     UIArcDraw(&UI_pitch_line[5], "so6", UI_Graph_ADD, 5, UI_Color_Purplish_red, 88, 92, 20, 958, 53
+ 470              		.loc 1 464 5 view .LVU26
+ 471 032a 4FF4B477 		mov	r7, #360
+ 472 032e 0797     		str	r7, [sp, #28]
+ 473 0330 0697     		str	r7, [sp, #24]
+ 474 0332 40F21A22 		movw	r2, #538
+ 475 0336 0592     		str	r2, [sp, #20]
+ 476 0338 40F2BE33 		movw	r3, #958
+ 477 033c 0493     		str	r3, [sp, #16]
+ 478 033e 1423     		movs	r3, #20
+ 479 0340 0393     		str	r3, [sp, #12]
+ 480 0342 5C23     		movs	r3, #92
+ 481 0344 1AE0     		b	.L10
+ 482              	.L11:
+ 483 0346 00BF     		.align	2
+ 484              	.L9:
+ 485 0348 00000000 		.word	UI_shoot_line
+ 486 034c 00000000 		.word	.LC0
+ 487 0350 04000000 		.word	.LC1
+ 488 0354 08000000 		.word	.LC2
+ 489 0358 0C000000 		.word	.LC3
+ 490 035c 10000000 		.word	.LC4
+ 491 0360 14000000 		.word	.LC5
+ 492 0364 00000000 		.word	UI_pitch_line
+ 493 0368 18000000 		.word	.LC6
+ 494 036c 1C000000 		.word	.LC7
+ 495 0370 20000000 		.word	.LC8
+ 496 0374 24000000 		.word	.LC9
+ 497 0378 28000000 		.word	.LC10
+ 498              	.L10:
+ 499 037c 0293     		str	r3, [sp, #8]
+ 500 037e 5823     		movs	r3, #88
+ 501 0380 0193     		str	r3, [sp, #4]
+ 502 0382 CDF800B0 		str	fp, [sp]
+ 503 0386 0523     		movs	r3, #5
+ 504 0388 0122     		movs	r2, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 18
+
+
+ 505 038a BD49     		ldr	r1, .L12
+ 506 038c 06F14B00 		add	r0, r6, #75
+ 507 0390 FFF7FEFF 		bl	UIArcDraw
+ 508              	.LVL23:
+ 465:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 5, UI_pitch_line[5]);
+ 509              		.loc 1 465 5 view .LVU27
+ 510 0394 D6F85300 		ldr	r0, [r6, #83]	@ unaligned
+ 511 0398 0090     		str	r0, [sp]
+ 512 039a B6F85720 		ldrh	r2, [r6, #87]	@ unaligned
+ 513 039e 96F85930 		ldrb	r3, [r6, #89]	@ zero_extendqisi2
+ 514 03a2 ADF80420 		strh	r2, [sp, #4]	@ unaligned
+ 515 03a6 8DF80630 		strb	r3, [sp, #6]
+ 516 03aa D6F84B20 		ldr	r2, [r6, #75]	@ unaligned
+ 517 03ae D6F84F30 		ldr	r3, [r6, #79]	@ unaligned
+ 518 03b2 0521     		movs	r1, #5
+ 519 03b4 CDF84C80 		str	r8, [sp, #76]
+ 520 03b8 4046     		mov	r0, r8
+ 521 03ba FFF7FEFF 		bl	UIGraphRefresh
+ 522              	.LVL24:
+ 466:application/config/infantry_robot/infantry_config.c **** 
+ 467:application/config/infantry_robot/infantry_config.c ****     // 绘制功率圆弧
+ 468:application/config/infantry_robot/infantry_config.c ****     UIArcDraw(&UI_graph_Arc[0], "ss0", UI_Graph_ADD, 7, UI_Color_Cyan, 45, 135, 6, 950, 540, 400, 4
+ 523              		.loc 1 468 5 view .LVU28
+ 524 03be B14E     		ldr	r6, .L12+4
+ 525 03c0 4FF4C879 		mov	r9, #400
+ 526 03c4 CDF81C90 		str	r9, [sp, #28]
+ 527 03c8 CDF81890 		str	r9, [sp, #24]
+ 528 03cc 4FF40773 		mov	r3, #540
+ 529 03d0 0593     		str	r3, [sp, #20]
+ 530 03d2 40F2B633 		movw	r3, #950
+ 531 03d6 0493     		str	r3, [sp, #16]
+ 532 03d8 0395     		str	r5, [sp, #12]
+ 533 03da 8723     		movs	r3, #135
+ 534 03dc 0293     		str	r3, [sp, #8]
+ 535 03de 2D23     		movs	r3, #45
+ 536 03e0 0193     		str	r3, [sp, #4]
+ 537 03e2 0095     		str	r5, [sp]
+ 538 03e4 0723     		movs	r3, #7
+ 539 03e6 0122     		movs	r2, #1
+ 540 03e8 A749     		ldr	r1, .L12+8
+ 541 03ea 3046     		mov	r0, r6
+ 542 03ec FFF7FEFF 		bl	UIArcDraw
+ 543              	.LVL25:
+ 469:application/config/infantry_robot/infantry_config.c ****     UIArcDraw(&UI_graph_Arc[1], "ss1", UI_Graph_ADD, 7, UI_Color_Cyan, 225, 270, 15, 960, 530, 400,
+ 544              		.loc 1 469 5 view .LVU29
+ 545 03f0 06EB0A08 		add	r8, r6, r10
+ 546 03f4 CDF81C90 		str	r9, [sp, #28]
+ 547 03f8 CDF81890 		str	r9, [sp, #24]
+ 548 03fc 40F21223 		movw	r3, #530
+ 549 0400 0593     		str	r3, [sp, #20]
+ 550 0402 4FF47073 		mov	r3, #960
+ 551 0406 0493     		str	r3, [sp, #16]
+ 552 0408 CDF80CA0 		str	r10, [sp, #12]
+ 553 040c 4FF48773 		mov	r3, #270
+ 554 0410 0293     		str	r3, [sp, #8]
+ 555 0412 E123     		movs	r3, #225
+ 556 0414 0193     		str	r3, [sp, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 19
+
+
+ 557 0416 0095     		str	r5, [sp]
+ 558 0418 0723     		movs	r3, #7
+ 559 041a 0122     		movs	r2, #1
+ 560 041c 9B49     		ldr	r1, .L12+12
+ 561 041e 4046     		mov	r0, r8
+ 562 0420 FFF7FEFF 		bl	UIArcDraw
+ 563              	.LVL26:
+ 470:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_graph_Arc[0], UI_graph_Arc[1]);
+ 564              		.loc 1 470 5 view .LVU30
+ 565 0424 02AB     		add	r3, sp, #8
+ 566 0426 D6F80F00 		ldr	r0, [r6, #15]	@ unaligned
+ 567 042a D8F80410 		ldr	r1, [r8, #4]	@ unaligned
+ 568 042e D8F80820 		ldr	r2, [r8, #8]	@ unaligned
+ 569 0432 07C3     		stmia	r3!, {r0, r1, r2}
+ 570 0434 B8F80C10 		ldrh	r1, [r8, #12]	@ unaligned
+ 571 0438 98F80E20 		ldrb	r2, [r8, #14]	@ zero_extendqisi2
+ 572 043c 1980     		strh	r1, [r3]	@ unaligned
+ 573 043e 9A70     		strb	r2, [r3, #2]
+ 574 0440 06F10803 		add	r3, r6, #8
+ 575 0444 93E80300 		ldm	r3, {r0, r1}
+ 576 0448 0090     		str	r0, [sp]
+ 577 044a ADF80410 		strh	r1, [sp, #4]	@ movhi
+ 578 044e 090C     		lsrs	r1, r1, #16
+ 579 0450 8DF80610 		strb	r1, [sp, #6]
+ 580 0454 96E80C00 		ldm	r6, {r2, r3}
+ 581 0458 0221     		movs	r1, #2
+ 582 045a 1398     		ldr	r0, [sp, #76]
+ 583 045c FFF7FEFF 		bl	UIGraphRefresh
+ 584              	.LVL27:
+ 471:application/config/infantry_robot/infantry_config.c ****     
+ 472:application/config/infantry_robot/infantry_config.c ****     UIArcDraw(&UI_graph_Arc[2], "ss2", UI_Graph_ADD, 7, UI_Color_Cyan, 0, 360, 15, 1524, 725, 100, 
+ 585              		.loc 1 472 5 view .LVU31
+ 586 0460 4FF06408 		mov	r8, #100
+ 587 0464 CDF81C80 		str	r8, [sp, #28]
+ 588 0468 CDF81880 		str	r8, [sp, #24]
+ 589 046c 40F2D521 		movw	r1, #725
+ 590 0470 0591     		str	r1, [sp, #20]
+ 591 0472 40F2F459 		movw	r9, #1524
+ 592 0476 CDF81090 		str	r9, [sp, #16]
+ 593 047a CDF80CA0 		str	r10, [sp, #12]
+ 594 047e 0297     		str	r7, [sp, #8]
+ 595 0480 0027     		movs	r7, #0
+ 596 0482 0197     		str	r7, [sp, #4]
+ 597 0484 0095     		str	r5, [sp]
+ 598 0486 0723     		movs	r3, #7
+ 599 0488 0122     		movs	r2, #1
+ 600 048a 8149     		ldr	r1, .L12+16
+ 601 048c 06F11E00 		add	r0, r6, #30
+ 602 0490 FFF7FEFF 		bl	UIArcDraw
+ 603              	.LVL28:
+ 473:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[2]);
+ 604              		.loc 1 473 5 view .LVU32
+ 605 0494 D6F82600 		ldr	r0, [r6, #38]	@ unaligned
+ 606 0498 0090     		str	r0, [sp]
+ 607 049a 728D     		ldrh	r2, [r6, #42]	@ unaligned
+ 608 049c 96F82C30 		ldrb	r3, [r6, #44]	@ zero_extendqisi2
+ 609 04a0 ADF80420 		strh	r2, [sp, #4]	@ unaligned
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 20
+
+
+ 610 04a4 8DF80630 		strb	r3, [sp, #6]
+ 611 04a8 D6F81E20 		ldr	r2, [r6, #30]	@ unaligned
+ 612 04ac D6F82230 		ldr	r3, [r6, #34]	@ unaligned
+ 613 04b0 0121     		movs	r1, #1
+ 614 04b2 1398     		ldr	r0, [sp, #76]
+ 615 04b4 FFF7FEFF 		bl	UIGraphRefresh
+ 616              	.LVL29:
+ 474:application/config/infantry_robot/infantry_config.c ****     UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_ADD, 7, UI_Color_Cyan, 0, 0, 15, 1524, 725, 100, 10
+ 617              		.loc 1 474 5 view .LVU33
+ 618 04b8 CDF81C80 		str	r8, [sp, #28]
+ 619 04bc CDF81880 		str	r8, [sp, #24]
+ 620 04c0 40F2D521 		movw	r1, #725
+ 621 04c4 0591     		str	r1, [sp, #20]
+ 622 04c6 CDF81090 		str	r9, [sp, #16]
+ 623 04ca CDF80CA0 		str	r10, [sp, #12]
+ 624 04ce 0297     		str	r7, [sp, #8]
+ 625 04d0 0197     		str	r7, [sp, #4]
+ 626 04d2 0095     		str	r5, [sp]
+ 627 04d4 0723     		movs	r3, #7
+ 628 04d6 0122     		movs	r2, #1
+ 629 04d8 6E49     		ldr	r1, .L12+20
+ 630 04da 06F12D00 		add	r0, r6, #45
+ 631 04de FFF7FEFF 		bl	UIArcDraw
+ 632              	.LVL30:
+ 475:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[3]);
+ 633              		.loc 1 475 5 view .LVU34
+ 634 04e2 D6F83500 		ldr	r0, [r6, #53]	@ unaligned
+ 635 04e6 0090     		str	r0, [sp]
+ 636 04e8 B6F83920 		ldrh	r2, [r6, #57]	@ unaligned
+ 637 04ec 96F83B30 		ldrb	r3, [r6, #59]	@ zero_extendqisi2
+ 638 04f0 ADF80420 		strh	r2, [sp, #4]	@ unaligned
+ 639 04f4 8DF80630 		strb	r3, [sp, #6]
+ 640 04f8 D6F82D20 		ldr	r2, [r6, #45]	@ unaligned
+ 641 04fc D6F83130 		ldr	r3, [r6, #49]	@ unaligned
+ 642 0500 0121     		movs	r1, #1
+ 643 0502 1398     		ldr	r0, [sp, #76]
+ 644 0504 FFF7FEFF 		bl	UIGraphRefresh
+ 645              	.LVL31:
+ 476:application/config/infantry_robot/infantry_config.c **** 
+ 477:application/config/infantry_robot/infantry_config.c ****     // 绘制射速矩形
+ 478:application/config/infantry_robot/infantry_config.c ****     UIRectangleDraw(&UI_graph_Rectangle[0], "sj1", UI_Graph_ADD, 7, UI_Color_Cyan, 4, 46, 834, 136,
+ 646              		.loc 1 478 5 view .LVU35
+ 647 0508 634E     		ldr	r6, .L12+24
+ 648 050a 40F25A33 		movw	r3, #858
+ 649 050e 0593     		str	r3, [sp, #20]
+ 650 0510 8823     		movs	r3, #136
+ 651 0512 0493     		str	r3, [sp, #16]
+ 652 0514 40F24233 		movw	r3, #834
+ 653 0518 0393     		str	r3, [sp, #12]
+ 654 051a 2E23     		movs	r3, #46
+ 655 051c 0293     		str	r3, [sp, #8]
+ 656 051e CDF804B0 		str	fp, [sp, #4]
+ 657 0522 0095     		str	r5, [sp]
+ 658 0524 0723     		movs	r3, #7
+ 659 0526 0122     		movs	r2, #1
+ 660 0528 5C49     		ldr	r1, .L12+28
+ 661 052a 3046     		mov	r0, r6
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 21
+
+
+ 662 052c FFF7FEFF 		bl	UIRectangleDraw
+ 663              	.LVL32:
+ 479:application/config/infantry_robot/infantry_config.c **** 
+ 480:application/config/infantry_robot/infantry_config.c ****     UIRectangleDraw(&UI_graph_Rectangle[1], "sj2", UI_Graph_ADD, 7, UI_Color_Cyan, 5, 1481, 672, 15
+ 664              		.loc 1 480 5 view .LVU36
+ 665 0530 06EB0A07 		add	r7, r6, r10
+ 666 0534 4FF44373 		mov	r3, #780
+ 667 0538 0593     		str	r3, [sp, #20]
+ 668 053a 40F2E358 		movw	r8, #1507
+ 669 053e CDF81080 		str	r8, [sp, #16]
+ 670 0542 4FF4287A 		mov	r10, #672
+ 671 0546 CDF80CA0 		str	r10, [sp, #12]
+ 672 054a 40F2C952 		movw	r2, #1481
+ 673 054e 0292     		str	r2, [sp, #8]
+ 674 0550 4FF00509 		mov	r9, #5
+ 675 0554 CDF80490 		str	r9, [sp, #4]
+ 676 0558 0095     		str	r5, [sp]
+ 677 055a 0723     		movs	r3, #7
+ 678 055c 0122     		movs	r2, #1
+ 679 055e 5049     		ldr	r1, .L12+32
+ 680 0560 3846     		mov	r0, r7
+ 681 0562 FFF7FEFF 		bl	UIRectangleDraw
+ 682              	.LVL33:
+ 481:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_graph_Rectangle[0], UI_graph_Rectangle[1])
+ 683              		.loc 1 481 5 view .LVU37
+ 684 0566 02AB     		add	r3, sp, #8
+ 685 0568 D6F80F00 		ldr	r0, [r6, #15]	@ unaligned
+ 686 056c 7968     		ldr	r1, [r7, #4]	@ unaligned
+ 687 056e BA68     		ldr	r2, [r7, #8]	@ unaligned
+ 688 0570 07C3     		stmia	r3!, {r0, r1, r2}
+ 689 0572 B989     		ldrh	r1, [r7, #12]	@ unaligned
+ 690 0574 BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 691 0576 1980     		strh	r1, [r3]	@ unaligned
+ 692 0578 9A70     		strb	r2, [r3, #2]
+ 693 057a 06F10803 		add	r3, r6, #8
+ 694 057e 93E80300 		ldm	r3, {r0, r1}
+ 695 0582 0090     		str	r0, [sp]
+ 696 0584 ADF80410 		strh	r1, [sp, #4]	@ movhi
+ 697 0588 090C     		lsrs	r1, r1, #16
+ 698 058a 8DF80610 		strb	r1, [sp, #6]
+ 699 058e 96E80C00 		ldm	r6, {r2, r3}
+ 700 0592 0221     		movs	r1, #2
+ 701 0594 1398     		ldr	r0, [sp, #76]
+ 702 0596 FFF7FEFF 		bl	UIGraphRefresh
+ 703              	.LVL34:
+ 482:application/config/infantry_robot/infantry_config.c ****     UIRectangleDraw(&UI_graph_Rectangle[2], "sj3", UI_Graph_ADD, 7, UI_Color_Cyan, 5, 1555, 672, 15
+ 704              		.loc 1 482 5 view .LVU38
+ 705 059a 4FF44373 		mov	r3, #780
+ 706 059e 0593     		str	r3, [sp, #20]
+ 707 05a0 40F22D67 		movw	r7, #1581
+ 708 05a4 0497     		str	r7, [sp, #16]
+ 709 05a6 CDF80CA0 		str	r10, [sp, #12]
+ 710 05aa 40F2136A 		movw	r10, #1555
+ 711 05ae CDF808A0 		str	r10, [sp, #8]
+ 712 05b2 CDF80490 		str	r9, [sp, #4]
+ 713 05b6 0095     		str	r5, [sp]
+ 714 05b8 0723     		movs	r3, #7
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 22
+
+
+ 715 05ba 0122     		movs	r2, #1
+ 716 05bc 3949     		ldr	r1, .L12+36
+ 717 05be 06F11E00 		add	r0, r6, #30
+ 718 05c2 FFF7FEFF 		bl	UIRectangleDraw
+ 719              	.LVL35:
+ 483:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Rectangle[2]);
+ 720              		.loc 1 483 5 view .LVU39
+ 721 05c6 D6F82600 		ldr	r0, [r6, #38]	@ unaligned
+ 722 05ca 0090     		str	r0, [sp]
+ 723 05cc 728D     		ldrh	r2, [r6, #42]	@ unaligned
+ 724 05ce 96F82C30 		ldrb	r3, [r6, #44]	@ zero_extendqisi2
+ 725 05d2 ADF80420 		strh	r2, [sp, #4]	@ unaligned
+ 726 05d6 8DF80630 		strb	r3, [sp, #6]
+ 727 05da D6F81E20 		ldr	r2, [r6, #30]	@ unaligned
+ 728 05de D6F82230 		ldr	r3, [r6, #34]	@ unaligned
+ 729 05e2 0121     		movs	r1, #1
+ 730 05e4 DDF84C90 		ldr	r9, [sp, #76]
+ 731 05e8 4846     		mov	r0, r9
+ 732 05ea FFF7FEFF 		bl	UIGraphRefresh
+ 733              	.LVL36:
+ 484:application/config/infantry_robot/infantry_config.c **** 
+ 485:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_ADD, 7, UI_Color_Purplish_red, 4, 1481, 682, 1507
+ 734              		.loc 1 485 5 view .LVU40
+ 735 05ee 40F2AA25 		movw	r5, #682
+ 736 05f2 0595     		str	r5, [sp, #20]
+ 737 05f4 CDF81080 		str	r8, [sp, #16]
+ 738 05f8 0395     		str	r5, [sp, #12]
+ 739 05fa 40F2C952 		movw	r2, #1481
+ 740 05fe 0292     		str	r2, [sp, #8]
+ 741 0600 CDF804B0 		str	fp, [sp, #4]
+ 742 0604 CDF800B0 		str	fp, [sp]
+ 743 0608 0723     		movs	r3, #7
+ 744 060a 0122     		movs	r2, #1
+ 745 060c 2649     		ldr	r1, .L12+40
+ 746 060e 04F15A00 		add	r0, r4, #90
+ 747 0612 FFF7FEFF 		bl	UILineDraw
+ 748              	.LVL37:
+ 486:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_ADD, 7, UI_Color_Purplish_red, 4, 1555, 682, 1581
+ 749              		.loc 1 486 5 view .LVU41
+ 750 0616 04F16906 		add	r6, r4, #105
+ 751 061a 0595     		str	r5, [sp, #20]
+ 752 061c 0497     		str	r7, [sp, #16]
+ 753 061e 0395     		str	r5, [sp, #12]
+ 754 0620 CDF808A0 		str	r10, [sp, #8]
+ 755 0624 CDF804B0 		str	fp, [sp, #4]
+ 756 0628 CDF800B0 		str	fp, [sp]
+ 757 062c 0723     		movs	r3, #7
+ 758 062e 0122     		movs	r2, #1
+ 759 0630 1E49     		ldr	r1, .L12+44
+ 760 0632 3046     		mov	r0, r6
+ 761 0634 FFF7FEFF 		bl	UILineDraw
+ 762              	.LVL38:
+ 487:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 763              		.loc 1 487 5 view .LVU42
+ 764 0638 02AB     		add	r3, sp, #8
+ 765 063a D4F86900 		ldr	r0, [r4, #105]	@ unaligned
+ 766 063e D4F86D10 		ldr	r1, [r4, #109]	@ unaligned
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 23
+
+
+ 767 0642 D4F87120 		ldr	r2, [r4, #113]	@ unaligned
+ 768 0646 07C3     		stmia	r3!, {r0, r1, r2}
+ 769 0648 B4F87510 		ldrh	r1, [r4, #117]	@ unaligned
+ 770 064c 94F87720 		ldrb	r2, [r4, #119]	@ zero_extendqisi2
+ 771 0650 1980     		strh	r1, [r3]	@ unaligned
+ 772 0652 9A70     		strb	r2, [r3, #2]
+ 773 0654 D4F86200 		ldr	r0, [r4, #98]	@ unaligned
+ 774 0658 0090     		str	r0, [sp]
+ 775 065a B4F86620 		ldrh	r2, [r4, #102]	@ unaligned
+ 776 065e 94F86830 		ldrb	r3, [r4, #104]	@ zero_extendqisi2
+ 777 0662 ADF80420 		strh	r2, [sp, #4]	@ unaligned
+ 778 0666 8DF80630 		strb	r3, [sp, #6]
+ 779 066a D4F85A20 		ldr	r2, [r4, #90]	@ unaligned
+ 780 066e D4F85E30 		ldr	r3, [r4, #94]	@ unaligned
+ 781 0672 0221     		movs	r1, #2
+ 782 0674 4846     		mov	r0, r9
+ 783 0676 FFF7FEFF 		bl	UIGraphRefresh
+ 784              	.LVL39:
+ 488:application/config/infantry_robot/infantry_config.c ****     
+ 489:application/config/infantry_robot/infantry_config.c **** }
+ 785              		.loc 1 489 1 is_stmt 0 view .LVU43
+ 786 067a 15B0     		add	sp, sp, #84
+ 787              	.LCFI2:
+ 788              		.cfi_def_cfa_offset 36
+ 789              		@ sp needed
+ 790 067c BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 791              	.L13:
+ 792              		.align	2
+ 793              	.L12:
+ 794 0680 2C000000 		.word	.LC11
+ 795 0684 00000000 		.word	UI_graph_Arc
+ 796 0688 30000000 		.word	.LC12
+ 797 068c 34000000 		.word	.LC13
+ 798 0690 38000000 		.word	.LC14
+ 799 0694 3C000000 		.word	.LC15
+ 800 0698 00000000 		.word	UI_graph_Rectangle
+ 801 069c 40000000 		.word	.LC16
+ 802 06a0 44000000 		.word	.LC17
+ 803 06a4 48000000 		.word	.LC18
+ 804 06a8 4C000000 		.word	.LC19
+ 805 06ac 50000000 		.word	.LC20
+ 806              		.cfi_endproc
+ 807              	.LFE277:
+ 809              		.section	.text.InfantryDynamciscUI,"ax",%progbits
+ 810              		.align	1
+ 811              		.global	InfantryDynamciscUI
+ 812              		.syntax unified
+ 813              		.thumb
+ 814              		.thumb_func
+ 816              	InfantryDynamciscUI:
+ 817              	.LVL40:
+ 818              	.LFB278:
+ 490:application/config/infantry_robot/infantry_config.c **** void InfantryDynamciscUI(referee_info_t *referee_recv_info, Referee_Interactive_info_t *_Interactiv
+ 491:application/config/infantry_robot/infantry_config.c **** {
+ 819              		.loc 1 491 1 is_stmt 1 view -0
+ 820              		.cfi_startproc
+ 821              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 24
+
+
+ 822              		@ frame_needed = 0, uses_anonymous_args = 0
+ 823              		.loc 1 491 1 is_stmt 0 view .LVU45
+ 824 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 825              	.LCFI3:
+ 826              		.cfi_def_cfa_offset 20
+ 827              		.cfi_offset 4, -20
+ 828              		.cfi_offset 5, -16
+ 829              		.cfi_offset 6, -12
+ 830              		.cfi_offset 7, -8
+ 831              		.cfi_offset 14, -4
+ 832 0002 89B0     		sub	sp, sp, #36
+ 833              	.LCFI4:
+ 834              		.cfi_def_cfa_offset 56
+ 835 0004 0646     		mov	r6, r0
+ 836 0006 0C46     		mov	r4, r1
+ 492:application/config/infantry_robot/infantry_config.c ****     // // shoot
+ 493:application/config/infantry_robot/infantry_config.c ****     // if (_Interactive_data->Referee_Interactive_Flag.shoot_flag == 1)
+ 494:application/config/infantry_robot/infantry_config.c ****     // {
+ 495:application/config/infantry_robot/infantry_config.c ****     //     // UICharDraw(&UI_State_dyn[2], "sd2", UI_Graph_Change, 8, UI_Color_Pink, 15, 2, 270, 65
+ 496:application/config/infantry_robot/infantry_config.c ****     //     // UICharRefresh(&referee_recv_info->referee_id, UI_State_dyn[2]);
+ 497:application/config/infantry_robot/infantry_config.c **** 
+ 498:application/config/infantry_robot/infantry_config.c ****     //     UIRectangleDraw(&UI_graph_Rectangle[0], "sj1", UI_Graph_ADD, 7, UI_Color_Purplish_red, 4
+ 499:application/config/infantry_robot/infantry_config.c ****     //     UIRectangleDraw(&UI_graph_Rectangle[1], "sj2", UI_Graph_ADD, 7, UI_Color_Purplish_red, 5
+ 500:application/config/infantry_robot/infantry_config.c ****     //     UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_graph_Rectangle[0], UI_graph_Rectan
+ 501:application/config/infantry_robot/infantry_config.c ****     //     UIRectangleDraw(&UI_graph_Rectangle[2], "sj3", UI_Graph_ADD, 7, UI_Color_Purplish_red, 5
+ 502:application/config/infantry_robot/infantry_config.c ****     //     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Rectangle[2]);
+ 503:application/config/infantry_robot/infantry_config.c ****     //     _Interactive_data->Referee_Interactive_Flag.shoot_flag = 0;
+ 504:application/config/infantry_robot/infantry_config.c ****     // }
+ 505:application/config/infantry_robot/infantry_config.c ****     if (_Interactive_data->chassis_offset_angle < 180 && _Interactive_data->chassis_offset_angle >=
+ 837              		.loc 1 505 5 is_stmt 1 view .LVU46
+ 838              		.loc 1 505 26 is_stmt 0 view .LVU47
+ 839 0008 4B69     		ldr	r3, [r1, #20]	@ unaligned
+ 840 000a 07EE903A 		vmov	s15, r3	@ int
+ 841              		.loc 1 505 8 view .LVU48
+ 842 000e 9FEDC77A 		vldr.32	s14, .L35
+ 843 0012 F4EEC77A 		vcmpe.f32	s15, s14
+ 844 0016 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 845 001a 05D5     		bpl	.L15
+ 846              		.loc 1 505 55 discriminator 1 view .LVU49
+ 847 001c F5EEC07A 		vcmpe.f32	s15, #0
+ 848 0020 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 849 0024 80F2AC80 		bge	.L30
+ 850              	.L15:
+ 506:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, _Interactive_data->ch
+ 507:application/config/infantry_robot/infantry_config.c ****     else if (_Interactive_data->chassis_offset_angle > -180 && _Interactive_data->chassis_offset_an
+ 851              		.loc 1 507 10 is_stmt 1 view .LVU50
+ 852              		.loc 1 507 13 is_stmt 0 view .LVU51
+ 853 0028 9FEDC17A 		vldr.32	s14, .L35+4
+ 854 002c F4EEC77A 		vcmpe.f32	s15, s14
+ 855 0030 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 856 0034 05DD     		ble	.L18
+ 857              		.loc 1 507 61 discriminator 1 view .LVU52
+ 858 0036 F5EEC07A 		vcmpe.f32	s15, #0
+ 859 003a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 860 003e 00F1C180 		bmi	.L31
+ 861              	.LVL41:
+ 862              	.L18:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 25
+
+
+ 508:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, 360 + (_Interactive_d
+ 509:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[3]);
+ 863              		.loc 1 509 5 is_stmt 1 view .LVU53
+ 864 0042 BC4B     		ldr	r3, .L35+8
+ 865 0044 D3F83500 		ldr	r0, [r3, #53]	@ unaligned
+ 866 0048 0090     		str	r0, [sp]
+ 867 004a B3F83910 		ldrh	r1, [r3, #57]	@ unaligned
+ 868 004e 93F83B20 		ldrb	r2, [r3, #59]	@ zero_extendqisi2
+ 869 0052 ADF80410 		strh	r1, [sp, #4]	@ unaligned
+ 870 0056 8DF80620 		strb	r2, [sp, #6]
+ 871 005a D3F82D20 		ldr	r2, [r3, #45]	@ unaligned
+ 872 005e D3F83130 		ldr	r3, [r3, #49]	@ unaligned
+ 873 0062 0121     		movs	r1, #1
+ 874 0064 3046     		mov	r0, r6
+ 875 0066 FFF7FEFF 		bl	UIGraphRefresh
+ 876              	.LVL42:
+ 510:application/config/infantry_robot/infantry_config.c **** 
+ 511:application/config/infantry_robot/infantry_config.c ****     UIArcDraw(&UI_pitch_line[5], "so6", UI_Graph_Change, 5, UI_Color_Purplish_red, 88 - _Interactiv
+ 877              		.loc 1 511 5 view .LVU54
+ 878              		.loc 1 511 106 is_stmt 0 view .LVU55
+ 879 006a A369     		ldr	r3, [r4, #24]	@ unaligned
+ 880 006c 06EE903A 		vmov	s13, r3	@ int
+ 881              		.loc 1 511 87 view .LVU56
+ 882 0070 DFEDB17A 		vldr.32	s15, .L35+12
+ 883 0074 77EEE67A 		vsub.f32	s15, s15, s13
+ 884              		.loc 1 511 124 view .LVU57
+ 885 0078 9FEDB07A 		vldr.32	s14, .L35+16
+ 886 007c 37EE667A 		vsub.f32	s14, s14, s13
+ 887              		.loc 1 511 5 view .LVU58
+ 888 0080 AF4D     		ldr	r5, .L35+20
+ 889 0082 4FF4B473 		mov	r3, #360
+ 890 0086 0793     		str	r3, [sp, #28]
+ 891 0088 0693     		str	r3, [sp, #24]
+ 892 008a 40F21A23 		movw	r3, #538
+ 893 008e 0593     		str	r3, [sp, #20]
+ 894 0090 40F2BE33 		movw	r3, #958
+ 895 0094 0493     		str	r3, [sp, #16]
+ 896 0096 1423     		movs	r3, #20
+ 897 0098 0393     		str	r3, [sp, #12]
+ 898 009a BCEEC77A 		vcvt.u32.f32	s14, s14
+ 899 009e 8DED027A 		vstr.32	s14, [sp, #8]	@ int
+ 900 00a2 FCEEE77A 		vcvt.u32.f32	s15, s15
+ 901 00a6 CDED017A 		vstr.32	s15, [sp, #4]	@ int
+ 902 00aa 0423     		movs	r3, #4
+ 903 00ac 0093     		str	r3, [sp]
+ 904 00ae 0523     		movs	r3, #5
+ 905 00b0 0222     		movs	r2, #2
+ 906 00b2 A449     		ldr	r1, .L35+24
+ 907 00b4 2846     		mov	r0, r5
+ 908 00b6 FFF7FEFF 		bl	UIArcDraw
+ 909              	.LVL43:
+ 512:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 5, UI_pitch_line[5]);
+ 910              		.loc 1 512 5 is_stmt 1 view .LVU59
+ 911 00ba 2B46     		mov	r3, r5
+ 912 00bc 53F84B29 		ldr	r2, [r3], #-75	@ unaligned
+ 913 00c0 A868     		ldr	r0, [r5, #8]	@ unaligned
+ 914 00c2 0090     		str	r0, [sp]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 26
+
+
+ 915 00c4 A889     		ldrh	r0, [r5, #12]	@ unaligned
+ 916 00c6 A97B     		ldrb	r1, [r5, #14]	@ zero_extendqisi2
+ 917 00c8 ADF80400 		strh	r0, [sp, #4]	@ unaligned
+ 918 00cc 8DF80610 		strb	r1, [sp, #6]
+ 919 00d0 D3F84F30 		ldr	r3, [r3, #79]	@ unaligned
+ 920 00d4 0521     		movs	r1, #5
+ 921 00d6 3046     		mov	r0, r6
+ 922 00d8 FFF7FEFF 		bl	UIGraphRefresh
+ 923              	.LVL44:
+ 513:application/config/infantry_robot/infantry_config.c **** 
+ 514:application/config/infantry_robot/infantry_config.c ****     if (_Interactive_data->friction_mode == FRICTION_OFF)
+ 924              		.loc 1 514 5 view .LVU60
+ 925              		.loc 1 514 26 is_stmt 0 view .LVU61
+ 926 00dc 2379     		ldrb	r3, [r4, #4]	@ zero_extendqisi2
+ 927              		.loc 1 514 8 view .LVU62
+ 928 00de 002B     		cmp	r3, #0
+ 929 00e0 00F09880 		beq	.L32
+ 515:application/config/infantry_robot/infantry_config.c ****     {
+ 516:application/config/infantry_robot/infantry_config.c ****         UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481, 68
+ 517:application/config/infantry_robot/infantry_config.c ****         UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555, 68
+ 518:application/config/infantry_robot/infantry_config.c ****         UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 519:application/config/infantry_robot/infantry_config.c ****     }
+ 520:application/config/infantry_robot/infantry_config.c ****     else 
+ 521:application/config/infantry_robot/infantry_config.c ****     {
+ 522:application/config/infantry_robot/infantry_config.c ****         if (_Interactive_data->bullet_speed == SMALL_AMU_15)
+ 930              		.loc 1 522 9 is_stmt 1 view .LVU63
+ 931              		.loc 1 522 30 is_stmt 0 view .LVU64
+ 932 00e4 E37C     		ldrb	r3, [r4, #19]	@ zero_extendqisi2
+ 933              		.loc 1 522 12 view .LVU65
+ 934 00e6 0F2B     		cmp	r3, #15
+ 935 00e8 00F0DA80 		beq	.L33
+ 523:application/config/infantry_robot/infantry_config.c ****         {
+ 524:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481
+ 525:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555
+ 526:application/config/infantry_robot/infantry_config.c ****             UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 527:application/config/infantry_robot/infantry_config.c ****         }
+ 528:application/config/infantry_robot/infantry_config.c ****         else if (_Interactive_data->bullet_speed == SMALL_AMU_18)
+ 936              		.loc 1 528 14 is_stmt 1 view .LVU66
+ 937              		.loc 1 528 17 is_stmt 0 view .LVU67
+ 938 00ec 122B     		cmp	r3, #18
+ 939 00ee 00F03781 		beq	.L34
+ 529:application/config/infantry_robot/infantry_config.c ****         {
+ 530:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481
+ 531:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555
+ 532:application/config/infantry_robot/infantry_config.c ****             UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 533:application/config/infantry_robot/infantry_config.c ****         }
+ 534:application/config/infantry_robot/infantry_config.c ****         else
+ 535:application/config/infantry_robot/infantry_config.c ****         {
+ 536:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481
+ 940              		.loc 1 536 13 is_stmt 1 view .LVU68
+ 941 00f2 954C     		ldr	r4, .L35+28
+ 942              	.LVL45:
+ 943              		.loc 1 536 13 is_stmt 0 view .LVU69
+ 944 00f4 4FF44177 		mov	r7, #772
+ 945 00f8 0597     		str	r7, [sp, #20]
+ 946 00fa 40F2E353 		movw	r3, #1507
+ 947 00fe 0493     		str	r3, [sp, #16]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 27
+
+
+ 948 0100 0397     		str	r7, [sp, #12]
+ 949 0102 40F2C953 		movw	r3, #1481
+ 950 0106 0293     		str	r3, [sp, #8]
+ 951 0108 0423     		movs	r3, #4
+ 952 010a 0193     		str	r3, [sp, #4]
+ 953 010c 0093     		str	r3, [sp]
+ 954 010e 0723     		movs	r3, #7
+ 955 0110 0222     		movs	r2, #2
+ 956 0112 8E49     		ldr	r1, .L35+32
+ 957 0114 2046     		mov	r0, r4
+ 958 0116 FFF7FEFF 		bl	UILineDraw
+ 959              	.LVL46:
+ 537:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555
+ 960              		.loc 1 537 13 is_stmt 1 view .LVU70
+ 961 011a 04F10F05 		add	r5, r4, #15
+ 962 011e 0597     		str	r7, [sp, #20]
+ 963 0120 40F22D63 		movw	r3, #1581
+ 964 0124 0493     		str	r3, [sp, #16]
+ 965 0126 0397     		str	r7, [sp, #12]
+ 966 0128 40F21363 		movw	r3, #1555
+ 967 012c 0293     		str	r3, [sp, #8]
+ 968 012e 0423     		movs	r3, #4
+ 969 0130 0193     		str	r3, [sp, #4]
+ 970 0132 0093     		str	r3, [sp]
+ 971 0134 0723     		movs	r3, #7
+ 972 0136 0222     		movs	r2, #2
+ 973 0138 8549     		ldr	r1, .L35+36
+ 974 013a 2846     		mov	r0, r5
+ 975 013c FFF7FEFF 		bl	UILineDraw
+ 976              	.LVL47:
+ 538:application/config/infantry_robot/infantry_config.c ****             UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 977              		.loc 1 538 13 view .LVU71
+ 978 0140 A446     		mov	ip, r4
+ 979 0142 02AB     		add	r3, sp, #8
+ 980 0144 D4F80F00 		ldr	r0, [r4, #15]	@ unaligned
+ 981 0148 D4F81310 		ldr	r1, [r4, #19]	@ unaligned
+ 982 014c D4F81720 		ldr	r2, [r4, #23]	@ unaligned
+ 983 0150 07C3     		stmia	r3!, {r0, r1, r2}
+ 984 0152 B4F81B10 		ldrh	r1, [r4, #27]	@ unaligned
+ 985 0156 627F     		ldrb	r2, [r4, #29]	@ zero_extendqisi2
+ 986 0158 1980     		strh	r1, [r3]	@ unaligned
+ 987 015a 9A70     		strb	r2, [r3, #2]
+ 988 015c 5CF85A29 		ldr	r2, [ip], #-90	@ unaligned
+ 989 0160 A068     		ldr	r0, [r4, #8]	@ unaligned
+ 990 0162 0090     		str	r0, [sp]
+ 991 0164 A189     		ldrh	r1, [r4, #12]	@ unaligned
+ 992 0166 A37B     		ldrb	r3, [r4, #14]	@ zero_extendqisi2
+ 993 0168 ADF80410 		strh	r1, [sp, #4]	@ unaligned
+ 994 016c 8DF80630 		strb	r3, [sp, #6]
+ 995 0170 DCF85E30 		ldr	r3, [ip, #94]	@ unaligned
+ 996 0174 0221     		movs	r1, #2
+ 997 0176 3046     		mov	r0, r6
+ 998 0178 FFF7FEFF 		bl	UIGraphRefresh
+ 999              	.LVL48:
+ 1000              	.L14:
+ 539:application/config/infantry_robot/infantry_config.c ****         }        
+ 540:application/config/infantry_robot/infantry_config.c ****     }
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 28
+
+
+ 541:application/config/infantry_robot/infantry_config.c **** 
+ 542:application/config/infantry_robot/infantry_config.c **** 
+ 543:application/config/infantry_robot/infantry_config.c **** 
+ 544:application/config/infantry_robot/infantry_config.c ****     // UILineDraw(&UI_pitch_line[5], "so6", UI_Graph_Change, 5, UI_Color_Purplish_red, 15, 1275, 53
+ 545:application/config/infantry_robot/infantry_config.c ****     // UIGraphRefresh(&referee_recv_info->referee_id, 5, UI_pitch_line[5]);
+ 546:application/config/infantry_robot/infantry_config.c **** }...
+ 1001              		.loc 1 546 1 is_stmt 0 view .LVU72
+ 1002 017c 09B0     		add	sp, sp, #36
+ 1003              	.LCFI5:
+ 1004              		.cfi_remember_state
+ 1005              		.cfi_def_cfa_offset 20
+ 1006              		@ sp needed
+ 1007 017e F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1008              	.LVL49:
+ 1009              	.L30:
+ 1010              	.LCFI6:
+ 1011              		.cfi_restore_state
+ 506:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, _Interactive_data->ch
+ 1012              		.loc 1 506 9 is_stmt 1 view .LVU73
+ 506:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, _Interactive_data->ch
+ 1013              		.loc 1 506 119 is_stmt 0 view .LVU74
+ 1014 0180 F2EE046A 		vmov.f32	s13, #1.0e+1
+ 1015 0184 37EEE67A 		vsub.f32	s14, s15, s13
+ 506:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, _Interactive_data->ch
+ 1016              		.loc 1 506 165 view .LVU75
+ 1017 0188 77EEA67A 		vadd.f32	s15, s15, s13
+ 506:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, _Interactive_data->ch
+ 1018              		.loc 1 506 9 view .LVU76
+ 1019 018c 6423     		movs	r3, #100
+ 1020 018e 0793     		str	r3, [sp, #28]
+ 1021 0190 0693     		str	r3, [sp, #24]
+ 1022 0192 40F2D523 		movw	r3, #725
+ 1023 0196 0593     		str	r3, [sp, #20]
+ 1024 0198 40F2F453 		movw	r3, #1524
+ 1025 019c 0493     		str	r3, [sp, #16]
+ 1026 019e 0F23     		movs	r3, #15
+ 1027 01a0 0393     		str	r3, [sp, #12]
+ 1028 01a2 FCEEE77A 		vcvt.u32.f32	s15, s15
+ 1029 01a6 CDED027A 		vstr.32	s15, [sp, #8]	@ int
+ 1030 01aa BCEEC77A 		vcvt.u32.f32	s14, s14
+ 1031 01ae 8DED017A 		vstr.32	s14, [sp, #4]	@ int
+ 1032 01b2 0523     		movs	r3, #5
+ 1033 01b4 0093     		str	r3, [sp]
+ 1034 01b6 0723     		movs	r3, #7
+ 1035 01b8 0222     		movs	r2, #2
+ 1036 01ba 6649     		ldr	r1, .L35+40
+ 1037              	.LVL50:
+ 506:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, _Interactive_data->ch
+ 1038              		.loc 1 506 9 view .LVU77
+ 1039 01bc 6648     		ldr	r0, .L35+44
+ 1040              	.LVL51:
+ 506:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, _Interactive_data->ch
+ 1041              		.loc 1 506 9 view .LVU78
+ 1042 01be FFF7FEFF 		bl	UIArcDraw
+ 1043              	.LVL52:
+ 1044 01c2 3EE7     		b	.L18
+ 1045              	.LVL53:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 29
+
+
+ 1046              	.L31:
+ 508:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, 360 + (_Interactive_d
+ 1047              		.loc 1 508 9 is_stmt 1 view .LVU79
+ 508:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, 360 + (_Interactive_d
+ 1048              		.loc 1 508 126 is_stmt 0 view .LVU80
+ 1049 01c4 B2EE046A 		vmov.f32	s12, #1.0e+1
+ 1050 01c8 37EEC67A 		vsub.f32	s14, s15, s12
+ 508:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, 360 + (_Interactive_d
+ 1051              		.loc 1 508 83 view .LVU81
+ 1052 01cc DFED636A 		vldr.32	s13, .L35+48
+ 1053 01d0 37EE267A 		vadd.f32	s14, s14, s13
+ 508:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, 360 + (_Interactive_d
+ 1054              		.loc 1 508 180 view .LVU82
+ 1055 01d4 77EE867A 		vadd.f32	s15, s15, s12
+ 508:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, 360 + (_Interactive_d
+ 1056              		.loc 1 508 137 view .LVU83
+ 1057 01d8 77EEA67A 		vadd.f32	s15, s15, s13
+ 508:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, 360 + (_Interactive_d
+ 1058              		.loc 1 508 9 view .LVU84
+ 1059 01dc 6423     		movs	r3, #100
+ 1060 01de 0793     		str	r3, [sp, #28]
+ 1061 01e0 0693     		str	r3, [sp, #24]
+ 1062 01e2 40F2D523 		movw	r3, #725
+ 1063 01e6 0593     		str	r3, [sp, #20]
+ 1064 01e8 40F2F453 		movw	r3, #1524
+ 1065 01ec 0493     		str	r3, [sp, #16]
+ 1066 01ee 0F23     		movs	r3, #15
+ 1067 01f0 0393     		str	r3, [sp, #12]
+ 1068 01f2 FCEEE77A 		vcvt.u32.f32	s15, s15
+ 1069 01f6 CDED027A 		vstr.32	s15, [sp, #8]	@ int
+ 1070 01fa BCEEC77A 		vcvt.u32.f32	s14, s14
+ 1071 01fe 8DED017A 		vstr.32	s14, [sp, #4]	@ int
+ 1072 0202 0523     		movs	r3, #5
+ 1073 0204 0093     		str	r3, [sp]
+ 1074 0206 0723     		movs	r3, #7
+ 1075 0208 0222     		movs	r2, #2
+ 1076 020a 5249     		ldr	r1, .L35+40
+ 1077              	.LVL54:
+ 508:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, 360 + (_Interactive_d
+ 1078              		.loc 1 508 9 view .LVU85
+ 1079 020c 5248     		ldr	r0, .L35+44
+ 1080              	.LVL55:
+ 508:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, 360 + (_Interactive_d
+ 1081              		.loc 1 508 9 view .LVU86
+ 1082 020e FFF7FEFF 		bl	UIArcDraw
+ 1083              	.LVL56:
+ 1084 0212 16E7     		b	.L18
+ 1085              	.L32:
+ 516:application/config/infantry_robot/infantry_config.c ****         UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481, 68
+ 1086              		.loc 1 516 9 is_stmt 1 view .LVU87
+ 1087 0214 4C4C     		ldr	r4, .L35+28
+ 1088              	.LVL57:
+ 516:application/config/infantry_robot/infantry_config.c ****         UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481, 68
+ 1089              		.loc 1 516 9 is_stmt 0 view .LVU88
+ 1090 0216 40F2AA27 		movw	r7, #682
+ 1091 021a 0597     		str	r7, [sp, #20]
+ 1092 021c 40F2E353 		movw	r3, #1507
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 30
+
+
+ 1093 0220 0493     		str	r3, [sp, #16]
+ 1094 0222 0397     		str	r7, [sp, #12]
+ 1095 0224 40F2C953 		movw	r3, #1481
+ 1096 0228 0293     		str	r3, [sp, #8]
+ 1097 022a 0423     		movs	r3, #4
+ 1098 022c 0193     		str	r3, [sp, #4]
+ 1099 022e 0093     		str	r3, [sp]
+ 1100 0230 0723     		movs	r3, #7
+ 1101 0232 0222     		movs	r2, #2
+ 1102 0234 4549     		ldr	r1, .L35+32
+ 1103 0236 2046     		mov	r0, r4
+ 1104 0238 FFF7FEFF 		bl	UILineDraw
+ 1105              	.LVL58:
+ 517:application/config/infantry_robot/infantry_config.c ****         UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555, 68
+ 1106              		.loc 1 517 9 is_stmt 1 view .LVU89
+ 1107 023c 04F10F05 		add	r5, r4, #15
+ 1108 0240 0597     		str	r7, [sp, #20]
+ 1109 0242 40F22D63 		movw	r3, #1581
+ 1110 0246 0493     		str	r3, [sp, #16]
+ 1111 0248 0397     		str	r7, [sp, #12]
+ 1112 024a 40F21363 		movw	r3, #1555
+ 1113 024e 0293     		str	r3, [sp, #8]
+ 1114 0250 0423     		movs	r3, #4
+ 1115 0252 0193     		str	r3, [sp, #4]
+ 1116 0254 0093     		str	r3, [sp]
+ 1117 0256 0723     		movs	r3, #7
+ 1118 0258 0222     		movs	r2, #2
+ 1119 025a 3D49     		ldr	r1, .L35+36
+ 1120 025c 2846     		mov	r0, r5
+ 1121 025e FFF7FEFF 		bl	UILineDraw
+ 1122              	.LVL59:
+ 518:application/config/infantry_robot/infantry_config.c ****         UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 1123              		.loc 1 518 9 view .LVU90
+ 1124 0262 A446     		mov	ip, r4
+ 1125 0264 02AB     		add	r3, sp, #8
+ 1126 0266 D4F80F00 		ldr	r0, [r4, #15]	@ unaligned
+ 1127 026a D4F81310 		ldr	r1, [r4, #19]	@ unaligned
+ 1128 026e D4F81720 		ldr	r2, [r4, #23]	@ unaligned
+ 1129 0272 07C3     		stmia	r3!, {r0, r1, r2}
+ 1130 0274 B4F81B10 		ldrh	r1, [r4, #27]	@ unaligned
+ 1131 0278 627F     		ldrb	r2, [r4, #29]	@ zero_extendqisi2
+ 1132 027a 1980     		strh	r1, [r3]	@ unaligned
+ 1133 027c 9A70     		strb	r2, [r3, #2]
+ 1134 027e 5CF85A29 		ldr	r2, [ip], #-90	@ unaligned
+ 1135 0282 A068     		ldr	r0, [r4, #8]	@ unaligned
+ 1136 0284 0090     		str	r0, [sp]
+ 1137 0286 A189     		ldrh	r1, [r4, #12]	@ unaligned
+ 1138 0288 A37B     		ldrb	r3, [r4, #14]	@ zero_extendqisi2
+ 1139 028a ADF80410 		strh	r1, [sp, #4]	@ unaligned
+ 1140 028e 8DF80630 		strb	r3, [sp, #6]
+ 1141 0292 DCF85E30 		ldr	r3, [ip, #94]	@ unaligned
+ 1142 0296 0221     		movs	r1, #2
+ 1143 0298 3046     		mov	r0, r6
+ 1144 029a FFF7FEFF 		bl	UIGraphRefresh
+ 1145              	.LVL60:
+ 1146 029e 6DE7     		b	.L14
+ 1147              	.LVL61:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 31
+
+
+ 1148              	.L33:
+ 524:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481
+ 1149              		.loc 1 524 13 view .LVU91
+ 1150 02a0 294C     		ldr	r4, .L35+28
+ 1151              	.LVL62:
+ 524:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481
+ 1152              		.loc 1 524 13 is_stmt 0 view .LVU92
+ 1153 02a2 4FF43277 		mov	r7, #712
+ 1154 02a6 0597     		str	r7, [sp, #20]
+ 1155 02a8 40F2E353 		movw	r3, #1507
+ 1156 02ac 0493     		str	r3, [sp, #16]
+ 1157 02ae 0397     		str	r7, [sp, #12]
+ 1158 02b0 40F2C953 		movw	r3, #1481
+ 1159 02b4 0293     		str	r3, [sp, #8]
+ 1160 02b6 0423     		movs	r3, #4
+ 1161 02b8 0193     		str	r3, [sp, #4]
+ 1162 02ba 0093     		str	r3, [sp]
+ 1163 02bc 0723     		movs	r3, #7
+ 1164 02be 0222     		movs	r2, #2
+ 1165 02c0 2249     		ldr	r1, .L35+32
+ 1166 02c2 2046     		mov	r0, r4
+ 1167 02c4 FFF7FEFF 		bl	UILineDraw
+ 1168              	.LVL63:
+ 525:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555
+ 1169              		.loc 1 525 13 is_stmt 1 view .LVU93
+ 1170 02c8 04F10F05 		add	r5, r4, #15
+ 1171 02cc 0597     		str	r7, [sp, #20]
+ 1172 02ce 40F22D63 		movw	r3, #1581
+ 1173 02d2 0493     		str	r3, [sp, #16]
+ 1174 02d4 0397     		str	r7, [sp, #12]
+ 1175 02d6 40F21363 		movw	r3, #1555
+ 1176 02da 0293     		str	r3, [sp, #8]
+ 1177 02dc 0423     		movs	r3, #4
+ 1178 02de 0193     		str	r3, [sp, #4]
+ 1179 02e0 0093     		str	r3, [sp]
+ 1180 02e2 0723     		movs	r3, #7
+ 1181 02e4 0222     		movs	r2, #2
+ 1182 02e6 1A49     		ldr	r1, .L35+36
+ 1183 02e8 2846     		mov	r0, r5
+ 1184 02ea FFF7FEFF 		bl	UILineDraw
+ 1185              	.LVL64:
+ 526:application/config/infantry_robot/infantry_config.c ****             UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 1186              		.loc 1 526 13 view .LVU94
+ 1187 02ee A446     		mov	ip, r4
+ 1188 02f0 02AB     		add	r3, sp, #8
+ 1189 02f2 D4F80F00 		ldr	r0, [r4, #15]	@ unaligned
+ 1190 02f6 D4F81310 		ldr	r1, [r4, #19]	@ unaligned
+ 1191 02fa D4F81720 		ldr	r2, [r4, #23]	@ unaligned
+ 1192 02fe 07C3     		stmia	r3!, {r0, r1, r2}
+ 1193 0300 B4F81B10 		ldrh	r1, [r4, #27]	@ unaligned
+ 1194 0304 627F     		ldrb	r2, [r4, #29]	@ zero_extendqisi2
+ 1195 0306 1980     		strh	r1, [r3]	@ unaligned
+ 1196 0308 9A70     		strb	r2, [r3, #2]
+ 1197 030a 5CF85A29 		ldr	r2, [ip], #-90	@ unaligned
+ 1198 030e A068     		ldr	r0, [r4, #8]	@ unaligned
+ 1199 0310 0090     		str	r0, [sp]
+ 1200 0312 A189     		ldrh	r1, [r4, #12]	@ unaligned
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 32
+
+
+ 1201 0314 A37B     		ldrb	r3, [r4, #14]	@ zero_extendqisi2
+ 1202 0316 ADF80410 		strh	r1, [sp, #4]	@ unaligned
+ 1203 031a 8DF80630 		strb	r3, [sp, #6]
+ 1204 031e DCF85E30 		ldr	r3, [ip, #94]	@ unaligned
+ 1205 0322 0221     		movs	r1, #2
+ 1206 0324 3046     		mov	r0, r6
+ 1207 0326 FFF7FEFF 		bl	UIGraphRefresh
+ 1208              	.LVL65:
+ 1209 032a 27E7     		b	.L14
+ 1210              	.L36:
+ 1211              		.align	2
+ 1212              	.L35:
+ 1213 032c 00003443 		.word	1127481344
+ 1214 0330 000034C3 		.word	-1020002304
+ 1215 0334 00000000 		.word	UI_graph_Arc
+ 1216 0338 0000B042 		.word	1118830592
+ 1217 033c 0000B842 		.word	1119354880
+ 1218 0340 4B000000 		.word	UI_pitch_line+75
+ 1219 0344 2C000000 		.word	.LC11
+ 1220 0348 5A000000 		.word	UI_shoot_line+90
+ 1221 034c 4C000000 		.word	.LC19
+ 1222 0350 50000000 		.word	.LC20
+ 1223 0354 3C000000 		.word	.LC15
+ 1224 0358 2D000000 		.word	UI_graph_Arc+45
+ 1225 035c 0000B443 		.word	1135869952
+ 1226              	.LVL66:
+ 1227              	.L34:
+ 530:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481
+ 1228              		.loc 1 530 13 view .LVU95
+ 1229 0360 224C     		ldr	r4, .L37
+ 1230              	.LVL67:
+ 530:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481
+ 1231              		.loc 1 530 13 is_stmt 0 view .LVU96
+ 1232 0362 40F2E627 		movw	r7, #742
+ 1233 0366 0597     		str	r7, [sp, #20]
+ 1234 0368 40F2E353 		movw	r3, #1507
+ 1235 036c 0493     		str	r3, [sp, #16]
+ 1236 036e 0397     		str	r7, [sp, #12]
+ 1237 0370 40F2C953 		movw	r3, #1481
+ 1238 0374 0293     		str	r3, [sp, #8]
+ 1239 0376 0423     		movs	r3, #4
+ 1240 0378 0193     		str	r3, [sp, #4]
+ 1241 037a 0093     		str	r3, [sp]
+ 1242 037c 0723     		movs	r3, #7
+ 1243 037e 0222     		movs	r2, #2
+ 1244 0380 1B49     		ldr	r1, .L37+4
+ 1245 0382 2046     		mov	r0, r4
+ 1246 0384 FFF7FEFF 		bl	UILineDraw
+ 1247              	.LVL68:
+ 531:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555
+ 1248              		.loc 1 531 13 is_stmt 1 view .LVU97
+ 1249 0388 04F10F05 		add	r5, r4, #15
+ 1250 038c 0597     		str	r7, [sp, #20]
+ 1251 038e 40F22D63 		movw	r3, #1581
+ 1252 0392 0493     		str	r3, [sp, #16]
+ 1253 0394 0397     		str	r7, [sp, #12]
+ 1254 0396 40F21363 		movw	r3, #1555
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 33
+
+
+ 1255 039a 0293     		str	r3, [sp, #8]
+ 1256 039c 0423     		movs	r3, #4
+ 1257 039e 0193     		str	r3, [sp, #4]
+ 1258 03a0 0093     		str	r3, [sp]
+ 1259 03a2 0723     		movs	r3, #7
+ 1260 03a4 0222     		movs	r2, #2
+ 1261 03a6 1349     		ldr	r1, .L37+8
+ 1262 03a8 2846     		mov	r0, r5
+ 1263 03aa FFF7FEFF 		bl	UILineDraw
+ 1264              	.LVL69:
+ 532:application/config/infantry_robot/infantry_config.c ****             UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 1265              		.loc 1 532 13 view .LVU98
+ 1266 03ae A446     		mov	ip, r4
+ 1267 03b0 02AB     		add	r3, sp, #8
+ 1268 03b2 D4F80F00 		ldr	r0, [r4, #15]	@ unaligned
+ 1269 03b6 D4F81310 		ldr	r1, [r4, #19]	@ unaligned
+ 1270 03ba D4F81720 		ldr	r2, [r4, #23]	@ unaligned
+ 1271 03be 07C3     		stmia	r3!, {r0, r1, r2}
+ 1272 03c0 B4F81B10 		ldrh	r1, [r4, #27]	@ unaligned
+ 1273 03c4 627F     		ldrb	r2, [r4, #29]	@ zero_extendqisi2
+ 1274 03c6 1980     		strh	r1, [r3]	@ unaligned
+ 1275 03c8 9A70     		strb	r2, [r3, #2]
+ 1276 03ca 5CF85A29 		ldr	r2, [ip], #-90	@ unaligned
+ 1277 03ce A068     		ldr	r0, [r4, #8]	@ unaligned
+ 1278 03d0 0090     		str	r0, [sp]
+ 1279 03d2 A189     		ldrh	r1, [r4, #12]	@ unaligned
+ 1280 03d4 A37B     		ldrb	r3, [r4, #14]	@ zero_extendqisi2
+ 1281 03d6 ADF80410 		strh	r1, [sp, #4]	@ unaligned
+ 1282 03da 8DF80630 		strb	r3, [sp, #6]
+ 1283 03de DCF85E30 		ldr	r3, [ip, #94]	@ unaligned
+ 1284 03e2 0221     		movs	r1, #2
+ 1285 03e4 3046     		mov	r0, r6
+ 1286 03e6 FFF7FEFF 		bl	UIGraphRefresh
+ 1287              	.LVL70:
+ 1288 03ea C7E6     		b	.L14
+ 1289              	.L38:
+ 1290              		.align	2
+ 1291              	.L37:
+ 1292 03ec 5A000000 		.word	UI_shoot_line+90
+ 1293 03f0 4C000000 		.word	.LC19
+ 1294 03f4 50000000 		.word	.LC20
+ 1295              		.cfi_endproc
+ 1296              	.LFE278:
+ 1298              		.section	.data.infantry_config_5.0,"aw"
+ 1299              		.align	2
+ 1302              	infantry_config_5.0:
+ 1303 0000 00       		.byte	0
+ 1304 0001 000000   		.space	3
+ 1305 0004 00000000 		.word	0
+ 1306 0008 00000000 		.word	0
+ 1307 000c 0000B943 		.word	1136197632
+ 1308 0010 0000D243 		.word	1137836032
+ 1309 0014 00009642 		.word	1117126656
+ 1310 0018 00009841 		.word	1100480512
+ 1311 001c 00000000 		.space	16
+ 1311      00000000 
+ 1311      00000000 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 34
+
+
+ 1311      00000000 
+ 1312 002c 0000003F 		.word	1056964608
+ 1313 0030 00000000 		.word	0
+ 1314 0034 00000000 		.word	0
+ 1315 0038 00606A46 		.word	1181376512
+ 1316 003c 00000000 		.space	4
+ 1317 0040 07       		.byte	7
+ 1318 0041 000000   		.space	3
+ 1319 0044 00803B45 		.word	1161527296
+ 1320 0048 00000000 		.space	16
+ 1320      00000000 
+ 1320      00000000 
+ 1320      00000000 
+ 1321 0058 0000A040 		.word	1084227584
+ 1322 005c 0000803F 		.word	1065353216
+ 1323 0060 00000000 		.word	0
+ 1324 0064 00803B46 		.word	1178304512
+ 1325 0068 00000000 		.space	4
+ 1326 006c 07       		.byte	7
+ 1327 006d 000000   		.space	3
+ 1328 0070 00803B45 		.word	1161527296
+ 1329 0074 00000000 		.space	16
+ 1329      00000000 
+ 1329      00000000 
+ 1329      00000000 
+ 1330 0084 00000000 		.space	44
+ 1330      00000000 
+ 1330      00000000 
+ 1330      00000000 
+ 1330      00000000 
+ 1331 00b0 02       		.byte	2
+ 1332 00b1 03       		.byte	3
+ 1333 00b2 0000     		.space	2
+ 1334 00b4 00       		.byte	0
+ 1335 00b5 00       		.byte	0
+ 1336 00b6 0000     		.space	2
+ 1337 00b8 02       		.byte	2
+ 1338 00b9 000000   		.space	3
+ 1339 00bc 00000000 		.word	hcan1
+ 1340 00c0 00000000 		.space	24
+ 1340      00000000 
+ 1340      00000000 
+ 1340      00000000 
+ 1340      00000000 
+ 1341 00d8 00000000 		.space	44
+ 1341      00000000 
+ 1341      00000000 
+ 1341      00000000 
+ 1341      00000000 
+ 1342 0104 03020401 		.ascii	"\003\002\004\001\000"
+ 1342      00
+ 1343 0109 000000   		.space	3
+ 1344 010c 00       		.byte	0
+ 1345 010d 000000   		.space	3
+ 1346 0110 00000000 		.space	4
+ 1347 0114 0060B945 		.word	1169776640
+ 1348 0118 00007041 		.word	1097859072
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 35
+
+
+ 1349 011c 000020C2 		.word	-1038090240
+ 1350 0120 00000000 		.space	60
+ 1350      00000000 
+ 1350      00000000 
+ 1350      00000000 
+ 1350      00000000 
+ 1351 015c 00009643 		.word	1133903872
+ 1352 0160 00001643 		.word	1125515264
+ 1353 0164 00000000 		.word	0
+ 1354 0168 00409C46 		.word	1184645120
+ 1355 016c 00000000 		.space	4
+ 1356 0170 07       		.byte	7
+ 1357 0171 000000   		.space	3
+ 1358 0174 00803B45 		.word	1161527296
+ 1359 0178 00000000 		.space	16
+ 1359      00000000 
+ 1359      00000000 
+ 1359      00000000 
+ 1360 0188 00007041 		.word	1097859072
+ 1361 018c 00000000 		.word	0
+ 1362 0190 3333333F 		.word	1060320051
+ 1363 0194 0000FA43 		.word	1140457472
+ 1364 0198 CDCCCC3D 		.word	1036831949
+ 1365 019c 07       		.byte	7
+ 1366 019d 000000   		.space	3
+ 1367 01a0 0000C842 		.word	1120403456
+ 1368 01a4 00000000 		.space	16
+ 1368      00000000 
+ 1368      00000000 
+ 1368      00000000 
+ 1369 01b4 04       		.byte	4
+ 1370 01b5 06       		.byte	6
+ 1371 01b6 01       		.byte	1
+ 1372 01b7 00       		.byte	0
+ 1373 01b8 01       		.byte	1
+ 1374 01b9 01       		.byte	1
+ 1375 01ba 0000     		.space	2
+ 1376 01bc 01       		.byte	1
+ 1377 01bd 000000   		.space	3
+ 1378 01c0 00000000 		.word	hcan1
+ 1379 01c4 01000000 		.word	1
+ 1380 01c8 00000000 		.space	20
+ 1380      00000000 
+ 1380      00000000 
+ 1380      00000000 
+ 1380      00000000 
+ 1381 01dc 00000000 		.space	188
+ 1381      00000000 
+ 1381      00000000 
+ 1381      00000000 
+ 1381      00000000 
+ 1382 0298 00000000 		.space	60
+ 1382      00000000 
+ 1382      00000000 
+ 1382      00000000 
+ 1382      00000000 
+ 1383 02d4 00004843 		.word	1128792064
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 36
+
+
+ 1384 02d8 0000C842 		.word	1120403456
+ 1385 02dc 00000000 		.word	0
+ 1386 02e0 00409C46 		.word	1184645120
+ 1387 02e4 00000000 		.space	4
+ 1388 02e8 07       		.byte	7
+ 1389 02e9 000000   		.space	3
+ 1390 02ec 00401C45 		.word	1159479296
+ 1391 02f0 00000000 		.space	16
+ 1391      00000000 
+ 1391      00000000 
+ 1391      00000000 
+ 1392 0300 0000A041 		.word	1101004800
+ 1393 0304 00000000 		.word	0
+ 1394 0308 CDCCCC3E 		.word	1053609165
+ 1395 030c 0000FA43 		.word	1140457472
+ 1396 0310 00000000 		.space	4
+ 1397 0314 07       		.byte	7
+ 1398 0315 000000   		.space	3
+ 1399 0318 0000C842 		.word	1120403456
+ 1400 031c 00000000 		.space	16
+ 1400      00000000 
+ 1400      00000000 
+ 1400      00000000 
+ 1401 032c 04       		.byte	4
+ 1402 032d 06       		.byte	6
+ 1403 032e 00       		.byte	0
+ 1404 032f 01       		.byte	1
+ 1405 0330 01       		.byte	1
+ 1406 0331 01       		.byte	1
+ 1407 0332 0000     		.space	2
+ 1408 0334 01       		.byte	1
+ 1409 0335 000000   		.space	3
+ 1410 0338 00000000 		.word	hcan2
+ 1411 033c 02000000 		.word	2
+ 1412 0340 00000000 		.space	20
+ 1412      00000000 
+ 1412      00000000 
+ 1412      00000000 
+ 1412      00000000 
+ 1413 0354 00       		.byte	0
+ 1414 0355 000000   		.space	3
+ 1415 0358 00000000 		.space	16
+ 1415      00000000 
+ 1415      00000000 
+ 1415      00000000 
+ 1416 0368 CDCCCC3E 		.word	1053609165
+ 1417 036c 00000000 		.word	0
+ 1418 0370 00000000 		.word	0
+ 1419 0374 00606A46 		.word	1181376512
+ 1420 0378 00000000 		.space	4
+ 1421 037c 01       		.byte	1
+ 1422 037d 000000   		.space	3
+ 1423 0380 00401C46 		.word	1176256512
+ 1424 0384 00000000 		.space	16
+ 1424      00000000 
+ 1424      00000000 
+ 1424      00000000 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 37
+
+
+ 1425 0394 00007041 		.word	1097859072
+ 1426 0398 0000803F 		.word	1065353216
+ 1427 039c 00000000 		.word	0
+ 1428 03a0 00606A46 		.word	1181376512
+ 1429 03a4 00000000 		.space	4
+ 1430 03a8 01       		.byte	1
+ 1431 03a9 000000   		.space	3
+ 1432 03ac 00401C46 		.word	1176256512
+ 1433 03b0 00000000 		.space	16
+ 1433      00000000 
+ 1433      00000000 
+ 1433      00000000 
+ 1434 03c0 00000000 		.space	44
+ 1434      00000000 
+ 1434      00000000 
+ 1434      00000000 
+ 1434      00000000 
+ 1435 03ec 02       		.byte	2
+ 1436 03ed 03       		.byte	3
+ 1437 03ee 01       		.byte	1
+ 1438 03ef 00       		.space	1
+ 1439 03f0 00       		.byte	0
+ 1440 03f1 00       		.byte	0
+ 1441 03f2 0000     		.space	2
+ 1442 03f4 02       		.byte	2
+ 1443 03f5 000000   		.space	3
+ 1444 03f8 00000000 		.word	hcan2
+ 1445 03fc 00000000 		.space	24
+ 1445      00000000 
+ 1445      00000000 
+ 1445      00000000 
+ 1445      00000000 
+ 1446 0414 00000000 		.space	16
+ 1446      00000000 
+ 1446      00000000 
+ 1446      00000000 
+ 1447 0424 CDCCCC3E 		.word	1053609165
+ 1448 0428 00000000 		.word	0
+ 1449 042c 00000000 		.word	0
+ 1450 0430 00409C45 		.word	1167867904
+ 1451 0434 00000000 		.space	4
+ 1452 0438 01       		.byte	1
+ 1453 0439 000000   		.space	3
+ 1454 043c 00409C45 		.word	1167867904
+ 1455 0440 00000000 		.space	16
+ 1455      00000000 
+ 1455      00000000 
+ 1455      00000000 
+ 1456 0450 00004040 		.word	1077936128
+ 1457 0454 00000000 		.word	0
+ 1458 0458 00000000 		.word	0
+ 1459 045c 00401C46 		.word	1176256512
+ 1460 0460 00000000 		.space	4
+ 1461 0464 01       		.byte	1
+ 1462 0465 000000   		.space	3
+ 1463 0468 0000FA45 		.word	1174011904
+ 1464 046c 00000000 		.space	16
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 38
+
+
+ 1464      00000000 
+ 1464      00000000 
+ 1464      00000000 
+ 1465 047c 00002041 		.word	1092616192
+ 1466 0480 0000803F 		.word	1065353216
+ 1467 0484 00000000 		.word	0
+ 1468 0488 00409C45 		.word	1167867904
+ 1469 048c 00000000 		.space	28
+ 1469      00000000 
+ 1469      00000000 
+ 1469      00000000 
+ 1469      00000000 
+ 1470 04a8 02       		.byte	2
+ 1471 04a9 06       		.byte	6
+ 1472 04aa 00       		.byte	0
+ 1473 04ab 00       		.space	1
+ 1474 04ac 00       		.byte	0
+ 1475 04ad 00       		.byte	0
+ 1476 04ae 0000     		.space	2
+ 1477 04b0 03       		.byte	3
+ 1478 04b1 000000   		.space	3
+ 1479 04b4 00000000 		.word	hcan2
+ 1480 04b8 07000000 		.word	7
+ 1481 04bc 00000000 		.space	20
+ 1481      00000000 
+ 1481      00000000 
+ 1481      00000000 
+ 1481      00000000 
+ 1482 04d0 030400   		.ascii	"\003\004\000"
+ 1483 04d3 00       		.space	1
+ 1484 04d4 01       		.byte	1
+ 1485 04d5 00       		.byte	0
+ 1486 04d6 0000     		.space	2
+ 1487              		.section	.data.infantry_config_3.1,"aw"
+ 1488              		.align	2
+ 1491              	infantry_config_3.1:
+ 1492 0000 00       		.byte	0
+ 1493 0001 000000   		.space	3
+ 1494 0004 00000000 		.word	0
+ 1495 0008 00000000 		.word	0
+ 1496 000c 0000B943 		.word	1136197632
+ 1497 0010 0000D243 		.word	1137836032
+ 1498 0014 00009642 		.word	1117126656
+ 1499 0018 00009841 		.word	1100480512
+ 1500 001c 00000000 		.space	16
+ 1500      00000000 
+ 1500      00000000 
+ 1500      00000000 
+ 1501 002c 0000003F 		.word	1056964608
+ 1502 0030 00000000 		.word	0
+ 1503 0034 00000000 		.word	0
+ 1504 0038 00606A46 		.word	1181376512
+ 1505 003c 00000000 		.space	4
+ 1506 0040 07       		.byte	7
+ 1507 0041 000000   		.space	3
+ 1508 0044 00803B45 		.word	1161527296
+ 1509 0048 00000000 		.space	16
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 39
+
+
+ 1509      00000000 
+ 1509      00000000 
+ 1509      00000000 
+ 1510 0058 0000A040 		.word	1084227584
+ 1511 005c 0000803F 		.word	1065353216
+ 1512 0060 00000000 		.word	0
+ 1513 0064 00803B46 		.word	1178304512
+ 1514 0068 00000000 		.space	4
+ 1515 006c 07       		.byte	7
+ 1516 006d 000000   		.space	3
+ 1517 0070 00803B45 		.word	1161527296
+ 1518 0074 00000000 		.space	16
+ 1518      00000000 
+ 1518      00000000 
+ 1518      00000000 
+ 1519 0084 00000000 		.space	44
+ 1519      00000000 
+ 1519      00000000 
+ 1519      00000000 
+ 1519      00000000 
+ 1520 00b0 02       		.byte	2
+ 1521 00b1 03       		.byte	3
+ 1522 00b2 0000     		.space	2
+ 1523 00b4 00       		.byte	0
+ 1524 00b5 00       		.byte	0
+ 1525 00b6 0000     		.space	2
+ 1526 00b8 02       		.byte	2
+ 1527 00b9 000000   		.space	3
+ 1528 00bc 00000000 		.word	hcan1
+ 1529 00c0 00000000 		.space	24
+ 1529      00000000 
+ 1529      00000000 
+ 1529      00000000 
+ 1529      00000000 
+ 1530 00d8 00000000 		.space	44
+ 1530      00000000 
+ 1530      00000000 
+ 1530      00000000 
+ 1530      00000000 
+ 1531 0104 01020403 		.ascii	"\001\002\004\003\000"
+ 1531      00
+ 1532 0109 000000   		.space	3
+ 1533 010c 00       		.byte	0
+ 1534 010d 000000   		.space	3
+ 1535 0110 00000000 		.space	4
+ 1536 0114 00002545 		.word	1160052736
+ 1537 0118 0000A041 		.word	1101004800
+ 1538 011c 000020C1 		.word	-1054867456
+ 1539 0120 00000000 		.space	60
+ 1539      00000000 
+ 1539      00000000 
+ 1539      00000000 
+ 1539      00000000 
+ 1540 015c 00009643 		.word	1133903872
+ 1541 0160 0000C842 		.word	1120403456
+ 1542 0164 00000000 		.word	0
+ 1543 0168 00409C46 		.word	1184645120
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 40
+
+
+ 1544 016c 00000000 		.space	4
+ 1545 0170 07       		.byte	7
+ 1546 0171 000000   		.space	3
+ 1547 0174 00803B45 		.word	1161527296
+ 1548 0178 00000000 		.space	16
+ 1548      00000000 
+ 1548      00000000 
+ 1548      00000000 
+ 1549 0188 00000041 		.word	1090519040
+ 1550 018c 00000000 		.word	0
+ 1551 0190 CDCCCC3E 		.word	1053609165
+ 1552 0194 0000FA43 		.word	1140457472
+ 1553 0198 CDCCCC3D 		.word	1036831949
+ 1554 019c 07       		.byte	7
+ 1555 019d 000000   		.space	3
+ 1556 01a0 0000C842 		.word	1120403456
+ 1557 01a4 00000000 		.space	16
+ 1557      00000000 
+ 1557      00000000 
+ 1557      00000000 
+ 1558 01b4 04       		.byte	4
+ 1559 01b5 06       		.byte	6
+ 1560 01b6 01       		.byte	1
+ 1561 01b7 00       		.byte	0
+ 1562 01b8 01       		.byte	1
+ 1563 01b9 01       		.byte	1
+ 1564 01ba 0000     		.space	2
+ 1565 01bc 01       		.byte	1
+ 1566 01bd 000000   		.space	3
+ 1567 01c0 00000000 		.word	hcan1
+ 1568 01c4 01000000 		.word	1
+ 1569 01c8 00000000 		.space	20
+ 1569      00000000 
+ 1569      00000000 
+ 1569      00000000 
+ 1569      00000000 
+ 1570 01dc 00000000 		.space	188
+ 1570      00000000 
+ 1570      00000000 
+ 1570      00000000 
+ 1570      00000000 
+ 1571 0298 00000000 		.space	60
+ 1571      00000000 
+ 1571      00000000 
+ 1571      00000000 
+ 1571      00000000 
+ 1572 02d4 00007A43 		.word	1132068864
+ 1573 02d8 0000C842 		.word	1120403456
+ 1574 02dc 00000000 		.word	0
+ 1575 02e0 00409C46 		.word	1184645120
+ 1576 02e4 00000000 		.space	4
+ 1577 02e8 07       		.byte	7
+ 1578 02e9 000000   		.space	3
+ 1579 02ec 00401C45 		.word	1159479296
+ 1580 02f0 00000000 		.space	16
+ 1580      00000000 
+ 1580      00000000 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 41
+
+
+ 1580      00000000 
+ 1581 0300 00007041 		.word	1097859072
+ 1582 0304 00000000 		.word	0
+ 1583 0308 CDCCCC3E 		.word	1053609165
+ 1584 030c 0000FA43 		.word	1140457472
+ 1585 0310 00000000 		.space	4
+ 1586 0314 07       		.byte	7
+ 1587 0315 000000   		.space	3
+ 1588 0318 0000C842 		.word	1120403456
+ 1589 031c 00000000 		.space	16
+ 1589      00000000 
+ 1589      00000000 
+ 1589      00000000 
+ 1590 032c 04       		.byte	4
+ 1591 032d 06       		.byte	6
+ 1592 032e 00       		.byte	0
+ 1593 032f 00       		.byte	0
+ 1594 0330 01       		.byte	1
+ 1595 0331 01       		.byte	1
+ 1596 0332 0000     		.space	2
+ 1597 0334 01       		.byte	1
+ 1598 0335 000000   		.space	3
+ 1599 0338 00000000 		.word	hcan1
+ 1600 033c 02000000 		.word	2
+ 1601 0340 00000000 		.space	20
+ 1601      00000000 
+ 1601      00000000 
+ 1601      00000000 
+ 1601      00000000 
+ 1602 0354 00       		.byte	0
+ 1603 0355 000000   		.space	3
+ 1604 0358 00000000 		.space	16
+ 1604      00000000 
+ 1604      00000000 
+ 1604      00000000 
+ 1605 0368 CDCCCC3E 		.word	1053609165
+ 1606 036c 00000000 		.word	0
+ 1607 0370 00000000 		.word	0
+ 1608 0374 00606A46 		.word	1181376512
+ 1609 0378 00000000 		.space	4
+ 1610 037c 01       		.byte	1
+ 1611 037d 000000   		.space	3
+ 1612 0380 00401C46 		.word	1176256512
+ 1613 0384 00000000 		.space	16
+ 1613      00000000 
+ 1613      00000000 
+ 1613      00000000 
+ 1614 0394 00002041 		.word	1092616192
+ 1615 0398 0000803F 		.word	1065353216
+ 1616 039c 00000000 		.word	0
+ 1617 03a0 0050C346 		.word	1187205120
+ 1618 03a4 00000000 		.space	4
+ 1619 03a8 01       		.byte	1
+ 1620 03a9 000000   		.space	3
+ 1621 03ac 00401C46 		.word	1176256512
+ 1622 03b0 00000000 		.space	16
+ 1622      00000000 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 42
+
+
+ 1622      00000000 
+ 1622      00000000 
+ 1623 03c0 00000000 		.space	44
+ 1623      00000000 
+ 1623      00000000 
+ 1623      00000000 
+ 1623      00000000 
+ 1624 03ec 02       		.byte	2
+ 1625 03ed 03       		.byte	3
+ 1626 03ee 01       		.byte	1
+ 1627 03ef 00       		.space	1
+ 1628 03f0 00       		.byte	0
+ 1629 03f1 00       		.byte	0
+ 1630 03f2 0000     		.space	2
+ 1631 03f4 02       		.byte	2
+ 1632 03f5 000000   		.space	3
+ 1633 03f8 00000000 		.word	hcan2
+ 1634 03fc 00000000 		.space	24
+ 1634      00000000 
+ 1634      00000000 
+ 1634      00000000 
+ 1634      00000000 
+ 1635 0414 00000000 		.space	16
+ 1635      00000000 
+ 1635      00000000 
+ 1635      00000000 
+ 1636 0424 CDCCCC3E 		.word	1053609165
+ 1637 0428 00000000 		.word	0
+ 1638 042c 00000000 		.word	0
+ 1639 0430 00409C45 		.word	1167867904
+ 1640 0434 00000000 		.space	4
+ 1641 0438 01       		.byte	1
+ 1642 0439 000000   		.space	3
+ 1643 043c 00409C45 		.word	1167867904
+ 1644 0440 00000000 		.space	16
+ 1644      00000000 
+ 1644      00000000 
+ 1644      00000000 
+ 1645 0450 00004040 		.word	1077936128
+ 1646 0454 00000000 		.word	0
+ 1647 0458 00000000 		.word	0
+ 1648 045c 0000FA45 		.word	1174011904
+ 1649 0460 00000000 		.space	4
+ 1650 0464 01       		.byte	1
+ 1651 0465 000000   		.space	3
+ 1652 0468 0000FA45 		.word	1174011904
+ 1653 046c 00000000 		.space	16
+ 1653      00000000 
+ 1653      00000000 
+ 1653      00000000 
+ 1654 047c 00007041 		.word	1097859072
+ 1655 0480 0000803F 		.word	1065353216
+ 1656 0484 00000000 		.word	0
+ 1657 0488 00409C45 		.word	1167867904
+ 1658 048c 00000000 		.space	28
+ 1658      00000000 
+ 1658      00000000 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 43
+
+
+ 1658      00000000 
+ 1658      00000000 
+ 1659 04a8 02       		.byte	2
+ 1660 04a9 06       		.byte	6
+ 1661 04aa 00       		.byte	0
+ 1662 04ab 00       		.space	1
+ 1663 04ac 00       		.byte	0
+ 1664 04ad 00       		.byte	0
+ 1665 04ae 0000     		.space	2
+ 1666 04b0 03       		.byte	3
+ 1667 04b1 000000   		.space	3
+ 1668 04b4 00000000 		.word	hcan2
+ 1669 04b8 05000000 		.word	5
+ 1670 04bc 00000000 		.space	20
+ 1670      00000000 
+ 1670      00000000 
+ 1670      00000000 
+ 1670      00000000 
+ 1671 04d0 010200   		.ascii	"\001\002\000"
+ 1672 04d3 00       		.space	1
+ 1673 04d4 00       		.byte	0
+ 1674 04d5 01       		.byte	1
+ 1675 04d6 0000     		.space	2
+ 1676              		.section	.bss.UI_graph_Rectangle,"aw",%nobits
+ 1677              		.align	2
+ 1680              	UI_graph_Rectangle:
+ 1681 0000 00000000 		.space	45
+ 1681      00000000 
+ 1681      00000000 
+ 1681      00000000 
+ 1681      00000000 
+ 1682              		.section	.bss.UI_graph_Arc,"aw",%nobits
+ 1683              		.align	2
+ 1686              	UI_graph_Arc:
+ 1687 0000 00000000 		.space	45
+ 1687      00000000 
+ 1687      00000000 
+ 1687      00000000 
+ 1687      00000000 
+ 1688              		.section	.bss.UI_shoot_line,"aw",%nobits
+ 1689              		.align	2
+ 1692              	UI_shoot_line:
+ 1693 0000 00000000 		.space	150
+ 1693      00000000 
+ 1693      00000000 
+ 1693      00000000 
+ 1693      00000000 
+ 1694              		.section	.bss.UI_pitch_line,"aw",%nobits
+ 1695              		.align	2
+ 1698              	UI_pitch_line:
+ 1699 0000 00000000 		.space	150
+ 1699      00000000 
+ 1699      00000000 
+ 1699      00000000 
+ 1699      00000000 
+ 1700              		.text
+ 1701              	.Letext0:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 44
+
+
+ 1702              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1703              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1704              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 1705              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 1706              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h"
+ 1707              		.file 7 "Inc/can.h"
+ 1708              		.file 8 "bsp/can/bsp_can.h"
+ 1709              		.file 9 "modules/algorithm/controller.h"
+ 1710              		.file 10 "modules/motor/motor_def.h"
+ 1711              		.file 11 "application/config/config.h"
+ 1712              		.file 12 "modules/referee/referee_protocol.h"
+ 1713              		.file 13 "application/robot_def.h"
+ 1714              		.file 14 "modules/referee/rm_referee.h"
+ 1715              		.file 15 "modules/referee/referee_UI.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s 			page 45
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 infantry_config.c
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:21     .text.InfantryConfigInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:27     .text.InfantryConfigInit:00000000 InfantryConfigInit
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:63     .text.InfantryConfigInit:00000014 $d
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1491   .data.infantry_config_3.1:00000000 infantry_config_3.1
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1302   .data.infantry_config_5.0:00000000 infantry_config_5.0
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:69     .rodata.InfantryStaticUI.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:133    .text.InfantryStaticUI:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:139    .text.InfantryStaticUI:00000000 InfantryStaticUI
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:485    .text.InfantryStaticUI:00000348 $d
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1692   .bss.UI_shoot_line:00000000 UI_shoot_line
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1698   .bss.UI_pitch_line:00000000 UI_pitch_line
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:499    .text.InfantryStaticUI:0000037c $t
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:794    .text.InfantryStaticUI:00000680 $d
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1686   .bss.UI_graph_Arc:00000000 UI_graph_Arc
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1680   .bss.UI_graph_Rectangle:00000000 UI_graph_Rectangle
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:810    .text.InfantryDynamciscUI:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:816    .text.InfantryDynamciscUI:00000000 InfantryDynamciscUI
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1213   .text.InfantryDynamciscUI:0000032c $d
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1229   .text.InfantryDynamciscUI:00000360 $t
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1292   .text.InfantryDynamciscUI:000003ec $d
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1299   .data.infantry_config_5.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1488   .data.infantry_config_3.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1677   .bss.UI_graph_Rectangle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1683   .bss.UI_graph_Arc:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1689   .bss.UI_shoot_line:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccHluQHc.s:1695   .bss.UI_pitch_line:00000000 $d
+
+UNDEFINED SYMBOLS
+UILineDraw
+UIGraphRefresh
+UIArcDraw
+UIRectangleDraw
+hcan1
+hcan2

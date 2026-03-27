@@ -1,0 +1,665 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"stm32f4xx_hal_flash_ex.c"
+  16              		.text
+  17              		.section	.text.FLASH_MassErase,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	FLASH_MassErase:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 074B     		ldr	r3, .L2
+  28 0002 1A69     		ldr	r2, [r3, #16]
+  29 0004 22F44072 		bic	r2, r2, #768
+  30 0008 1A61     		str	r2, [r3, #16]
+  31 000a 1A69     		ldr	r2, [r3, #16]
+  32 000c 42F00402 		orr	r2, r2, #4
+  33 0010 1A61     		str	r2, [r3, #16]
+  34 0012 1A69     		ldr	r2, [r3, #16]
+  35 0014 42EA0022 		orr	r2, r2, r0, lsl #8
+  36 0018 42F48032 		orr	r2, r2, #65536
+  37 001c 1A61     		str	r2, [r3, #16]
+  38 001e 7047     		bx	lr
+  39              	.L3:
+  40              		.align	2
+  41              	.L2:
+  42 0020 003C0240 		.word	1073888256
+  44              		.section	.text.FLASH_OB_BOR_LevelConfig,"ax",%progbits
+  45              		.align	1
+  46              		.syntax unified
+  47              		.thumb
+  48              		.thumb_func
+  50              	FLASH_OB_BOR_LevelConfig:
+  51              		@ args = 0, pretend = 0, frame = 0
+  52              		@ frame_needed = 0, uses_anonymous_args = 0
+  53              		@ link register save eliminated.
+  54 0000 044B     		ldr	r3, .L5
+  55 0002 1A7D     		ldrb	r2, [r3, #20]	@ zero_extendqisi2
+  56 0004 02F0F302 		and	r2, r2, #243
+  57 0008 1A75     		strb	r2, [r3, #20]
+  58 000a 1A7D     		ldrb	r2, [r3, #20]	@ zero_extendqisi2
+  59 000c 0243     		orrs	r2, r2, r0
+  60 000e 1A75     		strb	r2, [r3, #20]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s 			page 2
+
+
+  61 0010 0020     		movs	r0, #0
+  62 0012 7047     		bx	lr
+  63              	.L6:
+  64              		.align	2
+  65              	.L5:
+  66 0014 003C0240 		.word	1073888256
+  68              		.section	.text.FLASH_OB_GetUser,"ax",%progbits
+  69              		.align	1
+  70              		.syntax unified
+  71              		.thumb
+  72              		.thumb_func
+  74              	FLASH_OB_GetUser:
+  75              		@ args = 0, pretend = 0, frame = 0
+  76              		@ frame_needed = 0, uses_anonymous_args = 0
+  77              		@ link register save eliminated.
+  78 0000 024B     		ldr	r3, .L8
+  79 0002 5869     		ldr	r0, [r3, #20]
+  80 0004 00F0E000 		and	r0, r0, #224
+  81 0008 7047     		bx	lr
+  82              	.L9:
+  83 000a 00BF     		.align	2
+  84              	.L8:
+  85 000c 003C0240 		.word	1073888256
+  87              		.section	.text.FLASH_OB_GetWRP,"ax",%progbits
+  88              		.align	1
+  89              		.syntax unified
+  90              		.thumb
+  91              		.thumb_func
+  93              	FLASH_OB_GetWRP:
+  94              		@ args = 0, pretend = 0, frame = 0
+  95              		@ frame_needed = 0, uses_anonymous_args = 0
+  96              		@ link register save eliminated.
+  97 0000 014B     		ldr	r3, .L11
+  98 0002 D88A     		ldrh	r0, [r3, #22]
+  99 0004 80B2     		uxth	r0, r0
+ 100 0006 7047     		bx	lr
+ 101              	.L12:
+ 102              		.align	2
+ 103              	.L11:
+ 104 0008 003C0240 		.word	1073888256
+ 106              		.section	.text.FLASH_OB_GetRDP,"ax",%progbits
+ 107              		.align	1
+ 108              		.syntax unified
+ 109              		.thumb
+ 110              		.thumb_func
+ 112              	FLASH_OB_GetRDP:
+ 113              		@ args = 0, pretend = 0, frame = 0
+ 114              		@ frame_needed = 0, uses_anonymous_args = 0
+ 115              		@ link register save eliminated.
+ 116 0000 054B     		ldr	r3, .L16
+ 117 0002 5B7D     		ldrb	r3, [r3, #21]	@ zero_extendqisi2
+ 118 0004 D8B2     		uxtb	r0, r3
+ 119 0006 CC2B     		cmp	r3, #204
+ 120 0008 05D0     		beq	.L14
+ 121 000a 034B     		ldr	r3, .L16
+ 122 000c 5B7D     		ldrb	r3, [r3, #21]	@ zero_extendqisi2
+ 123 000e D8B2     		uxtb	r0, r3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s 			page 3
+
+
+ 124 0010 AA2B     		cmp	r3, #170
+ 125 0012 00D0     		beq	.L14
+ 126 0014 5520     		movs	r0, #85
+ 127              	.L14:
+ 128 0016 7047     		bx	lr
+ 129              	.L17:
+ 130              		.align	2
+ 131              	.L16:
+ 132 0018 003C0240 		.word	1073888256
+ 134              		.section	.text.FLASH_OB_GetBOR,"ax",%progbits
+ 135              		.align	1
+ 136              		.syntax unified
+ 137              		.thumb
+ 138              		.thumb_func
+ 140              	FLASH_OB_GetBOR:
+ 141              		@ args = 0, pretend = 0, frame = 0
+ 142              		@ frame_needed = 0, uses_anonymous_args = 0
+ 143              		@ link register save eliminated.
+ 144 0000 024B     		ldr	r3, .L19
+ 145 0002 187D     		ldrb	r0, [r3, #20]	@ zero_extendqisi2
+ 146 0004 00F00C00 		and	r0, r0, #12
+ 147 0008 7047     		bx	lr
+ 148              	.L20:
+ 149 000a 00BF     		.align	2
+ 150              	.L19:
+ 151 000c 003C0240 		.word	1073888256
+ 153              		.section	.text.FLASH_OB_EnableWRP,"ax",%progbits
+ 154              		.align	1
+ 155              		.syntax unified
+ 156              		.thumb
+ 157              		.thumb_func
+ 159              	FLASH_OB_EnableWRP:
+ 160              		@ args = 0, pretend = 0, frame = 0
+ 161              		@ frame_needed = 0, uses_anonymous_args = 0
+ 162 0000 10B5     		push	{r4, lr}
+ 163 0002 0446     		mov	r4, r0
+ 164 0004 4CF25030 		movw	r0, #50000
+ 165 0008 FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 166 000c 28B9     		cbnz	r0, .L22
+ 167 000e 034A     		ldr	r2, .L24
+ 168 0010 D38A     		ldrh	r3, [r2, #22]
+ 169 0012 9BB2     		uxth	r3, r3
+ 170 0014 23EA0403 		bic	r3, r3, r4
+ 171 0018 D382     		strh	r3, [r2, #22]	@ movhi
+ 172              	.L22:
+ 173 001a 10BD     		pop	{r4, pc}
+ 174              	.L25:
+ 175              		.align	2
+ 176              	.L24:
+ 177 001c 003C0240 		.word	1073888256
+ 179              		.section	.text.FLASH_OB_DisableWRP,"ax",%progbits
+ 180              		.align	1
+ 181              		.syntax unified
+ 182              		.thumb
+ 183              		.thumb_func
+ 185              	FLASH_OB_DisableWRP:
+ 186              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s 			page 4
+
+
+ 187              		@ frame_needed = 0, uses_anonymous_args = 0
+ 188 0000 10B5     		push	{r4, lr}
+ 189 0002 0446     		mov	r4, r0
+ 190 0004 4CF25030 		movw	r0, #50000
+ 191 0008 FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 192 000c 28B9     		cbnz	r0, .L27
+ 193 000e 0349     		ldr	r1, .L29
+ 194 0010 CB8A     		ldrh	r3, [r1, #22]
+ 195 0012 9AB2     		uxth	r2, r3
+ 196 0014 A3B2     		uxth	r3, r4
+ 197 0016 1343     		orrs	r3, r3, r2
+ 198 0018 CB82     		strh	r3, [r1, #22]	@ movhi
+ 199              	.L27:
+ 200 001a 10BD     		pop	{r4, pc}
+ 201              	.L30:
+ 202              		.align	2
+ 203              	.L29:
+ 204 001c 003C0240 		.word	1073888256
+ 206              		.section	.text.FLASH_OB_RDP_LevelConfig,"ax",%progbits
+ 207              		.align	1
+ 208              		.syntax unified
+ 209              		.thumb
+ 210              		.thumb_func
+ 212              	FLASH_OB_RDP_LevelConfig:
+ 213              		@ args = 0, pretend = 0, frame = 0
+ 214              		@ frame_needed = 0, uses_anonymous_args = 0
+ 215 0000 10B5     		push	{r4, lr}
+ 216 0002 0446     		mov	r4, r0
+ 217 0004 4CF25030 		movw	r0, #50000
+ 218 0008 FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 219 000c 08B9     		cbnz	r0, .L32
+ 220 000e 014B     		ldr	r3, .L34
+ 221 0010 5C75     		strb	r4, [r3, #21]
+ 222              	.L32:
+ 223 0012 10BD     		pop	{r4, pc}
+ 224              	.L35:
+ 225              		.align	2
+ 226              	.L34:
+ 227 0014 003C0240 		.word	1073888256
+ 229              		.section	.text.FLASH_OB_UserConfig,"ax",%progbits
+ 230              		.align	1
+ 231              		.syntax unified
+ 232              		.thumb
+ 233              		.thumb_func
+ 235              	FLASH_OB_UserConfig:
+ 236              		@ args = 0, pretend = 0, frame = 0
+ 237              		@ frame_needed = 0, uses_anonymous_args = 0
+ 238 0000 70B5     		push	{r4, r5, r6, lr}
+ 239 0002 0646     		mov	r6, r0
+ 240 0004 0D46     		mov	r5, r1
+ 241 0006 1446     		mov	r4, r2
+ 242 0008 4CF25030 		movw	r0, #50000
+ 243 000c FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 244 0010 60B9     		cbnz	r0, .L37
+ 245 0012 DFF81CC0 		ldr	ip, .L39
+ 246 0016 9CF81430 		ldrb	r3, [ip, #20]	@ zero_extendqisi2
+ 247 001a 03F01F03 		and	r3, r3, #31
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s 			page 5
+
+
+ 248 001e 2946     		mov	r1, r5
+ 249 0020 1943     		orrs	r1, r1, r3
+ 250 0022 2246     		mov	r2, r4
+ 251 0024 0A43     		orrs	r2, r2, r1
+ 252 0026 3243     		orrs	r2, r2, r6
+ 253 0028 8CF81420 		strb	r2, [ip, #20]
+ 254              	.L37:
+ 255 002c 70BD     		pop	{r4, r5, r6, pc}
+ 256              	.L40:
+ 257 002e 00BF     		.align	2
+ 258              	.L39:
+ 259 0030 003C0240 		.word	1073888256
+ 261              		.section	.text.HAL_FLASHEx_OBProgram,"ax",%progbits
+ 262              		.align	1
+ 263              		.global	HAL_FLASHEx_OBProgram
+ 264              		.syntax unified
+ 265              		.thumb
+ 266              		.thumb_func
+ 268              	HAL_FLASHEx_OBProgram:
+ 269              		@ args = 0, pretend = 0, frame = 0
+ 270              		@ frame_needed = 0, uses_anonymous_args = 0
+ 271 0000 1F4B     		ldr	r3, .L58
+ 272 0002 1B7E     		ldrb	r3, [r3, #24]	@ zero_extendqisi2
+ 273 0004 012B     		cmp	r3, #1
+ 274 0006 38D0     		beq	.L48
+ 275 0008 10B5     		push	{r4, lr}
+ 276 000a 0446     		mov	r4, r0
+ 277 000c 1C4B     		ldr	r3, .L58
+ 278 000e 0122     		movs	r2, #1
+ 279 0010 1A76     		strb	r2, [r3, #24]
+ 280 0012 0368     		ldr	r3, [r0]
+ 281 0014 13F0010F 		tst	r3, #1
+ 282 0018 0CD0     		beq	.L49
+ 283 001a 4368     		ldr	r3, [r0, #4]
+ 284 001c 9342     		cmp	r3, r2
+ 285 001e 04D0     		beq	.L54
+ 286 0020 C168     		ldr	r1, [r0, #12]
+ 287 0022 8068     		ldr	r0, [r0, #8]
+ 288 0024 FFF7FEFF 		bl	FLASH_OB_DisableWRP
+ 289 0028 05E0     		b	.L43
+ 290              	.L54:
+ 291 002a C168     		ldr	r1, [r0, #12]
+ 292 002c 8068     		ldr	r0, [r0, #8]
+ 293 002e FFF7FEFF 		bl	FLASH_OB_EnableWRP
+ 294 0032 00E0     		b	.L43
+ 295              	.L49:
+ 296 0034 0120     		movs	r0, #1
+ 297              	.L43:
+ 298 0036 2368     		ldr	r3, [r4]
+ 299 0038 13F0020F 		tst	r3, #2
+ 300 003c 0BD1     		bne	.L55
+ 301              	.L45:
+ 302 003e 2368     		ldr	r3, [r4]
+ 303 0040 13F0040F 		tst	r3, #4
+ 304 0044 0BD1     		bne	.L56
+ 305              	.L46:
+ 306 0046 2368     		ldr	r3, [r4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s 			page 6
+
+
+ 307 0048 13F0080F 		tst	r3, #8
+ 308 004c 11D1     		bne	.L57
+ 309              	.L47:
+ 310 004e 0C4B     		ldr	r3, .L58
+ 311 0050 0022     		movs	r2, #0
+ 312 0052 1A76     		strb	r2, [r3, #24]
+ 313 0054 10BD     		pop	{r4, pc}
+ 314              	.L55:
+ 315 0056 207C     		ldrb	r0, [r4, #16]	@ zero_extendqisi2
+ 316 0058 FFF7FEFF 		bl	FLASH_OB_RDP_LevelConfig
+ 317 005c EFE7     		b	.L45
+ 318              	.L56:
+ 319 005e 207E     		ldrb	r0, [r4, #24]	@ zero_extendqisi2
+ 320 0060 00F08002 		and	r2, r0, #128
+ 321 0064 00F04001 		and	r1, r0, #64
+ 322 0068 00F02000 		and	r0, r0, #32
+ 323 006c FFF7FEFF 		bl	FLASH_OB_UserConfig
+ 324 0070 E9E7     		b	.L46
+ 325              	.L57:
+ 326 0072 207D     		ldrb	r0, [r4, #20]	@ zero_extendqisi2
+ 327 0074 FFF7FEFF 		bl	FLASH_OB_BOR_LevelConfig
+ 328 0078 E9E7     		b	.L47
+ 329              	.L48:
+ 330 007a 0220     		movs	r0, #2
+ 331 007c 7047     		bx	lr
+ 332              	.L59:
+ 333 007e 00BF     		.align	2
+ 334              	.L58:
+ 335 0080 00000000 		.word	pFlash
+ 337              		.section	.text.HAL_FLASHEx_OBGetConfig,"ax",%progbits
+ 338              		.align	1
+ 339              		.global	HAL_FLASHEx_OBGetConfig
+ 340              		.syntax unified
+ 341              		.thumb
+ 342              		.thumb_func
+ 344              	HAL_FLASHEx_OBGetConfig:
+ 345              		@ args = 0, pretend = 0, frame = 0
+ 346              		@ frame_needed = 0, uses_anonymous_args = 0
+ 347 0000 10B5     		push	{r4, lr}
+ 348 0002 0446     		mov	r4, r0
+ 349 0004 0F23     		movs	r3, #15
+ 350 0006 0360     		str	r3, [r0]
+ 351 0008 FFF7FEFF 		bl	FLASH_OB_GetWRP
+ 352 000c A060     		str	r0, [r4, #8]
+ 353 000e FFF7FEFF 		bl	FLASH_OB_GetRDP
+ 354 0012 2061     		str	r0, [r4, #16]
+ 355 0014 FFF7FEFF 		bl	FLASH_OB_GetUser
+ 356 0018 2076     		strb	r0, [r4, #24]
+ 357 001a FFF7FEFF 		bl	FLASH_OB_GetBOR
+ 358 001e 6061     		str	r0, [r4, #20]
+ 359 0020 10BD     		pop	{r4, pc}
+ 361              		.section	.text.FLASH_Erase_Sector,"ax",%progbits
+ 362              		.align	1
+ 363              		.global	FLASH_Erase_Sector
+ 364              		.syntax unified
+ 365              		.thumb
+ 366              		.thumb_func
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s 			page 7
+
+
+ 368              	FLASH_Erase_Sector:
+ 369              		@ args = 0, pretend = 0, frame = 0
+ 370              		@ frame_needed = 0, uses_anonymous_args = 0
+ 371              		@ link register save eliminated.
+ 372 0000 29B1     		cbz	r1, .L63
+ 373 0002 0129     		cmp	r1, #1
+ 374 0004 1DD0     		beq	.L65
+ 375 0006 0229     		cmp	r1, #2
+ 376 0008 18D0     		beq	.L67
+ 377 000a 4FF44071 		mov	r1, #768
+ 378              	.L63:
+ 379 000e 0E4B     		ldr	r3, .L68
+ 380 0010 1A69     		ldr	r2, [r3, #16]
+ 381 0012 22F44072 		bic	r2, r2, #768
+ 382 0016 1A61     		str	r2, [r3, #16]
+ 383 0018 1A69     		ldr	r2, [r3, #16]
+ 384 001a 0A43     		orrs	r2, r2, r1
+ 385 001c 1A61     		str	r2, [r3, #16]
+ 386 001e 1A69     		ldr	r2, [r3, #16]
+ 387 0020 22F0F802 		bic	r2, r2, #248
+ 388 0024 1A61     		str	r2, [r3, #16]
+ 389 0026 1A69     		ldr	r2, [r3, #16]
+ 390 0028 42EAC000 		orr	r0, r2, r0, lsl #3
+ 391 002c 40F00200 		orr	r0, r0, #2
+ 392 0030 1861     		str	r0, [r3, #16]
+ 393 0032 1A69     		ldr	r2, [r3, #16]
+ 394 0034 42F48032 		orr	r2, r2, #65536
+ 395 0038 1A61     		str	r2, [r3, #16]
+ 396 003a 7047     		bx	lr
+ 397              	.L67:
+ 398 003c 4FF40071 		mov	r1, #512
+ 399 0040 E5E7     		b	.L63
+ 400              	.L65:
+ 401 0042 4FF48071 		mov	r1, #256
+ 402 0046 E2E7     		b	.L63
+ 403              	.L69:
+ 404              		.align	2
+ 405              	.L68:
+ 406 0048 003C0240 		.word	1073888256
+ 408              		.section	.text.HAL_FLASHEx_Erase_IT,"ax",%progbits
+ 409              		.align	1
+ 410              		.global	HAL_FLASHEx_Erase_IT
+ 411              		.syntax unified
+ 412              		.thumb
+ 413              		.thumb_func
+ 415              	HAL_FLASHEx_Erase_IT:
+ 416              		@ args = 0, pretend = 0, frame = 0
+ 417              		@ frame_needed = 0, uses_anonymous_args = 0
+ 418 0000 08B5     		push	{r3, lr}
+ 419 0002 184B     		ldr	r3, .L76
+ 420 0004 1B7E     		ldrb	r3, [r3, #24]	@ zero_extendqisi2
+ 421 0006 012B     		cmp	r3, #1
+ 422 0008 29D0     		beq	.L73
+ 423 000a 164B     		ldr	r3, .L76
+ 424 000c 0122     		movs	r2, #1
+ 425 000e 1A76     		strb	r2, [r3, #24]
+ 426 0010 154B     		ldr	r3, .L76+4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s 			page 8
+
+
+ 427 0012 1A69     		ldr	r2, [r3, #16]
+ 428 0014 42F08072 		orr	r2, r2, #16777216
+ 429 0018 1A61     		str	r2, [r3, #16]
+ 430 001a 1A69     		ldr	r2, [r3, #16]
+ 431 001c 42F00072 		orr	r2, r2, #33554432
+ 432 0020 1A61     		str	r2, [r3, #16]
+ 433 0022 F322     		movs	r2, #243
+ 434 0024 DA60     		str	r2, [r3, #12]
+ 435 0026 0368     		ldr	r3, [r0]
+ 436 0028 012B     		cmp	r3, #1
+ 437 002a 0DD0     		beq	.L75
+ 438 002c 0D4B     		ldr	r3, .L76
+ 439 002e 0122     		movs	r2, #1
+ 440 0030 1A70     		strb	r2, [r3]
+ 441 0032 C268     		ldr	r2, [r0, #12]
+ 442 0034 5A60     		str	r2, [r3, #4]
+ 443 0036 8268     		ldr	r2, [r0, #8]
+ 444 0038 DA60     		str	r2, [r3, #12]
+ 445 003a 017C     		ldrb	r1, [r0, #16]	@ zero_extendqisi2
+ 446 003c 1972     		strb	r1, [r3, #8]
+ 447 003e 8068     		ldr	r0, [r0, #8]
+ 448 0040 FFF7FEFF 		bl	FLASH_Erase_Sector
+ 449 0044 0020     		movs	r0, #0
+ 450              	.L71:
+ 451 0046 08BD     		pop	{r3, pc}
+ 452              	.L75:
+ 453 0048 064B     		ldr	r3, .L76
+ 454 004a 0222     		movs	r2, #2
+ 455 004c 1A70     		strb	r2, [r3]
+ 456 004e 4268     		ldr	r2, [r0, #4]
+ 457 0050 1A61     		str	r2, [r3, #16]
+ 458 0052 4168     		ldr	r1, [r0, #4]
+ 459 0054 007C     		ldrb	r0, [r0, #16]	@ zero_extendqisi2
+ 460 0056 FFF7FEFF 		bl	FLASH_MassErase
+ 461 005a 0020     		movs	r0, #0
+ 462 005c F3E7     		b	.L71
+ 463              	.L73:
+ 464 005e 0220     		movs	r0, #2
+ 465 0060 F1E7     		b	.L71
+ 466              	.L77:
+ 467 0062 00BF     		.align	2
+ 468              	.L76:
+ 469 0064 00000000 		.word	pFlash
+ 470 0068 003C0240 		.word	1073888256
+ 472              		.section	.text.FLASH_FlushCaches,"ax",%progbits
+ 473              		.align	1
+ 474              		.global	FLASH_FlushCaches
+ 475              		.syntax unified
+ 476              		.thumb
+ 477              		.thumb_func
+ 479              	FLASH_FlushCaches:
+ 480              		@ args = 0, pretend = 0, frame = 0
+ 481              		@ frame_needed = 0, uses_anonymous_args = 0
+ 482              		@ link register save eliminated.
+ 483 0000 164B     		ldr	r3, .L81
+ 484 0002 1B68     		ldr	r3, [r3]
+ 485 0004 13F4007F 		tst	r3, #512
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s 			page 9
+
+
+ 486 0008 10D0     		beq	.L79
+ 487 000a 144B     		ldr	r3, .L81
+ 488 000c 1A68     		ldr	r2, [r3]
+ 489 000e 22F40072 		bic	r2, r2, #512
+ 490 0012 1A60     		str	r2, [r3]
+ 491 0014 1A68     		ldr	r2, [r3]
+ 492 0016 42F40062 		orr	r2, r2, #2048
+ 493 001a 1A60     		str	r2, [r3]
+ 494 001c 1A68     		ldr	r2, [r3]
+ 495 001e 22F40062 		bic	r2, r2, #2048
+ 496 0022 1A60     		str	r2, [r3]
+ 497 0024 1A68     		ldr	r2, [r3]
+ 498 0026 42F40072 		orr	r2, r2, #512
+ 499 002a 1A60     		str	r2, [r3]
+ 500              	.L79:
+ 501 002c 0B4B     		ldr	r3, .L81
+ 502 002e 1B68     		ldr	r3, [r3]
+ 503 0030 13F4806F 		tst	r3, #1024
+ 504 0034 10D0     		beq	.L78
+ 505 0036 094B     		ldr	r3, .L81
+ 506 0038 1A68     		ldr	r2, [r3]
+ 507 003a 22F48062 		bic	r2, r2, #1024
+ 508 003e 1A60     		str	r2, [r3]
+ 509 0040 1A68     		ldr	r2, [r3]
+ 510 0042 42F48052 		orr	r2, r2, #4096
+ 511 0046 1A60     		str	r2, [r3]
+ 512 0048 1A68     		ldr	r2, [r3]
+ 513 004a 22F48052 		bic	r2, r2, #4096
+ 514 004e 1A60     		str	r2, [r3]
+ 515 0050 1A68     		ldr	r2, [r3]
+ 516 0052 42F48062 		orr	r2, r2, #1024
+ 517 0056 1A60     		str	r2, [r3]
+ 518              	.L78:
+ 519 0058 7047     		bx	lr
+ 520              	.L82:
+ 521 005a 00BF     		.align	2
+ 522              	.L81:
+ 523 005c 003C0240 		.word	1073888256
+ 525              		.section	.text.HAL_FLASHEx_Erase,"ax",%progbits
+ 526              		.align	1
+ 527              		.global	HAL_FLASHEx_Erase
+ 528              		.syntax unified
+ 529              		.thumb
+ 530              		.thumb_func
+ 532              	HAL_FLASHEx_Erase:
+ 533              		@ args = 0, pretend = 0, frame = 0
+ 534              		@ frame_needed = 0, uses_anonymous_args = 0
+ 535 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 536 0002 234B     		ldr	r3, .L95
+ 537 0004 1B7E     		ldrb	r3, [r3, #24]	@ zero_extendqisi2
+ 538 0006 012B     		cmp	r3, #1
+ 539 0008 3FD0     		beq	.L91
+ 540 000a 0446     		mov	r4, r0
+ 541 000c 0D46     		mov	r5, r1
+ 542 000e 0F46     		mov	r7, r1
+ 543 0010 1F4B     		ldr	r3, .L95
+ 544 0012 0122     		movs	r2, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s 			page 10
+
+
+ 545 0014 1A76     		strb	r2, [r3, #24]
+ 546 0016 4CF25030 		movw	r0, #50000
+ 547 001a FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 548 001e 0646     		mov	r6, r0
+ 549 0020 70BB     		cbnz	r0, .L85
+ 550 0022 4FF0FF33 		mov	r3, #-1
+ 551 0026 2B60     		str	r3, [r5]
+ 552 0028 2368     		ldr	r3, [r4]
+ 553 002a 012B     		cmp	r3, #1
+ 554 002c 16D0     		beq	.L93
+ 555 002e A568     		ldr	r5, [r4, #8]
+ 556              	.L88:
+ 557 0030 E368     		ldr	r3, [r4, #12]
+ 558 0032 A268     		ldr	r2, [r4, #8]
+ 559 0034 1344     		add	r3, r3, r2
+ 560 0036 AB42     		cmp	r3, r5
+ 561 0038 20D9     		bls	.L87
+ 562 003a 217C     		ldrb	r1, [r4, #16]	@ zero_extendqisi2
+ 563 003c 2846     		mov	r0, r5
+ 564 003e FFF7FEFF 		bl	FLASH_Erase_Sector
+ 565 0042 4CF25030 		movw	r0, #50000
+ 566 0046 FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 567 004a 124A     		ldr	r2, .L95+4
+ 568 004c 1369     		ldr	r3, [r2, #16]
+ 569 004e 23F0FA03 		bic	r3, r3, #250
+ 570 0052 1361     		str	r3, [r2, #16]
+ 571 0054 0646     		mov	r6, r0
+ 572 0056 80B9     		cbnz	r0, .L94
+ 573 0058 0135     		adds	r5, r5, #1
+ 574 005a E9E7     		b	.L88
+ 575              	.L93:
+ 576 005c 6168     		ldr	r1, [r4, #4]
+ 577 005e 207C     		ldrb	r0, [r4, #16]	@ zero_extendqisi2
+ 578 0060 FFF7FEFF 		bl	FLASH_MassErase
+ 579 0064 4CF25030 		movw	r0, #50000
+ 580 0068 FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 581 006c 0646     		mov	r6, r0
+ 582 006e 094A     		ldr	r2, .L95+4
+ 583 0070 1369     		ldr	r3, [r2, #16]
+ 584 0072 23F00403 		bic	r3, r3, #4
+ 585 0076 1361     		str	r3, [r2, #16]
+ 586 0078 00E0     		b	.L87
+ 587              	.L94:
+ 588 007a 3D60     		str	r5, [r7]
+ 589              	.L87:
+ 590 007c FFF7FEFF 		bl	FLASH_FlushCaches
+ 591              	.L85:
+ 592 0080 034B     		ldr	r3, .L95
+ 593 0082 0022     		movs	r2, #0
+ 594 0084 1A76     		strb	r2, [r3, #24]
+ 595              	.L84:
+ 596 0086 3046     		mov	r0, r6
+ 597 0088 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 598              	.L91:
+ 599 008a 0223     		movs	r3, #2
+ 600 008c 1E46     		mov	r6, r3
+ 601 008e FAE7     		b	.L84
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s 			page 11
+
+
+ 602              	.L96:
+ 603              		.align	2
+ 604              	.L95:
+ 605 0090 00000000 		.word	pFlash
+ 606 0094 003C0240 		.word	1073888256
+ 608              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s 			page 12
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f4xx_hal_flash_ex.c
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:18     .text.FLASH_MassErase:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:23     .text.FLASH_MassErase:00000000 FLASH_MassErase
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:42     .text.FLASH_MassErase:00000020 $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:45     .text.FLASH_OB_BOR_LevelConfig:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:50     .text.FLASH_OB_BOR_LevelConfig:00000000 FLASH_OB_BOR_LevelConfig
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:66     .text.FLASH_OB_BOR_LevelConfig:00000014 $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:69     .text.FLASH_OB_GetUser:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:74     .text.FLASH_OB_GetUser:00000000 FLASH_OB_GetUser
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:85     .text.FLASH_OB_GetUser:0000000c $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:88     .text.FLASH_OB_GetWRP:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:93     .text.FLASH_OB_GetWRP:00000000 FLASH_OB_GetWRP
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:104    .text.FLASH_OB_GetWRP:00000008 $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:107    .text.FLASH_OB_GetRDP:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:112    .text.FLASH_OB_GetRDP:00000000 FLASH_OB_GetRDP
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:132    .text.FLASH_OB_GetRDP:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:135    .text.FLASH_OB_GetBOR:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:140    .text.FLASH_OB_GetBOR:00000000 FLASH_OB_GetBOR
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:151    .text.FLASH_OB_GetBOR:0000000c $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:154    .text.FLASH_OB_EnableWRP:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:159    .text.FLASH_OB_EnableWRP:00000000 FLASH_OB_EnableWRP
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:177    .text.FLASH_OB_EnableWRP:0000001c $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:180    .text.FLASH_OB_DisableWRP:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:185    .text.FLASH_OB_DisableWRP:00000000 FLASH_OB_DisableWRP
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:204    .text.FLASH_OB_DisableWRP:0000001c $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:207    .text.FLASH_OB_RDP_LevelConfig:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:212    .text.FLASH_OB_RDP_LevelConfig:00000000 FLASH_OB_RDP_LevelConfig
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:227    .text.FLASH_OB_RDP_LevelConfig:00000014 $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:230    .text.FLASH_OB_UserConfig:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:235    .text.FLASH_OB_UserConfig:00000000 FLASH_OB_UserConfig
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:259    .text.FLASH_OB_UserConfig:00000030 $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:262    .text.HAL_FLASHEx_OBProgram:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:268    .text.HAL_FLASHEx_OBProgram:00000000 HAL_FLASHEx_OBProgram
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:335    .text.HAL_FLASHEx_OBProgram:00000080 $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:338    .text.HAL_FLASHEx_OBGetConfig:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:344    .text.HAL_FLASHEx_OBGetConfig:00000000 HAL_FLASHEx_OBGetConfig
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:362    .text.FLASH_Erase_Sector:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:368    .text.FLASH_Erase_Sector:00000000 FLASH_Erase_Sector
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:406    .text.FLASH_Erase_Sector:00000048 $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:409    .text.HAL_FLASHEx_Erase_IT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:415    .text.HAL_FLASHEx_Erase_IT:00000000 HAL_FLASHEx_Erase_IT
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:469    .text.HAL_FLASHEx_Erase_IT:00000064 $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:473    .text.FLASH_FlushCaches:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:479    .text.FLASH_FlushCaches:00000000 FLASH_FlushCaches
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:523    .text.FLASH_FlushCaches:0000005c $d
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:526    .text.HAL_FLASHEx_Erase:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:532    .text.HAL_FLASHEx_Erase:00000000 HAL_FLASHEx_Erase
+C:\Users\Administrator\AppData\Local\Temp\cca6Ex0v.s:605    .text.HAL_FLASHEx_Erase:00000090 $d
+
+UNDEFINED SYMBOLS
+FLASH_WaitForLastOperation
+pFlash

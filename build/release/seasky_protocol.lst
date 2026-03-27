@@ -1,0 +1,165 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"seasky_protocol.c"
+  16              		.text
+  17              		.section	.text.Get_CRC8_Check,"ax",%progbits
+  18              		.align	1
+  19              		.global	Get_CRC8_Check
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	Get_CRC8_Check:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 08B5     		push	{r3, lr}
+  28 0002 FFF7FEFF 		bl	crc_8
+  29 0006 08BD     		pop	{r3, pc}
+  31              		.section	.text.Get_CRC16_Check,"ax",%progbits
+  32              		.align	1
+  33              		.global	Get_CRC16_Check
+  34              		.syntax unified
+  35              		.thumb
+  36              		.thumb_func
+  38              	Get_CRC16_Check:
+  39              		@ args = 0, pretend = 0, frame = 0
+  40              		@ frame_needed = 0, uses_anonymous_args = 0
+  41 0000 08B5     		push	{r3, lr}
+  42 0002 89B2     		uxth	r1, r1
+  43 0004 FFF7FEFF 		bl	crc_16
+  44 0008 08BD     		pop	{r3, pc}
+  46              		.section	.text.get_protocol_send_data,"ax",%progbits
+  47              		.align	1
+  48              		.global	get_protocol_send_data
+  49              		.syntax unified
+  50              		.thumb
+  51              		.thumb_func
+  53              	get_protocol_send_data:
+  54              		@ args = 8, pretend = 0, frame = 0
+  55              		@ frame_needed = 0, uses_anonymous_args = 0
+  56 0000 30B5     		push	{r4, r5, lr}
+  57 0002 1446     		mov	r4, r2
+  58 0004 039A     		ldr	r2, [sp, #12]
+  59 0006 5D1C     		adds	r5, r3, #1
+  60 0008 AD00     		lsls	r5, r5, #2
+  61 000a 1449     		ldr	r1, .L11
+  62 000c 0D80     		strh	r5, [r1]	@ movhi
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s 			page 2
+
+
+  63 000e FF21     		movs	r1, #255
+  64 0010 1170     		strb	r1, [r2]
+  65 0012 5070     		strb	r0, [r2, #1]
+  66 0014 0021     		movs	r1, #0
+  67 0016 12E0     		b	.L6
+  68              	.L7:
+  69 0018 20F00300 		bic	r0, r0, #3
+  70 001c D1F1000E 		rsbs	lr, r1, #0
+  71 0020 01F0030C 		and	ip, r1, #3
+  72 0024 0EF0030E 		and	lr, lr, #3
+  73 0028 58BF     		it	pl
+  74 002a CEF1000C 		rsbpl	ip, lr, #0
+  75 002e 01F1020E 		add	lr, r1, #2
+  76 0032 2044     		add	r0, r0, r4
+  77 0034 10F80C00 		ldrb	r0, [r0, ip]	@ zero_extendqisi2
+  78 0038 02F80E00 		strb	r0, [r2, lr]
+  79 003c 0131     		adds	r1, r1, #1
+  80              	.L6:
+  81 003e B1EB830F 		cmp	r1, r3, lsl #2
+  82 0042 04DA     		bge	.L10
+  83 0044 0846     		mov	r0, r1
+  84 0046 0029     		cmp	r1, #0
+  85 0048 E6DA     		bge	.L7
+  86 004a C81C     		adds	r0, r1, #3
+  87 004c E4E7     		b	.L7
+  88              	.L10:
+  89 004e 6B1E     		subs	r3, r5, #1
+  90 0050 0D21     		movs	r1, #13
+  91 0052 D154     		strb	r1, [r2, r3]
+  92 0054 049B     		ldr	r3, [sp, #16]
+  93 0056 1D80     		strh	r5, [r3]	@ movhi
+  94 0058 30BD     		pop	{r4, r5, pc}
+  95              	.L12:
+  96 005a 00BF     		.align	2
+  97              	.L11:
+  98 005c 00000000 		.word	data_len.1
+ 100              		.section	.text.get_protocol_info,"ax",%progbits
+ 101              		.align	1
+ 102              		.global	get_protocol_info
+ 103              		.syntax unified
+ 104              		.thumb
+ 105              		.thumb_func
+ 107              	get_protocol_info:
+ 108              		@ args = 0, pretend = 0, frame = 0
+ 109              		@ frame_needed = 0, uses_anonymous_args = 0
+ 110              		@ link register save eliminated.
+ 111 0000 0C4B     		ldr	r3, .L14
+ 112 0002 4FF00E0C 		mov	ip, #14
+ 113 0006 A3F800C0 		strh	ip, [r3]	@ movhi
+ 114 000a 90F807C0 		ldrb	ip, [r0, #7]	@ zero_extendqisi2
+ 115 000e 8379     		ldrb	r3, [r0, #6]	@ zero_extendqisi2
+ 116 0010 43EA0C23 		orr	r3, r3, ip, lsl #8
+ 117 0014 0B80     		strh	r3, [r1]	@ movhi
+ 118 0016 D0F801C0 		ldr	ip, [r0, #1]	@ unaligned
+ 119 001a D0F80510 		ldr	r1, [r0, #5]	@ unaligned
+ 120 001e D0F80930 		ldr	r3, [r0, #9]	@ unaligned
+ 121 0022 C2F800C0 		str	ip, [r2]	@ unaligned
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s 			page 3
+
+
+ 122 0026 5160     		str	r1, [r2, #4]	@ unaligned
+ 123 0028 9360     		str	r3, [r2, #8]	@ unaligned
+ 124 002a B0F80D30 		ldrh	r3, [r0, #13]	@ unaligned
+ 125 002e 9381     		strh	r3, [r2, #12]	@ unaligned
+ 126 0030 0020     		movs	r0, #0
+ 127 0032 7047     		bx	lr
+ 128              	.L15:
+ 129              		.align	2
+ 130              	.L14:
+ 131 0034 00000000 		.word	date_length.0
+ 133              		.section	.bss.date_length.0,"aw",%nobits
+ 134              		.align	1
+ 137              	date_length.0:
+ 138 0000 0000     		.space	2
+ 139              		.section	.bss.data_len.1,"aw",%nobits
+ 140              		.align	1
+ 143              	data_len.1:
+ 144 0000 0000     		.space	2
+ 145              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 seasky_protocol.c
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:18     .text.Get_CRC8_Check:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:24     .text.Get_CRC8_Check:00000000 Get_CRC8_Check
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:32     .text.Get_CRC16_Check:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:38     .text.Get_CRC16_Check:00000000 Get_CRC16_Check
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:47     .text.get_protocol_send_data:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:53     .text.get_protocol_send_data:00000000 get_protocol_send_data
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:98     .text.get_protocol_send_data:0000005c $d
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:143    .bss.data_len.1:00000000 data_len.1
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:101    .text.get_protocol_info:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:107    .text.get_protocol_info:00000000 get_protocol_info
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:131    .text.get_protocol_info:00000034 $d
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:137    .bss.date_length.0:00000000 date_length.0
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:134    .bss.date_length.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccByahjt.s:140    .bss.data_len.1:00000000 $d
+
+UNDEFINED SYMBOLS
+crc_8
+crc_16

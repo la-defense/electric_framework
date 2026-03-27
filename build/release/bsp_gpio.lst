@@ -1,0 +1,202 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_gpio.c"
+  16              		.text
+  17              		.section	.text.HAL_GPIO_EXTI_Callback,"ax",%progbits
+  18              		.align	1
+  19              		.global	HAL_GPIO_EXTI_Callback
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	HAL_GPIO_EXTI_Callback:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 08B5     		push	{r3, lr}
+  28 0002 0023     		movs	r3, #0
+  29 0004 00E0     		b	.L2
+  30              	.L3:
+  31 0006 0133     		adds	r3, r3, #1
+  32              	.L2:
+  33 0008 074A     		ldr	r2, .L7
+  34 000a 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+  35 000c 9A42     		cmp	r2, r3
+  36 000e 0AD9     		bls	.L1
+  37 0010 064A     		ldr	r2, .L7+4
+  38 0012 52F82320 		ldr	r2, [r2, r3, lsl #2]
+  39 0016 D188     		ldrh	r1, [r2, #6]
+  40 0018 8142     		cmp	r1, r0
+  41 001a F4D1     		bne	.L3
+  42 001c 9168     		ldr	r1, [r2, #8]
+  43 001e 0029     		cmp	r1, #0
+  44 0020 F1D0     		beq	.L3
+  45 0022 1046     		mov	r0, r2
+  46 0024 8847     		blx	r1
+  47              	.L1:
+  48 0026 08BD     		pop	{r3, pc}
+  49              	.L8:
+  50              		.align	2
+  51              	.L7:
+  52 0028 00000000 		.word	idx
+  53 002c 00000000 		.word	gpio_instance
+  55              		.section	.text.GPIORegister,"ax",%progbits
+  56              		.align	1
+  57              		.global	GPIORegister
+  58              		.syntax unified
+  59              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s 			page 2
+
+
+  60              		.thumb_func
+  62              	GPIORegister:
+  63              		@ args = 0, pretend = 0, frame = 0
+  64              		@ frame_needed = 0, uses_anonymous_args = 0
+  65 0000 10B5     		push	{r4, lr}
+  66 0002 0446     		mov	r4, r0
+  67 0004 1020     		movs	r0, #16
+  68 0006 FFF7FEFF 		bl	malloc
+  69 000a 0022     		movs	r2, #0
+  70 000c 0260     		str	r2, [r0]	@ unaligned
+  71 000e 4260     		str	r2, [r0, #4]	@ unaligned
+  72 0010 8260     		str	r2, [r0, #8]	@ unaligned
+  73 0012 C260     		str	r2, [r0, #12]	@ unaligned
+  74 0014 2268     		ldr	r2, [r4]
+  75 0016 0260     		str	r2, [r0]
+  76 0018 E288     		ldrh	r2, [r4, #6]
+  77 001a C280     		strh	r2, [r0, #6]	@ movhi
+  78 001c 2279     		ldrb	r2, [r4, #4]	@ zero_extendqisi2
+  79 001e 0271     		strb	r2, [r0, #4]
+  80 0020 6279     		ldrb	r2, [r4, #5]	@ zero_extendqisi2
+  81 0022 4271     		strb	r2, [r0, #5]
+  82 0024 E268     		ldr	r2, [r4, #12]
+  83 0026 C260     		str	r2, [r0, #12]
+  84 0028 A268     		ldr	r2, [r4, #8]
+  85 002a 8260     		str	r2, [r0, #8]
+  86 002c 0349     		ldr	r1, .L11
+  87 002e 0A78     		ldrb	r2, [r1]	@ zero_extendqisi2
+  88 0030 541C     		adds	r4, r2, #1
+  89 0032 0C70     		strb	r4, [r1]
+  90 0034 0249     		ldr	r1, .L11+4
+  91 0036 41F82200 		str	r0, [r1, r2, lsl #2]
+  92 003a 10BD     		pop	{r4, pc}
+  93              	.L12:
+  94              		.align	2
+  95              	.L11:
+  96 003c 00000000 		.word	idx
+  97 0040 00000000 		.word	gpio_instance
+  99              		.section	.text.GPIOToggel,"ax",%progbits
+ 100              		.align	1
+ 101              		.global	GPIOToggel
+ 102              		.syntax unified
+ 103              		.thumb
+ 104              		.thumb_func
+ 106              	GPIOToggel:
+ 107              		@ args = 0, pretend = 0, frame = 0
+ 108              		@ frame_needed = 0, uses_anonymous_args = 0
+ 109 0000 08B5     		push	{r3, lr}
+ 110 0002 C188     		ldrh	r1, [r0, #6]
+ 111 0004 0068     		ldr	r0, [r0]
+ 112 0006 FFF7FEFF 		bl	HAL_GPIO_TogglePin
+ 113 000a 08BD     		pop	{r3, pc}
+ 115              		.section	.text.GPIOSet,"ax",%progbits
+ 116              		.align	1
+ 117              		.global	GPIOSet
+ 118              		.syntax unified
+ 119              		.thumb
+ 120              		.thumb_func
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s 			page 3
+
+
+ 122              	GPIOSet:
+ 123              		@ args = 0, pretend = 0, frame = 0
+ 124              		@ frame_needed = 0, uses_anonymous_args = 0
+ 125 0000 08B5     		push	{r3, lr}
+ 126 0002 0122     		movs	r2, #1
+ 127 0004 C188     		ldrh	r1, [r0, #6]
+ 128 0006 0068     		ldr	r0, [r0]
+ 129 0008 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 130 000c 08BD     		pop	{r3, pc}
+ 132              		.section	.text.GPIOReset,"ax",%progbits
+ 133              		.align	1
+ 134              		.global	GPIOReset
+ 135              		.syntax unified
+ 136              		.thumb
+ 137              		.thumb_func
+ 139              	GPIOReset:
+ 140              		@ args = 0, pretend = 0, frame = 0
+ 141              		@ frame_needed = 0, uses_anonymous_args = 0
+ 142 0000 08B5     		push	{r3, lr}
+ 143 0002 0022     		movs	r2, #0
+ 144 0004 C188     		ldrh	r1, [r0, #6]
+ 145 0006 0068     		ldr	r0, [r0]
+ 146 0008 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 147 000c 08BD     		pop	{r3, pc}
+ 149              		.section	.text.GPIORead,"ax",%progbits
+ 150              		.align	1
+ 151              		.global	GPIORead
+ 152              		.syntax unified
+ 153              		.thumb
+ 154              		.thumb_func
+ 156              	GPIORead:
+ 157              		@ args = 0, pretend = 0, frame = 0
+ 158              		@ frame_needed = 0, uses_anonymous_args = 0
+ 159 0000 08B5     		push	{r3, lr}
+ 160 0002 C188     		ldrh	r1, [r0, #6]
+ 161 0004 0068     		ldr	r0, [r0]
+ 162 0006 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 163 000a 08BD     		pop	{r3, pc}
+ 165              		.section	.bss.gpio_instance,"aw",%nobits
+ 166              		.align	2
+ 169              	gpio_instance:
+ 170 0000 00000000 		.space	40
+ 170      00000000 
+ 170      00000000 
+ 170      00000000 
+ 170      00000000 
+ 171              		.section	.bss.idx,"aw",%nobits
+ 174              	idx:
+ 175 0000 00       		.space	1
+ 176              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_gpio.c
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:18     .text.HAL_GPIO_EXTI_Callback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:24     .text.HAL_GPIO_EXTI_Callback:00000000 HAL_GPIO_EXTI_Callback
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:52     .text.HAL_GPIO_EXTI_Callback:00000028 $d
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:174    .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:169    .bss.gpio_instance:00000000 gpio_instance
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:56     .text.GPIORegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:62     .text.GPIORegister:00000000 GPIORegister
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:96     .text.GPIORegister:0000003c $d
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:100    .text.GPIOToggel:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:106    .text.GPIOToggel:00000000 GPIOToggel
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:116    .text.GPIOSet:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:122    .text.GPIOSet:00000000 GPIOSet
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:133    .text.GPIOReset:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:139    .text.GPIOReset:00000000 GPIOReset
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:150    .text.GPIORead:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:156    .text.GPIORead:00000000 GPIORead
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:166    .bss.gpio_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccKoXDim.s:175    .bss.idx:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc
+HAL_GPIO_TogglePin
+HAL_GPIO_WritePin
+HAL_GPIO_ReadPin

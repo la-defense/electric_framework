@@ -1,0 +1,274 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"buzzer.c"
+  16              		.text
+  17              		.section	.text.BuzzerInit,"ax",%progbits
+  18              		.align	1
+  19              		.global	BuzzerInit
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	BuzzerInit:
+  25              		@ args = 0, pretend = 0, frame = 24
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 00B5     		push	{lr}
+  28 0002 87B0     		sub	sp, sp, #28
+  29 0004 6846     		mov	r0, sp
+  30 0006 0023     		movs	r3, #0
+  31 0008 0093     		str	r3, [sp]
+  32 000a 0193     		str	r3, [sp, #4]
+  33 000c 0293     		str	r3, [sp, #8]
+  34 000e 0393     		str	r3, [sp, #12]
+  35 0010 0493     		str	r3, [sp, #16]
+  36 0012 0593     		str	r3, [sp, #20]
+  37 0014 054B     		ldr	r3, .L3
+  38 0016 0093     		str	r3, [sp]
+  39 0018 0823     		movs	r3, #8
+  40 001a 0193     		str	r3, [sp, #4]
+  41 001c 044B     		ldr	r3, .L3+4
+  42 001e 0293     		str	r3, [sp, #8]	@ float
+  43 0020 FFF7FEFF 		bl	PWMRegister
+  44 0024 034B     		ldr	r3, .L3+8
+  45 0026 1860     		str	r0, [r3]
+  46 0028 07B0     		add	sp, sp, #28
+  47              		@ sp needed
+  48 002a 00BD     		pop	{pc}
+  49              	.L4:
+  50              		.align	2
+  51              	.L3:
+  52 002c 00000000 		.word	htim4
+  53 0030 6F12833A 		.word	981668463
+  54 0034 00000000 		.word	buzzer
+  56              		.section	.text.BuzzerRegister,"ax",%progbits
+  57              		.align	1
+  58              		.global	BuzzerRegister
+  59              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s 			page 2
+
+
+  60              		.thumb
+  61              		.thumb_func
+  63              	BuzzerRegister:
+  64              		@ args = 0, pretend = 0, frame = 0
+  65              		@ frame_needed = 0, uses_anonymous_args = 0
+  66 0000 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+  67 0002 052B     		cmp	r3, #5
+  68 0004 00D9     		bls	.L6
+  69              	.L7:
+  70 0006 FEE7     		b	.L7
+  71              	.L6:
+  72 0008 10B5     		push	{r4, lr}
+  73 000a 0446     		mov	r4, r0
+  74 000c 0820     		movs	r0, #8
+  75 000e FFF7FEFF 		bl	malloc
+  76 0012 0022     		movs	r2, #0
+  77 0014 0260     		str	r2, [r0]	@ unaligned
+  78 0016 4260     		str	r2, [r0, #4]	@ unaligned
+  79 0018 2278     		ldrb	r2, [r4]	@ zero_extendqisi2
+  80 001a 4271     		strb	r2, [r0, #5]
+  81 001c 6168     		ldr	r1, [r4, #4]	@ float
+  82 001e 0160     		str	r1, [r0]	@ float
+  83 0020 6178     		ldrb	r1, [r4, #1]	@ zero_extendqisi2
+  84 0022 0171     		strb	r1, [r0, #4]
+  85 0024 0149     		ldr	r1, .L10
+  86 0026 41F82200 		str	r0, [r1, r2, lsl #2]
+  87 002a 10BD     		pop	{r4, pc}
+  88              	.L11:
+  89              		.align	2
+  90              	.L10:
+  91 002c 00000000 		.word	buzzer_list
+  93              		.section	.text.BuzzerSetStatus,"ax",%progbits
+  94              		.align	1
+  95              		.global	BuzzerSetStatus
+  96              		.syntax unified
+  97              		.thumb
+  98              		.thumb_func
+ 100              	BuzzerSetStatus:
+ 101              		@ args = 0, pretend = 0, frame = 0
+ 102              		@ frame_needed = 0, uses_anonymous_args = 0
+ 103              		@ link register save eliminated.
+ 104 0000 8171     		strb	r1, [r0, #6]
+ 105 0002 7047     		bx	lr
+ 107              		.section	.text.BuzzerSetOctave,"ax",%progbits
+ 108              		.align	1
+ 109              		.global	BuzzerSetOctave
+ 110              		.syntax unified
+ 111              		.thumb
+ 112              		.thumb_func
+ 114              	BuzzerSetOctave:
+ 115              		@ args = 0, pretend = 0, frame = 0
+ 116              		@ frame_needed = 0, uses_anonymous_args = 0
+ 117              		@ link register save eliminated.
+ 118 0000 0171     		strb	r1, [r0, #4]
+ 119 0002 7047     		bx	lr
+ 121              		.section	.text.BuzzerTask,"ax",%progbits
+ 122              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s 			page 3
+
+
+ 123              		.global	BuzzerTask
+ 124              		.syntax unified
+ 125              		.thumb
+ 126              		.thumb_func
+ 128              	BuzzerTask:
+ 129              		@ args = 0, pretend = 0, frame = 0
+ 130              		@ frame_needed = 0, uses_anonymous_args = 0
+ 131 0000 38B5     		push	{r3, r4, r5, lr}
+ 132 0002 0024     		movs	r4, #0
+ 133 0004 46E0     		b	.L15
+ 134              	.L17:
+ 135 0006 95ED000A 		vldr.32	s0, [r5]
+ 136 000a 2B4B     		ldr	r3, .L29
+ 137 000c 1868     		ldr	r0, [r3]
+ 138 000e FFF7FEFF 		bl	PWMSetDutyRatio
+ 139 0012 2B79     		ldrb	r3, [r5, #4]	@ zero_extendqisi2
+ 140 0014 032B     		cmp	r3, #3
+ 141 0016 27D0     		beq	.L18
+ 142 0018 0BD8     		bhi	.L19
+ 143 001a 012B     		cmp	r3, #1
+ 144 001c 16D0     		beq	.L20
+ 145 001e 022B     		cmp	r3, #2
+ 146 0020 1BD0     		beq	.L21
+ 147 0022 2BB9     		cbnz	r3, .L14
+ 148 0024 9FED250A 		vldr.32	s0, .L29+4
+ 149 0028 234B     		ldr	r3, .L29
+ 150 002a 1868     		ldr	r0, [r3]
+ 151 002c FFF7FEFF 		bl	PWMSetPeriod
+ 152              	.L14:
+ 153 0030 38BD     		pop	{r3, r4, r5, pc}
+ 154              	.L19:
+ 155 0032 052B     		cmp	r3, #5
+ 156 0034 1FD0     		beq	.L24
+ 157 0036 062B     		cmp	r3, #6
+ 158 0038 24D0     		beq	.L25
+ 159 003a 042B     		cmp	r3, #4
+ 160 003c F8D1     		bne	.L14
+ 161 003e 9FED200A 		vldr.32	s0, .L29+8
+ 162 0042 1D4B     		ldr	r3, .L29
+ 163 0044 1868     		ldr	r0, [r3]
+ 164 0046 FFF7FEFF 		bl	PWMSetPeriod
+ 165 004a F1E7     		b	.L14
+ 166              	.L20:
+ 167 004c 9FED1D0A 		vldr.32	s0, .L29+12
+ 168 0050 194B     		ldr	r3, .L29
+ 169 0052 1868     		ldr	r0, [r3]
+ 170 0054 FFF7FEFF 		bl	PWMSetPeriod
+ 171 0058 EAE7     		b	.L14
+ 172              	.L21:
+ 173 005a 9FED1B0A 		vldr.32	s0, .L29+16
+ 174 005e 164B     		ldr	r3, .L29
+ 175 0060 1868     		ldr	r0, [r3]
+ 176 0062 FFF7FEFF 		bl	PWMSetPeriod
+ 177 0066 E3E7     		b	.L14
+ 178              	.L18:
+ 179 0068 9FED180A 		vldr.32	s0, .L29+20
+ 180 006c 124B     		ldr	r3, .L29
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s 			page 4
+
+
+ 181 006e 1868     		ldr	r0, [r3]
+ 182 0070 FFF7FEFF 		bl	PWMSetPeriod
+ 183 0074 DCE7     		b	.L14
+ 184              	.L24:
+ 185 0076 9FED160A 		vldr.32	s0, .L29+24
+ 186 007a 0F4B     		ldr	r3, .L29
+ 187 007c 1868     		ldr	r0, [r3]
+ 188 007e FFF7FEFF 		bl	PWMSetPeriod
+ 189 0082 D5E7     		b	.L14
+ 190              	.L25:
+ 191 0084 9FED130A 		vldr.32	s0, .L29+28
+ 192 0088 0B4B     		ldr	r3, .L29
+ 193 008a 1868     		ldr	r0, [r3]
+ 194 008c FFF7FEFF 		bl	PWMSetPeriod
+ 195 0090 CEE7     		b	.L14
+ 196              	.L16:
+ 197 0092 0134     		adds	r4, r4, #1
+ 198              	.L15:
+ 199 0094 042C     		cmp	r4, #4
+ 200 0096 CBD8     		bhi	.L14
+ 201 0098 0F4B     		ldr	r3, .L29+32
+ 202 009a 53F82450 		ldr	r5, [r3, r4, lsl #2]
+ 203 009e 6B79     		ldrb	r3, [r5, #5]	@ zero_extendqisi2
+ 204 00a0 042B     		cmp	r3, #4
+ 205 00a2 F6D8     		bhi	.L16
+ 206 00a4 AB79     		ldrb	r3, [r5, #6]	@ zero_extendqisi2
+ 207 00a6 002B     		cmp	r3, #0
+ 208 00a8 ADD1     		bne	.L17
+ 209 00aa 9FED0C0A 		vldr.32	s0, .L29+36
+ 210 00ae 024B     		ldr	r3, .L29
+ 211 00b0 1868     		ldr	r0, [r3]
+ 212 00b2 FFF7FEFF 		bl	PWMSetDutyRatio
+ 213 00b6 ECE7     		b	.L16
+ 214              	.L30:
+ 215              		.align	2
+ 216              	.L29:
+ 217 00b8 00000000 		.word	buzzer
+ 218 00bc 9D9DFA3A 		.word	989502877
+ 219 00c0 052FA73A 		.word	984035077
+ 220 00c4 934ADF3A 		.word	987712147
+ 221 00c8 32E5C63A 		.word	986113330
+ 222 00cc 41C8BB3A 		.word	985385025
+ 223 00d0 09F2943A 		.word	982839817
+ 224 00d4 FAA9843A 		.word	981772794
+ 225 00d8 00000000 		.word	buzzer_list
+ 226 00dc 00000000 		.word	0
+ 228              		.section	.bss.buzzer_list,"aw",%nobits
+ 229              		.align	2
+ 232              	buzzer_list:
+ 233 0000 00000000 		.space	20
+ 233      00000000 
+ 233      00000000 
+ 233      00000000 
+ 233      00000000 
+ 234              		.section	.bss.buzzer,"aw",%nobits
+ 235              		.align	2
+ 238              	buzzer:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s 			page 5
+
+
+ 239 0000 00000000 		.space	4
+ 240              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 buzzer.c
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:18     .text.BuzzerInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:24     .text.BuzzerInit:00000000 BuzzerInit
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:52     .text.BuzzerInit:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:238    .bss.buzzer:00000000 buzzer
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:57     .text.BuzzerRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:63     .text.BuzzerRegister:00000000 BuzzerRegister
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:91     .text.BuzzerRegister:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:232    .bss.buzzer_list:00000000 buzzer_list
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:94     .text.BuzzerSetStatus:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:100    .text.BuzzerSetStatus:00000000 BuzzerSetStatus
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:108    .text.BuzzerSetOctave:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:114    .text.BuzzerSetOctave:00000000 BuzzerSetOctave
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:122    .text.BuzzerTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:128    .text.BuzzerTask:00000000 BuzzerTask
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:217    .text.BuzzerTask:000000b8 $d
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:229    .bss.buzzer_list:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccIFsq4T.s:235    .bss.buzzer:00000000 $d
+
+UNDEFINED SYMBOLS
+PWMRegister
+htim4
+malloc
+PWMSetDutyRatio
+PWMSetPeriod

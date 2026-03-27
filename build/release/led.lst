@@ -1,0 +1,486 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"led.c"
+  16              		.text
+  17              		.section	.text.LEDShowFlash,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	LEDShowFlash:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 38B5     		push	{r3, r4, r5, lr}
+  27 0002 2DED028B 		vpush.64	{d8}
+  28 0006 0C46     		mov	r4, r1
+  29 0008 0029     		cmp	r1, #0
+  30 000a 38D1     		bne	.L2
+  31 000c 6F4B     		ldr	r3, .L21
+  32 000e 1422     		movs	r2, #20
+  33 0010 1A80     		strh	r2, [r3]	@ movhi
+  34              	.L3:
+  35 0012 6F4A     		ldr	r2, .L21+4
+  36 0014 1388     		ldrh	r3, [r2]
+  37 0016 0133     		adds	r3, r3, #1
+  38 0018 9BB2     		uxth	r3, r3
+  39 001a 1380     		strh	r3, [r2]	@ movhi
+  40 001c 6B4A     		ldr	r2, .L21
+  41 001e 1288     		ldrh	r2, [r2]
+  42 0020 9342     		cmp	r3, r2
+  43 0022 32D2     		bcs	.L4
+  44 0024 022C     		cmp	r4, #2
+  45 0026 30D0     		beq	.L4
+  46              	.L5:
+  47 0028 694B     		ldr	r3, .L21+4
+  48 002a 1A88     		ldrh	r2, [r3]
+  49 002c 674B     		ldr	r3, .L21
+  50 002e 1B88     		ldrh	r3, [r3]
+  51 0030 9A42     		cmp	r2, r3
+  52 0032 02D2     		bcs	.L13
+  53 0034 022C     		cmp	r4, #2
+  54 0036 40F0B680 		bne	.L19
+  55              	.L13:
+  56 003a 664B     		ldr	r3, .L21+8
+  57 003c 1B68     		ldr	r3, [r3]
+  58 003e 9A78     		ldrb	r2, [r3, #2]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s 			page 2
+
+
+  59 0040 654B     		ldr	r3, .L21+12
+  60 0042 1B88     		ldrh	r3, [r3]
+  61 0044 9A42     		cmp	r2, r3
+  62 0046 00D8     		bhi	.L14
+  63 0048 34B1     		cbz	r4, .L15
+  64              	.L14:
+  65 004a 614A     		ldr	r2, .L21+4
+  66 004c 1288     		ldrh	r2, [r2]
+  67 004e 5F49     		ldr	r1, .L21
+  68 0050 0988     		ldrh	r1, [r1]
+  69 0052 B2EB410F 		cmp	r2, r1, lsl #1
+  70 0056 05DB     		blt	.L16
+  71              	.L15:
+  72 0058 5D4A     		ldr	r2, .L21+4
+  73 005a 0021     		movs	r1, #0
+  74 005c 1180     		strh	r1, [r2]	@ movhi
+  75 005e 0133     		adds	r3, r3, #1
+  76 0060 5D4A     		ldr	r2, .L21+12
+  77 0062 1380     		strh	r3, [r2]	@ movhi
+  78              	.L16:
+  79 0064 5C4B     		ldr	r3, .L21+12
+  80 0066 1B88     		ldrh	r3, [r3]
+  81 0068 584A     		ldr	r2, .L21
+  82 006a 1288     		ldrh	r2, [r2]
+  83 006c B3EB820F 		cmp	r3, r2, lsl #2
+  84 0070 02DB     		blt	.L1
+  85 0072 594B     		ldr	r3, .L21+12
+  86 0074 0022     		movs	r2, #0
+  87 0076 1A80     		strh	r2, [r3]	@ movhi
+  88              	.L1:
+  89 0078 BDEC028B 		vldm	sp!, {d8}
+  90 007c 38BD     		pop	{r3, r4, r5, pc}
+  91              	.L2:
+  92 007e 0129     		cmp	r1, #1
+  93 0080 C7D1     		bne	.L3
+  94 0082 524B     		ldr	r3, .L21
+  95 0084 1E22     		movs	r2, #30
+  96 0086 1A80     		strh	r2, [r3]	@ movhi
+  97 0088 C3E7     		b	.L3
+  98              	.L4:
+  99 008a 0228     		cmp	r0, #2
+ 100 008c 65D0     		beq	.L6
+ 101 008e 3BD9     		bls	.L20
+ 102 0090 0328     		cmp	r0, #3
+ 103 0092 75D0     		beq	.L10
+ 104 0094 0428     		cmp	r0, #4
+ 105 0096 C7D1     		bne	.L5
+ 106 0098 504A     		ldr	r2, .L21+16
+ 107 009a 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 108 009c 0133     		adds	r3, r3, #1
+ 109 009e 5BB2     		sxtb	r3, r3
+ 110 00a0 1370     		strb	r3, [r2]
+ 111 00a2 012B     		cmp	r3, #1
+ 112 00a4 06DD     		ble	.L12
+ 113 00a6 1346     		mov	r3, r2
+ 114 00a8 0022     		movs	r2, #0
+ 115 00aa 1A70     		strb	r2, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s 			page 3
+
+
+ 116 00ac 4C4A     		ldr	r2, .L21+20
+ 117 00ae 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 118 00b0 0233     		adds	r3, r3, #2
+ 119 00b2 1370     		strb	r3, [r2]
+ 120              	.L12:
+ 121 00b4 4A4D     		ldr	r5, .L21+20
+ 122 00b6 95F90030 		ldrsb	r3, [r5]
+ 123 00ba 002B     		cmp	r3, #0
+ 124 00bc B8BF     		it	lt
+ 125 00be 5B42     		rsblt	r3, r3, #0
+ 126 00c0 DBB2     		uxtb	r3, r3
+ 127 00c2 00EE103A 		vmov	s0, r3	@ int
+ 128 00c6 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 129 00ca 9FED468A 		vldr.32	s16, .L21+24
+ 130 00ce 20EE080A 		vmul.f32	s0, s0, s16
+ 131 00d2 454B     		ldr	r3, .L21+28
+ 132 00d4 1868     		ldr	r0, [r3]
+ 133 00d6 FFF7FEFF 		bl	PWMSetDutyRatio
+ 134 00da 9FED440A 		vldr.32	s0, .L21+32
+ 135 00de 444B     		ldr	r3, .L21+36
+ 136 00e0 1868     		ldr	r0, [r3]
+ 137 00e2 FFF7FEFF 		bl	PWMSetDutyRatio
+ 138 00e6 95F90030 		ldrsb	r3, [r5]
+ 139 00ea 002B     		cmp	r3, #0
+ 140 00ec B8BF     		it	lt
+ 141 00ee 5B42     		rsblt	r3, r3, #0
+ 142 00f0 DBB2     		uxtb	r3, r3
+ 143 00f2 00EE103A 		vmov	s0, r3	@ int
+ 144 00f6 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 145 00fa 20EE080A 		vmul.f32	s0, s0, s16
+ 146 00fe 3D4B     		ldr	r3, .L21+40
+ 147 0100 1868     		ldr	r0, [r3]
+ 148 0102 FFF7FEFF 		bl	PWMSetDutyRatio
+ 149 0106 8FE7     		b	.L5
+ 150              	.L20:
+ 151 0108 A0B1     		cbz	r0, .L8
+ 152 010a 0128     		cmp	r0, #1
+ 153 010c 8CD1     		bne	.L5
+ 154 010e B7EE000A 		vmov.f32	s0, #1.0e+0
+ 155 0112 354B     		ldr	r3, .L21+28
+ 156 0114 1868     		ldr	r0, [r3]
+ 157 0116 FFF7FEFF 		bl	PWMSetDutyRatio
+ 158 011a B7EE000A 		vmov.f32	s0, #1.0e+0
+ 159 011e 344B     		ldr	r3, .L21+36
+ 160 0120 1868     		ldr	r0, [r3]
+ 161 0122 FFF7FEFF 		bl	PWMSetDutyRatio
+ 162 0126 9FED310A 		vldr.32	s0, .L21+32
+ 163 012a 324B     		ldr	r3, .L21+40
+ 164 012c 1868     		ldr	r0, [r3]
+ 165 012e FFF7FEFF 		bl	PWMSetDutyRatio
+ 166 0132 79E7     		b	.L5
+ 167              	.L8:
+ 168 0134 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 169 0138 2B4B     		ldr	r3, .L21+28
+ 170 013a 1868     		ldr	r0, [r3]
+ 171 013c FFF7FEFF 		bl	PWMSetDutyRatio
+ 172 0140 9FED2A0A 		vldr.32	s0, .L21+32
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s 			page 4
+
+
+ 173 0144 2A4B     		ldr	r3, .L21+36
+ 174 0146 1868     		ldr	r0, [r3]
+ 175 0148 FFF7FEFF 		bl	PWMSetDutyRatio
+ 176 014c 9FED270A 		vldr.32	s0, .L21+32
+ 177 0150 284B     		ldr	r3, .L21+40
+ 178 0152 1868     		ldr	r0, [r3]
+ 179 0154 FFF7FEFF 		bl	PWMSetDutyRatio
+ 180 0158 66E7     		b	.L5
+ 181              	.L6:
+ 182 015a 9FED240A 		vldr.32	s0, .L21+32
+ 183 015e 224B     		ldr	r3, .L21+28
+ 184 0160 1868     		ldr	r0, [r3]
+ 185 0162 FFF7FEFF 		bl	PWMSetDutyRatio
+ 186 0166 9FED210A 		vldr.32	s0, .L21+32
+ 187 016a 214B     		ldr	r3, .L21+36
+ 188 016c 1868     		ldr	r0, [r3]
+ 189 016e FFF7FEFF 		bl	PWMSetDutyRatio
+ 190 0172 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 191 0176 1F4B     		ldr	r3, .L21+40
+ 192 0178 1868     		ldr	r0, [r3]
+ 193 017a FFF7FEFF 		bl	PWMSetDutyRatio
+ 194 017e 53E7     		b	.L5
+ 195              	.L10:
+ 196 0180 9FED1A0A 		vldr.32	s0, .L21+32
+ 197 0184 184B     		ldr	r3, .L21+28
+ 198 0186 1868     		ldr	r0, [r3]
+ 199 0188 FFF7FEFF 		bl	PWMSetDutyRatio
+ 200 018c B7EE000A 		vmov.f32	s0, #1.0e+0
+ 201 0190 174B     		ldr	r3, .L21+36
+ 202 0192 1868     		ldr	r0, [r3]
+ 203 0194 FFF7FEFF 		bl	PWMSetDutyRatio
+ 204 0198 9FED140A 		vldr.32	s0, .L21+32
+ 205 019c 154B     		ldr	r3, .L21+40
+ 206 019e 1868     		ldr	r0, [r3]
+ 207 01a0 FFF7FEFF 		bl	PWMSetDutyRatio
+ 208 01a4 40E7     		b	.L5
+ 209              	.L19:
+ 210 01a6 9FED110A 		vldr.32	s0, .L21+32
+ 211 01aa 0F4B     		ldr	r3, .L21+28
+ 212 01ac 1868     		ldr	r0, [r3]
+ 213 01ae FFF7FEFF 		bl	PWMSetDutyRatio
+ 214 01b2 9FED0E0A 		vldr.32	s0, .L21+32
+ 215 01b6 0E4B     		ldr	r3, .L21+36
+ 216 01b8 1868     		ldr	r0, [r3]
+ 217 01ba FFF7FEFF 		bl	PWMSetDutyRatio
+ 218 01be 9FED0B0A 		vldr.32	s0, .L21+32
+ 219 01c2 0C4B     		ldr	r3, .L21+40
+ 220 01c4 1868     		ldr	r0, [r3]
+ 221 01c6 FFF7FEFF 		bl	PWMSetDutyRatio
+ 222 01ca 36E7     		b	.L13
+ 223              	.L22:
+ 224              		.align	2
+ 225              	.L21:
+ 226 01cc 00000000 		.word	time_temp.4
+ 227 01d0 00000000 		.word	n.3
+ 228 01d4 00000000 		.word	led
+ 229 01d8 00000000 		.word	count.0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s 			page 5
+
+
+ 230 01dc 00000000 		.word	temp.2
+ 231 01e0 00000000 		.word	alpha.1
+ 232 01e4 0D68D33B 		.word	1003710477
+ 233 01e8 00000000 		.word	led_r
+ 234 01ec 00000000 		.word	0
+ 235 01f0 00000000 		.word	led_g
+ 236 01f4 00000000 		.word	led_b
+ 238              		.section	.text.LEDInit,"ax",%progbits
+ 239              		.align	1
+ 240              		.global	LEDInit
+ 241              		.syntax unified
+ 242              		.thumb
+ 243              		.thumb_func
+ 245              	LEDInit:
+ 246              		@ args = 0, pretend = 0, frame = 24
+ 247              		@ frame_needed = 0, uses_anonymous_args = 0
+ 248 0000 30B5     		push	{r4, r5, lr}
+ 249 0002 87B0     		sub	sp, sp, #28
+ 250 0004 0025     		movs	r5, #0
+ 251 0006 0095     		str	r5, [sp]
+ 252 0008 0195     		str	r5, [sp, #4]
+ 253 000a 0295     		str	r5, [sp, #8]
+ 254 000c 0395     		str	r5, [sp, #12]
+ 255 000e 0495     		str	r5, [sp, #16]
+ 256 0010 0595     		str	r5, [sp, #20]
+ 257 0012 0D4B     		ldr	r3, .L25
+ 258 0014 0093     		str	r3, [sp]
+ 259 0016 0D4B     		ldr	r3, .L25+4
+ 260 0018 0293     		str	r3, [sp, #8]	@ float
+ 261 001a 0823     		movs	r3, #8
+ 262 001c 0193     		str	r3, [sp, #4]
+ 263 001e 6846     		mov	r0, sp
+ 264 0020 FFF7FEFF 		bl	PWMRegister
+ 265 0024 0A4B     		ldr	r3, .L25+8
+ 266 0026 1860     		str	r0, [r3]
+ 267 0028 0423     		movs	r3, #4
+ 268 002a 0193     		str	r3, [sp, #4]
+ 269 002c 6846     		mov	r0, sp
+ 270 002e FFF7FEFF 		bl	PWMRegister
+ 271 0032 084B     		ldr	r3, .L25+12
+ 272 0034 1860     		str	r0, [r3]
+ 273 0036 0195     		str	r5, [sp, #4]
+ 274 0038 6846     		mov	r0, sp
+ 275 003a FFF7FEFF 		bl	PWMRegister
+ 276 003e 064B     		ldr	r3, .L25+16
+ 277 0040 1860     		str	r0, [r3]
+ 278 0042 07B0     		add	sp, sp, #28
+ 279              		@ sp needed
+ 280 0044 30BD     		pop	{r4, r5, pc}
+ 281              	.L26:
+ 282 0046 00BF     		.align	2
+ 283              	.L25:
+ 284 0048 00000000 		.word	htim5
+ 285 004c 6F12833A 		.word	981668463
+ 286 0050 00000000 		.word	led_r
+ 287 0054 00000000 		.word	led_g
+ 288 0058 00000000 		.word	led_b
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s 			page 6
+
+
+ 290              		.section	.text.LEDRegister,"ax",%progbits
+ 291              		.align	1
+ 292              		.global	LEDRegister
+ 293              		.syntax unified
+ 294              		.thumb
+ 295              		.thumb_func
+ 297              	LEDRegister:
+ 298              		@ args = 0, pretend = 0, frame = 0
+ 299              		@ frame_needed = 0, uses_anonymous_args = 0
+ 300 0000 38B5     		push	{r3, r4, r5, lr}
+ 301 0002 0446     		mov	r4, r0
+ 302 0004 0420     		movs	r0, #4
+ 303 0006 FFF7FEFF 		bl	malloc
+ 304 000a 0021     		movs	r1, #0
+ 305 000c 0160     		str	r1, [r0]	@ unaligned
+ 306 000e 6278     		ldrb	r2, [r4, #1]	@ zero_extendqisi2
+ 307 0010 0270     		strb	r2, [r0]
+ 308 0012 2278     		ldrb	r2, [r4]	@ zero_extendqisi2
+ 309 0014 4270     		strb	r2, [r0, #1]
+ 310 0016 034A     		ldr	r2, .L29
+ 311 0018 A478     		ldrb	r4, [r4, #2]	@ zero_extendqisi2
+ 312 001a 1568     		ldr	r5, [r2]
+ 313 001c AC70     		strb	r4, [r5, #2]
+ 314 001e C170     		strb	r1, [r0, #3]
+ 315 0020 1060     		str	r0, [r2]
+ 316 0022 38BD     		pop	{r3, r4, r5, pc}
+ 317              	.L30:
+ 318              		.align	2
+ 319              	.L29:
+ 320 0024 00000000 		.word	led
+ 322              		.section	.text.LEDSetStatus,"ax",%progbits
+ 323              		.align	1
+ 324              		.global	LEDSetStatus
+ 325              		.syntax unified
+ 326              		.thumb
+ 327              		.thumb_func
+ 329              	LEDSetStatus:
+ 330              		@ args = 0, pretend = 0, frame = 0
+ 331              		@ frame_needed = 0, uses_anonymous_args = 0
+ 332              		@ link register save eliminated.
+ 333 0000 C170     		strb	r1, [r0, #3]
+ 334 0002 7047     		bx	lr
+ 336              		.section	.text.LEDSetFlash,"ax",%progbits
+ 337              		.align	1
+ 338              		.global	LEDSetFlash
+ 339              		.syntax unified
+ 340              		.thumb
+ 341              		.thumb_func
+ 343              	LEDSetFlash:
+ 344              		@ args = 0, pretend = 0, frame = 0
+ 345              		@ frame_needed = 0, uses_anonymous_args = 0
+ 346              		@ link register save eliminated.
+ 347 0000 0170     		strb	r1, [r0]
+ 348 0002 4270     		strb	r2, [r0, #1]
+ 349 0004 7047     		bx	lr
+ 351              		.section	.text.LEDSetFlashTime,"ax",%progbits
+ 352              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s 			page 7
+
+
+ 353              		.global	LEDSetFlashTime
+ 354              		.syntax unified
+ 355              		.thumb
+ 356              		.thumb_func
+ 358              	LEDSetFlashTime:
+ 359              		@ args = 0, pretend = 0, frame = 0
+ 360              		@ frame_needed = 0, uses_anonymous_args = 0
+ 361              		@ link register save eliminated.
+ 362 0000 8170     		strb	r1, [r0, #2]
+ 363 0002 7047     		bx	lr
+ 365              		.section	.text.LEDTask,"ax",%progbits
+ 366              		.align	1
+ 367              		.global	LEDTask
+ 368              		.syntax unified
+ 369              		.thumb
+ 370              		.thumb_func
+ 372              	LEDTask:
+ 373              		@ args = 0, pretend = 0, frame = 0
+ 374              		@ frame_needed = 0, uses_anonymous_args = 0
+ 375 0000 08B5     		push	{r3, lr}
+ 376 0002 074B     		ldr	r3, .L38
+ 377 0004 1B68     		ldr	r3, [r3]
+ 378 0006 DA78     		ldrb	r2, [r3, #3]	@ zero_extendqisi2
+ 379 0008 22B9     		cbnz	r2, .L35
+ 380 000a 0221     		movs	r1, #2
+ 381 000c 0420     		movs	r0, #4
+ 382 000e FFF7FEFF 		bl	LEDShowFlash
+ 383              	.L34:
+ 384 0012 08BD     		pop	{r3, pc}
+ 385              	.L35:
+ 386 0014 5978     		ldrb	r1, [r3, #1]	@ zero_extendqisi2
+ 387 0016 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 388 0018 FFF7FEFF 		bl	LEDShowFlash
+ 389 001c F9E7     		b	.L34
+ 390              	.L39:
+ 391 001e 00BF     		.align	2
+ 392              	.L38:
+ 393 0020 00000000 		.word	led
+ 395              		.section	.bss.count.0,"aw",%nobits
+ 396              		.align	1
+ 399              	count.0:
+ 400 0000 0000     		.space	2
+ 401              		.section	.bss.alpha.1,"aw",%nobits
+ 404              	alpha.1:
+ 405 0000 00       		.space	1
+ 406              		.section	.bss.temp.2,"aw",%nobits
+ 409              	temp.2:
+ 410 0000 00       		.space	1
+ 411              		.section	.bss.n.3,"aw",%nobits
+ 412              		.align	1
+ 415              	n.3:
+ 416 0000 0000     		.space	2
+ 417              		.section	.bss.time_temp.4,"aw",%nobits
+ 418              		.align	1
+ 421              	time_temp.4:
+ 422 0000 0000     		.space	2
+ 423              		.section	.bss.led,"aw",%nobits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s 			page 8
+
+
+ 424              		.align	2
+ 427              	led:
+ 428 0000 00000000 		.space	4
+ 429              		.section	.bss.led_b,"aw",%nobits
+ 430              		.align	2
+ 433              	led_b:
+ 434 0000 00000000 		.space	4
+ 435              		.section	.bss.led_g,"aw",%nobits
+ 436              		.align	2
+ 439              	led_g:
+ 440 0000 00000000 		.space	4
+ 441              		.section	.bss.led_r,"aw",%nobits
+ 442              		.align	2
+ 445              	led_r:
+ 446 0000 00000000 		.space	4
+ 447              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s 			page 9
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 led.c
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:18     .text.LEDShowFlash:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:23     .text.LEDShowFlash:00000000 LEDShowFlash
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:226    .text.LEDShowFlash:000001cc $d
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:421    .bss.time_temp.4:00000000 time_temp.4
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:415    .bss.n.3:00000000 n.3
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:427    .bss.led:00000000 led
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:399    .bss.count.0:00000000 count.0
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:409    .bss.temp.2:00000000 temp.2
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:404    .bss.alpha.1:00000000 alpha.1
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:445    .bss.led_r:00000000 led_r
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:439    .bss.led_g:00000000 led_g
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:433    .bss.led_b:00000000 led_b
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:239    .text.LEDInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:245    .text.LEDInit:00000000 LEDInit
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:284    .text.LEDInit:00000048 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:291    .text.LEDRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:297    .text.LEDRegister:00000000 LEDRegister
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:320    .text.LEDRegister:00000024 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:323    .text.LEDSetStatus:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:329    .text.LEDSetStatus:00000000 LEDSetStatus
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:337    .text.LEDSetFlash:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:343    .text.LEDSetFlash:00000000 LEDSetFlash
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:352    .text.LEDSetFlashTime:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:358    .text.LEDSetFlashTime:00000000 LEDSetFlashTime
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:366    .text.LEDTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:372    .text.LEDTask:00000000 LEDTask
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:393    .text.LEDTask:00000020 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:396    .bss.count.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:405    .bss.alpha.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:410    .bss.temp.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:412    .bss.n.3:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:418    .bss.time_temp.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:424    .bss.led:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:430    .bss.led_b:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:436    .bss.led_g:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccYEl7iq.s:442    .bss.led_r:00000000 $d
+
+UNDEFINED SYMBOLS
+PWMSetDutyRatio
+PWMRegister
+htim5
+malloc

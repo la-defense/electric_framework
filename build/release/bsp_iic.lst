@@ -1,0 +1,353 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_iic.c"
+  16              		.text
+  17              		.section	.text.IICRegister,"ax",%progbits
+  18              		.align	1
+  19              		.global	IICRegister
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	IICRegister:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 38B5     		push	{r3, r4, r5, lr}
+  28 0002 114B     		ldr	r3, .L5
+  29 0004 1D78     		ldrb	r5, [r3]	@ zero_extendqisi2
+  30 0006 072D     		cmp	r5, #7
+  31 0008 00D9     		bls	.L2
+  32              	.L3:
+  33 000a FEE7     		b	.L3
+  34              	.L2:
+  35 000c 0446     		mov	r4, r0
+  36 000e 1820     		movs	r0, #24
+  37 0010 FFF7FEFF 		bl	malloc
+  38 0014 0022     		movs	r2, #0
+  39 0016 0260     		str	r2, [r0]	@ unaligned
+  40 0018 4260     		str	r2, [r0, #4]	@ unaligned
+  41 001a 8260     		str	r2, [r0, #8]	@ unaligned
+  42 001c C260     		str	r2, [r0, #12]	@ unaligned
+  43 001e 0261     		str	r2, [r0, #16]	@ unaligned
+  44 0020 4261     		str	r2, [r0, #20]	@ unaligned
+  45 0022 2279     		ldrb	r2, [r4, #4]	@ zero_extendqisi2
+  46 0024 5200     		lsls	r2, r2, #1
+  47 0026 0271     		strb	r2, [r0, #4]
+  48 0028 A268     		ldr	r2, [r4, #8]
+  49 002a 0261     		str	r2, [r0, #16]
+  50 002c 6279     		ldrb	r2, [r4, #5]	@ zero_extendqisi2
+  51 002e 4271     		strb	r2, [r0, #5]
+  52 0030 2268     		ldr	r2, [r4]
+  53 0032 0260     		str	r2, [r0]
+  54 0034 E268     		ldr	r2, [r4, #12]
+  55 0036 4261     		str	r2, [r0, #20]
+  56 0038 691C     		adds	r1, r5, #1
+  57 003a 034A     		ldr	r2, .L5
+  58 003c 1170     		strb	r1, [r2]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s 			page 2
+
+
+  59 003e 034A     		ldr	r2, .L5+4
+  60 0040 42F82500 		str	r0, [r2, r5, lsl #2]
+  61 0044 38BD     		pop	{r3, r4, r5, pc}
+  62              	.L6:
+  63 0046 00BF     		.align	2
+  64              	.L5:
+  65 0048 00000000 		.word	idx
+  66 004c 00000000 		.word	iic_instance
+  68              		.section	.text.IICSetMode,"ax",%progbits
+  69              		.align	1
+  70              		.global	IICSetMode
+  71              		.syntax unified
+  72              		.thumb
+  73              		.thumb_func
+  75              	IICSetMode:
+  76              		@ args = 0, pretend = 0, frame = 0
+  77              		@ frame_needed = 0, uses_anonymous_args = 0
+  78              		@ link register save eliminated.
+  79 0000 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+  80 0002 8B42     		cmp	r3, r1
+  81 0004 00D0     		beq	.L7
+  82 0006 4171     		strb	r1, [r0, #5]
+  83              	.L7:
+  84 0008 7047     		bx	lr
+  86              		.section	.text.IICTransmit,"ax",%progbits
+  87              		.align	1
+  88              		.global	IICTransmit
+  89              		.syntax unified
+  90              		.thumb
+  91              		.thumb_func
+  93              	IICTransmit:
+  94              		@ args = 0, pretend = 0, frame = 0
+  95              		@ frame_needed = 0, uses_anonymous_args = 0
+  96 0000 03B1     		cbz	r3, .L10
+  97              	.L11:
+  98 0002 FEE7     		b	.L11
+  99              	.L10:
+ 100 0004 00B5     		push	{lr}
+ 101 0006 83B0     		sub	sp, sp, #12
+ 102 0008 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 103 000a 012B     		cmp	r3, #1
+ 104 000c 0CD0     		beq	.L12
+ 105 000e 022B     		cmp	r3, #2
+ 106 0010 14D0     		beq	.L13
+ 107 0012 EBB9     		cbnz	r3, .L14
+ 108 0014 6423     		movs	r3, #100
+ 109 0016 0093     		str	r3, [sp]
+ 110 0018 1346     		mov	r3, r2
+ 111 001a 0A46     		mov	r2, r1
+ 112 001c 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 113 001e 0068     		ldr	r0, [r0]
+ 114 0020 FFF7FEFF 		bl	HAL_I2C_Master_Transmit
+ 115              	.L9:
+ 116 0024 03B0     		add	sp, sp, #12
+ 117              		@ sp needed
+ 118 0026 00BD     		pop	{pc}
+ 119              	.L12:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s 			page 3
+
+
+ 120 0028 4FF02A43 		mov	r3, #-1442840576
+ 121 002c 0093     		str	r3, [sp]
+ 122 002e 1346     		mov	r3, r2
+ 123 0030 0A46     		mov	r2, r1
+ 124 0032 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 125 0034 0068     		ldr	r0, [r0]
+ 126 0036 FFF7FEFF 		bl	HAL_I2C_Master_Seq_Transmit_IT
+ 127 003a F3E7     		b	.L9
+ 128              	.L13:
+ 129 003c 4FF02A43 		mov	r3, #-1442840576
+ 130 0040 0093     		str	r3, [sp]
+ 131 0042 1346     		mov	r3, r2
+ 132 0044 0A46     		mov	r2, r1
+ 133 0046 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 134 0048 0068     		ldr	r0, [r0]
+ 135 004a FFF7FEFF 		bl	HAL_I2C_Master_Seq_Transmit_DMA
+ 136 004e E9E7     		b	.L9
+ 137              	.L14:
+ 138 0050 FEE7     		b	.L14
+ 140              		.section	.text.IICReceive,"ax",%progbits
+ 141              		.align	1
+ 142              		.global	IICReceive
+ 143              		.syntax unified
+ 144              		.thumb
+ 145              		.thumb_func
+ 147              	IICReceive:
+ 148              		@ args = 0, pretend = 0, frame = 0
+ 149              		@ frame_needed = 0, uses_anonymous_args = 0
+ 150 0000 03B1     		cbz	r3, .L19
+ 151              	.L20:
+ 152 0002 FEE7     		b	.L20
+ 153              	.L19:
+ 154 0004 00B5     		push	{lr}
+ 155 0006 83B0     		sub	sp, sp, #12
+ 156 0008 8160     		str	r1, [r0, #8]
+ 157 000a 0273     		strb	r2, [r0, #12]
+ 158 000c 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 159 000e 012B     		cmp	r3, #1
+ 160 0010 0CD0     		beq	.L21
+ 161 0012 022B     		cmp	r3, #2
+ 162 0014 14D0     		beq	.L22
+ 163 0016 EBB9     		cbnz	r3, .L23
+ 164 0018 6423     		movs	r3, #100
+ 165 001a 0093     		str	r3, [sp]
+ 166 001c 1346     		mov	r3, r2
+ 167 001e 0A46     		mov	r2, r1
+ 168 0020 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 169 0022 0068     		ldr	r0, [r0]
+ 170 0024 FFF7FEFF 		bl	HAL_I2C_Master_Receive
+ 171              	.L18:
+ 172 0028 03B0     		add	sp, sp, #12
+ 173              		@ sp needed
+ 174 002a 00BD     		pop	{pc}
+ 175              	.L21:
+ 176 002c 4FF02A43 		mov	r3, #-1442840576
+ 177 0030 0093     		str	r3, [sp]
+ 178 0032 1346     		mov	r3, r2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s 			page 4
+
+
+ 179 0034 0A46     		mov	r2, r1
+ 180 0036 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 181 0038 0068     		ldr	r0, [r0]
+ 182 003a FFF7FEFF 		bl	HAL_I2C_Master_Seq_Receive_IT
+ 183 003e F3E7     		b	.L18
+ 184              	.L22:
+ 185 0040 4FF02A43 		mov	r3, #-1442840576
+ 186 0044 0093     		str	r3, [sp]
+ 187 0046 1346     		mov	r3, r2
+ 188 0048 0A46     		mov	r2, r1
+ 189 004a 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 190 004c 0068     		ldr	r0, [r0]
+ 191 004e FFF7FEFF 		bl	HAL_I2C_Master_Seq_Receive_DMA
+ 192 0052 E9E7     		b	.L18
+ 193              	.L23:
+ 194 0054 FEE7     		b	.L23
+ 196              		.section	.text.IICAccessMem,"ax",%progbits
+ 197              		.align	1
+ 198              		.global	IICAccessMem
+ 199              		.syntax unified
+ 200              		.thumb
+ 201              		.thumb_func
+ 203              	IICAccessMem:
+ 204              		@ args = 8, pretend = 0, frame = 0
+ 205              		@ frame_needed = 0, uses_anonymous_args = 0
+ 206 0000 00B5     		push	{lr}
+ 207 0002 85B0     		sub	sp, sp, #20
+ 208 0004 8646     		mov	lr, r0
+ 209 0006 9DF81800 		ldrb	r0, [sp, #24]	@ zero_extendqisi2
+ 210 000a 9DF81CC0 		ldrb	ip, [sp, #28]	@ zero_extendqisi2
+ 211 000e BCF1000F 		cmp	ip, #0
+ 212 0012 05D0     		beq	.L32
+ 213 0014 4FF0010C 		mov	ip, #1
+ 214              	.L28:
+ 215 0018 0128     		cmp	r0, #1
+ 216 001a 04D0     		beq	.L34
+ 217 001c 80B1     		cbz	r0, .L35
+ 218              	.L31:
+ 219 001e FEE7     		b	.L31
+ 220              	.L32:
+ 221 0020 4FF0100C 		mov	ip, #16
+ 222 0024 F8E7     		b	.L28
+ 223              	.L34:
+ 224 0026 6420     		movs	r0, #100
+ 225 0028 0290     		str	r0, [sp, #8]
+ 226 002a 0193     		str	r3, [sp, #4]
+ 227 002c 0092     		str	r2, [sp]
+ 228 002e 6346     		mov	r3, ip
+ 229 0030 0A46     		mov	r2, r1
+ 230 0032 9EF80410 		ldrb	r1, [lr, #4]	@ zero_extendqisi2
+ 231 0036 DEF80000 		ldr	r0, [lr]
+ 232 003a FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 233 003e 0BE0     		b	.L27
+ 234              	.L35:
+ 235 0040 6420     		movs	r0, #100
+ 236 0042 0290     		str	r0, [sp, #8]
+ 237 0044 0193     		str	r3, [sp, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s 			page 5
+
+
+ 238 0046 0092     		str	r2, [sp]
+ 239 0048 6346     		mov	r3, ip
+ 240 004a 0A46     		mov	r2, r1
+ 241 004c 9EF80410 		ldrb	r1, [lr, #4]	@ zero_extendqisi2
+ 242 0050 DEF80000 		ldr	r0, [lr]
+ 243 0054 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 244              	.L27:
+ 245 0058 05B0     		add	sp, sp, #20
+ 246              		@ sp needed
+ 247 005a 00BD     		pop	{pc}
+ 249              		.section	.text.HAL_I2C_MasterRxCpltCallback,"ax",%progbits
+ 250              		.align	1
+ 251              		.global	HAL_I2C_MasterRxCpltCallback
+ 252              		.syntax unified
+ 253              		.thumb
+ 254              		.thumb_func
+ 256              	HAL_I2C_MasterRxCpltCallback:
+ 257              		@ args = 0, pretend = 0, frame = 0
+ 258              		@ frame_needed = 0, uses_anonymous_args = 0
+ 259 0000 08B5     		push	{r3, lr}
+ 260 0002 0023     		movs	r3, #0
+ 261 0004 01E0     		b	.L37
+ 262              	.L38:
+ 263 0006 0133     		adds	r3, r3, #1
+ 264 0008 DBB2     		uxtb	r3, r3
+ 265              	.L37:
+ 266 000a 0A4A     		ldr	r2, .L43
+ 267 000c 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 268 000e 9A42     		cmp	r2, r3
+ 269 0010 0ED9     		bls	.L36
+ 270 0012 094A     		ldr	r2, .L43+4
+ 271 0014 52F82320 		ldr	r2, [r2, r3, lsl #2]
+ 272 0018 1168     		ldr	r1, [r2]
+ 273 001a 8142     		cmp	r1, r0
+ 274 001c F3D1     		bne	.L38
+ 275 001e D0F844C0 		ldr	ip, [r0, #68]
+ 276 0022 1179     		ldrb	r1, [r2, #4]	@ zero_extendqisi2
+ 277 0024 8C45     		cmp	ip, r1
+ 278 0026 EED1     		bne	.L38
+ 279 0028 1369     		ldr	r3, [r2, #16]
+ 280 002a 0BB1     		cbz	r3, .L36
+ 281 002c 1046     		mov	r0, r2
+ 282 002e 9847     		blx	r3
+ 283              	.L36:
+ 284 0030 08BD     		pop	{r3, pc}
+ 285              	.L44:
+ 286 0032 00BF     		.align	2
+ 287              	.L43:
+ 288 0034 00000000 		.word	idx
+ 289 0038 00000000 		.word	iic_instance
+ 291              		.section	.text.HAL_I2C_MemRxCpltCallback,"ax",%progbits
+ 292              		.align	1
+ 293              		.global	HAL_I2C_MemRxCpltCallback
+ 294              		.syntax unified
+ 295              		.thumb
+ 296              		.thumb_func
+ 298              	HAL_I2C_MemRxCpltCallback:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s 			page 6
+
+
+ 299              		@ args = 0, pretend = 0, frame = 0
+ 300              		@ frame_needed = 0, uses_anonymous_args = 0
+ 301 0000 08B5     		push	{r3, lr}
+ 302 0002 FFF7FEFF 		bl	HAL_I2C_MasterRxCpltCallback
+ 303 0006 08BD     		pop	{r3, pc}
+ 305              		.section	.bss.iic_instance,"aw",%nobits
+ 306              		.align	2
+ 309              	iic_instance:
+ 310 0000 00000000 		.space	8
+ 310      00000000 
+ 311              		.section	.bss.idx,"aw",%nobits
+ 314              	idx:
+ 315 0000 00       		.space	1
+ 316              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_iic.c
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:18     .text.IICRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:24     .text.IICRegister:00000000 IICRegister
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:65     .text.IICRegister:00000048 $d
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:314    .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:309    .bss.iic_instance:00000000 iic_instance
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:69     .text.IICSetMode:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:75     .text.IICSetMode:00000000 IICSetMode
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:87     .text.IICTransmit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:93     .text.IICTransmit:00000000 IICTransmit
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:141    .text.IICReceive:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:147    .text.IICReceive:00000000 IICReceive
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:197    .text.IICAccessMem:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:203    .text.IICAccessMem:00000000 IICAccessMem
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:250    .text.HAL_I2C_MasterRxCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:256    .text.HAL_I2C_MasterRxCpltCallback:00000000 HAL_I2C_MasterRxCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:288    .text.HAL_I2C_MasterRxCpltCallback:00000034 $d
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:292    .text.HAL_I2C_MemRxCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:298    .text.HAL_I2C_MemRxCpltCallback:00000000 HAL_I2C_MemRxCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:306    .bss.iic_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc8ot6Oq.s:315    .bss.idx:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc
+HAL_I2C_Master_Transmit
+HAL_I2C_Master_Seq_Transmit_IT
+HAL_I2C_Master_Seq_Transmit_DMA
+HAL_I2C_Master_Receive
+HAL_I2C_Master_Seq_Receive_IT
+HAL_I2C_Master_Seq_Receive_DMA
+HAL_I2C_Mem_Write
+HAL_I2C_Mem_Read

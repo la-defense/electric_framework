@@ -1,0 +1,120 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"power_manager.c"
+  16              		.text
+  17              		.section	.text.PowerControlInit,"ax",%progbits
+  18              		.align	1
+  19              		.global	PowerControlInit
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	PowerControlInit:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 10B5     		push	{r4, lr}
+  28 0002 0446     		mov	r4, r0
+  29 0004 1020     		movs	r0, #16
+  30 0006 FFF7FEFF 		bl	malloc
+  31 000a 074A     		ldr	r2, .L3
+  32 000c 1060     		str	r0, [r2]
+  33 000e 0022     		movs	r2, #0
+  34 0010 0260     		str	r2, [r0]	@ unaligned
+  35 0012 4260     		str	r2, [r0, #4]	@ unaligned
+  36 0014 8260     		str	r2, [r0, #8]	@ unaligned
+  37 0016 C260     		str	r2, [r0, #12]	@ unaligned
+  38 0018 2268     		ldr	r2, [r4]	@ float
+  39 001a 4260     		str	r2, [r0, #4]	@ float
+  40 001c 6268     		ldr	r2, [r4, #4]	@ float
+  41 001e 8260     		str	r2, [r0, #8]	@ float
+  42 0020 A268     		ldr	r2, [r4, #8]	@ float
+  43 0022 C260     		str	r2, [r0, #12]	@ float
+  44 0024 10BD     		pop	{r4, pc}
+  45              	.L4:
+  46 0026 00BF     		.align	2
+  47              	.L3:
+  48 0028 00000000 		.word	power_control_instance
+  50              		.section	.text.PowerManagerFeedback,"ax",%progbits
+  51              		.align	1
+  52              		.global	PowerManagerFeedback
+  53              		.syntax unified
+  54              		.thumb
+  55              		.thumb_func
+  57              	PowerManagerFeedback:
+  58              		@ args = 0, pretend = 0, frame = 0
+  59              		@ frame_needed = 0, uses_anonymous_args = 0
+  60              		@ link register save eliminated.
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s 			page 2
+
+
+  61 0000 7047     		bx	lr
+  63              		.section	.text.PowerManagerEnable,"ax",%progbits
+  64              		.align	1
+  65              		.global	PowerManagerEnable
+  66              		.syntax unified
+  67              		.thumb
+  68              		.thumb_func
+  70              	PowerManagerEnable:
+  71              		@ args = 0, pretend = 0, frame = 0
+  72              		@ frame_needed = 0, uses_anonymous_args = 0
+  73              		@ link register save eliminated.
+  74 0000 0123     		movs	r3, #1
+  75 0002 0370     		strb	r3, [r0]
+  76 0004 7047     		bx	lr
+  78              		.section	.text.PowerManagerUpdate,"ax",%progbits
+  79              		.align	1
+  80              		.global	PowerManagerUpdate
+  81              		.syntax unified
+  82              		.thumb
+  83              		.thumb_func
+  85              	PowerManagerUpdate:
+  86              		@ args = 0, pretend = 0, frame = 0
+  87              		@ frame_needed = 0, uses_anonymous_args = 0
+  88              		@ link register save eliminated.
+  89 0000 7047     		bx	lr
+  91              		.section	.bss.power_control_instance,"aw",%nobits
+  92              		.align	2
+  95              	power_control_instance:
+  96 0000 00000000 		.space	4
+  97              		.global	k
+  98              		.section	.data.k,"aw"
+  99              		.align	2
+ 102              	k:
+ 103 0000 6666C842 		.word	1120429670
+ 104 0004 9A99993F 		.word	1067030938
+ 105              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s 			page 3
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 power_manager.c
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:18     .text.PowerControlInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:24     .text.PowerControlInit:00000000 PowerControlInit
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:48     .text.PowerControlInit:00000028 $d
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:95     .bss.power_control_instance:00000000 power_control_instance
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:51     .text.PowerManagerFeedback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:57     .text.PowerManagerFeedback:00000000 PowerManagerFeedback
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:64     .text.PowerManagerEnable:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:70     .text.PowerManagerEnable:00000000 PowerManagerEnable
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:79     .text.PowerManagerUpdate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:85     .text.PowerManagerUpdate:00000000 PowerManagerUpdate
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:92     .bss.power_control_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:102    .data.k:00000000 k
+C:\Users\Administrator\AppData\Local\Temp\ccy1ipPW.s:99     .data.k:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc

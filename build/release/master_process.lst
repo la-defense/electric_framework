@@ -1,0 +1,263 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"master_process.c"
+  16              		.text
+  17              		.section	.text.VisionOfflineCallback,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	VisionOfflineCallback:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 7047     		bx	lr
+  29              		.section	.text.DecodeVision,"ax",%progbits
+  30              		.align	1
+  31              		.syntax unified
+  32              		.thumb
+  33              		.thumb_func
+  35              	DecodeVision:
+  36              		@ args = 0, pretend = 0, frame = 8
+  37              		@ frame_needed = 0, uses_anonymous_args = 0
+  38 0000 00B5     		push	{lr}
+  39 0002 83B0     		sub	sp, sp, #12
+  40 0004 044A     		ldr	r2, .L4
+  41 0006 0DF10601 		add	r1, sp, #6
+  42 000a 044B     		ldr	r3, .L4+4
+  43 000c 1868     		ldr	r0, [r3]
+  44 000e FFF7FEFF 		bl	get_protocol_info
+  45 0012 03B0     		add	sp, sp, #12
+  46              		@ sp needed
+  47 0014 00BD     		pop	{pc}
+  48              	.L5:
+  49 0016 00BF     		.align	2
+  50              	.L4:
+  51 0018 00000000 		.word	recv_data
+  52 001c 00000000 		.word	vis_recv_buff
+  54              		.section	.text.VisionSetFlag,"ax",%progbits
+  55              		.align	1
+  56              		.global	VisionSetFlag
+  57              		.syntax unified
+  58              		.thumb
+  59              		.thumb_func
+  61              	VisionSetFlag:
+  62              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s 			page 2
+
+
+  63              		@ frame_needed = 0, uses_anonymous_args = 0
+  64              		@ link register save eliminated.
+  65 0000 014B     		ldr	r3, .L7
+  66 0002 1870     		strb	r0, [r3]
+  67 0004 7047     		bx	lr
+  68              	.L8:
+  69 0006 00BF     		.align	2
+  70              	.L7:
+  71 0008 00000000 		.word	send_data
+  73              		.section	.text.VisionSetAltitude,"ax",%progbits
+  74              		.align	1
+  75              		.global	VisionSetAltitude
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	VisionSetAltitude:
+  81              		@ args = 0, pretend = 0, frame = 0
+  82              		@ frame_needed = 0, uses_anonymous_args = 0
+  83              		@ link register save eliminated.
+  84 0000 084B     		ldr	r3, .L10
+  85 0002 10EE102A 		vmov	r2, s0
+  86 0006 C3F80920 		str	r2, [r3, #9]	@ unaligned
+  87 000a F1EE607A 		vneg.f32	s15, s1
+  88 000e 17EE902A 		vmov	r2, s15
+  89 0012 C3F80520 		str	r2, [r3, #5]	@ unaligned
+  90 0016 F1EE417A 		vneg.f32	s15, s2
+  91 001a 17EE902A 		vmov	r2, s15
+  92 001e C3F80120 		str	r2, [r3, #1]	@ unaligned
+  93 0022 7047     		bx	lr
+  94              	.L11:
+  95              		.align	2
+  96              	.L10:
+  97 0024 00000000 		.word	send_data
+  99              		.section	.text.VisionInit,"ax",%progbits
+ 100              		.align	1
+ 101              		.global	VisionInit
+ 102              		.syntax unified
+ 103              		.thumb
+ 104              		.thumb_func
+ 106              	VisionInit:
+ 107              		@ args = 0, pretend = 0, frame = 24
+ 108              		@ frame_needed = 0, uses_anonymous_args = 0
+ 109 0000 10B5     		push	{r4, lr}
+ 110 0002 86B0     		sub	sp, sp, #24
+ 111 0004 04AB     		add	r3, sp, #16
+ 112 0006 0024     		movs	r4, #0
+ 113 0008 0494     		str	r4, [sp, #16]
+ 114 000a 0594     		str	r4, [sp, #20]
+ 115 000c 0B4A     		ldr	r2, .L14
+ 116 000e 0592     		str	r2, [sp, #20]
+ 117 0010 93E80300 		ldm	r3, {r0, r1}
+ 118 0014 FFF7FEFF 		bl	USBInit
+ 119 0018 094B     		ldr	r3, .L14+4
+ 120 001a 1860     		str	r0, [r3]
+ 121 001c 01A8     		add	r0, sp, #4
+ 122 001e 0194     		str	r4, [sp, #4]
+ 123 0020 4460     		str	r4, [r0, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s 			page 3
+
+
+ 124 0022 8460     		str	r4, [r0, #8]
+ 125 0024 0523     		movs	r3, #5
+ 126 0026 ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 127 002a 064B     		ldr	r3, .L14+8
+ 128 002c 0293     		str	r3, [sp, #8]
+ 129 002e FFF7FEFF 		bl	DaemonRegister
+ 130 0032 054B     		ldr	r3, .L14+12
+ 131 0034 1860     		str	r0, [r3]
+ 132 0036 0548     		ldr	r0, .L14+16
+ 133 0038 06B0     		add	sp, sp, #24
+ 134              		@ sp needed
+ 135 003a 10BD     		pop	{r4, pc}
+ 136              	.L15:
+ 137              		.align	2
+ 138              	.L14:
+ 139 003c 00000000 		.word	DecodeVision
+ 140 0040 00000000 		.word	vis_recv_buff
+ 141 0044 00000000 		.word	VisionOfflineCallback
+ 142 0048 00000000 		.word	vision_daemon_instance
+ 143 004c 00000000 		.word	recv_data
+ 145              		.section	.text.VisionSend,"ax",%progbits
+ 146              		.align	1
+ 147              		.global	VisionSend
+ 148              		.syntax unified
+ 149              		.thumb
+ 150              		.thumb_func
+ 152              	VisionSend:
+ 153              		@ args = 0, pretend = 0, frame = 0
+ 154              		@ frame_needed = 0, uses_anonymous_args = 0
+ 155 0000 30B5     		push	{r4, r5, lr}
+ 156 0002 83B0     		sub	sp, sp, #12
+ 157 0004 41F60161 		movw	r1, #7681
+ 158 0008 084B     		ldr	r3, .L18
+ 159 000a 1980     		strh	r1, [r3]	@ movhi
+ 160 000c 084A     		ldr	r2, .L18+4
+ 161 000e 12F8010B 		ldrb	r0, [r2], #1	@ zero_extendqisi2
+ 162 0012 084D     		ldr	r5, .L18+8
+ 163 0014 0195     		str	r5, [sp, #4]
+ 164 0016 084C     		ldr	r4, .L18+12
+ 165 0018 0094     		str	r4, [sp]
+ 166 001a 0323     		movs	r3, #3
+ 167 001c FFF7FEFF 		bl	get_protocol_send_data
+ 168 0020 2988     		ldrh	r1, [r5]
+ 169 0022 2046     		mov	r0, r4
+ 170 0024 FFF7FEFF 		bl	USBTransmit
+ 171 0028 03B0     		add	sp, sp, #12
+ 172              		@ sp needed
+ 173 002a 30BD     		pop	{r4, r5, pc}
+ 174              	.L19:
+ 175              		.align	2
+ 176              	.L18:
+ 177 002c 00000000 		.word	flag_register.2
+ 178 0030 00000000 		.word	send_data
+ 179 0034 00000000 		.word	tx_len.0
+ 180 0038 00000000 		.word	send_buff.1
+ 182              		.section	.bss.tx_len.0,"aw",%nobits
+ 183              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s 			page 4
+
+
+ 186              	tx_len.0:
+ 187 0000 0000     		.space	2
+ 188              		.section	.bss.send_buff.1,"aw",%nobits
+ 189              		.align	2
+ 192              	send_buff.1:
+ 193 0000 00000000 		.space	24
+ 193      00000000 
+ 193      00000000 
+ 193      00000000 
+ 193      00000000 
+ 194              		.section	.bss.flag_register.2,"aw",%nobits
+ 195              		.align	1
+ 198              	flag_register.2:
+ 199 0000 0000     		.space	2
+ 200              		.section	.bss.vis_recv_buff,"aw",%nobits
+ 201              		.align	2
+ 204              	vis_recv_buff:
+ 205 0000 00000000 		.space	4
+ 206              		.section	.bss.vision_daemon_instance,"aw",%nobits
+ 207              		.align	2
+ 210              	vision_daemon_instance:
+ 211 0000 00000000 		.space	4
+ 212              		.section	.bss.send_data,"aw",%nobits
+ 213              		.align	2
+ 216              	send_data:
+ 217 0000 00000000 		.space	13
+ 217      00000000 
+ 217      00000000 
+ 217      00
+ 218              		.section	.bss.recv_data,"aw",%nobits
+ 219              		.align	2
+ 222              	recv_data:
+ 223 0000 00000000 		.space	14
+ 223      00000000 
+ 223      00000000 
+ 223      0000
+ 224              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 master_process.c
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:18     .text.VisionOfflineCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:23     .text.VisionOfflineCallback:00000000 VisionOfflineCallback
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:30     .text.DecodeVision:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:35     .text.DecodeVision:00000000 DecodeVision
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:51     .text.DecodeVision:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:222    .bss.recv_data:00000000 recv_data
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:204    .bss.vis_recv_buff:00000000 vis_recv_buff
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:55     .text.VisionSetFlag:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:61     .text.VisionSetFlag:00000000 VisionSetFlag
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:71     .text.VisionSetFlag:00000008 $d
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:216    .bss.send_data:00000000 send_data
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:74     .text.VisionSetAltitude:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:80     .text.VisionSetAltitude:00000000 VisionSetAltitude
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:97     .text.VisionSetAltitude:00000024 $d
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:100    .text.VisionInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:106    .text.VisionInit:00000000 VisionInit
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:139    .text.VisionInit:0000003c $d
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:210    .bss.vision_daemon_instance:00000000 vision_daemon_instance
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:146    .text.VisionSend:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:152    .text.VisionSend:00000000 VisionSend
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:177    .text.VisionSend:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:198    .bss.flag_register.2:00000000 flag_register.2
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:186    .bss.tx_len.0:00000000 tx_len.0
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:192    .bss.send_buff.1:00000000 send_buff.1
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:183    .bss.tx_len.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:189    .bss.send_buff.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:195    .bss.flag_register.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:201    .bss.vis_recv_buff:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:207    .bss.vision_daemon_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:213    .bss.send_data:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccS9aRQA.s:219    .bss.recv_data:00000000 $d
+
+UNDEFINED SYMBOLS
+get_protocol_info
+USBInit
+DaemonRegister
+get_protocol_send_data
+USBTransmit

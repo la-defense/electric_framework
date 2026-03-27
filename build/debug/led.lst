@@ -1,0 +1,1033 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"led.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/alarm/led/led.c"
+  20              		.section	.text.LEDShowFlash,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	LEDShowFlash:
+  27              	.LVL0:
+  28              	.LFB243:
+   1:modules/alarm/led/led.c **** #include "bsp_pwm.h"
+   2:modules/alarm/led/led.c **** #include "bsp_dwt.h"
+   3:modules/alarm/led/led.c **** #include "led.h"
+   4:modules/alarm/led/led.c **** #include "string.h"
+   5:modules/alarm/led/led.c **** 
+   6:modules/alarm/led/led.c **** static PWMInstance *led_r, *led_g, *led_b;
+   7:modules/alarm/led/led.c **** 
+   8:modules/alarm/led/led.c **** static LEDInstance *led;
+   9:modules/alarm/led/led.c **** 
+  10:modules/alarm/led/led.c **** /**
+  11:modules/alarm/led/led.c ****  * @brief LED灯初始化
+  12:modules/alarm/led/led.c ****  *
+  13:modules/alarm/led/led.c ****  */
+  14:modules/alarm/led/led.c **** void LEDInit()
+  15:modules/alarm/led/led.c **** {
+  16:modules/alarm/led/led.c ****     PWM_Init_Config_s led_config = {
+  17:modules/alarm/led/led.c ****         .htim = &htim5,
+  18:modules/alarm/led/led.c ****         .dutyratio = 0,
+  19:modules/alarm/led/led.c ****         .period = 0.001,
+  20:modules/alarm/led/led.c ****     };
+  21:modules/alarm/led/led.c **** 
+  22:modules/alarm/led/led.c ****     led_config.channel = TIM_CHANNEL_3;
+  23:modules/alarm/led/led.c ****     led_r = PWMRegister(&led_config);
+  24:modules/alarm/led/led.c **** 
+  25:modules/alarm/led/led.c ****     led_config.channel = TIM_CHANNEL_2;
+  26:modules/alarm/led/led.c ****     led_g = PWMRegister(&led_config);
+  27:modules/alarm/led/led.c **** 
+  28:modules/alarm/led/led.c ****     led_config.channel = TIM_CHANNEL_1;
+  29:modules/alarm/led/led.c ****     led_b = PWMRegister(&led_config);
+  30:modules/alarm/led/led.c **** }
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 2
+
+
+  31:modules/alarm/led/led.c **** 
+  32:modules/alarm/led/led.c **** LEDInstance *LEDRegister(LED_config_s *config)
+  33:modules/alarm/led/led.c **** {
+  34:modules/alarm/led/led.c ****     LEDInstance *led_temp = (LEDInstance *)malloc(sizeof(LEDInstance));
+  35:modules/alarm/led/led.c ****     memset(led_temp, 0, sizeof(LEDInstance));
+  36:modules/alarm/led/led.c **** 
+  37:modules/alarm/led/led.c ****     led_temp->color = config->color;
+  38:modules/alarm/led/led.c ****     led_temp->flash = config->flash;
+  39:modules/alarm/led/led.c ****     led->flash_count = config->flash_count;
+  40:modules/alarm/led/led.c ****     led_temp->alarm_state = ALARM_OFF;
+  41:modules/alarm/led/led.c **** 
+  42:modules/alarm/led/led.c ****     led = led_temp;
+  43:modules/alarm/led/led.c ****     return led_temp;
+  44:modules/alarm/led/led.c **** }
+  45:modules/alarm/led/led.c **** 
+  46:modules/alarm/led/led.c **** void LEDSetStatus(LEDInstance *led, AlarmState_e state)
+  47:modules/alarm/led/led.c **** {
+  48:modules/alarm/led/led.c ****     led->alarm_state = state;
+  49:modules/alarm/led/led.c **** }
+  50:modules/alarm/led/led.c **** 
+  51:modules/alarm/led/led.c **** void LEDSetFlash(LEDInstance *led, color_e color, flash_e flash)
+  52:modules/alarm/led/led.c **** {
+  53:modules/alarm/led/led.c ****     led->color = color;
+  54:modules/alarm/led/led.c ****     led->flash = flash;
+  55:modules/alarm/led/led.c **** }
+  56:modules/alarm/led/led.c **** 
+  57:modules/alarm/led/led.c **** void LEDSetFlashTime(LEDInstance *led, uint8_t flash_count)
+  58:modules/alarm/led/led.c **** {
+  59:modules/alarm/led/led.c ****     led->flash_count = flash_count;
+  60:modules/alarm/led/led.c **** }
+  61:modules/alarm/led/led.c **** 
+  62:modules/alarm/led/led.c **** /**
+  63:modules/alarm/led/led.c ****  * @brief          设置LED灯颜色和频率
+  64:modules/alarm/led/led.c ****  * @param[in]      color: 红色/黄色/蓝色/绿色/粉色，[RED/YELLOW/BLUE/GREEN/PINK]
+  65:modules/alarm/led/led.c ****  * @param[in]      flash: 快闪/慢闪/常亮，[FLASH_HIGH/FLASH_LOW/ALWAYS_ON]
+  66:modules/alarm/led/led.c ****  * @note           粉色为呼吸灯变化
+  67:modules/alarm/led/led.c ****  * @retval         none 
+  68:modules/alarm/led/led.c ****  */
+  69:modules/alarm/led/led.c **** 
+  70:modules/alarm/led/led.c **** static void LEDShowFlash(color_e color, flash_e flash)
+  71:modules/alarm/led/led.c **** {
+  29              		.loc 1 71 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		.loc 1 71 1 is_stmt 0 view .LVU1
+  34 0000 38B5     		push	{r3, r4, r5, lr}
+  35              		.cfi_def_cfa_offset 16
+  36              		.cfi_offset 3, -16
+  37              		.cfi_offset 4, -12
+  38              		.cfi_offset 5, -8
+  39              		.cfi_offset 14, -4
+  40 0002 2DED028B 		vpush.64	{d8}
+  41              		.cfi_def_cfa_offset 24
+  42              		.cfi_offset 80, -24
+  43              		.cfi_offset 81, -20
+  72:modules/alarm/led/led.c ****     static uint16_t time_temp;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 3
+
+
+  44              		.loc 1 72 5 is_stmt 1 view .LVU2
+  73:modules/alarm/led/led.c ****     static uint32_t color_temp;
+  45              		.loc 1 73 5 view .LVU3
+  74:modules/alarm/led/led.c ****     static uint16_t n, count;
+  46              		.loc 1 74 5 view .LVU4
+  75:modules/alarm/led/led.c ****     static int8_t temp, alpha;
+  47              		.loc 1 75 5 view .LVU5
+  76:modules/alarm/led/led.c **** 
+  77:modules/alarm/led/led.c ****     if (flash == FLASH_HIGH)
+  48              		.loc 1 77 5 view .LVU6
+  49              		.loc 1 77 8 is_stmt 0 view .LVU7
+  50 0006 0C46     		mov	r4, r1
+  51 0008 0029     		cmp	r1, #0
+  52 000a 38D1     		bne	.L2
+  78:modules/alarm/led/led.c ****         time_temp = HightTime;
+  53              		.loc 1 78 9 is_stmt 1 view .LVU8
+  54              		.loc 1 78 19 is_stmt 0 view .LVU9
+  55 000c 6F4B     		ldr	r3, .L21
+  56 000e 1422     		movs	r2, #20
+  57 0010 1A80     		strh	r2, [r3]	@ movhi
+  58              	.L3:
+  79:modules/alarm/led/led.c ****     else if (flash == FLASH_LOW)
+  80:modules/alarm/led/led.c ****         time_temp = LowTime;
+  81:modules/alarm/led/led.c **** 
+  82:modules/alarm/led/led.c ****     n++;
+  59              		.loc 1 82 5 is_stmt 1 view .LVU10
+  60              		.loc 1 82 6 is_stmt 0 view .LVU11
+  61 0012 6F4A     		ldr	r2, .L21+4
+  62 0014 1388     		ldrh	r3, [r2]
+  63 0016 0133     		adds	r3, r3, #1
+  64 0018 9BB2     		uxth	r3, r3
+  65 001a 1380     		strh	r3, [r2]	@ movhi
+  83:modules/alarm/led/led.c ****     if (n >= time_temp || flash == ALWAYS_ON)
+  66              		.loc 1 83 5 is_stmt 1 view .LVU12
+  67              		.loc 1 83 11 is_stmt 0 view .LVU13
+  68 001c 6B4A     		ldr	r2, .L21
+  69 001e 1288     		ldrh	r2, [r2]
+  70              		.loc 1 83 8 view .LVU14
+  71 0020 9342     		cmp	r3, r2
+  72 0022 32D2     		bcs	.L4
+  73              		.loc 1 83 24 discriminator 1 view .LVU15
+  74 0024 022C     		cmp	r4, #2
+  75 0026 30D0     		beq	.L4
+  76              	.LVL1:
+  77              	.L5:
+  84:modules/alarm/led/led.c ****     {
+  85:modules/alarm/led/led.c ****         switch (color)
+  86:modules/alarm/led/led.c ****         {
+  87:modules/alarm/led/led.c ****         case RED:
+  88:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_r, 1.0f);
+  89:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+  90:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 0.0f);
+  91:modules/alarm/led/led.c ****             break;
+  92:modules/alarm/led/led.c ****         case YELLOW:
+  93:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_r, 1.0f);
+  94:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 1.0f);
+  95:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 0.0f);   
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 4
+
+
+  96:modules/alarm/led/led.c ****             break; 
+  97:modules/alarm/led/led.c ****         case BLUE:
+  98:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_r, 0.0f);
+  99:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 100:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 1.0f);
+ 101:modules/alarm/led/led.c ****             break;
+ 102:modules/alarm/led/led.c ****         case GREEN:
+ 103:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_r, 0.0f);
+ 104:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 1.0f);
+ 105:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 0.0f);   
+ 106:modules/alarm/led/led.c ****             break;  
+ 107:modules/alarm/led/led.c ****         case PINK: 
+ 108:modules/alarm/led/led.c ****             temp++;
+ 109:modules/alarm/led/led.c ****             if (temp > 1)
+ 110:modules/alarm/led/led.c ****             {
+ 111:modules/alarm/led/led.c ****                 temp = 0;
+ 112:modules/alarm/led/led.c ****                 alpha += 2;
+ 113:modules/alarm/led/led.c ****             }
+ 114:modules/alarm/led/led.c **** 
+ 115:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_r, (1.0f / (255.0f - 100.0f)) * (float)abs(alpha));
+ 116:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 117:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, (1.0f / (255.0f - 100.0f)) * (float)abs(alpha));   
+ 118:modules/alarm/led/led.c ****             break;           
+ 119:modules/alarm/led/led.c ****         default:
+ 120:modules/alarm/led/led.c ****             break;
+ 121:modules/alarm/led/led.c ****         }
+ 122:modules/alarm/led/led.c ****     }
+ 123:modules/alarm/led/led.c ****     
+ 124:modules/alarm/led/led.c ****     if (n < time_temp && flash != ALWAYS_ON)
+  78              		.loc 1 124 5 is_stmt 1 view .LVU16
+  79              		.loc 1 124 11 is_stmt 0 view .LVU17
+  80 0028 694B     		ldr	r3, .L21+4
+  81 002a 1A88     		ldrh	r2, [r3]
+  82 002c 674B     		ldr	r3, .L21
+  83 002e 1B88     		ldrh	r3, [r3]
+  84              		.loc 1 124 8 view .LVU18
+  85 0030 9A42     		cmp	r2, r3
+  86 0032 02D2     		bcs	.L13
+  87              		.loc 1 124 23 discriminator 1 view .LVU19
+  88 0034 022C     		cmp	r4, #2
+  89 0036 40F0B680 		bne	.L19
+  90              	.L13:
+ 125:modules/alarm/led/led.c ****     {
+ 126:modules/alarm/led/led.c ****         PWMSetDutyRatio(led_r, 0);
+ 127:modules/alarm/led/led.c ****         PWMSetDutyRatio(led_g, 0);
+ 128:modules/alarm/led/led.c ****         PWMSetDutyRatio(led_b, 0);           
+ 129:modules/alarm/led/led.c ****     }
+ 130:modules/alarm/led/led.c **** 
+ 131:modules/alarm/led/led.c ****     if ((count >= led->flash_count && flash == FLASH_HIGH) || n >= 2 * time_temp)
+  91              		.loc 1 131 5 is_stmt 1 view .LVU20
+  92              		.loc 1 131 22 is_stmt 0 view .LVU21
+  93 003a 664B     		ldr	r3, .L21+8
+  94 003c 1B68     		ldr	r3, [r3]
+  95 003e 9A78     		ldrb	r2, [r3, #2]	@ zero_extendqisi2
+  96              		.loc 1 131 16 view .LVU22
+  97 0040 654B     		ldr	r3, .L21+12
+  98 0042 1B88     		ldrh	r3, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 5
+
+
+  99              		.loc 1 131 8 view .LVU23
+ 100 0044 9A42     		cmp	r2, r3
+ 101 0046 00D8     		bhi	.L14
+ 102              		.loc 1 131 36 discriminator 1 view .LVU24
+ 103 0048 34B1     		cbz	r4, .L15
+ 104              	.L14:
+ 105              		.loc 1 131 65 discriminator 3 view .LVU25
+ 106 004a 614A     		ldr	r2, .L21+4
+ 107 004c 1288     		ldrh	r2, [r2]
+ 108              		.loc 1 131 70 discriminator 3 view .LVU26
+ 109 004e 5F49     		ldr	r1, .L21
+ 110 0050 0988     		ldrh	r1, [r1]
+ 111              		.loc 1 131 60 discriminator 3 view .LVU27
+ 112 0052 B2EB410F 		cmp	r2, r1, lsl #1
+ 113 0056 05DB     		blt	.L16
+ 114              	.L15:
+ 132:modules/alarm/led/led.c ****     {
+ 133:modules/alarm/led/led.c ****         n = 0;
+ 115              		.loc 1 133 9 is_stmt 1 view .LVU28
+ 116              		.loc 1 133 11 is_stmt 0 view .LVU29
+ 117 0058 5D4A     		ldr	r2, .L21+4
+ 118 005a 0021     		movs	r1, #0
+ 119 005c 1180     		strh	r1, [r2]	@ movhi
+ 134:modules/alarm/led/led.c ****         count++;
+ 120              		.loc 1 134 9 is_stmt 1 view .LVU30
+ 121              		.loc 1 134 14 is_stmt 0 view .LVU31
+ 122 005e 0133     		adds	r3, r3, #1
+ 123 0060 5D4A     		ldr	r2, .L21+12
+ 124 0062 1380     		strh	r3, [r2]	@ movhi
+ 125              	.L16:
+ 135:modules/alarm/led/led.c ****     }
+ 136:modules/alarm/led/led.c **** 
+ 137:modules/alarm/led/led.c ****     if (count >= 4 * time_temp)
+ 126              		.loc 1 137 5 is_stmt 1 view .LVU32
+ 127              		.loc 1 137 15 is_stmt 0 view .LVU33
+ 128 0064 5C4B     		ldr	r3, .L21+12
+ 129 0066 1B88     		ldrh	r3, [r3]
+ 130              		.loc 1 137 20 view .LVU34
+ 131 0068 584A     		ldr	r2, .L21
+ 132 006a 1288     		ldrh	r2, [r2]
+ 133              		.loc 1 137 8 view .LVU35
+ 134 006c B3EB820F 		cmp	r3, r2, lsl #2
+ 135 0070 02DB     		blt	.L1
+ 138:modules/alarm/led/led.c ****     {
+ 139:modules/alarm/led/led.c ****         count = 0;
+ 136              		.loc 1 139 9 is_stmt 1 view .LVU36
+ 137              		.loc 1 139 15 is_stmt 0 view .LVU37
+ 138 0072 594B     		ldr	r3, .L21+12
+ 139 0074 0022     		movs	r2, #0
+ 140 0076 1A80     		strh	r2, [r3]	@ movhi
+ 141              	.L1:
+ 140:modules/alarm/led/led.c ****     }            
+ 141:modules/alarm/led/led.c **** }
+ 142              		.loc 1 141 1 view .LVU38
+ 143 0078 BDEC028B 		vldm	sp!, {d8}
+ 144              		.cfi_remember_state
+ 145              		.cfi_restore 80
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 6
+
+
+ 146              		.cfi_restore 81
+ 147              		.cfi_def_cfa_offset 16
+ 148 007c 38BD     		pop	{r3, r4, r5, pc}
+ 149              	.LVL2:
+ 150              	.L2:
+ 151              		.cfi_restore_state
+  79:modules/alarm/led/led.c ****         time_temp = LowTime;
+ 152              		.loc 1 79 10 is_stmt 1 view .LVU39
+  79:modules/alarm/led/led.c ****         time_temp = LowTime;
+ 153              		.loc 1 79 13 is_stmt 0 view .LVU40
+ 154 007e 0129     		cmp	r1, #1
+ 155 0080 C7D1     		bne	.L3
+  80:modules/alarm/led/led.c **** 
+ 156              		.loc 1 80 9 is_stmt 1 view .LVU41
+  80:modules/alarm/led/led.c **** 
+ 157              		.loc 1 80 19 is_stmt 0 view .LVU42
+ 158 0082 524B     		ldr	r3, .L21
+ 159 0084 1E22     		movs	r2, #30
+ 160 0086 1A80     		strh	r2, [r3]	@ movhi
+ 161 0088 C3E7     		b	.L3
+ 162              	.L4:
+  85:modules/alarm/led/led.c ****         {
+ 163              		.loc 1 85 9 is_stmt 1 view .LVU43
+ 164 008a 0228     		cmp	r0, #2
+ 165 008c 65D0     		beq	.L6
+ 166 008e 3BD9     		bls	.L20
+ 167 0090 0328     		cmp	r0, #3
+ 168 0092 75D0     		beq	.L10
+ 169 0094 0428     		cmp	r0, #4
+ 170 0096 C7D1     		bne	.L5
+ 108:modules/alarm/led/led.c ****             if (temp > 1)
+ 171              		.loc 1 108 13 view .LVU44
+ 108:modules/alarm/led/led.c ****             if (temp > 1)
+ 172              		.loc 1 108 17 is_stmt 0 view .LVU45
+ 173 0098 504A     		ldr	r2, .L21+16
+ 174 009a 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 175 009c 0133     		adds	r3, r3, #1
+ 176 009e 5BB2     		sxtb	r3, r3
+ 177 00a0 1370     		strb	r3, [r2]
+ 109:modules/alarm/led/led.c ****             {
+ 178              		.loc 1 109 13 is_stmt 1 view .LVU46
+ 109:modules/alarm/led/led.c ****             {
+ 179              		.loc 1 109 16 is_stmt 0 view .LVU47
+ 180 00a2 012B     		cmp	r3, #1
+ 181 00a4 06DD     		ble	.L12
+ 111:modules/alarm/led/led.c ****                 alpha += 2;
+ 182              		.loc 1 111 17 is_stmt 1 view .LVU48
+ 111:modules/alarm/led/led.c ****                 alpha += 2;
+ 183              		.loc 1 111 22 is_stmt 0 view .LVU49
+ 184 00a6 1346     		mov	r3, r2
+ 185 00a8 0022     		movs	r2, #0
+ 186 00aa 1A70     		strb	r2, [r3]
+ 112:modules/alarm/led/led.c ****             }
+ 187              		.loc 1 112 17 is_stmt 1 view .LVU50
+ 112:modules/alarm/led/led.c ****             }
+ 188              		.loc 1 112 23 is_stmt 0 view .LVU51
+ 189 00ac 4C4A     		ldr	r2, .L21+20
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 7
+
+
+ 190 00ae 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 191 00b0 0233     		adds	r3, r3, #2
+ 192 00b2 1370     		strb	r3, [r2]
+ 193              	.L12:
+ 115:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 194              		.loc 1 115 13 is_stmt 1 view .LVU52
+ 115:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 195              		.loc 1 115 72 is_stmt 0 view .LVU53
+ 196 00b4 4A4D     		ldr	r5, .L21+20
+ 197 00b6 95F90030 		ldrsb	r3, [r5]
+ 198 00ba 002B     		cmp	r3, #0
+ 199 00bc B8BF     		it	lt
+ 200 00be 5B42     		rsblt	r3, r3, #0
+ 201 00c0 DBB2     		uxtb	r3, r3
+ 202 00c2 00EE103A 		vmov	s0, r3	@ int
+ 115:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 203              		.loc 1 115 65 view .LVU54
+ 204 00c6 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 115:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 205              		.loc 1 115 13 view .LVU55
+ 206 00ca 9FED468A 		vldr.32	s16, .L21+24
+ 207 00ce 20EE080A 		vmul.f32	s0, s0, s16
+ 208 00d2 454B     		ldr	r3, .L21+28
+ 209 00d4 1868     		ldr	r0, [r3]
+ 210              	.LVL3:
+ 115:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 211              		.loc 1 115 13 view .LVU56
+ 212 00d6 FFF7FEFF 		bl	PWMSetDutyRatio
+ 213              	.LVL4:
+ 116:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, (1.0f / (255.0f - 100.0f)) * (float)abs(alpha));   
+ 214              		.loc 1 116 13 is_stmt 1 view .LVU57
+ 215 00da 9FED440A 		vldr.32	s0, .L21+32
+ 216 00de 444B     		ldr	r3, .L21+36
+ 217 00e0 1868     		ldr	r0, [r3]
+ 218 00e2 FFF7FEFF 		bl	PWMSetDutyRatio
+ 219              	.LVL5:
+ 117:modules/alarm/led/led.c ****             break;           
+ 220              		.loc 1 117 13 view .LVU58
+ 117:modules/alarm/led/led.c ****             break;           
+ 221              		.loc 1 117 72 is_stmt 0 view .LVU59
+ 222 00e6 95F90030 		ldrsb	r3, [r5]
+ 223 00ea 002B     		cmp	r3, #0
+ 224 00ec B8BF     		it	lt
+ 225 00ee 5B42     		rsblt	r3, r3, #0
+ 226 00f0 DBB2     		uxtb	r3, r3
+ 227 00f2 00EE103A 		vmov	s0, r3	@ int
+ 117:modules/alarm/led/led.c ****             break;           
+ 228              		.loc 1 117 65 view .LVU60
+ 229 00f6 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 117:modules/alarm/led/led.c ****             break;           
+ 230              		.loc 1 117 13 view .LVU61
+ 231 00fa 20EE080A 		vmul.f32	s0, s0, s16
+ 232 00fe 3D4B     		ldr	r3, .L21+40
+ 233 0100 1868     		ldr	r0, [r3]
+ 234 0102 FFF7FEFF 		bl	PWMSetDutyRatio
+ 235              	.LVL6:
+ 118:modules/alarm/led/led.c ****         default:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 8
+
+
+ 236              		.loc 1 118 13 is_stmt 1 view .LVU62
+ 237 0106 8FE7     		b	.L5
+ 238              	.LVL7:
+ 239              	.L20:
+  85:modules/alarm/led/led.c ****         {
+ 240              		.loc 1 85 9 is_stmt 0 view .LVU63
+ 241 0108 A0B1     		cbz	r0, .L8
+ 242 010a 0128     		cmp	r0, #1
+ 243 010c 8CD1     		bne	.L5
+  93:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 1.0f);
+ 244              		.loc 1 93 13 is_stmt 1 view .LVU64
+ 245 010e B7EE000A 		vmov.f32	s0, #1.0e+0
+ 246 0112 354B     		ldr	r3, .L21+28
+ 247 0114 1868     		ldr	r0, [r3]
+ 248              	.LVL8:
+  93:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 1.0f);
+ 249              		.loc 1 93 13 is_stmt 0 view .LVU65
+ 250 0116 FFF7FEFF 		bl	PWMSetDutyRatio
+ 251              	.LVL9:
+  94:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 0.0f);   
+ 252              		.loc 1 94 13 is_stmt 1 view .LVU66
+ 253 011a B7EE000A 		vmov.f32	s0, #1.0e+0
+ 254 011e 344B     		ldr	r3, .L21+36
+ 255 0120 1868     		ldr	r0, [r3]
+ 256 0122 FFF7FEFF 		bl	PWMSetDutyRatio
+ 257              	.LVL10:
+  95:modules/alarm/led/led.c ****             break; 
+ 258              		.loc 1 95 13 view .LVU67
+ 259 0126 9FED310A 		vldr.32	s0, .L21+32
+ 260 012a 324B     		ldr	r3, .L21+40
+ 261 012c 1868     		ldr	r0, [r3]
+ 262 012e FFF7FEFF 		bl	PWMSetDutyRatio
+ 263              	.LVL11:
+  96:modules/alarm/led/led.c ****         case BLUE:
+ 264              		.loc 1 96 13 view .LVU68
+ 265 0132 79E7     		b	.L5
+ 266              	.LVL12:
+ 267              	.L8:
+  88:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 268              		.loc 1 88 13 view .LVU69
+ 269 0134 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 270 0138 2B4B     		ldr	r3, .L21+28
+ 271 013a 1868     		ldr	r0, [r3]
+ 272              	.LVL13:
+  88:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 273              		.loc 1 88 13 is_stmt 0 view .LVU70
+ 274 013c FFF7FEFF 		bl	PWMSetDutyRatio
+ 275              	.LVL14:
+  89:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 0.0f);
+ 276              		.loc 1 89 13 is_stmt 1 view .LVU71
+ 277 0140 9FED2A0A 		vldr.32	s0, .L21+32
+ 278 0144 2A4B     		ldr	r3, .L21+36
+ 279 0146 1868     		ldr	r0, [r3]
+ 280 0148 FFF7FEFF 		bl	PWMSetDutyRatio
+ 281              	.LVL15:
+  90:modules/alarm/led/led.c ****             break;
+ 282              		.loc 1 90 13 view .LVU72
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 9
+
+
+ 283 014c 9FED270A 		vldr.32	s0, .L21+32
+ 284 0150 284B     		ldr	r3, .L21+40
+ 285 0152 1868     		ldr	r0, [r3]
+ 286 0154 FFF7FEFF 		bl	PWMSetDutyRatio
+ 287              	.LVL16:
+  91:modules/alarm/led/led.c ****         case YELLOW:
+ 288              		.loc 1 91 13 view .LVU73
+ 289 0158 66E7     		b	.L5
+ 290              	.LVL17:
+ 291              	.L6:
+  98:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 292              		.loc 1 98 13 view .LVU74
+ 293 015a 9FED240A 		vldr.32	s0, .L21+32
+ 294 015e 224B     		ldr	r3, .L21+28
+ 295 0160 1868     		ldr	r0, [r3]
+ 296              	.LVL18:
+  98:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 297              		.loc 1 98 13 is_stmt 0 view .LVU75
+ 298 0162 FFF7FEFF 		bl	PWMSetDutyRatio
+ 299              	.LVL19:
+  99:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 1.0f);
+ 300              		.loc 1 99 13 is_stmt 1 view .LVU76
+ 301 0166 9FED210A 		vldr.32	s0, .L21+32
+ 302 016a 214B     		ldr	r3, .L21+36
+ 303 016c 1868     		ldr	r0, [r3]
+ 304 016e FFF7FEFF 		bl	PWMSetDutyRatio
+ 305              	.LVL20:
+ 100:modules/alarm/led/led.c ****             break;
+ 306              		.loc 1 100 13 view .LVU77
+ 307 0172 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 308 0176 1F4B     		ldr	r3, .L21+40
+ 309 0178 1868     		ldr	r0, [r3]
+ 310 017a FFF7FEFF 		bl	PWMSetDutyRatio
+ 311              	.LVL21:
+ 101:modules/alarm/led/led.c ****         case GREEN:
+ 312              		.loc 1 101 13 view .LVU78
+ 313 017e 53E7     		b	.L5
+ 314              	.LVL22:
+ 315              	.L10:
+ 103:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 1.0f);
+ 316              		.loc 1 103 13 view .LVU79
+ 317 0180 9FED1A0A 		vldr.32	s0, .L21+32
+ 318 0184 184B     		ldr	r3, .L21+28
+ 319 0186 1868     		ldr	r0, [r3]
+ 320              	.LVL23:
+ 103:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 1.0f);
+ 321              		.loc 1 103 13 is_stmt 0 view .LVU80
+ 322 0188 FFF7FEFF 		bl	PWMSetDutyRatio
+ 323              	.LVL24:
+ 104:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 0.0f);   
+ 324              		.loc 1 104 13 is_stmt 1 view .LVU81
+ 325 018c B7EE000A 		vmov.f32	s0, #1.0e+0
+ 326 0190 174B     		ldr	r3, .L21+36
+ 327 0192 1868     		ldr	r0, [r3]
+ 328 0194 FFF7FEFF 		bl	PWMSetDutyRatio
+ 329              	.LVL25:
+ 105:modules/alarm/led/led.c ****             break;  
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 10
+
+
+ 330              		.loc 1 105 13 view .LVU82
+ 331 0198 9FED140A 		vldr.32	s0, .L21+32
+ 332 019c 154B     		ldr	r3, .L21+40
+ 333 019e 1868     		ldr	r0, [r3]
+ 334 01a0 FFF7FEFF 		bl	PWMSetDutyRatio
+ 335              	.LVL26:
+ 106:modules/alarm/led/led.c ****         case PINK: 
+ 336              		.loc 1 106 13 view .LVU83
+ 337 01a4 40E7     		b	.L5
+ 338              	.L19:
+ 126:modules/alarm/led/led.c ****         PWMSetDutyRatio(led_g, 0);
+ 339              		.loc 1 126 9 view .LVU84
+ 340 01a6 9FED110A 		vldr.32	s0, .L21+32
+ 341 01aa 0F4B     		ldr	r3, .L21+28
+ 342 01ac 1868     		ldr	r0, [r3]
+ 343 01ae FFF7FEFF 		bl	PWMSetDutyRatio
+ 344              	.LVL27:
+ 127:modules/alarm/led/led.c ****         PWMSetDutyRatio(led_b, 0);           
+ 345              		.loc 1 127 9 view .LVU85
+ 346 01b2 9FED0E0A 		vldr.32	s0, .L21+32
+ 347 01b6 0E4B     		ldr	r3, .L21+36
+ 348 01b8 1868     		ldr	r0, [r3]
+ 349 01ba FFF7FEFF 		bl	PWMSetDutyRatio
+ 350              	.LVL28:
+ 128:modules/alarm/led/led.c ****     }
+ 351              		.loc 1 128 9 view .LVU86
+ 352 01be 9FED0B0A 		vldr.32	s0, .L21+32
+ 353 01c2 0C4B     		ldr	r3, .L21+40
+ 354 01c4 1868     		ldr	r0, [r3]
+ 355 01c6 FFF7FEFF 		bl	PWMSetDutyRatio
+ 356              	.LVL29:
+ 357 01ca 36E7     		b	.L13
+ 358              	.L22:
+ 359              		.align	2
+ 360              	.L21:
+ 361 01cc 00000000 		.word	time_temp.4
+ 362 01d0 00000000 		.word	n.3
+ 363 01d4 00000000 		.word	led
+ 364 01d8 00000000 		.word	count.0
+ 365 01dc 00000000 		.word	temp.2
+ 366 01e0 00000000 		.word	alpha.1
+ 367 01e4 0D68D33B 		.word	1003710477
+ 368 01e8 00000000 		.word	led_r
+ 369 01ec 00000000 		.word	0
+ 370 01f0 00000000 		.word	led_g
+ 371 01f4 00000000 		.word	led_b
+ 372              		.cfi_endproc
+ 373              	.LFE243:
+ 375              		.section	.text.LEDInit,"ax",%progbits
+ 376              		.align	1
+ 377              		.global	LEDInit
+ 378              		.syntax unified
+ 379              		.thumb
+ 380              		.thumb_func
+ 382              	LEDInit:
+ 383              	.LFB238:
+  15:modules/alarm/led/led.c ****     PWM_Init_Config_s led_config = {
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 11
+
+
+ 384              		.loc 1 15 1 view -0
+ 385              		.cfi_startproc
+ 386              		@ args = 0, pretend = 0, frame = 24
+ 387              		@ frame_needed = 0, uses_anonymous_args = 0
+ 388 0000 30B5     		push	{r4, r5, lr}
+ 389              		.cfi_def_cfa_offset 12
+ 390              		.cfi_offset 4, -12
+ 391              		.cfi_offset 5, -8
+ 392              		.cfi_offset 14, -4
+ 393 0002 87B0     		sub	sp, sp, #28
+ 394              		.cfi_def_cfa_offset 40
+  16:modules/alarm/led/led.c ****         .htim = &htim5,
+ 395              		.loc 1 16 5 view .LVU88
+  16:modules/alarm/led/led.c ****         .htim = &htim5,
+ 396              		.loc 1 16 23 is_stmt 0 view .LVU89
+ 397 0004 0025     		movs	r5, #0
+ 398 0006 0095     		str	r5, [sp]
+ 399 0008 0195     		str	r5, [sp, #4]
+ 400 000a 0295     		str	r5, [sp, #8]
+ 401 000c 0395     		str	r5, [sp, #12]
+ 402 000e 0495     		str	r5, [sp, #16]
+ 403 0010 0595     		str	r5, [sp, #20]
+ 404 0012 0D4B     		ldr	r3, .L25
+ 405 0014 0093     		str	r3, [sp]
+ 406 0016 0D4B     		ldr	r3, .L25+4
+ 407 0018 0293     		str	r3, [sp, #8]	@ float
+  22:modules/alarm/led/led.c ****     led_r = PWMRegister(&led_config);
+ 408              		.loc 1 22 5 is_stmt 1 view .LVU90
+  22:modules/alarm/led/led.c ****     led_r = PWMRegister(&led_config);
+ 409              		.loc 1 22 24 is_stmt 0 view .LVU91
+ 410 001a 0823     		movs	r3, #8
+ 411 001c 0193     		str	r3, [sp, #4]
+  23:modules/alarm/led/led.c **** 
+ 412              		.loc 1 23 5 is_stmt 1 view .LVU92
+  23:modules/alarm/led/led.c **** 
+ 413              		.loc 1 23 13 is_stmt 0 view .LVU93
+ 414 001e 6846     		mov	r0, sp
+ 415 0020 FFF7FEFF 		bl	PWMRegister
+ 416              	.LVL30:
+  23:modules/alarm/led/led.c **** 
+ 417              		.loc 1 23 11 discriminator 1 view .LVU94
+ 418 0024 0A4B     		ldr	r3, .L25+8
+ 419 0026 1860     		str	r0, [r3]
+  25:modules/alarm/led/led.c ****     led_g = PWMRegister(&led_config);
+ 420              		.loc 1 25 5 is_stmt 1 view .LVU95
+  25:modules/alarm/led/led.c ****     led_g = PWMRegister(&led_config);
+ 421              		.loc 1 25 24 is_stmt 0 view .LVU96
+ 422 0028 0423     		movs	r3, #4
+ 423 002a 0193     		str	r3, [sp, #4]
+  26:modules/alarm/led/led.c **** 
+ 424              		.loc 1 26 5 is_stmt 1 view .LVU97
+  26:modules/alarm/led/led.c **** 
+ 425              		.loc 1 26 13 is_stmt 0 view .LVU98
+ 426 002c 6846     		mov	r0, sp
+ 427 002e FFF7FEFF 		bl	PWMRegister
+ 428              	.LVL31:
+  26:modules/alarm/led/led.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 12
+
+
+ 429              		.loc 1 26 11 discriminator 1 view .LVU99
+ 430 0032 084B     		ldr	r3, .L25+12
+ 431 0034 1860     		str	r0, [r3]
+  28:modules/alarm/led/led.c ****     led_b = PWMRegister(&led_config);
+ 432              		.loc 1 28 5 is_stmt 1 view .LVU100
+  28:modules/alarm/led/led.c ****     led_b = PWMRegister(&led_config);
+ 433              		.loc 1 28 24 is_stmt 0 view .LVU101
+ 434 0036 0195     		str	r5, [sp, #4]
+  29:modules/alarm/led/led.c **** }
+ 435              		.loc 1 29 5 is_stmt 1 view .LVU102
+  29:modules/alarm/led/led.c **** }
+ 436              		.loc 1 29 13 is_stmt 0 view .LVU103
+ 437 0038 6846     		mov	r0, sp
+ 438 003a FFF7FEFF 		bl	PWMRegister
+ 439              	.LVL32:
+  29:modules/alarm/led/led.c **** }
+ 440              		.loc 1 29 11 discriminator 1 view .LVU104
+ 441 003e 064B     		ldr	r3, .L25+16
+ 442 0040 1860     		str	r0, [r3]
+  30:modules/alarm/led/led.c **** 
+ 443              		.loc 1 30 1 view .LVU105
+ 444 0042 07B0     		add	sp, sp, #28
+ 445              		.cfi_def_cfa_offset 12
+ 446              		@ sp needed
+ 447 0044 30BD     		pop	{r4, r5, pc}
+ 448              	.L26:
+ 449 0046 00BF     		.align	2
+ 450              	.L25:
+ 451 0048 00000000 		.word	htim5
+ 452 004c 6F12833A 		.word	981668463
+ 453 0050 00000000 		.word	led_r
+ 454 0054 00000000 		.word	led_g
+ 455 0058 00000000 		.word	led_b
+ 456              		.cfi_endproc
+ 457              	.LFE238:
+ 459              		.section	.text.LEDRegister,"ax",%progbits
+ 460              		.align	1
+ 461              		.global	LEDRegister
+ 462              		.syntax unified
+ 463              		.thumb
+ 464              		.thumb_func
+ 466              	LEDRegister:
+ 467              	.LVL33:
+ 468              	.LFB239:
+  33:modules/alarm/led/led.c ****     LEDInstance *led_temp = (LEDInstance *)malloc(sizeof(LEDInstance));
+ 469              		.loc 1 33 1 is_stmt 1 view -0
+ 470              		.cfi_startproc
+ 471              		@ args = 0, pretend = 0, frame = 0
+ 472              		@ frame_needed = 0, uses_anonymous_args = 0
+  33:modules/alarm/led/led.c ****     LEDInstance *led_temp = (LEDInstance *)malloc(sizeof(LEDInstance));
+ 473              		.loc 1 33 1 is_stmt 0 view .LVU107
+ 474 0000 38B5     		push	{r3, r4, r5, lr}
+ 475              		.cfi_def_cfa_offset 16
+ 476              		.cfi_offset 3, -16
+ 477              		.cfi_offset 4, -12
+ 478              		.cfi_offset 5, -8
+ 479              		.cfi_offset 14, -4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 13
+
+
+ 480 0002 0446     		mov	r4, r0
+  34:modules/alarm/led/led.c ****     memset(led_temp, 0, sizeof(LEDInstance));
+ 481              		.loc 1 34 5 is_stmt 1 view .LVU108
+  34:modules/alarm/led/led.c ****     memset(led_temp, 0, sizeof(LEDInstance));
+ 482              		.loc 1 34 44 is_stmt 0 view .LVU109
+ 483 0004 0420     		movs	r0, #4
+ 484              	.LVL34:
+  34:modules/alarm/led/led.c ****     memset(led_temp, 0, sizeof(LEDInstance));
+ 485              		.loc 1 34 44 view .LVU110
+ 486 0006 FFF7FEFF 		bl	malloc
+ 487              	.LVL35:
+  35:modules/alarm/led/led.c **** 
+ 488              		.loc 1 35 5 is_stmt 1 view .LVU111
+ 489 000a 0021     		movs	r1, #0
+ 490 000c 0160     		str	r1, [r0]	@ unaligned
+  37:modules/alarm/led/led.c ****     led_temp->flash = config->flash;
+ 491              		.loc 1 37 5 view .LVU112
+  37:modules/alarm/led/led.c ****     led_temp->flash = config->flash;
+ 492              		.loc 1 37 29 is_stmt 0 view .LVU113
+ 493 000e 6278     		ldrb	r2, [r4, #1]	@ zero_extendqisi2
+  37:modules/alarm/led/led.c ****     led_temp->flash = config->flash;
+ 494              		.loc 1 37 21 view .LVU114
+ 495 0010 0270     		strb	r2, [r0]
+  38:modules/alarm/led/led.c ****     led->flash_count = config->flash_count;
+ 496              		.loc 1 38 5 is_stmt 1 view .LVU115
+  38:modules/alarm/led/led.c ****     led->flash_count = config->flash_count;
+ 497              		.loc 1 38 29 is_stmt 0 view .LVU116
+ 498 0012 2278     		ldrb	r2, [r4]	@ zero_extendqisi2
+  38:modules/alarm/led/led.c ****     led->flash_count = config->flash_count;
+ 499              		.loc 1 38 21 view .LVU117
+ 500 0014 4270     		strb	r2, [r0, #1]
+  39:modules/alarm/led/led.c ****     led_temp->alarm_state = ALARM_OFF;
+ 501              		.loc 1 39 5 is_stmt 1 view .LVU118
+  39:modules/alarm/led/led.c ****     led_temp->alarm_state = ALARM_OFF;
+ 502              		.loc 1 39 8 is_stmt 0 view .LVU119
+ 503 0016 034A     		ldr	r2, .L29
+  39:modules/alarm/led/led.c ****     led_temp->alarm_state = ALARM_OFF;
+ 504              		.loc 1 39 30 view .LVU120
+ 505 0018 A478     		ldrb	r4, [r4, #2]	@ zero_extendqisi2
+ 506              	.LVL36:
+  39:modules/alarm/led/led.c ****     led_temp->alarm_state = ALARM_OFF;
+ 507              		.loc 1 39 22 view .LVU121
+ 508 001a 1568     		ldr	r5, [r2]
+ 509 001c AC70     		strb	r4, [r5, #2]
+  40:modules/alarm/led/led.c **** 
+ 510              		.loc 1 40 5 is_stmt 1 view .LVU122
+  40:modules/alarm/led/led.c **** 
+ 511              		.loc 1 40 27 is_stmt 0 view .LVU123
+ 512 001e C170     		strb	r1, [r0, #3]
+  42:modules/alarm/led/led.c ****     return led_temp;
+ 513              		.loc 1 42 5 is_stmt 1 view .LVU124
+  42:modules/alarm/led/led.c ****     return led_temp;
+ 514              		.loc 1 42 9 is_stmt 0 view .LVU125
+ 515 0020 1060     		str	r0, [r2]
+  43:modules/alarm/led/led.c **** }
+ 516              		.loc 1 43 5 is_stmt 1 view .LVU126
+  44:modules/alarm/led/led.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 14
+
+
+ 517              		.loc 1 44 1 is_stmt 0 view .LVU127
+ 518 0022 38BD     		pop	{r3, r4, r5, pc}
+ 519              	.L30:
+ 520              		.align	2
+ 521              	.L29:
+ 522 0024 00000000 		.word	led
+ 523              		.cfi_endproc
+ 524              	.LFE239:
+ 526              		.section	.text.LEDSetStatus,"ax",%progbits
+ 527              		.align	1
+ 528              		.global	LEDSetStatus
+ 529              		.syntax unified
+ 530              		.thumb
+ 531              		.thumb_func
+ 533              	LEDSetStatus:
+ 534              	.LVL37:
+ 535              	.LFB240:
+  47:modules/alarm/led/led.c ****     led->alarm_state = state;
+ 536              		.loc 1 47 1 is_stmt 1 view -0
+ 537              		.cfi_startproc
+ 538              		@ args = 0, pretend = 0, frame = 0
+ 539              		@ frame_needed = 0, uses_anonymous_args = 0
+ 540              		@ link register save eliminated.
+  48:modules/alarm/led/led.c **** }
+ 541              		.loc 1 48 5 view .LVU129
+  48:modules/alarm/led/led.c **** }
+ 542              		.loc 1 48 22 is_stmt 0 view .LVU130
+ 543 0000 C170     		strb	r1, [r0, #3]
+  49:modules/alarm/led/led.c **** 
+ 544              		.loc 1 49 1 view .LVU131
+ 545 0002 7047     		bx	lr
+ 546              		.cfi_endproc
+ 547              	.LFE240:
+ 549              		.section	.text.LEDSetFlash,"ax",%progbits
+ 550              		.align	1
+ 551              		.global	LEDSetFlash
+ 552              		.syntax unified
+ 553              		.thumb
+ 554              		.thumb_func
+ 556              	LEDSetFlash:
+ 557              	.LVL38:
+ 558              	.LFB241:
+  52:modules/alarm/led/led.c ****     led->color = color;
+ 559              		.loc 1 52 1 is_stmt 1 view -0
+ 560              		.cfi_startproc
+ 561              		@ args = 0, pretend = 0, frame = 0
+ 562              		@ frame_needed = 0, uses_anonymous_args = 0
+ 563              		@ link register save eliminated.
+  53:modules/alarm/led/led.c ****     led->flash = flash;
+ 564              		.loc 1 53 5 view .LVU133
+  53:modules/alarm/led/led.c ****     led->flash = flash;
+ 565              		.loc 1 53 16 is_stmt 0 view .LVU134
+ 566 0000 0170     		strb	r1, [r0]
+  54:modules/alarm/led/led.c **** }
+ 567              		.loc 1 54 5 is_stmt 1 view .LVU135
+  54:modules/alarm/led/led.c **** }
+ 568              		.loc 1 54 16 is_stmt 0 view .LVU136
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 15
+
+
+ 569 0002 4270     		strb	r2, [r0, #1]
+  55:modules/alarm/led/led.c **** 
+ 570              		.loc 1 55 1 view .LVU137
+ 571 0004 7047     		bx	lr
+ 572              		.cfi_endproc
+ 573              	.LFE241:
+ 575              		.section	.text.LEDSetFlashTime,"ax",%progbits
+ 576              		.align	1
+ 577              		.global	LEDSetFlashTime
+ 578              		.syntax unified
+ 579              		.thumb
+ 580              		.thumb_func
+ 582              	LEDSetFlashTime:
+ 583              	.LVL39:
+ 584              	.LFB242:
+  58:modules/alarm/led/led.c ****     led->flash_count = flash_count;
+ 585              		.loc 1 58 1 is_stmt 1 view -0
+ 586              		.cfi_startproc
+ 587              		@ args = 0, pretend = 0, frame = 0
+ 588              		@ frame_needed = 0, uses_anonymous_args = 0
+ 589              		@ link register save eliminated.
+  59:modules/alarm/led/led.c **** }
+ 590              		.loc 1 59 5 view .LVU139
+  59:modules/alarm/led/led.c **** }
+ 591              		.loc 1 59 22 is_stmt 0 view .LVU140
+ 592 0000 8170     		strb	r1, [r0, #2]
+  60:modules/alarm/led/led.c **** 
+ 593              		.loc 1 60 1 view .LVU141
+ 594 0002 7047     		bx	lr
+ 595              		.cfi_endproc
+ 596              	.LFE242:
+ 598              		.section	.text.LEDTask,"ax",%progbits
+ 599              		.align	1
+ 600              		.global	LEDTask
+ 601              		.syntax unified
+ 602              		.thumb
+ 603              		.thumb_func
+ 605              	LEDTask:
+ 606              	.LFB244:
+ 142:modules/alarm/led/led.c **** 
+ 143:modules/alarm/led/led.c **** void LEDTask()
+ 144:modules/alarm/led/led.c **** {
+ 607              		.loc 1 144 1 is_stmt 1 view -0
+ 608              		.cfi_startproc
+ 609              		@ args = 0, pretend = 0, frame = 0
+ 610              		@ frame_needed = 0, uses_anonymous_args = 0
+ 611 0000 08B5     		push	{r3, lr}
+ 612              		.cfi_def_cfa_offset 8
+ 613              		.cfi_offset 3, -8
+ 614              		.cfi_offset 14, -4
+ 145:modules/alarm/led/led.c ****     if (led->alarm_state == ALARM_OFF)
+ 615              		.loc 1 145 5 view .LVU143
+ 616              		.loc 1 145 12 is_stmt 0 view .LVU144
+ 617 0002 074B     		ldr	r3, .L38
+ 618 0004 1B68     		ldr	r3, [r3]
+ 619 0006 DA78     		ldrb	r2, [r3, #3]	@ zero_extendqisi2
+ 620              		.loc 1 145 8 view .LVU145
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 16
+
+
+ 621 0008 22B9     		cbnz	r2, .L35
+ 146:modules/alarm/led/led.c ****     {
+ 147:modules/alarm/led/led.c ****         LEDShowFlash(PINK, ALWAYS_ON);
+ 622              		.loc 1 147 9 is_stmt 1 view .LVU146
+ 623 000a 0221     		movs	r1, #2
+ 624 000c 0420     		movs	r0, #4
+ 625 000e FFF7FEFF 		bl	LEDShowFlash
+ 626              	.LVL40:
+ 627              	.L34:
+ 148:modules/alarm/led/led.c ****     }
+ 149:modules/alarm/led/led.c ****     else
+ 150:modules/alarm/led/led.c ****     {
+ 151:modules/alarm/led/led.c ****         LEDShowFlash(led->color, led->flash);
+ 152:modules/alarm/led/led.c ****     }
+ 153:modules/alarm/led/led.c **** }
+ 628              		.loc 1 153 1 is_stmt 0 view .LVU147
+ 629 0012 08BD     		pop	{r3, pc}
+ 630              	.L35:
+ 151:modules/alarm/led/led.c ****     }
+ 631              		.loc 1 151 9 is_stmt 1 view .LVU148
+ 632 0014 5978     		ldrb	r1, [r3, #1]	@ zero_extendqisi2
+ 633 0016 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 634 0018 FFF7FEFF 		bl	LEDShowFlash
+ 635              	.LVL41:
+ 636              		.loc 1 153 1 is_stmt 0 view .LVU149
+ 637 001c F9E7     		b	.L34
+ 638              	.L39:
+ 639 001e 00BF     		.align	2
+ 640              	.L38:
+ 641 0020 00000000 		.word	led
+ 642              		.cfi_endproc
+ 643              	.LFE244:
+ 645              		.section	.bss.count.0,"aw",%nobits
+ 646              		.align	1
+ 649              	count.0:
+ 650 0000 0000     		.space	2
+ 651              		.section	.bss.alpha.1,"aw",%nobits
+ 654              	alpha.1:
+ 655 0000 00       		.space	1
+ 656              		.section	.bss.temp.2,"aw",%nobits
+ 659              	temp.2:
+ 660 0000 00       		.space	1
+ 661              		.section	.bss.n.3,"aw",%nobits
+ 662              		.align	1
+ 665              	n.3:
+ 666 0000 0000     		.space	2
+ 667              		.section	.bss.time_temp.4,"aw",%nobits
+ 668              		.align	1
+ 671              	time_temp.4:
+ 672 0000 0000     		.space	2
+ 673              		.section	.bss.led,"aw",%nobits
+ 674              		.align	2
+ 677              	led:
+ 678 0000 00000000 		.space	4
+ 679              		.section	.bss.led_b,"aw",%nobits
+ 680              		.align	2
+ 683              	led_b:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 17
+
+
+ 684 0000 00000000 		.space	4
+ 685              		.section	.bss.led_g,"aw",%nobits
+ 686              		.align	2
+ 689              	led_g:
+ 690 0000 00000000 		.space	4
+ 691              		.section	.bss.led_r,"aw",%nobits
+ 692              		.align	2
+ 695              	led_r:
+ 696 0000 00000000 		.space	4
+ 697              		.text
+ 698              	.Letext0:
+ 699              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 700              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 701              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 702              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 703              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 704              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h"
+ 705              		.file 8 "bsp/pwm/bsp_pwm.h"
+ 706              		.file 9 "modules/alarm/alarm_def.h"
+ 707              		.file 10 "modules/alarm/led/led.h"
+ 708              		.file 11 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 709              		.file 12 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 710              		.file 13 "Inc/tim.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s 			page 18
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 led.c
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:21     .text.LEDShowFlash:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:26     .text.LEDShowFlash:00000000 LEDShowFlash
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:361    .text.LEDShowFlash:000001cc $d
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:671    .bss.time_temp.4:00000000 time_temp.4
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:665    .bss.n.3:00000000 n.3
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:677    .bss.led:00000000 led
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:649    .bss.count.0:00000000 count.0
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:659    .bss.temp.2:00000000 temp.2
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:654    .bss.alpha.1:00000000 alpha.1
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:695    .bss.led_r:00000000 led_r
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:689    .bss.led_g:00000000 led_g
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:683    .bss.led_b:00000000 led_b
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:376    .text.LEDInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:382    .text.LEDInit:00000000 LEDInit
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:451    .text.LEDInit:00000048 $d
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:460    .text.LEDRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:466    .text.LEDRegister:00000000 LEDRegister
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:522    .text.LEDRegister:00000024 $d
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:527    .text.LEDSetStatus:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:533    .text.LEDSetStatus:00000000 LEDSetStatus
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:550    .text.LEDSetFlash:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:556    .text.LEDSetFlash:00000000 LEDSetFlash
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:576    .text.LEDSetFlashTime:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:582    .text.LEDSetFlashTime:00000000 LEDSetFlashTime
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:599    .text.LEDTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:605    .text.LEDTask:00000000 LEDTask
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:641    .text.LEDTask:00000020 $d
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:646    .bss.count.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:655    .bss.alpha.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:660    .bss.temp.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:662    .bss.n.3:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:668    .bss.time_temp.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:674    .bss.led:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:680    .bss.led_b:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:686    .bss.led_g:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccieJV1E.s:692    .bss.led_r:00000000 $d
+
+UNDEFINED SYMBOLS
+PWMSetDutyRatio
+PWMRegister
+htim5
+malloc

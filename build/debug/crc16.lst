@@ -1,0 +1,634 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"crc16.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/algorithm/crc16.c"
+  20              		.section	.text.init_crc16_tab,"ax",%progbits
+  21              		.align	1
+  22              		.global	init_crc16_tab
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	init_crc16_tab:
+  28              	.LFB238:
+   1:modules/algorithm/crc16.c **** #include "crc16.h"
+   2:modules/algorithm/crc16.c **** 
+   3:modules/algorithm/crc16.c **** static uint8_t crc_tab16_init = 0;
+   4:modules/algorithm/crc16.c **** static uint16_t crc_tab16[256];
+   5:modules/algorithm/crc16.c **** 
+   6:modules/algorithm/crc16.c **** /*
+   7:modules/algorithm/crc16.c ****  * uint16_t crc_16( const unsigned char *input_str, size_t num_bytes );
+   8:modules/algorithm/crc16.c ****  *
+   9:modules/algorithm/crc16.c ****  *函数crc_16()一次计算一个字节的16位CRC16
+  10:modules/algorithm/crc16.c ****  *其开头已传递给函数的字符串。的数量
+  11:modules/algorithm/crc16.c ****  *要检查的字节也是一个参数。字符串中的字节数为
+  12:modules/algorithm/crc16.c ****  *受恒定大小最大值的限制。
+  13:modules/algorithm/crc16.c ****  */
+  14:modules/algorithm/crc16.c **** uint16_t crc_16(const uint8_t *input_str, uint16_t num_bytes)
+  15:modules/algorithm/crc16.c **** {
+  16:modules/algorithm/crc16.c ****     uint16_t crc;
+  17:modules/algorithm/crc16.c ****     const uint8_t *ptr;
+  18:modules/algorithm/crc16.c ****     uint16_t a;
+  19:modules/algorithm/crc16.c ****     if (!crc_tab16_init)
+  20:modules/algorithm/crc16.c ****         init_crc16_tab();
+  21:modules/algorithm/crc16.c ****     crc = CRC_START_16;
+  22:modules/algorithm/crc16.c ****     ptr = input_str;
+  23:modules/algorithm/crc16.c ****     if (ptr != NULL)
+  24:modules/algorithm/crc16.c ****         for (a = 0; a < num_bytes; a++)
+  25:modules/algorithm/crc16.c ****         {
+  26:modules/algorithm/crc16.c ****             crc = (crc >> 8) ^ crc_tab16[(crc ^ (uint16_t)*ptr++) & 0x00FF];
+  27:modules/algorithm/crc16.c ****         }
+  28:modules/algorithm/crc16.c ****     return crc;
+  29:modules/algorithm/crc16.c **** }
+  30:modules/algorithm/crc16.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s 			page 2
+
+
+  31:modules/algorithm/crc16.c **** /*
+  32:modules/algorithm/crc16.c ****  * uint16_t crc_modbus( const unsigned char *input_str, size_t num_bytes );
+  33:modules/algorithm/crc16.c ****  *
+  34:modules/algorithm/crc16.c ****  *函数crc_modbus()一次计算16位modbus循环冗余校验
+  35:modules/algorithm/crc16.c ****  *一个字节字符串，其开头已被传递给函数。这
+  36:modules/algorithm/crc16.c ****  *要检查的字节数也是一个参数。
+  37:modules/algorithm/crc16.c ****  */
+  38:modules/algorithm/crc16.c **** 
+  39:modules/algorithm/crc16.c **** uint16_t crc_modbus(const uint8_t *input_str, uint16_t num_bytes)
+  40:modules/algorithm/crc16.c **** {
+  41:modules/algorithm/crc16.c ****     uint16_t crc;
+  42:modules/algorithm/crc16.c ****     const uint8_t *ptr;
+  43:modules/algorithm/crc16.c ****     uint16_t a;
+  44:modules/algorithm/crc16.c **** 
+  45:modules/algorithm/crc16.c ****     if (!crc_tab16_init)
+  46:modules/algorithm/crc16.c ****         init_crc16_tab();
+  47:modules/algorithm/crc16.c **** 
+  48:modules/algorithm/crc16.c ****     crc = CRC_START_MODBUS;
+  49:modules/algorithm/crc16.c ****     ptr = input_str;
+  50:modules/algorithm/crc16.c ****     if (ptr != NULL)
+  51:modules/algorithm/crc16.c ****         for (a = 0; a < num_bytes; a++)
+  52:modules/algorithm/crc16.c ****         {
+  53:modules/algorithm/crc16.c **** 
+  54:modules/algorithm/crc16.c ****             crc = (crc >> 8) ^ crc_tab16[(crc ^ (uint16_t)*ptr++) & 0x00FF];
+  55:modules/algorithm/crc16.c ****         }
+  56:modules/algorithm/crc16.c ****     return crc;
+  57:modules/algorithm/crc16.c **** }
+  58:modules/algorithm/crc16.c **** 
+  59:modules/algorithm/crc16.c **** /*
+  60:modules/algorithm/crc16.c ****  * uint16_t update_crc_16( uint16_t crc, unsigned char c );
+  61:modules/algorithm/crc16.c ****  *
+  62:modules/algorithm/crc16.c ****  *函数update_crc_16()根据
+  63:modules/algorithm/crc16.c ****  *前一个循环冗余校验值和下一个要检查的数据字节。
+  64:modules/algorithm/crc16.c ****  */
+  65:modules/algorithm/crc16.c **** uint16_t update_crc_16(uint16_t crc, uint8_t c)
+  66:modules/algorithm/crc16.c **** {
+  67:modules/algorithm/crc16.c ****     if (!crc_tab16_init)
+  68:modules/algorithm/crc16.c ****         init_crc16_tab();
+  69:modules/algorithm/crc16.c ****     return (crc >> 8) ^ crc_tab16[(crc ^ (uint16_t)c) & 0x00FF];
+  70:modules/algorithm/crc16.c **** }
+  71:modules/algorithm/crc16.c **** 
+  72:modules/algorithm/crc16.c **** /*
+  73:modules/algorithm/crc16.c ****  * static void init_crc16_tab( void );
+  74:modules/algorithm/crc16.c ****  *
+  75:modules/algorithm/crc16.c ****  *为了获得最佳性能，使用CRC16例程查找带有值的表
+  76:modules/algorithm/crc16.c ****  *可以直接在异或算法中使用的算法。
+  77:modules/algorithm/crc16.c ****  *查找表首次由init_crc16_tab()例程计算
+  78:modules/algorithm/crc16.c ****  *调用循环冗余校验函数。
+  79:modules/algorithm/crc16.c ****  */
+  80:modules/algorithm/crc16.c **** void init_crc16_tab(void)
+  81:modules/algorithm/crc16.c **** {
+  29              		.loc 1 81 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+  82:modules/algorithm/crc16.c ****     uint16_t i;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s 			page 3
+
+
+  34              		.loc 1 82 5 view .LVU1
+  83:modules/algorithm/crc16.c ****     uint16_t j;
+  35              		.loc 1 83 5 view .LVU2
+  84:modules/algorithm/crc16.c ****     uint16_t crc;
+  36              		.loc 1 84 5 view .LVU3
+  85:modules/algorithm/crc16.c ****     uint16_t c;
+  37              		.loc 1 85 5 view .LVU4
+  86:modules/algorithm/crc16.c ****     for (i = 0; i < 256; i++)
+  38              		.loc 1 86 5 view .LVU5
+  39              	.LVL0:
+  40              		.loc 1 86 12 is_stmt 0 view .LVU6
+  41 0000 4FF0000C 		mov	ip, #0
+  42              		.loc 1 86 5 view .LVU7
+  43 0004 17E0     		b	.L2
+  44              	.LVL1:
+  45              	.L3:
+  87:modules/algorithm/crc16.c ****     {
+  88:modules/algorithm/crc16.c ****         crc = 0;
+  89:modules/algorithm/crc16.c ****         c = i;
+  90:modules/algorithm/crc16.c ****         for (j = 0; j < 8; j++)
+  91:modules/algorithm/crc16.c ****         {
+  92:modules/algorithm/crc16.c ****             if ((crc ^ c) & 0x0001)
+  93:modules/algorithm/crc16.c ****                 crc = (crc >> 1) ^ CRC_POLY_16;
+  94:modules/algorithm/crc16.c ****             else
+  95:modules/algorithm/crc16.c ****                 crc = crc >> 1;
+  46              		.loc 1 95 17 is_stmt 1 view .LVU8
+  47              		.loc 1 95 21 is_stmt 0 view .LVU9
+  48 0006 5208     		lsrs	r2, r2, #1
+  49              	.LVL2:
+  50              	.L4:
+  96:modules/algorithm/crc16.c ****             c = c >> 1;
+  51              		.loc 1 96 13 is_stmt 1 view .LVU10
+  52              		.loc 1 96 15 is_stmt 0 view .LVU11
+  53 0008 C1F34F01 		ubfx	r1, r1, #1, #16
+  54              	.LVL3:
+  90:modules/algorithm/crc16.c ****         {
+  55              		.loc 1 90 29 is_stmt 1 discriminator 2 view .LVU12
+  56 000c 0133     		adds	r3, r3, #1
+  57              	.LVL4:
+  90:modules/algorithm/crc16.c ****         {
+  58              		.loc 1 90 29 is_stmt 0 discriminator 2 view .LVU13
+  59 000e 9BB2     		uxth	r3, r3
+  60              	.LVL5:
+  61              	.L6:
+  90:modules/algorithm/crc16.c ****         {
+  62              		.loc 1 90 23 is_stmt 1 discriminator 1 view .LVU14
+  63 0010 072B     		cmp	r3, #7
+  64 0012 09D8     		bhi	.L8
+  92:modules/algorithm/crc16.c ****                 crc = (crc >> 1) ^ CRC_POLY_16;
+  65              		.loc 1 92 13 view .LVU15
+  92:modules/algorithm/crc16.c ****                 crc = (crc >> 1) ^ CRC_POLY_16;
+  66              		.loc 1 92 27 is_stmt 0 view .LVU16
+  67 0014 82EA0100 		eor	r0, r2, r1
+  92:modules/algorithm/crc16.c ****                 crc = (crc >> 1) ^ CRC_POLY_16;
+  68              		.loc 1 92 16 view .LVU17
+  69 0018 10F0010F 		tst	r0, #1
+  70 001c F3D0     		beq	.L3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s 			page 4
+
+
+  93:modules/algorithm/crc16.c ****             else
+  71              		.loc 1 93 17 is_stmt 1 view .LVU18
+  93:modules/algorithm/crc16.c ****             else
+  72              		.loc 1 93 21 is_stmt 0 view .LVU19
+  73 001e 4AF20100 		movw	r0, #40961
+  74 0022 80EA5202 		eor	r2, r0, r2, lsr #1
+  75              	.LVL6:
+  93:modules/algorithm/crc16.c ****             else
+  76              		.loc 1 93 21 view .LVU20
+  77 0026 EFE7     		b	.L4
+  78              	.L8:
+  97:modules/algorithm/crc16.c ****         }
+  98:modules/algorithm/crc16.c ****         crc_tab16[i] = crc;
+  79              		.loc 1 98 9 is_stmt 1 view .LVU21
+  80              		.loc 1 98 22 is_stmt 0 view .LVU22
+  81 0028 084B     		ldr	r3, .L10
+  82              	.LVL7:
+  83              		.loc 1 98 22 view .LVU23
+  84 002a 23F81C20 		strh	r2, [r3, ip, lsl #1]	@ movhi
+  86:modules/algorithm/crc16.c ****     {
+  85              		.loc 1 86 27 is_stmt 1 discriminator 2 view .LVU24
+  86 002e 0CF1010C 		add	ip, ip, #1
+  87              	.LVL8:
+  86:modules/algorithm/crc16.c ****     {
+  88              		.loc 1 86 27 is_stmt 0 discriminator 2 view .LVU25
+  89 0032 1FFA8CFC 		uxth	ip, ip
+  90              	.LVL9:
+  91              	.L2:
+  86:modules/algorithm/crc16.c ****     {
+  92              		.loc 1 86 19 is_stmt 1 discriminator 1 view .LVU26
+  93 0036 BCF1FF0F 		cmp	ip, #255
+  94 003a 03D8     		bhi	.L9
+  89:modules/algorithm/crc16.c ****         for (j = 0; j < 8; j++)
+  95              		.loc 1 89 11 is_stmt 0 view .LVU27
+  96 003c 6146     		mov	r1, ip
+  88:modules/algorithm/crc16.c ****         c = i;
+  97              		.loc 1 88 13 view .LVU28
+  98 003e 0022     		movs	r2, #0
+  90:modules/algorithm/crc16.c ****         {
+  99              		.loc 1 90 16 view .LVU29
+ 100 0040 1346     		mov	r3, r2
+ 101 0042 E5E7     		b	.L6
+ 102              	.L9:
+  99:modules/algorithm/crc16.c ****     }
+ 100:modules/algorithm/crc16.c ****     crc_tab16_init = 1;
+ 103              		.loc 1 100 5 is_stmt 1 view .LVU30
+ 104              		.loc 1 100 20 is_stmt 0 view .LVU31
+ 105 0044 024B     		ldr	r3, .L10+4
+ 106 0046 0122     		movs	r2, #1
+ 107 0048 1A70     		strb	r2, [r3]
+ 101:modules/algorithm/crc16.c **** }
+ 108              		.loc 1 101 1 view .LVU32
+ 109 004a 7047     		bx	lr
+ 110              	.L11:
+ 111              		.align	2
+ 112              	.L10:
+ 113 004c 00000000 		.word	crc_tab16
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s 			page 5
+
+
+ 114 0050 00000000 		.word	crc_tab16_init
+ 115              		.cfi_endproc
+ 116              	.LFE238:
+ 118              		.section	.text.crc_16,"ax",%progbits
+ 119              		.align	1
+ 120              		.global	crc_16
+ 121              		.syntax unified
+ 122              		.thumb
+ 123              		.thumb_func
+ 125              	crc_16:
+ 126              	.LVL10:
+ 127              	.LFB235:
+  15:modules/algorithm/crc16.c ****     uint16_t crc;
+ 128              		.loc 1 15 1 is_stmt 1 view -0
+ 129              		.cfi_startproc
+ 130              		@ args = 0, pretend = 0, frame = 0
+ 131              		@ frame_needed = 0, uses_anonymous_args = 0
+  15:modules/algorithm/crc16.c ****     uint16_t crc;
+ 132              		.loc 1 15 1 is_stmt 0 view .LVU34
+ 133 0000 38B5     		push	{r3, r4, r5, lr}
+ 134              		.cfi_def_cfa_offset 16
+ 135              		.cfi_offset 3, -16
+ 136              		.cfi_offset 4, -12
+ 137              		.cfi_offset 5, -8
+ 138              		.cfi_offset 14, -4
+ 139 0002 0446     		mov	r4, r0
+ 140 0004 0D46     		mov	r5, r1
+  16:modules/algorithm/crc16.c ****     const uint8_t *ptr;
+ 141              		.loc 1 16 5 is_stmt 1 view .LVU35
+  17:modules/algorithm/crc16.c ****     uint16_t a;
+ 142              		.loc 1 17 5 view .LVU36
+  18:modules/algorithm/crc16.c ****     if (!crc_tab16_init)
+ 143              		.loc 1 18 5 view .LVU37
+  19:modules/algorithm/crc16.c ****         init_crc16_tab();
+ 144              		.loc 1 19 5 view .LVU38
+  19:modules/algorithm/crc16.c ****         init_crc16_tab();
+ 145              		.loc 1 19 9 is_stmt 0 view .LVU39
+ 146 0006 104B     		ldr	r3, .L21
+ 147 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  19:modules/algorithm/crc16.c ****         init_crc16_tab();
+ 148              		.loc 1 19 8 view .LVU40
+ 149 000a 2BB1     		cbz	r3, .L19
+ 150              	.LVL11:
+ 151              	.L13:
+  21:modules/algorithm/crc16.c ****     ptr = input_str;
+ 152              		.loc 1 21 5 is_stmt 1 view .LVU41
+  22:modules/algorithm/crc16.c ****     if (ptr != NULL)
+ 153              		.loc 1 22 5 view .LVU42
+  23:modules/algorithm/crc16.c ****         for (a = 0; a < num_bytes; a++)
+ 154              		.loc 1 23 5 view .LVU43
+  23:modules/algorithm/crc16.c ****         for (a = 0; a < num_bytes; a++)
+ 155              		.loc 1 23 8 is_stmt 0 view .LVU44
+ 156 000c 3CB1     		cbz	r4, .L20
+  24:modules/algorithm/crc16.c ****         {
+ 157              		.loc 1 24 16 view .LVU45
+ 158 000e 4FF0000C 		mov	ip, #0
+  21:modules/algorithm/crc16.c ****     ptr = input_str;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s 			page 6
+
+
+ 159              		.loc 1 21 9 view .LVU46
+ 160 0012 4FF6FF70 		movw	r0, #65535
+ 161 0016 14E0     		b	.L14
+ 162              	.LVL12:
+ 163              	.L19:
+  20:modules/algorithm/crc16.c ****     crc = CRC_START_16;
+ 164              		.loc 1 20 9 is_stmt 1 view .LVU47
+ 165 0018 FFF7FEFF 		bl	init_crc16_tab
+ 166              	.LVL13:
+  20:modules/algorithm/crc16.c ****     crc = CRC_START_16;
+ 167              		.loc 1 20 9 is_stmt 0 view .LVU48
+ 168 001c F6E7     		b	.L13
+ 169              	.LVL14:
+ 170              	.L20:
+  21:modules/algorithm/crc16.c ****     ptr = input_str;
+ 171              		.loc 1 21 9 view .LVU49
+ 172 001e 4FF6FF70 		movw	r0, #65535
+ 173 0022 10E0     		b	.L15
+ 174              	.LVL15:
+ 175              	.L16:
+  26:modules/algorithm/crc16.c ****         }
+ 176              		.loc 1 26 13 is_stmt 1 view .LVU50
+  26:modules/algorithm/crc16.c ****         }
+ 177              		.loc 1 26 63 is_stmt 0 view .LVU51
+ 178 0024 2346     		mov	r3, r4
+ 179              	.LVL16:
+  26:modules/algorithm/crc16.c ****         }
+ 180              		.loc 1 26 59 view .LVU52
+ 181 0026 13F8012B 		ldrb	r2, [r3], #1	@ zero_extendqisi2
+ 182              	.LVL17:
+  26:modules/algorithm/crc16.c ****         }
+ 183              		.loc 1 26 47 view .LVU53
+ 184 002a 4240     		eors	r2, r2, r0
+  26:modules/algorithm/crc16.c ****         }
+ 185              		.loc 1 26 67 view .LVU54
+ 186 002c D2B2     		uxtb	r2, r2
+  26:modules/algorithm/crc16.c ****         }
+ 187              		.loc 1 26 41 view .LVU55
+ 188 002e 0749     		ldr	r1, .L21+4
+ 189 0030 31F81220 		ldrh	r2, [r1, r2, lsl #1]
+  26:modules/algorithm/crc16.c ****         }
+ 190              		.loc 1 26 17 view .LVU56
+ 191 0034 82EA1020 		eor	r0, r2, r0, lsr #8
+ 192              	.LVL18:
+  24:modules/algorithm/crc16.c ****         {
+ 193              		.loc 1 24 37 is_stmt 1 discriminator 3 view .LVU57
+ 194 0038 0CF1010C 		add	ip, ip, #1
+ 195              	.LVL19:
+  24:modules/algorithm/crc16.c ****         {
+ 196              		.loc 1 24 37 is_stmt 0 discriminator 3 view .LVU58
+ 197 003c 1FFA8CFC 		uxth	ip, ip
+ 198              	.LVL20:
+  26:modules/algorithm/crc16.c ****         }
+ 199              		.loc 1 26 63 view .LVU59
+ 200 0040 1C46     		mov	r4, r3
+ 201              	.LVL21:
+ 202              	.L14:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s 			page 7
+
+
+  24:modules/algorithm/crc16.c ****         {
+ 203              		.loc 1 24 23 is_stmt 1 discriminator 1 view .LVU60
+ 204 0042 AC45     		cmp	ip, r5
+ 205 0044 EED3     		bcc	.L16
+ 206              	.LVL22:
+ 207              	.L15:
+  28:modules/algorithm/crc16.c **** }
+ 208              		.loc 1 28 5 view .LVU61
+  29:modules/algorithm/crc16.c **** 
+ 209              		.loc 1 29 1 is_stmt 0 view .LVU62
+ 210 0046 38BD     		pop	{r3, r4, r5, pc}
+ 211              	.LVL23:
+ 212              	.L22:
+  29:modules/algorithm/crc16.c **** 
+ 213              		.loc 1 29 1 view .LVU63
+ 214              		.align	2
+ 215              	.L21:
+ 216 0048 00000000 		.word	crc_tab16_init
+ 217 004c 00000000 		.word	crc_tab16
+ 218              		.cfi_endproc
+ 219              	.LFE235:
+ 221              		.section	.text.crc_modbus,"ax",%progbits
+ 222              		.align	1
+ 223              		.global	crc_modbus
+ 224              		.syntax unified
+ 225              		.thumb
+ 226              		.thumb_func
+ 228              	crc_modbus:
+ 229              	.LVL24:
+ 230              	.LFB236:
+  40:modules/algorithm/crc16.c ****     uint16_t crc;
+ 231              		.loc 1 40 1 is_stmt 1 view -0
+ 232              		.cfi_startproc
+ 233              		@ args = 0, pretend = 0, frame = 0
+ 234              		@ frame_needed = 0, uses_anonymous_args = 0
+  40:modules/algorithm/crc16.c ****     uint16_t crc;
+ 235              		.loc 1 40 1 is_stmt 0 view .LVU65
+ 236 0000 38B5     		push	{r3, r4, r5, lr}
+ 237              		.cfi_def_cfa_offset 16
+ 238              		.cfi_offset 3, -16
+ 239              		.cfi_offset 4, -12
+ 240              		.cfi_offset 5, -8
+ 241              		.cfi_offset 14, -4
+ 242 0002 0446     		mov	r4, r0
+ 243 0004 0D46     		mov	r5, r1
+  41:modules/algorithm/crc16.c ****     const uint8_t *ptr;
+ 244              		.loc 1 41 5 is_stmt 1 view .LVU66
+  42:modules/algorithm/crc16.c ****     uint16_t a;
+ 245              		.loc 1 42 5 view .LVU67
+  43:modules/algorithm/crc16.c **** 
+ 246              		.loc 1 43 5 view .LVU68
+  45:modules/algorithm/crc16.c ****         init_crc16_tab();
+ 247              		.loc 1 45 5 view .LVU69
+  45:modules/algorithm/crc16.c ****         init_crc16_tab();
+ 248              		.loc 1 45 9 is_stmt 0 view .LVU70
+ 249 0006 104B     		ldr	r3, .L32
+ 250 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s 			page 8
+
+
+  45:modules/algorithm/crc16.c ****         init_crc16_tab();
+ 251              		.loc 1 45 8 view .LVU71
+ 252 000a 2BB1     		cbz	r3, .L30
+ 253              	.LVL25:
+ 254              	.L24:
+  48:modules/algorithm/crc16.c ****     ptr = input_str;
+ 255              		.loc 1 48 5 is_stmt 1 view .LVU72
+  49:modules/algorithm/crc16.c ****     if (ptr != NULL)
+ 256              		.loc 1 49 5 view .LVU73
+  50:modules/algorithm/crc16.c ****         for (a = 0; a < num_bytes; a++)
+ 257              		.loc 1 50 5 view .LVU74
+  50:modules/algorithm/crc16.c ****         for (a = 0; a < num_bytes; a++)
+ 258              		.loc 1 50 8 is_stmt 0 view .LVU75
+ 259 000c 3CB1     		cbz	r4, .L31
+  51:modules/algorithm/crc16.c ****         {
+ 260              		.loc 1 51 16 view .LVU76
+ 261 000e 4FF0000C 		mov	ip, #0
+  48:modules/algorithm/crc16.c ****     ptr = input_str;
+ 262              		.loc 1 48 9 view .LVU77
+ 263 0012 4FF6FF70 		movw	r0, #65535
+ 264 0016 14E0     		b	.L25
+ 265              	.LVL26:
+ 266              	.L30:
+  46:modules/algorithm/crc16.c **** 
+ 267              		.loc 1 46 9 is_stmt 1 view .LVU78
+ 268 0018 FFF7FEFF 		bl	init_crc16_tab
+ 269              	.LVL27:
+  46:modules/algorithm/crc16.c **** 
+ 270              		.loc 1 46 9 is_stmt 0 view .LVU79
+ 271 001c F6E7     		b	.L24
+ 272              	.LVL28:
+ 273              	.L31:
+  48:modules/algorithm/crc16.c ****     ptr = input_str;
+ 274              		.loc 1 48 9 view .LVU80
+ 275 001e 4FF6FF70 		movw	r0, #65535
+ 276 0022 10E0     		b	.L26
+ 277              	.LVL29:
+ 278              	.L27:
+  54:modules/algorithm/crc16.c ****         }
+ 279              		.loc 1 54 13 is_stmt 1 view .LVU81
+  54:modules/algorithm/crc16.c ****         }
+ 280              		.loc 1 54 63 is_stmt 0 view .LVU82
+ 281 0024 2346     		mov	r3, r4
+ 282              	.LVL30:
+  54:modules/algorithm/crc16.c ****         }
+ 283              		.loc 1 54 59 view .LVU83
+ 284 0026 13F8012B 		ldrb	r2, [r3], #1	@ zero_extendqisi2
+ 285              	.LVL31:
+  54:modules/algorithm/crc16.c ****         }
+ 286              		.loc 1 54 47 view .LVU84
+ 287 002a 4240     		eors	r2, r2, r0
+  54:modules/algorithm/crc16.c ****         }
+ 288              		.loc 1 54 67 view .LVU85
+ 289 002c D2B2     		uxtb	r2, r2
+  54:modules/algorithm/crc16.c ****         }
+ 290              		.loc 1 54 41 view .LVU86
+ 291 002e 0749     		ldr	r1, .L32+4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s 			page 9
+
+
+ 292 0030 31F81220 		ldrh	r2, [r1, r2, lsl #1]
+  54:modules/algorithm/crc16.c ****         }
+ 293              		.loc 1 54 17 view .LVU87
+ 294 0034 82EA1020 		eor	r0, r2, r0, lsr #8
+ 295              	.LVL32:
+  51:modules/algorithm/crc16.c ****         {
+ 296              		.loc 1 51 37 is_stmt 1 discriminator 3 view .LVU88
+ 297 0038 0CF1010C 		add	ip, ip, #1
+ 298              	.LVL33:
+  51:modules/algorithm/crc16.c ****         {
+ 299              		.loc 1 51 37 is_stmt 0 discriminator 3 view .LVU89
+ 300 003c 1FFA8CFC 		uxth	ip, ip
+ 301              	.LVL34:
+  54:modules/algorithm/crc16.c ****         }
+ 302              		.loc 1 54 63 view .LVU90
+ 303 0040 1C46     		mov	r4, r3
+ 304              	.LVL35:
+ 305              	.L25:
+  51:modules/algorithm/crc16.c ****         {
+ 306              		.loc 1 51 23 is_stmt 1 discriminator 1 view .LVU91
+ 307 0042 AC45     		cmp	ip, r5
+ 308 0044 EED3     		bcc	.L27
+ 309              	.LVL36:
+ 310              	.L26:
+  56:modules/algorithm/crc16.c **** }
+ 311              		.loc 1 56 5 view .LVU92
+  57:modules/algorithm/crc16.c **** 
+ 312              		.loc 1 57 1 is_stmt 0 view .LVU93
+ 313 0046 38BD     		pop	{r3, r4, r5, pc}
+ 314              	.LVL37:
+ 315              	.L33:
+  57:modules/algorithm/crc16.c **** 
+ 316              		.loc 1 57 1 view .LVU94
+ 317              		.align	2
+ 318              	.L32:
+ 319 0048 00000000 		.word	crc_tab16_init
+ 320 004c 00000000 		.word	crc_tab16
+ 321              		.cfi_endproc
+ 322              	.LFE236:
+ 324              		.section	.text.update_crc_16,"ax",%progbits
+ 325              		.align	1
+ 326              		.global	update_crc_16
+ 327              		.syntax unified
+ 328              		.thumb
+ 329              		.thumb_func
+ 331              	update_crc_16:
+ 332              	.LVL38:
+ 333              	.LFB237:
+  66:modules/algorithm/crc16.c ****     if (!crc_tab16_init)
+ 334              		.loc 1 66 1 is_stmt 1 view -0
+ 335              		.cfi_startproc
+ 336              		@ args = 0, pretend = 0, frame = 0
+ 337              		@ frame_needed = 0, uses_anonymous_args = 0
+  66:modules/algorithm/crc16.c ****     if (!crc_tab16_init)
+ 338              		.loc 1 66 1 is_stmt 0 view .LVU96
+ 339 0000 38B5     		push	{r3, r4, r5, lr}
+ 340              		.cfi_def_cfa_offset 16
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s 			page 10
+
+
+ 341              		.cfi_offset 3, -16
+ 342              		.cfi_offset 4, -12
+ 343              		.cfi_offset 5, -8
+ 344              		.cfi_offset 14, -4
+ 345 0002 0446     		mov	r4, r0
+ 346 0004 0D46     		mov	r5, r1
+  67:modules/algorithm/crc16.c ****         init_crc16_tab();
+ 347              		.loc 1 67 5 is_stmt 1 view .LVU97
+  67:modules/algorithm/crc16.c ****         init_crc16_tab();
+ 348              		.loc 1 67 9 is_stmt 0 view .LVU98
+ 349 0006 074B     		ldr	r3, .L38
+ 350 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  67:modules/algorithm/crc16.c ****         init_crc16_tab();
+ 351              		.loc 1 67 8 view .LVU99
+ 352 000a 43B1     		cbz	r3, .L37
+ 353              	.LVL39:
+ 354              	.L35:
+  69:modules/algorithm/crc16.c **** }
+ 355              		.loc 1 69 5 is_stmt 1 view .LVU100
+  69:modules/algorithm/crc16.c **** }
+ 356              		.loc 1 69 40 is_stmt 0 view .LVU101
+ 357 000c 2946     		mov	r1, r5
+ 358 000e 6140     		eors	r1, r1, r4
+  69:modules/algorithm/crc16.c **** }
+ 359              		.loc 1 69 55 view .LVU102
+ 360 0010 C9B2     		uxtb	r1, r1
+  69:modules/algorithm/crc16.c **** }
+ 361              		.loc 1 69 34 view .LVU103
+ 362 0012 054B     		ldr	r3, .L38+4
+ 363 0014 33F81100 		ldrh	r0, [r3, r1, lsl #1]
+  70:modules/algorithm/crc16.c **** 
+ 364              		.loc 1 70 1 view .LVU104
+ 365 0018 80EA1420 		eor	r0, r0, r4, lsr #8
+ 366 001c 38BD     		pop	{r3, r4, r5, pc}
+ 367              	.LVL40:
+ 368              	.L37:
+  68:modules/algorithm/crc16.c ****     return (crc >> 8) ^ crc_tab16[(crc ^ (uint16_t)c) & 0x00FF];
+ 369              		.loc 1 68 9 is_stmt 1 view .LVU105
+ 370 001e FFF7FEFF 		bl	init_crc16_tab
+ 371              	.LVL41:
+  68:modules/algorithm/crc16.c ****     return (crc >> 8) ^ crc_tab16[(crc ^ (uint16_t)c) & 0x00FF];
+ 372              		.loc 1 68 9 is_stmt 0 view .LVU106
+ 373 0022 F3E7     		b	.L35
+ 374              	.L39:
+ 375              		.align	2
+ 376              	.L38:
+ 377 0024 00000000 		.word	crc_tab16_init
+ 378 0028 00000000 		.word	crc_tab16
+ 379              		.cfi_endproc
+ 380              	.LFE237:
+ 382              		.section	.bss.crc_tab16,"aw",%nobits
+ 383              		.align	2
+ 386              	crc_tab16:
+ 387 0000 00000000 		.space	512
+ 387      00000000 
+ 387      00000000 
+ 387      00000000 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s 			page 11
+
+
+ 387      00000000 
+ 388              		.section	.bss.crc_tab16_init,"aw",%nobits
+ 391              	crc_tab16_init:
+ 392 0000 00       		.space	1
+ 393              		.text
+ 394              	.Letext0:
+ 395              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 396              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s 			page 12
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 crc16.c
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:21     .text.init_crc16_tab:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:27     .text.init_crc16_tab:00000000 init_crc16_tab
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:113    .text.init_crc16_tab:0000004c $d
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:386    .bss.crc_tab16:00000000 crc_tab16
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:391    .bss.crc_tab16_init:00000000 crc_tab16_init
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:119    .text.crc_16:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:125    .text.crc_16:00000000 crc_16
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:216    .text.crc_16:00000048 $d
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:222    .text.crc_modbus:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:228    .text.crc_modbus:00000000 crc_modbus
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:319    .text.crc_modbus:00000048 $d
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:325    .text.update_crc_16:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:331    .text.update_crc_16:00000000 update_crc_16
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:377    .text.update_crc_16:00000024 $d
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:383    .bss.crc_tab16:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc57f4hy.s:392    .bss.crc_tab16_init:00000000 $d
+
+NO UNDEFINED SYMBOLS

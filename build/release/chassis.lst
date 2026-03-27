@@ -1,0 +1,1204 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"chassis.c"
+  16              		.text
+  17              		.section	.text.ChassisCalculate,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	ChassisCalculate:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 434B     		ldr	r3, .L5
+  28 0002 1B68     		ldr	r3, [r3]
+  29 0004 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  30 0006 13B1     		cbz	r3, .L2
+  31 0008 012B     		cmp	r3, #1
+  32 000a 3CD0     		beq	.L3
+  33 000c 7047     		bx	lr
+  34              	.L2:
+  35 000e 414B     		ldr	r3, .L5+4
+  36 0010 D3ED007A 		vldr.32	s15, [r3]
+  37 0014 F1EE676A 		vneg.f32	s13, s15
+  38 0018 3F4B     		ldr	r3, .L5+8
+  39 001a 93ED006A 		vldr.32	s12, [r3]
+  40 001e 76EEC66A 		vsub.f32	s13, s13, s12
+  41 0022 3E4B     		ldr	r3, .L5+12
+  42 0024 93ED027A 		vldr.32	s14, [r3, #8]
+  43 0028 3D4B     		ldr	r3, .L5+16
+  44 002a D3ED005A 		vldr.32	s11, [r3]
+  45 002e 67EE255A 		vmul.f32	s11, s14, s11
+  46 0032 76EEE56A 		vsub.f32	s13, s13, s11
+  47 0036 3B4B     		ldr	r3, .L5+20
+  48 0038 C3ED006A 		vstr.32	s13, [r3]
+  49 003c 76EE676A 		vsub.f32	s13, s12, s15
+  50 0040 394B     		ldr	r3, .L5+24
+  51 0042 D3ED005A 		vldr.32	s11, [r3]
+  52 0046 67EE255A 		vmul.f32	s11, s14, s11
+  53 004a 76EEE56A 		vsub.f32	s13, s13, s11
+  54 004e 374B     		ldr	r3, .L5+28
+  55 0050 C3ED006A 		vstr.32	s13, [r3]
+  56 0054 77EEC66A 		vsub.f32	s13, s15, s12
+  57 0058 354B     		ldr	r3, .L5+32
+  58 005a D3ED005A 		vldr.32	s11, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 2
+
+
+  59 005e 67EE255A 		vmul.f32	s11, s14, s11
+  60 0062 76EEE56A 		vsub.f32	s13, s13, s11
+  61 0066 334B     		ldr	r3, .L5+36
+  62 0068 C3ED006A 		vstr.32	s13, [r3]
+  63 006c 77EE867A 		vadd.f32	s15, s15, s12
+  64 0070 314B     		ldr	r3, .L5+40
+  65 0072 D3ED006A 		vldr.32	s13, [r3]
+  66 0076 27EE267A 		vmul.f32	s14, s14, s13
+  67 007a 77EEC77A 		vsub.f32	s15, s15, s14
+  68 007e 2F4B     		ldr	r3, .L5+44
+  69 0080 C3ED007A 		vstr.32	s15, [r3]
+  70 0084 7047     		bx	lr
+  71              	.L3:
+  72 0086 234B     		ldr	r3, .L5+4
+  73 0088 D3ED007A 		vldr.32	s15, [r3]
+  74 008c 9FED2C7A 		vldr.32	s14, .L5+48
+  75 0090 67EE877A 		vmul.f32	s15, s15, s14
+  76 0094 204B     		ldr	r3, .L5+8
+  77 0096 D3ED006A 		vldr.32	s13, [r3]
+  78 009a 9FED2A7A 		vldr.32	s14, .L5+52
+  79 009e 66EE876A 		vmul.f32	s13, s13, s14
+  80 00a2 37EEA66A 		vadd.f32	s12, s15, s13
+  81 00a6 1D4B     		ldr	r3, .L5+12
+  82 00a8 93ED027A 		vldr.32	s14, [r3, #8]
+  83 00ac 1C4B     		ldr	r3, .L5+16
+  84 00ae D3ED005A 		vldr.32	s11, [r3]
+  85 00b2 67EE255A 		vmul.f32	s11, s14, s11
+  86 00b6 36EE656A 		vsub.f32	s12, s12, s11
+  87 00ba 1A4B     		ldr	r3, .L5+20
+  88 00bc 83ED006A 		vstr.32	s12, [r3]
+  89 00c0 194B     		ldr	r3, .L5+24
+  90 00c2 D3ED005A 		vldr.32	s11, [r3]
+  91 00c6 67EE255A 		vmul.f32	s11, s14, s11
+  92 00ca 36EEE76A 		vsub.f32	s12, s13, s15
+  93 00ce 36EE656A 		vsub.f32	s12, s12, s11
+  94 00d2 164B     		ldr	r3, .L5+28
+  95 00d4 83ED006A 		vstr.32	s12, [r3]
+  96 00d8 37EEE66A 		vsub.f32	s12, s15, s13
+  97 00dc 144B     		ldr	r3, .L5+32
+  98 00de D3ED005A 		vldr.32	s11, [r3]
+  99 00e2 67EE255A 		vmul.f32	s11, s14, s11
+ 100 00e6 36EE656A 		vsub.f32	s12, s12, s11
+ 101 00ea 124B     		ldr	r3, .L5+36
+ 102 00ec 83ED006A 		vstr.32	s12, [r3]
+ 103 00f0 F1EE677A 		vneg.f32	s15, s15
+ 104 00f4 77EEE67A 		vsub.f32	s15, s15, s13
+ 105 00f8 0F4B     		ldr	r3, .L5+40
+ 106 00fa D3ED006A 		vldr.32	s13, [r3]
+ 107 00fe 27EE267A 		vmul.f32	s14, s14, s13
+ 108 0102 77EEC77A 		vsub.f32	s15, s15, s14
+ 109 0106 0D4B     		ldr	r3, .L5+44
+ 110 0108 C3ED007A 		vstr.32	s15, [r3]
+ 111 010c 7047     		bx	lr
+ 112              	.L6:
+ 113 010e 00BF     		.align	2
+ 114              	.L5:
+ 115 0110 00000000 		.word	chassis_config
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 3
+
+
+ 116 0114 00000000 		.word	chassis_vx
+ 117 0118 00000000 		.word	chassis_vy
+ 118 011c 00000000 		.word	chassis_cmd_recv
+ 119 0120 00000000 		.word	lf_center
+ 120 0124 00000000 		.word	vt_lf
+ 121 0128 00000000 		.word	rf_center
+ 122 012c 00000000 		.word	vt_rf
+ 123 0130 00000000 		.word	lb_center
+ 124 0134 00000000 		.word	vt_lb
+ 125 0138 00000000 		.word	rb_center
+ 126 013c 00000000 		.word	vt_rb
+ 127 0140 F30435BF 		.word	-1087044365
+ 128 0144 F304353F 		.word	1060439283
+ 130              		.section	.text.LimitChassisOutput,"ax",%progbits
+ 131              		.align	1
+ 132              		.syntax unified
+ 133              		.thumb
+ 134              		.thumb_func
+ 136              	LimitChassisOutput:
+ 137              		@ args = 0, pretend = 0, frame = 64
+ 138              		@ frame_needed = 0, uses_anonymous_args = 0
+ 139 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 140 0004 2DED088B 		vpush.64	{d8, d9, d10, d11}
+ 141 0008 91B0     		sub	sp, sp, #68
+ 142 000a 894B     		ldr	r3, .L42+8
+ 143 000c 1B68     		ldr	r3, [r3]
+ 144 000e 0C93     		str	r3, [sp, #48]
+ 145 0010 884B     		ldr	r3, .L42+12
+ 146 0012 1B68     		ldr	r3, [r3]
+ 147 0014 0D93     		str	r3, [sp, #52]
+ 148 0016 884B     		ldr	r3, .L42+16
+ 149 0018 1B68     		ldr	r3, [r3]
+ 150 001a 0E93     		str	r3, [sp, #56]
+ 151 001c 874B     		ldr	r3, .L42+20
+ 152 001e 1B68     		ldr	r3, [r3]
+ 153 0020 0F93     		str	r3, [sp, #60]
+ 154 0022 874B     		ldr	r3, .L42+24
+ 155 0024 1B68     		ldr	r3, [r3]	@ float
+ 156 0026 0893     		str	r3, [sp, #32]	@ float
+ 157 0028 864B     		ldr	r3, .L42+28
+ 158 002a 1B68     		ldr	r3, [r3]	@ float
+ 159 002c 0993     		str	r3, [sp, #36]	@ float
+ 160 002e 864B     		ldr	r3, .L42+32
+ 161 0030 1B68     		ldr	r3, [r3]	@ float
+ 162 0032 0A93     		str	r3, [sp, #40]	@ float
+ 163 0034 854B     		ldr	r3, .L42+36
+ 164 0036 1B68     		ldr	r3, [r3]	@ float
+ 165 0038 0B93     		str	r3, [sp, #44]	@ float
+ 166 003a 854B     		ldr	r3, .L42+40
+ 167 003c 93ED04AA 		vldr.32	s20, [r3, #16]
+ 168 0040 0025     		movs	r5, #0
+ 169 0042 0CE0     		b	.L8
+ 170              	.L40:
+ 171 0044 10AB     		add	r3, sp, #64
+ 172 0046 03EB8503 		add	r3, r3, r5, lsl #2
+ 173 004a 53ED087A 		vldr.32	s15, [r3, #-32]
+ 174 004e F1EE677A 		vneg.f32	s15, s15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 4
+
+
+ 175 0052 43ED087A 		vstr.32	s15, [r3, #-32]
+ 176 0056 1BE0     		b	.L9
+ 177              	.L10:
+ 178 0058 3AEE48AA 		vsub.f32	s20, s20, s16
+ 179              	.L13:
+ 180 005c 0135     		adds	r5, r5, #1
+ 181              	.L8:
+ 182 005e 032D     		cmp	r5, #3
+ 183 0060 00F3B380 		bgt	.L39
+ 184 0064 10AB     		add	r3, sp, #64
+ 185 0066 03EB8503 		add	r3, r3, r5, lsl #2
+ 186 006a 53F8106C 		ldr	r6, [r3, #-16]
+ 187 006e 0021     		movs	r1, #0
+ 188 0070 3046     		mov	r0, r6
+ 189 0072 FFF7FEFF 		bl	DJIMotorOuterLoop
+ 190 0076 0021     		movs	r1, #0
+ 191 0078 3046     		mov	r0, r6
+ 192 007a FFF7FEFF 		bl	DJIMotorCloseLoop
+ 193 007e 754B     		ldr	r3, .L42+44
+ 194 0080 1E60     		str	r6, [r3]
+ 195 0082 06F12000 		add	r0, r6, #32
+ 196 0086 744B     		ldr	r3, .L42+48
+ 197 0088 1860     		str	r0, [r3]
+ 198 008a B37E     		ldrb	r3, [r6, #26]	@ zero_extendqisi2
+ 199 008c 012B     		cmp	r3, #1
+ 200 008e D9D0     		beq	.L40
+ 201              	.L9:
+ 202 0090 10AB     		add	r3, sp, #64
+ 203 0092 03EB8504 		add	r4, r3, r5, lsl #2
+ 204 0096 54ED080A 		vldr.32	s1, [r4, #-32]
+ 205 009a 96ED020A 		vldr.32	s0, [r6, #8]
+ 206 009e 8830     		adds	r0, r0, #136
+ 207 00a0 FFF7FEFF 		bl	PIDCalculate
+ 208 00a4 F0EE400A 		vmov.f32	s1, s0
+ 209 00a8 04ED080A 		vstr.32	s0, [r4, #-32]
+ 210 00ac 6A4F     		ldr	r7, .L42+48
+ 211 00ae 3868     		ldr	r0, [r7]
+ 212 00b0 684E     		ldr	r6, .L42+44
+ 213 00b2 3368     		ldr	r3, [r6]
+ 214 00b4 B3F90C30 		ldrsh	r3, [r3, #12]
+ 215 00b8 00EE103A 		vmov	s0, r3	@ int
+ 216 00bc B8EEC00A 		vcvt.f32.s32	s0, s0
+ 217 00c0 1030     		adds	r0, r0, #16
+ 218 00c2 FFF7FEFF 		bl	PIDCalculate
+ 219 00c6 04ED080A 		vstr.32	s0, [r4, #-32]
+ 220 00ca D7F800B0 		ldr	fp, [r7]
+ 221 00ce 9BED188A 		vldr.32	s16, [fp, #96]
+ 222 00d2 DFED628A 		vldr.32	s17, .L42+52
+ 223 00d6 68EE287A 		vmul.f32	s15, s16, s17
+ 224 00da 3368     		ldr	r3, [r6]
+ 225 00dc 93ED029A 		vldr.32	s18, [r3, #8]
+ 226 00e0 67EE897A 		vmul.f32	s15, s15, s18
+ 227 00e4 9FED5E7A 		vldr.32	s14, .L42+56
+ 228 00e8 67EE877A 		vmul.f32	s15, s15, s14
+ 229 00ec 17EE900A 		vmov	r0, s15
+ 230 00f0 FFF7FEFF 		bl	__aeabi_f2d
+ 231 00f4 0646     		mov	r6, r0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 5
+
+
+ 232 00f6 0F46     		mov	r7, r1
+ 233 00f8 5A4B     		ldr	r3, .L42+60
+ 234 00fa D3F800A0 		ldr	r10, [r3]
+ 235 00fe DAF80400 		ldr	r0, [r10, #4]	@ float
+ 236 0102 FFF7FEFF 		bl	__aeabi_f2d
+ 237 0106 8046     		mov	r8, r0
+ 238 0108 8946     		mov	r9, r1
+ 239 010a F0EEC97A 		vabs.f32	s15, s18
+ 240 010e 17EE900A 		vmov	r0, s15
+ 241 0112 FFF7FEFF 		bl	__aeabi_f2d
+ 242 0116 0246     		mov	r2, r0
+ 243 0118 0B46     		mov	r3, r1
+ 244 011a 4046     		mov	r0, r8
+ 245 011c 4946     		mov	r1, r9
+ 246 011e FFF7FEFF 		bl	__aeabi_dmul
+ 247 0122 41A3     		adr	r3, .L42
+ 248 0124 D3E90023 		ldrd	r2, [r3]
+ 249 0128 FFF7FEFF 		bl	__aeabi_dmul
+ 250 012c 0246     		mov	r2, r0
+ 251 012e 0B46     		mov	r3, r1
+ 252 0130 3046     		mov	r0, r6
+ 253 0132 3946     		mov	r1, r7
+ 254 0134 FFF7FEFF 		bl	__aeabi_dadd
+ 255 0138 0646     		mov	r6, r0
+ 256 013a 0F46     		mov	r7, r1
+ 257 013c DAED027A 		vldr.32	s15, [r10, #8]
+ 258 0140 68EE277A 		vmul.f32	s15, s16, s15
+ 259 0144 67EEA87A 		vmul.f32	s15, s15, s17
+ 260 0148 28EE278A 		vmul.f32	s16, s16, s15
+ 261 014c 68EE287A 		vmul.f32	s15, s16, s17
+ 262 0150 17EE900A 		vmov	r0, s15
+ 263 0154 FFF7FEFF 		bl	__aeabi_f2d
+ 264 0158 0246     		mov	r2, r0
+ 265 015a 0B46     		mov	r3, r1
+ 266 015c 3046     		mov	r0, r6
+ 267 015e 3946     		mov	r1, r7
+ 268 0160 FFF7FEFF 		bl	__aeabi_dadd
+ 269 0164 0646     		mov	r6, r0
+ 270 0166 0F46     		mov	r7, r1
+ 271 0168 DAF80C00 		ldr	r0, [r10, #12]	@ float
+ 272 016c FFF7FEFF 		bl	__aeabi_f2d
+ 273 0170 0246     		mov	r2, r0
+ 274 0172 0B46     		mov	r3, r1
+ 275 0174 3046     		mov	r0, r6
+ 276 0176 3946     		mov	r1, r7
+ 277 0178 FFF7FEFF 		bl	__aeabi_dadd
+ 278 017c FFF7FEFF 		bl	__aeabi_d2f
+ 279 0180 08EE100A 		vmov	s16, r0
+ 280 0184 44F8300C 		str	r0, [r4, #-48]	@ float
+ 281 0188 DBED398A 		vldr.32	s17, [fp, #228]
+ 282 018c 78EEC98A 		vsub.f32	s17, s17, s18
+ 283 0190 F0EEE88A 		vabs.f32	s17, s17
+ 284 0194 44ED108A 		vstr.32	s17, [r4, #-64]
+ 285 0198 79EE889A 		vadd.f32	s19, s19, s16
+ 286 019c DFED320A 		vldr.32	s1, .L42+64
+ 287 01a0 B0EE480A 		vmov.f32	s0, s16
+ 288 01a4 FFF7FEFF 		bl	floatEqual
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 6
+
+
+ 289 01a8 B5EE400A 		vcmp.f32	s0, #0
+ 290 01ac F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 291 01b0 7FF452AF 		bne	.L10
+ 292 01b4 B5EEC08A 		vcmpe.f32	s16, #0
+ 293 01b8 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 294 01bc 3FF54CAF 		bmi	.L10
+ 295 01c0 3BEE08BA 		vadd.f32	s22, s22, s16
+ 296 01c4 7AEEA8AA 		vadd.f32	s21, s21, s17
+ 297 01c8 48E7     		b	.L13
+ 298              	.L39:
+ 299 01ca 214B     		ldr	r3, .L42+40
+ 300 01cc D3ED047A 		vldr.32	s15, [r3, #16]
+ 301 01d0 F4EEE97A 		vcmpe.f32	s15, s19
+ 302 01d4 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 303 01d8 40F16781 		bpl	.L15
+ 304 01dc F2EE0E7A 		vmov.f32	s15, #1.5e+1
+ 305 01e0 F4EEE7AA 		vcmpe.f32	s21, s15
+ 306 01e4 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 307 01e8 18DC     		bgt	.L28
+ 308 01ea F1EE047A 		vmov.f32	s15, #5.0e+0
+ 309 01ee F4EEE7AA 		vcmpe.f32	s21, s15
+ 310 01f2 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 311 01f6 02DC     		bgt	.L41
+ 312 01f8 9FED1B9A 		vldr.32	s18, .L42+64
+ 313 01fc 10E0     		b	.L17
+ 314              	.L41:
+ 315 01fe 7AEEE77A 		vsub.f32	s15, s21, s15
+ 316 0202 B7EE001A 		vmov.f32	s2, #1.0e+0
+ 317 0206 DFED180A 		vldr.32	s1, .L42+64
+ 318 020a B2EE040A 		vmov.f32	s0, #1.0e+1
+ 319 020e 87EE800A 		vdiv.f32	s0, s15, s0
+ 320 0212 FFF7FEFF 		bl	float_constrain
+ 321 0216 B0EE409A 		vmov.f32	s18, s0
+ 322 021a 01E0     		b	.L17
+ 323              	.L28:
+ 324 021c B7EE009A 		vmov.f32	s18, #1.0e+0
+ 325              	.L17:
+ 326 0220 0024     		movs	r4, #0
+ 327 0222 53E0     		b	.L19
+ 328              	.L43:
+ 329 0224 AFF30080 		.align	3
+ 330              	.L42:
+ 331 0228 000000A0 		.word	-1610612736
+ 332 022c 46DF913F 		.word	1066524486
+ 333 0230 00000000 		.word	motor_lf
+ 334 0234 00000000 		.word	motor_rf
+ 335 0238 00000000 		.word	motor_lb
+ 336 023c 00000000 		.word	motor_rb
+ 337 0240 00000000 		.word	vt_lf
+ 338 0244 00000000 		.word	vt_rf
+ 339 0248 00000000 		.word	vt_lb
+ 340 024c 00000000 		.word	vt_rb
+ 341 0250 00000000 		.word	chassis_cmd_recv
+ 342 0254 00000000 		.word	measure.1
+ 343 0258 00000000 		.word	motor_controller.0
+ 344 025c E4F29F37 		.word	933229284
+ 345 0260 35FA8E3C 		.word	1016003125
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 7
+
+
+ 346 0264 00000000 		.word	power_manager
+ 347 0268 00000000 		.word	0
+ 348              	.L21:
+ 349 026c B5EEC08A 		vcmpe.f32	s16, #0
+ 350 0270 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 351 0274 40F3FF80 		ble	.L36
+ 352 0278 9D4B     		ldr	r3, .L44+8
+ 353 027a 1B68     		ldr	r3, [r3]
+ 354 027c D3ED187A 		vldr.32	s15, [r3, #96]
+ 355 0280 F5EEC07A 		vcmpe.f32	s15, #0
+ 356 0284 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 357 0288 40F3DA80 		ble	.L37
+ 358 028c 994B     		ldr	r3, .L44+12
+ 359 028e 1B68     		ldr	r3, [r3]
+ 360 0290 D3ED028A 		vldr.32	s17, [r3, #8]
+ 361 0294 DFED987A 		vldr.32	s15, .L44+16
+ 362 0298 68EEE78A 		vnmul.f32	s17, s17, s15
+ 363 029c B0EE480A 		vmov.f32	s0, s16
+ 364 02a0 FFF7FEFF 		bl	sqrtf
+ 365 02a4 78EE808A 		vadd.f32	s17, s17, s0
+ 366 02a8 944B     		ldr	r3, .L44+20
+ 367 02aa 1B68     		ldr	r3, [r3]
+ 368 02ac D3ED027A 		vldr.32	s15, [r3, #8]
+ 369 02b0 77EEA77A 		vadd.f32	s15, s15, s15
+ 370 02b4 C8EEA76A 		vdiv.f32	s13, s17, s15
+ 371 02b8 9FED917A 		vldr.32	s14, .L44+24
+ 372 02bc C6EE877A 		vdiv.f32	s15, s13, s14
+ 373              	.L26:
+ 374 02c0 10AB     		add	r3, sp, #64
+ 375 02c2 03EB8403 		add	r3, r3, r4, lsl #2
+ 376 02c6 43ED087A 		vstr.32	s15, [r3, #-32]
+ 377              	.L20:
+ 378 02ca 0134     		adds	r4, r4, #1
+ 379              	.L19:
+ 380 02cc 032C     		cmp	r4, #3
+ 381 02ce 00F3EC80 		bgt	.L15
+ 382 02d2 10AB     		add	r3, sp, #64
+ 383 02d4 03EB8402 		add	r2, r3, r4, lsl #2
+ 384 02d8 52F8103C 		ldr	r3, [r2, #-16]
+ 385 02dc 8549     		ldr	r1, .L44+12
+ 386 02de 0B60     		str	r3, [r1]
+ 387 02e0 2033     		adds	r3, r3, #32
+ 388 02e2 8349     		ldr	r1, .L44+8
+ 389 02e4 0B60     		str	r3, [r1]
+ 390 02e6 12ED0C8A 		vldr.32	s16, [r2, #-48]
+ 391 02ea DFED860A 		vldr.32	s1, .L44+28
+ 392 02ee B0EE480A 		vmov.f32	s0, s16
+ 393 02f2 FFF7FEFF 		bl	floatEqual
+ 394 02f6 B5EE400A 		vcmp.f32	s0, #0
+ 395 02fa F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 396 02fe E4D1     		bne	.L20
+ 397 0300 B5EEC08A 		vcmpe.f32	s16, #0
+ 398 0304 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 399 0308 DFD4     		bmi	.L20
+ 400 030a 794B     		ldr	r3, .L44+8
+ 401 030c 1B68     		ldr	r3, [r3]
+ 402 030e 93ED397A 		vldr.32	s14, [r3, #228]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 8
+
+
+ 403 0312 784B     		ldr	r3, .L44+12
+ 404 0314 1B68     		ldr	r3, [r3]
+ 405 0316 D3ED028A 		vldr.32	s17, [r3, #8]
+ 406 031a 37EE687A 		vsub.f32	s14, s14, s17
+ 407 031e B0EEC77A 		vabs.f32	s14, s14
+ 408 0322 C7EE2A7A 		vdiv.f32	s15, s14, s21
+ 409 0326 88EE0B7A 		vdiv.f32	s14, s16, s22
+ 410 032a 29EE278A 		vmul.f32	s16, s18, s15
+ 411 032e F7EE007A 		vmov.f32	s15, #1.0e+0
+ 412 0332 77EEC97A 		vsub.f32	s15, s15, s18
+ 413 0336 67EE877A 		vmul.f32	s15, s15, s14
+ 414 033a 38EE278A 		vadd.f32	s16, s16, s15
+ 415 033e 9FED6E7A 		vldr.32	s14, .L44+16
+ 416 0342 68EE877A 		vmul.f32	s15, s17, s14
+ 417 0346 68EEA77A 		vmul.f32	s15, s17, s15
+ 418 034a 67EE877A 		vmul.f32	s15, s15, s14
+ 419 034e 17EE900A 		vmov	r0, s15
+ 420 0352 FFF7FEFF 		bl	__aeabi_f2d
+ 421 0356 8246     		mov	r10, r0
+ 422 0358 8B46     		mov	fp, r1
+ 423 035a 684B     		ldr	r3, .L44+20
+ 424 035c 1D68     		ldr	r5, [r3]
+ 425 035e 95ED027A 		vldr.32	s14, [r5, #8]
+ 426 0362 F1EE007A 		vmov.f32	s15, #4.0e+0
+ 427 0366 67EE277A 		vmul.f32	s15, s14, s15
+ 428 036a 17EE900A 		vmov	r0, s15
+ 429 036e FFF7FEFF 		bl	__aeabi_f2d
+ 430 0372 8046     		mov	r8, r0
+ 431 0374 8946     		mov	r9, r1
+ 432 0376 6868     		ldr	r0, [r5, #4]	@ float
+ 433 0378 FFF7FEFF 		bl	__aeabi_f2d
+ 434 037c 0646     		mov	r6, r0
+ 435 037e 0F46     		mov	r7, r1
+ 436 0380 F0EEE87A 		vabs.f32	s15, s17
+ 437 0384 17EE900A 		vmov	r0, s15
+ 438 0388 FFF7FEFF 		bl	__aeabi_f2d
+ 439 038c 0246     		mov	r2, r0
+ 440 038e 0B46     		mov	r3, r1
+ 441 0390 3046     		mov	r0, r6
+ 442 0392 3946     		mov	r1, r7
+ 443 0394 FFF7FEFF 		bl	__aeabi_dmul
+ 444 0398 53A3     		adr	r3, .L44
+ 445 039a D3E90023 		ldrd	r2, [r3]
+ 446 039e FFF7FEFF 		bl	__aeabi_dmul
+ 447 03a2 0646     		mov	r6, r0
+ 448 03a4 0F46     		mov	r7, r1
+ 449 03a6 6AEE087A 		vmul.f32	s15, s20, s16
+ 450 03aa 17EE900A 		vmov	r0, s15
+ 451 03ae FFF7FEFF 		bl	__aeabi_f2d
+ 452 03b2 0246     		mov	r2, r0
+ 453 03b4 0B46     		mov	r3, r1
+ 454 03b6 3046     		mov	r0, r6
+ 455 03b8 3946     		mov	r1, r7
+ 456 03ba FFF7FEFF 		bl	__aeabi_dsub
+ 457 03be 0646     		mov	r6, r0
+ 458 03c0 0F46     		mov	r7, r1
+ 459 03c2 E868     		ldr	r0, [r5, #12]	@ float
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 9
+
+
+ 460 03c4 FFF7FEFF 		bl	__aeabi_f2d
+ 461 03c8 0246     		mov	r2, r0
+ 462 03ca 0B46     		mov	r3, r1
+ 463 03cc 3046     		mov	r0, r6
+ 464 03ce 3946     		mov	r1, r7
+ 465 03d0 FFF7FEFF 		bl	__aeabi_dadd
+ 466 03d4 0246     		mov	r2, r0
+ 467 03d6 0B46     		mov	r3, r1
+ 468 03d8 4046     		mov	r0, r8
+ 469 03da 4946     		mov	r1, r9
+ 470 03dc FFF7FEFF 		bl	__aeabi_dmul
+ 471 03e0 0246     		mov	r2, r0
+ 472 03e2 0B46     		mov	r3, r1
+ 473 03e4 5046     		mov	r0, r10
+ 474 03e6 5946     		mov	r1, fp
+ 475 03e8 FFF7FEFF 		bl	__aeabi_dsub
+ 476 03ec FFF7FEFF 		bl	__aeabi_d2f
+ 477 03f0 08EE100A 		vmov	s16, r0
+ 478 03f4 DFED430A 		vldr.32	s1, .L44+28
+ 479 03f8 B0EE480A 		vmov.f32	s0, s16
+ 480 03fc FFF7FEFF 		bl	floatEqual
+ 481 0400 B5EE400A 		vcmp.f32	s0, #0
+ 482 0404 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 483 0408 3FF430AF 		beq	.L21
+ 484 040c 394B     		ldr	r3, .L44+12
+ 485 040e 1B68     		ldr	r3, [r3]
+ 486 0410 93ED027A 		vldr.32	s14, [r3, #8]
+ 487 0414 DFED387A 		vldr.32	s15, .L44+16
+ 488 0418 27EE677A 		vnmul.f32	s14, s14, s15
+ 489 041c 374B     		ldr	r3, .L44+20
+ 490 041e 1B68     		ldr	r3, [r3]
+ 491 0420 D3ED027A 		vldr.32	s15, [r3, #8]
+ 492 0424 77EEA77A 		vadd.f32	s15, s15, s15
+ 493 0428 C7EE276A 		vdiv.f32	s13, s14, s15
+ 494 042c 9FED347A 		vldr.32	s14, .L44+24
+ 495 0430 C6EE877A 		vdiv.f32	s15, s13, s14
+ 496 0434 10AB     		add	r3, sp, #64
+ 497 0436 03EB8403 		add	r3, r3, r4, lsl #2
+ 498 043a 43ED087A 		vstr.32	s15, [r3, #-32]
+ 499 043e 44E7     		b	.L20
+ 500              	.L37:
+ 501 0440 2C4B     		ldr	r3, .L44+12
+ 502 0442 1B68     		ldr	r3, [r3]
+ 503 0444 D3ED028A 		vldr.32	s17, [r3, #8]
+ 504 0448 DFED2B7A 		vldr.32	s15, .L44+16
+ 505 044c 68EEE78A 		vnmul.f32	s17, s17, s15
+ 506 0450 B0EE480A 		vmov.f32	s0, s16
+ 507 0454 FFF7FEFF 		bl	sqrtf
+ 508 0458 78EEC08A 		vsub.f32	s17, s17, s0
+ 509 045c 274B     		ldr	r3, .L44+20
+ 510 045e 1B68     		ldr	r3, [r3]
+ 511 0460 D3ED027A 		vldr.32	s15, [r3, #8]
+ 512 0464 77EEA77A 		vadd.f32	s15, s15, s15
+ 513 0468 C8EEA76A 		vdiv.f32	s13, s17, s15
+ 514 046c 9FED247A 		vldr.32	s14, .L44+24
+ 515 0470 C6EE877A 		vdiv.f32	s15, s13, s14
+ 516 0474 24E7     		b	.L26
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 10
+
+
+ 517              	.L36:
+ 518 0476 1F4B     		ldr	r3, .L44+12
+ 519 0478 1B68     		ldr	r3, [r3]
+ 520 047a 93ED027A 		vldr.32	s14, [r3, #8]
+ 521 047e DFED1E7A 		vldr.32	s15, .L44+16
+ 522 0482 27EE677A 		vnmul.f32	s14, s14, s15
+ 523 0486 1D4B     		ldr	r3, .L44+20
+ 524 0488 1B68     		ldr	r3, [r3]
+ 525 048a D3ED027A 		vldr.32	s15, [r3, #8]
+ 526 048e 77EEA77A 		vadd.f32	s15, s15, s15
+ 527 0492 C7EE276A 		vdiv.f32	s13, s14, s15
+ 528 0496 9FED1A7A 		vldr.32	s14, .L44+24
+ 529 049a C6EE877A 		vdiv.f32	s15, s13, s14
+ 530 049e 10AB     		add	r3, sp, #64
+ 531 04a0 03EB8403 		add	r3, r3, r4, lsl #2
+ 532 04a4 43ED087A 		vstr.32	s15, [r3, #-32]
+ 533 04a8 0FE7     		b	.L20
+ 534              	.L15:
+ 535 04aa 9DED080A 		vldr.32	s0, [sp, #32]
+ 536 04ae 164B     		ldr	r3, .L44+32
+ 537 04b0 1868     		ldr	r0, [r3]
+ 538 04b2 FFF7FEFF 		bl	DJIMotorSetRef
+ 539 04b6 9DED090A 		vldr.32	s0, [sp, #36]
+ 540 04ba 144B     		ldr	r3, .L44+36
+ 541 04bc 1868     		ldr	r0, [r3]
+ 542 04be FFF7FEFF 		bl	DJIMotorSetRef
+ 543 04c2 9DED0A0A 		vldr.32	s0, [sp, #40]
+ 544 04c6 124B     		ldr	r3, .L44+40
+ 545 04c8 1868     		ldr	r0, [r3]
+ 546 04ca FFF7FEFF 		bl	DJIMotorSetRef
+ 547 04ce 9DED0B0A 		vldr.32	s0, [sp, #44]
+ 548 04d2 104B     		ldr	r3, .L44+44
+ 549 04d4 1868     		ldr	r0, [r3]
+ 550 04d6 FFF7FEFF 		bl	DJIMotorSetRef
+ 551 04da 11B0     		add	sp, sp, #68
+ 552              		@ sp needed
+ 553 04dc BDEC088B 		vldm	sp!, {d8-d11}
+ 554 04e0 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 555              	.L45:
+ 556 04e4 AFF30080 		.align	3
+ 557              	.L44:
+ 558 04e8 000000A0 		.word	-1610612736
+ 559 04ec 46DF913F 		.word	1066524486
+ 560 04f0 00000000 		.word	motor_controller.0
+ 561 04f4 00000000 		.word	measure.1
+ 562 04f8 35FA8E3C 		.word	1016003125
+ 563 04fc 00000000 		.word	power_manager
+ 564 0500 E4F29F37 		.word	933229284
+ 565 0504 00000000 		.word	0
+ 566 0508 00000000 		.word	motor_lf
+ 567 050c 00000000 		.word	motor_rf
+ 568 0510 00000000 		.word	motor_lb
+ 569 0514 00000000 		.word	motor_rb
+ 571              		.section	.rodata.ChassisInit.str1.4,"aMS",%progbits,1
+ 572              		.align	2
+ 573              	.LC1:
+ 574 0000 63686173 		.ascii	"chassis_cmd\000"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 11
+
+
+ 574      7369735F 
+ 574      636D6400 
+ 575              		.align	2
+ 576              	.LC2:
+ 577 000c 63686173 		.ascii	"chassis_feed\000"
+ 577      7369735F 
+ 577      66656564 
+ 577      00
+ 578              		.section	.text.ChassisInit,"ax",%progbits
+ 579              		.align	1
+ 580              		.global	ChassisInit
+ 581              		.syntax unified
+ 582              		.thumb
+ 583              		.thumb_func
+ 585              	ChassisInit:
+ 586              		@ args = 0, pretend = 0, frame = 40
+ 587              		@ frame_needed = 0, uses_anonymous_args = 0
+ 588 0000 30B5     		push	{r4, r5, lr}
+ 589 0002 8BB0     		sub	sp, sp, #44
+ 590 0004 FFF7FEFF 		bl	ChassisConfigFeed
+ 591 0008 5F4D     		ldr	r5, .L48
+ 592 000a 2860     		str	r0, [r5]
+ 593 000c D0ED036A 		vldr.32	s13, [r0, #12]
+ 594 0010 F6EE007A 		vmov.f32	s15, #5.0e-1
+ 595 0014 66EEA76A 		vmul.f32	s13, s13, s15
+ 596 0018 5C4B     		ldr	r3, .L48+4
+ 597 001a C3ED006A 		vstr.32	s13, [r3]
+ 598 001e D0ED045A 		vldr.32	s11, [r0, #16]
+ 599 0022 65EEA75A 		vmul.f32	s11, s11, s15
+ 600 0026 5A4B     		ldr	r3, .L48+8
+ 601 0028 C3ED005A 		vstr.32	s11, [r3]
+ 602 002c D0ED057A 		vldr.32	s15, [r0, #20]
+ 603 0030 77EEA77A 		vadd.f32	s15, s15, s15
+ 604 0034 9FED577A 		vldr.32	s14, .L48+12
+ 605 0038 67EE877A 		vmul.f32	s15, s15, s14
+ 606 003c 564B     		ldr	r3, .L48+16
+ 607 003e C3ED007A 		vstr.32	s15, [r3]
+ 608 0042 90ED014A 		vldr.32	s8, [r0, #4]
+ 609 0046 554B     		ldr	r3, .L48+20
+ 610 0048 83ED004A 		vstr.32	s8, [r3]
+ 611 004c 90ED027A 		vldr.32	s14, [r0, #8]
+ 612 0050 534B     		ldr	r3, .L48+24
+ 613 0052 83ED007A 		vstr.32	s14, [r3]
+ 614 0056 90ED065A 		vldr.32	s10, [r0, #24]
+ 615 005a 524B     		ldr	r3, .L48+28
+ 616 005c 83ED005A 		vstr.32	s10, [r3]
+ 617 0060 35EE846A 		vadd.f32	s12, s11, s8
+ 618 0064 36EE866A 		vadd.f32	s12, s13, s12
+ 619 0068 76EE473A 		vsub.f32	s7, s12, s14
+ 620 006c DFED4E4A 		vldr.32	s9, .L48+32
+ 621 0070 63EEA43A 		vmul.f32	s7, s7, s9
+ 622 0074 4D4B     		ldr	r3, .L48+36
+ 623 0076 C3ED003A 		vstr.32	s7, [r3]
+ 624 007a 75EEC45A 		vsub.f32	s11, s11, s8
+ 625 007e 76EEA56A 		vadd.f32	s13, s13, s11
+ 626 0082 76EEC75A 		vsub.f32	s11, s13, s14
+ 627 0086 65EEA45A 		vmul.f32	s11, s11, s9
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 12
+
+
+ 628 008a 494B     		ldr	r3, .L48+40
+ 629 008c C3ED005A 		vstr.32	s11, [r3]
+ 630 0090 37EE066A 		vadd.f32	s12, s14, s12
+ 631 0094 26EE246A 		vmul.f32	s12, s12, s9
+ 632 0098 464B     		ldr	r3, .L48+44
+ 633 009a 83ED006A 		vstr.32	s12, [r3]
+ 634 009e 37EE267A 		vadd.f32	s14, s14, s13
+ 635 00a2 27EE247A 		vmul.f32	s14, s14, s9
+ 636 00a6 444B     		ldr	r3, .L48+48
+ 637 00a8 83ED007A 		vstr.32	s14, [r3]
+ 638 00ac 9FED437A 		vldr.32	s14, .L48+52
+ 639 00b0 67EE877A 		vmul.f32	s15, s15, s14
+ 640 00b4 9FED427A 		vldr.32	s14, .L48+56
+ 641 00b8 67EE877A 		vmul.f32	s15, s15, s14
+ 642 00bc 9FED417A 		vldr.32	s14, .L48+60
+ 643 00c0 25EE075A 		vmul.f32	s10, s10, s14
+ 644 00c4 87EE857A 		vdiv.f32	s14, s15, s10
+ 645 00c8 3F4B     		ldr	r3, .L48+64
+ 646 00ca 83ED007A 		vstr.32	s14, [r3]
+ 647 00ce 90F80431 		ldrb	r3, [r0, #260]	@ zero_extendqisi2
+ 648 00d2 C0F8C030 		str	r3, [r0, #192]
+ 649 00d6 0124     		movs	r4, #1
+ 650 00d8 80F8B240 		strb	r4, [r0, #178]
+ 651 00dc 1C30     		adds	r0, r0, #28
+ 652 00de FFF7FEFF 		bl	DJIMotorInit
+ 653 00e2 3A4B     		ldr	r3, .L48+68
+ 654 00e4 1860     		str	r0, [r3]
+ 655 00e6 2868     		ldr	r0, [r5]
+ 656 00e8 90F80531 		ldrb	r3, [r0, #261]	@ zero_extendqisi2
+ 657 00ec C0F8C030 		str	r3, [r0, #192]
+ 658 00f0 80F8B240 		strb	r4, [r0, #178]
+ 659 00f4 1C30     		adds	r0, r0, #28
+ 660 00f6 FFF7FEFF 		bl	DJIMotorInit
+ 661 00fa 354B     		ldr	r3, .L48+72
+ 662 00fc 1860     		str	r0, [r3]
+ 663 00fe 2868     		ldr	r0, [r5]
+ 664 0100 90F80631 		ldrb	r3, [r0, #262]	@ zero_extendqisi2
+ 665 0104 C0F8C030 		str	r3, [r0, #192]
+ 666 0108 80F8B240 		strb	r4, [r0, #178]
+ 667 010c 1C30     		adds	r0, r0, #28
+ 668 010e FFF7FEFF 		bl	DJIMotorInit
+ 669 0112 304B     		ldr	r3, .L48+76
+ 670 0114 1860     		str	r0, [r3]
+ 671 0116 2868     		ldr	r0, [r5]
+ 672 0118 90F80731 		ldrb	r3, [r0, #263]	@ zero_extendqisi2
+ 673 011c C0F8C030 		str	r3, [r0, #192]
+ 674 0120 80F8B240 		strb	r4, [r0, #178]
+ 675 0124 1C30     		adds	r0, r0, #28
+ 676 0126 FFF7FEFF 		bl	DJIMotorInit
+ 677 012a 2B4B     		ldr	r3, .L48+80
+ 678 012c 1860     		str	r0, [r3]
+ 679 012e 03A8     		add	r0, sp, #12
+ 680 0130 0023     		movs	r3, #0
+ 681 0132 0393     		str	r3, [sp, #12]
+ 682 0134 4360     		str	r3, [r0, #4]
+ 683 0136 8360     		str	r3, [r0, #8]
+ 684 0138 C360     		str	r3, [r0, #12]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 13
+
+
+ 685 013a 0361     		str	r3, [r0, #16]
+ 686 013c 4361     		str	r3, [r0, #20]
+ 687 013e 8361     		str	r3, [r0, #24]
+ 688 0140 264B     		ldr	r3, .L48+84
+ 689 0142 0393     		str	r3, [sp, #12]
+ 690 0144 40F20233 		movw	r3, #770
+ 691 0148 0493     		str	r3, [sp, #16]
+ 692 014a 40F20133 		movw	r3, #769
+ 693 014e 0593     		str	r3, [sp, #20]
+ 694 0150 FFF7FEFF 		bl	SuperCapInit
+ 695 0154 224B     		ldr	r3, .L48+88
+ 696 0156 1860     		str	r0, [r3]
+ 697 0158 224A     		ldr	r2, .L48+92
+ 698 015a 07CA     		ldm	r2, {r0, r1, r2}
+ 699 015c 8DE80700 		stm	sp, {r0, r1, r2}
+ 700 0160 6846     		mov	r0, sp
+ 701 0162 FFF7FEFF 		bl	PowerControlInit
+ 702 0166 204B     		ldr	r3, .L48+96
+ 703 0168 1860     		str	r0, [r3]
+ 704 016a 1921     		movs	r1, #25
+ 705 016c 1F48     		ldr	r0, .L48+100
+ 706 016e FFF7FEFF 		bl	SubRegister
+ 707 0172 1F4B     		ldr	r3, .L48+104
+ 708 0174 1860     		str	r0, [r3]
+ 709 0176 0E21     		movs	r1, #14
+ 710 0178 1E48     		ldr	r0, .L48+108
+ 711 017a FFF7FEFF 		bl	PubRegister
+ 712 017e 1E4B     		ldr	r3, .L48+112
+ 713 0180 1860     		str	r0, [r3]
+ 714 0182 0BB0     		add	sp, sp, #44
+ 715              		@ sp needed
+ 716 0184 30BD     		pop	{r4, r5, pc}
+ 717              	.L49:
+ 718 0186 00BF     		.align	2
+ 719              	.L48:
+ 720 0188 00000000 		.word	chassis_config
+ 721 018c 00000000 		.word	half_wheel_base.9
+ 722 0190 00000000 		.word	half_track_width.8
+ 723 0194 DB0F4940 		.word	1078530011
+ 724 0198 00000000 		.word	perimeter_wheel.7
+ 725 019c 00000000 		.word	center_gimbal_offset_x.6
+ 726 01a0 00000000 		.word	center_gimbal_offset_y.5
+ 727 01a4 00000000 		.word	reduction_ratio_wheel.4
+ 728 01a8 35FA8E3C 		.word	1016003125
+ 729 01ac 00000000 		.word	lf_center
+ 730 01b0 00000000 		.word	rf_center
+ 731 01b4 00000000 		.word	lb_center
+ 732 01b8 00000000 		.word	rb_center
+ 733 01bc 6F12833A 		.word	981668463
+ 734 01c0 A6AA2A3E 		.word	1042983590
+ 735 01c4 00007042 		.word	1114636288
+ 736 01c8 00000000 		.word	rpm_2_wheel_vector
+ 737 01cc 00000000 		.word	motor_lf
+ 738 01d0 00000000 		.word	motor_rf
+ 739 01d4 00000000 		.word	motor_lb
+ 740 01d8 00000000 		.word	motor_rb
+ 741 01dc 00000000 		.word	hcan2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 14
+
+
+ 742 01e0 00000000 		.word	cap
+ 743 01e4 00000000 		.word	.LANCHOR0
+ 744 01e8 00000000 		.word	power_manager
+ 745 01ec 00000000 		.word	.LC1
+ 746 01f0 00000000 		.word	chassis_sub
+ 747 01f4 0C000000 		.word	.LC2
+ 748 01f8 00000000 		.word	chassis_pub
+ 750              		.section	.text.ChassisTask,"ax",%progbits
+ 751              		.align	1
+ 752              		.global	ChassisTask
+ 753              		.syntax unified
+ 754              		.thumb
+ 755              		.thumb_func
+ 757              	ChassisTask:
+ 758              		@ args = 0, pretend = 0, frame = 0
+ 759              		@ frame_needed = 0, uses_anonymous_args = 0
+ 760 0000 38B5     		push	{r3, r4, r5, lr}
+ 761 0002 2DED028B 		vpush.64	{d8}
+ 762 0006 4A4C     		ldr	r4, .L60
+ 763 0008 2146     		mov	r1, r4
+ 764 000a 4A4B     		ldr	r3, .L60+4
+ 765 000c 1868     		ldr	r0, [r3]
+ 766 000e FFF7FEFF 		bl	SubGetMessage
+ 767 0012 237D     		ldrb	r3, [r4, #20]	@ zero_extendqisi2
+ 768 0014 DBB9     		cbnz	r3, .L51
+ 769 0016 484B     		ldr	r3, .L60+8
+ 770 0018 1868     		ldr	r0, [r3]
+ 771 001a FFF7FEFF 		bl	DJIMotorStop
+ 772 001e 474B     		ldr	r3, .L60+12
+ 773 0020 1868     		ldr	r0, [r3]
+ 774 0022 FFF7FEFF 		bl	DJIMotorStop
+ 775 0026 464B     		ldr	r3, .L60+16
+ 776 0028 1868     		ldr	r0, [r3]
+ 777 002a FFF7FEFF 		bl	DJIMotorStop
+ 778 002e 454B     		ldr	r3, .L60+20
+ 779 0030 1868     		ldr	r0, [r3]
+ 780 0032 FFF7FEFF 		bl	DJIMotorStop
+ 781              	.L52:
+ 782 0036 3E4B     		ldr	r3, .L60
+ 783 0038 1B7D     		ldrb	r3, [r3, #20]	@ zero_extendqisi2
+ 784 003a 022B     		cmp	r3, #2
+ 785 003c 18D0     		beq	.L53
+ 786 003e 032B     		cmp	r3, #3
+ 787 0040 60D0     		beq	.L54
+ 788 0042 012B     		cmp	r3, #1
+ 789 0044 1ED1     		bne	.L56
+ 790 0046 3A4B     		ldr	r3, .L60
+ 791 0048 3F4A     		ldr	r2, .L60+24
+ 792 004a 9A60     		str	r2, [r3, #8]	@ float
+ 793 004c 1AE0     		b	.L56
+ 794              	.L51:
+ 795 004e 3A4B     		ldr	r3, .L60+8
+ 796 0050 1868     		ldr	r0, [r3]
+ 797 0052 FFF7FEFF 		bl	DJIMotorEnable
+ 798 0056 394B     		ldr	r3, .L60+12
+ 799 0058 1868     		ldr	r0, [r3]
+ 800 005a FFF7FEFF 		bl	DJIMotorEnable
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 15
+
+
+ 801 005e 384B     		ldr	r3, .L60+16
+ 802 0060 1868     		ldr	r0, [r3]
+ 803 0062 FFF7FEFF 		bl	DJIMotorEnable
+ 804 0066 374B     		ldr	r3, .L60+20
+ 805 0068 1868     		ldr	r0, [r3]
+ 806 006a FFF7FEFF 		bl	DJIMotorEnable
+ 807 006e E2E7     		b	.L52
+ 808              	.L53:
+ 809 0070 2F4B     		ldr	r3, .L60
+ 810 0072 D3ED026A 		vldr.32	s13, [r3, #8]
+ 811 0076 354A     		ldr	r2, .L60+28
+ 812 0078 92ED007A 		vldr.32	s14, [r2]
+ 813 007c C6EE877A 		vdiv.f32	s15, s13, s14
+ 814 0080 C3ED027A 		vstr.32	s15, [r3, #8]
+ 815              	.L56:
+ 816 0084 2A4C     		ldr	r4, .L60
+ 817 0086 94ED030A 		vldr.32	s0, [r4, #12]
+ 818 008a 9FED318A 		vldr.32	s16, .L60+32
+ 819 008e 20EE080A 		vmul.f32	s0, s0, s16
+ 820 0092 FFF7FEFF 		bl	arm_cos_f32
+ 821 0096 2F4D     		ldr	r5, .L60+36
+ 822 0098 85ED000A 		vstr.32	s0, [r5]
+ 823 009c 94ED030A 		vldr.32	s0, [r4, #12]
+ 824 00a0 20EE080A 		vmul.f32	s0, s0, s16
+ 825 00a4 FFF7FEFF 		bl	arm_sin_f32
+ 826 00a8 2B4B     		ldr	r3, .L60+40
+ 827 00aa 83ED000A 		vstr.32	s0, [r3]
+ 828 00ae D4ED005A 		vldr.32	s11, [r4]
+ 829 00b2 D5ED007A 		vldr.32	s15, [r5]
+ 830 00b6 25EEA77A 		vmul.f32	s14, s11, s15
+ 831 00ba 94ED016A 		vldr.32	s12, [r4, #4]
+ 832 00be 60EE066A 		vmul.f32	s13, s0, s12
+ 833 00c2 37EE667A 		vsub.f32	s14, s14, s13
+ 834 00c6 214B     		ldr	r3, .L60+28
+ 835 00c8 D3ED006A 		vldr.32	s13, [r3]
+ 836 00cc 87EE265A 		vdiv.f32	s10, s14, s13
+ 837 00d0 224B     		ldr	r3, .L60+44
+ 838 00d2 83ED005A 		vstr.32	s10, [r3]
+ 839 00d6 20EE250A 		vmul.f32	s0, s0, s11
+ 840 00da 67EE867A 		vmul.f32	s15, s15, s12
+ 841 00de 30EE270A 		vadd.f32	s0, s0, s15
+ 842 00e2 C0EE267A 		vdiv.f32	s15, s0, s13
+ 843 00e6 1E4B     		ldr	r3, .L60+48
+ 844 00e8 C3ED007A 		vstr.32	s15, [r3]
+ 845 00ec FFF7FEFF 		bl	ChassisCalculate
+ 846 00f0 FFF7FEFF 		bl	LimitChassisOutput
+ 847 00f4 1B49     		ldr	r1, .L60+52
+ 848 00f6 1C4B     		ldr	r3, .L60+56
+ 849 00f8 1868     		ldr	r0, [r3]
+ 850 00fa FFF7FEFF 		bl	PubPushMessage
+ 851 00fe BDEC028B 		vldm	sp!, {d8}
+ 852 0102 38BD     		pop	{r3, r4, r5, pc}
+ 853              	.L54:
+ 854 0104 0A4B     		ldr	r3, .L60
+ 855 0106 93ED037A 		vldr.32	s14, [r3, #12]
+ 856 010a F8EE087A 		vmov.f32	s15, #-3.0e+0
+ 857 010e 67EE277A 		vmul.f32	s15, s14, s15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 16
+
+
+ 858 0112 B5EEC07A 		vcmpe.f32	s14, #0
+ 859 0116 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 860 011a 05DD     		ble	.L59
+ 861              	.L57:
+ 862 011c 67EE877A 		vmul.f32	s15, s15, s14
+ 863 0120 034B     		ldr	r3, .L60
+ 864 0122 C3ED027A 		vstr.32	s15, [r3, #8]
+ 865 0126 ADE7     		b	.L56
+ 866              	.L59:
+ 867 0128 B1EE477A 		vneg.f32	s14, s14
+ 868 012c F6E7     		b	.L57
+ 869              	.L61:
+ 870 012e 00BF     		.align	2
+ 871              	.L60:
+ 872 0130 00000000 		.word	chassis_cmd_recv
+ 873 0134 00000000 		.word	chassis_sub
+ 874 0138 00000000 		.word	motor_lf
+ 875 013c 00000000 		.word	motor_rf
+ 876 0140 00000000 		.word	motor_lb
+ 877 0144 00000000 		.word	motor_rb
+ 878 0148 00409C45 		.word	1167867904
+ 879 014c 00000000 		.word	rpm_2_wheel_vector
+ 880 0150 35FA8E3C 		.word	1016003125
+ 881 0154 00000000 		.word	cos_theta.3
+ 882 0158 00000000 		.word	sin_theta.2
+ 883 015c 00000000 		.word	chassis_vx
+ 884 0160 00000000 		.word	chassis_vy
+ 885 0164 00000000 		.word	chassis_feedback_data
+ 886 0168 00000000 		.word	chassis_pub
+ 888              		.section	.bss.motor_controller.0,"aw",%nobits
+ 889              		.align	2
+ 892              	motor_controller.0:
+ 893 0000 00000000 		.space	4
+ 894              		.section	.bss.measure.1,"aw",%nobits
+ 895              		.align	2
+ 898              	measure.1:
+ 899 0000 00000000 		.space	4
+ 900              		.section	.bss.sin_theta.2,"aw",%nobits
+ 901              		.align	2
+ 904              	sin_theta.2:
+ 905 0000 00000000 		.space	4
+ 906              		.section	.bss.cos_theta.3,"aw",%nobits
+ 907              		.align	2
+ 910              	cos_theta.3:
+ 911 0000 00000000 		.space	4
+ 912              		.section	.bss.reduction_ratio_wheel.4,"aw",%nobits
+ 913              		.align	2
+ 916              	reduction_ratio_wheel.4:
+ 917 0000 00000000 		.space	4
+ 918              		.section	.bss.center_gimbal_offset_y.5,"aw",%nobits
+ 919              		.align	2
+ 922              	center_gimbal_offset_y.5:
+ 923 0000 00000000 		.space	4
+ 924              		.section	.bss.center_gimbal_offset_x.6,"aw",%nobits
+ 925              		.align	2
+ 928              	center_gimbal_offset_x.6:
+ 929 0000 00000000 		.space	4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 17
+
+
+ 930              		.section	.bss.perimeter_wheel.7,"aw",%nobits
+ 931              		.align	2
+ 934              	perimeter_wheel.7:
+ 935 0000 00000000 		.space	4
+ 936              		.section	.bss.half_track_width.8,"aw",%nobits
+ 937              		.align	2
+ 940              	half_track_width.8:
+ 941 0000 00000000 		.space	4
+ 942              		.section	.bss.half_wheel_base.9,"aw",%nobits
+ 943              		.align	2
+ 946              	half_wheel_base.9:
+ 947 0000 00000000 		.space	4
+ 948              		.section	.bss.vt_rb,"aw",%nobits
+ 949              		.align	2
+ 952              	vt_rb:
+ 953 0000 00000000 		.space	4
+ 954              		.section	.bss.vt_lb,"aw",%nobits
+ 955              		.align	2
+ 958              	vt_lb:
+ 959 0000 00000000 		.space	4
+ 960              		.section	.bss.vt_rf,"aw",%nobits
+ 961              		.align	2
+ 964              	vt_rf:
+ 965 0000 00000000 		.space	4
+ 966              		.section	.bss.vt_lf,"aw",%nobits
+ 967              		.align	2
+ 970              	vt_lf:
+ 971 0000 00000000 		.space	4
+ 972              		.section	.bss.chassis_vy,"aw",%nobits
+ 973              		.align	2
+ 976              	chassis_vy:
+ 977 0000 00000000 		.space	4
+ 978              		.section	.bss.chassis_vx,"aw",%nobits
+ 979              		.align	2
+ 982              	chassis_vx:
+ 983 0000 00000000 		.space	4
+ 984              		.section	.bss.rpm_2_wheel_vector,"aw",%nobits
+ 985              		.align	2
+ 988              	rpm_2_wheel_vector:
+ 989 0000 00000000 		.space	4
+ 990              		.section	.bss.rb_center,"aw",%nobits
+ 991              		.align	2
+ 994              	rb_center:
+ 995 0000 00000000 		.space	4
+ 996              		.section	.bss.lb_center,"aw",%nobits
+ 997              		.align	2
+ 1000              	lb_center:
+ 1001 0000 00000000 		.space	4
+ 1002              		.section	.bss.rf_center,"aw",%nobits
+ 1003              		.align	2
+ 1006              	rf_center:
+ 1007 0000 00000000 		.space	4
+ 1008              		.section	.bss.lf_center,"aw",%nobits
+ 1009              		.align	2
+ 1012              	lf_center:
+ 1013 0000 00000000 		.space	4
+ 1014              		.section	.bss.power_manager,"aw",%nobits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 18
+
+
+ 1015              		.align	2
+ 1018              	power_manager:
+ 1019 0000 00000000 		.space	4
+ 1020              		.section	.bss.motor_rb,"aw",%nobits
+ 1021              		.align	2
+ 1024              	motor_rb:
+ 1025 0000 00000000 		.space	4
+ 1026              		.section	.bss.motor_lb,"aw",%nobits
+ 1027              		.align	2
+ 1030              	motor_lb:
+ 1031 0000 00000000 		.space	4
+ 1032              		.section	.bss.motor_rf,"aw",%nobits
+ 1033              		.align	2
+ 1036              	motor_rf:
+ 1037 0000 00000000 		.space	4
+ 1038              		.section	.bss.motor_lf,"aw",%nobits
+ 1039              		.align	2
+ 1042              	motor_lf:
+ 1043 0000 00000000 		.space	4
+ 1044              		.section	.bss.cap,"aw",%nobits
+ 1045              		.align	2
+ 1048              	cap:
+ 1049 0000 00000000 		.space	4
+ 1050              		.section	.bss.chassis_feedback_data,"aw",%nobits
+ 1051              		.align	2
+ 1054              	chassis_feedback_data:
+ 1055 0000 00000000 		.space	14
+ 1055      00000000 
+ 1055      00000000 
+ 1055      0000
+ 1056              		.section	.bss.chassis_cmd_recv,"aw",%nobits
+ 1057              		.align	2
+ 1060              	chassis_cmd_recv:
+ 1061 0000 00000000 		.space	25
+ 1061      00000000 
+ 1061      00000000 
+ 1061      00000000 
+ 1061      00000000 
+ 1062              		.section	.bss.chassis_sub,"aw",%nobits
+ 1063              		.align	2
+ 1066              	chassis_sub:
+ 1067 0000 00000000 		.space	4
+ 1068              		.section	.bss.chassis_pub,"aw",%nobits
+ 1069              		.align	2
+ 1072              	chassis_pub:
+ 1073 0000 00000000 		.space	4
+ 1074              		.section	.bss.chassis_config,"aw",%nobits
+ 1075              		.align	2
+ 1078              	chassis_config:
+ 1079 0000 00000000 		.space	4
+ 1080              		.section	.rodata
+ 1081              		.align	2
+ 1082              		.set	.LANCHOR0,. + 0
+ 1083              	.LC0:
+ 1084 0000 F4FD543C 		.word	1012202996
+ 1085 0004 295CA740 		.word	1084709929
+ 1086 0008 85EB513F 		.word	1062333317
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 19
+
+
+ 1087              		.global	__aeabi_dsub
+ 1088              		.global	__aeabi_d2f
+ 1089              		.global	__aeabi_dadd
+ 1090              		.global	__aeabi_dmul
+ 1091              		.global	__aeabi_f2d
+ 1092              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 20
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 chassis.c
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:18     .text.ChassisCalculate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:23     .text.ChassisCalculate:00000000 ChassisCalculate
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:115    .text.ChassisCalculate:00000110 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1078   .bss.chassis_config:00000000 chassis_config
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:982    .bss.chassis_vx:00000000 chassis_vx
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:976    .bss.chassis_vy:00000000 chassis_vy
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1060   .bss.chassis_cmd_recv:00000000 chassis_cmd_recv
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1012   .bss.lf_center:00000000 lf_center
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:970    .bss.vt_lf:00000000 vt_lf
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1006   .bss.rf_center:00000000 rf_center
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:964    .bss.vt_rf:00000000 vt_rf
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1000   .bss.lb_center:00000000 lb_center
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:958    .bss.vt_lb:00000000 vt_lb
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:994    .bss.rb_center:00000000 rb_center
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:952    .bss.vt_rb:00000000 vt_rb
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:131    .text.LimitChassisOutput:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:136    .text.LimitChassisOutput:00000000 LimitChassisOutput
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:331    .text.LimitChassisOutput:00000228 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1042   .bss.motor_lf:00000000 motor_lf
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1036   .bss.motor_rf:00000000 motor_rf
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1030   .bss.motor_lb:00000000 motor_lb
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1024   .bss.motor_rb:00000000 motor_rb
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:898    .bss.measure.1:00000000 measure.1
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:892    .bss.motor_controller.0:00000000 motor_controller.0
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1018   .bss.power_manager:00000000 power_manager
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:349    .text.LimitChassisOutput:0000026c $t
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:558    .text.LimitChassisOutput:000004e8 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:572    .rodata.ChassisInit.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:579    .text.ChassisInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:585    .text.ChassisInit:00000000 ChassisInit
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:720    .text.ChassisInit:00000188 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:946    .bss.half_wheel_base.9:00000000 half_wheel_base.9
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:940    .bss.half_track_width.8:00000000 half_track_width.8
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:934    .bss.perimeter_wheel.7:00000000 perimeter_wheel.7
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:928    .bss.center_gimbal_offset_x.6:00000000 center_gimbal_offset_x.6
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:922    .bss.center_gimbal_offset_y.5:00000000 center_gimbal_offset_y.5
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:916    .bss.reduction_ratio_wheel.4:00000000 reduction_ratio_wheel.4
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:988    .bss.rpm_2_wheel_vector:00000000 rpm_2_wheel_vector
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1048   .bss.cap:00000000 cap
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1066   .bss.chassis_sub:00000000 chassis_sub
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1072   .bss.chassis_pub:00000000 chassis_pub
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:751    .text.ChassisTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:757    .text.ChassisTask:00000000 ChassisTask
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:872    .text.ChassisTask:00000130 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:910    .bss.cos_theta.3:00000000 cos_theta.3
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:904    .bss.sin_theta.2:00000000 sin_theta.2
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1054   .bss.chassis_feedback_data:00000000 chassis_feedback_data
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:889    .bss.motor_controller.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:895    .bss.measure.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:901    .bss.sin_theta.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:907    .bss.cos_theta.3:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:913    .bss.reduction_ratio_wheel.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:919    .bss.center_gimbal_offset_y.5:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:925    .bss.center_gimbal_offset_x.6:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:931    .bss.perimeter_wheel.7:00000000 $d
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s 			page 21
+
+
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:937    .bss.half_track_width.8:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:943    .bss.half_wheel_base.9:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:949    .bss.vt_rb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:955    .bss.vt_lb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:961    .bss.vt_rf:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:967    .bss.vt_lf:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:973    .bss.chassis_vy:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:979    .bss.chassis_vx:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:985    .bss.rpm_2_wheel_vector:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:991    .bss.rb_center:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:997    .bss.lb_center:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1003   .bss.rf_center:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1009   .bss.lf_center:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1015   .bss.power_manager:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1021   .bss.motor_rb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1027   .bss.motor_lb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1033   .bss.motor_rf:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1039   .bss.motor_lf:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1045   .bss.cap:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1051   .bss.chassis_feedback_data:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1057   .bss.chassis_cmd_recv:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1063   .bss.chassis_sub:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1069   .bss.chassis_pub:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1075   .bss.chassis_config:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccWYN345.s:1081   .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+DJIMotorOuterLoop
+DJIMotorCloseLoop
+PIDCalculate
+__aeabi_f2d
+__aeabi_dmul
+__aeabi_dadd
+__aeabi_d2f
+floatEqual
+float_constrain
+sqrtf
+__aeabi_dsub
+DJIMotorSetRef
+ChassisConfigFeed
+DJIMotorInit
+SuperCapInit
+PowerControlInit
+SubRegister
+PubRegister
+hcan2
+SubGetMessage
+DJIMotorStop
+DJIMotorEnable
+arm_cos_f32
+arm_sin_f32
+PubPushMessage

@@ -1,0 +1,236 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"ist8310.c"
+  16              		.text
+  17              		.section	.text.IST8310Decode,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	IST8310Decode:
+  24              		@ args = 0, pretend = 0, frame = 8
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 82B0     		sub	sp, sp, #8
+  28 0002 4169     		ldr	r1, [r0, #20]
+  29 0004 C868     		ldr	r0, [r1, #12]	@ unaligned
+  30 0006 0090     		str	r0, [sp]
+  31 0008 0B8A     		ldrh	r3, [r1, #16]	@ unaligned
+  32 000a ADF80430 		strh	r3, [sp, #4]	@ unaligned
+  33 000e 0023     		movs	r3, #0
+  34 0010 13E0     		b	.L2
+  35              	.L3:
+  36 0012 02AA     		add	r2, sp, #8
+  37 0014 02EB4302 		add	r2, r2, r3, lsl #1
+  38 0018 32F9082C 		ldrsh	r2, [r2, #-8]
+  39 001c 07EE902A 		vmov	s15, r2	@ int
+  40 0020 F8EEE77A 		vcvt.f32.s32	s15, s15
+  41 0024 9FED077A 		vldr.32	s14, .L5
+  42 0028 67EE877A 		vmul.f32	s15, s15, s14
+  43 002c 1A1D     		adds	r2, r3, #4
+  44 002e 01EB8202 		add	r2, r1, r2, lsl #2
+  45 0032 C2ED017A 		vstr.32	s15, [r2, #4]
+  46 0036 0133     		adds	r3, r3, #1
+  47 0038 DBB2     		uxtb	r3, r3
+  48              	.L2:
+  49 003a 022B     		cmp	r3, #2
+  50 003c E9D9     		bls	.L3
+  51 003e 02B0     		add	sp, sp, #8
+  52              		@ sp needed
+  53 0040 7047     		bx	lr
+  54              	.L6:
+  55 0042 00BF     		.align	2
+  56              	.L5:
+  57 0044 9A99993E 		.word	1050253722
+  59              		.section	.text.IST8310StartTransfer,"ax",%progbits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s 			page 2
+
+
+  60              		.align	1
+  61              		.syntax unified
+  62              		.thumb
+  63              		.thumb_func
+  65              	IST8310StartTransfer:
+  66              		@ args = 0, pretend = 0, frame = 0
+  67              		@ frame_needed = 0, uses_anonymous_args = 0
+  68 0000 10B5     		push	{r4, lr}
+  69 0002 82B0     		sub	sp, sp, #8
+  70 0004 C468     		ldr	r4, [r0, #12]
+  71 0006 2246     		mov	r2, r4
+  72 0008 52F80C0B 		ldr	r0, [r2], #12
+  73 000c 0123     		movs	r3, #1
+  74 000e 0193     		str	r3, [sp, #4]
+  75 0010 0023     		movs	r3, #0
+  76 0012 0093     		str	r3, [sp]
+  77 0014 0623     		movs	r3, #6
+  78 0016 0321     		movs	r1, #3
+  79 0018 FFF7FEFF 		bl	IICAccessMem
+  80 001c 2068     		ldr	r0, [r4]
+  81 001e FFF7FEFF 		bl	IST8310Decode
+  82 0022 02B0     		add	sp, sp, #8
+  83              		@ sp needed
+  84 0024 10BD     		pop	{r4, pc}
+  86              		.section	.text.IST8310Init,"ax",%progbits
+  87              		.align	1
+  88              		.global	IST8310Init
+  89              		.syntax unified
+  90              		.thumb
+  91              		.thumb_func
+  93              	IST8310Init:
+  94              		@ args = 0, pretend = 0, frame = 8
+  95              		@ frame_needed = 0, uses_anonymous_args = 0
+  96 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+  97 0004 85B0     		sub	sp, sp, #20
+  98 0006 0546     		mov	r5, r0
+  99 0008 0026     		movs	r6, #0
+ 100 000a 8DF80F60 		strb	r6, [sp, #15]
+ 101 000e 2420     		movs	r0, #36
+ 102 0010 FFF7FEFF 		bl	malloc
+ 103 0014 0446     		mov	r4, r0
+ 104 0016 2422     		movs	r2, #36
+ 105 0018 3146     		mov	r1, r6
+ 106 001a FFF7FEFF 		bl	memset
+ 107 001e EC61     		str	r4, [r5, #28]
+ 108 0020 EC62     		str	r4, [r5, #44]
+ 109 0022 EC60     		str	r4, [r5, #12]
+ 110 0024 2D4B     		ldr	r3, .L18
+ 111 0026 AB60     		str	r3, [r5, #8]
+ 112 0028 2D4B     		ldr	r3, .L18+4
+ 113 002a AB62     		str	r3, [r5, #40]
+ 114 002c 2846     		mov	r0, r5
+ 115 002e FFF7FEFF 		bl	IICRegister
+ 116 0032 2060     		str	r0, [r4]
+ 117 0034 05F12000 		add	r0, r5, #32
+ 118 0038 FFF7FEFF 		bl	GPIORegister
+ 119 003c A060     		str	r0, [r4, #8]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s 			page 3
+
+
+ 120 003e 05F11000 		add	r0, r5, #16
+ 121 0042 FFF7FEFF 		bl	GPIORegister
+ 122 0046 6060     		str	r0, [r4, #4]
+ 123 0048 FFF7FEFF 		bl	GPIOReset
+ 124 004c 3220     		movs	r0, #50
+ 125 004e FFF7FEFF 		bl	HAL_Delay
+ 126 0052 6068     		ldr	r0, [r4, #4]
+ 127 0054 FFF7FEFF 		bl	GPIOSet
+ 128 0058 3220     		movs	r0, #50
+ 129 005a FFF7FEFF 		bl	HAL_Delay
+ 130 005e 2068     		ldr	r0, [r4]
+ 131 0060 0123     		movs	r3, #1
+ 132 0062 0193     		str	r3, [sp, #4]
+ 133 0064 0096     		str	r6, [sp]
+ 134 0066 0DF10F02 		add	r2, sp, #15
+ 135 006a 3146     		mov	r1, r6
+ 136 006c FFF7FEFF 		bl	IICAccessMem
+ 137 0070 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 138 0074 102B     		cmp	r3, #16
+ 139 0076 2ED1     		bne	.L15
+ 140 0078 3546     		mov	r5, r6
+ 141              	.L11:
+ 142 007a 032D     		cmp	r5, #3
+ 143 007c 25D8     		bhi	.L17
+ 144 007e DFF86880 		ldr	r8, .L18+12
+ 145 0082 05EB4507 		add	r7, r5, r5, lsl #1
+ 146 0086 08EB0709 		add	r9, r8, r7
+ 147 008a 18F80710 		ldrb	r1, [r8, r7]	@ zero_extendqisi2
+ 148 008e 7A1C     		adds	r2, r7, #1
+ 149 0090 2068     		ldr	r0, [r4]
+ 150 0092 0126     		movs	r6, #1
+ 151 0094 0196     		str	r6, [sp, #4]
+ 152 0096 0096     		str	r6, [sp]
+ 153 0098 3346     		mov	r3, r6
+ 154 009a 4244     		add	r2, r2, r8
+ 155 009c FFF7FEFF 		bl	IICAccessMem
+ 156 00a0 18F80710 		ldrb	r1, [r8, r7]	@ zero_extendqisi2
+ 157 00a4 2068     		ldr	r0, [r4]
+ 158 00a6 0196     		str	r6, [sp, #4]
+ 159 00a8 0023     		movs	r3, #0
+ 160 00aa 0093     		str	r3, [sp]
+ 161 00ac 3346     		mov	r3, r6
+ 162 00ae 0DF10F02 		add	r2, sp, #15
+ 163 00b2 FFF7FEFF 		bl	IICAccessMem
+ 164 00b6 99F80120 		ldrb	r2, [r9, #1]	@ zero_extendqisi2
+ 165 00ba 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 166 00be 9A42     		cmp	r2, r3
+ 167 00c0 02D1     		bne	.L13
+ 168 00c2 0135     		adds	r5, r5, #1
+ 169 00c4 EDB2     		uxtb	r5, r5
+ 170 00c6 D8E7     		b	.L11
+ 171              	.L13:
+ 172 00c8 FEE7     		b	.L13
+ 173              	.L17:
+ 174 00ca 064B     		ldr	r3, .L18+8
+ 175 00cc 1C60     		str	r4, [r3]
+ 176              	.L9:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s 			page 4
+
+
+ 177 00ce 2046     		mov	r0, r4
+ 178 00d0 05B0     		add	sp, sp, #20
+ 179              		@ sp needed
+ 180 00d2 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 181              	.L15:
+ 182 00d6 0024     		movs	r4, #0
+ 183 00d8 F9E7     		b	.L9
+ 184              	.L19:
+ 185 00da 00BF     		.align	2
+ 186              	.L18:
+ 187 00dc 00000000 		.word	IST8310Decode
+ 188 00e0 00000000 		.word	IST8310StartTransfer
+ 189 00e4 00000000 		.word	ist8310_instance
+ 190 00e8 00000000 		.word	ist8310_write_reg_data_error
+ 192              		.section	.data.ist8310_write_reg_data_error,"aw"
+ 193              		.align	2
+ 196              	ist8310_write_reg_data_error:
+ 197 0000 0B0801   		.ascii	"\013\010\001"
+ 198 0003 410902   		.ascii	"A\011\002"
+ 199 0006 42C003   		.ascii	"B\300\003"
+ 200 0009 0A0B04   		.ascii	"\012\013\004"
+ 201              		.section	.bss.ist8310_instance,"aw",%nobits
+ 202              		.align	2
+ 205              	ist8310_instance:
+ 206 0000 00000000 		.space	4
+ 207              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 ist8310.c
+C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s:18     .text.IST8310Decode:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s:23     .text.IST8310Decode:00000000 IST8310Decode
+C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s:57     .text.IST8310Decode:00000044 $d
+C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s:60     .text.IST8310StartTransfer:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s:65     .text.IST8310StartTransfer:00000000 IST8310StartTransfer
+C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s:87     .text.IST8310Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s:93     .text.IST8310Init:00000000 IST8310Init
+C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s:187    .text.IST8310Init:000000dc $d
+C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s:205    .bss.ist8310_instance:00000000 ist8310_instance
+C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s:196    .data.ist8310_write_reg_data_error:00000000 ist8310_write_reg_data_error
+C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s:193    .data.ist8310_write_reg_data_error:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccSnDtgf.s:202    .bss.ist8310_instance:00000000 $d
+
+UNDEFINED SYMBOLS
+IICAccessMem
+malloc
+memset
+IICRegister
+GPIORegister
+GPIOReset
+HAL_Delay
+GPIOSet

@@ -1,0 +1,1261 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"RLS.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/algorithm/RLS.c"
+  20              		.section	.text.RLS_Init,"ax",%progbits
+  21              		.align	1
+  22              		.global	RLS_Init
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	RLS_Init:
+  28              	.LVL0:
+  29              	.LFB163:
+   1:modules/algorithm/RLS.c **** #include "RLS.h"
+   2:modules/algorithm/RLS.c **** 
+   3:modules/algorithm/RLS.c **** #ifdef _CMSIS_OS_H
+   4:modules/algorithm/RLS.c **** #define user_malloc pvPortMalloc
+   5:modules/algorithm/RLS.c **** #else
+   6:modules/algorithm/RLS.c **** #define user_malloc malloc
+   7:modules/algorithm/RLS.c **** #endif
+   8:modules/algorithm/RLS.c **** 
+   9:modules/algorithm/RLS.c **** static uint16_t sizeof_float, sizeof_double;
+  10:modules/algorithm/RLS.c **** 
+  11:modules/algorithm/RLS.c **** /**
+  12:modules/algorithm/RLS.c ****  * @brief 初始化矩阵维度信息并为矩阵分配空间
+  13:modules/algorithm/RLS.c ****  *
+  14:modules/algorithm/RLS.c ****  * @param rls rls类型定义
+  15:modules/algorithm/RLS.c ****  * @param vectorSize 输入变量维度
+  16:modules/algorithm/RLS.c ****  * @param delta 传递矩阵因子
+  17:modules/algorithm/RLS.c ****  * @param lambda 渐消因子
+  18:modules/algorithm/RLS.c ****  */
+  19:modules/algorithm/RLS.c **** void RLS_Init(RLS_t *rls, uint8_t vectorSize, float delta, float lambda)
+  20:modules/algorithm/RLS.c **** {
+  30              		.loc 1 20 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 20 1 is_stmt 0 view .LVU1
+  35 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+  36              		.cfi_def_cfa_offset 32
+  37              		.cfi_offset 3, -32
+  38              		.cfi_offset 4, -28
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 2
+
+
+  39              		.cfi_offset 5, -24
+  40              		.cfi_offset 6, -20
+  41              		.cfi_offset 7, -16
+  42              		.cfi_offset 8, -12
+  43              		.cfi_offset 9, -8
+  44              		.cfi_offset 14, -4
+  45 0004 0446     		mov	r4, r0
+  46 0006 0D46     		mov	r5, r1
+  47 0008 10EE109A 		vmov	r9, s0
+  48 000c 10EE908A 		vmov	r8, s1
+  21:modules/algorithm/RLS.c ****     // 计算出的矩阵数值依据精度而定，值不一定均为0
+  22:modules/algorithm/RLS.c ****     // 使用double计算可能导致数据溢出
+  23:modules/algorithm/RLS.c ****     sizeof_float = sizeof(float);
+  49              		.loc 1 23 5 is_stmt 1 view .LVU2
+  50              		.loc 1 23 18 is_stmt 0 view .LVU3
+  51 0010 634E     		ldr	r6, .L3
+  52 0012 0423     		movs	r3, #4
+  53 0014 3380     		strh	r3, [r6]	@ movhi
+  24:modules/algorithm/RLS.c ****     sizeof_double = sizeof(double);
+  54              		.loc 1 24 5 is_stmt 1 view .LVU4
+  55              		.loc 1 24 19 is_stmt 0 view .LVU5
+  56 0016 634B     		ldr	r3, .L3+4
+  57 0018 0822     		movs	r2, #8
+  58 001a 1A80     		strh	r2, [r3]	@ movhi
+  25:modules/algorithm/RLS.c **** 
+  26:modules/algorithm/RLS.c ****     rls->vectorSize = vectorSize;
+  59              		.loc 1 26 5 is_stmt 1 view .LVU6
+  60              		.loc 1 26 21 is_stmt 0 view .LVU7
+  61 001c 0170     		strb	r1, [r0]
+  27:modules/algorithm/RLS.c **** 
+  28:modules/algorithm/RLS.c ****     // init RLS vectors
+  29:modules/algorithm/RLS.c ****     rls->input_data = (float *)user_malloc(sizeof_float * vectorSize);
+  62              		.loc 1 29 5 is_stmt 1 view .LVU8
+  63              		.loc 1 29 57 is_stmt 0 view .LVU9
+  64 001e 8F00     		lsls	r7, r1, #2
+  65              		.loc 1 29 32 view .LVU10
+  66 0020 3846     		mov	r0, r7
+  67              	.LVL1:
+  68              		.loc 1 29 32 view .LVU11
+  69 0022 FFF7FEFF 		bl	malloc
+  70              	.LVL2:
+  71              		.loc 1 29 21 discriminator 1 view .LVU12
+  72 0026 6065     		str	r0, [r4, #84]
+  30:modules/algorithm/RLS.c ****     memset(rls->input_data, 0, sizeof_float * vectorSize);
+  73              		.loc 1 30 5 is_stmt 1 view .LVU13
+  74 0028 3A46     		mov	r2, r7
+  75 002a 0021     		movs	r1, #0
+  76 002c FFF7FEFF 		bl	memset
+  77              	.LVL3:
+  31:modules/algorithm/RLS.c ****     Matrix_Init(&rls->input_vector, rls->vectorSize, 1, (float *)rls->input_data);
+  78              		.loc 1 31 5 view .LVU14
+  79 0030 636D     		ldr	r3, [r4, #84]
+  80 0032 0122     		movs	r2, #1
+  81 0034 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+  82 0036 201D     		adds	r0, r4, #4
+  83 0038 FFF7FEFF 		bl	arm_mat_init_f32
+  84              	.LVL4:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 3
+
+
+  32:modules/algorithm/RLS.c ****     rls->t_input_data = (float *)user_malloc(sizeof_float * vectorSize);
+  85              		.loc 1 32 5 view .LVU15
+  86              		.loc 1 32 59 is_stmt 0 view .LVU16
+  87 003c 3788     		ldrh	r7, [r6]
+  88 003e 05FB07F7 		mul	r7, r5, r7
+  89              		.loc 1 32 34 view .LVU17
+  90 0042 3846     		mov	r0, r7
+  91 0044 FFF7FEFF 		bl	malloc
+  92              	.LVL5:
+  93              		.loc 1 32 23 discriminator 1 view .LVU18
+  94 0048 A065     		str	r0, [r4, #88]
+  33:modules/algorithm/RLS.c ****     memset(rls->t_input_data, 0, sizeof_float * vectorSize);
+  95              		.loc 1 33 5 is_stmt 1 view .LVU19
+  96 004a 3A46     		mov	r2, r7
+  97 004c 0021     		movs	r1, #0
+  98 004e FFF7FEFF 		bl	memset
+  99              	.LVL6:
+  34:modules/algorithm/RLS.c ****     Matrix_Init(&rls->t_input_vector, 1, rls->vectorSize, (float *)rls->t_input_data);
+ 100              		.loc 1 34 5 view .LVU20
+ 101 0052 A36D     		ldr	r3, [r4, #88]
+ 102 0054 2278     		ldrb	r2, [r4]	@ zero_extendqisi2
+ 103 0056 0121     		movs	r1, #1
+ 104 0058 04F10C00 		add	r0, r4, #12
+ 105 005c FFF7FEFF 		bl	arm_mat_init_f32
+ 106              	.LVL7:
+  35:modules/algorithm/RLS.c **** 
+  36:modules/algorithm/RLS.c ****     rls->trans_data = (float *)user_malloc(sizeof_float * vectorSize * vectorSize);
+ 107              		.loc 1 36 5 view .LVU21
+ 108              		.loc 1 36 57 is_stmt 0 view .LVU22
+ 109 0060 3788     		ldrh	r7, [r6]
+ 110 0062 05FB07F7 		mul	r7, r5, r7
+ 111              		.loc 1 36 70 view .LVU23
+ 112 0066 05FB07F7 		mul	r7, r5, r7
+ 113              		.loc 1 36 32 view .LVU24
+ 114 006a 3846     		mov	r0, r7
+ 115 006c FFF7FEFF 		bl	malloc
+ 116              	.LVL8:
+ 117              		.loc 1 36 21 discriminator 1 view .LVU25
+ 118 0070 A066     		str	r0, [r4, #104]
+  37:modules/algorithm/RLS.c ****     memset(rls->trans_data, 0, sizeof_float * vectorSize * vectorSize);
+ 119              		.loc 1 37 5 is_stmt 1 view .LVU26
+ 120 0072 3A46     		mov	r2, r7
+ 121 0074 0021     		movs	r1, #0
+ 122 0076 FFF7FEFF 		bl	memset
+ 123              	.LVL9:
+  38:modules/algorithm/RLS.c ****     Matrix_Init(&rls->trans_matrix, rls->vectorSize, rls->vectorSize, (float *)rls->trans_data);
+ 124              		.loc 1 38 5 view .LVU27
+ 125              		.loc 1 38 40 is_stmt 0 view .LVU28
+ 126 007a 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+ 127              		.loc 1 38 5 view .LVU29
+ 128 007c A36E     		ldr	r3, [r4, #104]
+ 129 007e 0A46     		mov	r2, r1
+ 130 0080 04F12400 		add	r0, r4, #36
+ 131 0084 FFF7FEFF 		bl	arm_mat_init_f32
+ 132              	.LVL10:
+  39:modules/algorithm/RLS.c **** 
+  40:modules/algorithm/RLS.c ****     rls->gain_data = (float *)user_malloc(sizeof_float * vectorSize);
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 4
+
+
+ 133              		.loc 1 40 5 is_stmt 1 view .LVU30
+ 134              		.loc 1 40 56 is_stmt 0 view .LVU31
+ 135 0088 3788     		ldrh	r7, [r6]
+ 136 008a 05FB07F7 		mul	r7, r5, r7
+ 137              		.loc 1 40 31 view .LVU32
+ 138 008e 3846     		mov	r0, r7
+ 139 0090 FFF7FEFF 		bl	malloc
+ 140              	.LVL11:
+ 141              		.loc 1 40 20 discriminator 1 view .LVU33
+ 142 0094 2066     		str	r0, [r4, #96]
+  41:modules/algorithm/RLS.c ****     memset(rls->gain_data, 0, sizeof_float * vectorSize);
+ 143              		.loc 1 41 5 is_stmt 1 view .LVU34
+ 144 0096 3A46     		mov	r2, r7
+ 145 0098 0021     		movs	r1, #0
+ 146 009a FFF7FEFF 		bl	memset
+ 147              	.LVL12:
+  42:modules/algorithm/RLS.c ****     Matrix_Init(&rls->gain_vector, rls->vectorSize, 1, (float *)rls->gain_data);
+ 148              		.loc 1 42 5 view .LVU35
+ 149 009e 236E     		ldr	r3, [r4, #96]
+ 150 00a0 0122     		movs	r2, #1
+ 151 00a2 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+ 152 00a4 04F11400 		add	r0, r4, #20
+ 153 00a8 FFF7FEFF 		bl	arm_mat_init_f32
+ 154              	.LVL13:
+  43:modules/algorithm/RLS.c **** 
+  44:modules/algorithm/RLS.c ****     rls->params_data = (float *)user_malloc(sizeof_float * vectorSize);
+ 155              		.loc 1 44 5 view .LVU36
+ 156              		.loc 1 44 58 is_stmt 0 view .LVU37
+ 157 00ac 3788     		ldrh	r7, [r6]
+ 158 00ae 05FB07F7 		mul	r7, r5, r7
+ 159              		.loc 1 44 33 view .LVU38
+ 160 00b2 3846     		mov	r0, r7
+ 161 00b4 FFF7FEFF 		bl	malloc
+ 162              	.LVL14:
+ 163              		.loc 1 44 22 discriminator 1 view .LVU39
+ 164 00b8 6066     		str	r0, [r4, #100]
+  45:modules/algorithm/RLS.c ****     memset(rls->params_data, 0, sizeof_float * vectorSize);
+ 165              		.loc 1 45 5 is_stmt 1 view .LVU40
+ 166 00ba 3A46     		mov	r2, r7
+ 167 00bc 0021     		movs	r1, #0
+ 168 00be FFF7FEFF 		bl	memset
+ 169              	.LVL15:
+  46:modules/algorithm/RLS.c ****     Matrix_Init(&rls->params_vector, rls->vectorSize, 1, (float *)rls->params_data);
+ 170              		.loc 1 46 5 view .LVU41
+ 171 00c2 636E     		ldr	r3, [r4, #100]
+ 172 00c4 0122     		movs	r2, #1
+ 173 00c6 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+ 174 00c8 04F11C00 		add	r0, r4, #28
+ 175 00cc FFF7FEFF 		bl	arm_mat_init_f32
+ 176              	.LVL16:
+  47:modules/algorithm/RLS.c **** 
+  48:modules/algorithm/RLS.c ****     rls->temp_data = (float *)user_malloc(sizeof_float);
+ 177              		.loc 1 48 5 view .LVU42
+ 178              		.loc 1 48 31 is_stmt 0 view .LVU43
+ 179 00d0 3788     		ldrh	r7, [r6]
+ 180 00d2 3846     		mov	r0, r7
+ 181 00d4 FFF7FEFF 		bl	malloc
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 5
+
+
+ 182              	.LVL17:
+ 183              		.loc 1 48 20 discriminator 1 view .LVU44
+ 184 00d8 E066     		str	r0, [r4, #108]
+  49:modules/algorithm/RLS.c ****     memset(rls->temp_data, 0, sizeof_float);  
+ 185              		.loc 1 49 5 is_stmt 1 view .LVU45
+ 186 00da 3A46     		mov	r2, r7
+ 187 00dc 0021     		movs	r1, #0
+ 188 00de FFF7FEFF 		bl	memset
+ 189              	.LVL18:
+  50:modules/algorithm/RLS.c ****     Matrix_Init(&rls->temp, 1, 1, (float *)rls->temp_data);
+ 190              		.loc 1 50 5 view .LVU46
+ 191 00e2 E36E     		ldr	r3, [r4, #108]
+ 192 00e4 0122     		movs	r2, #1
+ 193 00e6 1146     		mov	r1, r2
+ 194 00e8 04F12C00 		add	r0, r4, #44
+ 195 00ec FFF7FEFF 		bl	arm_mat_init_f32
+ 196              	.LVL19:
+  51:modules/algorithm/RLS.c **** 
+  52:modules/algorithm/RLS.c ****     rls->temp_vector_data = (float *)user_malloc(sizeof_float * vectorSize);
+ 197              		.loc 1 52 5 view .LVU47
+ 198              		.loc 1 52 63 is_stmt 0 view .LVU48
+ 199 00f0 3788     		ldrh	r7, [r6]
+ 200 00f2 05FB07F7 		mul	r7, r5, r7
+ 201              		.loc 1 52 38 view .LVU49
+ 202 00f6 3846     		mov	r0, r7
+ 203 00f8 FFF7FEFF 		bl	malloc
+ 204              	.LVL20:
+ 205              		.loc 1 52 27 discriminator 1 view .LVU50
+ 206 00fc A067     		str	r0, [r4, #120]
+  53:modules/algorithm/RLS.c ****     memset(rls->temp_vector_data, 0, sizeof_float * vectorSize);
+ 207              		.loc 1 53 5 is_stmt 1 view .LVU51
+ 208 00fe 3A46     		mov	r2, r7
+ 209 0100 0021     		movs	r1, #0
+ 210 0102 FFF7FEFF 		bl	memset
+ 211              	.LVL21:
+  54:modules/algorithm/RLS.c ****     Matrix_Init(&rls->temp_vector, rls->vectorSize, 1, (float *)rls->temp_vector_data);
+ 212              		.loc 1 54 5 view .LVU52
+ 213 0106 A36F     		ldr	r3, [r4, #120]
+ 214 0108 0122     		movs	r2, #1
+ 215 010a 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+ 216 010c 04F14400 		add	r0, r4, #68
+ 217 0110 FFF7FEFF 		bl	arm_mat_init_f32
+ 218              	.LVL22:
+  55:modules/algorithm/RLS.c ****     rls->temp_vector1_data = (float *)user_malloc(sizeof_float * vectorSize);
+ 219              		.loc 1 55 5 view .LVU53
+ 220              		.loc 1 55 64 is_stmt 0 view .LVU54
+ 221 0114 3788     		ldrh	r7, [r6]
+ 222 0116 05FB07F7 		mul	r7, r5, r7
+ 223              		.loc 1 55 39 view .LVU55
+ 224 011a 3846     		mov	r0, r7
+ 225 011c FFF7FEFF 		bl	malloc
+ 226              	.LVL23:
+ 227              		.loc 1 55 28 discriminator 1 view .LVU56
+ 228 0120 E067     		str	r0, [r4, #124]
+  56:modules/algorithm/RLS.c ****     memset(rls->temp_vector1_data, 0, sizeof_float * vectorSize);
+ 229              		.loc 1 56 5 is_stmt 1 view .LVU57
+ 230 0122 3A46     		mov	r2, r7
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 6
+
+
+ 231 0124 0021     		movs	r1, #0
+ 232 0126 FFF7FEFF 		bl	memset
+ 233              	.LVL24:
+  57:modules/algorithm/RLS.c ****     Matrix_Init(&rls->temp_vector1, rls->vectorSize, 1, (float *)rls->temp_vector1_data);
+ 234              		.loc 1 57 5 view .LVU58
+ 235 012a E36F     		ldr	r3, [r4, #124]
+ 236 012c 0122     		movs	r2, #1
+ 237 012e 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+ 238 0130 04F14C00 		add	r0, r4, #76
+ 239 0134 FFF7FEFF 		bl	arm_mat_init_f32
+ 240              	.LVL25:
+  58:modules/algorithm/RLS.c **** 
+  59:modules/algorithm/RLS.c ****     rls->temp_matrix_data = (float *)user_malloc(sizeof_float * vectorSize * vectorSize);
+ 241              		.loc 1 59 5 view .LVU59
+ 242              		.loc 1 59 63 is_stmt 0 view .LVU60
+ 243 0138 3788     		ldrh	r7, [r6]
+ 244 013a 05FB07F7 		mul	r7, r5, r7
+ 245              		.loc 1 59 76 view .LVU61
+ 246 013e 05FB07F7 		mul	r7, r5, r7
+ 247              		.loc 1 59 38 view .LVU62
+ 248 0142 3846     		mov	r0, r7
+ 249 0144 FFF7FEFF 		bl	malloc
+ 250              	.LVL26:
+ 251              		.loc 1 59 27 discriminator 1 view .LVU63
+ 252 0148 2067     		str	r0, [r4, #112]
+  60:modules/algorithm/RLS.c ****     memset(rls->temp_matrix_data, 0, sizeof_float * vectorSize * vectorSize);
+ 253              		.loc 1 60 5 is_stmt 1 view .LVU64
+ 254 014a 3A46     		mov	r2, r7
+ 255 014c 0021     		movs	r1, #0
+ 256 014e FFF7FEFF 		bl	memset
+ 257              	.LVL27:
+  61:modules/algorithm/RLS.c ****     Matrix_Init(&rls->temp_matrix, rls->vectorSize, rls->vectorSize, (float *)rls->temp_matrix_data
+ 258              		.loc 1 61 5 view .LVU65
+ 259              		.loc 1 61 39 is_stmt 0 view .LVU66
+ 260 0152 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+ 261              		.loc 1 61 5 view .LVU67
+ 262 0154 236F     		ldr	r3, [r4, #112]
+ 263 0156 0A46     		mov	r2, r1
+ 264 0158 04F13400 		add	r0, r4, #52
+ 265 015c FFF7FEFF 		bl	arm_mat_init_f32
+ 266              	.LVL28:
+  62:modules/algorithm/RLS.c ****     rls->temp_matrix1_data = (float *)user_malloc(sizeof_float * vectorSize * vectorSize);
+ 267              		.loc 1 62 5 is_stmt 1 view .LVU68
+ 268              		.loc 1 62 64 is_stmt 0 view .LVU69
+ 269 0160 3388     		ldrh	r3, [r6]
+ 270 0162 05FB03F3 		mul	r3, r5, r3
+ 271              		.loc 1 62 77 view .LVU70
+ 272 0166 03FB05F5 		mul	r5, r3, r5
+ 273              	.LVL29:
+ 274              		.loc 1 62 39 view .LVU71
+ 275 016a 2846     		mov	r0, r5
+ 276 016c FFF7FEFF 		bl	malloc
+ 277              	.LVL30:
+ 278              		.loc 1 62 28 discriminator 1 view .LVU72
+ 279 0170 6067     		str	r0, [r4, #116]
+  63:modules/algorithm/RLS.c ****     memset(rls->temp_matrix1_data, 0, sizeof_float * vectorSize * vectorSize);
+ 280              		.loc 1 63 5 is_stmt 1 view .LVU73
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 7
+
+
+ 281 0172 2A46     		mov	r2, r5
+ 282 0174 0021     		movs	r1, #0
+ 283 0176 FFF7FEFF 		bl	memset
+ 284              	.LVL31:
+  64:modules/algorithm/RLS.c ****     Matrix_Init(&rls->temp_matrix1, rls->vectorSize, rls->vectorSize, (float *)rls->temp_matrix1_da
+ 285              		.loc 1 64 5 view .LVU74
+ 286              		.loc 1 64 40 is_stmt 0 view .LVU75
+ 287 017a 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+ 288              		.loc 1 64 5 view .LVU76
+ 289 017c 636F     		ldr	r3, [r4, #116]
+ 290 017e 0A46     		mov	r2, r1
+ 291 0180 04F13C00 		add	r0, r4, #60
+ 292 0184 FFF7FEFF 		bl	arm_mat_init_f32
+ 293              	.LVL32:
+  65:modules/algorithm/RLS.c **** 
+  66:modules/algorithm/RLS.c ****     rls->delta = delta;
+ 294              		.loc 1 66 5 is_stmt 1 view .LVU77
+ 295              		.loc 1 66 16 is_stmt 0 view .LVU78
+ 296 0188 4846     		mov	r0, r9	@ float
+ 297 018a FFF7FEFF 		bl	__aeabi_f2d
+ 298              	.LVL33:
+ 299 018e C4E92001 		strd	r0, [r4, #128]
+  67:modules/algorithm/RLS.c ****     rls->lambda = lambda;
+ 300              		.loc 1 67 5 is_stmt 1 view .LVU79
+ 301              		.loc 1 67 17 is_stmt 0 view .LVU80
+ 302 0192 4046     		mov	r0, r8	@ float
+ 303 0194 FFF7FEFF 		bl	__aeabi_f2d
+ 304              	.LVL34:
+ 305 0198 C4E92201 		strd	r0, [r4, #136]
+  68:modules/algorithm/RLS.c **** }
+ 306              		.loc 1 68 1 view .LVU81
+ 307 019c BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 308              	.LVL35:
+ 309              	.L4:
+ 310              		.loc 1 68 1 view .LVU82
+ 311              		.align	2
+ 312              	.L3:
+ 313 01a0 00000000 		.word	sizeof_float
+ 314 01a4 00000000 		.word	sizeof_double
+ 315              		.cfi_endproc
+ 316              	.LFE163:
+ 318              		.section	.text.RLS_SetParam,"ax",%progbits
+ 319              		.align	1
+ 320              		.global	RLS_SetParam
+ 321              		.syntax unified
+ 322              		.thumb
+ 323              		.thumb_func
+ 325              	RLS_SetParam:
+ 326              	.LVL36:
+ 327              	.LFB164:
+  69:modules/algorithm/RLS.c **** 
+  70:modules/algorithm/RLS.c **** /**
+  71:modules/algorithm/RLS.c ****  * @brief 设置RLS矩阵参数
+  72:modules/algorithm/RLS.c ****  *
+  73:modules/algorithm/RLS.c ****  * @param rls rls类型定义
+  74:modules/algorithm/RLS.c ****  * @param updateParams rls更新参数
+  75:modules/algorithm/RLS.c ****  */
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 8
+
+
+  76:modules/algorithm/RLS.c **** void RLS_SetParam(RLS_t *rls, float* updateParams)
+  77:modules/algorithm/RLS.c **** {
+ 328              		.loc 1 77 1 is_stmt 1 view -0
+ 329              		.cfi_startproc
+ 330              		@ args = 0, pretend = 0, frame = 0
+ 331              		@ frame_needed = 0, uses_anonymous_args = 0
+ 332              		@ link register save eliminated.
+  78:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->vectorSize; ++i)
+ 333              		.loc 1 78 5 view .LVU84
+ 334              	.LBB2:
+ 335              		.loc 1 78 10 view .LVU85
+ 336              		.loc 1 78 18 is_stmt 0 view .LVU86
+ 337 0000 0023     		movs	r3, #0
+ 338              		.loc 1 78 5 view .LVU87
+ 339 0002 0AE0     		b	.L6
+ 340              	.LVL37:
+ 341              	.L7:
+  79:modules/algorithm/RLS.c ****     {
+  80:modules/algorithm/RLS.c ****         rls->params_data[i] = updateParams[i];
+ 342              		.loc 1 80 9 is_stmt 1 view .LVU88
+ 343              		.loc 1 80 12 is_stmt 0 view .LVU89
+ 344 0004 426E     		ldr	r2, [r0, #100]
+ 345              		.loc 1 80 25 view .LVU90
+ 346 0006 02EB8302 		add	r2, r2, r3, lsl #2
+ 347              		.loc 1 80 43 view .LVU91
+ 348 000a 01EB830C 		add	ip, r1, r3, lsl #2
+ 349 000e DCF800C0 		ldr	ip, [ip]	@ float
+ 350              		.loc 1 80 29 view .LVU92
+ 351 0012 C2F800C0 		str	ip, [r2]	@ float
+  78:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->vectorSize; ++i)
+ 352              		.loc 1 78 46 is_stmt 1 discriminator 3 view .LVU93
+ 353 0016 0133     		adds	r3, r3, #1
+ 354              	.LVL38:
+  78:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->vectorSize; ++i)
+ 355              		.loc 1 78 46 is_stmt 0 discriminator 3 view .LVU94
+ 356 0018 DBB2     		uxtb	r3, r3
+ 357              	.LVL39:
+ 358              	.L6:
+  78:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->vectorSize; ++i)
+ 359              		.loc 1 78 27 is_stmt 1 discriminator 1 view .LVU95
+  78:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->vectorSize; ++i)
+ 360              		.loc 1 78 32 is_stmt 0 discriminator 1 view .LVU96
+ 361 001a 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+  78:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->vectorSize; ++i)
+ 362              		.loc 1 78 27 discriminator 1 view .LVU97
+ 363 001c 9A42     		cmp	r2, r3
+ 364 001e F1D8     		bhi	.L7
+ 365              	.LBE2:
+  81:modules/algorithm/RLS.c ****     }    
+  82:modules/algorithm/RLS.c **** }
+ 366              		.loc 1 82 1 view .LVU98
+ 367 0020 7047     		bx	lr
+ 368              		.cfi_endproc
+ 369              	.LFE164:
+ 371              		.section	.text.RLS_Reset,"ax",%progbits
+ 372              		.align	1
+ 373              		.global	RLS_Reset
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 9
+
+
+ 374              		.syntax unified
+ 375              		.thumb
+ 376              		.thumb_func
+ 378              	RLS_Reset:
+ 379              	.LVL40:
+ 380              	.LFB165:
+  83:modules/algorithm/RLS.c **** 
+  84:modules/algorithm/RLS.c **** /**
+  85:modules/algorithm/RLS.c ****  * @brief 清除RLS矩阵参数
+  86:modules/algorithm/RLS.c ****  *
+  87:modules/algorithm/RLS.c ****  * @param rls rls类型定义
+  88:modules/algorithm/RLS.c ****  */
+  89:modules/algorithm/RLS.c **** void RLS_Reset(RLS_t *rls)
+  90:modules/algorithm/RLS.c **** {
+ 381              		.loc 1 90 1 is_stmt 1 view -0
+ 382              		.cfi_startproc
+ 383              		@ args = 0, pretend = 0, frame = 0
+ 384              		@ frame_needed = 0, uses_anonymous_args = 0
+ 385              		.loc 1 90 1 is_stmt 0 view .LVU100
+ 386 0000 70B5     		push	{r4, r5, r6, lr}
+ 387              		.cfi_def_cfa_offset 16
+ 388              		.cfi_offset 4, -16
+ 389              		.cfi_offset 5, -12
+ 390              		.cfi_offset 6, -8
+ 391              		.cfi_offset 14, -4
+ 392 0002 0546     		mov	r5, r0
+  91:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows; ++i)
+ 393              		.loc 1 91 5 is_stmt 1 view .LVU101
+ 394              	.LBB3:
+ 395              		.loc 1 91 10 view .LVU102
+ 396              	.LVL41:
+ 397              		.loc 1 91 18 is_stmt 0 view .LVU103
+ 398 0004 0024     		movs	r4, #0
+ 399              		.loc 1 91 5 view .LVU104
+ 400 0006 1AE0     		b	.L9
+ 401              	.LVL42:
+ 402              	.L10:
+  92:modules/algorithm/RLS.c ****     {
+  93:modules/algorithm/RLS.c ****         rls->trans_data[i * rls->trans_matrix.numCols + i] = 1.0f;
+ 403              		.loc 1 93 9 is_stmt 1 view .LVU105
+ 404              		.loc 1 93 12 is_stmt 0 view .LVU106
+ 405 0008 AB6E     		ldr	r3, [r5, #104]
+ 406              		.loc 1 93 46 view .LVU107
+ 407 000a EA8C     		ldrh	r2, [r5, #38]
+ 408              		.loc 1 93 55 view .LVU108
+ 409 000c 02FB0442 		mla	r2, r2, r4, r4
+ 410              		.loc 1 93 24 view .LVU109
+ 411 0010 03EB8203 		add	r3, r3, r2, lsl #2
+ 412              		.loc 1 93 60 view .LVU110
+ 413 0014 4FF07E52 		mov	r2, #1065353216
+ 414 0018 1A60     		str	r2, [r3]	@ float
+  94:modules/algorithm/RLS.c ****         rls->trans_data[i * rls->trans_matrix.numCols + i] *= rls->delta;
+ 415              		.loc 1 94 9 is_stmt 1 view .LVU111
+ 416              		.loc 1 94 12 is_stmt 0 view .LVU112
+ 417 001a AE6E     		ldr	r6, [r5, #104]
+ 418              		.loc 1 94 46 view .LVU113
+ 419 001c EB8C     		ldrh	r3, [r5, #38]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 10
+
+
+ 420              		.loc 1 94 24 view .LVU114
+ 421 001e 04FB0343 		mla	r3, r4, r3, r4
+ 422 0022 06EB8306 		add	r6, r6, r3, lsl #2
+ 423 0026 3068     		ldr	r0, [r6]	@ float
+ 424 0028 FFF7FEFF 		bl	__aeabi_f2d
+ 425              	.LVL43:
+ 426              		.loc 1 94 60 view .LVU115
+ 427 002c D5E92023 		ldrd	r2, [r5, #128]
+ 428 0030 FFF7FEFF 		bl	__aeabi_dmul
+ 429              	.LVL44:
+ 430 0034 FFF7FEFF 		bl	__aeabi_d2f
+ 431              	.LVL45:
+ 432 0038 3060     		str	r0, [r6]	@ float
+  91:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows; ++i)
+ 433              		.loc 1 91 56 is_stmt 1 discriminator 3 view .LVU116
+ 434 003a 0134     		adds	r4, r4, #1
+ 435              	.LVL46:
+  91:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows; ++i)
+ 436              		.loc 1 91 56 is_stmt 0 discriminator 3 view .LVU117
+ 437 003c E4B2     		uxtb	r4, r4
+ 438              	.LVL47:
+ 439              	.L9:
+  91:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows; ++i)
+ 440              		.loc 1 91 27 is_stmt 1 discriminator 1 view .LVU118
+  91:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows; ++i)
+ 441              		.loc 1 91 46 is_stmt 0 discriminator 1 view .LVU119
+ 442 003e AB8C     		ldrh	r3, [r5, #36]
+  91:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows; ++i)
+ 443              		.loc 1 91 27 discriminator 1 view .LVU120
+ 444 0040 9C42     		cmp	r4, r3
+ 445 0042 E1D3     		bcc	.L10
+ 446              	.LBE3:
+  95:modules/algorithm/RLS.c ****     }    
+  96:modules/algorithm/RLS.c **** 
+  97:modules/algorithm/RLS.c ****     memset(rls->gain_data, 0, sizeof_float * rls->vectorSize);
+ 447              		.loc 1 97 5 is_stmt 1 view .LVU121
+ 448              		.loc 1 97 44 is_stmt 0 view .LVU122
+ 449 0044 084B     		ldr	r3, .L12
+ 450 0046 1C88     		ldrh	r4, [r3]
+ 451              	.LVL48:
+ 452              		.loc 1 97 49 view .LVU123
+ 453 0048 2A78     		ldrb	r2, [r5]	@ zero_extendqisi2
+ 454              		.loc 1 97 5 view .LVU124
+ 455 004a 04FB02F2 		mul	r2, r4, r2
+ 456 004e 0021     		movs	r1, #0
+ 457 0050 286E     		ldr	r0, [r5, #96]
+ 458 0052 FFF7FEFF 		bl	memset
+ 459              	.LVL49:
+  98:modules/algorithm/RLS.c ****     memset(rls->params_data, 0, sizeof_float * rls->vectorSize);
+ 460              		.loc 1 98 5 is_stmt 1 view .LVU125
+ 461              		.loc 1 98 51 is_stmt 0 view .LVU126
+ 462 0056 2A78     		ldrb	r2, [r5]	@ zero_extendqisi2
+ 463              		.loc 1 98 5 view .LVU127
+ 464 0058 04FB02F2 		mul	r2, r4, r2
+ 465 005c 0021     		movs	r1, #0
+ 466 005e 686E     		ldr	r0, [r5, #100]
+ 467 0060 FFF7FEFF 		bl	memset
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 11
+
+
+ 468              	.LVL50:
+  99:modules/algorithm/RLS.c **** }
+ 469              		.loc 1 99 1 view .LVU128
+ 470 0064 70BD     		pop	{r4, r5, r6, pc}
+ 471              	.LVL51:
+ 472              	.L13:
+ 473              		.loc 1 99 1 view .LVU129
+ 474 0066 00BF     		.align	2
+ 475              	.L12:
+ 476 0068 00000000 		.word	sizeof_float
+ 477              		.cfi_endproc
+ 478              	.LFE165:
+ 480              		.section	.text.RLS_Update,"ax",%progbits
+ 481              		.align	1
+ 482              		.global	RLS_Update
+ 483              		.syntax unified
+ 484              		.thumb
+ 485              		.thumb_func
+ 487              	RLS_Update:
+ 488              	.LVL52:
+ 489              	.LFB166:
+ 100:modules/algorithm/RLS.c **** 
+ 101:modules/algorithm/RLS.c **** /**
+ 102:modules/algorithm/RLS.c ****  * @brief 更新RLS输出矩阵
+ 103:modules/algorithm/RLS.c ****  *
+ 104:modules/algorithm/RLS.c ****  * @param rls rls类型定义
+ 105:modules/algorithm/RLS.c ****  * @param vector 输入变量
+ 106:modules/algorithm/RLS.c ****  * @param actualOutput 实际输出
+ 107:modules/algorithm/RLS.c ****  */
+ 108:modules/algorithm/RLS.c **** void RLS_Update(RLS_t *rls, float *vector, float actualOutput)
+ 109:modules/algorithm/RLS.c **** {
+ 490              		.loc 1 109 1 is_stmt 1 view -0
+ 491              		.cfi_startproc
+ 492              		@ args = 0, pretend = 0, frame = 8
+ 493              		@ frame_needed = 0, uses_anonymous_args = 0
+ 494              		.loc 1 109 1 is_stmt 0 view .LVU131
+ 495 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 496              		.cfi_def_cfa_offset 36
+ 497              		.cfi_offset 4, -36
+ 498              		.cfi_offset 5, -32
+ 499              		.cfi_offset 6, -28
+ 500              		.cfi_offset 7, -24
+ 501              		.cfi_offset 8, -20
+ 502              		.cfi_offset 9, -16
+ 503              		.cfi_offset 10, -12
+ 504              		.cfi_offset 11, -8
+ 505              		.cfi_offset 14, -4
+ 506 0004 2DED028B 		vpush.64	{d8}
+ 507              		.cfi_def_cfa_offset 44
+ 508              		.cfi_offset 80, -44
+ 509              		.cfi_offset 81, -40
+ 510 0008 83B0     		sub	sp, sp, #12
+ 511              		.cfi_def_cfa_offset 56
+ 512 000a 0446     		mov	r4, r0
+ 513 000c B0EE408A 		vmov.f32	s16, s0
+ 110:modules/algorithm/RLS.c ****     // Copy the input vector to the input data array
+ 111:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->input_vector.numRows * rls->input_vector.numCols; ++i)
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 12
+
+
+ 514              		.loc 1 111 5 is_stmt 1 view .LVU132
+ 515              	.LBB4:
+ 516              		.loc 1 111 10 view .LVU133
+ 517              	.LVL53:
+ 518              		.loc 1 111 18 is_stmt 0 view .LVU134
+ 519 0010 0023     		movs	r3, #0
+ 520              		.loc 1 111 5 view .LVU135
+ 521 0012 08E0     		b	.L15
+ 522              	.LVL54:
+ 523              	.L16:
+ 112:modules/algorithm/RLS.c ****     {    
+ 113:modules/algorithm/RLS.c ****         rls->input_data[i] = vector[i];
+ 524              		.loc 1 113 9 is_stmt 1 view .LVU136
+ 525              		.loc 1 113 12 is_stmt 0 view .LVU137
+ 526 0014 626D     		ldr	r2, [r4, #84]
+ 527              		.loc 1 113 24 view .LVU138
+ 528 0016 02EB8302 		add	r2, r2, r3, lsl #2
+ 529              		.loc 1 113 36 view .LVU139
+ 530 001a 01EB8300 		add	r0, r1, r3, lsl #2
+ 531 001e 0068     		ldr	r0, [r0]	@ float
+ 532              		.loc 1 113 28 view .LVU140
+ 533 0020 1060     		str	r0, [r2]	@ float
+ 111:modules/algorithm/RLS.c ****     {    
+ 534              		.loc 1 111 84 is_stmt 1 discriminator 3 view .LVU141
+ 535 0022 0133     		adds	r3, r3, #1
+ 536              	.LVL55:
+ 111:modules/algorithm/RLS.c ****     {    
+ 537              		.loc 1 111 84 is_stmt 0 discriminator 3 view .LVU142
+ 538 0024 DBB2     		uxtb	r3, r3
+ 539              	.LVL56:
+ 540              	.L15:
+ 111:modules/algorithm/RLS.c ****     {    
+ 541              		.loc 1 111 27 is_stmt 1 discriminator 1 view .LVU143
+ 111:modules/algorithm/RLS.c ****     {    
+ 542              		.loc 1 111 46 is_stmt 0 discriminator 1 view .LVU144
+ 543 0026 A088     		ldrh	r0, [r4, #4]
+ 111:modules/algorithm/RLS.c ****     {    
+ 544              		.loc 1 111 74 discriminator 1 view .LVU145
+ 545 0028 E288     		ldrh	r2, [r4, #6]
+ 111:modules/algorithm/RLS.c ****     {    
+ 546              		.loc 1 111 55 discriminator 1 view .LVU146
+ 547 002a 00FB02F2 		mul	r2, r0, r2
+ 111:modules/algorithm/RLS.c ****     {    
+ 548              		.loc 1 111 27 discriminator 1 view .LVU147
+ 549 002e 9342     		cmp	r3, r2
+ 550 0030 F0DB     		blt	.L16
+ 551              	.LBE4:
+ 114:modules/algorithm/RLS.c ****     }
+ 115:modules/algorithm/RLS.c ****     // rls->input_data[0] = vector[0];
+ 116:modules/algorithm/RLS.c ****     // rls->input_data[1] = vector[1];
+ 117:modules/algorithm/RLS.c **** 
+ 118:modules/algorithm/RLS.c ****     // Calculate the transpose of the input vector and store it in the temp vector
+ 119:modules/algorithm/RLS.c ****     rls->temp_vector.numRows = rls->input_vector.numRows;
+ 552              		.loc 1 119 5 is_stmt 1 view .LVU148
+ 553              		.loc 1 119 30 is_stmt 0 view .LVU149
+ 554 0032 A4F84400 		strh	r0, [r4, #68]	@ movhi
+ 120:modules/algorithm/RLS.c ****     rls->temp_vector.numCols = 1;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 13
+
+
+ 555              		.loc 1 120 5 is_stmt 1 view .LVU150
+ 556              		.loc 1 120 30 is_stmt 0 view .LVU151
+ 557 0036 0127     		movs	r7, #1
+ 558 0038 A4F84670 		strh	r7, [r4, #70]	@ movhi
+ 121:modules/algorithm/RLS.c ****     rls->MatStatus = Matrix_Multiply(&rls->trans_matrix, &rls->input_vector, &rls->temp_vector);   
+ 559              		.loc 1 121 5 is_stmt 1 view .LVU152
+ 560              		.loc 1 121 38 is_stmt 0 view .LVU153
+ 561 003c 04F12409 		add	r9, r4, #36
+ 562              		.loc 1 121 58 view .LVU154
+ 563 0040 251D     		adds	r5, r4, #4
+ 564              		.loc 1 121 22 view .LVU155
+ 565 0042 04F14402 		add	r2, r4, #68
+ 566 0046 2946     		mov	r1, r5
+ 567              	.LVL57:
+ 568              		.loc 1 121 22 view .LVU156
+ 569 0048 4846     		mov	r0, r9
+ 570 004a FFF7FEFF 		bl	arm_mat_mult_f32
+ 571              	.LVL58:
+ 572              		.loc 1 121 20 discriminator 1 view .LVU157
+ 573 004e 6070     		strb	r0, [r4, #1]
+ 122:modules/algorithm/RLS.c **** 
+ 123:modules/algorithm/RLS.c ****     // Calculate the transpose of the input vector and store it in the t_input_vector
+ 124:modules/algorithm/RLS.c ****     rls->MatStatus = Matrix_Transpose(&rls->input_vector, &rls->t_input_vector);    // X=>X'
+ 574              		.loc 1 124 5 is_stmt 1 view .LVU158
+ 575              		.loc 1 124 22 is_stmt 0 view .LVU159
+ 576 0050 04F10C06 		add	r6, r4, #12
+ 577 0054 3146     		mov	r1, r6
+ 578 0056 2846     		mov	r0, r5
+ 579 0058 FFF7FEFF 		bl	arm_mat_trans_f32
+ 580              	.LVL59:
+ 581              		.loc 1 124 20 discriminator 1 view .LVU160
+ 582 005c 6070     		strb	r0, [r4, #1]
+ 125:modules/algorithm/RLS.c ****     rls->temp_vector1.numRows = 1;
+ 583              		.loc 1 125 5 is_stmt 1 view .LVU161
+ 584              		.loc 1 125 31 is_stmt 0 view .LVU162
+ 585 005e A4F84C70 		strh	r7, [r4, #76]	@ movhi
+ 126:modules/algorithm/RLS.c ****     rls->temp_vector1.numCols = rls->t_input_vector.numCols;
+ 586              		.loc 1 126 5 is_stmt 1 view .LVU163
+ 587              		.loc 1 126 52 is_stmt 0 view .LVU164
+ 588 0062 E389     		ldrh	r3, [r4, #14]
+ 589              		.loc 1 126 31 view .LVU165
+ 590 0064 A4F84E30 		strh	r3, [r4, #78]	@ movhi
+ 127:modules/algorithm/RLS.c ****     rls->MatStatus = Matrix_Multiply(&rls->t_input_vector, &rls->trans_matrix, &rls->temp_vector1);
+ 591              		.loc 1 127 5 is_stmt 1 view .LVU166
+ 592              		.loc 1 127 22 is_stmt 0 view .LVU167
+ 593 0068 04F14C0A 		add	r10, r4, #76
+ 594 006c 5246     		mov	r2, r10
+ 595 006e 4946     		mov	r1, r9
+ 596 0070 3046     		mov	r0, r6
+ 597 0072 FFF7FEFF 		bl	arm_mat_mult_f32
+ 598              	.LVL60:
+ 599              		.loc 1 127 20 discriminator 1 view .LVU168
+ 600 0076 6070     		strb	r0, [r4, #1]
+ 128:modules/algorithm/RLS.c ****     rls->temp.numRows = 1;
+ 601              		.loc 1 128 5 is_stmt 1 view .LVU169
+ 602              		.loc 1 128 23 is_stmt 0 view .LVU170
+ 603 0078 A785     		strh	r7, [r4, #44]	@ movhi
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 14
+
+
+ 129:modules/algorithm/RLS.c ****     rls->temp.numCols = 1;    
+ 604              		.loc 1 129 5 is_stmt 1 view .LVU171
+ 605              		.loc 1 129 23 is_stmt 0 view .LVU172
+ 606 007a E785     		strh	r7, [r4, #46]	@ movhi
+ 130:modules/algorithm/RLS.c ****     rls->MatStatus = Matrix_Multiply(&rls->temp_vector1, &rls->input_vector, &rls->temp);     // te
+ 607              		.loc 1 130 5 is_stmt 1 view .LVU173
+ 608              		.loc 1 130 22 is_stmt 0 view .LVU174
+ 609 007c 04F12C08 		add	r8, r4, #44
+ 610 0080 4246     		mov	r2, r8
+ 611 0082 2946     		mov	r1, r5
+ 612 0084 5046     		mov	r0, r10
+ 613 0086 FFF7FEFF 		bl	arm_mat_mult_f32
+ 614              	.LVL61:
+ 615              		.loc 1 130 20 discriminator 1 view .LVU175
+ 616 008a 6070     		strb	r0, [r4, #1]
+ 131:modules/algorithm/RLS.c **** 
+ 132:modules/algorithm/RLS.c ****     // Calculate the gain vector
+ 133:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->temp_vector.numRows * rls->temp_vector.numCols; ++i)
+ 617              		.loc 1 133 5 is_stmt 1 view .LVU176
+ 618              	.LBB5:
+ 619              		.loc 1 133 10 view .LVU177
+ 620              	.LVL62:
+ 621              		.loc 1 133 18 is_stmt 0 view .LVU178
+ 622 008c 0025     		movs	r5, #0
+ 623 008e CB46     		mov	fp, r9
+ 624 0090 CDF80480 		str	r8, [sp, #4]
+ 625              		.loc 1 133 5 view .LVU179
+ 626 0094 2CE0     		b	.L17
+ 627              	.LVL63:
+ 628              	.L18:
+ 134:modules/algorithm/RLS.c ****     {
+ 135:modules/algorithm/RLS.c ****         rls->temp_vector_data[i] /= 1.0f + (rls->temp_data[0] / rls->lambda);
+ 629              		.loc 1 135 9 is_stmt 1 view .LVU180
+ 630              		.loc 1 135 12 is_stmt 0 view .LVU181
+ 631 0096 A76F     		ldr	r7, [r4, #120]
+ 632              		.loc 1 135 30 view .LVU182
+ 633 0098 4FEA850A 		lsl	r10, r5, #2
+ 634 009c 07EB8507 		add	r7, r7, r5, lsl #2
+ 635 00a0 3868     		ldr	r0, [r7]	@ float
+ 636 00a2 FFF7FEFF 		bl	__aeabi_f2d
+ 637              	.LVL64:
+ 638 00a6 8046     		mov	r8, r0
+ 639 00a8 8946     		mov	r9, r1
+ 640              		.loc 1 135 48 view .LVU183
+ 641 00aa E36E     		ldr	r3, [r4, #108]
+ 642              		.loc 1 135 59 view .LVU184
+ 643 00ac 1868     		ldr	r0, [r3]	@ float
+ 644 00ae FFF7FEFF 		bl	__aeabi_f2d
+ 645              	.LVL65:
+ 646              		.loc 1 135 63 view .LVU185
+ 647 00b2 D4E92223 		ldrd	r2, [r4, #136]
+ 648 00b6 FFF7FEFF 		bl	__aeabi_ddiv
+ 649              	.LVL66:
+ 650              		.loc 1 135 42 view .LVU186
+ 651 00ba 0022     		movs	r2, #0
+ 652 00bc 514B     		ldr	r3, .L26
+ 653 00be FFF7FEFF 		bl	__aeabi_dadd
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 15
+
+
+ 654              	.LVL67:
+ 655 00c2 0246     		mov	r2, r0
+ 656 00c4 0B46     		mov	r3, r1
+ 657              		.loc 1 135 34 view .LVU187
+ 658 00c6 4046     		mov	r0, r8
+ 659 00c8 4946     		mov	r1, r9
+ 660 00ca FFF7FEFF 		bl	__aeabi_ddiv
+ 661              	.LVL68:
+ 662 00ce FFF7FEFF 		bl	__aeabi_d2f
+ 663              	.LVL69:
+ 664 00d2 3860     		str	r0, [r7]	@ float
+ 136:modules/algorithm/RLS.c ****         rls->temp_vector_data[i] /= rls->lambda;
+ 665              		.loc 1 136 9 is_stmt 1 view .LVU188
+ 666              		.loc 1 136 12 is_stmt 0 view .LVU189
+ 667 00d4 A76F     		ldr	r7, [r4, #120]
+ 668              		.loc 1 136 30 view .LVU190
+ 669 00d6 5744     		add	r7, r7, r10
+ 670 00d8 3868     		ldr	r0, [r7]	@ float
+ 671 00da FFF7FEFF 		bl	__aeabi_f2d
+ 672              	.LVL70:
+ 673              		.loc 1 136 34 view .LVU191
+ 674 00de D4E92223 		ldrd	r2, [r4, #136]
+ 675 00e2 FFF7FEFF 		bl	__aeabi_ddiv
+ 676              	.LVL71:
+ 677 00e6 FFF7FEFF 		bl	__aeabi_d2f
+ 678              	.LVL72:
+ 679 00ea 3860     		str	r0, [r7]	@ float
+ 133:modules/algorithm/RLS.c ****     {
+ 680              		.loc 1 133 82 is_stmt 1 discriminator 3 view .LVU192
+ 681 00ec 0135     		adds	r5, r5, #1
+ 682              	.LVL73:
+ 133:modules/algorithm/RLS.c ****     {
+ 683              		.loc 1 133 82 is_stmt 0 discriminator 3 view .LVU193
+ 684 00ee EDB2     		uxtb	r5, r5
+ 685              	.LVL74:
+ 686              	.L17:
+ 133:modules/algorithm/RLS.c ****     {
+ 687              		.loc 1 133 27 is_stmt 1 discriminator 1 view .LVU194
+ 133:modules/algorithm/RLS.c ****     {
+ 688              		.loc 1 133 45 is_stmt 0 discriminator 1 view .LVU195
+ 689 00f0 B4F84430 		ldrh	r3, [r4, #68]
+ 133:modules/algorithm/RLS.c ****     {
+ 690              		.loc 1 133 72 discriminator 1 view .LVU196
+ 691 00f4 B4F84620 		ldrh	r2, [r4, #70]
+ 133:modules/algorithm/RLS.c ****     {
+ 692              		.loc 1 133 54 discriminator 1 view .LVU197
+ 693 00f8 02FB03F3 		mul	r3, r2, r3
+ 133:modules/algorithm/RLS.c ****     {
+ 694              		.loc 1 133 27 discriminator 1 view .LVU198
+ 695 00fc 9D42     		cmp	r5, r3
+ 696 00fe CADB     		blt	.L18
+ 697              	.LBE5:
+ 698              	.LBB6:
+ 137:modules/algorithm/RLS.c ****     }
+ 138:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->gain_vector.numRows * rls->gain_vector.numCols; ++i)
+ 699              		.loc 1 138 18 view .LVU199
+ 700 0100 D946     		mov	r9, fp
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 16
+
+
+ 701 0102 DDF80480 		ldr	r8, [sp, #4]
+ 702 0106 0023     		movs	r3, #0
+ 703 0108 09E0     		b	.L19
+ 704              	.LVL75:
+ 705              	.L20:
+ 139:modules/algorithm/RLS.c ****     {
+ 140:modules/algorithm/RLS.c ****         // Get gain vector = T·X ./ (1 + X'·T·X ./ lambda) ./ lambda
+ 141:modules/algorithm/RLS.c ****         rls->gain_data[i] = rls->temp_vector_data[i];
+ 706              		.loc 1 141 9 is_stmt 1 view .LVU200
+ 707              		.loc 1 141 32 is_stmt 0 view .LVU201
+ 708 010a A16F     		ldr	r1, [r4, #120]
+ 709              		.loc 1 141 12 view .LVU202
+ 710 010c 226E     		ldr	r2, [r4, #96]
+ 711              		.loc 1 141 23 view .LVU203
+ 712 010e 02EB8302 		add	r2, r2, r3, lsl #2
+ 713              		.loc 1 141 50 view .LVU204
+ 714 0112 01EB8301 		add	r1, r1, r3, lsl #2
+ 715 0116 0968     		ldr	r1, [r1]	@ float
+ 716              		.loc 1 141 27 view .LVU205
+ 717 0118 1160     		str	r1, [r2]	@ float
+ 138:modules/algorithm/RLS.c ****     {
+ 718              		.loc 1 138 82 is_stmt 1 discriminator 3 view .LVU206
+ 719 011a 0133     		adds	r3, r3, #1
+ 720              	.LVL76:
+ 138:modules/algorithm/RLS.c ****     {
+ 721              		.loc 1 138 82 is_stmt 0 discriminator 3 view .LVU207
+ 722 011c DBB2     		uxtb	r3, r3
+ 723              	.LVL77:
+ 724              	.L19:
+ 138:modules/algorithm/RLS.c ****     {
+ 725              		.loc 1 138 27 is_stmt 1 discriminator 1 view .LVU208
+ 138:modules/algorithm/RLS.c ****     {
+ 726              		.loc 1 138 45 is_stmt 0 discriminator 1 view .LVU209
+ 727 011e A28A     		ldrh	r2, [r4, #20]
+ 138:modules/algorithm/RLS.c ****     {
+ 728              		.loc 1 138 72 discriminator 1 view .LVU210
+ 729 0120 E18A     		ldrh	r1, [r4, #22]
+ 138:modules/algorithm/RLS.c ****     {
+ 730              		.loc 1 138 54 discriminator 1 view .LVU211
+ 731 0122 01FB02F2 		mul	r2, r1, r2
+ 138:modules/algorithm/RLS.c ****     {
+ 732              		.loc 1 138 27 discriminator 1 view .LVU212
+ 733 0126 9342     		cmp	r3, r2
+ 734 0128 EFDB     		blt	.L20
+ 735              	.LBE6:
+ 142:modules/algorithm/RLS.c ****     }    
+ 143:modules/algorithm/RLS.c ****     // rls->MatStatus = Matrix_Transpose(&rls->temp_vector, &rls->gain_vector);    
+ 144:modules/algorithm/RLS.c **** 
+ 145:modules/algorithm/RLS.c ****     // Calculate the temp vector
+ 146:modules/algorithm/RLS.c ****     rls->temp.numRows = 1;
+ 736              		.loc 1 146 5 is_stmt 1 view .LVU213
+ 737              		.loc 1 146 23 is_stmt 0 view .LVU214
+ 738 012a 0123     		movs	r3, #1
+ 739              	.LVL78:
+ 740              		.loc 1 146 23 view .LVU215
+ 741 012c A385     		strh	r3, [r4, #44]	@ movhi
+ 147:modules/algorithm/RLS.c ****     rls->temp.numCols = 1;    
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 17
+
+
+ 742              		.loc 1 147 5 is_stmt 1 view .LVU216
+ 743              		.loc 1 147 23 is_stmt 0 view .LVU217
+ 744 012e E385     		strh	r3, [r4, #46]	@ movhi
+ 148:modules/algorithm/RLS.c ****     rls->MatStatus = Matrix_Multiply(&rls->t_input_vector, &rls->params_vector, &rls->temp);       
+ 745              		.loc 1 148 5 is_stmt 1 view .LVU218
+ 746              		.loc 1 148 60 is_stmt 0 view .LVU219
+ 747 0130 04F11C05 		add	r5, r4, #28
+ 748              	.LVL79:
+ 749              		.loc 1 148 22 view .LVU220
+ 750 0134 4246     		mov	r2, r8
+ 751 0136 2946     		mov	r1, r5
+ 752 0138 3046     		mov	r0, r6
+ 753 013a FFF7FEFF 		bl	arm_mat_mult_f32
+ 754              	.LVL80:
+ 755              		.loc 1 148 20 discriminator 1 view .LVU221
+ 756 013e 6070     		strb	r0, [r4, #1]
+ 149:modules/algorithm/RLS.c **** 
+ 150:modules/algorithm/RLS.c ****     // Update the actual output
+ 151:modules/algorithm/RLS.c ****     actualOutput -= rls->temp_data[0];
+ 757              		.loc 1 151 5 is_stmt 1 view .LVU222
+ 758              		.loc 1 151 24 is_stmt 0 view .LVU223
+ 759 0140 E36E     		ldr	r3, [r4, #108]
+ 760              		.loc 1 151 35 view .LVU224
+ 761 0142 D3ED007A 		vldr.32	s15, [r3]
+ 762              		.loc 1 151 18 view .LVU225
+ 763 0146 38EE670A 		vsub.f32	s0, s16, s15
+ 764              	.LVL81:
+ 152:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->gain_vector.numRows * rls->gain_vector.numCols; ++i)
+ 765              		.loc 1 152 5 is_stmt 1 view .LVU226
+ 766              	.LBB7:
+ 767              		.loc 1 152 10 view .LVU227
+ 768              		.loc 1 152 18 is_stmt 0 view .LVU228
+ 769 014a 0023     		movs	r3, #0
+ 770              		.loc 1 152 5 view .LVU229
+ 771 014c 0AE0     		b	.L21
+ 772              	.LVL82:
+ 773              	.L22:
+ 153:modules/algorithm/RLS.c ****     {   
+ 154:modules/algorithm/RLS.c ****         rls->gain_data[i] *= actualOutput; 
+ 774              		.loc 1 154 9 is_stmt 1 view .LVU230
+ 775              		.loc 1 154 12 is_stmt 0 view .LVU231
+ 776 014e 226E     		ldr	r2, [r4, #96]
+ 777              		.loc 1 154 23 view .LVU232
+ 778 0150 02EB8302 		add	r2, r2, r3, lsl #2
+ 779 0154 D2ED007A 		vldr.32	s15, [r2]
+ 780              		.loc 1 154 27 view .LVU233
+ 781 0158 67EE807A 		vmul.f32	s15, s15, s0
+ 782 015c C2ED007A 		vstr.32	s15, [r2]
+ 152:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->gain_vector.numRows * rls->gain_vector.numCols; ++i)
+ 783              		.loc 1 152 82 is_stmt 1 discriminator 3 view .LVU234
+ 784 0160 0133     		adds	r3, r3, #1
+ 785              	.LVL83:
+ 152:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->gain_vector.numRows * rls->gain_vector.numCols; ++i)
+ 786              		.loc 1 152 82 is_stmt 0 discriminator 3 view .LVU235
+ 787 0162 DBB2     		uxtb	r3, r3
+ 788              	.LVL84:
+ 789              	.L21:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 18
+
+
+ 152:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->gain_vector.numRows * rls->gain_vector.numCols; ++i)
+ 790              		.loc 1 152 27 is_stmt 1 discriminator 1 view .LVU236
+ 152:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->gain_vector.numRows * rls->gain_vector.numCols; ++i)
+ 791              		.loc 1 152 45 is_stmt 0 discriminator 1 view .LVU237
+ 792 0164 A28A     		ldrh	r2, [r4, #20]
+ 152:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->gain_vector.numRows * rls->gain_vector.numCols; ++i)
+ 793              		.loc 1 152 72 discriminator 1 view .LVU238
+ 794 0166 E18A     		ldrh	r1, [r4, #22]
+ 152:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->gain_vector.numRows * rls->gain_vector.numCols; ++i)
+ 795              		.loc 1 152 54 discriminator 1 view .LVU239
+ 796 0168 01FB02F2 		mul	r2, r1, r2
+ 152:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->gain_vector.numRows * rls->gain_vector.numCols; ++i)
+ 797              		.loc 1 152 27 discriminator 1 view .LVU240
+ 798 016c 9342     		cmp	r3, r2
+ 799 016e EEDB     		blt	.L22
+ 800              	.LBE7:
+ 155:modules/algorithm/RLS.c ****     }    
+ 156:modules/algorithm/RLS.c ****     rls->MatStatus = Matrix_Add(&rls->params_vector, &rls->gain_vector, &rls->params_vector);    //
+ 801              		.loc 1 156 5 is_stmt 1 view .LVU241
+ 802              		.loc 1 156 54 is_stmt 0 view .LVU242
+ 803 0170 04F11407 		add	r7, r4, #20
+ 804              		.loc 1 156 22 view .LVU243
+ 805 0174 2A46     		mov	r2, r5
+ 806 0176 3946     		mov	r1, r7
+ 807 0178 2846     		mov	r0, r5
+ 808 017a FFF7FEFF 		bl	arm_mat_add_f32
+ 809              	.LVL85:
+ 810              		.loc 1 156 20 discriminator 1 view .LVU244
+ 811 017e 6070     		strb	r0, [r4, #1]
+ 157:modules/algorithm/RLS.c **** 
+ 158:modules/algorithm/RLS.c ****     // Calculate the temp matrix
+ 159:modules/algorithm/RLS.c ****     rls->temp_matrix.numRows = rls->trans_matrix.numRows;
+ 812              		.loc 1 159 5 is_stmt 1 view .LVU245
+ 813              		.loc 1 159 49 is_stmt 0 view .LVU246
+ 814 0180 A38C     		ldrh	r3, [r4, #36]
+ 815              		.loc 1 159 30 view .LVU247
+ 816 0182 A386     		strh	r3, [r4, #52]	@ movhi
+ 160:modules/algorithm/RLS.c ****     rls->temp_matrix.numCols = rls->trans_matrix.numCols;    
+ 817              		.loc 1 160 5 is_stmt 1 view .LVU248
+ 818              		.loc 1 160 49 is_stmt 0 view .LVU249
+ 819 0184 E38C     		ldrh	r3, [r4, #38]
+ 820              		.loc 1 160 30 view .LVU250
+ 821 0186 E386     		strh	r3, [r4, #54]	@ movhi
+ 161:modules/algorithm/RLS.c ****     rls->MatStatus = Matrix_Multiply(&rls->gain_vector, &rls->t_input_vector, &rls->temp_matrix);  
+ 822              		.loc 1 161 5 is_stmt 1 view .LVU251
+ 823              		.loc 1 161 22 is_stmt 0 view .LVU252
+ 824 0188 04F13408 		add	r8, r4, #52
+ 825 018c 4246     		mov	r2, r8
+ 826 018e 3146     		mov	r1, r6
+ 827 0190 3846     		mov	r0, r7
+ 828 0192 FFF7FEFF 		bl	arm_mat_mult_f32
+ 829              	.LVL86:
+ 830              		.loc 1 161 20 discriminator 1 view .LVU253
+ 831 0196 6070     		strb	r0, [r4, #1]
+ 162:modules/algorithm/RLS.c ****     rls->temp_matrix1.numRows = rls->trans_matrix.numRows;
+ 832              		.loc 1 162 5 is_stmt 1 view .LVU254
+ 833              		.loc 1 162 50 is_stmt 0 view .LVU255
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 19
+
+
+ 834 0198 A38C     		ldrh	r3, [r4, #36]
+ 835              		.loc 1 162 31 view .LVU256
+ 836 019a A387     		strh	r3, [r4, #60]	@ movhi
+ 163:modules/algorithm/RLS.c ****     rls->temp_matrix1.numCols = rls->trans_matrix.numCols;   
+ 837              		.loc 1 163 5 is_stmt 1 view .LVU257
+ 838              		.loc 1 163 50 is_stmt 0 view .LVU258
+ 839 019c E38C     		ldrh	r3, [r4, #38]
+ 840              		.loc 1 163 31 view .LVU259
+ 841 019e E387     		strh	r3, [r4, #62]	@ movhi
+ 164:modules/algorithm/RLS.c ****     rls->MatStatus = Matrix_Multiply(&rls->temp_matrix, &rls->trans_matrix, &rls->temp_matrix1);
+ 842              		.loc 1 164 5 is_stmt 1 view .LVU260
+ 843              		.loc 1 164 22 is_stmt 0 view .LVU261
+ 844 01a0 04F13C05 		add	r5, r4, #60
+ 845 01a4 2A46     		mov	r2, r5
+ 846 01a6 4946     		mov	r1, r9
+ 847 01a8 4046     		mov	r0, r8
+ 848 01aa FFF7FEFF 		bl	arm_mat_mult_f32
+ 849              	.LVL87:
+ 850              		.loc 1 164 20 discriminator 1 view .LVU262
+ 851 01ae 6070     		strb	r0, [r4, #1]
+ 165:modules/algorithm/RLS.c ****     rls->temp_matrix1.numRows = rls->trans_matrix.numRows;
+ 852              		.loc 1 165 5 is_stmt 1 view .LVU263
+ 853              		.loc 1 165 50 is_stmt 0 view .LVU264
+ 854 01b0 A38C     		ldrh	r3, [r4, #36]
+ 855              		.loc 1 165 31 view .LVU265
+ 856 01b2 A387     		strh	r3, [r4, #60]	@ movhi
+ 166:modules/algorithm/RLS.c ****     rls->temp_matrix1.numCols = rls->trans_matrix.numCols;  
+ 857              		.loc 1 166 5 is_stmt 1 view .LVU266
+ 858              		.loc 1 166 50 is_stmt 0 view .LVU267
+ 859 01b4 E38C     		ldrh	r3, [r4, #38]
+ 860              		.loc 1 166 31 view .LVU268
+ 861 01b6 E387     		strh	r3, [r4, #62]	@ movhi
+ 167:modules/algorithm/RLS.c ****     rls->MatStatus = Matrix_Subtract(&rls->trans_matrix, &rls->temp_matrix1, &rls->temp_matrix1);  
+ 862              		.loc 1 167 5 is_stmt 1 view .LVU269
+ 863              		.loc 1 167 22 is_stmt 0 view .LVU270
+ 864 01b8 2A46     		mov	r2, r5
+ 865 01ba 2946     		mov	r1, r5
+ 866 01bc 4846     		mov	r0, r9
+ 867 01be FFF7FEFF 		bl	arm_mat_sub_f32
+ 868              	.LVL88:
+ 869              		.loc 1 167 20 discriminator 1 view .LVU271
+ 870 01c2 6070     		strb	r0, [r4, #1]
+ 168:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows * rls->trans_matrix.numCols; ++i)
+ 871              		.loc 1 168 5 is_stmt 1 view .LVU272
+ 872              	.LBB8:
+ 873              		.loc 1 168 10 view .LVU273
+ 874              	.LVL89:
+ 875              		.loc 1 168 18 is_stmt 0 view .LVU274
+ 876 01c4 0025     		movs	r5, #0
+ 877              		.loc 1 168 5 view .LVU275
+ 878 01c6 11E0     		b	.L23
+ 879              	.LVL90:
+ 880              	.L24:
+ 169:modules/algorithm/RLS.c ****     {   
+ 170:modules/algorithm/RLS.c ****         rls->trans_data[i] = rls->temp_matrix1_data[i] / rls->lambda;                   // Get tran
+ 881              		.loc 1 170 9 is_stmt 1 view .LVU276
+ 882              		.loc 1 170 33 is_stmt 0 view .LVU277
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 20
+
+
+ 883 01c8 636F     		ldr	r3, [r4, #116]
+ 884              		.loc 1 170 52 view .LVU278
+ 885 01ca AE00     		lsls	r6, r5, #2
+ 886 01cc 03EB8503 		add	r3, r3, r5, lsl #2
+ 887 01d0 1868     		ldr	r0, [r3]	@ float
+ 888 01d2 FFF7FEFF 		bl	__aeabi_f2d
+ 889              	.LVL91:
+ 890              		.loc 1 170 12 view .LVU279
+ 891 01d6 A36E     		ldr	r3, [r4, #104]
+ 892              		.loc 1 170 24 view .LVU280
+ 893 01d8 1E44     		add	r6, r6, r3
+ 894              		.loc 1 170 56 view .LVU281
+ 895 01da D4E92223 		ldrd	r2, [r4, #136]
+ 896 01de FFF7FEFF 		bl	__aeabi_ddiv
+ 897              	.LVL92:
+ 898 01e2 FFF7FEFF 		bl	__aeabi_d2f
+ 899              	.LVL93:
+ 900              		.loc 1 170 28 view .LVU282
+ 901 01e6 3060     		str	r0, [r6]	@ float
+ 168:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows * rls->trans_matrix.numCols; ++i)
+ 902              		.loc 1 168 84 is_stmt 1 discriminator 3 view .LVU283
+ 903 01e8 0135     		adds	r5, r5, #1
+ 904              	.LVL94:
+ 168:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows * rls->trans_matrix.numCols; ++i)
+ 905              		.loc 1 168 84 is_stmt 0 discriminator 3 view .LVU284
+ 906 01ea EDB2     		uxtb	r5, r5
+ 907              	.LVL95:
+ 908              	.L23:
+ 168:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows * rls->trans_matrix.numCols; ++i)
+ 909              		.loc 1 168 27 is_stmt 1 discriminator 1 view .LVU285
+ 168:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows * rls->trans_matrix.numCols; ++i)
+ 910              		.loc 1 168 46 is_stmt 0 discriminator 1 view .LVU286
+ 911 01ec A38C     		ldrh	r3, [r4, #36]
+ 168:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows * rls->trans_matrix.numCols; ++i)
+ 912              		.loc 1 168 74 discriminator 1 view .LVU287
+ 913 01ee E28C     		ldrh	r2, [r4, #38]
+ 168:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows * rls->trans_matrix.numCols; ++i)
+ 914              		.loc 1 168 55 discriminator 1 view .LVU288
+ 915 01f0 02FB03F3 		mul	r3, r2, r3
+ 168:modules/algorithm/RLS.c ****     for (uint8_t i = 0; i < rls->trans_matrix.numRows * rls->trans_matrix.numCols; ++i)
+ 916              		.loc 1 168 27 discriminator 1 view .LVU289
+ 917 01f4 9D42     		cmp	r5, r3
+ 918 01f6 E7DB     		blt	.L24
+ 919              	.LBE8:
+ 171:modules/algorithm/RLS.c ****     }        
+ 172:modules/algorithm/RLS.c **** }...
+ 920              		.loc 1 172 1 view .LVU290
+ 921 01f8 03B0     		add	sp, sp, #12
+ 922              		.cfi_def_cfa_offset 44
+ 923              		@ sp needed
+ 924 01fa BDEC028B 		vldm	sp!, {d8}
+ 925              		.cfi_restore 80
+ 926              		.cfi_restore 81
+ 927              		.cfi_def_cfa_offset 36
+ 928              		.loc 1 172 1 view .LVU291
+ 929 01fe BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 930              	.LVL96:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 21
+
+
+ 931              	.L27:
+ 932              		.loc 1 172 1 view .LVU292
+ 933 0202 00BF     		.align	2
+ 934              	.L26:
+ 935 0204 0000F03F 		.word	1072693248
+ 936              		.cfi_endproc
+ 937              	.LFE166:
+ 939              		.section	.bss.sizeof_double,"aw",%nobits
+ 940              		.align	1
+ 943              	sizeof_double:
+ 944 0000 0000     		.space	2
+ 945              		.section	.bss.sizeof_float,"aw",%nobits
+ 946              		.align	1
+ 949              	sizeof_float:
+ 950 0000 0000     		.space	2
+ 951              		.text
+ 952              	.Letext0:
+ 953              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 954              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 955              		.file 4 "Middlewares/ST/ARM/DSP/Inc/arm_math.h"
+ 956              		.file 5 "modules/algorithm/RLS.h"
+ 957              		.file 6 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 958              		.file 7 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 959              		.file 8 "<built-in>"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s 			page 22
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 RLS.c
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:21     .text.RLS_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:27     .text.RLS_Init:00000000 RLS_Init
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:313    .text.RLS_Init:000001a0 $d
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:949    .bss.sizeof_float:00000000 sizeof_float
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:943    .bss.sizeof_double:00000000 sizeof_double
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:319    .text.RLS_SetParam:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:325    .text.RLS_SetParam:00000000 RLS_SetParam
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:372    .text.RLS_Reset:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:378    .text.RLS_Reset:00000000 RLS_Reset
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:476    .text.RLS_Reset:00000068 $d
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:481    .text.RLS_Update:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:487    .text.RLS_Update:00000000 RLS_Update
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:935    .text.RLS_Update:00000204 $d
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:940    .bss.sizeof_double:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccUYlDqf.s:946    .bss.sizeof_float:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc
+memset
+arm_mat_init_f32
+__aeabi_f2d
+__aeabi_dmul
+__aeabi_d2f
+arm_mat_mult_f32
+arm_mat_trans_f32
+__aeabi_ddiv
+__aeabi_dadd
+arm_mat_add_f32
+arm_mat_sub_f32

@@ -1,0 +1,826 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"dji_motor.c"
+  16              		.text
+  17              		.section	.text.MotorSenderGrouping,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	MotorSenderGrouping:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 10B5     		push	{r4, lr}
+  27 0002 91F804C0 		ldrb	ip, [r1, #4]	@ zero_extendqisi2
+  28 0006 0CF1FF33 		add	r3, ip, #-1
+  29 000a DBB2     		uxtb	r3, r3
+  30 000c 90F8A621 		ldrb	r2, [r0, #422]	@ zero_extendqisi2
+  31 0010 012A     		cmp	r2, #1
+  32 0012 45D0     		beq	.L2
+  33 0014 4FFA82FE 		sxtb	lr, r2
+  34 0018 BEF1000F 		cmp	lr, #0
+  35 001c 7DD0     		beq	.L3
+  36 001e 023A     		subs	r2, r2, #2
+  37 0020 D2B2     		uxtb	r2, r2
+  38 0022 012A     		cmp	r2, #1
+  39 0024 79D8     		bhi	.L3
+  40 0026 032B     		cmp	r3, #3
+  41 0028 18D8     		bhi	.L4
+  42 002a 3D4A     		ldr	r2, .L26
+  43 002c 0C68     		ldr	r4, [r1]
+  44 002e 9442     		cmp	r4, r2
+  45 0030 10D0     		beq	.L22
+  46 0032 1A46     		mov	r2, r3
+  47 0034 4FF0040C 		mov	ip, #4
+  48              	.L5:
+  49 0038 03F20123 		addw	r3, r3, #513
+  50 003c 8B60     		str	r3, [r1, #8]
+  51 003e 394B     		ldr	r3, .L26+4
+  52 0040 4FF0010E 		mov	lr, #1
+  53 0044 03F80CE0 		strb	lr, [r3, ip]
+  54 0048 80F8A521 		strb	r2, [r0, #421]
+  55 004c 80F8A4C1 		strb	ip, [r0, #420]
+  56 0050 0023     		movs	r3, #0
+  57 0052 12E0     		b	.L6
+  58              	.L22:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 2
+
+
+  59 0054 1A46     		mov	r2, r3
+  60 0056 4FF0010C 		mov	ip, #1
+  61 005a EDE7     		b	.L5
+  62              	.L4:
+  63 005c ACF10502 		sub	r2, ip, #5
+  64 0060 D2B2     		uxtb	r2, r2
+  65 0062 DFF8BCC0 		ldr	ip, .L26
+  66 0066 0C68     		ldr	r4, [r1]
+  67 0068 6445     		cmp	r4, ip
+  68 006a 02D0     		beq	.L23
+  69 006c 4FF0030C 		mov	ip, #3
+  70 0070 E2E7     		b	.L5
+  71              	.L23:
+  72 0072 4FF0000C 		mov	ip, #0
+  73 0076 DFE7     		b	.L5
+  74              	.L7:
+  75 0078 0133     		adds	r3, r3, #1
+  76              	.L6:
+  77 007a 2B4A     		ldr	r2, .L26+8
+  78 007c 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+  79 007e 9A42     		cmp	r2, r3
+  80 0080 4CD9     		bls	.L1
+  81 0082 2A4A     		ldr	r2, .L26+12
+  82 0084 52F82320 		ldr	r2, [r2, r3, lsl #2]
+  83 0088 D2F8A021 		ldr	r2, [r2, #416]
+  84 008c D2F800C0 		ldr	ip, [r2]	@ unaligned
+  85 0090 0868     		ldr	r0, [r1]
+  86 0092 8445     		cmp	ip, r0
+  87 0094 F0D1     		bne	.L7
+  88 0096 506B     		ldr	r0, [r2, #52]	@ unaligned
+  89 0098 8A68     		ldr	r2, [r1, #8]
+  90 009a 9042     		cmp	r0, r2
+  91 009c ECD1     		bne	.L7
+  92              	.L8:
+  93 009e FEE7     		b	.L8
+  94              	.L2:
+  95 00a0 032B     		cmp	r3, #3
+  96 00a2 18D8     		bhi	.L11
+  97 00a4 1E4A     		ldr	r2, .L26
+  98 00a6 0C68     		ldr	r4, [r1]
+  99 00a8 9442     		cmp	r4, r2
+ 100 00aa 10D0     		beq	.L24
+ 101 00ac 1A46     		mov	r2, r3
+ 102 00ae 4FF0030C 		mov	ip, #3
+ 103              	.L12:
+ 104 00b2 03F20523 		addw	r3, r3, #517
+ 105 00b6 8B60     		str	r3, [r1, #8]
+ 106 00b8 1A4B     		ldr	r3, .L26+4
+ 107 00ba 4FF0010E 		mov	lr, #1
+ 108 00be 03F80CE0 		strb	lr, [r3, ip]
+ 109 00c2 80F8A521 		strb	r2, [r0, #421]
+ 110 00c6 80F8A4C1 		strb	ip, [r0, #420]
+ 111 00ca 0023     		movs	r3, #0
+ 112 00cc 12E0     		b	.L13
+ 113              	.L24:
+ 114 00ce 1A46     		mov	r2, r3
+ 115 00d0 4FF0000C 		mov	ip, #0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 3
+
+
+ 116 00d4 EDE7     		b	.L12
+ 117              	.L11:
+ 118 00d6 ACF10502 		sub	r2, ip, #5
+ 119 00da D2B2     		uxtb	r2, r2
+ 120 00dc DFF840C0 		ldr	ip, .L26
+ 121 00e0 0C68     		ldr	r4, [r1]
+ 122 00e2 6445     		cmp	r4, ip
+ 123 00e4 02D0     		beq	.L25
+ 124 00e6 4FF0050C 		mov	ip, #5
+ 125 00ea E2E7     		b	.L12
+ 126              	.L25:
+ 127 00ec 4FF0020C 		mov	ip, #2
+ 128 00f0 DFE7     		b	.L12
+ 129              	.L14:
+ 130 00f2 0133     		adds	r3, r3, #1
+ 131              	.L13:
+ 132 00f4 0C4A     		ldr	r2, .L26+8
+ 133 00f6 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 134 00f8 9A42     		cmp	r2, r3
+ 135 00fa 0FD9     		bls	.L1
+ 136 00fc 0B4A     		ldr	r2, .L26+12
+ 137 00fe 52F82320 		ldr	r2, [r2, r3, lsl #2]
+ 138 0102 D2F8A021 		ldr	r2, [r2, #416]
+ 139 0106 D2F800C0 		ldr	ip, [r2]	@ unaligned
+ 140 010a 0868     		ldr	r0, [r1]
+ 141 010c 8445     		cmp	ip, r0
+ 142 010e F0D1     		bne	.L14
+ 143 0110 506B     		ldr	r0, [r2, #52]	@ unaligned
+ 144 0112 8A68     		ldr	r2, [r1, #8]
+ 145 0114 9042     		cmp	r0, r2
+ 146 0116 ECD1     		bne	.L14
+ 147              	.L15:
+ 148 0118 FEE7     		b	.L15
+ 149              	.L3:
+ 150 011a FEE7     		b	.L3
+ 151              	.L1:
+ 152 011c 10BD     		pop	{r4, pc}
+ 153              	.L27:
+ 154 011e 00BF     		.align	2
+ 155              	.L26:
+ 156 0120 00000000 		.word	hcan1
+ 157 0124 00000000 		.word	sender_enable_flag
+ 158 0128 00000000 		.word	idx
+ 159 012c 00000000 		.word	dji_motor_instance
+ 161              		.section	.text.DJIMotorLostCallback,"ax",%progbits
+ 162              		.align	1
+ 163              		.syntax unified
+ 164              		.thumb
+ 165              		.thumb_func
+ 167              	DJIMotorLostCallback:
+ 168              		@ args = 0, pretend = 0, frame = 0
+ 169              		@ frame_needed = 0, uses_anonymous_args = 0
+ 170              		@ link register save eliminated.
+ 171 0000 7047     		bx	lr
+ 173              		.section	.text.DecodeDJIMotor,"ax",%progbits
+ 174              		.align	1
+ 175              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 4
+
+
+ 176              		.thumb
+ 177              		.thumb_func
+ 179              	DecodeDJIMotor:
+ 180              		@ args = 0, pretend = 0, frame = 0
+ 181              		@ frame_needed = 0, uses_anonymous_args = 0
+ 182 0000 38B5     		push	{r3, r4, r5, lr}
+ 183 0002 0546     		mov	r5, r0
+ 184 0004 D0F84140 		ldr	r4, [r0, #65]	@ unaligned
+ 185 0008 D4F8AC01 		ldr	r0, [r4, #428]
+ 186 000c FFF7FEFF 		bl	DaemonReload
+ 187 0010 04F5D870 		add	r0, r4, #432
+ 188 0014 FFF7FEFF 		bl	DWT_GetDeltaT
+ 189 0018 84ED6D0A 		vstr.32	s0, [r4, #436]
+ 190 001c 6188     		ldrh	r1, [r4, #2]
+ 191 001e 2180     		strh	r1, [r4]	@ movhi
+ 192 0020 95F82C30 		ldrb	r3, [r5, #44]	@ zero_extendqisi2
+ 193 0024 95F82D20 		ldrb	r2, [r5, #45]	@ zero_extendqisi2
+ 194 0028 42EA0322 		orr	r2, r2, r3, lsl #8
+ 195 002c 6280     		strh	r2, [r4, #2]	@ movhi
+ 196 002e 07EE902A 		vmov	s15, r2	@ int
+ 197 0032 F8EE676A 		vcvt.f32.u32	s13, s15
+ 198 0036 DFED2F7A 		vldr.32	s15, .L33
+ 199 003a 66EEA76A 		vmul.f32	s13, s13, s15
+ 200 003e C4ED016A 		vstr.32	s13, [r4, #4]
+ 201 0042 D4ED027A 		vldr.32	s15, [r4, #8]
+ 202 0046 9FED2C7A 		vldr.32	s14, .L33+4
+ 203 004a 27EE877A 		vmul.f32	s14, s15, s14
+ 204 004e 95F82E00 		ldrb	r0, [r5, #46]	@ zero_extendqisi2
+ 205 0052 95F82F30 		ldrb	r3, [r5, #47]	@ zero_extendqisi2
+ 206 0056 43EA0023 		orr	r3, r3, r0, lsl #8
+ 207 005a 1BB2     		sxth	r3, r3
+ 208 005c 07EE903A 		vmov	s15, r3	@ int
+ 209 0060 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 210 0064 9FED256A 		vldr.32	s12, .L33+8
+ 211 0068 67EE867A 		vmul.f32	s15, s15, s12
+ 212 006c 77EE277A 		vadd.f32	s15, s14, s15
+ 213 0070 C4ED027A 		vstr.32	s15, [r4, #8]
+ 214 0074 B4F90C30 		ldrsh	r3, [r4, #12]
+ 215 0078 07EE903A 		vmov	s15, r3	@ int
+ 216 007c F8EEE77A 		vcvt.f32.s32	s15, s15
+ 217 0080 9FED1F7A 		vldr.32	s14, .L33+12
+ 218 0084 67EE877A 		vmul.f32	s15, s15, s14
+ 219 0088 95F83000 		ldrb	r0, [r5, #48]	@ zero_extendqisi2
+ 220 008c 95F83130 		ldrb	r3, [r5, #49]	@ zero_extendqisi2
+ 221 0090 43EA0023 		orr	r3, r3, r0, lsl #8
+ 222 0094 1BB2     		sxth	r3, r3
+ 223 0096 07EE103A 		vmov	s14, r3	@ int
+ 224 009a B8EEC77A 		vcvt.f32.s32	s14, s14
+ 225 009e 9FED196A 		vldr.32	s12, .L33+16
+ 226 00a2 27EE067A 		vmul.f32	s14, s14, s12
+ 227 00a6 77EE877A 		vadd.f32	s15, s15, s14
+ 228 00aa FDEEE77A 		vcvt.s32.f32	s15, s15
+ 229 00ae 17EE903A 		vmov	r3, s15	@ int
+ 230 00b2 A381     		strh	r3, [r4, #12]	@ movhi
+ 231 00b4 95F83230 		ldrb	r3, [r5, #50]	@ zero_extendqisi2
+ 232 00b8 A373     		strb	r3, [r4, #14]
+ 233 00ba 521A     		subs	r2, r2, r1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 5
+
+
+ 234 00bc B2F5805F 		cmp	r2, #4096
+ 235 00c0 10DD     		ble	.L30
+ 236 00c2 6369     		ldr	r3, [r4, #20]
+ 237 00c4 013B     		subs	r3, r3, #1
+ 238 00c6 6361     		str	r3, [r4, #20]
+ 239              	.L31:
+ 240 00c8 6369     		ldr	r3, [r4, #20]
+ 241 00ca 4FF4B472 		mov	r2, #360
+ 242 00ce 02FB03F3 		mul	r3, r2, r3
+ 243 00d2 07EE903A 		vmov	s15, r3	@ int
+ 244 00d6 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 245 00da 77EEA67A 		vadd.f32	s15, s15, s13
+ 246 00de C4ED047A 		vstr.32	s15, [r4, #16]
+ 247 00e2 38BD     		pop	{r3, r4, r5, pc}
+ 248              	.L30:
+ 249 00e4 12F5805F 		cmn	r2, #4096
+ 250 00e8 EEDA     		bge	.L31
+ 251 00ea 6369     		ldr	r3, [r4, #20]
+ 252 00ec 0133     		adds	r3, r3, #1
+ 253 00ee 6361     		str	r3, [r4, #20]
+ 254 00f0 EAE7     		b	.L31
+ 255              	.L34:
+ 256 00f2 00BF     		.align	2
+ 257              	.L33:
+ 258 00f4 ACFF333D 		.word	1026817964
+ 259 00f8 9899193E 		.word	1041865112
+ 260 00fc 3433A340 		.word	1084437300
+ 261 0100 D0CCCC3D 		.word	1036831952
+ 262 0104 6666663F 		.word	1063675494
+ 264              		.section	.text.DJIMotorChangeFeed,"ax",%progbits
+ 265              		.align	1
+ 266              		.global	DJIMotorChangeFeed
+ 267              		.syntax unified
+ 268              		.thumb
+ 269              		.thumb_func
+ 271              	DJIMotorChangeFeed:
+ 272              		@ args = 0, pretend = 0, frame = 0
+ 273              		@ frame_needed = 0, uses_anonymous_args = 0
+ 274              		@ link register save eliminated.
+ 275 0000 0429     		cmp	r1, #4
+ 276 0002 02D0     		beq	.L38
+ 277 0004 0229     		cmp	r1, #2
+ 278 0006 02D0     		beq	.L39
+ 279              	.L35:
+ 280 0008 7047     		bx	lr
+ 281              	.L38:
+ 282 000a 0277     		strb	r2, [r0, #28]
+ 283 000c 7047     		bx	lr
+ 284              	.L39:
+ 285 000e 4277     		strb	r2, [r0, #29]
+ 286 0010 FAE7     		b	.L35
+ 288              		.section	.text.DJIMotorStop,"ax",%progbits
+ 289              		.align	1
+ 290              		.global	DJIMotorStop
+ 291              		.syntax unified
+ 292              		.thumb
+ 293              		.thumb_func
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 6
+
+
+ 295              	DJIMotorStop:
+ 296              		@ args = 0, pretend = 0, frame = 0
+ 297              		@ frame_needed = 0, uses_anonymous_args = 0
+ 298              		@ link register save eliminated.
+ 299 0000 0023     		movs	r3, #0
+ 300 0002 80F8A731 		strb	r3, [r0, #423]
+ 301 0006 7047     		bx	lr
+ 303              		.section	.text.DJIMotorEnable,"ax",%progbits
+ 304              		.align	1
+ 305              		.global	DJIMotorEnable
+ 306              		.syntax unified
+ 307              		.thumb
+ 308              		.thumb_func
+ 310              	DJIMotorEnable:
+ 311              		@ args = 0, pretend = 0, frame = 0
+ 312              		@ frame_needed = 0, uses_anonymous_args = 0
+ 313              		@ link register save eliminated.
+ 314 0000 0123     		movs	r3, #1
+ 315 0002 80F8A731 		strb	r3, [r0, #423]
+ 316 0006 7047     		bx	lr
+ 318              		.section	.text.DJIMotorInit,"ax",%progbits
+ 319              		.align	1
+ 320              		.global	DJIMotorInit
+ 321              		.syntax unified
+ 322              		.thumb
+ 323              		.thumb_func
+ 325              	DJIMotorInit:
+ 326              		@ args = 0, pretend = 0, frame = 16
+ 327              		@ frame_needed = 0, uses_anonymous_args = 0
+ 328 0000 70B5     		push	{r4, r5, r6, lr}
+ 329 0002 84B0     		sub	sp, sp, #16
+ 330 0004 0546     		mov	r5, r0
+ 331 0006 4FF4DC70 		mov	r0, #440
+ 332 000a FFF7FEFF 		bl	malloc
+ 333 000e 0446     		mov	r4, r0
+ 334 0010 4FF4DC72 		mov	r2, #440
+ 335 0014 0021     		movs	r1, #0
+ 336 0016 FFF7FEFF 		bl	memset
+ 337 001a 95F89C30 		ldrb	r3, [r5, #156]	@ zero_extendqisi2
+ 338 001e 84F8A631 		strb	r3, [r4, #422]
+ 339 0022 04F11803 		add	r3, r4, #24
+ 340 0026 05F19402 		add	r2, r5, #148
+ 341 002a 92E80300 		ldm	r2, {r0, r1}
+ 342 002e 83E80300 		stm	r3, {r0, r1}
+ 343 0032 05F11001 		add	r1, r5, #16
+ 344 0036 04F13000 		add	r0, r4, #48
+ 345 003a FFF7FEFF 		bl	PIDInit
+ 346 003e 05F13C01 		add	r1, r5, #60
+ 347 0042 04F1A800 		add	r0, r4, #168
+ 348 0046 FFF7FEFF 		bl	PIDInit
+ 349 004a 05F16801 		add	r1, r5, #104
+ 350 004e 04F59070 		add	r0, r4, #288
+ 351 0052 FFF7FEFF 		bl	PIDInit
+ 352 0056 2B68     		ldr	r3, [r5]
+ 353 0058 2362     		str	r3, [r4, #32]
+ 354 005a 6B68     		ldr	r3, [r5, #4]
+ 355 005c 6362     		str	r3, [r4, #36]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 7
+
+
+ 356 005e EB68     		ldr	r3, [r5, #12]
+ 357 0060 E362     		str	r3, [r4, #44]
+ 358 0062 AB68     		ldr	r3, [r5, #8]
+ 359 0064 A362     		str	r3, [r4, #40]
+ 360 0066 05F1A006 		add	r6, r5, #160
+ 361 006a 3146     		mov	r1, r6
+ 362 006c 2046     		mov	r0, r4
+ 363 006e FFF7FEFF 		bl	MotorSenderGrouping
+ 364 0072 134B     		ldr	r3, .L44
+ 365 0074 C5F8B430 		str	r3, [r5, #180]
+ 366 0078 C5F8B840 		str	r4, [r5, #184]
+ 367 007c 3046     		mov	r0, r6
+ 368 007e FFF7FEFF 		bl	CANRegister
+ 369 0082 C4F8A001 		str	r0, [r4, #416]
+ 370 0086 01A8     		add	r0, sp, #4
+ 371 0088 0023     		movs	r3, #0
+ 372 008a 0193     		str	r3, [sp, #4]
+ 373 008c 4360     		str	r3, [r0, #4]
+ 374 008e 8360     		str	r3, [r0, #8]
+ 375 0090 0223     		movs	r3, #2
+ 376 0092 ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 377 0096 0B4B     		ldr	r3, .L44+4
+ 378 0098 0293     		str	r3, [sp, #8]
+ 379 009a 0394     		str	r4, [sp, #12]
+ 380 009c FFF7FEFF 		bl	DaemonRegister
+ 381 00a0 C4F8AC01 		str	r0, [r4, #428]
+ 382 00a4 2046     		mov	r0, r4
+ 383 00a6 FFF7FEFF 		bl	DJIMotorEnable
+ 384 00aa 074A     		ldr	r2, .L44+8
+ 385 00ac 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 386 00ae 591C     		adds	r1, r3, #1
+ 387 00b0 1170     		strb	r1, [r2]
+ 388 00b2 064A     		ldr	r2, .L44+12
+ 389 00b4 42F82340 		str	r4, [r2, r3, lsl #2]
+ 390 00b8 2046     		mov	r0, r4
+ 391 00ba 04B0     		add	sp, sp, #16
+ 392              		@ sp needed
+ 393 00bc 70BD     		pop	{r4, r5, r6, pc}
+ 394              	.L45:
+ 395 00be 00BF     		.align	2
+ 396              	.L44:
+ 397 00c0 00000000 		.word	DecodeDJIMotor
+ 398 00c4 00000000 		.word	DJIMotorLostCallback
+ 399 00c8 00000000 		.word	idx
+ 400 00cc 00000000 		.word	dji_motor_instance
+ 402              		.section	.text.DJIMotorIsOnline,"ax",%progbits
+ 403              		.align	1
+ 404              		.global	DJIMotorIsOnline
+ 405              		.syntax unified
+ 406              		.thumb
+ 407              		.thumb_func
+ 409              	DJIMotorIsOnline:
+ 410              		@ args = 0, pretend = 0, frame = 0
+ 411              		@ frame_needed = 0, uses_anonymous_args = 0
+ 412 0000 10B5     		push	{r4, lr}
+ 413 0002 0446     		mov	r4, r0
+ 414 0004 D0F8AC01 		ldr	r0, [r0, #428]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 8
+
+
+ 415 0008 FFF7FEFF 		bl	DaemonIsOnline
+ 416 000c 18B1     		cbz	r0, .L47
+ 417 000e 0023     		movs	r3, #0
+ 418 0010 84F8A831 		strb	r3, [r4, #424]
+ 419              	.L46:
+ 420 0014 10BD     		pop	{r4, pc}
+ 421              	.L47:
+ 422 0016 0123     		movs	r3, #1
+ 423 0018 84F8A831 		strb	r3, [r4, #424]
+ 424 001c FAE7     		b	.L46
+ 426              		.section	.text.DJIMotorOuterLoop,"ax",%progbits
+ 427              		.align	1
+ 428              		.global	DJIMotorOuterLoop
+ 429              		.syntax unified
+ 430              		.thumb
+ 431              		.thumb_func
+ 433              	DJIMotorOuterLoop:
+ 434              		@ args = 0, pretend = 0, frame = 0
+ 435              		@ frame_needed = 0, uses_anonymous_args = 0
+ 436              		@ link register save eliminated.
+ 437 0000 0176     		strb	r1, [r0, #24]
+ 438 0002 7047     		bx	lr
+ 440              		.section	.text.DJIMotorCloseLoop,"ax",%progbits
+ 441              		.align	1
+ 442              		.global	DJIMotorCloseLoop
+ 443              		.syntax unified
+ 444              		.thumb
+ 445              		.thumb_func
+ 447              	DJIMotorCloseLoop:
+ 448              		@ args = 0, pretend = 0, frame = 0
+ 449              		@ frame_needed = 0, uses_anonymous_args = 0
+ 450              		@ link register save eliminated.
+ 451 0000 4176     		strb	r1, [r0, #25]
+ 452 0002 7047     		bx	lr
+ 454              		.section	.text.DJIMotorSetRef,"ax",%progbits
+ 455              		.align	1
+ 456              		.global	DJIMotorSetRef
+ 457              		.syntax unified
+ 458              		.thumb
+ 459              		.thumb_func
+ 461              	DJIMotorSetRef:
+ 462              		@ args = 0, pretend = 0, frame = 0
+ 463              		@ frame_needed = 0, uses_anonymous_args = 0
+ 464              		@ link register save eliminated.
+ 465 0000 80ED660A 		vstr.32	s0, [r0, #408]
+ 466 0004 7047     		bx	lr
+ 468              		.section	.text.DJIMotorControl,"ax",%progbits
+ 469              		.align	1
+ 470              		.global	DJIMotorControl
+ 471              		.syntax unified
+ 472              		.thumb
+ 473              		.thumb_func
+ 475              	DJIMotorControl:
+ 476              		@ args = 0, pretend = 0, frame = 0
+ 477              		@ frame_needed = 0, uses_anonymous_args = 0
+ 478 0000 70B5     		push	{r4, r5, r6, lr}
+ 479 0002 0025     		movs	r5, #0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 9
+
+
+ 480 0004 50E0     		b	.L54
+ 481              	.L78:
+ 482 0006 237E     		ldrb	r3, [r4, #24]	@ zero_extendqisi2
+ 483 0008 13F0060F 		tst	r3, #6
+ 484 000c 58D0     		beq	.L55
+ 485 000e F1EE600A 		vneg.f32	s1, s1
+ 486 0012 55E0     		b	.L55
+ 487              	.L79:
+ 488 0014 237F     		ldrb	r3, [r4, #28]	@ zero_extendqisi2
+ 489 0016 012B     		cmp	r3, #1
+ 490 0018 08D0     		beq	.L72
+ 491 001a 94ED040A 		vldr.32	s0, [r4, #16]
+ 492              	.L58:
+ 493 001e 04F59070 		add	r0, r4, #288
+ 494 0022 FFF7FEFF 		bl	PIDCalculate
+ 495 0026 F0EE400A 		vmov.f32	s1, s0
+ 496 002a 50E0     		b	.L56
+ 497              	.L72:
+ 498 002c 236A     		ldr	r3, [r4, #32]
+ 499 002e 93ED000A 		vldr.32	s0, [r3]
+ 500 0032 F4E7     		b	.L58
+ 501              	.L60:
+ 502 0034 637F     		ldrb	r3, [r4, #29]	@ zero_extendqisi2
+ 503 0036 012B     		cmp	r3, #1
+ 504 0038 5BD0     		beq	.L73
+ 505 003a 94ED020A 		vldr.32	s0, [r4, #8]
+ 506              	.L62:
+ 507 003e 04F1A800 		add	r0, r4, #168
+ 508 0042 FFF7FEFF 		bl	PIDCalculate
+ 509 0046 F0EE400A 		vmov.f32	s1, s0
+ 510              	.L59:
+ 511 004a A37F     		ldrb	r3, [r4, #30]	@ zero_extendqisi2
+ 512 004c 13F0010F 		tst	r3, #1
+ 513 0050 04D0     		beq	.L63
+ 514 0052 E36A     		ldr	r3, [r4, #44]
+ 515 0054 D3ED007A 		vldr.32	s15, [r3]
+ 516 0058 70EEA70A 		vadd.f32	s1, s1, s15
+ 517              	.L63:
+ 518 005c 637E     		ldrb	r3, [r4, #25]	@ zero_extendqisi2
+ 519 005e 13F0010F 		tst	r3, #1
+ 520 0062 4AD1     		bne	.L74
+ 521              	.L64:
+ 522 0064 E37E     		ldrb	r3, [r4, #27]	@ zero_extendqisi2
+ 523 0066 012B     		cmp	r3, #1
+ 524 0068 54D0     		beq	.L75
+ 525              	.L65:
+ 526 006a FDEEE07A 		vcvt.s32.f32	s15, s1
+ 527 006e 17EE903A 		vmov	r3, s15	@ int
+ 528 0072 94F8A421 		ldrb	r2, [r4, #420]	@ zero_extendqisi2
+ 529 0076 94F8A5C1 		ldrb	ip, [r4, #421]	@ zero_extendqisi2
+ 530 007a 4FEA4C00 		lsl	r0, ip, #1
+ 531 007e C3F30726 		ubfx	r6, r3, #8, #8
+ 532 0082 02EB021E 		add	lr, r2, r2, lsl #4
+ 533 0086 02EB8E0E 		add	lr, r2, lr, lsl #2
+ 534 008a 3649     		ldr	r1, .L81
+ 535 008c 7144     		add	r1, r1, lr
+ 536 008e 01EB4C0E 		add	lr, r1, ip, lsl #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 10
+
+
+ 537 0092 8EF82460 		strb	r6, [lr, #36]
+ 538 0096 0130     		adds	r0, r0, #1
+ 539 0098 0144     		add	r1, r1, r0
+ 540 009a 81F82430 		strb	r3, [r1, #36]
+ 541 009e 94F8A731 		ldrb	r3, [r4, #423]	@ zero_extendqisi2
+ 542 00a2 002B     		cmp	r3, #0
+ 543 00a4 3DD0     		beq	.L76
+ 544              	.L66:
+ 545 00a6 0135     		adds	r5, r5, #1
+ 546              	.L54:
+ 547 00a8 2F4B     		ldr	r3, .L81+4
+ 548 00aa 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 549 00ac AB42     		cmp	r3, r5
+ 550 00ae 44D9     		bls	.L77
+ 551 00b0 2E4B     		ldr	r3, .L81+8
+ 552 00b2 53F82540 		ldr	r4, [r3, r5, lsl #2]
+ 553 00b6 D4ED660A 		vldr.32	s1, [r4, #408]
+ 554 00ba A37E     		ldrb	r3, [r4, #26]	@ zero_extendqisi2
+ 555 00bc 012B     		cmp	r3, #1
+ 556 00be A2D0     		beq	.L78
+ 557              	.L55:
+ 558 00c0 637E     		ldrb	r3, [r4, #25]	@ zero_extendqisi2
+ 559 00c2 13F0040F 		tst	r3, #4
+ 560 00c6 02D0     		beq	.L56
+ 561 00c8 237E     		ldrb	r3, [r4, #24]	@ zero_extendqisi2
+ 562 00ca 042B     		cmp	r3, #4
+ 563 00cc A2D0     		beq	.L79
+ 564              	.L56:
+ 565 00ce 637E     		ldrb	r3, [r4, #25]	@ zero_extendqisi2
+ 566 00d0 13F0020F 		tst	r3, #2
+ 567 00d4 B9D0     		beq	.L59
+ 568 00d6 237E     		ldrb	r3, [r4, #24]	@ zero_extendqisi2
+ 569 00d8 13F0060F 		tst	r3, #6
+ 570 00dc B5D0     		beq	.L59
+ 571 00de A37F     		ldrb	r3, [r4, #30]	@ zero_extendqisi2
+ 572 00e0 13F0020F 		tst	r3, #2
+ 573 00e4 A6D0     		beq	.L60
+ 574 00e6 A36A     		ldr	r3, [r4, #40]
+ 575 00e8 D3ED007A 		vldr.32	s15, [r3]
+ 576 00ec 70EEA70A 		vadd.f32	s1, s1, s15
+ 577 00f0 A0E7     		b	.L60
+ 578              	.L73:
+ 579 00f2 636A     		ldr	r3, [r4, #36]
+ 580 00f4 93ED000A 		vldr.32	s0, [r3]
+ 581 00f8 A1E7     		b	.L62
+ 582              	.L74:
+ 583 00fa B4F90C30 		ldrsh	r3, [r4, #12]
+ 584 00fe 00EE103A 		vmov	s0, r3	@ int
+ 585 0102 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 586 0106 04F13000 		add	r0, r4, #48
+ 587 010a FFF7FEFF 		bl	PIDCalculate
+ 588 010e F0EE400A 		vmov.f32	s1, s0
+ 589 0112 A7E7     		b	.L64
+ 590              	.L75:
+ 591 0114 237E     		ldrb	r3, [r4, #24]	@ zero_extendqisi2
+ 592 0116 13F0060F 		tst	r3, #6
+ 593 011a A6D0     		beq	.L65
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 11
+
+
+ 594 011c F1EE600A 		vneg.f32	s1, s1
+ 595 0120 A3E7     		b	.L65
+ 596              	.L76:
+ 597 0122 02EB0213 		add	r3, r2, r2, lsl #4
+ 598 0126 02EB8302 		add	r2, r2, r3, lsl #2
+ 599 012a 2032     		adds	r2, r2, #32
+ 600 012c 0D4B     		ldr	r3, .L81
+ 601 012e 1A44     		add	r2, r2, r3
+ 602 0130 0432     		adds	r2, r2, #4
+ 603 0132 0023     		movs	r3, #0
+ 604 0134 22F81C30 		strh	r3, [r2, ip, lsl #1]	@ unaligned
+ 605 0138 B5E7     		b	.L66
+ 606              	.L77:
+ 607 013a 0024     		movs	r4, #0
+ 608 013c 00E0     		b	.L68
+ 609              	.L69:
+ 610 013e 0134     		adds	r4, r4, #1
+ 611              	.L68:
+ 612 0140 052C     		cmp	r4, #5
+ 613 0142 0ED8     		bhi	.L80
+ 614 0144 0A4B     		ldr	r3, .L81+12
+ 615 0146 1B5D     		ldrb	r3, [r3, r4]	@ zero_extendqisi2
+ 616 0148 002B     		cmp	r3, #0
+ 617 014a F8D0     		beq	.L69
+ 618 014c 04EB0413 		add	r3, r4, r4, lsl #4
+ 619 0150 04EB8303 		add	r3, r4, r3, lsl #2
+ 620 0154 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 621 0158 0248     		ldr	r0, .L81
+ 622 015a 1844     		add	r0, r0, r3
+ 623 015c FFF7FEFF 		bl	CANTransmit
+ 624 0160 EDE7     		b	.L69
+ 625              	.L80:
+ 626 0162 70BD     		pop	{r4, r5, r6, pc}
+ 627              	.L82:
+ 628              		.align	2
+ 629              	.L81:
+ 630 0164 00000000 		.word	sender_assignment
+ 631 0168 00000000 		.word	idx
+ 632 016c 00000000 		.word	dji_motor_instance
+ 633 0170 00000000 		.word	sender_enable_flag
+ 635              		.section	.bss.sender_enable_flag,"aw",%nobits
+ 636              		.align	2
+ 639              	sender_enable_flag:
+ 640 0000 00000000 		.space	6
+ 640      0000
+ 641              		.section	.data.sender_assignment,"aw"
+ 642              		.align	2
+ 645              	sender_assignment:
+ 646 0000 00000000 		.word	hcan1
+ 647 0004 FF010000 		.word	511
+ 648 0008 00000000 		.space	4
+ 649 000c 00000000 		.word	0
+ 650 0010 00000000 		.word	0
+ 651 0014 08000000 		.word	8
+ 652 0018 00000000 		.space	4
+ 653 001c 00000000 		.space	8
+ 653      00000000 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 12
+
+
+ 654 0024 0000     		.ascii	"\000\000"
+ 655 0026 00000000 		.space	6
+ 655      0000
+ 656 002c 00000000 		.space	25
+ 656      00000000 
+ 656      00000000 
+ 656      00000000 
+ 656      00000000 
+ 657 0045 00000000 		.4byte	hcan1
+ 658 0049 00020000 		.4byte	512
+ 659 004d 00000000 		.space	4
+ 660 0051 00000000 		.4byte	0
+ 661 0055 00000000 		.4byte	0
+ 662 0059 08000000 		.4byte	8
+ 663 005d 00000000 		.space	4
+ 664 0061 00000000 		.space	8
+ 664      00000000 
+ 665 0069 0000     		.ascii	"\000\000"
+ 666 006b 00000000 		.space	6
+ 666      0000
+ 667 0071 00000000 		.space	25
+ 667      00000000 
+ 667      00000000 
+ 667      00000000 
+ 667      00000000 
+ 668 008a 00000000 		.4byte	hcan1
+ 669 008e FF020000 		.4byte	767
+ 670 0092 00000000 		.space	4
+ 671 0096 00000000 		.4byte	0
+ 672 009a 00000000 		.4byte	0
+ 673 009e 08000000 		.4byte	8
+ 674 00a2 00000000 		.space	4
+ 675 00a6 00000000 		.space	8
+ 675      00000000 
+ 676 00ae 0000     		.ascii	"\000\000"
+ 677 00b0 00000000 		.space	6
+ 677      0000
+ 678 00b6 00000000 		.space	25
+ 678      00000000 
+ 678      00000000 
+ 678      00000000 
+ 678      00000000 
+ 679 00cf 00000000 		.4byte	hcan2
+ 680 00d3 FF010000 		.4byte	511
+ 681 00d7 00000000 		.space	4
+ 682 00db 00000000 		.4byte	0
+ 683 00df 00000000 		.4byte	0
+ 684 00e3 08000000 		.4byte	8
+ 685 00e7 00000000 		.space	4
+ 686 00eb 00000000 		.space	8
+ 686      00000000 
+ 687 00f3 0000     		.ascii	"\000\000"
+ 688 00f5 00000000 		.space	6
+ 688      0000
+ 689 00fb 00000000 		.space	25
+ 689      00000000 
+ 689      00000000 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 13
+
+
+ 689      00000000 
+ 689      00000000 
+ 690 0114 00000000 		.word	hcan2
+ 691 0118 00020000 		.word	512
+ 692 011c 00000000 		.space	4
+ 693 0120 00000000 		.word	0
+ 694 0124 00000000 		.word	0
+ 695 0128 08000000 		.word	8
+ 696 012c 00000000 		.space	4
+ 697 0130 00000000 		.space	8
+ 697      00000000 
+ 698 0138 0000     		.ascii	"\000\000"
+ 699 013a 00000000 		.space	6
+ 699      0000
+ 700 0140 00000000 		.space	25
+ 700      00000000 
+ 700      00000000 
+ 700      00000000 
+ 700      00000000 
+ 701 0159 00000000 		.4byte	hcan2
+ 702 015d FF020000 		.4byte	767
+ 703 0161 00000000 		.space	4
+ 704 0165 00000000 		.4byte	0
+ 705 0169 00000000 		.4byte	0
+ 706 016d 08000000 		.4byte	8
+ 707 0171 00000000 		.space	4
+ 708 0175 00000000 		.space	8
+ 708      00000000 
+ 709 017d 0000     		.ascii	"\000\000"
+ 710 017f 00000000 		.space	6
+ 710      0000
+ 711 0185 00000000 		.space	25
+ 711      00000000 
+ 711      00000000 
+ 711      00000000 
+ 711      00000000 
+ 712              		.section	.bss.dji_motor_instance,"aw",%nobits
+ 713              		.align	2
+ 716              	dji_motor_instance:
+ 717 0000 00000000 		.space	48
+ 717      00000000 
+ 717      00000000 
+ 717      00000000 
+ 717      00000000 
+ 718              		.section	.bss.idx,"aw",%nobits
+ 721              	idx:
+ 722 0000 00       		.space	1
+ 723              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s 			page 14
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 dji_motor.c
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:18     .text.MotorSenderGrouping:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:23     .text.MotorSenderGrouping:00000000 MotorSenderGrouping
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:156    .text.MotorSenderGrouping:00000120 $d
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:639    .bss.sender_enable_flag:00000000 sender_enable_flag
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:721    .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:716    .bss.dji_motor_instance:00000000 dji_motor_instance
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:162    .text.DJIMotorLostCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:167    .text.DJIMotorLostCallback:00000000 DJIMotorLostCallback
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:174    .text.DecodeDJIMotor:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:179    .text.DecodeDJIMotor:00000000 DecodeDJIMotor
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:258    .text.DecodeDJIMotor:000000f4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:265    .text.DJIMotorChangeFeed:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:271    .text.DJIMotorChangeFeed:00000000 DJIMotorChangeFeed
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:289    .text.DJIMotorStop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:295    .text.DJIMotorStop:00000000 DJIMotorStop
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:304    .text.DJIMotorEnable:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:310    .text.DJIMotorEnable:00000000 DJIMotorEnable
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:319    .text.DJIMotorInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:325    .text.DJIMotorInit:00000000 DJIMotorInit
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:397    .text.DJIMotorInit:000000c0 $d
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:403    .text.DJIMotorIsOnline:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:409    .text.DJIMotorIsOnline:00000000 DJIMotorIsOnline
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:427    .text.DJIMotorOuterLoop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:433    .text.DJIMotorOuterLoop:00000000 DJIMotorOuterLoop
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:441    .text.DJIMotorCloseLoop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:447    .text.DJIMotorCloseLoop:00000000 DJIMotorCloseLoop
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:455    .text.DJIMotorSetRef:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:461    .text.DJIMotorSetRef:00000000 DJIMotorSetRef
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:469    .text.DJIMotorControl:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:475    .text.DJIMotorControl:00000000 DJIMotorControl
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:630    .text.DJIMotorControl:00000164 $d
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:645    .data.sender_assignment:00000000 sender_assignment
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:636    .bss.sender_enable_flag:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:642    .data.sender_assignment:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:713    .bss.dji_motor_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccVxRegC.s:722    .bss.idx:00000000 $d
+
+UNDEFINED SYMBOLS
+hcan1
+DaemonReload
+DWT_GetDeltaT
+malloc
+memset
+PIDInit
+CANRegister
+DaemonRegister
+DaemonIsOnline
+PIDCalculate
+CANTransmit
+hcan2

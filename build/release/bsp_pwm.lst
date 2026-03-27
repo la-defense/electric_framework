@@ -1,0 +1,377 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_pwm.c"
+  16              		.text
+  17              		.section	.text.PWMSelectTclk,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	PWMSelectTclk:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 08B5     		push	{r3, lr}
+  27 0002 0368     		ldr	r3, [r0]
+  28 0004 03F14042 		add	r2, r3, #-1073741824
+  29 0008 B2F5005F 		cmp	r2, #8192
+  30 000c 0FD9     		bls	.L11
+  31 000e 03F13F42 		add	r2, r3, #-1090519040
+  32 0012 02F57F02 		add	r2, r2, #16711680
+  33 0016 B2F5806F 		cmp	r2, #1024
+  34 001a 17D9     		bls	.L5
+  35 001c A3F14023 		sub	r3, r3, #1073758208
+  36 0020 A3F58033 		sub	r3, r3, #65536
+  37 0024 B3F5006F 		cmp	r3, #2048
+  38 0028 10D9     		bls	.L5
+  39 002a 0020     		movs	r0, #0
+  40              	.L1:
+  41 002c 08BD     		pop	{r3, pc}
+  42              	.L11:
+  43 002e FFF7FEFF 		bl	HAL_RCC_GetPCLK1Freq
+  44 0032 0E4B     		ldr	r3, .L12
+  45 0034 9B68     		ldr	r3, [r3, #8]
+  46 0036 C3F38223 		ubfx	r3, r3, #10, #3
+  47 003a 0D4A     		ldr	r2, .L12+4
+  48 003c D35C     		ldrb	r3, [r2, r3]	@ zero_extendqisi2
+  49 003e 1BB9     		cbnz	r3, .L7
+  50 0040 0123     		movs	r3, #1
+  51              	.L3:
+  52 0042 03FB00F0 		mul	r0, r3, r0
+  53 0046 F1E7     		b	.L1
+  54              	.L7:
+  55 0048 0223     		movs	r3, #2
+  56 004a FAE7     		b	.L3
+  57              	.L5:
+  58 004c FFF7FEFF 		bl	HAL_RCC_GetPCLK2Freq
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s 			page 2
+
+
+  59 0050 064B     		ldr	r3, .L12
+  60 0052 9B68     		ldr	r3, [r3, #8]
+  61 0054 C3F38223 		ubfx	r3, r3, #10, #3
+  62 0058 054A     		ldr	r2, .L12+4
+  63 005a D35C     		ldrb	r3, [r2, r3]	@ zero_extendqisi2
+  64 005c 1BB9     		cbnz	r3, .L9
+  65 005e 0123     		movs	r3, #1
+  66              	.L6:
+  67 0060 03FB00F0 		mul	r0, r3, r0
+  68 0064 E2E7     		b	.L1
+  69              	.L9:
+  70 0066 0223     		movs	r3, #2
+  71 0068 FAE7     		b	.L6
+  72              	.L13:
+  73 006a 00BF     		.align	2
+  74              	.L12:
+  75 006c 00380240 		.word	1073887232
+  76 0070 00000000 		.word	APBPrescTable
+  78              		.section	.text.HAL_TIM_PWM_PulseFinishedCallback,"ax",%progbits
+  79              		.align	1
+  80              		.global	HAL_TIM_PWM_PulseFinishedCallback
+  81              		.syntax unified
+  82              		.thumb
+  83              		.thumb_func
+  85              	HAL_TIM_PWM_PulseFinishedCallback:
+  86              		@ args = 0, pretend = 0, frame = 0
+  87              		@ frame_needed = 0, uses_anonymous_args = 0
+  88 0000 08B5     		push	{r3, lr}
+  89 0002 0023     		movs	r3, #0
+  90 0004 01E0     		b	.L15
+  91              	.L16:
+  92 0006 0133     		adds	r3, r3, #1
+  93 0008 DBB2     		uxtb	r3, r3
+  94              	.L15:
+  95 000a 0C4A     		ldr	r2, .L21
+  96 000c 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+  97 000e 9A42     		cmp	r2, r3
+  98 0010 13D9     		bls	.L14
+  99 0012 0B4A     		ldr	r2, .L21+4
+ 100 0014 52F82320 		ldr	r2, [r2, r3, lsl #2]
+ 101 0018 1168     		ldr	r1, [r2]
+ 102 001a 8142     		cmp	r1, r0
+ 103 001c F3D1     		bne	.L16
+ 104 001e 90F81CE0 		ldrb	lr, [r0, #28]	@ zero_extendqisi2
+ 105 0022 5168     		ldr	r1, [r2, #4]
+ 106 0024 4FEA910C 		lsr	ip, r1, #2
+ 107 0028 0121     		movs	r1, #1
+ 108 002a 01FA0CF1 		lsl	r1, r1, ip
+ 109 002e 8E45     		cmp	lr, r1
+ 110 0030 E9D1     		bne	.L16
+ 111 0032 5369     		ldr	r3, [r2, #20]
+ 112 0034 0BB1     		cbz	r3, .L14
+ 113 0036 1046     		mov	r0, r2
+ 114 0038 9847     		blx	r3
+ 115              	.L14:
+ 116 003a 08BD     		pop	{r3, pc}
+ 117              	.L22:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s 			page 3
+
+
+ 118              		.align	2
+ 119              	.L21:
+ 120 003c 00000000 		.word	idx
+ 121 0040 00000000 		.word	pwm_instance
+ 123              		.section	.text.PWMStart,"ax",%progbits
+ 124              		.align	1
+ 125              		.global	PWMStart
+ 126              		.syntax unified
+ 127              		.thumb
+ 128              		.thumb_func
+ 130              	PWMStart:
+ 131              		@ args = 0, pretend = 0, frame = 0
+ 132              		@ frame_needed = 0, uses_anonymous_args = 0
+ 133 0000 08B5     		push	{r3, lr}
+ 134 0002 4168     		ldr	r1, [r0, #4]
+ 135 0004 0068     		ldr	r0, [r0]
+ 136 0006 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 137 000a 08BD     		pop	{r3, pc}
+ 139              		.section	.text.PWMStop,"ax",%progbits
+ 140              		.align	1
+ 141              		.global	PWMStop
+ 142              		.syntax unified
+ 143              		.thumb
+ 144              		.thumb_func
+ 146              	PWMStop:
+ 147              		@ args = 0, pretend = 0, frame = 0
+ 148              		@ frame_needed = 0, uses_anonymous_args = 0
+ 149 0000 08B5     		push	{r3, lr}
+ 150 0002 4168     		ldr	r1, [r0, #4]
+ 151 0004 0068     		ldr	r0, [r0]
+ 152 0006 FFF7FEFF 		bl	HAL_TIM_PWM_Stop
+ 153 000a 08BD     		pop	{r3, pc}
+ 155              		.section	.text.PWMSetPeriod,"ax",%progbits
+ 156              		.align	1
+ 157              		.global	PWMSetPeriod
+ 158              		.syntax unified
+ 159              		.thumb
+ 160              		.thumb_func
+ 162              	PWMSetPeriod:
+ 163              		@ args = 0, pretend = 0, frame = 0
+ 164              		@ frame_needed = 0, uses_anonymous_args = 0
+ 165              		@ link register save eliminated.
+ 166 0000 8368     		ldr	r3, [r0, #8]
+ 167 0002 0168     		ldr	r1, [r0]
+ 168 0004 4A68     		ldr	r2, [r1, #4]
+ 169 0006 0132     		adds	r2, r2, #1
+ 170 0008 B3FBF2F3 		udiv	r3, r3, r2
+ 171 000c 07EE903A 		vmov	s15, r3	@ int
+ 172 0010 F8EE677A 		vcvt.f32.u32	s15, s15
+ 173 0014 67EE807A 		vmul.f32	s15, s15, s0
+ 174 0018 0B68     		ldr	r3, [r1]
+ 175 001a FCEEE77A 		vcvt.u32.f32	s15, s15
+ 176 001e C3ED0B7A 		vstr.32	s15, [r3, #44]	@ int
+ 177 0022 8368     		ldr	r3, [r0, #8]
+ 178 0024 0168     		ldr	r1, [r0]
+ 179 0026 4A68     		ldr	r2, [r1, #4]
+ 180 0028 0132     		adds	r2, r2, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s 			page 4
+
+
+ 181 002a B3FBF2F3 		udiv	r3, r3, r2
+ 182 002e 07EE903A 		vmov	s15, r3	@ int
+ 183 0032 F8EE677A 		vcvt.f32.u32	s15, s15
+ 184 0036 27EE800A 		vmul.f32	s0, s15, s0
+ 185 003a BCEEC00A 		vcvt.u32.f32	s0, s0
+ 186 003e 81ED030A 		vstr.32	s0, [r1, #12]	@ int
+ 187 0042 7047     		bx	lr
+ 189              		.section	.text.PWMSetDutyRatio,"ax",%progbits
+ 190              		.align	1
+ 191              		.global	PWMSetDutyRatio
+ 192              		.syntax unified
+ 193              		.thumb
+ 194              		.thumb_func
+ 196              	PWMSetDutyRatio:
+ 197              		@ args = 0, pretend = 0, frame = 0
+ 198              		@ frame_needed = 0, uses_anonymous_args = 0
+ 199              		@ link register save eliminated.
+ 200 0000 4368     		ldr	r3, [r0, #4]
+ 201 0002 63B9     		cbnz	r3, .L29
+ 202 0004 0368     		ldr	r3, [r0]
+ 203 0006 1B68     		ldr	r3, [r3]
+ 204 0008 D3ED0B7A 		vldr.32	s15, [r3, #44]	@ int
+ 205 000c F8EE677A 		vcvt.f32.u32	s15, s15
+ 206 0010 27EE800A 		vmul.f32	s0, s15, s0
+ 207 0014 BCEEC00A 		vcvt.u32.f32	s0, s0
+ 208 0018 83ED0D0A 		vstr.32	s0, [r3, #52]	@ int
+ 209 001c 7047     		bx	lr
+ 210              	.L29:
+ 211 001e 042B     		cmp	r3, #4
+ 212 0020 0ED0     		beq	.L33
+ 213 0022 082B     		cmp	r3, #8
+ 214 0024 19D0     		beq	.L34
+ 215 0026 0368     		ldr	r3, [r0]
+ 216 0028 1B68     		ldr	r3, [r3]
+ 217 002a D3ED0B7A 		vldr.32	s15, [r3, #44]	@ int
+ 218 002e F8EE677A 		vcvt.f32.u32	s15, s15
+ 219 0032 67EE807A 		vmul.f32	s15, s15, s0
+ 220 0036 FCEEE77A 		vcvt.u32.f32	s15, s15
+ 221 003a C3ED107A 		vstr.32	s15, [r3, #64]	@ int
+ 222 003e 7047     		bx	lr
+ 223              	.L33:
+ 224 0040 0368     		ldr	r3, [r0]
+ 225 0042 1B68     		ldr	r3, [r3]
+ 226 0044 D3ED0B7A 		vldr.32	s15, [r3, #44]	@ int
+ 227 0048 F8EE677A 		vcvt.f32.u32	s15, s15
+ 228 004c 67EE807A 		vmul.f32	s15, s15, s0
+ 229 0050 FCEEE77A 		vcvt.u32.f32	s15, s15
+ 230 0054 C3ED0E7A 		vstr.32	s15, [r3, #56]	@ int
+ 231 0058 7047     		bx	lr
+ 232              	.L34:
+ 233 005a 0368     		ldr	r3, [r0]
+ 234 005c 1B68     		ldr	r3, [r3]
+ 235 005e D3ED0B7A 		vldr.32	s15, [r3, #44]	@ int
+ 236 0062 F8EE677A 		vcvt.f32.u32	s15, s15
+ 237 0066 67EE807A 		vmul.f32	s15, s15, s0
+ 238 006a FCEEE77A 		vcvt.u32.f32	s15, s15
+ 239 006e C3ED0F7A 		vstr.32	s15, [r3, #60]	@ int
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s 			page 5
+
+
+ 240 0072 7047     		bx	lr
+ 242              		.section	.text.PWMRegister,"ax",%progbits
+ 243              		.align	1
+ 244              		.global	PWMRegister
+ 245              		.syntax unified
+ 246              		.thumb
+ 247              		.thumb_func
+ 249              	PWMRegister:
+ 250              		@ args = 0, pretend = 0, frame = 0
+ 251              		@ frame_needed = 0, uses_anonymous_args = 0
+ 252 0000 38B5     		push	{r3, r4, r5, lr}
+ 253 0002 1C4B     		ldr	r3, .L39
+ 254 0004 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 255 0006 0F2B     		cmp	r3, #15
+ 256 0008 00D9     		bls	.L36
+ 257              	.L37:
+ 258 000a FEE7     		b	.L37
+ 259              	.L36:
+ 260 000c 0546     		mov	r5, r0
+ 261 000e 1C20     		movs	r0, #28
+ 262 0010 FFF7FEFF 		bl	malloc
+ 263 0014 0446     		mov	r4, r0
+ 264 0016 0023     		movs	r3, #0
+ 265 0018 0360     		str	r3, [r0]	@ unaligned
+ 266 001a 4360     		str	r3, [r0, #4]	@ unaligned
+ 267 001c 8360     		str	r3, [r0, #8]	@ unaligned
+ 268 001e C360     		str	r3, [r0, #12]	@ unaligned
+ 269 0020 0361     		str	r3, [r0, #16]	@ unaligned
+ 270 0022 4361     		str	r3, [r0, #20]	@ unaligned
+ 271 0024 8361     		str	r3, [r0, #24]	@ unaligned
+ 272 0026 2868     		ldr	r0, [r5]
+ 273 0028 2060     		str	r0, [r4]
+ 274 002a 6B68     		ldr	r3, [r5, #4]
+ 275 002c 6360     		str	r3, [r4, #4]
+ 276 002e AB68     		ldr	r3, [r5, #8]	@ float
+ 277 0030 E360     		str	r3, [r4, #12]	@ float
+ 278 0032 EB68     		ldr	r3, [r5, #12]	@ float
+ 279 0034 2361     		str	r3, [r4, #16]	@ float
+ 280 0036 2B69     		ldr	r3, [r5, #16]
+ 281 0038 6361     		str	r3, [r4, #20]
+ 282 003a 6B69     		ldr	r3, [r5, #20]
+ 283 003c A361     		str	r3, [r4, #24]
+ 284 003e FFF7FEFF 		bl	PWMSelectTclk
+ 285 0042 A060     		str	r0, [r4, #8]
+ 286 0044 6168     		ldr	r1, [r4, #4]
+ 287 0046 2068     		ldr	r0, [r4]
+ 288 0048 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 289 004c 94ED030A 		vldr.32	s0, [r4, #12]
+ 290 0050 2046     		mov	r0, r4
+ 291 0052 FFF7FEFF 		bl	PWMSetPeriod
+ 292 0056 94ED040A 		vldr.32	s0, [r4, #16]
+ 293 005a 2046     		mov	r0, r4
+ 294 005c FFF7FEFF 		bl	PWMSetDutyRatio
+ 295 0060 044A     		ldr	r2, .L39
+ 296 0062 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 297 0064 591C     		adds	r1, r3, #1
+ 298 0066 1170     		strb	r1, [r2]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s 			page 6
+
+
+ 299 0068 034A     		ldr	r2, .L39+4
+ 300 006a 42F82340 		str	r4, [r2, r3, lsl #2]
+ 301 006e 2046     		mov	r0, r4
+ 302 0070 38BD     		pop	{r3, r4, r5, pc}
+ 303              	.L40:
+ 304 0072 00BF     		.align	2
+ 305              	.L39:
+ 306 0074 00000000 		.word	idx
+ 307 0078 00000000 		.word	pwm_instance
+ 309              		.section	.text.PWMStartDMA,"ax",%progbits
+ 310              		.align	1
+ 311              		.global	PWMStartDMA
+ 312              		.syntax unified
+ 313              		.thumb
+ 314              		.thumb_func
+ 316              	PWMStartDMA:
+ 317              		@ args = 0, pretend = 0, frame = 0
+ 318              		@ frame_needed = 0, uses_anonymous_args = 0
+ 319 0000 08B5     		push	{r3, lr}
+ 320 0002 93B2     		uxth	r3, r2
+ 321 0004 0A46     		mov	r2, r1
+ 322 0006 4168     		ldr	r1, [r0, #4]
+ 323 0008 0068     		ldr	r0, [r0]
+ 324 000a FFF7FEFF 		bl	HAL_TIM_PWM_Start_DMA
+ 325 000e 08BD     		pop	{r3, pc}
+ 327              		.section	.bss.pwm_instance,"aw",%nobits
+ 328              		.align	2
+ 331              	pwm_instance:
+ 332 0000 00000000 		.space	64
+ 332      00000000 
+ 332      00000000 
+ 332      00000000 
+ 332      00000000 
+ 333              		.section	.bss.idx,"aw",%nobits
+ 336              	idx:
+ 337 0000 00       		.space	1
+ 338              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_pwm.c
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:18     .text.PWMSelectTclk:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:23     .text.PWMSelectTclk:00000000 PWMSelectTclk
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:75     .text.PWMSelectTclk:0000006c $d
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:79     .text.HAL_TIM_PWM_PulseFinishedCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:85     .text.HAL_TIM_PWM_PulseFinishedCallback:00000000 HAL_TIM_PWM_PulseFinishedCallback
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:120    .text.HAL_TIM_PWM_PulseFinishedCallback:0000003c $d
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:336    .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:331    .bss.pwm_instance:00000000 pwm_instance
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:124    .text.PWMStart:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:130    .text.PWMStart:00000000 PWMStart
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:140    .text.PWMStop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:146    .text.PWMStop:00000000 PWMStop
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:156    .text.PWMSetPeriod:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:162    .text.PWMSetPeriod:00000000 PWMSetPeriod
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:190    .text.PWMSetDutyRatio:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:196    .text.PWMSetDutyRatio:00000000 PWMSetDutyRatio
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:243    .text.PWMRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:249    .text.PWMRegister:00000000 PWMRegister
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:306    .text.PWMRegister:00000074 $d
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:310    .text.PWMStartDMA:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:316    .text.PWMStartDMA:00000000 PWMStartDMA
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:328    .bss.pwm_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccu4MNUx.s:337    .bss.idx:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_RCC_GetPCLK1Freq
+HAL_RCC_GetPCLK2Freq
+APBPrescTable
+HAL_TIM_PWM_Start
+HAL_TIM_PWM_Stop
+malloc
+HAL_TIM_PWM_Start_DMA

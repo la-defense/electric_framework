@@ -1,0 +1,143 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_tools.c"
+  16              		.text
+  17              		.section	.text.CallbackTaskBase,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	CallbackTaskBase:
+  24              		@ Volatile: function does not return.
+  25              		@ args = 0, pretend = 0, frame = 16
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 00B5     		push	{lr}
+  28 0002 85B0     		sub	sp, sp, #20
+  29 0004 0668     		ldr	r6, [r0]
+  30 0006 8568     		ldr	r5, [r0, #8]
+  31 0008 4468     		ldr	r4, [r0, #4]
+  32              	.L2:
+  33 000a 2846     		mov	r0, r5
+  34 000c B047     		blx	r6
+  35 000e 4FF0FF32 		mov	r2, #-1
+  36 0012 2146     		mov	r1, r4
+  37 0014 6846     		mov	r0, sp
+  38 0016 FFF7FEFF 		bl	osSignalWait
+  39 001a F6E7     		b	.L2
+  41              		.section	.text.CreateCallbackTask,"ax",%progbits
+  42              		.align	1
+  43              		.global	CreateCallbackTask
+  44              		.syntax unified
+  45              		.thumb
+  46              		.thumb_func
+  48              	CreateCallbackTask:
+  49              		@ args = 0, pretend = 0, frame = 32
+  50              		@ frame_needed = 0, uses_anonymous_args = 0
+  51 0000 30B5     		push	{r4, r5, lr}
+  52 0002 89B0     		sub	sp, sp, #36
+  53 0004 164C     		ldr	r4, .L8
+  54 0006 2478     		ldrb	r4, [r4]	@ zero_extendqisi2
+  55 0008 1F2C     		cmp	r4, #31
+  56 000a 00D9     		bls	.L5
+  57              	.L6:
+  58 000c FEE7     		b	.L6
+  59              	.L5:
+  60 000e 04EB440E 		add	lr, r4, r4, lsl #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s 			page 2
+
+
+  61 0012 144D     		ldr	r5, .L8+4
+  62 0014 05EB8E0C 		add	ip, r5, lr, lsl #2
+  63 0018 45F82E10 		str	r1, [r5, lr, lsl #2]
+  64 001c 0121     		movs	r1, #1
+  65 001e A140     		lsls	r1, r1, r4
+  66 0020 CCF80410 		str	r1, [ip, #4]
+  67 0024 CCF80820 		str	r2, [ip, #8]
+  68 0028 0190     		str	r0, [sp, #4]
+  69 002a 0F4A     		ldr	r2, .L8+8
+  70 002c 0292     		str	r2, [sp, #8]
+  71 002e ADF80C30 		strh	r3, [sp, #12]	@ movhi
+  72 0032 0023     		movs	r3, #0
+  73 0034 0493     		str	r3, [sp, #16]
+  74 0036 8023     		movs	r3, #128
+  75 0038 0593     		str	r3, [sp, #20]
+  76 003a 6146     		mov	r1, ip
+  77 003c 01A8     		add	r0, sp, #4
+  78 003e FFF7FEFF 		bl	osThreadCreate
+  79 0042 0A4B     		ldr	r3, .L8+12
+  80 0044 43F82400 		str	r0, [r3, r4, lsl #2]
+  81 0048 054A     		ldr	r2, .L8
+  82 004a 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+  83 004c 591C     		adds	r1, r3, #1
+  84 004e 1170     		strb	r1, [r2]
+  85 0050 03EB4303 		add	r3, r3, r3, lsl #1
+  86 0054 05EB8303 		add	r3, r5, r3, lsl #2
+  87 0058 5868     		ldr	r0, [r3, #4]
+  88 005a 09B0     		add	sp, sp, #36
+  89              		@ sp needed
+  90 005c 30BD     		pop	{r4, r5, pc}
+  91              	.L9:
+  92 005e 00BF     		.align	2
+  93              	.L8:
+  94 0060 00000000 		.word	sig_idx
+  95 0064 00000000 		.word	cbkinfo_list
+  96 0068 00000000 		.word	CallbackTaskBase
+  97 006c 00000000 		.word	cbkid_list
+  99              		.section	.bss.cbkinfo_list,"aw",%nobits
+ 100              		.align	2
+ 103              	cbkinfo_list:
+ 104 0000 00000000 		.space	384
+ 104      00000000 
+ 104      00000000 
+ 104      00000000 
+ 104      00000000 
+ 105              		.section	.bss.cbkid_list,"aw",%nobits
+ 106              		.align	2
+ 109              	cbkid_list:
+ 110 0000 00000000 		.space	128
+ 110      00000000 
+ 110      00000000 
+ 110      00000000 
+ 110      00000000 
+ 111              		.section	.bss.sig_idx,"aw",%nobits
+ 114              	sig_idx:
+ 115 0000 00       		.space	1
+ 116              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s 			page 3
+
+
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_tools.c
+C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s:18     .text.CallbackTaskBase:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s:23     .text.CallbackTaskBase:00000000 CallbackTaskBase
+C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s:42     .text.CreateCallbackTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s:48     .text.CreateCallbackTask:00000000 CreateCallbackTask
+C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s:94     .text.CreateCallbackTask:00000060 $d
+C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s:114    .bss.sig_idx:00000000 sig_idx
+C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s:103    .bss.cbkinfo_list:00000000 cbkinfo_list
+C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s:109    .bss.cbkid_list:00000000 cbkid_list
+C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s:100    .bss.cbkinfo_list:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s:106    .bss.cbkid_list:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccoJpQOI.s:115    .bss.sig_idx:00000000 $d
+
+UNDEFINED SYMBOLS
+osSignalWait
+osThreadCreate

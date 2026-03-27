@@ -1,0 +1,702 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_usart.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "bsp/usart/bsp_usart.c"
+  20              		.section	.text.USARTServiceInit,"ax",%progbits
+  21              		.align	1
+  22              		.global	USARTServiceInit
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	USARTServiceInit:
+  28              	.LVL0:
+  29              	.LFB238:
+   1:bsp/usart/bsp_usart.c **** /**
+   2:bsp/usart/bsp_usart.c ****  * @file bsp_usart.c
+   3:bsp/usart/bsp_usart.c ****  * @author neozng
+   4:bsp/usart/bsp_usart.c ****  * @brief  串口bsp层的实现
+   5:bsp/usart/bsp_usart.c ****  * @version beta
+   6:bsp/usart/bsp_usart.c ****  * @date 2022-11-01
+   7:bsp/usart/bsp_usart.c ****  *
+   8:bsp/usart/bsp_usart.c ****  * @copyright Copyright (c) 2022
+   9:bsp/usart/bsp_usart.c ****  *
+  10:bsp/usart/bsp_usart.c ****  */
+  11:bsp/usart/bsp_usart.c **** #include "bsp_usart.h"
+  12:bsp/usart/bsp_usart.c **** #include "bsp_log.h"
+  13:bsp/usart/bsp_usart.c **** #include "stdlib.h"
+  14:bsp/usart/bsp_usart.c **** #include "memory.h"
+  15:bsp/usart/bsp_usart.c **** 
+  16:bsp/usart/bsp_usart.c **** /* usart service instance, modules' info would be recoreded here using USARTRegister() */
+  17:bsp/usart/bsp_usart.c **** /* usart服务实例,所有注册了usart的模块信息会被保存在这里 */
+  18:bsp/usart/bsp_usart.c **** static uint8_t idx;
+  19:bsp/usart/bsp_usart.c **** static USARTInstance *usart_instance[DEVICE_USART_CNT] = {NULL};
+  20:bsp/usart/bsp_usart.c **** 
+  21:bsp/usart/bsp_usart.c **** /**
+  22:bsp/usart/bsp_usart.c ****  * @brief 启动串口服务,会在每个实例注册之后自动启用接收,当前实现为DMA接
+  23:bsp/usart/bsp_usart.c ****  *
+  24:bsp/usart/bsp_usart.c ****  * @todo 串口服务会在每个实例注册之后自动启用接收,当前实现为DMA接收,后�
+  25:bsp/usart/bsp_usart.c ****  *       可能还要将此函数修改为extern,使得module可以控制串口的启停
+  26:bsp/usart/bsp_usart.c ****  *
+  27:bsp/usart/bsp_usart.c ****  * @param _instance instance owned by module,模块拥有的串口实例
+  28:bsp/usart/bsp_usart.c ****  */
+  29:bsp/usart/bsp_usart.c **** void USARTServiceInit(USARTInstance *_instance)
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 2
+
+
+  30:bsp/usart/bsp_usart.c **** {
+  30              		.loc 1 30 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 30 1 is_stmt 0 view .LVU1
+  35 0000 10B5     		push	{r4, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 4, -8
+  39              		.cfi_offset 14, -4
+  40 0002 0446     		mov	r4, r0
+  31:bsp/usart/bsp_usart.c ****     HAL_UARTEx_ReceiveToIdle_DMA(_instance->usart_handle, _instance->recv_buff, _instance->recv_buf
+  41              		.loc 1 31 5 is_stmt 1 view .LVU2
+  42 0004 90F80021 		ldrb	r2, [r0, #256]	@ zero_extendqisi2
+  43 0008 0146     		mov	r1, r0
+  44 000a D0F80401 		ldr	r0, [r0, #260]
+  45              	.LVL1:
+  46              		.loc 1 31 5 is_stmt 0 view .LVU3
+  47 000e FFF7FEFF 		bl	HAL_UARTEx_ReceiveToIdle_DMA
+  48              	.LVL2:
+  32:bsp/usart/bsp_usart.c ****     // 关闭dma half transfer中断防止两次进入HAL_UARTEx_RxEventCallback()
+  33:bsp/usart/bsp_usart.c ****     // 这是HAL库的一个设计失误,发生DMA传输完成/半完成以及串口IDLE中断都�
+  34:bsp/usart/bsp_usart.c ****     // 我们只希望处理第一种和第三种情况,因此直接关闭DMA半传输中断
+  35:bsp/usart/bsp_usart.c ****     __HAL_DMA_DISABLE_IT(_instance->usart_handle->hdmarx, DMA_IT_HT);
+  49              		.loc 1 35 5 is_stmt 1 view .LVU4
+  50 0012 D4F80431 		ldr	r3, [r4, #260]
+  51 0016 9B6B     		ldr	r3, [r3, #56]
+  52 0018 1A68     		ldr	r2, [r3]
+  53 001a 1368     		ldr	r3, [r2]
+  54 001c 23F00803 		bic	r3, r3, #8
+  55 0020 1360     		str	r3, [r2]
+  36:bsp/usart/bsp_usart.c **** }
+  56              		.loc 1 36 1 is_stmt 0 view .LVU5
+  57 0022 10BD     		pop	{r4, pc}
+  58              		.loc 1 36 1 view .LVU6
+  59              		.cfi_endproc
+  60              	.LFE238:
+  62              		.section	.text.USARTRegister,"ax",%progbits
+  63              		.align	1
+  64              		.global	USARTRegister
+  65              		.syntax unified
+  66              		.thumb
+  67              		.thumb_func
+  69              	USARTRegister:
+  70              	.LVL3:
+  71              	.LFB239:
+  37:bsp/usart/bsp_usart.c **** 
+  38:bsp/usart/bsp_usart.c **** USARTInstance *USARTRegister(USART_Init_Config_s *init_config)
+  39:bsp/usart/bsp_usart.c **** {
+  72              		.loc 1 39 1 is_stmt 1 view -0
+  73              		.cfi_startproc
+  74              		@ args = 0, pretend = 0, frame = 0
+  75              		@ frame_needed = 0, uses_anonymous_args = 0
+  76              		.loc 1 39 1 is_stmt 0 view .LVU8
+  77 0000 70B5     		push	{r4, r5, r6, lr}
+  78              	.LCFI1:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 3
+
+
+  79              		.cfi_def_cfa_offset 16
+  80              		.cfi_offset 4, -16
+  81              		.cfi_offset 5, -12
+  82              		.cfi_offset 6, -8
+  83              		.cfi_offset 14, -4
+  40:bsp/usart/bsp_usart.c ****     if (idx >= DEVICE_USART_CNT) // 超过最大实例数
+  84              		.loc 1 40 5 is_stmt 1 view .LVU9
+  85              		.loc 1 40 13 is_stmt 0 view .LVU10
+  86 0002 194B     		ldr	r3, .L12
+  87 0004 1D78     		ldrb	r5, [r3]	@ zero_extendqisi2
+  88              		.loc 1 40 8 view .LVU11
+  89 0006 022D     		cmp	r5, #2
+  90 0008 0DD9     		bls	.L9
+  91              	.L5:
+  41:bsp/usart/bsp_usart.c ****         while (1)
+  92              		.loc 1 41 9 is_stmt 1 view .LVU12
+  93              		.loc 1 41 15 view .LVU13
+  94 000a FEE7     		b	.L5
+  95              	.LVL4:
+  96              	.L6:
+  97              	.LBB2:
+  42:bsp/usart/bsp_usart.c ****             LOGERROR("[bsp_usart] USART exceed max instance count!");
+  43:bsp/usart/bsp_usart.c **** 
+  44:bsp/usart/bsp_usart.c ****     for (uint8_t i = 0; i < idx; i++) // 检查是否已经注册过
+  98              		.loc 1 44 35 discriminator 2 view .LVU14
+  99 000c 0133     		adds	r3, r3, #1
+ 100              	.LVL5:
+ 101              		.loc 1 44 35 is_stmt 0 discriminator 2 view .LVU15
+ 102 000e DBB2     		uxtb	r3, r3
+ 103              	.LVL6:
+ 104              	.L4:
+ 105              		.loc 1 44 27 is_stmt 1 discriminator 1 view .LVU16
+ 106 0010 9D42     		cmp	r5, r3
+ 107 0012 0BD9     		bls	.L11
+  45:bsp/usart/bsp_usart.c ****         if (usart_instance[i]->usart_handle == init_config->usart_handle)
+ 108              		.loc 1 45 9 view .LVU17
+ 109              		.loc 1 45 27 is_stmt 0 view .LVU18
+ 110 0014 154A     		ldr	r2, .L12+4
+ 111 0016 52F82320 		ldr	r2, [r2, r3, lsl #2]
+ 112              		.loc 1 45 30 view .LVU19
+ 113 001a D2F80411 		ldr	r1, [r2, #260]
+ 114              		.loc 1 45 59 view .LVU20
+ 115 001e 6268     		ldr	r2, [r4, #4]
+ 116              		.loc 1 45 12 view .LVU21
+ 117 0020 9142     		cmp	r1, r2
+ 118 0022 F3D1     		bne	.L6
+ 119              	.L7:
+  46:bsp/usart/bsp_usart.c ****             while (1)
+ 120              		.loc 1 46 13 is_stmt 1 view .LVU22
+ 121              		.loc 1 46 19 view .LVU23
+ 122 0024 FEE7     		b	.L7
+ 123              	.LVL7:
+ 124              	.L9:
+ 125              		.loc 1 46 19 is_stmt 0 view .LVU24
+ 126 0026 0446     		mov	r4, r0
+  44:bsp/usart/bsp_usart.c ****         if (usart_instance[i]->usart_handle == init_config->usart_handle)
+ 127              		.loc 1 44 18 view .LVU25
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 4
+
+
+ 128 0028 0023     		movs	r3, #0
+ 129 002a F1E7     		b	.L4
+ 130              	.LVL8:
+ 131              	.L11:
+  44:bsp/usart/bsp_usart.c ****         if (usart_instance[i]->usart_handle == init_config->usart_handle)
+ 132              		.loc 1 44 18 view .LVU26
+ 133              	.LBE2:
+  47:bsp/usart/bsp_usart.c ****                 LOGERROR("[bsp_usart] USART instance already registered!");
+  48:bsp/usart/bsp_usart.c **** 
+  49:bsp/usart/bsp_usart.c ****     USARTInstance *instance = (USARTInstance *)malloc(sizeof(USARTInstance));
+ 134              		.loc 1 49 5 is_stmt 1 view .LVU27
+ 135              		.loc 1 49 48 is_stmt 0 view .LVU28
+ 136 002c 4FF48670 		mov	r0, #268
+ 137              	.LVL9:
+ 138              		.loc 1 49 48 view .LVU29
+ 139 0030 FFF7FEFF 		bl	malloc
+ 140              	.LVL10:
+ 141              		.loc 1 49 48 view .LVU30
+ 142 0034 0646     		mov	r6, r0
+ 143              	.LVL11:
+  50:bsp/usart/bsp_usart.c ****     memset(instance, 0, sizeof(USARTInstance));
+ 144              		.loc 1 50 5 is_stmt 1 view .LVU31
+ 145 0036 4FF48672 		mov	r2, #268
+ 146 003a 0021     		movs	r1, #0
+ 147 003c FFF7FEFF 		bl	memset
+ 148              	.LVL12:
+  51:bsp/usart/bsp_usart.c **** 
+  52:bsp/usart/bsp_usart.c ****     instance->usart_handle = init_config->usart_handle;
+ 149              		.loc 1 52 5 view .LVU32
+ 150              		.loc 1 52 41 is_stmt 0 view .LVU33
+ 151 0040 6368     		ldr	r3, [r4, #4]
+ 152              		.loc 1 52 28 view .LVU34
+ 153 0042 C6F80431 		str	r3, [r6, #260]
+  53:bsp/usart/bsp_usart.c ****     instance->recv_buff_size = init_config->recv_buff_size;
+ 154              		.loc 1 53 5 is_stmt 1 view .LVU35
+ 155              		.loc 1 53 43 is_stmt 0 view .LVU36
+ 156 0046 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 157              		.loc 1 53 30 view .LVU37
+ 158 0048 86F80031 		strb	r3, [r6, #256]
+  54:bsp/usart/bsp_usart.c ****     instance->module_callback = init_config->module_callback;
+ 159              		.loc 1 54 5 is_stmt 1 view .LVU38
+ 160              		.loc 1 54 44 is_stmt 0 view .LVU39
+ 161 004c A368     		ldr	r3, [r4, #8]
+ 162              		.loc 1 54 31 view .LVU40
+ 163 004e C6F80831 		str	r3, [r6, #264]
+  55:bsp/usart/bsp_usart.c **** 
+  56:bsp/usart/bsp_usart.c ****     usart_instance[idx++] = instance;
+ 164              		.loc 1 56 5 is_stmt 1 view .LVU41
+ 165              		.loc 1 56 23 is_stmt 0 view .LVU42
+ 166 0052 6A1C     		adds	r2, r5, #1
+ 167 0054 044B     		ldr	r3, .L12
+ 168 0056 1A70     		strb	r2, [r3]
+ 169              		.loc 1 56 27 view .LVU43
+ 170 0058 044B     		ldr	r3, .L12+4
+ 171 005a 43F82560 		str	r6, [r3, r5, lsl #2]
+  57:bsp/usart/bsp_usart.c ****     USARTServiceInit(instance);
+ 172              		.loc 1 57 5 is_stmt 1 view .LVU44
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 5
+
+
+ 173 005e 3046     		mov	r0, r6
+ 174 0060 FFF7FEFF 		bl	USARTServiceInit
+ 175              	.LVL13:
+  58:bsp/usart/bsp_usart.c ****     return instance;
+ 176              		.loc 1 58 5 view .LVU45
+  59:bsp/usart/bsp_usart.c **** }
+ 177              		.loc 1 59 1 is_stmt 0 view .LVU46
+ 178 0064 3046     		mov	r0, r6
+ 179 0066 70BD     		pop	{r4, r5, r6, pc}
+ 180              	.LVL14:
+ 181              	.L13:
+ 182              		.loc 1 59 1 view .LVU47
+ 183              		.align	2
+ 184              	.L12:
+ 185 0068 00000000 		.word	idx
+ 186 006c 00000000 		.word	usart_instance
+ 187              		.cfi_endproc
+ 188              	.LFE239:
+ 190              		.section	.text.USARTSend,"ax",%progbits
+ 191              		.align	1
+ 192              		.global	USARTSend
+ 193              		.syntax unified
+ 194              		.thumb
+ 195              		.thumb_func
+ 197              	USARTSend:
+ 198              	.LVL15:
+ 199              	.LFB240:
+  60:bsp/usart/bsp_usart.c **** 
+  61:bsp/usart/bsp_usart.c **** /* @todo 当前仅进行了形式上的封装,后续要进一步考虑是否将module的行为与bs
+  62:bsp/usart/bsp_usart.c **** void USARTSend(USARTInstance *_instance, uint8_t *send_buf, uint16_t send_size, USART_TRANSFER_MODE
+  63:bsp/usart/bsp_usart.c **** {
+ 200              		.loc 1 63 1 is_stmt 1 view -0
+ 201              		.cfi_startproc
+ 202              		@ args = 0, pretend = 0, frame = 0
+ 203              		@ frame_needed = 0, uses_anonymous_args = 0
+ 204              		.loc 1 63 1 is_stmt 0 view .LVU49
+ 205 0000 08B5     		push	{r3, lr}
+ 206              	.LCFI2:
+ 207              		.cfi_def_cfa_offset 8
+ 208              		.cfi_offset 3, -8
+ 209              		.cfi_offset 14, -4
+  64:bsp/usart/bsp_usart.c ****     switch (mode)
+ 210              		.loc 1 64 5 is_stmt 1 view .LVU50
+ 211 0002 022B     		cmp	r3, #2
+ 212 0004 09D0     		beq	.L15
+ 213 0006 032B     		cmp	r3, #3
+ 214 0008 0CD0     		beq	.L16
+ 215 000a 012B     		cmp	r3, #1
+ 216 000c 0FD1     		bne	.L17
+  65:bsp/usart/bsp_usart.c ****     {
+  66:bsp/usart/bsp_usart.c ****     case USART_TRANSFER_BLOCKING:
+  67:bsp/usart/bsp_usart.c ****         HAL_UART_Transmit(_instance->usart_handle, send_buf, send_size, 100);
+ 217              		.loc 1 67 9 view .LVU51
+ 218 000e 6423     		movs	r3, #100
+ 219              	.LVL16:
+ 220              		.loc 1 67 9 is_stmt 0 view .LVU52
+ 221 0010 D0F80401 		ldr	r0, [r0, #260]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 6
+
+
+ 222              	.LVL17:
+ 223              		.loc 1 67 9 view .LVU53
+ 224 0014 FFF7FEFF 		bl	HAL_UART_Transmit
+ 225              	.LVL18:
+  68:bsp/usart/bsp_usart.c ****         break;
+ 226              		.loc 1 68 9 is_stmt 1 view .LVU54
+ 227              	.L14:
+  69:bsp/usart/bsp_usart.c ****     case USART_TRANSFER_IT:
+  70:bsp/usart/bsp_usart.c ****         HAL_UART_Transmit_IT(_instance->usart_handle, send_buf, send_size);
+  71:bsp/usart/bsp_usart.c ****         break;
+  72:bsp/usart/bsp_usart.c ****     case USART_TRANSFER_DMA:
+  73:bsp/usart/bsp_usart.c ****         HAL_UART_Transmit_DMA(_instance->usart_handle, send_buf, send_size);
+  74:bsp/usart/bsp_usart.c ****         break;
+  75:bsp/usart/bsp_usart.c ****     default:
+  76:bsp/usart/bsp_usart.c ****         while (1)
+  77:bsp/usart/bsp_usart.c ****             ; // illegal mode! check your code context! 检查定义instance的代码上下文,可�
+  78:bsp/usart/bsp_usart.c ****         break;
+  79:bsp/usart/bsp_usart.c ****     }
+  80:bsp/usart/bsp_usart.c **** }
+ 228              		.loc 1 80 1 is_stmt 0 view .LVU55
+ 229 0018 08BD     		pop	{r3, pc}
+ 230              	.LVL19:
+ 231              	.L15:
+  70:bsp/usart/bsp_usart.c ****         break;
+ 232              		.loc 1 70 9 is_stmt 1 view .LVU56
+ 233 001a D0F80401 		ldr	r0, [r0, #260]
+ 234              	.LVL20:
+  70:bsp/usart/bsp_usart.c ****         break;
+ 235              		.loc 1 70 9 is_stmt 0 view .LVU57
+ 236 001e FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 237              	.LVL21:
+  71:bsp/usart/bsp_usart.c ****     case USART_TRANSFER_DMA:
+ 238              		.loc 1 71 9 is_stmt 1 view .LVU58
+ 239 0022 F9E7     		b	.L14
+ 240              	.LVL22:
+ 241              	.L16:
+  73:bsp/usart/bsp_usart.c ****         break;
+ 242              		.loc 1 73 9 view .LVU59
+ 243 0024 D0F80401 		ldr	r0, [r0, #260]
+ 244              	.LVL23:
+  73:bsp/usart/bsp_usart.c ****         break;
+ 245              		.loc 1 73 9 is_stmt 0 view .LVU60
+ 246 0028 FFF7FEFF 		bl	HAL_UART_Transmit_DMA
+ 247              	.LVL24:
+  74:bsp/usart/bsp_usart.c ****     default:
+ 248              		.loc 1 74 9 is_stmt 1 view .LVU61
+ 249 002c F4E7     		b	.L14
+ 250              	.LVL25:
+ 251              	.L17:
+  76:bsp/usart/bsp_usart.c ****             ; // illegal mode! check your code context! 检查定义instance的代码上下文,可�
+ 252              		.loc 1 76 9 view .LVU62
+  76:bsp/usart/bsp_usart.c ****             ; // illegal mode! check your code context! 检查定义instance的代码上下文,可�
+ 253              		.loc 1 76 15 view .LVU63
+ 254 002e FEE7     		b	.L17
+ 255              		.cfi_endproc
+ 256              	.LFE240:
+ 258              		.section	.text.USARTIsReady,"ax",%progbits
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 7
+
+
+ 259              		.align	1
+ 260              		.global	USARTIsReady
+ 261              		.syntax unified
+ 262              		.thumb
+ 263              		.thumb_func
+ 265              	USARTIsReady:
+ 266              	.LVL26:
+ 267              	.LFB241:
+  81:bsp/usart/bsp_usart.c **** 
+  82:bsp/usart/bsp_usart.c **** /* 串口发送时,gstate会被设为BUSY_TX */
+  83:bsp/usart/bsp_usart.c **** uint8_t USARTIsReady(USARTInstance *_instance)
+  84:bsp/usart/bsp_usart.c **** {
+ 268              		.loc 1 84 1 view -0
+ 269              		.cfi_startproc
+ 270              		@ args = 0, pretend = 0, frame = 0
+ 271              		@ frame_needed = 0, uses_anonymous_args = 0
+ 272              		@ link register save eliminated.
+  85:bsp/usart/bsp_usart.c ****     if (_instance->usart_handle->gState | HAL_UART_STATE_BUSY_TX)
+ 273              		.loc 1 85 5 view .LVU65
+ 274              		.loc 1 85 18 is_stmt 0 view .LVU66
+ 275 0000 D0F80431 		ldr	r3, [r0, #260]
+ 276              		.loc 1 85 32 view .LVU67
+ 277 0004 93F83D30 		ldrb	r3, [r3, #61]	@ zero_extendqisi2
+  86:bsp/usart/bsp_usart.c ****         return 0;
+ 278              		.loc 1 86 9 is_stmt 1 view .LVU68
+  87:bsp/usart/bsp_usart.c ****     else
+  88:bsp/usart/bsp_usart.c ****         return 1;
+  89:bsp/usart/bsp_usart.c **** }
+ 279              		.loc 1 89 1 is_stmt 0 view .LVU69
+ 280 0008 0020     		movs	r0, #0
+ 281              	.LVL27:
+ 282              		.loc 1 89 1 view .LVU70
+ 283 000a 7047     		bx	lr
+ 284              		.cfi_endproc
+ 285              	.LFE241:
+ 287              		.section	.text.HAL_UARTEx_RxEventCallback,"ax",%progbits
+ 288              		.align	1
+ 289              		.global	HAL_UARTEx_RxEventCallback
+ 290              		.syntax unified
+ 291              		.thumb
+ 292              		.thumb_func
+ 294              	HAL_UARTEx_RxEventCallback:
+ 295              	.LVL28:
+ 296              	.LFB242:
+  90:bsp/usart/bsp_usart.c **** 
+  91:bsp/usart/bsp_usart.c **** /**
+  92:bsp/usart/bsp_usart.c ****  * @brief 每次dma/idle中断发生时，都会调用此函数.对于每个uart实例会调用对�
+  93:bsp/usart/bsp_usart.c ****  *        例如:视觉协议解析/遥控器解析/裁判系统解析
+  94:bsp/usart/bsp_usart.c ****  *
+  95:bsp/usart/bsp_usart.c ****  * @note  通过__HAL_DMA_DISABLE_IT(huart->hdmarx,DMA_IT_HT)关闭dma half transfer中断防止两
+  96:bsp/usart/bsp_usart.c ****  *        这是HAL库的一个设计失误,发生DMA传输完成/半完成以及串口IDLE中断�
+  97:bsp/usart/bsp_usart.c ****  *        我们只希望处理，因此直接关闭DMA半传输中断第一种和第三种情况
+  98:bsp/usart/bsp_usart.c ****  *
+  99:bsp/usart/bsp_usart.c ****  * @param huart 发生中断的串口
+ 100:bsp/usart/bsp_usart.c ****  * @param Size 此次接收到的总数居量,暂时没用
+ 101:bsp/usart/bsp_usart.c ****  */
+ 102:bsp/usart/bsp_usart.c **** void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 8
+
+
+ 103:bsp/usart/bsp_usart.c **** {
+ 297              		.loc 1 103 1 is_stmt 1 view -0
+ 298              		.cfi_startproc
+ 299              		@ args = 0, pretend = 0, frame = 0
+ 300              		@ frame_needed = 0, uses_anonymous_args = 0
+ 301              		.loc 1 103 1 is_stmt 0 view .LVU72
+ 302 0000 38B5     		push	{r3, r4, r5, lr}
+ 303              	.LCFI3:
+ 304              		.cfi_def_cfa_offset 16
+ 305              		.cfi_offset 3, -16
+ 306              		.cfi_offset 4, -12
+ 307              		.cfi_offset 5, -8
+ 308              		.cfi_offset 14, -4
+ 309 0002 0C46     		mov	r4, r1
+ 104:bsp/usart/bsp_usart.c ****     for (uint8_t i = 0; i < idx; ++i)
+ 310              		.loc 1 104 5 is_stmt 1 view .LVU73
+ 311              	.LBB3:
+ 312              		.loc 1 104 10 view .LVU74
+ 313              	.LVL29:
+ 314              		.loc 1 104 18 is_stmt 0 view .LVU75
+ 315 0004 0023     		movs	r3, #0
+ 316              		.loc 1 104 5 view .LVU76
+ 317 0006 01E0     		b	.L22
+ 318              	.LVL30:
+ 319              	.L23:
+ 320              		.loc 1 104 34 is_stmt 1 discriminator 2 view .LVU77
+ 321 0008 0133     		adds	r3, r3, #1
+ 322              	.LVL31:
+ 323              		.loc 1 104 34 is_stmt 0 discriminator 2 view .LVU78
+ 324 000a DBB2     		uxtb	r3, r3
+ 325              	.LVL32:
+ 326              	.L22:
+ 327              		.loc 1 104 27 is_stmt 1 discriminator 1 view .LVU79
+ 328 000c 154A     		ldr	r2, .L28
+ 329 000e 92F800C0 		ldrb	ip, [r2]	@ zero_extendqisi2
+ 330 0012 9C45     		cmp	ip, r3
+ 331 0014 25D9     		bls	.L21
+ 105:bsp/usart/bsp_usart.c ****     { // find the instance which is being handled
+ 106:bsp/usart/bsp_usart.c ****         if (huart == usart_instance[i]->usart_handle)
+ 332              		.loc 1 106 9 view .LVU80
+ 333              		.loc 1 106 36 is_stmt 0 view .LVU81
+ 334 0016 1D46     		mov	r5, r3
+ 335 0018 134A     		ldr	r2, .L28+4
+ 336 001a 52F82320 		ldr	r2, [r2, r3, lsl #2]
+ 337              		.loc 1 106 12 view .LVU82
+ 338 001e D2F80411 		ldr	r1, [r2, #260]
+ 339 0022 8142     		cmp	r1, r0
+ 340 0024 F0D1     		bne	.L23
+ 107:bsp/usart/bsp_usart.c ****         { // call the callback function if it is not NULL
+ 108:bsp/usart/bsp_usart.c ****             if (usart_instance[i]->module_callback != NULL)
+ 341              		.loc 1 108 13 is_stmt 1 view .LVU83
+ 342              		.loc 1 108 34 is_stmt 0 view .LVU84
+ 343 0026 D2F80831 		ldr	r3, [r2, #264]
+ 344              	.LVL33:
+ 345              		.loc 1 108 16 view .LVU85
+ 346 002a 3BB1     		cbz	r3, .L24
+ 109:bsp/usart/bsp_usart.c ****             {
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 9
+
+
+ 110:bsp/usart/bsp_usart.c ****                 usart_instance[i]->module_callback();
+ 347              		.loc 1 110 17 is_stmt 1 view .LVU86
+ 348 002c 9847     		blx	r3
+ 349              	.LVL34:
+ 111:bsp/usart/bsp_usart.c ****                 memset(usart_instance[i]->recv_buff, 0, Size); // 接收结束后清空buffer,对�
+ 350              		.loc 1 111 17 view .LVU87
+ 351 002e 2246     		mov	r2, r4
+ 352 0030 0021     		movs	r1, #0
+ 353 0032 0D4B     		ldr	r3, .L28+4
+ 354 0034 53F82500 		ldr	r0, [r3, r5, lsl #2]
+ 355 0038 FFF7FEFF 		bl	memset
+ 356              	.LVL35:
+ 357              	.L24:
+ 112:bsp/usart/bsp_usart.c ****             }
+ 113:bsp/usart/bsp_usart.c ****             HAL_UARTEx_ReceiveToIdle_DMA(usart_instance[i]->usart_handle, usart_instance[i]->recv_b
+ 358              		.loc 1 113 13 view .LVU88
+ 359              		.loc 1 113 56 is_stmt 0 view .LVU89
+ 360 003c 0A4C     		ldr	r4, .L28+4
+ 361              	.LVL36:
+ 362              		.loc 1 113 56 view .LVU90
+ 363 003e 54F82510 		ldr	r1, [r4, r5, lsl #2]
+ 364              		.loc 1 113 13 view .LVU91
+ 365 0042 91F80021 		ldrb	r2, [r1, #256]	@ zero_extendqisi2
+ 366 0046 D1F80401 		ldr	r0, [r1, #260]
+ 367 004a FFF7FEFF 		bl	HAL_UARTEx_ReceiveToIdle_DMA
+ 368              	.LVL37:
+ 114:bsp/usart/bsp_usart.c ****             __HAL_DMA_DISABLE_IT(usart_instance[i]->usart_handle->hdmarx, DMA_IT_HT);
+ 369              		.loc 1 114 13 is_stmt 1 view .LVU92
+ 370 004e 54F82530 		ldr	r3, [r4, r5, lsl #2]
+ 371 0052 D3F80431 		ldr	r3, [r3, #260]
+ 372 0056 9B6B     		ldr	r3, [r3, #56]
+ 373 0058 1A68     		ldr	r2, [r3]
+ 374 005a 1368     		ldr	r3, [r2]
+ 375 005c 23F00803 		bic	r3, r3, #8
+ 376 0060 1360     		str	r3, [r2]
+ 115:bsp/usart/bsp_usart.c ****             return; // break the loop
+ 377              		.loc 1 115 13 view .LVU93
+ 378              	.LVL38:
+ 379              	.L21:
+ 380              		.loc 1 115 13 is_stmt 0 view .LVU94
+ 381              	.LBE3:
+ 116:bsp/usart/bsp_usart.c ****         }
+ 117:bsp/usart/bsp_usart.c ****     }
+ 118:bsp/usart/bsp_usart.c **** }
+ 382              		.loc 1 118 1 view .LVU95
+ 383 0062 38BD     		pop	{r3, r4, r5, pc}
+ 384              	.L29:
+ 385              		.align	2
+ 386              	.L28:
+ 387 0064 00000000 		.word	idx
+ 388 0068 00000000 		.word	usart_instance
+ 389              		.cfi_endproc
+ 390              	.LFE242:
+ 392              		.section	.text.HAL_UART_ErrorCallback,"ax",%progbits
+ 393              		.align	1
+ 394              		.global	HAL_UART_ErrorCallback
+ 395              		.syntax unified
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 10
+
+
+ 396              		.thumb
+ 397              		.thumb_func
+ 399              	HAL_UART_ErrorCallback:
+ 400              	.LVL39:
+ 401              	.LFB243:
+ 119:bsp/usart/bsp_usart.c **** 
+ 120:bsp/usart/bsp_usart.c **** /**
+ 121:bsp/usart/bsp_usart.c ****  * @brief 当串口发送/接收出现错误时,会调用此函数,此时这个函数要做的就�
+ 122:bsp/usart/bsp_usart.c ****  *
+ 123:bsp/usart/bsp_usart.c ****  * @note  最常见的错误:奇偶校验/溢出/帧错误
+ 124:bsp/usart/bsp_usart.c ****  *
+ 125:bsp/usart/bsp_usart.c ****  * @param huart 发生错误的串口
+ 126:bsp/usart/bsp_usart.c ****  */
+ 127:bsp/usart/bsp_usart.c **** void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+ 128:bsp/usart/bsp_usart.c **** {
+ 402              		.loc 1 128 1 is_stmt 1 view -0
+ 403              		.cfi_startproc
+ 404              		@ args = 0, pretend = 0, frame = 0
+ 405              		@ frame_needed = 0, uses_anonymous_args = 0
+ 406              		.loc 1 128 1 is_stmt 0 view .LVU97
+ 407 0000 10B5     		push	{r4, lr}
+ 408              	.LCFI4:
+ 409              		.cfi_def_cfa_offset 8
+ 410              		.cfi_offset 4, -8
+ 411              		.cfi_offset 14, -4
+ 412 0002 0246     		mov	r2, r0
+ 129:bsp/usart/bsp_usart.c ****     for (uint8_t i = 0; i < idx; ++i)
+ 413              		.loc 1 129 5 is_stmt 1 view .LVU98
+ 414              	.LBB4:
+ 415              		.loc 1 129 10 view .LVU99
+ 416              	.LVL40:
+ 417              		.loc 1 129 18 is_stmt 0 view .LVU100
+ 418 0004 0024     		movs	r4, #0
+ 419              		.loc 1 129 5 view .LVU101
+ 420 0006 01E0     		b	.L31
+ 421              	.LVL41:
+ 422              	.L32:
+ 423              		.loc 1 129 34 is_stmt 1 discriminator 2 view .LVU102
+ 424 0008 0134     		adds	r4, r4, #1
+ 425              	.LVL42:
+ 426              		.loc 1 129 34 is_stmt 0 discriminator 2 view .LVU103
+ 427 000a E4B2     		uxtb	r4, r4
+ 428              	.LVL43:
+ 429              	.L31:
+ 430              		.loc 1 129 27 is_stmt 1 discriminator 1 view .LVU104
+ 431 000c 0D4B     		ldr	r3, .L36
+ 432 000e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 433 0010 A342     		cmp	r3, r4
+ 434 0012 15D9     		bls	.L30
+ 130:bsp/usart/bsp_usart.c ****     {
+ 131:bsp/usart/bsp_usart.c ****         if (huart == usart_instance[i]->usart_handle)
+ 435              		.loc 1 131 9 view .LVU105
+ 436              		.loc 1 131 36 is_stmt 0 view .LVU106
+ 437 0014 0C4B     		ldr	r3, .L36+4
+ 438 0016 53F82410 		ldr	r1, [r3, r4, lsl #2]
+ 439              		.loc 1 131 39 view .LVU107
+ 440 001a D1F80401 		ldr	r0, [r1, #260]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 11
+
+
+ 441              		.loc 1 131 12 view .LVU108
+ 442 001e 9042     		cmp	r0, r2
+ 443 0020 F2D1     		bne	.L32
+ 132:bsp/usart/bsp_usart.c ****         {
+ 133:bsp/usart/bsp_usart.c ****             HAL_UARTEx_ReceiveToIdle_DMA(usart_instance[i]->usart_handle, usart_instance[i]->recv_b
+ 444              		.loc 1 133 13 is_stmt 1 view .LVU109
+ 445 0022 91F80021 		ldrb	r2, [r1, #256]	@ zero_extendqisi2
+ 446              	.LVL44:
+ 447              		.loc 1 133 13 is_stmt 0 view .LVU110
+ 448 0026 FFF7FEFF 		bl	HAL_UARTEx_ReceiveToIdle_DMA
+ 449              	.LVL45:
+ 134:bsp/usart/bsp_usart.c ****             __HAL_DMA_DISABLE_IT(usart_instance[i]->usart_handle->hdmarx, DMA_IT_HT);
+ 450              		.loc 1 134 13 is_stmt 1 view .LVU111
+ 451 002a 074B     		ldr	r3, .L36+4
+ 452 002c 53F82430 		ldr	r3, [r3, r4, lsl #2]
+ 453 0030 D3F80431 		ldr	r3, [r3, #260]
+ 454 0034 9B6B     		ldr	r3, [r3, #56]
+ 455 0036 1A68     		ldr	r2, [r3]
+ 456 0038 1368     		ldr	r3, [r2]
+ 457 003a 23F00803 		bic	r3, r3, #8
+ 458 003e 1360     		str	r3, [r2]
+ 135:bsp/usart/bsp_usart.c ****             LOGWARNING("[bsp_usart] USART error callback triggered, instance idx [%d]", i);
+ 459              		.loc 1 135 91 view .LVU112
+ 136:bsp/usart/bsp_usart.c ****             return;
+ 460              		.loc 1 136 13 view .LVU113
+ 461              	.L30:
+ 462              		.loc 1 136 13 is_stmt 0 view .LVU114
+ 463              	.LBE4:
+ 137:bsp/usart/bsp_usart.c ****         }
+ 138:bsp/usart/bsp_usart.c ****     }
+ 139:bsp/usart/bsp_usart.c **** }...
+ 464              		.loc 1 139 1 view .LVU115
+ 465 0040 10BD     		pop	{r4, pc}
+ 466              	.LVL46:
+ 467              	.L37:
+ 468              		.loc 1 139 1 view .LVU116
+ 469 0042 00BF     		.align	2
+ 470              	.L36:
+ 471 0044 00000000 		.word	idx
+ 472 0048 00000000 		.word	usart_instance
+ 473              		.cfi_endproc
+ 474              	.LFE243:
+ 476              		.section	.bss.usart_instance,"aw",%nobits
+ 477              		.align	2
+ 480              	usart_instance:
+ 481 0000 00000000 		.space	12
+ 481      00000000 
+ 481      00000000 
+ 482              		.section	.bss.idx,"aw",%nobits
+ 485              	idx:
+ 486 0000 00       		.space	1
+ 487              		.text
+ 488              	.Letext0:
+ 489              		.file 2 "D:/msys2/mingw64/arm-none-eabi/include/machine/_default_types.h"
+ 490              		.file 3 "D:/msys2/mingw64/arm-none-eabi/include/sys/_stdint.h"
+ 491              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 492              		.file 5 "D:/msys2/mingw64/lib/gcc/arm-none-eabi/13.3.0/include/stddef.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 12
+
+
+ 493              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 494              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 495              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 496              		.file 9 "bsp/usart/bsp_usart.h"
+ 497              		.file 10 "D:/msys2/mingw64/arm-none-eabi/include/string.h"
+ 498              		.file 11 "D:/msys2/mingw64/arm-none-eabi/include/stdlib.h"
+ 499              		.file 12 "<built-in>"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_usart.c
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:21     .text.USARTServiceInit:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:27     .text.USARTServiceInit:00000000 USARTServiceInit
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:63     .text.USARTRegister:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:69     .text.USARTRegister:00000000 USARTRegister
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:185    .text.USARTRegister:00000068 $d
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:485    .bss.idx:00000000 idx
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:480    .bss.usart_instance:00000000 usart_instance
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:191    .text.USARTSend:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:197    .text.USARTSend:00000000 USARTSend
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:259    .text.USARTIsReady:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:265    .text.USARTIsReady:00000000 USARTIsReady
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:288    .text.HAL_UARTEx_RxEventCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:294    .text.HAL_UARTEx_RxEventCallback:00000000 HAL_UARTEx_RxEventCallback
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:387    .text.HAL_UARTEx_RxEventCallback:00000064 $d
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:393    .text.HAL_UART_ErrorCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:399    .text.HAL_UART_ErrorCallback:00000000 HAL_UART_ErrorCallback
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:471    .text.HAL_UART_ErrorCallback:00000044 $d
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:477    .bss.usart_instance:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccpeDwZL.s:486    .bss.idx:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_UARTEx_ReceiveToIdle_DMA
+malloc
+memset
+HAL_UART_Transmit
+HAL_UART_Transmit_IT
+HAL_UART_Transmit_DMA

@@ -1,0 +1,472 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"LK9025.c"
+  16              		.text
+  17              		.section	.text.LKMotorLostCallback,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	LKMotorLostCallback:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 7047     		bx	lr
+  29              		.section	.text.LKMotorDecode,"ax",%progbits
+  30              		.align	1
+  31              		.syntax unified
+  32              		.thumb
+  33              		.thumb_func
+  35              	LKMotorDecode:
+  36              		@ args = 0, pretend = 0, frame = 0
+  37              		@ frame_needed = 0, uses_anonymous_args = 0
+  38 0000 38B5     		push	{r3, r4, r5, lr}
+  39 0002 0546     		mov	r5, r0
+  40 0004 D0F84140 		ldr	r4, [r0, #65]	@ unaligned
+  41 0008 D4F8AC01 		ldr	r0, [r4, #428]
+  42 000c FFF7FEFF 		bl	DaemonReload
+  43 0010 04F11C00 		add	r0, r4, #28
+  44 0014 FFF7FEFF 		bl	DWT_GetDeltaT
+  45 0018 84ED060A 		vstr.32	s0, [r4, #24]
+  46 001c 6188     		ldrh	r1, [r4, #2]
+  47 001e 2180     		strh	r1, [r4]	@ movhi
+  48 0020 95F83330 		ldrb	r3, [r5, #51]	@ zero_extendqisi2
+  49 0024 95F83220 		ldrb	r2, [r5, #50]	@ zero_extendqisi2
+  50 0028 42EA0322 		orr	r2, r2, r3, lsl #8
+  51 002c 6280     		strh	r2, [r4, #2]	@ movhi
+  52 002e 07EE902A 		vmov	s15, r2	@ int
+  53 0032 F8EEE76A 		vcvt.f32.s32	s13, s15
+  54 0036 DFED2F7A 		vldr.32	s15, .L6
+  55 003a 66EEA76A 		vmul.f32	s13, s13, s15
+  56 003e C4ED016A 		vstr.32	s13, [r4, #4]
+  57 0042 D4ED027A 		vldr.32	s15, [r4, #8]
+  58 0046 9FED2C7A 		vldr.32	s14, .L6+4
+  59 004a 27EE877A 		vmul.f32	s14, s15, s14
+  60 004e 95F83100 		ldrb	r0, [r5, #49]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s 			page 2
+
+
+  61 0052 95F83030 		ldrb	r3, [r5, #48]	@ zero_extendqisi2
+  62 0056 43EA0023 		orr	r3, r3, r0, lsl #8
+  63 005a 1BB2     		sxth	r3, r3
+  64 005c 07EE903A 		vmov	s15, r3	@ int
+  65 0060 F8EEE77A 		vcvt.f32.s32	s15, s15
+  66 0064 9FED256A 		vldr.32	s12, .L6+8
+  67 0068 67EE867A 		vmul.f32	s15, s15, s12
+  68 006c 77EE277A 		vadd.f32	s15, s14, s15
+  69 0070 C4ED027A 		vstr.32	s15, [r4, #8]
+  70 0074 B4F90C30 		ldrsh	r3, [r4, #12]
+  71 0078 07EE903A 		vmov	s15, r3	@ int
+  72 007c F8EEE77A 		vcvt.f32.s32	s15, s15
+  73 0080 9FED1F7A 		vldr.32	s14, .L6+12
+  74 0084 67EE877A 		vmul.f32	s15, s15, s14
+  75 0088 95F82F00 		ldrb	r0, [r5, #47]	@ zero_extendqisi2
+  76 008c 95F82E30 		ldrb	r3, [r5, #46]	@ zero_extendqisi2
+  77 0090 43EA0023 		orr	r3, r3, r0, lsl #8
+  78 0094 1BB2     		sxth	r3, r3
+  79 0096 07EE103A 		vmov	s14, r3	@ int
+  80 009a B8EEC77A 		vcvt.f32.s32	s14, s14
+  81 009e 9FED196A 		vldr.32	s12, .L6+16
+  82 00a2 27EE067A 		vmul.f32	s14, s14, s12
+  83 00a6 77EE877A 		vadd.f32	s15, s15, s14
+  84 00aa FDEEE77A 		vcvt.s32.f32	s15, s15
+  85 00ae 17EE903A 		vmov	r3, s15	@ int
+  86 00b2 A381     		strh	r3, [r4, #12]	@ movhi
+  87 00b4 95F82D30 		ldrb	r3, [r5, #45]	@ zero_extendqisi2
+  88 00b8 A373     		strb	r3, [r4, #14]
+  89 00ba 521A     		subs	r2, r2, r1
+  90 00bc B2F5004F 		cmp	r2, #32768
+  91 00c0 10DD     		ble	.L3
+  92 00c2 6369     		ldr	r3, [r4, #20]
+  93 00c4 013B     		subs	r3, r3, #1
+  94 00c6 6361     		str	r3, [r4, #20]
+  95              	.L4:
+  96 00c8 6369     		ldr	r3, [r4, #20]
+  97 00ca 4FF4B472 		mov	r2, #360
+  98 00ce 02FB03F3 		mul	r3, r2, r3
+  99 00d2 07EE903A 		vmov	s15, r3	@ int
+ 100 00d6 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 101 00da 77EEA67A 		vadd.f32	s15, s15, s13
+ 102 00de C4ED047A 		vstr.32	s15, [r4, #16]
+ 103 00e2 38BD     		pop	{r3, r4, r5, pc}
+ 104              	.L3:
+ 105 00e4 12F5004F 		cmn	r2, #32768
+ 106 00e8 EEDA     		bge	.L4
+ 107 00ea 6369     		ldr	r3, [r4, #20]
+ 108 00ec 0133     		adds	r3, r3, #1
+ 109 00ee 6361     		str	r3, [r4, #20]
+ 110 00f0 EAE7     		b	.L4
+ 111              	.L7:
+ 112 00f2 00BF     		.align	2
+ 113              	.L6:
+ 114 00f4 0000B43B 		.word	1001652224
+ 115 00f8 9899193E 		.word	1041865112
+ 116 00fc C10F733C 		.word	1014173633
+ 117 0100 D0CCCC3D 		.word	1036831952
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s 			page 3
+
+
+ 118 0104 6666663F 		.word	1063675494
+ 120              		.section	.text.LKMotorControl,"ax",%progbits
+ 121              		.align	1
+ 122              		.global	LKMotorControl
+ 123              		.syntax unified
+ 124              		.thumb
+ 125              		.thumb_func
+ 127              	LKMotorControl:
+ 128              		@ args = 0, pretend = 0, frame = 0
+ 129              		@ frame_needed = 0, uses_anonymous_args = 0
+ 130 0000 38B5     		push	{r3, r4, r5, lr}
+ 131 0002 0025     		movs	r5, #0
+ 132 0004 3DE0     		b	.L9
+ 133              	.L26:
+ 134 0006 F1EE600A 		vneg.f32	s1, s1
+ 135 000a 47E0     		b	.L10
+ 136              	.L27:
+ 137 000c 94F82430 		ldrb	r3, [r4, #36]	@ zero_extendqisi2
+ 138 0010 012B     		cmp	r3, #1
+ 139 0012 16D0     		beq	.L22
+ 140 0014 B4F90C30 		ldrsh	r3, [r4, #12]
+ 141 0018 00EE103A 		vmov	s0, r3	@ int
+ 142 001c B8EEC00A 		vcvt.f32.s32	s0, s0
+ 143              	.L13:
+ 144 0020 04F59470 		add	r0, r4, #296
+ 145 0024 FFF7FEFF 		bl	PIDCalculate
+ 146 0028 F0EE400A 		vmov.f32	s1, s0
+ 147 002c 94F82630 		ldrb	r3, [r4, #38]	@ zero_extendqisi2
+ 148 0030 13F0020F 		tst	r3, #2
+ 149 0034 3BD0     		beq	.L11
+ 150 0036 236B     		ldr	r3, [r4, #48]
+ 151 0038 D3ED007A 		vldr.32	s15, [r3]
+ 152 003c 70EE270A 		vadd.f32	s1, s0, s15
+ 153 0040 35E0     		b	.L11
+ 154              	.L22:
+ 155 0042 A36A     		ldr	r3, [r4, #40]
+ 156 0044 93ED000A 		vldr.32	s0, [r3]
+ 157 0048 EAE7     		b	.L13
+ 158              	.L28:
+ 159 004a E36A     		ldr	r3, [r4, #44]
+ 160 004c 93ED000A 		vldr.32	s0, [r3]
+ 161 0050 3DE0     		b	.L16
+ 162              	.L14:
+ 163 0052 94F82130 		ldrb	r3, [r4, #33]	@ zero_extendqisi2
+ 164 0056 13F0010F 		tst	r3, #1
+ 165 005a 49D1     		bne	.L23
+ 166              	.L17:
+ 167 005c FDEEE00A 		vcvt.s32.f32	s1, s1
+ 168 0060 334B     		ldr	r3, .L30
+ 169 0062 1B68     		ldr	r3, [r3]
+ 170 0064 2433     		adds	r3, r3, #36
+ 171 0066 D4F8A821 		ldr	r2, [r4, #424]
+ 172 006a D269     		ldr	r2, [r2, #28]	@ unaligned
+ 173 006c A2F52072 		sub	r2, r2, #640
+ 174 0070 10EE901A 		vmov	r1, s1	@ int
+ 175 0074 23F81210 		strh	r1, [r3, r2, lsl #1]	@ unaligned
+ 176 0078 94F8A421 		ldrb	r2, [r4, #420]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s 			page 4
+
+
+ 177 007c 002A     		cmp	r2, #0
+ 178 007e 44D0     		beq	.L24
+ 179              	.L18:
+ 180 0080 0135     		adds	r5, r5, #1
+ 181              	.L9:
+ 182 0082 2C4B     		ldr	r3, .L30+4
+ 183 0084 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 184 0086 AB42     		cmp	r3, r5
+ 185 0088 48D9     		bls	.L25
+ 186 008a 2B4B     		ldr	r3, .L30+8
+ 187 008c 53F82540 		ldr	r4, [r3, r5, lsl #2]
+ 188 0090 D4ED680A 		vldr.32	s1, [r4, #416]
+ 189 0094 94F82230 		ldrb	r3, [r4, #34]	@ zero_extendqisi2
+ 190 0098 012B     		cmp	r3, #1
+ 191 009a B4D0     		beq	.L26
+ 192              	.L10:
+ 193 009c 94F82130 		ldrb	r3, [r4, #33]	@ zero_extendqisi2
+ 194 00a0 13F0040F 		tst	r3, #4
+ 195 00a4 03D0     		beq	.L11
+ 196 00a6 94F82030 		ldrb	r3, [r4, #32]	@ zero_extendqisi2
+ 197 00aa 042B     		cmp	r3, #4
+ 198 00ac AED0     		beq	.L27
+ 199              	.L11:
+ 200 00ae 94F82130 		ldrb	r3, [r4, #33]	@ zero_extendqisi2
+ 201 00b2 13F0020F 		tst	r3, #2
+ 202 00b6 CCD0     		beq	.L14
+ 203 00b8 94F82030 		ldrb	r3, [r4, #32]	@ zero_extendqisi2
+ 204 00bc 13F0060F 		tst	r3, #6
+ 205 00c0 C7D0     		beq	.L14
+ 206 00c2 94F82430 		ldrb	r3, [r4, #36]	@ zero_extendqisi2
+ 207 00c6 012B     		cmp	r3, #1
+ 208 00c8 BFD0     		beq	.L28
+ 209 00ca 94ED020A 		vldr.32	s0, [r4, #8]
+ 210              	.L16:
+ 211 00ce 04F59470 		add	r0, r4, #296
+ 212 00d2 FFF7FEFF 		bl	PIDCalculate
+ 213 00d6 F0EE400A 		vmov.f32	s1, s0
+ 214 00da 94F82630 		ldrb	r3, [r4, #38]	@ zero_extendqisi2
+ 215 00de 13F0010F 		tst	r3, #1
+ 216 00e2 B6D0     		beq	.L14
+ 217 00e4 636B     		ldr	r3, [r4, #52]
+ 218 00e6 D3ED007A 		vldr.32	s15, [r3]
+ 219 00ea 70EE270A 		vadd.f32	s1, s0, s15
+ 220 00ee B0E7     		b	.L14
+ 221              	.L23:
+ 222 00f0 B4F90C30 		ldrsh	r3, [r4, #12]
+ 223 00f4 00EE103A 		vmov	s0, r3	@ int
+ 224 00f8 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 225 00fc 04F13800 		add	r0, r4, #56
+ 226 0100 FFF7FEFF 		bl	PIDCalculate
+ 227 0104 F0EE400A 		vmov.f32	s1, s0
+ 228 0108 A8E7     		b	.L17
+ 229              	.L24:
+ 230 010a D4F8A821 		ldr	r2, [r4, #424]
+ 231 010e D269     		ldr	r2, [r2, #28]	@ unaligned
+ 232 0110 A2F52072 		sub	r2, r2, #640
+ 233 0114 0021     		movs	r1, #0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s 			page 5
+
+
+ 234 0116 23F81210 		strh	r1, [r3, r2, lsl #1]	@ unaligned
+ 235 011a B1E7     		b	.L18
+ 236              	.L25:
+ 237 011c 03B9     		cbnz	r3, .L29
+ 238              	.L8:
+ 239 011e 38BD     		pop	{r3, r4, r5, pc}
+ 240              	.L29:
+ 241 0120 9FED060A 		vldr.32	s0, .L30+12
+ 242 0124 024B     		ldr	r3, .L30
+ 243 0126 1868     		ldr	r0, [r3]
+ 244 0128 FFF7FEFF 		bl	CANTransmit
+ 245 012c F7E7     		b	.L8
+ 246              	.L31:
+ 247 012e 00BF     		.align	2
+ 248              	.L30:
+ 249 0130 00000000 		.word	sender_instance
+ 250 0134 00000000 		.word	idx
+ 251 0138 00000000 		.word	lkmotor_instance
+ 252 013c CDCC4C3E 		.word	1045220557
+ 254              		.section	.text.LKMotorStop,"ax",%progbits
+ 255              		.align	1
+ 256              		.global	LKMotorStop
+ 257              		.syntax unified
+ 258              		.thumb
+ 259              		.thumb_func
+ 261              	LKMotorStop:
+ 262              		@ args = 0, pretend = 0, frame = 0
+ 263              		@ frame_needed = 0, uses_anonymous_args = 0
+ 264              		@ link register save eliminated.
+ 265 0000 0023     		movs	r3, #0
+ 266 0002 80F8A431 		strb	r3, [r0, #420]
+ 267 0006 7047     		bx	lr
+ 269              		.section	.text.LKMotorEnable,"ax",%progbits
+ 270              		.align	1
+ 271              		.global	LKMotorEnable
+ 272              		.syntax unified
+ 273              		.thumb
+ 274              		.thumb_func
+ 276              	LKMotorEnable:
+ 277              		@ args = 0, pretend = 0, frame = 0
+ 278              		@ frame_needed = 0, uses_anonymous_args = 0
+ 279              		@ link register save eliminated.
+ 280 0000 0123     		movs	r3, #1
+ 281 0002 80F8A431 		strb	r3, [r0, #420]
+ 282 0006 7047     		bx	lr
+ 284              		.section	.text.LKMotorInit,"ax",%progbits
+ 285              		.align	1
+ 286              		.global	LKMotorInit
+ 287              		.syntax unified
+ 288              		.thumb
+ 289              		.thumb_func
+ 291              	LKMotorInit:
+ 292              		@ args = 0, pretend = 0, frame = 16
+ 293              		@ frame_needed = 0, uses_anonymous_args = 0
+ 294 0000 30B5     		push	{r4, r5, lr}
+ 295 0002 85B0     		sub	sp, sp, #20
+ 296 0004 0546     		mov	r5, r0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s 			page 6
+
+
+ 297 0006 4FF4D870 		mov	r0, #432
+ 298 000a FFF7FEFF 		bl	malloc
+ 299 000e 0446     		mov	r4, r0
+ 300 0010 4FF4D872 		mov	r2, #432
+ 301 0014 0021     		movs	r1, #0
+ 302 0016 FFF7FEFF 		bl	memset
+ 303 001a 04F12003 		add	r3, r4, #32
+ 304 001e 05F19402 		add	r2, r5, #148
+ 305 0022 92E80300 		ldm	r2, {r0, r1}
+ 306 0026 83E80300 		stm	r3, {r0, r1}
+ 307 002a 05F11001 		add	r1, r5, #16
+ 308 002e 04F13800 		add	r0, r4, #56
+ 309 0032 FFF7FEFF 		bl	PIDInit
+ 310 0036 05F13C01 		add	r1, r5, #60
+ 311 003a 04F1B000 		add	r0, r4, #176
+ 312 003e FFF7FEFF 		bl	PIDInit
+ 313 0042 05F16801 		add	r1, r5, #104
+ 314 0046 04F59470 		add	r0, r4, #296
+ 315 004a FFF7FEFF 		bl	PIDInit
+ 316 004e 2B68     		ldr	r3, [r5]
+ 317 0050 A362     		str	r3, [r4, #40]
+ 318 0052 6B68     		ldr	r3, [r5, #4]
+ 319 0054 E362     		str	r3, [r4, #44]
+ 320 0056 C5F8B840 		str	r4, [r5, #184]
+ 321 005a 204B     		ldr	r3, .L37
+ 322 005c C5F8B430 		str	r3, [r5, #180]
+ 323 0060 D5F8A430 		ldr	r3, [r5, #164]
+ 324 0064 03F5A072 		add	r2, r3, #320
+ 325 0068 C5F8A820 		str	r2, [r5, #168]
+ 326 006c 03F27F23 		addw	r3, r3, #639
+ 327 0070 C5F8A430 		str	r3, [r5, #164]
+ 328 0074 05F1A000 		add	r0, r5, #160
+ 329 0078 FFF7FEFF 		bl	CANRegister
+ 330 007c C4F8A801 		str	r0, [r4, #424]
+ 331 0080 174B     		ldr	r3, .L37+4
+ 332 0082 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 333 0084 4BB9     		cbnz	r3, .L35
+ 334 0086 174B     		ldr	r3, .L37+8
+ 335 0088 1860     		str	r0, [r3]
+ 336 008a 0023     		movs	r3, #0
+ 337 008c 6FF07F02 		mvn	r2, #127
+ 338 0090 0277     		strb	r2, [r0, #28]
+ 339 0092 0222     		movs	r2, #2
+ 340 0094 4277     		strb	r2, [r0, #29]
+ 341 0096 8377     		strb	r3, [r0, #30]
+ 342 0098 C377     		strb	r3, [r0, #31]
+ 343              	.L35:
+ 344 009a 2046     		mov	r0, r4
+ 345 009c FFF7FEFF 		bl	LKMotorEnable
+ 346 00a0 04F11C00 		add	r0, r4, #28
+ 347 00a4 FFF7FEFF 		bl	DWT_GetDeltaT
+ 348 00a8 0D4A     		ldr	r2, .L37+4
+ 349 00aa 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 350 00ac 591C     		adds	r1, r3, #1
+ 351 00ae 1170     		strb	r1, [r2]
+ 352 00b0 0D4A     		ldr	r2, .L37+12
+ 353 00b2 42F82340 		str	r4, [r2, r3, lsl #2]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s 			page 7
+
+
+ 354 00b6 01A8     		add	r0, sp, #4
+ 355 00b8 0023     		movs	r3, #0
+ 356 00ba 0193     		str	r3, [sp, #4]
+ 357 00bc 4360     		str	r3, [r0, #4]
+ 358 00be 8360     		str	r3, [r0, #8]
+ 359 00c0 0523     		movs	r3, #5
+ 360 00c2 ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 361 00c6 094B     		ldr	r3, .L37+16
+ 362 00c8 0293     		str	r3, [sp, #8]
+ 363 00ca 0394     		str	r4, [sp, #12]
+ 364 00cc FFF7FEFF 		bl	DaemonRegister
+ 365 00d0 C4F8AC01 		str	r0, [r4, #428]
+ 366 00d4 2046     		mov	r0, r4
+ 367 00d6 05B0     		add	sp, sp, #20
+ 368              		@ sp needed
+ 369 00d8 30BD     		pop	{r4, r5, pc}
+ 370              	.L38:
+ 371 00da 00BF     		.align	2
+ 372              	.L37:
+ 373 00dc 00000000 		.word	LKMotorDecode
+ 374 00e0 00000000 		.word	idx
+ 375 00e4 00000000 		.word	sender_instance
+ 376 00e8 00000000 		.word	lkmotor_instance
+ 377 00ec 00000000 		.word	LKMotorLostCallback
+ 379              		.section	.text.LKMotorSetRef,"ax",%progbits
+ 380              		.align	1
+ 381              		.global	LKMotorSetRef
+ 382              		.syntax unified
+ 383              		.thumb
+ 384              		.thumb_func
+ 386              	LKMotorSetRef:
+ 387              		@ args = 0, pretend = 0, frame = 0
+ 388              		@ frame_needed = 0, uses_anonymous_args = 0
+ 389              		@ link register save eliminated.
+ 390 0000 80ED680A 		vstr.32	s0, [r0, #416]
+ 391 0004 7047     		bx	lr
+ 393              		.section	.text.LKMotorIsOnline,"ax",%progbits
+ 394              		.align	1
+ 395              		.global	LKMotorIsOnline
+ 396              		.syntax unified
+ 397              		.thumb
+ 398              		.thumb_func
+ 400              	LKMotorIsOnline:
+ 401              		@ args = 0, pretend = 0, frame = 0
+ 402              		@ frame_needed = 0, uses_anonymous_args = 0
+ 403 0000 08B5     		push	{r3, lr}
+ 404 0002 D0F8AC01 		ldr	r0, [r0, #428]
+ 405 0006 FFF7FEFF 		bl	DaemonIsOnline
+ 406 000a 08BD     		pop	{r3, pc}
+ 408              		.section	.bss.sender_instance,"aw",%nobits
+ 409              		.align	2
+ 412              	sender_instance:
+ 413 0000 00000000 		.space	4
+ 414              		.section	.bss.lkmotor_instance,"aw",%nobits
+ 415              		.align	2
+ 418              	lkmotor_instance:
+ 419 0000 00000000 		.space	16
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s 			page 8
+
+
+ 419      00000000 
+ 419      00000000 
+ 419      00000000 
+ 420              		.section	.bss.idx,"aw",%nobits
+ 423              	idx:
+ 424 0000 00       		.space	1
+ 425              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s 			page 9
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 LK9025.c
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:18     .text.LKMotorLostCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:23     .text.LKMotorLostCallback:00000000 LKMotorLostCallback
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:30     .text.LKMotorDecode:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:35     .text.LKMotorDecode:00000000 LKMotorDecode
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:114    .text.LKMotorDecode:000000f4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:121    .text.LKMotorControl:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:127    .text.LKMotorControl:00000000 LKMotorControl
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:249    .text.LKMotorControl:00000130 $d
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:412    .bss.sender_instance:00000000 sender_instance
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:423    .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:418    .bss.lkmotor_instance:00000000 lkmotor_instance
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:255    .text.LKMotorStop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:261    .text.LKMotorStop:00000000 LKMotorStop
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:270    .text.LKMotorEnable:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:276    .text.LKMotorEnable:00000000 LKMotorEnable
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:285    .text.LKMotorInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:291    .text.LKMotorInit:00000000 LKMotorInit
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:373    .text.LKMotorInit:000000dc $d
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:380    .text.LKMotorSetRef:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:386    .text.LKMotorSetRef:00000000 LKMotorSetRef
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:394    .text.LKMotorIsOnline:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:400    .text.LKMotorIsOnline:00000000 LKMotorIsOnline
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:409    .bss.sender_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:415    .bss.lkmotor_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccBUfCbU.s:424    .bss.idx:00000000 $d
+
+UNDEFINED SYMBOLS
+DaemonReload
+DWT_GetDeltaT
+PIDCalculate
+CANTransmit
+malloc
+memset
+PIDInit
+CANRegister
+DaemonRegister
+DaemonIsOnline

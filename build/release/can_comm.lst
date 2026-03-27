@@ -1,0 +1,330 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"can_comm.c"
+  16              		.text
+  17              		.section	.text.CANCommResetRx,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	CANCommResetRx:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 10B5     		push	{r4, lr}
+  27 0002 0446     		mov	r4, r0
+  28 0004 90F8C520 		ldrb	r2, [r0, #197]	@ zero_extendqisi2
+  29 0008 0021     		movs	r1, #0
+  30 000a 4830     		adds	r0, r0, #72
+  31 000c FFF7FEFF 		bl	memset
+  32 0010 0023     		movs	r3, #0
+  33 0012 84F8C430 		strb	r3, [r4, #196]
+  34 0016 84F8C530 		strb	r3, [r4, #197]
+  35 001a 10BD     		pop	{r4, pc}
+  37              		.section	.text.CANCommLostCallback,"ax",%progbits
+  38              		.align	1
+  39              		.syntax unified
+  40              		.thumb
+  41              		.thumb_func
+  43              	CANCommLostCallback:
+  44              		@ args = 0, pretend = 0, frame = 0
+  45              		@ frame_needed = 0, uses_anonymous_args = 0
+  46 0000 08B5     		push	{r3, lr}
+  47 0002 FFF7FEFF 		bl	CANCommResetRx
+  48 0006 08BD     		pop	{r3, pc}
+  50              		.section	.text.CANCommRxCallback,"ax",%progbits
+  51              		.align	1
+  52              		.syntax unified
+  53              		.thumb
+  54              		.thumb_func
+  56              	CANCommRxCallback:
+  57              		@ args = 0, pretend = 0, frame = 0
+  58              		@ frame_needed = 0, uses_anonymous_args = 0
+  59 0000 70B5     		push	{r4, r5, r6, lr}
+  60 0002 0446     		mov	r4, r0
+  61 0004 D0F84150 		ldr	r5, [r0, #65]	@ unaligned
+  62 0008 90F82C30 		ldrb	r3, [r0, #44]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s 			page 2
+
+
+  63 000c 732B     		cmp	r3, #115
+  64 000e 1FD0     		beq	.L11
+  65              	.L6:
+  66 0010 95F8C430 		ldrb	r3, [r5, #196]	@ zero_extendqisi2
+  67 0014 DBB1     		cbz	r3, .L5
+  68 0016 95F8C530 		ldrb	r3, [r5, #197]	@ zero_extendqisi2
+  69 001a 94F83820 		ldrb	r2, [r4, #56]	@ zero_extendqisi2
+  70 001e 9818     		adds	r0, r3, r2
+  71 0020 95F84710 		ldrb	r1, [r5, #71]	@ zero_extendqisi2
+  72 0024 8842     		cmp	r0, r1
+  73 0026 21DC     		bgt	.L12
+  74 0028 05F14800 		add	r0, r5, #72
+  75 002c 04F12C01 		add	r1, r4, #44
+  76 0030 1844     		add	r0, r0, r3
+  77 0032 FFF7FEFF 		bl	memcpy
+  78 0036 95F8C530 		ldrb	r3, [r5, #197]	@ zero_extendqisi2
+  79 003a 94F83820 		ldrb	r2, [r4, #56]	@ zero_extendqisi2
+  80 003e 1344     		add	r3, r3, r2
+  81 0040 DBB2     		uxtb	r3, r3
+  82 0042 85F8C530 		strb	r3, [r5, #197]
+  83 0046 95F84720 		ldrb	r2, [r5, #71]	@ zero_extendqisi2
+  84 004a 9342     		cmp	r3, r2
+  85 004c 12D0     		beq	.L13
+  86              	.L5:
+  87 004e 70BD     		pop	{r4, r5, r6, pc}
+  88              	.L11:
+  89 0050 95F8C430 		ldrb	r3, [r5, #196]	@ zero_extendqisi2
+  90 0054 002B     		cmp	r3, #0
+  91 0056 DBD1     		bne	.L6
+  92 0058 90F82D20 		ldrb	r2, [r0, #45]	@ zero_extendqisi2
+  93 005c 95F84630 		ldrb	r3, [r5, #70]	@ zero_extendqisi2
+  94 0060 9A42     		cmp	r2, r3
+  95 0062 F4D1     		bne	.L5
+  96 0064 0123     		movs	r3, #1
+  97 0066 85F8C430 		strb	r3, [r5, #196]
+  98 006a D1E7     		b	.L6
+  99              	.L12:
+ 100 006c 2846     		mov	r0, r5
+ 101 006e FFF7FEFF 		bl	CANCommResetRx
+ 102 0072 ECE7     		b	.L5
+ 103              	.L13:
+ 104 0074 531E     		subs	r3, r2, #1
+ 105 0076 2B44     		add	r3, r3, r5
+ 106 0078 93F84830 		ldrb	r3, [r3, #72]	@ zero_extendqisi2
+ 107 007c 652B     		cmp	r3, #101
+ 108 007e 03D0     		beq	.L14
+ 109              	.L9:
+ 110 0080 2846     		mov	r0, r5
+ 111 0082 FFF7FEFF 		bl	CANCommResetRx
+ 112 0086 E2E7     		b	.L5
+ 113              	.L14:
+ 114 0088 931E     		subs	r3, r2, #2
+ 115 008a 2B44     		add	r3, r3, r5
+ 116 008c 93F84840 		ldrb	r4, [r3, #72]	@ zero_extendqisi2
+ 117 0090 05F14A03 		add	r3, r5, #74
+ 118 0094 1E46     		mov	r6, r3
+ 119 0096 95F84610 		ldrb	r1, [r5, #70]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s 			page 3
+
+
+ 120 009a 1846     		mov	r0, r3
+ 121 009c FFF7FEFF 		bl	crc_8
+ 122 00a0 8442     		cmp	r4, r0
+ 123 00a2 EDD1     		bne	.L9
+ 124 00a4 95F84620 		ldrb	r2, [r5, #70]	@ zero_extendqisi2
+ 125 00a8 3146     		mov	r1, r6
+ 126 00aa 05F18800 		add	r0, r5, #136
+ 127 00ae FFF7FEFF 		bl	memcpy
+ 128 00b2 0123     		movs	r3, #1
+ 129 00b4 85F8C630 		strb	r3, [r5, #198]
+ 130 00b8 D5F8C700 		ldr	r0, [r5, #199]	@ unaligned
+ 131 00bc FFF7FEFF 		bl	DaemonReload
+ 132 00c0 DEE7     		b	.L9
+ 134              		.section	.text.CANCommInit,"ax",%progbits
+ 135              		.align	1
+ 136              		.global	CANCommInit
+ 137              		.syntax unified
+ 138              		.thumb
+ 139              		.thumb_func
+ 141              	CANCommInit:
+ 142              		@ args = 0, pretend = 0, frame = 16
+ 143              		@ frame_needed = 0, uses_anonymous_args = 0
+ 144 0000 30B5     		push	{r4, r5, lr}
+ 145 0002 85B0     		sub	sp, sp, #20
+ 146 0004 0546     		mov	r5, r0
+ 147 0006 CB20     		movs	r0, #203
+ 148 0008 FFF7FEFF 		bl	malloc
+ 149 000c 0446     		mov	r4, r0
+ 150 000e CB22     		movs	r2, #203
+ 151 0010 0021     		movs	r1, #0
+ 152 0012 FFF7FEFF 		bl	memset
+ 153 0016 6B7F     		ldrb	r3, [r5, #29]	@ zero_extendqisi2
+ 154 0018 84F84630 		strb	r3, [r4, #70]
+ 155 001c 0433     		adds	r3, r3, #4
+ 156 001e 84F84730 		strb	r3, [r4, #71]
+ 157 0022 2B7F     		ldrb	r3, [r5, #28]	@ zero_extendqisi2
+ 158 0024 2371     		strb	r3, [r4, #4]
+ 159 0026 1A1D     		adds	r2, r3, #4
+ 160 0028 6271     		strb	r2, [r4, #5]
+ 161 002a 7322     		movs	r2, #115
+ 162 002c A271     		strb	r2, [r4, #6]
+ 163 002e E371     		strb	r3, [r4, #7]
+ 164 0030 0333     		adds	r3, r3, #3
+ 165 0032 2344     		add	r3, r3, r4
+ 166 0034 6522     		movs	r2, #101
+ 167 0036 9A71     		strb	r2, [r3, #6]
+ 168 0038 AC61     		str	r4, [r5, #24]
+ 169 003a 0C4B     		ldr	r3, .L17
+ 170 003c 6B61     		str	r3, [r5, #20]
+ 171 003e 2846     		mov	r0, r5
+ 172 0040 FFF7FEFF 		bl	CANRegister
+ 173 0044 2060     		str	r0, [r4]	@ unaligned
+ 174 0046 01A8     		add	r0, sp, #4
+ 175 0048 0023     		movs	r3, #0
+ 176 004a 0193     		str	r3, [sp, #4]
+ 177 004c 4360     		str	r3, [r0, #4]
+ 178 004e 8360     		str	r3, [r0, #8]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s 			page 4
+
+
+ 179 0050 EB8B     		ldrh	r3, [r5, #30]
+ 180 0052 ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 181 0056 064B     		ldr	r3, .L17+4
+ 182 0058 0293     		str	r3, [sp, #8]
+ 183 005a 0394     		str	r4, [sp, #12]
+ 184 005c FFF7FEFF 		bl	DaemonRegister
+ 185 0060 C4F8C700 		str	r0, [r4, #199]	@ unaligned
+ 186 0064 2046     		mov	r0, r4
+ 187 0066 05B0     		add	sp, sp, #20
+ 188              		@ sp needed
+ 189 0068 30BD     		pop	{r4, r5, pc}
+ 190              	.L18:
+ 191 006a 00BF     		.align	2
+ 192              	.L17:
+ 193 006c 00000000 		.word	CANCommRxCallback
+ 194 0070 00000000 		.word	CANCommLostCallback
+ 196              		.section	.text.CANCommSend,"ax",%progbits
+ 197              		.align	1
+ 198              		.global	CANCommSend
+ 199              		.syntax unified
+ 200              		.thumb
+ 201              		.thumb_func
+ 203              	CANCommSend:
+ 204              		@ args = 0, pretend = 0, frame = 0
+ 205              		@ frame_needed = 0, uses_anonymous_args = 0
+ 206 0000 70B5     		push	{r4, r5, r6, lr}
+ 207 0002 0546     		mov	r5, r0
+ 208 0004 0C46     		mov	r4, r1
+ 209 0006 0679     		ldrb	r6, [r0, #4]	@ zero_extendqisi2
+ 210 0008 3246     		mov	r2, r6
+ 211 000a 0830     		adds	r0, r0, #8
+ 212 000c FFF7FEFF 		bl	memcpy
+ 213 0010 3146     		mov	r1, r6
+ 214 0012 2046     		mov	r0, r4
+ 215 0014 FFF7FEFF 		bl	crc_8
+ 216 0018 114B     		ldr	r3, .L23
+ 217 001a 1870     		strb	r0, [r3]
+ 218 001c 2B79     		ldrb	r3, [r5, #4]	@ zero_extendqisi2
+ 219 001e 0233     		adds	r3, r3, #2
+ 220 0020 2B44     		add	r3, r3, r5
+ 221 0022 9871     		strb	r0, [r3, #6]
+ 222 0024 0024     		movs	r4, #0
+ 223 0026 17E0     		b	.L20
+ 224              	.L21:
+ 225 0028 091B     		subs	r1, r1, r4
+ 226 002a 0829     		cmp	r1, #8
+ 227 002c 28BF     		it	cs
+ 228 002e 0821     		movcs	r1, #8
+ 229 0030 C9B2     		uxtb	r1, r1
+ 230 0032 0C4E     		ldr	r6, .L23+4
+ 231 0034 3170     		strb	r1, [r6]
+ 232 0036 2868     		ldr	r0, [r5]	@ unaligned
+ 233 0038 FFF7FEFF 		bl	CANSetDLC
+ 234 003c 2946     		mov	r1, r5
+ 235 003e 51F8060B 		ldr	r0, [r1], #6	@ unaligned
+ 236 0042 3278     		ldrb	r2, [r6]	@ zero_extendqisi2
+ 237 0044 2144     		add	r1, r1, r4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s 			page 5
+
+
+ 238 0046 2430     		adds	r0, r0, #36
+ 239 0048 FFF7FEFF 		bl	memcpy
+ 240 004c B7EE000A 		vmov.f32	s0, #1.0e+0
+ 241 0050 2868     		ldr	r0, [r5]	@ unaligned
+ 242 0052 FFF7FEFF 		bl	CANTransmit
+ 243 0056 0834     		adds	r4, r4, #8
+ 244              	.L20:
+ 245 0058 6979     		ldrb	r1, [r5, #5]	@ zero_extendqisi2
+ 246 005a A142     		cmp	r1, r4
+ 247 005c E4D8     		bhi	.L21
+ 248 005e 70BD     		pop	{r4, r5, r6, pc}
+ 249              	.L24:
+ 250              		.align	2
+ 251              	.L23:
+ 252 0060 00000000 		.word	crc8.1
+ 253 0064 00000000 		.word	send_len.0
+ 255              		.section	.text.CANCommGet,"ax",%progbits
+ 256              		.align	1
+ 257              		.global	CANCommGet
+ 258              		.syntax unified
+ 259              		.thumb
+ 260              		.thumb_func
+ 262              	CANCommGet:
+ 263              		@ args = 0, pretend = 0, frame = 0
+ 264              		@ frame_needed = 0, uses_anonymous_args = 0
+ 265              		@ link register save eliminated.
+ 266 0000 0023     		movs	r3, #0
+ 267 0002 80F8C630 		strb	r3, [r0, #198]
+ 268 0006 8830     		adds	r0, r0, #136
+ 269 0008 7047     		bx	lr
+ 271              		.section	.text.CANCommIsOnline,"ax",%progbits
+ 272              		.align	1
+ 273              		.global	CANCommIsOnline
+ 274              		.syntax unified
+ 275              		.thumb
+ 276              		.thumb_func
+ 278              	CANCommIsOnline:
+ 279              		@ args = 0, pretend = 0, frame = 0
+ 280              		@ frame_needed = 0, uses_anonymous_args = 0
+ 281 0000 08B5     		push	{r3, lr}
+ 282 0002 D0F8C700 		ldr	r0, [r0, #199]	@ unaligned
+ 283 0006 FFF7FEFF 		bl	DaemonIsOnline
+ 284 000a 08BD     		pop	{r3, pc}
+ 286              		.section	.bss.send_len.0,"aw",%nobits
+ 289              	send_len.0:
+ 290 0000 00       		.space	1
+ 291              		.section	.bss.crc8.1,"aw",%nobits
+ 294              	crc8.1:
+ 295 0000 00       		.space	1
+ 296              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 can_comm.c
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:18     .text.CANCommResetRx:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:23     .text.CANCommResetRx:00000000 CANCommResetRx
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:38     .text.CANCommLostCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:43     .text.CANCommLostCallback:00000000 CANCommLostCallback
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:51     .text.CANCommRxCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:56     .text.CANCommRxCallback:00000000 CANCommRxCallback
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:135    .text.CANCommInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:141    .text.CANCommInit:00000000 CANCommInit
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:193    .text.CANCommInit:0000006c $d
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:197    .text.CANCommSend:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:203    .text.CANCommSend:00000000 CANCommSend
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:252    .text.CANCommSend:00000060 $d
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:294    .bss.crc8.1:00000000 crc8.1
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:289    .bss.send_len.0:00000000 send_len.0
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:256    .text.CANCommGet:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:262    .text.CANCommGet:00000000 CANCommGet
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:272    .text.CANCommIsOnline:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:278    .text.CANCommIsOnline:00000000 CANCommIsOnline
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:290    .bss.send_len.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccyuNEk0.s:295    .bss.crc8.1:00000000 $d
+
+UNDEFINED SYMBOLS
+memset
+memcpy
+crc_8
+DaemonReload
+malloc
+CANRegister
+DaemonRegister
+CANSetDLC
+CANTransmit
+DaemonIsOnline

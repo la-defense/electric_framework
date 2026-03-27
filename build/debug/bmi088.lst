@@ -1,0 +1,3029 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bmi088.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/BMI088/bmi088.c"
+  20              		.section	.text.BMI088AccSPIFinishCallback,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	BMI088AccSPIFinishCallback:
+  27              	.LVL0:
+  28              	.LFB282:
+   1:modules/BMI088/bmi088.c **** #include "bmi088_regNdef.h"
+   2:modules/BMI088/bmi088.c **** #include "bmi088.h"
+   3:modules/BMI088/bmi088.c **** #include "user_lib.h"
+   4:modules/BMI088/bmi088.c **** #include "daemon.h"
+   5:modules/BMI088/bmi088.c **** 
+   6:modules/BMI088/bmi088.c **** static DaemonInstance *bmi088_daemon_instance;
+   7:modules/BMI088/bmi088.c **** 
+   8:modules/BMI088/bmi088.c **** // ---------------------------以下私有函数,用于读写BMI088寄存器封装,blocking--------
+   9:modules/BMI088/bmi088.c **** /**
+  10:modules/BMI088/bmi088.c ****  * @brief 读取BMI088寄存器Accel. BMI088要求在不释放CS的情况下连续读取
+  11:modules/BMI088/bmi088.c ****  *
+  12:modules/BMI088/bmi088.c ****  * @param bmi088 待读取的BMI088实例
+  13:modules/BMI088/bmi088.c ****  * @param reg 待读取的寄存器地址
+  14:modules/BMI088/bmi088.c ****  * @param dataptr 读取到的数据存放的指针
+  15:modules/BMI088/bmi088.c ****  * @param len 读取长度
+  16:modules/BMI088/bmi088.c ****  */
+  17:modules/BMI088/bmi088.c **** static void BMI088AccelRead(BMI088Instance *bmi088, uint8_t reg, uint8_t *dataptr, uint8_t len)
+  18:modules/BMI088/bmi088.c **** {
+  19:modules/BMI088/bmi088.c ****     if (len > 6)
+  20:modules/BMI088/bmi088.c ****         while (1)
+  21:modules/BMI088/bmi088.c ****             ;
+  22:modules/BMI088/bmi088.c ****     // 一次读取最多6个字节,加上两个dummy data    第一个字节的第一个位是读�
+  23:modules/BMI088/bmi088.c ****     static uint8_t tx[8]; // 读取,第一个字节为0x80|reg ,第二个是dummy data,后面的没
+  24:modules/BMI088/bmi088.c ****     static uint8_t rx[8]; // 前两个字节是dummy data,第三个开始是真正的数据
+  25:modules/BMI088/bmi088.c ****     tx[0] = 0x80 | reg;   // 静态变量每次进来还是上次的值,所以要每次都要给tx[
+  26:modules/BMI088/bmi088.c ****     SPITransRecv(bmi088->spi_acc, rx, tx, len + 2);
+  27:modules/BMI088/bmi088.c ****     memcpy(dataptr, rx + 2, len); // @todo : memcpy有额外开销,后续可以考虑优化,在SPI�
+  28:modules/BMI088/bmi088.c **** }
+  29:modules/BMI088/bmi088.c **** 
+  30:modules/BMI088/bmi088.c **** /**
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 2
+
+
+  31:modules/BMI088/bmi088.c ****  * @brief 读取BMI088寄存器Gyro, BMI088要求在不释放CS的情况下连续读取
+  32:modules/BMI088/bmi088.c ****  *
+  33:modules/BMI088/bmi088.c ****  * @param bmi088 待读取的BMI088实例
+  34:modules/BMI088/bmi088.c ****  * @param reg  待读取的寄存器地址
+  35:modules/BMI088/bmi088.c ****  * @param dataptr 读取到的数据存放的指针
+  36:modules/BMI088/bmi088.c ****  * @param len 读取长度
+  37:modules/BMI088/bmi088.c ****  */
+  38:modules/BMI088/bmi088.c **** static void BMI088GyroRead(BMI088Instance *bmi088, uint8_t reg, uint8_t *dataptr, uint8_t len)
+  39:modules/BMI088/bmi088.c **** {
+  40:modules/BMI088/bmi088.c ****     if (len > 6)
+  41:modules/BMI088/bmi088.c ****         while (1)
+  42:modules/BMI088/bmi088.c ****             ;
+  43:modules/BMI088/bmi088.c ****     // 一次读取最多6个字节,加上一个dummy data  ,第一个字节的第一个位是读�
+  44:modules/BMI088/bmi088.c ****     static uint8_t tx[7] = {0x80}; // 读取,第一个字节为0x80 | reg ,之后是dummy data
+  45:modules/BMI088/bmi088.c ****     static uint8_t rx[7];          // 第一个是dummy data,第三个开始是真正的数据
+  46:modules/BMI088/bmi088.c ****     
+  47:modules/BMI088/bmi088.c ****     tx[0] = 0x80 | reg;
+  48:modules/BMI088/bmi088.c ****     SPITransRecv(bmi088->spi_gyro, rx, tx, len + 1);
+  49:modules/BMI088/bmi088.c ****     memcpy(dataptr, rx + 1, len); // @todo : memcpy有额外开销,后续可以考虑优化,在SPI�
+  50:modules/BMI088/bmi088.c **** }
+  51:modules/BMI088/bmi088.c **** 
+  52:modules/BMI088/bmi088.c **** /**
+  53:modules/BMI088/bmi088.c ****  * @brief 写accel寄存器.对spitransmit形式上的封装
+  54:modules/BMI088/bmi088.c ****  * @attention 只会向目标reg写入一个字节,因为只有1个字节所以直接传值(指针�
+  55:modules/BMI088/bmi088.c ****  *
+  56:modules/BMI088/bmi088.c ****  * @param bmi088 待写入的BMI088实例
+  57:modules/BMI088/bmi088.c ****  * @param reg  待写入的寄存器地址
+  58:modules/BMI088/bmi088.c ****  * @param data 待写入的数据(注意不是指针)
+  59:modules/BMI088/bmi088.c ****  */
+  60:modules/BMI088/bmi088.c **** static void BMI088AccelWriteSingleReg(BMI088Instance *bmi088, uint8_t reg, uint8_t data)
+  61:modules/BMI088/bmi088.c **** {
+  62:modules/BMI088/bmi088.c ****     uint8_t tx[2] = {reg, data};
+  63:modules/BMI088/bmi088.c ****     SPITransmit(bmi088->spi_acc, tx, 2);
+  64:modules/BMI088/bmi088.c **** }
+  65:modules/BMI088/bmi088.c **** 
+  66:modules/BMI088/bmi088.c **** /**
+  67:modules/BMI088/bmi088.c ****  * @brief 写gyro寄存器.形式上的封装
+  68:modules/BMI088/bmi088.c ****  * @attention 只会向目标reg写入一个字节,因为只有1个字节所以直接传值(指针�
+  69:modules/BMI088/bmi088.c ****  *
+  70:modules/BMI088/bmi088.c ****  * @param bmi088 待写入的BMI088实例
+  71:modules/BMI088/bmi088.c ****  * @param reg  待写入的寄存器地址
+  72:modules/BMI088/bmi088.c ****  * @param data 待写入的数据(注意不是指针)
+  73:modules/BMI088/bmi088.c ****  */
+  74:modules/BMI088/bmi088.c **** static void BMI088GyroWriteSingleReg(BMI088Instance *bmi088, uint8_t reg, uint8_t data)
+  75:modules/BMI088/bmi088.c **** {
+  76:modules/BMI088/bmi088.c ****     uint8_t tx[2] = {reg, data};
+  77:modules/BMI088/bmi088.c ****     SPITransmit(bmi088->spi_gyro, tx, 2);
+  78:modules/BMI088/bmi088.c **** }
+  79:modules/BMI088/bmi088.c **** // -------------------------以上为私有函数,封装了BMI088寄存器读写函数,blocking----
+  80:modules/BMI088/bmi088.c **** 
+  81:modules/BMI088/bmi088.c **** // -------------------------以下为私有函数,用于初始化BMI088acc和gyro的硬件和配置
+  82:modules/BMI088/bmi088.c **** #define BMI088REG 0
+  83:modules/BMI088/bmi088.c **** #define BMI088DATA 1
+  84:modules/BMI088/bmi088.c **** #define BMI088ERROR 2
+  85:modules/BMI088/bmi088.c **** // BMI088初始化配置数组for accel,第一列为reg地址,第二列为写入的配置值,第三
+  86:modules/BMI088/bmi088.c **** static uint8_t BMI088_Accel_Init_Table[BMI088_WRITE_ACCEL_REG_NUM][3] =
+  87:modules/BMI088/bmi088.c ****     {
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 3
+
+
+  88:modules/BMI088/bmi088.c ****         {BMI088_ACC_PWR_CTRL, BMI088_ACC_ENABLE_ACC_ON, BMI088_ACC_PWR_CTRL_ERROR},
+  89:modules/BMI088/bmi088.c ****         {BMI088_ACC_PWR_CONF, BMI088_ACC_PWR_ACTIVE_MODE, BMI088_ACC_PWR_CONF_ERROR},
+  90:modules/BMI088/bmi088.c ****         {BMI088_ACC_CONF, BMI088_ACC_NORMAL | BMI088_ACC_800_HZ | BMI088_ACC_CONF_MUST_Set, BMI088_
+  91:modules/BMI088/bmi088.c ****         {BMI088_ACC_RANGE, BMI088_ACC_RANGE_6G, BMI088_ACC_RANGE_ERROR},
+  92:modules/BMI088/bmi088.c ****         {BMI088_INT1_IO_CTRL, BMI088_ACC_INT1_IO_ENABLE | BMI088_ACC_INT1_GPIO_PP | BMI088_ACC_INT1
+  93:modules/BMI088/bmi088.c ****         {BMI088_INT_MAP_DATA, BMI088_ACC_INT1_DRDY_INTERRUPT, BMI088_INT_MAP_DATA_ERROR}};
+  94:modules/BMI088/bmi088.c **** // BMI088初始化配置数组for gyro,第一列为reg地址,第二列为写入的配置值,第三�
+  95:modules/BMI088/bmi088.c **** static uint8_t BMI088_Gyro_Init_Table[BMI088_WRITE_GYRO_REG_NUM][3] =
+  96:modules/BMI088/bmi088.c ****     {
+  97:modules/BMI088/bmi088.c ****         {BMI088_GYRO_RANGE, BMI088_GYRO_2000, BMI088_GYRO_RANGE_ERROR},
+  98:modules/BMI088/bmi088.c ****         {BMI088_GYRO_BANDWIDTH, BMI088_GYRO_1000_116_HZ | BMI088_GYRO_BANDWIDTH_MUST_Set, BMI088_GY
+  99:modules/BMI088/bmi088.c ****         {BMI088_GYRO_LPM1, BMI088_GYRO_NORMAL_MODE, BMI088_GYRO_LPM1_ERROR},
+ 100:modules/BMI088/bmi088.c ****         {BMI088_GYRO_CTRL, BMI088_DRDY_ON, BMI088_GYRO_CTRL_ERROR},
+ 101:modules/BMI088/bmi088.c ****         {BMI088_GYRO_INT3_INT4_IO_CONF, BMI088_GYRO_INT3_GPIO_PP | BMI088_GYRO_INT3_GPIO_LOW, BMI08
+ 102:modules/BMI088/bmi088.c ****         {BMI088_GYRO_INT3_INT4_IO_MAP, BMI088_GYRO_DRDY_IO_INT3, BMI088_GYRO_INT3_INT4_IO_MAP_ERROR
+ 103:modules/BMI088/bmi088.c **** // @attention : 以上两个数组配合各自的初始化函数使用. 若要修改请参照BMI088
+ 104:modules/BMI088/bmi088.c **** 
+ 105:modules/BMI088/bmi088.c **** /**
+ 106:modules/BMI088/bmi088.c ****  * @brief 初始化BMI088加速度计,提高可读性分拆功能
+ 107:modules/BMI088/bmi088.c ****  *
+ 108:modules/BMI088/bmi088.c ****  * @param bmi088 待初始化的BMI088实例
+ 109:modules/BMI088/bmi088.c ****  * @return uint8_t BMI088ERROR CODE if any problems here
+ 110:modules/BMI088/bmi088.c ****  */
+ 111:modules/BMI088/bmi088.c **** static uint8_t BMI088AccelInit(BMI088Instance *bmi088)
+ 112:modules/BMI088/bmi088.c **** {
+ 113:modules/BMI088/bmi088.c ****     uint8_t whoami_check = 0;
+ 114:modules/BMI088/bmi088.c **** 
+ 115:modules/BMI088/bmi088.c ****     // 加速度计以I2C模式启动,需要一次上升沿来切换到SPI模式,因此进行一次
+ 116:modules/BMI088/bmi088.c ****     BMI088AccelRead(bmi088, BMI088_ACC_CHIP_ID, &whoami_check, 1);
+ 117:modules/BMI088/bmi088.c ****     DWT_Delay(0.001);
+ 118:modules/BMI088/bmi088.c **** 
+ 119:modules/BMI088/bmi088.c ****     BMI088AccelWriteSingleReg(bmi088, BMI088_ACC_SOFTRESET, BMI088_ACC_SOFTRESET_VALUE); // 软复�
+ 120:modules/BMI088/bmi088.c ****     DWT_Delay(BMI088_COM_WAIT_SENSOR_TIME / 1000);
+ 121:modules/BMI088/bmi088.c **** 
+ 122:modules/BMI088/bmi088.c ****     // 检查ID,如果不是0x1E(bmi088 whoami寄存器值),则返回错误
+ 123:modules/BMI088/bmi088.c ****     BMI088AccelRead(bmi088, BMI088_ACC_CHIP_ID, &whoami_check, 1);
+ 124:modules/BMI088/bmi088.c ****     if (whoami_check != BMI088_ACC_CHIP_ID_VALUE)
+ 125:modules/BMI088/bmi088.c ****         return BMI088_NO_SENSOR;
+ 126:modules/BMI088/bmi088.c ****     DWT_Delay(0.001);
+ 127:modules/BMI088/bmi088.c ****     // 初始化寄存器,提高可读性
+ 128:modules/BMI088/bmi088.c ****     uint8_t reg = 0, data = 0;
+ 129:modules/BMI088/bmi088.c ****     BMI088_ERORR_CODE_e error = 0;
+ 130:modules/BMI088/bmi088.c ****     // 使用sizeof而不是magic number,这样如果修改了数组大小,不用修改这里的代
+ 131:modules/BMI088/bmi088.c ****     for (uint8_t i = 0; i < sizeof(BMI088_Accel_Init_Table) / sizeof(BMI088_Accel_Init_Table[0]); i
+ 132:modules/BMI088/bmi088.c ****     {
+ 133:modules/BMI088/bmi088.c ****         reg = BMI088_Accel_Init_Table[i][BMI088REG];
+ 134:modules/BMI088/bmi088.c ****         data = BMI088_Accel_Init_Table[i][BMI088DATA];
+ 135:modules/BMI088/bmi088.c ****         BMI088AccelWriteSingleReg(bmi088, reg, data); // 写入寄存器
+ 136:modules/BMI088/bmi088.c ****         DWT_Delay(0.01);
+ 137:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, reg, &data, 1); // 写完之后立刻读回检查
+ 138:modules/BMI088/bmi088.c ****         DWT_Delay(0.01);
+ 139:modules/BMI088/bmi088.c ****         if (data != BMI088_Accel_Init_Table[i][BMI088DATA])
+ 140:modules/BMI088/bmi088.c ****             error |= BMI088_Accel_Init_Table[i][BMI088ERROR];
+ 141:modules/BMI088/bmi088.c ****         //{i--;} 可以设置retry次数,如果retry次数用完了,则返回error
+ 142:modules/BMI088/bmi088.c ****     }
+ 143:modules/BMI088/bmi088.c ****     return error;
+ 144:modules/BMI088/bmi088.c **** }
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 4
+
+
+ 145:modules/BMI088/bmi088.c **** 
+ 146:modules/BMI088/bmi088.c **** /**
+ 147:modules/BMI088/bmi088.c ****  * @brief 初始化BMI088陀螺仪,提高可读性分拆功能
+ 148:modules/BMI088/bmi088.c ****  *
+ 149:modules/BMI088/bmi088.c ****  * @param bmi088 待初始化的BMI088实例
+ 150:modules/BMI088/bmi088.c ****  * @return uint8_t BMI088ERROR CODE
+ 151:modules/BMI088/bmi088.c ****  */
+ 152:modules/BMI088/bmi088.c **** static uint8_t BMI088GyroInit(BMI088Instance *bmi088)
+ 153:modules/BMI088/bmi088.c **** {
+ 154:modules/BMI088/bmi088.c ****     // 后续添加reset和通信检查?
+ 155:modules/BMI088/bmi088.c ****     // code to go here ...
+ 156:modules/BMI088/bmi088.c ****     BMI088GyroWriteSingleReg(bmi088, BMI088_GYRO_SOFTRESET, BMI088_GYRO_SOFTRESET_VALUE); // 软复
+ 157:modules/BMI088/bmi088.c ****     DWT_Delay(0.08);
+ 158:modules/BMI088/bmi088.c **** 
+ 159:modules/BMI088/bmi088.c ****     // 检查ID,如果不是0x0F(bmi088 whoami寄存器值),则返回错误
+ 160:modules/BMI088/bmi088.c ****     uint8_t whoami_check = 0;
+ 161:modules/BMI088/bmi088.c ****     BMI088GyroRead(bmi088, BMI088_GYRO_CHIP_ID, &whoami_check, 1);
+ 162:modules/BMI088/bmi088.c ****     if (whoami_check != BMI088_GYRO_CHIP_ID_VALUE)
+ 163:modules/BMI088/bmi088.c ****         return BMI088_NO_SENSOR;
+ 164:modules/BMI088/bmi088.c ****     DWT_Delay(0.001);
+ 165:modules/BMI088/bmi088.c **** 
+ 166:modules/BMI088/bmi088.c ****     // 初始化寄存器,提高可读性
+ 167:modules/BMI088/bmi088.c ****     uint8_t reg = 0, data = 0;
+ 168:modules/BMI088/bmi088.c ****     BMI088_ERORR_CODE_e error = 0;
+ 169:modules/BMI088/bmi088.c ****     // 使用sizeof而不是magic number,这样如果修改了数组大小,不用修改这里的代
+ 170:modules/BMI088/bmi088.c ****     for (uint8_t i = 0; i < sizeof(BMI088_Gyro_Init_Table) / sizeof(BMI088_Gyro_Init_Table[0]); i++
+ 171:modules/BMI088/bmi088.c ****     {
+ 172:modules/BMI088/bmi088.c ****         reg = BMI088_Gyro_Init_Table[i][BMI088REG];
+ 173:modules/BMI088/bmi088.c ****         data = BMI088_Gyro_Init_Table[i][BMI088DATA];
+ 174:modules/BMI088/bmi088.c ****         BMI088GyroWriteSingleReg(bmi088, reg, data); // 写入寄存器
+ 175:modules/BMI088/bmi088.c ****         DWT_Delay(0.001);
+ 176:modules/BMI088/bmi088.c ****         BMI088GyroRead(bmi088, reg, &data, 1); // 写完之后立刻读回对应寄存器检查是�
+ 177:modules/BMI088/bmi088.c ****         DWT_Delay(0.001);
+ 178:modules/BMI088/bmi088.c ****         if (data != BMI088_Gyro_Init_Table[i][BMI088DATA])
+ 179:modules/BMI088/bmi088.c ****             error |= BMI088_Gyro_Init_Table[i][BMI088ERROR];
+ 180:modules/BMI088/bmi088.c ****         //{i--;} 可以设置retry次数,尝试重新写入.如果retry次数用完了,则返回err
+ 181:modules/BMI088/bmi088.c ****     }
+ 182:modules/BMI088/bmi088.c **** 
+ 183:modules/BMI088/bmi088.c ****     return error;
+ 184:modules/BMI088/bmi088.c **** }
+ 185:modules/BMI088/bmi088.c **** // -------------------------以上为私有函数,用于初始化BMI088acc和gyro的硬件和配置
+ 186:modules/BMI088/bmi088.c **** 
+ 187:modules/BMI088/bmi088.c **** // -------------------------以下为私有函数,private用于IT模式下的中断处理----------
+ 188:modules/BMI088/bmi088.c **** 
+ 189:modules/BMI088/bmi088.c **** /**
+ 190:modules/BMI088/bmi088.c ****  * @brief 待编写,很快!
+ 191:modules/BMI088/bmi088.c ****  *
+ 192:modules/BMI088/bmi088.c ****  */
+ 193:modules/BMI088/bmi088.c **** static void BMI088AccSPIFinishCallback(SPIInstance *spi)
+ 194:modules/BMI088/bmi088.c **** {
+  29              		.loc 1 194 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+ 195:modules/BMI088/bmi088.c ****     // static BMI088Instance *bmi088;
+ 196:modules/BMI088/bmi088.c ****     // bmi088 = (BMI088Instance *)(spi->id);
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 5
+
+
+ 197:modules/BMI088/bmi088.c ****    
+ 198:modules/BMI088/bmi088.c ****     // 若第一次读取加速度,则在这里启动温度读取
+ 199:modules/BMI088/bmi088.c ****     // 如果使用异步姿态更新,此处唤醒量测更新的任务
+ 200:modules/BMI088/bmi088.c **** }
+  34              		.loc 1 200 1 view .LVU1
+  35 0000 7047     		bx	lr
+  36              		.cfi_endproc
+  37              	.LFE282:
+  39              		.section	.text.BMI088GyroSPIFinishCallback,"ax",%progbits
+  40              		.align	1
+  41              		.syntax unified
+  42              		.thumb
+  43              		.thumb_func
+  45              	BMI088GyroSPIFinishCallback:
+  46              	.LVL1:
+  47              	.LFB283:
+ 201:modules/BMI088/bmi088.c **** 
+ 202:modules/BMI088/bmi088.c **** static void BMI088GyroSPIFinishCallback(SPIInstance *spi)
+ 203:modules/BMI088/bmi088.c **** {
+  48              		.loc 1 203 1 view -0
+  49              		.cfi_startproc
+  50              		@ args = 0, pretend = 0, frame = 0
+  51              		@ frame_needed = 0, uses_anonymous_args = 0
+  52              		@ link register save eliminated.
+ 204:modules/BMI088/bmi088.c ****     // static BMI088Instance *bmi088;
+ 205:modules/BMI088/bmi088.c ****     // bmi088 = (BMI088Instance *)(spi->id);
+ 206:modules/BMI088/bmi088.c ****     // 若不是异步,啥也不做;否则启动姿态的预测步(propagation)
+ 207:modules/BMI088/bmi088.c **** }
+  53              		.loc 1 207 1 view .LVU3
+  54 0000 7047     		bx	lr
+  55              		.cfi_endproc
+  56              	.LFE283:
+  58              		.section	.text.BMI088GyroRead,"ax",%progbits
+  59              		.align	1
+  60              		.syntax unified
+  61              		.thumb
+  62              		.thumb_func
+  64              	BMI088GyroRead:
+  65              	.LVL2:
+  66              	.LFB277:
+  39:modules/BMI088/bmi088.c ****     if (len > 6)
+  67              		.loc 1 39 1 view -0
+  68              		.cfi_startproc
+  69              		@ args = 0, pretend = 0, frame = 0
+  70              		@ frame_needed = 0, uses_anonymous_args = 0
+  40:modules/BMI088/bmi088.c ****         while (1)
+  71              		.loc 1 40 5 view .LVU5
+  40:modules/BMI088/bmi088.c ****         while (1)
+  72              		.loc 1 40 8 is_stmt 0 view .LVU6
+  73 0000 062B     		cmp	r3, #6
+  74 0002 00D9     		bls	.L4
+  75              	.L5:
+  41:modules/BMI088/bmi088.c ****             ;
+  76              		.loc 1 41 9 is_stmt 1 view .LVU7
+  41:modules/BMI088/bmi088.c ****             ;
+  77              		.loc 1 41 15 view .LVU8
+  78 0004 FEE7     		b	.L5
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 6
+
+
+  79              	.L4:
+  39:modules/BMI088/bmi088.c ****     if (len > 6)
+  80              		.loc 1 39 1 is_stmt 0 view .LVU9
+  81 0006 38B5     		push	{r3, r4, r5, lr}
+  82              		.cfi_def_cfa_offset 16
+  83              		.cfi_offset 3, -16
+  84              		.cfi_offset 4, -12
+  85              		.cfi_offset 5, -8
+  86              		.cfi_offset 14, -4
+  87 0008 1546     		mov	r5, r2
+  88 000a 1C46     		mov	r4, r3
+  44:modules/BMI088/bmi088.c ****     static uint8_t rx[7];          // 第一个是dummy data,第三个开始是真正的数据
+  89              		.loc 1 44 5 is_stmt 1 view .LVU10
+  45:modules/BMI088/bmi088.c ****     
+  90              		.loc 1 45 5 view .LVU11
+  47:modules/BMI088/bmi088.c ****     SPITransRecv(bmi088->spi_gyro, rx, tx, len + 1);
+  91              		.loc 1 47 5 view .LVU12
+  47:modules/BMI088/bmi088.c ****     SPITransRecv(bmi088->spi_gyro, rx, tx, len + 1);
+  92              		.loc 1 47 11 is_stmt 0 view .LVU13
+  93 000c 084A     		ldr	r2, .L8
+  94              	.LVL3:
+  47:modules/BMI088/bmi088.c ****     SPITransRecv(bmi088->spi_gyro, rx, tx, len + 1);
+  95              		.loc 1 47 11 view .LVU14
+  96 000e 61F07F01 		orn	r1, r1, #127
+  97              	.LVL4:
+  47:modules/BMI088/bmi088.c ****     SPITransRecv(bmi088->spi_gyro, rx, tx, len + 1);
+  98              		.loc 1 47 11 view .LVU15
+  99 0012 1170     		strb	r1, [r2]
+  48:modules/BMI088/bmi088.c ****     memcpy(dataptr, rx + 1, len); // @todo : memcpy有额外开销,后续可以考虑优化,在SPI�
+ 100              		.loc 1 48 5 is_stmt 1 view .LVU16
+ 101 0014 0133     		adds	r3, r3, #1
+ 102              	.LVL5:
+  48:modules/BMI088/bmi088.c ****     memcpy(dataptr, rx + 1, len); // @todo : memcpy有额外开销,后续可以考虑优化,在SPI�
+ 103              		.loc 1 48 5 is_stmt 0 view .LVU17
+ 104 0016 DBB2     		uxtb	r3, r3
+ 105 0018 0649     		ldr	r1, .L8+4
+ 106 001a 4068     		ldr	r0, [r0, #4]
+ 107              	.LVL6:
+  48:modules/BMI088/bmi088.c ****     memcpy(dataptr, rx + 1, len); // @todo : memcpy有额外开销,后续可以考虑优化,在SPI�
+ 108              		.loc 1 48 5 view .LVU18
+ 109 001c FFF7FEFF 		bl	SPITransRecv
+ 110              	.LVL7:
+  49:modules/BMI088/bmi088.c **** }
+ 111              		.loc 1 49 5 is_stmt 1 view .LVU19
+ 112 0020 2246     		mov	r2, r4
+ 113 0022 044B     		ldr	r3, .L8+4
+ 114 0024 591C     		adds	r1, r3, #1
+ 115 0026 2846     		mov	r0, r5
+ 116 0028 FFF7FEFF 		bl	memcpy
+ 117              	.LVL8:
+  50:modules/BMI088/bmi088.c **** 
+ 118              		.loc 1 50 1 is_stmt 0 view .LVU20
+ 119 002c 38BD     		pop	{r3, r4, r5, pc}
+ 120              	.LVL9:
+ 121              	.L9:
+  50:modules/BMI088/bmi088.c **** 
+ 122              		.loc 1 50 1 view .LVU21
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 7
+
+
+ 123 002e 00BF     		.align	2
+ 124              	.L8:
+ 125 0030 00000000 		.word	tx.7
+ 126 0034 00000000 		.word	rx.6
+ 127              		.cfi_endproc
+ 128              	.LFE277:
+ 130              		.section	.text.BMI088GyroINTCallback,"ax",%progbits
+ 131              		.align	1
+ 132              		.syntax unified
+ 133              		.thumb
+ 134              		.thumb_func
+ 136              	BMI088GyroINTCallback:
+ 137              	.LVL10:
+ 138              	.LFB285:
+ 208:modules/BMI088/bmi088.c **** 
+ 209:modules/BMI088/bmi088.c **** static void BMI088AccINTCallback(GPIOInstance *gpio)
+ 210:modules/BMI088/bmi088.c **** {
+ 211:modules/BMI088/bmi088.c ****     static BMI088Instance *bmi088;
+ 212:modules/BMI088/bmi088.c ****     static uint8_t buf[6] = {0}; // 最多读取6个byte(gyro/acc,temp是2)
+ 213:modules/BMI088/bmi088.c ****     bmi088 = (BMI088Instance *)(gpio->id);
+ 214:modules/BMI088/bmi088.c ****     bmi088->update_flag.imu_ready = 1;
+ 215:modules/BMI088/bmi088.c ****     bmi088->update_flag.acc = 1;
+ 216:modules/BMI088/bmi088.c ****     BMI088AccelRead(bmi088, BMI088_ACCEL_XOUT_L, buf, 6);
+ 217:modules/BMI088/bmi088.c ****     for (uint8_t i = 0; i < 3; i++)
+ 218:modules/BMI088/bmi088.c ****             bmi088->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[2 * 
+ 219:modules/BMI088/bmi088.c ****     // 启动加速度计数据读取(和温度读取,如果有必要),并转换为实际值
+ 220:modules/BMI088/bmi088.c ****     // 读取完毕会调用BMI088AccSPIFinishCallback
+ 221:modules/BMI088/bmi088.c **** }
+ 222:modules/BMI088/bmi088.c **** 
+ 223:modules/BMI088/bmi088.c **** static void BMI088GyroINTCallback(GPIOInstance *gpio)
+ 224:modules/BMI088/bmi088.c **** {
+ 139              		.loc 1 224 1 is_stmt 1 view -0
+ 140              		.cfi_startproc
+ 141              		@ args = 0, pretend = 0, frame = 0
+ 142              		@ frame_needed = 0, uses_anonymous_args = 0
+ 143              		.loc 1 224 1 is_stmt 0 view .LVU23
+ 144 0000 08B5     		push	{r3, lr}
+ 145              		.cfi_def_cfa_offset 8
+ 146              		.cfi_offset 3, -8
+ 147              		.cfi_offset 14, -4
+ 225:modules/BMI088/bmi088.c ****     
+ 226:modules/BMI088/bmi088.c ****     static BMI088Instance *bmi088;
+ 148              		.loc 1 226 5 is_stmt 1 view .LVU24
+ 227:modules/BMI088/bmi088.c ****     static uint8_t buf[6] = {0}; // 最多读取6个byte(gyro/acc,temp是2)
+ 149              		.loc 1 227 5 view .LVU25
+ 228:modules/BMI088/bmi088.c ****     bmi088 = (BMI088Instance *)(gpio->id);
+ 150              		.loc 1 228 5 view .LVU26
+ 151              		.loc 1 228 37 is_stmt 0 view .LVU27
+ 152 0002 C068     		ldr	r0, [r0, #12]
+ 153              	.LVL11:
+ 154              		.loc 1 228 12 view .LVU28
+ 155 0004 194B     		ldr	r3, .L14
+ 156 0006 1860     		str	r0, [r3]
+ 229:modules/BMI088/bmi088.c ****     bmi088->update_flag.imu_ready = 1;
+ 157              		.loc 1 229 5 is_stmt 1 view .LVU29
+ 158              		.loc 1 229 35 is_stmt 0 view .LVU30
+ 159 0008 90F8D030 		ldrb	r3, [r0, #208]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 8
+
+
+ 160 000c 43F04003 		orr	r3, r3, #64
+ 161 0010 80F8D030 		strb	r3, [r0, #208]
+ 230:modules/BMI088/bmi088.c ****     bmi088->update_flag.gyro = 1;
+ 162              		.loc 1 230 5 is_stmt 1 view .LVU31
+ 163              		.loc 1 230 30 is_stmt 0 view .LVU32
+ 164 0014 DBB2     		uxtb	r3, r3
+ 165 0016 43F00103 		orr	r3, r3, #1
+ 166 001a 80F8D030 		strb	r3, [r0, #208]
+ 231:modules/BMI088/bmi088.c ****     uint8_t whoami_check = 0;
+ 167              		.loc 1 231 5 is_stmt 1 view .LVU33
+ 168              	.LVL12:
+ 232:modules/BMI088/bmi088.c ****     //do{BMI088GyroRead(bmi088, BMI088_GYRO_CHIP_ID, &whoami_check, 1);}while(whoami_check != BMI08
+ 233:modules/BMI088/bmi088.c **** 
+ 234:modules/BMI088/bmi088.c ****     BMI088GyroRead(bmi088, BMI088_GYRO_X_L, buf, 6);
+ 169              		.loc 1 234 5 view .LVU34
+ 170 001e 0623     		movs	r3, #6
+ 171 0020 134A     		ldr	r2, .L14+4
+ 172 0022 0221     		movs	r1, #2
+ 173 0024 FFF7FEFF 		bl	BMI088GyroRead
+ 174              	.LVL13:
+ 235:modules/BMI088/bmi088.c ****     for (uint8_t i = 0; i < 3; i++)
+ 175              		.loc 1 235 5 view .LVU35
+ 176              	.LBB2:
+ 177              		.loc 1 235 10 view .LVU36
+ 178              		.loc 1 235 18 is_stmt 0 view .LVU37
+ 179 0028 0023     		movs	r3, #0
+ 180              		.loc 1 235 5 view .LVU38
+ 181 002a 1BE0     		b	.L11
+ 182              	.LVL14:
+ 183              	.L12:
+ 236:modules/BMI088/bmi088.c ****             bmi088->gyro[i] = bmi088->BMI088_GYRO_SEN * (float)(int16_t)(((buf[2 * i + 1]) << 8) | 
+ 184              		.loc 1 236 13 is_stmt 1 view .LVU39
+ 185              		.loc 1 236 37 is_stmt 0 view .LVU40
+ 186 002c 0F4A     		ldr	r2, .L14
+ 187 002e 1168     		ldr	r1, [r2]
+ 188 0030 91ED327A 		vldr.32	s14, [r1, #200]
+ 189              		.loc 1 236 82 view .LVU41
+ 190 0034 5A00     		lsls	r2, r3, #1
+ 191              		.loc 1 236 86 view .LVU42
+ 192 0036 0132     		adds	r2, r2, #1
+ 193              		.loc 1 236 79 view .LVU43
+ 194 0038 0D48     		ldr	r0, .L14+4
+ 195 003a 10F802C0 		ldrb	ip, [r0, r2]	@ zero_extendqisi2
+ 196              		.loc 1 236 103 view .LVU44
+ 197 003e 10F81320 		ldrb	r2, [r0, r3, lsl #1]	@ zero_extendqisi2
+ 198              		.loc 1 236 64 view .LVU45
+ 199 0042 42EA0C22 		orr	r2, r2, ip, lsl #8
+ 200 0046 12B2     		sxth	r2, r2
+ 201              		.loc 1 236 57 view .LVU46
+ 202 0048 07EE902A 		vmov	s15, r2	@ int
+ 203 004c F8EEE77A 		vcvt.f32.s32	s15, s15
+ 204              		.loc 1 236 55 view .LVU47
+ 205 0050 67EE277A 		vmul.f32	s15, s14, s15
+ 206              		.loc 1 236 29 view .LVU48
+ 207 0054 03F12402 		add	r2, r3, #36
+ 208 0058 01EB8201 		add	r1, r1, r2, lsl #2
+ 209 005c C1ED017A 		vstr.32	s15, [r1, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 9
+
+
+ 235:modules/BMI088/bmi088.c ****     for (uint8_t i = 0; i < 3; i++)
+ 210              		.loc 1 235 33 is_stmt 1 discriminator 3 view .LVU49
+ 211 0060 0133     		adds	r3, r3, #1
+ 212              	.LVL15:
+ 235:modules/BMI088/bmi088.c ****     for (uint8_t i = 0; i < 3; i++)
+ 213              		.loc 1 235 33 is_stmt 0 discriminator 3 view .LVU50
+ 214 0062 DBB2     		uxtb	r3, r3
+ 215              	.LVL16:
+ 216              	.L11:
+ 235:modules/BMI088/bmi088.c ****     for (uint8_t i = 0; i < 3; i++)
+ 217              		.loc 1 235 27 is_stmt 1 discriminator 1 view .LVU51
+ 218 0064 022B     		cmp	r3, #2
+ 219 0066 E1D9     		bls	.L12
+ 220              	.LBE2:
+ 237:modules/BMI088/bmi088.c ****     // 启动陀螺仪数据读取,并转换为实际值
+ 238:modules/BMI088/bmi088.c ****     // 读取完毕会调用BMI088GyroSPIFinishCallback
+ 239:modules/BMI088/bmi088.c **** }
+ 221              		.loc 1 239 1 is_stmt 0 view .LVU52
+ 222 0068 08BD     		pop	{r3, pc}
+ 223              	.LVL17:
+ 224              	.L15:
+ 225              		.loc 1 239 1 view .LVU53
+ 226 006a 00BF     		.align	2
+ 227              	.L14:
+ 228 006c 00000000 		.word	bmi088.3
+ 229 0070 00000000 		.word	buf.2
+ 230              		.cfi_endproc
+ 231              	.LFE285:
+ 233              		.section	.text.BMI088AccelRead,"ax",%progbits
+ 234              		.align	1
+ 235              		.syntax unified
+ 236              		.thumb
+ 237              		.thumb_func
+ 239              	BMI088AccelRead:
+ 240              	.LVL18:
+ 241              	.LFB276:
+  18:modules/BMI088/bmi088.c ****     if (len > 6)
+ 242              		.loc 1 18 1 is_stmt 1 view -0
+ 243              		.cfi_startproc
+ 244              		@ args = 0, pretend = 0, frame = 0
+ 245              		@ frame_needed = 0, uses_anonymous_args = 0
+  19:modules/BMI088/bmi088.c ****         while (1)
+ 246              		.loc 1 19 5 view .LVU55
+  19:modules/BMI088/bmi088.c ****         while (1)
+ 247              		.loc 1 19 8 is_stmt 0 view .LVU56
+ 248 0000 062B     		cmp	r3, #6
+ 249 0002 00D9     		bls	.L17
+ 250              	.L18:
+  20:modules/BMI088/bmi088.c ****             ;
+ 251              		.loc 1 20 9 is_stmt 1 view .LVU57
+  20:modules/BMI088/bmi088.c ****             ;
+ 252              		.loc 1 20 15 view .LVU58
+ 253 0004 FEE7     		b	.L18
+ 254              	.L17:
+  18:modules/BMI088/bmi088.c ****     if (len > 6)
+ 255              		.loc 1 18 1 is_stmt 0 view .LVU59
+ 256 0006 38B5     		push	{r3, r4, r5, lr}
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 10
+
+
+ 257              		.cfi_def_cfa_offset 16
+ 258              		.cfi_offset 3, -16
+ 259              		.cfi_offset 4, -12
+ 260              		.cfi_offset 5, -8
+ 261              		.cfi_offset 14, -4
+ 262 0008 1546     		mov	r5, r2
+ 263 000a 1C46     		mov	r4, r3
+  23:modules/BMI088/bmi088.c ****     static uint8_t rx[8]; // 前两个字节是dummy data,第三个开始是真正的数据
+ 264              		.loc 1 23 5 is_stmt 1 view .LVU60
+  24:modules/BMI088/bmi088.c ****     tx[0] = 0x80 | reg;   // 静态变量每次进来还是上次的值,所以要每次都要给tx[
+ 265              		.loc 1 24 5 view .LVU61
+  25:modules/BMI088/bmi088.c ****     SPITransRecv(bmi088->spi_acc, rx, tx, len + 2);
+ 266              		.loc 1 25 5 view .LVU62
+  25:modules/BMI088/bmi088.c ****     SPITransRecv(bmi088->spi_acc, rx, tx, len + 2);
+ 267              		.loc 1 25 11 is_stmt 0 view .LVU63
+ 268 000c 084A     		ldr	r2, .L21
+ 269              	.LVL19:
+  25:modules/BMI088/bmi088.c ****     SPITransRecv(bmi088->spi_acc, rx, tx, len + 2);
+ 270              		.loc 1 25 11 view .LVU64
+ 271 000e 61F07F01 		orn	r1, r1, #127
+ 272              	.LVL20:
+  25:modules/BMI088/bmi088.c ****     SPITransRecv(bmi088->spi_acc, rx, tx, len + 2);
+ 273              		.loc 1 25 11 view .LVU65
+ 274 0012 1170     		strb	r1, [r2]
+  26:modules/BMI088/bmi088.c ****     memcpy(dataptr, rx + 2, len); // @todo : memcpy有额外开销,后续可以考虑优化,在SPI�
+ 275              		.loc 1 26 5 is_stmt 1 view .LVU66
+ 276 0014 0233     		adds	r3, r3, #2
+ 277              	.LVL21:
+  26:modules/BMI088/bmi088.c ****     memcpy(dataptr, rx + 2, len); // @todo : memcpy有额外开销,后续可以考虑优化,在SPI�
+ 278              		.loc 1 26 5 is_stmt 0 view .LVU67
+ 279 0016 DBB2     		uxtb	r3, r3
+ 280 0018 0649     		ldr	r1, .L21+4
+ 281 001a 8068     		ldr	r0, [r0, #8]
+ 282              	.LVL22:
+  26:modules/BMI088/bmi088.c ****     memcpy(dataptr, rx + 2, len); // @todo : memcpy有额外开销,后续可以考虑优化,在SPI�
+ 283              		.loc 1 26 5 view .LVU68
+ 284 001c FFF7FEFF 		bl	SPITransRecv
+ 285              	.LVL23:
+  27:modules/BMI088/bmi088.c **** }
+ 286              		.loc 1 27 5 is_stmt 1 view .LVU69
+ 287 0020 2246     		mov	r2, r4
+ 288 0022 044B     		ldr	r3, .L21+4
+ 289 0024 991C     		adds	r1, r3, #2
+ 290 0026 2846     		mov	r0, r5
+ 291 0028 FFF7FEFF 		bl	memcpy
+ 292              	.LVL24:
+  28:modules/BMI088/bmi088.c **** 
+ 293              		.loc 1 28 1 is_stmt 0 view .LVU70
+ 294 002c 38BD     		pop	{r3, r4, r5, pc}
+ 295              	.LVL25:
+ 296              	.L22:
+  28:modules/BMI088/bmi088.c **** 
+ 297              		.loc 1 28 1 view .LVU71
+ 298 002e 00BF     		.align	2
+ 299              	.L21:
+ 300 0030 00000000 		.word	tx.5
+ 301 0034 00000000 		.word	rx.4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 11
+
+
+ 302              		.cfi_endproc
+ 303              	.LFE276:
+ 305              		.section	.text.BMI088AccINTCallback,"ax",%progbits
+ 306              		.align	1
+ 307              		.syntax unified
+ 308              		.thumb
+ 309              		.thumb_func
+ 311              	BMI088AccINTCallback:
+ 312              	.LVL26:
+ 313              	.LFB284:
+ 210:modules/BMI088/bmi088.c ****     static BMI088Instance *bmi088;
+ 314              		.loc 1 210 1 is_stmt 1 view -0
+ 315              		.cfi_startproc
+ 316              		@ args = 0, pretend = 0, frame = 0
+ 317              		@ frame_needed = 0, uses_anonymous_args = 0
+ 210:modules/BMI088/bmi088.c ****     static BMI088Instance *bmi088;
+ 318              		.loc 1 210 1 is_stmt 0 view .LVU73
+ 319 0000 08B5     		push	{r3, lr}
+ 320              		.cfi_def_cfa_offset 8
+ 321              		.cfi_offset 3, -8
+ 322              		.cfi_offset 14, -4
+ 211:modules/BMI088/bmi088.c ****     static uint8_t buf[6] = {0}; // 最多读取6个byte(gyro/acc,temp是2)
+ 323              		.loc 1 211 5 is_stmt 1 view .LVU74
+ 212:modules/BMI088/bmi088.c ****     bmi088 = (BMI088Instance *)(gpio->id);
+ 324              		.loc 1 212 5 view .LVU75
+ 213:modules/BMI088/bmi088.c ****     bmi088->update_flag.imu_ready = 1;
+ 325              		.loc 1 213 5 view .LVU76
+ 213:modules/BMI088/bmi088.c ****     bmi088->update_flag.imu_ready = 1;
+ 326              		.loc 1 213 37 is_stmt 0 view .LVU77
+ 327 0002 C068     		ldr	r0, [r0, #12]
+ 328              	.LVL27:
+ 213:modules/BMI088/bmi088.c ****     bmi088->update_flag.imu_ready = 1;
+ 329              		.loc 1 213 12 view .LVU78
+ 330 0004 194B     		ldr	r3, .L27
+ 331 0006 1860     		str	r0, [r3]
+ 214:modules/BMI088/bmi088.c ****     bmi088->update_flag.acc = 1;
+ 332              		.loc 1 214 5 is_stmt 1 view .LVU79
+ 214:modules/BMI088/bmi088.c ****     bmi088->update_flag.acc = 1;
+ 333              		.loc 1 214 35 is_stmt 0 view .LVU80
+ 334 0008 90F8D030 		ldrb	r3, [r0, #208]	@ zero_extendqisi2
+ 335 000c 43F04003 		orr	r3, r3, #64
+ 336 0010 80F8D030 		strb	r3, [r0, #208]
+ 215:modules/BMI088/bmi088.c ****     BMI088AccelRead(bmi088, BMI088_ACCEL_XOUT_L, buf, 6);
+ 337              		.loc 1 215 5 is_stmt 1 view .LVU81
+ 215:modules/BMI088/bmi088.c ****     BMI088AccelRead(bmi088, BMI088_ACCEL_XOUT_L, buf, 6);
+ 338              		.loc 1 215 29 is_stmt 0 view .LVU82
+ 339 0014 DBB2     		uxtb	r3, r3
+ 340 0016 43F00203 		orr	r3, r3, #2
+ 341 001a 80F8D030 		strb	r3, [r0, #208]
+ 216:modules/BMI088/bmi088.c ****     for (uint8_t i = 0; i < 3; i++)
+ 342              		.loc 1 216 5 is_stmt 1 view .LVU83
+ 343 001e 0623     		movs	r3, #6
+ 344 0020 134A     		ldr	r2, .L27+4
+ 345 0022 1221     		movs	r1, #18
+ 346 0024 FFF7FEFF 		bl	BMI088AccelRead
+ 347              	.LVL28:
+ 217:modules/BMI088/bmi088.c ****             bmi088->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[2 * 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 12
+
+
+ 348              		.loc 1 217 5 view .LVU84
+ 349              	.LBB3:
+ 217:modules/BMI088/bmi088.c ****             bmi088->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[2 * 
+ 350              		.loc 1 217 10 view .LVU85
+ 217:modules/BMI088/bmi088.c ****             bmi088->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[2 * 
+ 351              		.loc 1 217 18 is_stmt 0 view .LVU86
+ 352 0028 0023     		movs	r3, #0
+ 217:modules/BMI088/bmi088.c ****             bmi088->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[2 * 
+ 353              		.loc 1 217 5 view .LVU87
+ 354 002a 1BE0     		b	.L24
+ 355              	.LVL29:
+ 356              	.L25:
+ 218:modules/BMI088/bmi088.c ****     // 启动加速度计数据读取(和温度读取,如果有必要),并转换为实际值
+ 357              		.loc 1 218 13 is_stmt 1 view .LVU88
+ 218:modules/BMI088/bmi088.c ****     // 启动加速度计数据读取(和温度读取,如果有必要),并转换为实际值
+ 358              		.loc 1 218 36 is_stmt 0 view .LVU89
+ 359 002c 0F4A     		ldr	r2, .L27
+ 360 002e 1168     		ldr	r1, [r2]
+ 361 0030 91ED307A 		vldr.32	s14, [r1, #192]
+ 218:modules/BMI088/bmi088.c ****     // 启动加速度计数据读取(和温度读取,如果有必要),并转换为实际值
+ 362              		.loc 1 218 74 view .LVU90
+ 363 0034 5A00     		lsls	r2, r3, #1
+ 218:modules/BMI088/bmi088.c ****     // 启动加速度计数据读取(和温度读取,如果有必要),并转换为实际值
+ 364              		.loc 1 218 78 view .LVU91
+ 365 0036 0132     		adds	r2, r2, #1
+ 218:modules/BMI088/bmi088.c ****     // 启动加速度计数据读取(和温度读取,如果有必要),并转换为实际值
+ 366              		.loc 1 218 71 view .LVU92
+ 367 0038 0D48     		ldr	r0, .L27+4
+ 368 003a 10F802C0 		ldrb	ip, [r0, r2]	@ zero_extendqisi2
+ 218:modules/BMI088/bmi088.c ****     // 启动加速度计数据读取(和温度读取,如果有必要),并转换为实际值
+ 369              		.loc 1 218 95 view .LVU93
+ 370 003e 10F81320 		ldrb	r2, [r0, r3, lsl #1]	@ zero_extendqisi2
+ 218:modules/BMI088/bmi088.c ****     // 启动加速度计数据读取(和温度读取,如果有必要),并转换为实际值
+ 371              		.loc 1 218 56 view .LVU94
+ 372 0042 42EA0C22 		orr	r2, r2, ip, lsl #8
+ 373 0046 12B2     		sxth	r2, r2
+ 218:modules/BMI088/bmi088.c ****     // 启动加速度计数据读取(和温度读取,如果有必要),并转换为实际值
+ 374              		.loc 1 218 49 view .LVU95
+ 375 0048 07EE902A 		vmov	s15, r2	@ int
+ 376 004c F8EEE77A 		vcvt.f32.s32	s15, s15
+ 218:modules/BMI088/bmi088.c ****     // 启动加速度计数据读取(和温度读取,如果有必要),并转换为实际值
+ 377              		.loc 1 218 47 view .LVU96
+ 378 0050 67EE277A 		vmul.f32	s15, s14, s15
+ 218:modules/BMI088/bmi088.c ****     // 启动加速度计数据读取(和温度读取,如果有必要),并转换为实际值
+ 379              		.loc 1 218 28 view .LVU97
+ 380 0054 03F12802 		add	r2, r3, #40
+ 381 0058 01EB8201 		add	r1, r1, r2, lsl #2
+ 382 005c C1ED007A 		vstr.32	s15, [r1]
+ 217:modules/BMI088/bmi088.c ****             bmi088->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[2 * 
+ 383              		.loc 1 217 33 is_stmt 1 discriminator 3 view .LVU98
+ 384 0060 0133     		adds	r3, r3, #1
+ 385              	.LVL30:
+ 217:modules/BMI088/bmi088.c ****             bmi088->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[2 * 
+ 386              		.loc 1 217 33 is_stmt 0 discriminator 3 view .LVU99
+ 387 0062 DBB2     		uxtb	r3, r3
+ 388              	.LVL31:
+ 389              	.L24:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 13
+
+
+ 217:modules/BMI088/bmi088.c ****             bmi088->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[2 * 
+ 390              		.loc 1 217 27 is_stmt 1 discriminator 1 view .LVU100
+ 391 0064 022B     		cmp	r3, #2
+ 392 0066 E1D9     		bls	.L25
+ 393              	.LBE3:
+ 221:modules/BMI088/bmi088.c **** 
+ 394              		.loc 1 221 1 is_stmt 0 view .LVU101
+ 395 0068 08BD     		pop	{r3, pc}
+ 396              	.LVL32:
+ 397              	.L28:
+ 221:modules/BMI088/bmi088.c **** 
+ 398              		.loc 1 221 1 view .LVU102
+ 399 006a 00BF     		.align	2
+ 400              	.L27:
+ 401 006c 00000000 		.word	bmi088.1
+ 402 0070 00000000 		.word	buf.0
+ 403              		.cfi_endproc
+ 404              	.LFE284:
+ 406              		.section	.text.BMI088AccelWriteSingleReg,"ax",%progbits
+ 407              		.align	1
+ 408              		.syntax unified
+ 409              		.thumb
+ 410              		.thumb_func
+ 412              	BMI088AccelWriteSingleReg:
+ 413              	.LVL33:
+ 414              	.LFB278:
+  61:modules/BMI088/bmi088.c ****     uint8_t tx[2] = {reg, data};
+ 415              		.loc 1 61 1 is_stmt 1 view -0
+ 416              		.cfi_startproc
+ 417              		@ args = 0, pretend = 0, frame = 8
+ 418              		@ frame_needed = 0, uses_anonymous_args = 0
+  61:modules/BMI088/bmi088.c ****     uint8_t tx[2] = {reg, data};
+ 419              		.loc 1 61 1 is_stmt 0 view .LVU104
+ 420 0000 00B5     		push	{lr}
+ 421              		.cfi_def_cfa_offset 4
+ 422              		.cfi_offset 14, -4
+ 423 0002 83B0     		sub	sp, sp, #12
+ 424              		.cfi_def_cfa_offset 16
+  62:modules/BMI088/bmi088.c ****     SPITransmit(bmi088->spi_acc, tx, 2);
+ 425              		.loc 1 62 5 is_stmt 1 view .LVU105
+  62:modules/BMI088/bmi088.c ****     SPITransmit(bmi088->spi_acc, tx, 2);
+ 426              		.loc 1 62 13 is_stmt 0 view .LVU106
+ 427 0004 8DF80410 		strb	r1, [sp, #4]
+ 428 0008 8DF80520 		strb	r2, [sp, #5]
+  63:modules/BMI088/bmi088.c **** }
+ 429              		.loc 1 63 5 is_stmt 1 view .LVU107
+ 430 000c 0222     		movs	r2, #2
+ 431              	.LVL34:
+  63:modules/BMI088/bmi088.c **** }
+ 432              		.loc 1 63 5 is_stmt 0 view .LVU108
+ 433 000e 01A9     		add	r1, sp, #4
+ 434              	.LVL35:
+  63:modules/BMI088/bmi088.c **** }
+ 435              		.loc 1 63 5 view .LVU109
+ 436 0010 8068     		ldr	r0, [r0, #8]
+ 437              	.LVL36:
+  63:modules/BMI088/bmi088.c **** }
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 14
+
+
+ 438              		.loc 1 63 5 view .LVU110
+ 439 0012 FFF7FEFF 		bl	SPITransmit
+ 440              	.LVL37:
+  64:modules/BMI088/bmi088.c **** 
+ 441              		.loc 1 64 1 view .LVU111
+ 442 0016 03B0     		add	sp, sp, #12
+ 443              		.cfi_def_cfa_offset 4
+ 444              		@ sp needed
+ 445 0018 00BD     		pop	{pc}
+ 446              		.cfi_endproc
+ 447              	.LFE278:
+ 449              		.section	.text.BMI088AccelInit,"ax",%progbits
+ 450              		.align	1
+ 451              		.syntax unified
+ 452              		.thumb
+ 453              		.thumb_func
+ 455              	BMI088AccelInit:
+ 456              	.LVL38:
+ 457              	.LFB280:
+ 112:modules/BMI088/bmi088.c ****     uint8_t whoami_check = 0;
+ 458              		.loc 1 112 1 is_stmt 1 view -0
+ 459              		.cfi_startproc
+ 460              		@ args = 0, pretend = 0, frame = 8
+ 461              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112:modules/BMI088/bmi088.c ****     uint8_t whoami_check = 0;
+ 462              		.loc 1 112 1 is_stmt 0 view .LVU113
+ 463 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 464              		.cfi_def_cfa_offset 24
+ 465              		.cfi_offset 4, -24
+ 466              		.cfi_offset 5, -20
+ 467              		.cfi_offset 6, -16
+ 468              		.cfi_offset 7, -12
+ 469              		.cfi_offset 8, -8
+ 470              		.cfi_offset 14, -4
+ 471 0004 2DED028B 		vpush.64	{d8}
+ 472              		.cfi_def_cfa_offset 32
+ 473              		.cfi_offset 80, -32
+ 474              		.cfi_offset 81, -28
+ 475 0008 82B0     		sub	sp, sp, #8
+ 476              		.cfi_def_cfa_offset 40
+ 477 000a 0646     		mov	r6, r0
+ 113:modules/BMI088/bmi088.c **** 
+ 478              		.loc 1 113 5 is_stmt 1 view .LVU114
+ 113:modules/BMI088/bmi088.c **** 
+ 479              		.loc 1 113 13 is_stmt 0 view .LVU115
+ 480 000c 0024     		movs	r4, #0
+ 481 000e 8DF80740 		strb	r4, [sp, #7]
+ 116:modules/BMI088/bmi088.c ****     DWT_Delay(0.001);
+ 482              		.loc 1 116 5 is_stmt 1 view .LVU116
+ 483 0012 0DF10705 		add	r5, sp, #7
+ 484 0016 0123     		movs	r3, #1
+ 485 0018 2A46     		mov	r2, r5
+ 486 001a 2146     		mov	r1, r4
+ 487 001c FFF7FEFF 		bl	BMI088AccelRead
+ 488              	.LVL39:
+ 117:modules/BMI088/bmi088.c **** 
+ 489              		.loc 1 117 5 view .LVU117
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 15
+
+
+ 490 0020 9FED2A0A 		vldr.32	s0, .L39
+ 491 0024 FFF7FEFF 		bl	DWT_Delay
+ 492              	.LVL40:
+ 119:modules/BMI088/bmi088.c ****     DWT_Delay(BMI088_COM_WAIT_SENSOR_TIME / 1000);
+ 493              		.loc 1 119 5 view .LVU118
+ 494 0028 B622     		movs	r2, #182
+ 495 002a 7E21     		movs	r1, #126
+ 496 002c 3046     		mov	r0, r6
+ 497 002e FFF7FEFF 		bl	BMI088AccelWriteSingleReg
+ 498              	.LVL41:
+ 120:modules/BMI088/bmi088.c **** 
+ 499              		.loc 1 120 5 view .LVU119
+ 500 0032 9FED270A 		vldr.32	s0, .L39+4
+ 501 0036 FFF7FEFF 		bl	DWT_Delay
+ 502              	.LVL42:
+ 123:modules/BMI088/bmi088.c ****     if (whoami_check != BMI088_ACC_CHIP_ID_VALUE)
+ 503              		.loc 1 123 5 view .LVU120
+ 504 003a 0123     		movs	r3, #1
+ 505 003c 2A46     		mov	r2, r5
+ 506 003e 2146     		mov	r1, r4
+ 507 0040 3046     		mov	r0, r6
+ 508 0042 FFF7FEFF 		bl	BMI088AccelRead
+ 509              	.LVL43:
+ 124:modules/BMI088/bmi088.c ****         return BMI088_NO_SENSOR;
+ 510              		.loc 1 124 5 view .LVU121
+ 124:modules/BMI088/bmi088.c ****         return BMI088_NO_SENSOR;
+ 511              		.loc 1 124 22 is_stmt 0 view .LVU122
+ 512 0046 9DF80730 		ldrb	r3, [sp, #7]	@ zero_extendqisi2
+ 124:modules/BMI088/bmi088.c ****         return BMI088_NO_SENSOR;
+ 513              		.loc 1 124 8 view .LVU123
+ 514 004a 1E2B     		cmp	r3, #30
+ 515 004c 07D0     		beq	.L38
+ 125:modules/BMI088/bmi088.c ****     DWT_Delay(0.001);
+ 516              		.loc 1 125 16 view .LVU124
+ 517 004e 4FF0FF08 		mov	r8, #255
+ 518              	.L32:
+ 144:modules/BMI088/bmi088.c **** 
+ 519              		.loc 1 144 1 view .LVU125
+ 520 0052 4046     		mov	r0, r8
+ 521 0054 02B0     		add	sp, sp, #8
+ 522              		.cfi_remember_state
+ 523              		.cfi_def_cfa_offset 32
+ 524              		@ sp needed
+ 525 0056 BDEC028B 		vldm	sp!, {d8}
+ 526              		.cfi_restore 80
+ 527              		.cfi_restore 81
+ 528              		.cfi_def_cfa_offset 24
+ 529 005a BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 530              	.LVL44:
+ 531              	.L38:
+ 532              		.cfi_restore_state
+ 126:modules/BMI088/bmi088.c ****     // 初始化寄存器,提高可读性
+ 533              		.loc 1 126 5 is_stmt 1 view .LVU126
+ 534 005e 9FED1B0A 		vldr.32	s0, .L39
+ 535 0062 FFF7FEFF 		bl	DWT_Delay
+ 536              	.LVL45:
+ 128:modules/BMI088/bmi088.c ****     BMI088_ERORR_CODE_e error = 0;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 16
+
+
+ 537              		.loc 1 128 5 view .LVU127
+ 128:modules/BMI088/bmi088.c ****     BMI088_ERORR_CODE_e error = 0;
+ 538              		.loc 1 128 22 is_stmt 0 view .LVU128
+ 539 0066 A046     		mov	r8, r4
+ 540 0068 8DF80640 		strb	r4, [sp, #6]
+ 129:modules/BMI088/bmi088.c ****     // 使用sizeof而不是magic number,这样如果修改了数组大小,不用修改这里的代
+ 541              		.loc 1 129 5 is_stmt 1 view .LVU129
+ 542              	.LVL46:
+ 131:modules/BMI088/bmi088.c ****     {
+ 543              		.loc 1 131 5 view .LVU130
+ 544              	.LBB4:
+ 131:modules/BMI088/bmi088.c ****     {
+ 545              		.loc 1 131 10 view .LVU131
+ 131:modules/BMI088/bmi088.c ****     {
+ 546              		.loc 1 131 5 is_stmt 0 view .LVU132
+ 547 006c 01E0     		b	.L33
+ 548              	.LVL47:
+ 549              	.L34:
+ 131:modules/BMI088/bmi088.c ****     {
+ 550              		.loc 1 131 100 is_stmt 1 discriminator 2 view .LVU133
+ 551 006e 0134     		adds	r4, r4, #1
+ 552              	.LVL48:
+ 131:modules/BMI088/bmi088.c ****     {
+ 553              		.loc 1 131 100 is_stmt 0 discriminator 2 view .LVU134
+ 554 0070 E4B2     		uxtb	r4, r4
+ 555              	.LVL49:
+ 556              	.L33:
+ 131:modules/BMI088/bmi088.c ****     {
+ 557              		.loc 1 131 27 is_stmt 1 discriminator 1 view .LVU135
+ 558 0072 052C     		cmp	r4, #5
+ 559 0074 EDD8     		bhi	.L32
+ 133:modules/BMI088/bmi088.c ****         data = BMI088_Accel_Init_Table[i][BMI088DATA];
+ 560              		.loc 1 133 9 view .LVU136
+ 133:modules/BMI088/bmi088.c ****         data = BMI088_Accel_Init_Table[i][BMI088DATA];
+ 561              		.loc 1 133 13 is_stmt 0 view .LVU137
+ 562 0076 174A     		ldr	r2, .L39+8
+ 563 0078 04EB4403 		add	r3, r4, r4, lsl #1
+ 564 007c D118     		adds	r1, r2, r3
+ 565 007e D75C     		ldrb	r7, [r2, r3]	@ zero_extendqisi2
+ 566              	.LVL50:
+ 134:modules/BMI088/bmi088.c ****         BMI088AccelWriteSingleReg(bmi088, reg, data); // 写入寄存器
+ 567              		.loc 1 134 9 is_stmt 1 view .LVU138
+ 134:modules/BMI088/bmi088.c ****         BMI088AccelWriteSingleReg(bmi088, reg, data); // 写入寄存器
+ 568              		.loc 1 134 42 is_stmt 0 view .LVU139
+ 569 0080 4D78     		ldrb	r5, [r1, #1]	@ zero_extendqisi2
+ 134:modules/BMI088/bmi088.c ****         BMI088AccelWriteSingleReg(bmi088, reg, data); // 写入寄存器
+ 570              		.loc 1 134 14 view .LVU140
+ 571 0082 8DF80650 		strb	r5, [sp, #6]
+ 135:modules/BMI088/bmi088.c ****         DWT_Delay(0.01);
+ 572              		.loc 1 135 9 is_stmt 1 view .LVU141
+ 573 0086 2A46     		mov	r2, r5
+ 574 0088 3946     		mov	r1, r7
+ 575 008a 3046     		mov	r0, r6
+ 576 008c FFF7FEFF 		bl	BMI088AccelWriteSingleReg
+ 577              	.LVL51:
+ 136:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, reg, &data, 1); // 写完之后立刻读回检查
+ 578              		.loc 1 136 9 view .LVU142
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 17
+
+
+ 579 0090 9FED118A 		vldr.32	s16, .L39+12
+ 580 0094 B0EE480A 		vmov.f32	s0, s16
+ 581 0098 FFF7FEFF 		bl	DWT_Delay
+ 582              	.LVL52:
+ 137:modules/BMI088/bmi088.c ****         DWT_Delay(0.01);
+ 583              		.loc 1 137 9 view .LVU143
+ 584 009c 0123     		movs	r3, #1
+ 585 009e 0DF10602 		add	r2, sp, #6
+ 586 00a2 3946     		mov	r1, r7
+ 587 00a4 3046     		mov	r0, r6
+ 588 00a6 FFF7FEFF 		bl	BMI088AccelRead
+ 589              	.LVL53:
+ 138:modules/BMI088/bmi088.c ****         if (data != BMI088_Accel_Init_Table[i][BMI088DATA])
+ 590              		.loc 1 138 9 view .LVU144
+ 591 00aa B0EE480A 		vmov.f32	s0, s16
+ 592 00ae FFF7FEFF 		bl	DWT_Delay
+ 593              	.LVL54:
+ 139:modules/BMI088/bmi088.c ****             error |= BMI088_Accel_Init_Table[i][BMI088ERROR];
+ 594              		.loc 1 139 9 view .LVU145
+ 139:modules/BMI088/bmi088.c ****             error |= BMI088_Accel_Init_Table[i][BMI088ERROR];
+ 595              		.loc 1 139 18 is_stmt 0 view .LVU146
+ 596 00b2 9DF80630 		ldrb	r3, [sp, #6]	@ zero_extendqisi2
+ 139:modules/BMI088/bmi088.c ****             error |= BMI088_Accel_Init_Table[i][BMI088ERROR];
+ 597              		.loc 1 139 12 view .LVU147
+ 598 00b6 9D42     		cmp	r5, r3
+ 599 00b8 D9D0     		beq	.L34
+ 140:modules/BMI088/bmi088.c ****         //{i--;} 可以设置retry次数,如果retry次数用完了,则返回error
+ 600              		.loc 1 140 13 is_stmt 1 view .LVU148
+ 140:modules/BMI088/bmi088.c ****         //{i--;} 可以设置retry次数,如果retry次数用完了,则返回error
+ 601              		.loc 1 140 48 is_stmt 0 view .LVU149
+ 602 00ba 04EB4402 		add	r2, r4, r4, lsl #1
+ 603 00be 054B     		ldr	r3, .L39+8
+ 604 00c0 1344     		add	r3, r3, r2
+ 605 00c2 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 140:modules/BMI088/bmi088.c ****         //{i--;} 可以设置retry次数,如果retry次数用完了,则返回error
+ 606              		.loc 1 140 19 view .LVU150
+ 607 00c4 43EA0808 		orr	r8, r3, r8
+ 608              	.LVL55:
+ 140:modules/BMI088/bmi088.c ****         //{i--;} 可以设置retry次数,如果retry次数用完了,则返回error
+ 609              		.loc 1 140 19 view .LVU151
+ 610 00c8 D1E7     		b	.L34
+ 611              	.L40:
+ 612 00ca 00BF     		.align	2
+ 613              	.L39:
+ 614 00cc 6F12833A 		.word	981668463
+ 615 00d0 00000000 		.word	0
+ 616 00d4 00000000 		.word	BMI088_Accel_Init_Table
+ 617 00d8 0AD7233C 		.word	1008981770
+ 618              	.LBE4:
+ 619              		.cfi_endproc
+ 620              	.LFE280:
+ 622              		.section	.text.BMI088GyroWriteSingleReg,"ax",%progbits
+ 623              		.align	1
+ 624              		.syntax unified
+ 625              		.thumb
+ 626              		.thumb_func
+ 628              	BMI088GyroWriteSingleReg:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 18
+
+
+ 629              	.LVL56:
+ 630              	.LFB279:
+  75:modules/BMI088/bmi088.c ****     uint8_t tx[2] = {reg, data};
+ 631              		.loc 1 75 1 is_stmt 1 view -0
+ 632              		.cfi_startproc
+ 633              		@ args = 0, pretend = 0, frame = 8
+ 634              		@ frame_needed = 0, uses_anonymous_args = 0
+  75:modules/BMI088/bmi088.c ****     uint8_t tx[2] = {reg, data};
+ 635              		.loc 1 75 1 is_stmt 0 view .LVU153
+ 636 0000 00B5     		push	{lr}
+ 637              		.cfi_def_cfa_offset 4
+ 638              		.cfi_offset 14, -4
+ 639 0002 83B0     		sub	sp, sp, #12
+ 640              		.cfi_def_cfa_offset 16
+  76:modules/BMI088/bmi088.c ****     SPITransmit(bmi088->spi_gyro, tx, 2);
+ 641              		.loc 1 76 5 is_stmt 1 view .LVU154
+  76:modules/BMI088/bmi088.c ****     SPITransmit(bmi088->spi_gyro, tx, 2);
+ 642              		.loc 1 76 13 is_stmt 0 view .LVU155
+ 643 0004 8DF80410 		strb	r1, [sp, #4]
+ 644 0008 8DF80520 		strb	r2, [sp, #5]
+  77:modules/BMI088/bmi088.c **** }
+ 645              		.loc 1 77 5 is_stmt 1 view .LVU156
+ 646 000c 0222     		movs	r2, #2
+ 647              	.LVL57:
+  77:modules/BMI088/bmi088.c **** }
+ 648              		.loc 1 77 5 is_stmt 0 view .LVU157
+ 649 000e 01A9     		add	r1, sp, #4
+ 650              	.LVL58:
+  77:modules/BMI088/bmi088.c **** }
+ 651              		.loc 1 77 5 view .LVU158
+ 652 0010 4068     		ldr	r0, [r0, #4]
+ 653              	.LVL59:
+  77:modules/BMI088/bmi088.c **** }
+ 654              		.loc 1 77 5 view .LVU159
+ 655 0012 FFF7FEFF 		bl	SPITransmit
+ 656              	.LVL60:
+  78:modules/BMI088/bmi088.c **** // -------------------------以上为私有函数,封装了BMI088寄存器读写函数,blocking----
+ 657              		.loc 1 78 1 view .LVU160
+ 658 0016 03B0     		add	sp, sp, #12
+ 659              		.cfi_def_cfa_offset 4
+ 660              		@ sp needed
+ 661 0018 00BD     		pop	{pc}
+ 662              		.cfi_endproc
+ 663              	.LFE279:
+ 665              		.section	.text.BMI088GyroInit,"ax",%progbits
+ 666              		.align	1
+ 667              		.syntax unified
+ 668              		.thumb
+ 669              		.thumb_func
+ 671              	BMI088GyroInit:
+ 672              	.LVL61:
+ 673              	.LFB281:
+ 153:modules/BMI088/bmi088.c ****     // 后续添加reset和通信检查?
+ 674              		.loc 1 153 1 is_stmt 1 view -0
+ 675              		.cfi_startproc
+ 676              		@ args = 0, pretend = 0, frame = 8
+ 677              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 19
+
+
+ 153:modules/BMI088/bmi088.c ****     // 后续添加reset和通信检查?
+ 678              		.loc 1 153 1 is_stmt 0 view .LVU162
+ 679 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 680              		.cfi_def_cfa_offset 24
+ 681              		.cfi_offset 4, -24
+ 682              		.cfi_offset 5, -20
+ 683              		.cfi_offset 6, -16
+ 684              		.cfi_offset 7, -12
+ 685              		.cfi_offset 8, -8
+ 686              		.cfi_offset 14, -4
+ 687 0004 2DED028B 		vpush.64	{d8}
+ 688              		.cfi_def_cfa_offset 32
+ 689              		.cfi_offset 80, -32
+ 690              		.cfi_offset 81, -28
+ 691 0008 82B0     		sub	sp, sp, #8
+ 692              		.cfi_def_cfa_offset 40
+ 693 000a 0646     		mov	r6, r0
+ 156:modules/BMI088/bmi088.c ****     DWT_Delay(0.08);
+ 694              		.loc 1 156 5 is_stmt 1 view .LVU163
+ 695 000c B622     		movs	r2, #182
+ 696 000e 1421     		movs	r1, #20
+ 697 0010 FFF7FEFF 		bl	BMI088GyroWriteSingleReg
+ 698              	.LVL62:
+ 157:modules/BMI088/bmi088.c **** 
+ 699              		.loc 1 157 5 view .LVU164
+ 700 0014 9FED280A 		vldr.32	s0, .L51
+ 701 0018 FFF7FEFF 		bl	DWT_Delay
+ 702              	.LVL63:
+ 160:modules/BMI088/bmi088.c ****     BMI088GyroRead(bmi088, BMI088_GYRO_CHIP_ID, &whoami_check, 1);
+ 703              		.loc 1 160 5 view .LVU165
+ 160:modules/BMI088/bmi088.c ****     BMI088GyroRead(bmi088, BMI088_GYRO_CHIP_ID, &whoami_check, 1);
+ 704              		.loc 1 160 13 is_stmt 0 view .LVU166
+ 705 001c 0021     		movs	r1, #0
+ 706 001e 8DF80710 		strb	r1, [sp, #7]
+ 161:modules/BMI088/bmi088.c ****     if (whoami_check != BMI088_GYRO_CHIP_ID_VALUE)
+ 707              		.loc 1 161 5 is_stmt 1 view .LVU167
+ 708 0022 0123     		movs	r3, #1
+ 709 0024 0DF10702 		add	r2, sp, #7
+ 710 0028 3046     		mov	r0, r6
+ 711 002a FFF7FEFF 		bl	BMI088GyroRead
+ 712              	.LVL64:
+ 162:modules/BMI088/bmi088.c ****         return BMI088_NO_SENSOR;
+ 713              		.loc 1 162 5 view .LVU168
+ 162:modules/BMI088/bmi088.c ****         return BMI088_NO_SENSOR;
+ 714              		.loc 1 162 22 is_stmt 0 view .LVU169
+ 715 002e 9DF80730 		ldrb	r3, [sp, #7]	@ zero_extendqisi2
+ 162:modules/BMI088/bmi088.c ****         return BMI088_NO_SENSOR;
+ 716              		.loc 1 162 8 view .LVU170
+ 717 0032 0F2B     		cmp	r3, #15
+ 718 0034 07D0     		beq	.L50
+ 163:modules/BMI088/bmi088.c ****     DWT_Delay(0.001);
+ 719              		.loc 1 163 16 view .LVU171
+ 720 0036 4FF0FF08 		mov	r8, #255
+ 721              	.L44:
+ 184:modules/BMI088/bmi088.c **** // -------------------------以上为私有函数,用于初始化BMI088acc和gyro的硬件和配置
+ 722              		.loc 1 184 1 view .LVU172
+ 723 003a 4046     		mov	r0, r8
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 20
+
+
+ 724 003c 02B0     		add	sp, sp, #8
+ 725              		.cfi_remember_state
+ 726              		.cfi_def_cfa_offset 32
+ 727              		@ sp needed
+ 728 003e BDEC028B 		vldm	sp!, {d8}
+ 729              		.cfi_restore 80
+ 730              		.cfi_restore 81
+ 731              		.cfi_def_cfa_offset 24
+ 732 0042 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 733              	.LVL65:
+ 734              	.L50:
+ 735              		.cfi_restore_state
+ 164:modules/BMI088/bmi088.c **** 
+ 736              		.loc 1 164 5 is_stmt 1 view .LVU173
+ 737 0046 9FED1D0A 		vldr.32	s0, .L51+4
+ 738 004a FFF7FEFF 		bl	DWT_Delay
+ 739              	.LVL66:
+ 167:modules/BMI088/bmi088.c ****     BMI088_ERORR_CODE_e error = 0;
+ 740              		.loc 1 167 5 view .LVU174
+ 167:modules/BMI088/bmi088.c ****     BMI088_ERORR_CODE_e error = 0;
+ 741              		.loc 1 167 22 is_stmt 0 view .LVU175
+ 742 004e 4FF00008 		mov	r8, #0
+ 743 0052 8DF80680 		strb	r8, [sp, #6]
+ 168:modules/BMI088/bmi088.c ****     // 使用sizeof而不是magic number,这样如果修改了数组大小,不用修改这里的代
+ 744              		.loc 1 168 5 is_stmt 1 view .LVU176
+ 745              	.LVL67:
+ 170:modules/BMI088/bmi088.c ****     {
+ 746              		.loc 1 170 5 view .LVU177
+ 747              	.LBB5:
+ 170:modules/BMI088/bmi088.c ****     {
+ 748              		.loc 1 170 10 view .LVU178
+ 170:modules/BMI088/bmi088.c ****     {
+ 749              		.loc 1 170 18 is_stmt 0 view .LVU179
+ 750 0056 4446     		mov	r4, r8
+ 170:modules/BMI088/bmi088.c ****     {
+ 751              		.loc 1 170 5 view .LVU180
+ 752 0058 01E0     		b	.L45
+ 753              	.LVL68:
+ 754              	.L46:
+ 170:modules/BMI088/bmi088.c ****     {
+ 755              		.loc 1 170 98 is_stmt 1 discriminator 2 view .LVU181
+ 756 005a 0134     		adds	r4, r4, #1
+ 757              	.LVL69:
+ 170:modules/BMI088/bmi088.c ****     {
+ 758              		.loc 1 170 98 is_stmt 0 discriminator 2 view .LVU182
+ 759 005c E4B2     		uxtb	r4, r4
+ 760              	.LVL70:
+ 761              	.L45:
+ 170:modules/BMI088/bmi088.c ****     {
+ 762              		.loc 1 170 27 is_stmt 1 discriminator 1 view .LVU183
+ 763 005e 052C     		cmp	r4, #5
+ 764 0060 EBD8     		bhi	.L44
+ 172:modules/BMI088/bmi088.c ****         data = BMI088_Gyro_Init_Table[i][BMI088DATA];
+ 765              		.loc 1 172 9 view .LVU184
+ 172:modules/BMI088/bmi088.c ****         data = BMI088_Gyro_Init_Table[i][BMI088DATA];
+ 766              		.loc 1 172 13 is_stmt 0 view .LVU185
+ 767 0062 174A     		ldr	r2, .L51+8
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 21
+
+
+ 768 0064 04EB4403 		add	r3, r4, r4, lsl #1
+ 769 0068 D118     		adds	r1, r2, r3
+ 770 006a D75C     		ldrb	r7, [r2, r3]	@ zero_extendqisi2
+ 771              	.LVL71:
+ 173:modules/BMI088/bmi088.c ****         BMI088GyroWriteSingleReg(bmi088, reg, data); // 写入寄存器
+ 772              		.loc 1 173 9 is_stmt 1 view .LVU186
+ 173:modules/BMI088/bmi088.c ****         BMI088GyroWriteSingleReg(bmi088, reg, data); // 写入寄存器
+ 773              		.loc 1 173 41 is_stmt 0 view .LVU187
+ 774 006c 4D78     		ldrb	r5, [r1, #1]	@ zero_extendqisi2
+ 173:modules/BMI088/bmi088.c ****         BMI088GyroWriteSingleReg(bmi088, reg, data); // 写入寄存器
+ 775              		.loc 1 173 14 view .LVU188
+ 776 006e 8DF80650 		strb	r5, [sp, #6]
+ 174:modules/BMI088/bmi088.c ****         DWT_Delay(0.001);
+ 777              		.loc 1 174 9 is_stmt 1 view .LVU189
+ 778 0072 2A46     		mov	r2, r5
+ 779 0074 3946     		mov	r1, r7
+ 780 0076 3046     		mov	r0, r6
+ 781 0078 FFF7FEFF 		bl	BMI088GyroWriteSingleReg
+ 782              	.LVL72:
+ 175:modules/BMI088/bmi088.c ****         BMI088GyroRead(bmi088, reg, &data, 1); // 写完之后立刻读回对应寄存器检查是�
+ 783              		.loc 1 175 9 view .LVU190
+ 784 007c 9FED0F8A 		vldr.32	s16, .L51+4
+ 785 0080 B0EE480A 		vmov.f32	s0, s16
+ 786 0084 FFF7FEFF 		bl	DWT_Delay
+ 787              	.LVL73:
+ 176:modules/BMI088/bmi088.c ****         DWT_Delay(0.001);
+ 788              		.loc 1 176 9 view .LVU191
+ 789 0088 0123     		movs	r3, #1
+ 790 008a 0DF10602 		add	r2, sp, #6
+ 791 008e 3946     		mov	r1, r7
+ 792 0090 3046     		mov	r0, r6
+ 793 0092 FFF7FEFF 		bl	BMI088GyroRead
+ 794              	.LVL74:
+ 177:modules/BMI088/bmi088.c ****         if (data != BMI088_Gyro_Init_Table[i][BMI088DATA])
+ 795              		.loc 1 177 9 view .LVU192
+ 796 0096 B0EE480A 		vmov.f32	s0, s16
+ 797 009a FFF7FEFF 		bl	DWT_Delay
+ 798              	.LVL75:
+ 178:modules/BMI088/bmi088.c ****             error |= BMI088_Gyro_Init_Table[i][BMI088ERROR];
+ 799              		.loc 1 178 9 view .LVU193
+ 178:modules/BMI088/bmi088.c ****             error |= BMI088_Gyro_Init_Table[i][BMI088ERROR];
+ 800              		.loc 1 178 18 is_stmt 0 view .LVU194
+ 801 009e 9DF80630 		ldrb	r3, [sp, #6]	@ zero_extendqisi2
+ 178:modules/BMI088/bmi088.c ****             error |= BMI088_Gyro_Init_Table[i][BMI088ERROR];
+ 802              		.loc 1 178 12 view .LVU195
+ 803 00a2 9D42     		cmp	r5, r3
+ 804 00a4 D9D0     		beq	.L46
+ 179:modules/BMI088/bmi088.c ****         //{i--;} 可以设置retry次数,尝试重新写入.如果retry次数用完了,则返回err
+ 805              		.loc 1 179 13 is_stmt 1 view .LVU196
+ 179:modules/BMI088/bmi088.c ****         //{i--;} 可以设置retry次数,尝试重新写入.如果retry次数用完了,则返回err
+ 806              		.loc 1 179 47 is_stmt 0 view .LVU197
+ 807 00a6 04EB4402 		add	r2, r4, r4, lsl #1
+ 808 00aa 054B     		ldr	r3, .L51+8
+ 809 00ac 1344     		add	r3, r3, r2
+ 810 00ae 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 179:modules/BMI088/bmi088.c ****         //{i--;} 可以设置retry次数,尝试重新写入.如果retry次数用完了,则返回err
+ 811              		.loc 1 179 19 view .LVU198
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 22
+
+
+ 812 00b0 43EA0808 		orr	r8, r3, r8
+ 813              	.LVL76:
+ 179:modules/BMI088/bmi088.c ****         //{i--;} 可以设置retry次数,尝试重新写入.如果retry次数用完了,则返回err
+ 814              		.loc 1 179 19 view .LVU199
+ 815 00b4 D1E7     		b	.L46
+ 816              	.L52:
+ 817 00b6 00BF     		.align	2
+ 818              	.L51:
+ 819 00b8 0AD7A33D 		.word	1034147594
+ 820 00bc 6F12833A 		.word	981668463
+ 821 00c0 00000000 		.word	BMI088_Gyro_Init_Table
+ 822              	.LBE5:
+ 823              		.cfi_endproc
+ 824              	.LFE281:
+ 826              		.section	.text.BMI088Acquire,"ax",%progbits
+ 827              		.align	1
+ 828              		.global	BMI088Acquire
+ 829              		.syntax unified
+ 830              		.thumb
+ 831              		.thumb_func
+ 833              	BMI088Acquire:
+ 834              	.LVL77:
+ 835              	.LFB286:
+ 240:modules/BMI088/bmi088.c **** 
+ 241:modules/BMI088/bmi088.c **** // -------------------------以上为私有函数,private用于IT模式下的中断处理----------
+ 242:modules/BMI088/bmi088.c **** 
+ 243:modules/BMI088/bmi088.c **** // -------------------------以下为公有函数,用于注册BMI088,标定和数据读取---------
+ 244:modules/BMI088/bmi088.c **** 
+ 245:modules/BMI088/bmi088.c **** /**
+ 246:modules/BMI088/bmi088.c ****  * @brief
+ 247:modules/BMI088/bmi088.c ****  * @todo 现在要考虑一下数据返回的方式,指针还是结构体?
+ 248:modules/BMI088/bmi088.c ****  *
+ 249:modules/BMI088/bmi088.c ****  * @param bmi088
+ 250:modules/BMI088/bmi088.c ****  * @return BMI088_Data_t
+ 251:modules/BMI088/bmi088.c ****  */
+ 252:modules/BMI088/bmi088.c **** uint8_t BMI088Acquire(BMI088Instance *bmi088, BMI088_Data_t *data_store)
+ 253:modules/BMI088/bmi088.c **** {
+ 836              		.loc 1 253 1 is_stmt 1 view -0
+ 837              		.cfi_startproc
+ 838              		@ args = 0, pretend = 0, frame = 0
+ 839              		@ frame_needed = 0, uses_anonymous_args = 0
+ 840              		.loc 1 253 1 is_stmt 0 view .LVU201
+ 841 0000 70B5     		push	{r4, r5, r6, lr}
+ 842              		.cfi_def_cfa_offset 16
+ 843              		.cfi_offset 4, -16
+ 844              		.cfi_offset 5, -12
+ 845              		.cfi_offset 6, -8
+ 846              		.cfi_offset 14, -4
+ 847 0002 0546     		mov	r5, r0
+ 848 0004 0E46     		mov	r6, r1
+ 254:modules/BMI088/bmi088.c ****     // 如果是blocking模式,则主动触发一次读取并返回数据
+ 255:modules/BMI088/bmi088.c ****     if (bmi088->work_mode == BMI088_BLOCK_PERIODIC_MODE)
+ 849              		.loc 1 255 5 is_stmt 1 view .LVU202
+ 850              		.loc 1 255 15 is_stmt 0 view .LVU203
+ 851 0006 0478     		ldrb	r4, [r0]	@ zero_extendqisi2
+ 852              		.loc 1 255 8 view .LVU204
+ 853 0008 4CB1     		cbz	r4, .L64
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 23
+
+
+ 256:modules/BMI088/bmi088.c ****     {
+ 257:modules/BMI088/bmi088.c ****         static uint8_t buf[6] = {0}; // 最多读取6个byte(gyro/acc,temp是2)
+ 258:modules/BMI088/bmi088.c ****         // 读取accel的x轴数据首地址,bmi088内部自增读取地址 // 3* sizeof(int16_t)
+ 259:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, BMI088_ACCEL_XOUT_L, buf, 6);
+ 260:modules/BMI088/bmi088.c ****         for (uint8_t i = 0; i < 3; i++)
+ 261:modules/BMI088/bmi088.c ****             data_store->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[
+ 262:modules/BMI088/bmi088.c ****         BMI088GyroRead(bmi088, BMI088_GYRO_X_L, buf, 6); // 连续读取3个(3*2=6)轴的角速度
+ 263:modules/BMI088/bmi088.c ****         for (uint8_t i = 0; i < 3; i++)
+ 264:modules/BMI088/bmi088.c ****             data_store->gyro[i] = bmi088->BMI088_GYRO_SEN * (float)(int16_t)(((buf[2 * i + 1]) << 8
+ 265:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, BMI088_TEMP_M, buf, 2); // 读温度,温度传感器在accel上
+ 266:modules/BMI088/bmi088.c ****         data_store->temperature = (float)(int16_t)(((buf[0] << 3) | (buf[1] >> 5))) * BMI088_TEMP_F
+ 267:modules/BMI088/bmi088.c **** 
+ 268:modules/BMI088/bmi088.c ****         return 1;
+ 269:modules/BMI088/bmi088.c ****     }
+ 270:modules/BMI088/bmi088.c **** 
+ 271:modules/BMI088/bmi088.c ****     // 如果是IT模式,则检查标志位.当传感器数据准备好会触发外部中断,中断
+ 272:modules/BMI088/bmi088.c ****     if (bmi088->work_mode == BMI088_BLOCK_TRIGGER_MODE && bmi088->update_flag.imu_ready == 1)
+ 854              		.loc 1 272 5 is_stmt 1 view .LVU205
+ 855              		.loc 1 272 8 is_stmt 0 view .LVU206
+ 856 000a 012C     		cmp	r4, #1
+ 857 000c 66D0     		beq	.L65
+ 858              	.L60:
+ 273:modules/BMI088/bmi088.c ****     {
+ 274:modules/BMI088/bmi088.c ****         if(bmi088->update_flag.acc == 1)
+ 275:modules/BMI088/bmi088.c ****         {
+ 276:modules/BMI088/bmi088.c ****             memcpy(data_store->acc,bmi088->acc,3*sizeof(float));
+ 277:modules/BMI088/bmi088.c ****             bmi088->update_flag.acc = 0;
+ 278:modules/BMI088/bmi088.c ****             bmi088->update_flag.imu_ready = 0;
+ 279:modules/BMI088/bmi088.c ****         }
+ 280:modules/BMI088/bmi088.c ****         if(bmi088->update_flag.gyro == 1)
+ 281:modules/BMI088/bmi088.c ****         {
+ 282:modules/BMI088/bmi088.c ****             memcpy(data_store->gyro,bmi088->gyro,3*sizeof(float));
+ 283:modules/BMI088/bmi088.c ****             bmi088->update_flag.gyro = 0;
+ 284:modules/BMI088/bmi088.c ****             bmi088->update_flag.imu_ready = 0;
+ 285:modules/BMI088/bmi088.c ****         }
+ 286:modules/BMI088/bmi088.c **** 
+ 287:modules/BMI088/bmi088.c ****         return 1;
+ 288:modules/BMI088/bmi088.c ****     }
+ 289:modules/BMI088/bmi088.c **** 
+ 290:modules/BMI088/bmi088.c ****     // 如果数据还没准备好,则返回空数据?或者返回上一次的数据?或者返回�
+ 291:modules/BMI088/bmi088.c ****     if (bmi088->update_flag.imu_ready == 0)
+ 859              		.loc 1 291 5 is_stmt 1 view .LVU207
+ 860              		.loc 1 291 39 is_stmt 0 view .LVU208
+ 861 000e 95F8D040 		ldrb	r4, [r5, #208]	@ zero_extendqisi2
+ 862              		.loc 1 291 8 view .LVU209
+ 863 0012 14F04004 		ands	r4, r4, #64
+ 864 0016 00D0     		beq	.L59
+ 292:modules/BMI088/bmi088.c ****         return 0;
+ 293:modules/BMI088/bmi088.c ****     return 1;
+ 865              		.loc 1 293 12 view .LVU210
+ 866 0018 0124     		movs	r4, #1
+ 867              	.LVL78:
+ 868              	.L59:
+ 294:modules/BMI088/bmi088.c **** }
+ 869              		.loc 1 294 1 view .LVU211
+ 870 001a 2046     		mov	r0, r4
+ 871 001c 70BD     		pop	{r4, r5, r6, pc}
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 24
+
+
+ 872              	.LVL79:
+ 873              	.L64:
+ 874              	.LBB6:
+ 257:modules/BMI088/bmi088.c ****         // 读取accel的x轴数据首地址,bmi088内部自增读取地址 // 3* sizeof(int16_t)
+ 875              		.loc 1 257 9 is_stmt 1 view .LVU212
+ 259:modules/BMI088/bmi088.c ****         for (uint8_t i = 0; i < 3; i++)
+ 876              		.loc 1 259 9 view .LVU213
+ 877 001e 0623     		movs	r3, #6
+ 878 0020 4A4A     		ldr	r2, .L67
+ 879 0022 1221     		movs	r1, #18
+ 880              	.LVL80:
+ 259:modules/BMI088/bmi088.c ****         for (uint8_t i = 0; i < 3; i++)
+ 881              		.loc 1 259 9 is_stmt 0 view .LVU214
+ 882 0024 FFF7FEFF 		bl	BMI088AccelRead
+ 883              	.LVL81:
+ 260:modules/BMI088/bmi088.c ****             data_store->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[
+ 884              		.loc 1 260 9 is_stmt 1 view .LVU215
+ 885              	.LBB7:
+ 260:modules/BMI088/bmi088.c ****             data_store->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[
+ 886              		.loc 1 260 14 view .LVU216
+ 260:modules/BMI088/bmi088.c ****             data_store->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[
+ 887              		.loc 1 260 22 is_stmt 0 view .LVU217
+ 888 0028 2346     		mov	r3, r4
+ 260:modules/BMI088/bmi088.c ****             data_store->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[
+ 889              		.loc 1 260 9 view .LVU218
+ 890 002a 18E0     		b	.L55
+ 891              	.LVL82:
+ 892              	.L56:
+ 261:modules/BMI088/bmi088.c ****         BMI088GyroRead(bmi088, BMI088_GYRO_X_L, buf, 6); // 连续读取3个(3*2=6)轴的角速度
+ 893              		.loc 1 261 13 is_stmt 1 view .LVU219
+ 261:modules/BMI088/bmi088.c ****         BMI088GyroRead(bmi088, BMI088_GYRO_X_L, buf, 6); // 连续读取3个(3*2=6)轴的角速度
+ 894              		.loc 1 261 40 is_stmt 0 view .LVU220
+ 895 002c 95ED307A 		vldr.32	s14, [r5, #192]
+ 261:modules/BMI088/bmi088.c ****         BMI088GyroRead(bmi088, BMI088_GYRO_X_L, buf, 6); // 连续读取3个(3*2=6)轴的角速度
+ 896              		.loc 1 261 78 view .LVU221
+ 897 0030 5A00     		lsls	r2, r3, #1
+ 261:modules/BMI088/bmi088.c ****         BMI088GyroRead(bmi088, BMI088_GYRO_X_L, buf, 6); // 连续读取3个(3*2=6)轴的角速度
+ 898              		.loc 1 261 82 view .LVU222
+ 899 0032 0132     		adds	r2, r2, #1
+ 261:modules/BMI088/bmi088.c ****         BMI088GyroRead(bmi088, BMI088_GYRO_X_L, buf, 6); // 连续读取3个(3*2=6)轴的角速度
+ 900              		.loc 1 261 75 view .LVU223
+ 901 0034 4549     		ldr	r1, .L67
+ 902 0036 885C     		ldrb	r0, [r1, r2]	@ zero_extendqisi2
+ 261:modules/BMI088/bmi088.c ****         BMI088GyroRead(bmi088, BMI088_GYRO_X_L, buf, 6); // 连续读取3个(3*2=6)轴的角速度
+ 903              		.loc 1 261 99 view .LVU224
+ 904 0038 11F81320 		ldrb	r2, [r1, r3, lsl #1]	@ zero_extendqisi2
+ 261:modules/BMI088/bmi088.c ****         BMI088GyroRead(bmi088, BMI088_GYRO_X_L, buf, 6); // 连续读取3个(3*2=6)轴的角速度
+ 905              		.loc 1 261 60 view .LVU225
+ 906 003c 42EA0022 		orr	r2, r2, r0, lsl #8
+ 907 0040 12B2     		sxth	r2, r2
+ 261:modules/BMI088/bmi088.c ****         BMI088GyroRead(bmi088, BMI088_GYRO_X_L, buf, 6); // 连续读取3个(3*2=6)轴的角速度
+ 908              		.loc 1 261 53 view .LVU226
+ 909 0042 07EE902A 		vmov	s15, r2	@ int
+ 910 0046 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 261:modules/BMI088/bmi088.c ****         BMI088GyroRead(bmi088, BMI088_GYRO_X_L, buf, 6); // 连续读取3个(3*2=6)轴的角速度
+ 911              		.loc 1 261 32 view .LVU227
+ 912 004a 9A1C     		adds	r2, r3, #2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 25
+
+
+ 913 004c 06EB8202 		add	r2, r6, r2, lsl #2
+ 914 0050 27EE277A 		vmul.f32	s14, s14, s15
+ 915 0054 17EE101A 		vmov	r1, s14	@ int
+ 916 0058 5160     		str	r1, [r2, #4]	@ unaligned
+ 260:modules/BMI088/bmi088.c ****             data_store->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[
+ 917              		.loc 1 260 37 is_stmt 1 discriminator 3 view .LVU228
+ 918 005a 0133     		adds	r3, r3, #1
+ 919              	.LVL83:
+ 260:modules/BMI088/bmi088.c ****             data_store->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[
+ 920              		.loc 1 260 37 is_stmt 0 discriminator 3 view .LVU229
+ 921 005c DBB2     		uxtb	r3, r3
+ 922              	.LVL84:
+ 923              	.L55:
+ 260:modules/BMI088/bmi088.c ****             data_store->acc[i] = bmi088->acc_coef * (float)(int16_t)(((buf[2 * i + 1]) << 8) | buf[
+ 924              		.loc 1 260 31 is_stmt 1 discriminator 1 view .LVU230
+ 925 005e 022B     		cmp	r3, #2
+ 926 0060 E4D9     		bls	.L56
+ 927              	.LBE7:
+ 262:modules/BMI088/bmi088.c ****         for (uint8_t i = 0; i < 3; i++)
+ 928              		.loc 1 262 9 view .LVU231
+ 929 0062 0623     		movs	r3, #6
+ 930              	.LVL85:
+ 262:modules/BMI088/bmi088.c ****         for (uint8_t i = 0; i < 3; i++)
+ 931              		.loc 1 262 9 is_stmt 0 view .LVU232
+ 932 0064 394A     		ldr	r2, .L67
+ 933 0066 0221     		movs	r1, #2
+ 934 0068 2846     		mov	r0, r5
+ 935 006a FFF7FEFF 		bl	BMI088GyroRead
+ 936              	.LVL86:
+ 263:modules/BMI088/bmi088.c ****             data_store->gyro[i] = bmi088->BMI088_GYRO_SEN * (float)(int16_t)(((buf[2 * i + 1]) << 8
+ 937              		.loc 1 263 9 is_stmt 1 view .LVU233
+ 938              	.LBB8:
+ 263:modules/BMI088/bmi088.c ****             data_store->gyro[i] = bmi088->BMI088_GYRO_SEN * (float)(int16_t)(((buf[2 * i + 1]) << 8
+ 939              		.loc 1 263 14 view .LVU234
+ 263:modules/BMI088/bmi088.c ****             data_store->gyro[i] = bmi088->BMI088_GYRO_SEN * (float)(int16_t)(((buf[2 * i + 1]) << 8
+ 940              		.loc 1 263 9 is_stmt 0 view .LVU235
+ 941 006e 16E0     		b	.L57
+ 942              	.LVL87:
+ 943              	.L58:
+ 264:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, BMI088_TEMP_M, buf, 2); // 读温度,温度传感器在accel上
+ 944              		.loc 1 264 13 is_stmt 1 view .LVU236
+ 264:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, BMI088_TEMP_M, buf, 2); // 读温度,温度传感器在accel上
+ 945              		.loc 1 264 41 is_stmt 0 view .LVU237
+ 946 0070 95ED327A 		vldr.32	s14, [r5, #200]
+ 264:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, BMI088_TEMP_M, buf, 2); // 读温度,温度传感器在accel上
+ 947              		.loc 1 264 86 view .LVU238
+ 948 0074 6300     		lsls	r3, r4, #1
+ 264:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, BMI088_TEMP_M, buf, 2); // 读温度,温度传感器在accel上
+ 949              		.loc 1 264 90 view .LVU239
+ 950 0076 0133     		adds	r3, r3, #1
+ 264:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, BMI088_TEMP_M, buf, 2); // 读温度,温度传感器在accel上
+ 951              		.loc 1 264 83 view .LVU240
+ 952 0078 344A     		ldr	r2, .L67
+ 953 007a D15C     		ldrb	r1, [r2, r3]	@ zero_extendqisi2
+ 264:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, BMI088_TEMP_M, buf, 2); // 读温度,温度传感器在accel上
+ 954              		.loc 1 264 107 view .LVU241
+ 955 007c 12F81430 		ldrb	r3, [r2, r4, lsl #1]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 26
+
+
+ 264:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, BMI088_TEMP_M, buf, 2); // 读温度,温度传感器在accel上
+ 956              		.loc 1 264 68 view .LVU242
+ 957 0080 43EA0123 		orr	r3, r3, r1, lsl #8
+ 958 0084 1BB2     		sxth	r3, r3
+ 264:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, BMI088_TEMP_M, buf, 2); // 读温度,温度传感器在accel上
+ 959              		.loc 1 264 61 view .LVU243
+ 960 0086 07EE903A 		vmov	s15, r3	@ int
+ 961 008a F8EEE77A 		vcvt.f32.s32	s15, s15
+ 264:modules/BMI088/bmi088.c ****         BMI088AccelRead(bmi088, BMI088_TEMP_M, buf, 2); // 读温度,温度传感器在accel上
+ 962              		.loc 1 264 33 view .LVU244
+ 963 008e 27EE277A 		vmul.f32	s14, s14, s15
+ 964 0092 17EE102A 		vmov	r2, s14	@ int
+ 965 0096 46F82420 		str	r2, [r6, r4, lsl #2]	@ unaligned
+ 263:modules/BMI088/bmi088.c ****             data_store->gyro[i] = bmi088->BMI088_GYRO_SEN * (float)(int16_t)(((buf[2 * i + 1]) << 8
+ 966              		.loc 1 263 37 is_stmt 1 discriminator 3 view .LVU245
+ 967 009a 0134     		adds	r4, r4, #1
+ 968              	.LVL88:
+ 263:modules/BMI088/bmi088.c ****             data_store->gyro[i] = bmi088->BMI088_GYRO_SEN * (float)(int16_t)(((buf[2 * i + 1]) << 8
+ 969              		.loc 1 263 37 is_stmt 0 discriminator 3 view .LVU246
+ 970 009c E4B2     		uxtb	r4, r4
+ 971              	.LVL89:
+ 972              	.L57:
+ 263:modules/BMI088/bmi088.c ****             data_store->gyro[i] = bmi088->BMI088_GYRO_SEN * (float)(int16_t)(((buf[2 * i + 1]) << 8
+ 973              		.loc 1 263 31 is_stmt 1 discriminator 1 view .LVU247
+ 974 009e 022C     		cmp	r4, #2
+ 975 00a0 E6D9     		bls	.L58
+ 976              	.LBE8:
+ 265:modules/BMI088/bmi088.c ****         data_store->temperature = (float)(int16_t)(((buf[0] << 3) | (buf[1] >> 5))) * BMI088_TEMP_F
+ 977              		.loc 1 265 9 view .LVU248
+ 978 00a2 2A4C     		ldr	r4, .L67
+ 979              	.LVL90:
+ 265:modules/BMI088/bmi088.c ****         data_store->temperature = (float)(int16_t)(((buf[0] << 3) | (buf[1] >> 5))) * BMI088_TEMP_F
+ 980              		.loc 1 265 9 is_stmt 0 view .LVU249
+ 981 00a4 0223     		movs	r3, #2
+ 982 00a6 2246     		mov	r2, r4
+ 983 00a8 2221     		movs	r1, #34
+ 984 00aa 2846     		mov	r0, r5
+ 985 00ac FFF7FEFF 		bl	BMI088AccelRead
+ 986              	.LVL91:
+ 266:modules/BMI088/bmi088.c **** 
+ 987              		.loc 1 266 9 is_stmt 1 view .LVU250
+ 266:modules/BMI088/bmi088.c **** 
+ 988              		.loc 1 266 57 is_stmt 0 view .LVU251
+ 989 00b0 2278     		ldrb	r2, [r4]	@ zero_extendqisi2
+ 266:modules/BMI088/bmi088.c **** 
+ 990              		.loc 1 266 73 view .LVU252
+ 991 00b2 6378     		ldrb	r3, [r4, #1]	@ zero_extendqisi2
+ 266:modules/BMI088/bmi088.c **** 
+ 992              		.loc 1 266 42 view .LVU253
+ 993 00b4 5B09     		lsrs	r3, r3, #5
+ 994 00b6 43EAC203 		orr	r3, r3, r2, lsl #3
+ 995 00ba 07EE903A 		vmov	s15, r3	@ int
+ 266:modules/BMI088/bmi088.c **** 
+ 996              		.loc 1 266 35 view .LVU254
+ 997 00be F8EEE77A 		vcvt.f32.s32	s15, s15
+ 266:modules/BMI088/bmi088.c **** 
+ 998              		.loc 1 266 85 view .LVU255
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 27
+
+
+ 999 00c2 B4EE007A 		vmov.f32	s14, #1.25e-1
+ 1000 00c6 67EE877A 		vmul.f32	s15, s15, s14
+ 266:modules/BMI088/bmi088.c **** 
+ 1001              		.loc 1 266 33 view .LVU256
+ 1002 00ca B3EE077A 		vmov.f32	s14, #2.3e+1
+ 1003 00ce 77EE877A 		vadd.f32	s15, s15, s14
+ 1004 00d2 17EE902A 		vmov	r2, s15	@ int
+ 1005 00d6 B261     		str	r2, [r6, #24]	@ unaligned
+ 268:modules/BMI088/bmi088.c ****     }
+ 1006              		.loc 1 268 9 is_stmt 1 view .LVU257
+ 268:modules/BMI088/bmi088.c ****     }
+ 1007              		.loc 1 268 16 is_stmt 0 view .LVU258
+ 1008 00d8 0124     		movs	r4, #1
+ 1009 00da 9EE7     		b	.L59
+ 1010              	.LVL92:
+ 1011              	.L65:
+ 268:modules/BMI088/bmi088.c ****     }
+ 1012              		.loc 1 268 16 view .LVU259
+ 1013              	.LBE6:
+ 272:modules/BMI088/bmi088.c ****     {
+ 1014              		.loc 1 272 89 discriminator 1 view .LVU260
+ 1015 00dc 90F8D030 		ldrb	r3, [r0, #208]	@ zero_extendqisi2
+ 272:modules/BMI088/bmi088.c ****     {
+ 1016              		.loc 1 272 56 discriminator 1 view .LVU261
+ 1017 00e0 13F0400F 		tst	r3, #64
+ 1018 00e4 93D0     		beq	.L60
+ 274:modules/BMI088/bmi088.c ****         {
+ 1019              		.loc 1 274 9 is_stmt 1 view .LVU262
+ 274:modules/BMI088/bmi088.c ****         {
+ 1020              		.loc 1 274 11 is_stmt 0 view .LVU263
+ 1021 00e6 13F0020F 		tst	r3, #2
+ 1022 00ea 19D1     		bne	.L66
+ 1023              	.LVL93:
+ 1024              	.L61:
+ 280:modules/BMI088/bmi088.c ****         {
+ 1025              		.loc 1 280 9 is_stmt 1 view .LVU264
+ 280:modules/BMI088/bmi088.c ****         {
+ 1026              		.loc 1 280 37 is_stmt 0 view .LVU265
+ 1027 00ec 95F8D030 		ldrb	r3, [r5, #208]	@ zero_extendqisi2
+ 280:modules/BMI088/bmi088.c ****         {
+ 1028              		.loc 1 280 11 view .LVU266
+ 1029 00f0 13F0010F 		tst	r3, #1
+ 1030 00f4 91D0     		beq	.L59
+ 282:modules/BMI088/bmi088.c ****             bmi088->update_flag.gyro = 0;
+ 1031              		.loc 1 282 13 is_stmt 1 view .LVU267
+ 1032 00f6 D5F89410 		ldr	r1, [r5, #148]	@ unaligned
+ 1033 00fa D5F89820 		ldr	r2, [r5, #152]	@ unaligned
+ 1034 00fe D5F89C30 		ldr	r3, [r5, #156]	@ unaligned
+ 1035 0102 3160     		str	r1, [r6]	@ unaligned
+ 1036 0104 7260     		str	r2, [r6, #4]	@ unaligned
+ 1037 0106 B360     		str	r3, [r6, #8]	@ unaligned
+ 283:modules/BMI088/bmi088.c ****             bmi088->update_flag.imu_ready = 0;
+ 1038              		.loc 1 283 13 view .LVU268
+ 283:modules/BMI088/bmi088.c ****             bmi088->update_flag.imu_ready = 0;
+ 1039              		.loc 1 283 38 is_stmt 0 view .LVU269
+ 1040 0108 95F8D030 		ldrb	r3, [r5, #208]	@ zero_extendqisi2
+ 1041 010c 23F00103 		bic	r3, r3, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 28
+
+
+ 1042 0110 85F8D030 		strb	r3, [r5, #208]
+ 284:modules/BMI088/bmi088.c ****         }
+ 1043              		.loc 1 284 13 is_stmt 1 view .LVU270
+ 284:modules/BMI088/bmi088.c ****         }
+ 1044              		.loc 1 284 43 is_stmt 0 view .LVU271
+ 1045 0114 DBB2     		uxtb	r3, r3
+ 1046 0116 23F04003 		bic	r3, r3, #64
+ 1047 011a 85F8D030 		strb	r3, [r5, #208]
+ 287:modules/BMI088/bmi088.c ****     }
+ 1048              		.loc 1 287 9 is_stmt 1 view .LVU272
+ 287:modules/BMI088/bmi088.c ****     }
+ 1049              		.loc 1 287 16 is_stmt 0 view .LVU273
+ 1050 011e 7CE7     		b	.L59
+ 1051              	.LVL94:
+ 1052              	.L66:
+ 276:modules/BMI088/bmi088.c ****             bmi088->update_flag.acc = 0;
+ 1053              		.loc 1 276 13 is_stmt 1 view .LVU274
+ 1054 0120 D0F8A010 		ldr	r1, [r0, #160]	@ unaligned
+ 1055              	.LVL95:
+ 276:modules/BMI088/bmi088.c ****             bmi088->update_flag.acc = 0;
+ 1056              		.loc 1 276 13 is_stmt 0 view .LVU275
+ 1057 0124 D0F8A420 		ldr	r2, [r0, #164]	@ unaligned
+ 1058 0128 D0F8A830 		ldr	r3, [r0, #168]	@ unaligned
+ 1059 012c F160     		str	r1, [r6, #12]	@ unaligned
+ 1060 012e 3261     		str	r2, [r6, #16]	@ unaligned
+ 1061 0130 7361     		str	r3, [r6, #20]	@ unaligned
+ 277:modules/BMI088/bmi088.c ****             bmi088->update_flag.imu_ready = 0;
+ 1062              		.loc 1 277 13 is_stmt 1 view .LVU276
+ 277:modules/BMI088/bmi088.c ****             bmi088->update_flag.imu_ready = 0;
+ 1063              		.loc 1 277 37 is_stmt 0 view .LVU277
+ 1064 0132 95F8D030 		ldrb	r3, [r5, #208]	@ zero_extendqisi2
+ 1065 0136 23F00203 		bic	r3, r3, #2
+ 1066 013a 85F8D030 		strb	r3, [r5, #208]
+ 278:modules/BMI088/bmi088.c ****         }
+ 1067              		.loc 1 278 13 is_stmt 1 view .LVU278
+ 278:modules/BMI088/bmi088.c ****         }
+ 1068              		.loc 1 278 43 is_stmt 0 view .LVU279
+ 1069 013e DBB2     		uxtb	r3, r3
+ 1070 0140 23F04003 		bic	r3, r3, #64
+ 1071 0144 85F8D030 		strb	r3, [r5, #208]
+ 1072 0148 D0E7     		b	.L61
+ 1073              	.L68:
+ 1074 014a 00BF     		.align	2
+ 1075              	.L67:
+ 1076 014c 00000000 		.word	buf.8
+ 1077              		.cfi_endproc
+ 1078              	.LFE286:
+ 1080              		.section	.text.BMI088CalibrateIMU,"ax",%progbits
+ 1081              		.align	1
+ 1082              		.global	BMI088CalibrateIMU
+ 1083              		.syntax unified
+ 1084              		.thumb
+ 1085              		.thumb_func
+ 1087              	BMI088CalibrateIMU:
+ 1088              	.LVL96:
+ 1089              	.LFB287:
+ 295:modules/BMI088/bmi088.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 29
+
+
+ 296:modules/BMI088/bmi088.c **** /* pre calibrate parameter to go here */
+ 297:modules/BMI088/bmi088.c **** #pragma message "REMEMBER TO SET PRE CALIBRATE PARAMETER IF YOU CHOOSE NOT TO CALIBRATE"
+ 298:modules/BMI088/bmi088.c **** #define BMI088_PRE_CALI_ACC_X_OFFSET 0.0f
+ 299:modules/BMI088/bmi088.c **** #define BMI088_PRE_CALI_ACC_Y_OFFSET 0.0f
+ 300:modules/BMI088/bmi088.c **** #define BMI088_PRE_CALI_ACC_Z_OFFSET 0.0f
+ 301:modules/BMI088/bmi088.c **** #define BMI088_PRE_CALI_G_NORM 9.805f
+ 302:modules/BMI088/bmi088.c **** /**
+ 303:modules/BMI088/bmi088.c ****  * @brief BMI088 acc gyro 标定
+ 304:modules/BMI088/bmi088.c ****  * @note 标定后的数据存储在bmi088->bias和gNorm中,用于后续数据消噪和单位转换
+ 305:modules/BMI088/bmi088.c ****  * @attention 不管工作模式是blocking还是IT,标定时都是blocking模式,所以不用担�
+ 306:modules/BMI088/bmi088.c ****  * @attention 标定精度和等待时间有关,目前使用线性回归.后续考虑引入非线�
+ 307:modules/BMI088/bmi088.c ****  * @todo 将标定次数(等待时间)变为参数供设定
+ 308:modules/BMI088/bmi088.c ****  * @section 整体流程为1.累加加速度数据计算gNrom() 2.累加陀螺仪数据计算零飘
+ 309:modules/BMI088/bmi088.c ****  *          3. 如果标定过程运动幅度过大,重新标定  4.保存标定参数
+ 310:modules/BMI088/bmi088.c ****  *
+ 311:modules/BMI088/bmi088.c ****  * @param _bmi088 待标定的BMI088实例
+ 312:modules/BMI088/bmi088.c ****  */
+ 313:modules/BMI088/bmi088.c **** void BMI088CalibrateIMU(BMI088Instance *_bmi088)
+ 314:modules/BMI088/bmi088.c **** {
+ 1090              		.loc 1 314 1 is_stmt 1 view -0
+ 1091              		.cfi_startproc
+ 1092              		@ args = 0, pretend = 0, frame = 64
+ 1093              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1094              		.loc 1 314 1 is_stmt 0 view .LVU281
+ 1095 0000 70B5     		push	{r4, r5, r6, lr}
+ 1096              		.cfi_def_cfa_offset 16
+ 1097              		.cfi_offset 4, -16
+ 1098              		.cfi_offset 5, -12
+ 1099              		.cfi_offset 6, -8
+ 1100              		.cfi_offset 14, -4
+ 1101 0002 2DED048B 		vpush.64	{d8, d9}
+ 1102              		.cfi_def_cfa_offset 32
+ 1103              		.cfi_offset 80, -32
+ 1104              		.cfi_offset 81, -28
+ 1105              		.cfi_offset 82, -24
+ 1106              		.cfi_offset 83, -20
+ 1107 0006 90B0     		sub	sp, sp, #64
+ 1108              		.cfi_def_cfa_offset 96
+ 1109 0008 0446     		mov	r4, r0
+ 315:modules/BMI088/bmi088.c ****     if (_bmi088->cali_mode == BMI088_CALIBRATE_ONLINE_MODE) // 性感bmi088在线标定,耗时6s
+ 1110              		.loc 1 315 5 is_stmt 1 view .LVU282
+ 1111              		.loc 1 315 16 is_stmt 0 view .LVU283
+ 1112 000a 4678     		ldrb	r6, [r0, #1]	@ zero_extendqisi2
+ 1113              		.loc 1 315 8 view .LVU284
+ 1114 000c 16B3     		cbz	r6, .L110
+ 1115              	.LVL97:
+ 1116              	.L70:
+ 316:modules/BMI088/bmi088.c ****     {
+ 317:modules/BMI088/bmi088.c ****         _bmi088->acc_coef = BMI088_ACCEL_6G_SEN;         // 标定完后要乘以9.805/gNorm
+ 318:modules/BMI088/bmi088.c ****         _bmi088->BMI088_GYRO_SEN = BMI088_GYRO_2000_SEN; // 后续改为从initTable中获取
+ 319:modules/BMI088/bmi088.c ****         // 一次性参数用完就丢,不用static
+ 320:modules/BMI088/bmi088.c ****         float startTime;                     // 开始标定时间,用于确定是否超时
+ 321:modules/BMI088/bmi088.c ****         uint16_t CaliTimes = 6000;           // 标定次数(6s)
+ 322:modules/BMI088/bmi088.c ****         float gyroMax[3], gyroMin[3];        // 保存标定过程中读取到的数据最大值判
+ 323:modules/BMI088/bmi088.c ****         float gNormTemp, gNormMax, gNormMin; // 同上,计算矢量范数(模长)
+ 324:modules/BMI088/bmi088.c ****         float gyroDiff[3], gNormDiff;        // 每个轴的最大角速度跨度及其模长
+ 325:modules/BMI088/bmi088.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 30
+
+
+ 326:modules/BMI088/bmi088.c ****         BMI088_Data_t raw_data;
+ 327:modules/BMI088/bmi088.c ****         startTime = DWT_GetTimeline_s();
+ 328:modules/BMI088/bmi088.c ****         // 循环继续的条件为标定环境不满足
+ 329:modules/BMI088/bmi088.c ****         do // 用do while至少执行一次,省得对上面的参数进行初始化
+ 330:modules/BMI088/bmi088.c ****         {  // 标定超时,直接使用预标定参数(如果有)
+ 331:modules/BMI088/bmi088.c ****             if (DWT_GetTimeline_s() - startTime > 12.01)
+ 332:modules/BMI088/bmi088.c ****             { // 两次都没有成功就切换标定模式,丢给下一个if处理,使用预标定
+ 333:modules/BMI088/bmi088.c ****                 _bmi088->cali_mode = BMI088_LOAD_PRE_CALI_MODE;
+ 334:modules/BMI088/bmi088.c ****                 break;
+ 335:modules/BMI088/bmi088.c ****             }
+ 336:modules/BMI088/bmi088.c **** 
+ 337:modules/BMI088/bmi088.c ****             DWT_Delay(0.0005);
+ 338:modules/BMI088/bmi088.c ****             _bmi088->gNorm = 0;
+ 339:modules/BMI088/bmi088.c ****             for (uint8_t i = 0; i < 3; i++) // 重置gNorm和零飘
+ 340:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] = 0;
+ 341:modules/BMI088/bmi088.c **** 
+ 342:modules/BMI088/bmi088.c ****             // @todo : 这里也有获取bmi088数据的操作,后续与BMI088Acquire合并.注意�
+ 343:modules/BMI088/bmi088.c ****             for (uint16_t i = 0; i < CaliTimes; ++i) // 提前计算,优化
+ 344:modules/BMI088/bmi088.c ****             {
+ 345:modules/BMI088/bmi088.c ****                 BMI088Acquire(_bmi088, &raw_data);
+ 346:modules/BMI088/bmi088.c ****                 gNormTemp = NormOf3d(raw_data.acc);
+ 347:modules/BMI088/bmi088.c ****                 _bmi088->gNorm += gNormTemp; // 计算范数并累加,最后除以calib times获取
+ 348:modules/BMI088/bmi088.c ****                 for (uint8_t ii = 0; ii < 3; ii++)
+ 349:modules/BMI088/bmi088.c ****                     _bmi088->gyro_offset[ii] += raw_data.gyro[ii]; // 因为标定时传感器静�
+ 350:modules/BMI088/bmi088.c **** 
+ 351:modules/BMI088/bmi088.c ****                 if (i == 0) // 避免未定义的行为(else中)
+ 352:modules/BMI088/bmi088.c ****                 {
+ 353:modules/BMI088/bmi088.c ****                     gNormMax = gNormMin = gNormTemp; // 初始化成当前的重力加速度模长
+ 354:modules/BMI088/bmi088.c ****                     for (uint8_t j = 0; j < 3; ++j)
+ 355:modules/BMI088/bmi088.c ****                     {
+ 356:modules/BMI088/bmi088.c ****                         gyroMax[j] = raw_data.gyro[j];
+ 357:modules/BMI088/bmi088.c ****                         gyroMin[j] = raw_data.gyro[j];
+ 358:modules/BMI088/bmi088.c ****                     }
+ 359:modules/BMI088/bmi088.c ****                 }
+ 360:modules/BMI088/bmi088.c ****                 else // 更新gNorm的Min Max和gyro的minmax
+ 361:modules/BMI088/bmi088.c ****                 {
+ 362:modules/BMI088/bmi088.c ****                     gNormMax = gNormMax > gNormTemp ? gNormMax : gNormTemp;
+ 363:modules/BMI088/bmi088.c ****                     gNormMin = gNormMin < gNormTemp ? gNormMin : gNormTemp;
+ 364:modules/BMI088/bmi088.c ****                     for (uint8_t j = 0; j < 3; ++j)
+ 365:modules/BMI088/bmi088.c ****                     {
+ 366:modules/BMI088/bmi088.c ****                         gyroMax[j] = gyroMax[j] > _bmi088->gyro[j] ? gyroMax[j] : _bmi088->gyro[j];
+ 367:modules/BMI088/bmi088.c ****                         gyroMin[j] = gyroMin[j] < _bmi088->gyro[j] ? gyroMin[j] : _bmi088->gyro[j];
+ 368:modules/BMI088/bmi088.c ****                     }
+ 369:modules/BMI088/bmi088.c ****                 }
+ 370:modules/BMI088/bmi088.c **** 
+ 371:modules/BMI088/bmi088.c ****                 gNormDiff = gNormMax - gNormMin; // 最大值和最小值的差
+ 372:modules/BMI088/bmi088.c ****                 for (uint8_t j = 0; j < 3; ++j)
+ 373:modules/BMI088/bmi088.c ****                     gyroDiff[j] = gyroMax[j] - gyroMin[j]; // 分别计算三轴
+ 374:modules/BMI088/bmi088.c ****                 if (gNormDiff > 0.5f ||
+ 375:modules/BMI088/bmi088.c ****                     gyroDiff[0] > 0.15f ||
+ 376:modules/BMI088/bmi088.c ****                     gyroDiff[1] > 0.15f ||
+ 377:modules/BMI088/bmi088.c ****                     gyroDiff[2] > 0.15f)
+ 378:modules/BMI088/bmi088.c ****                     break;         // 超出范围了,重开! remake到while循环,外面还有一�
+ 379:modules/BMI088/bmi088.c ****                 DWT_Delay(0.0005); // 休息一会再开始下一轮数据获取,IMU准备数据需
+ 380:modules/BMI088/bmi088.c ****             }
+ 381:modules/BMI088/bmi088.c ****             _bmi088->gNorm /= (float)CaliTimes; // 加速度范数重力
+ 382:modules/BMI088/bmi088.c ****             for (uint8_t i = 0; i < 3; ++i)
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 31
+
+
+ 383:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] /= (float)CaliTimes; // 三轴零飘
+ 384:modules/BMI088/bmi088.c ****             // 这里直接存到temperature,可以另外增加BMI088Instance的成员变量TempWhe
+ 385:modules/BMI088/bmi088.c ****             _bmi088->temperature = raw_data.temperature * BMI088_TEMP_FACTOR + BMI088_TEMP_OFFSET; 
+ 386:modules/BMI088/bmi088.c ****             // caliTryOutCount++; 保存已经尝试的标定次数?由你.
+ 387:modules/BMI088/bmi088.c ****         } while (gNormDiff > 0.5f ||
+ 388:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gNorm - 9.8f) > 0.5f ||
+ 389:modules/BMI088/bmi088.c ****                  gyroDiff[0] > 0.15f ||
+ 390:modules/BMI088/bmi088.c ****                  gyroDiff[1] > 0.15f ||
+ 391:modules/BMI088/bmi088.c ****                  gyroDiff[2] > 0.15f ||
+ 392:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gyro_offset[0]) > 0.01f ||
+ 393:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gyro_offset[1]) > 0.01f ||
+ 394:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gyro_offset[2]) > 0.01f); // 满足条件说明标定环境不好
+ 395:modules/BMI088/bmi088.c ****     }
+ 396:modules/BMI088/bmi088.c **** 
+ 397:modules/BMI088/bmi088.c ****     // 离线标定
+ 398:modules/BMI088/bmi088.c ****     if (_bmi088->cali_mode == BMI088_LOAD_PRE_CALI_MODE) // 如果标定失败也会进来,直接�
+ 1117              		.loc 1 398 5 is_stmt 1 view .LVU285
+ 1118              		.loc 1 398 16 is_stmt 0 view .LVU286
+ 1119 000e 6378     		ldrb	r3, [r4, #1]	@ zero_extendqisi2
+ 1120              		.loc 1 398 8 view .LVU287
+ 1121 0010 012B     		cmp	r3, #1
+ 1122 0012 00F07281 		beq	.L111
+ 1123              	.L100:
+ 399:modules/BMI088/bmi088.c ****     {
+ 400:modules/BMI088/bmi088.c ****         _bmi088->gyro_offset[0] = BMI088_PRE_CALI_ACC_X_OFFSET;
+ 401:modules/BMI088/bmi088.c ****         _bmi088->gyro_offset[1] = BMI088_PRE_CALI_ACC_Y_OFFSET;
+ 402:modules/BMI088/bmi088.c ****         _bmi088->gyro_offset[2] = BMI088_PRE_CALI_ACC_Z_OFFSET;
+ 403:modules/BMI088/bmi088.c ****         _bmi088->gNorm = BMI088_PRE_CALI_G_NORM;
+ 404:modules/BMI088/bmi088.c ****     }
+ 405:modules/BMI088/bmi088.c ****     _bmi088->acc_coef *= 9.805 / _bmi088->gNorm;
+ 1124              		.loc 1 405 5 is_stmt 1 view .LVU288
+ 1125              		.loc 1 405 12 is_stmt 0 view .LVU289
+ 1126 0016 D4F8C000 		ldr	r0, [r4, #192]	@ float
+ 1127 001a FFF7FEFF 		bl	__aeabi_f2d
+ 1128              	.LVL98:
+ 1129 001e 0546     		mov	r5, r0
+ 1130 0020 0E46     		mov	r6, r1
+ 1131              		.loc 1 405 41 view .LVU290
+ 1132 0022 D4F8BC00 		ldr	r0, [r4, #188]	@ float
+ 1133 0026 FFF7FEFF 		bl	__aeabi_f2d
+ 1134              	.LVL99:
+ 1135 002a 0246     		mov	r2, r0
+ 1136 002c 0B46     		mov	r3, r1
+ 1137              		.loc 1 405 32 view .LVU291
+ 1138 002e C2A1     		adr	r1, .L115+40
+ 1139 0030 D1E90001 		ldrd	r0, [r1]
+ 1140 0034 FFF7FEFF 		bl	__aeabi_ddiv
+ 1141              	.LVL100:
+ 1142 0038 0246     		mov	r2, r0
+ 1143 003a 0B46     		mov	r3, r1
+ 1144              		.loc 1 405 23 view .LVU292
+ 1145 003c 2846     		mov	r0, r5
+ 1146 003e 3146     		mov	r1, r6
+ 1147 0040 FFF7FEFF 		bl	__aeabi_dmul
+ 1148              	.LVL101:
+ 1149 0044 FFF7FEFF 		bl	__aeabi_d2f
+ 1150              	.LVL102:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 32
+
+
+ 1151 0048 C4F8C000 		str	r0, [r4, #192]	@ float
+ 406:modules/BMI088/bmi088.c **** }
+ 1152              		.loc 1 406 1 view .LVU293
+ 1153 004c 10B0     		add	sp, sp, #64
+ 1154              		.cfi_remember_state
+ 1155              		.cfi_def_cfa_offset 32
+ 1156              		@ sp needed
+ 1157 004e BDEC048B 		vldm	sp!, {d8-d9}
+ 1158              		.cfi_restore 82
+ 1159              		.cfi_restore 83
+ 1160              		.cfi_restore 80
+ 1161              		.cfi_restore 81
+ 1162              		.cfi_def_cfa_offset 16
+ 1163 0052 70BD     		pop	{r4, r5, r6, pc}
+ 1164              	.LVL103:
+ 1165              	.L110:
+ 1166              		.cfi_restore_state
+ 1167              	.LBB9:
+ 317:modules/BMI088/bmi088.c ****         _bmi088->BMI088_GYRO_SEN = BMI088_GYRO_2000_SEN; // 后续改为从initTable中获取
+ 1168              		.loc 1 317 9 is_stmt 1 view .LVU294
+ 317:modules/BMI088/bmi088.c ****         _bmi088->BMI088_GYRO_SEN = BMI088_GYRO_2000_SEN; // 后续改为从initTable中获取
+ 1169              		.loc 1 317 27 is_stmt 0 view .LVU295
+ 1170 0054 B04B     		ldr	r3, .L115+8
+ 1171 0056 C0F8C030 		str	r3, [r0, #192]	@ float
+ 318:modules/BMI088/bmi088.c ****         // 一次性参数用完就丢,不用static
+ 1172              		.loc 1 318 9 is_stmt 1 view .LVU296
+ 318:modules/BMI088/bmi088.c ****         // 一次性参数用完就丢,不用static
+ 1173              		.loc 1 318 34 is_stmt 0 view .LVU297
+ 1174 005a B04B     		ldr	r3, .L115+12
+ 1175 005c C0F8C830 		str	r3, [r0, #200]	@ float
+ 320:modules/BMI088/bmi088.c ****         uint16_t CaliTimes = 6000;           // 标定次数(6s)
+ 1176              		.loc 1 320 9 is_stmt 1 view .LVU298
+ 321:modules/BMI088/bmi088.c ****         float gyroMax[3], gyroMin[3];        // 保存标定过程中读取到的数据最大值判
+ 1177              		.loc 1 321 9 view .LVU299
+ 1178              	.LVL104:
+ 322:modules/BMI088/bmi088.c ****         float gNormTemp, gNormMax, gNormMin; // 同上,计算矢量范数(模长)
+ 1179              		.loc 1 322 9 view .LVU300
+ 323:modules/BMI088/bmi088.c ****         float gyroDiff[3], gNormDiff;        // 每个轴的最大角速度跨度及其模长
+ 1180              		.loc 1 323 9 view .LVU301
+ 324:modules/BMI088/bmi088.c **** 
+ 1181              		.loc 1 324 9 view .LVU302
+ 326:modules/BMI088/bmi088.c ****         startTime = DWT_GetTimeline_s();
+ 1182              		.loc 1 326 9 view .LVU303
+ 327:modules/BMI088/bmi088.c ****         // 循环继续的条件为标定环境不满足
+ 1183              		.loc 1 327 9 view .LVU304
+ 327:modules/BMI088/bmi088.c ****         // 循环继续的条件为标定环境不满足
+ 1184              		.loc 1 327 21 is_stmt 0 view .LVU305
+ 1185 0060 FFF7FEFF 		bl	DWT_GetTimeline_s
+ 1186              	.LVL105:
+ 327:modules/BMI088/bmi088.c ****         // 循环继续的条件为标定环境不满足
+ 1187              		.loc 1 327 21 view .LVU306
+ 1188 0064 F0EE408A 		vmov.f32	s17, s0
+ 1189              	.LVL106:
+ 1190              	.L99:
+ 329:modules/BMI088/bmi088.c ****         {  // 标定超时,直接使用预标定参数(如果有)
+ 1191              		.loc 1 329 9 is_stmt 1 view .LVU307
+ 331:modules/BMI088/bmi088.c ****             { // 两次都没有成功就切换标定模式,丢给下一个if处理,使用预标定
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 33
+
+
+ 1192              		.loc 1 331 13 view .LVU308
+ 331:modules/BMI088/bmi088.c ****             { // 两次都没有成功就切换标定模式,丢给下一个if处理,使用预标定
+ 1193              		.loc 1 331 17 is_stmt 0 view .LVU309
+ 1194 0068 FFF7FEFF 		bl	DWT_GetTimeline_s
+ 1195              	.LVL107:
+ 331:modules/BMI088/bmi088.c ****             { // 两次都没有成功就切换标定模式,丢给下一个if处理,使用预标定
+ 1196              		.loc 1 331 37 discriminator 1 view .LVU310
+ 1197 006c 70EE687A 		vsub.f32	s15, s0, s17
+ 1198 0070 17EE900A 		vmov	r0, s15
+ 1199 0074 FFF7FEFF 		bl	__aeabi_f2d
+ 1200              	.LVL108:
+ 331:modules/BMI088/bmi088.c ****             { // 两次都没有成功就切换标定模式,丢给下一个if处理,使用预标定
+ 1201              		.loc 1 331 16 discriminator 1 view .LVU311
+ 1202 0078 A5A3     		adr	r3, .L115
+ 1203 007a D3E90023 		ldrd	r2, [r3]
+ 1204 007e FFF7FEFF 		bl	__aeabi_dcmpgt
+ 1205              	.LVL109:
+ 1206 0082 40B9     		cbnz	r0, .L112
+ 337:modules/BMI088/bmi088.c ****             _bmi088->gNorm = 0;
+ 1207              		.loc 1 337 13 is_stmt 1 view .LVU312
+ 1208 0084 9FEDA60A 		vldr.32	s0, .L115+16
+ 1209 0088 FFF7FEFF 		bl	DWT_Delay
+ 1210              	.LVL110:
+ 338:modules/BMI088/bmi088.c ****             for (uint8_t i = 0; i < 3; i++) // 重置gNorm和零飘
+ 1211              		.loc 1 338 13 view .LVU313
+ 338:modules/BMI088/bmi088.c ****             for (uint8_t i = 0; i < 3; i++) // 重置gNorm和零飘
+ 1212              		.loc 1 338 28 is_stmt 0 view .LVU314
+ 1213 008c 0023     		movs	r3, #0
+ 1214 008e C4F8BC30 		str	r3, [r4, #188]	@ float
+ 339:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] = 0;
+ 1215              		.loc 1 339 13 is_stmt 1 view .LVU315
+ 1216              	.LBB10:
+ 339:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] = 0;
+ 1217              		.loc 1 339 18 view .LVU316
+ 1218              	.LVL111:
+ 339:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] = 0;
+ 1219              		.loc 1 339 26 is_stmt 0 view .LVU317
+ 1220 0092 3346     		mov	r3, r6
+ 339:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] = 0;
+ 1221              		.loc 1 339 13 view .LVU318
+ 1222 0094 0AE0     		b	.L74
+ 1223              	.LVL112:
+ 1224              	.L112:
+ 339:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] = 0;
+ 1225              		.loc 1 339 13 view .LVU319
+ 1226              	.LBE10:
+ 333:modules/BMI088/bmi088.c ****                 break;
+ 1227              		.loc 1 333 17 is_stmt 1 view .LVU320
+ 333:modules/BMI088/bmi088.c ****                 break;
+ 1228              		.loc 1 333 36 is_stmt 0 view .LVU321
+ 1229 0096 0123     		movs	r3, #1
+ 1230 0098 6370     		strb	r3, [r4, #1]
+ 334:modules/BMI088/bmi088.c ****             }
+ 1231              		.loc 1 334 17 is_stmt 1 view .LVU322
+ 1232 009a B8E7     		b	.L70
+ 1233              	.LVL113:
+ 1234              	.L75:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 34
+
+
+ 1235              	.LBB11:
+ 340:modules/BMI088/bmi088.c **** 
+ 1236              		.loc 1 340 17 view .LVU323
+ 340:modules/BMI088/bmi088.c **** 
+ 1237              		.loc 1 340 41 is_stmt 0 view .LVU324
+ 1238 009c 03F12C02 		add	r2, r3, #44
+ 1239 00a0 04EB8202 		add	r2, r4, r2, lsl #2
+ 1240 00a4 0021     		movs	r1, #0
+ 1241 00a6 1160     		str	r1, [r2]	@ float
+ 339:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] = 0;
+ 1242              		.loc 1 339 41 is_stmt 1 discriminator 3 view .LVU325
+ 1243 00a8 0133     		adds	r3, r3, #1
+ 1244              	.LVL114:
+ 339:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] = 0;
+ 1245              		.loc 1 339 41 is_stmt 0 discriminator 3 view .LVU326
+ 1246 00aa DBB2     		uxtb	r3, r3
+ 1247              	.LVL115:
+ 1248              	.L74:
+ 339:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] = 0;
+ 1249              		.loc 1 339 35 is_stmt 1 discriminator 1 view .LVU327
+ 1250 00ac 022B     		cmp	r3, #2
+ 1251 00ae F5D9     		bls	.L75
+ 1252              	.LBE11:
+ 1253              	.LBB12:
+ 343:modules/BMI088/bmi088.c ****             {
+ 1254              		.loc 1 343 27 is_stmt 0 view .LVU328
+ 1255 00b0 0025     		movs	r5, #0
+ 1256 00b2 98E0     		b	.L76
+ 1257              	.LVL116:
+ 1258              	.L78:
+ 1259              	.LBB13:
+ 349:modules/BMI088/bmi088.c **** 
+ 1260              		.loc 1 349 21 is_stmt 1 view .LVU329
+ 349:modules/BMI088/bmi088.c **** 
+ 1261              		.loc 1 349 41 is_stmt 0 view .LVU330
+ 1262 00b4 03F12C02 		add	r2, r3, #44
+ 1263 00b8 04EB8202 		add	r2, r4, r2, lsl #2
+ 1264 00bc D2ED007A 		vldr.32	s15, [r2]
+ 349:modules/BMI088/bmi088.c **** 
+ 1265              		.loc 1 349 62 view .LVU331
+ 1266 00c0 10A9     		add	r1, sp, #64
+ 1267 00c2 01EB8301 		add	r1, r1, r3, lsl #2
+ 1268 00c6 11ED077A 		vldr.32	s14, [r1, #-28]
+ 349:modules/BMI088/bmi088.c **** 
+ 1269              		.loc 1 349 46 view .LVU332
+ 1270 00ca 77EE877A 		vadd.f32	s15, s15, s14
+ 1271 00ce C2ED007A 		vstr.32	s15, [r2]
+ 348:modules/BMI088/bmi088.c ****                     _bmi088->gyro_offset[ii] += raw_data.gyro[ii]; // 因为标定时传感器静�
+ 1272              		.loc 1 348 48 is_stmt 1 discriminator 3 view .LVU333
+ 1273 00d2 0133     		adds	r3, r3, #1
+ 1274              	.LVL117:
+ 348:modules/BMI088/bmi088.c ****                     _bmi088->gyro_offset[ii] += raw_data.gyro[ii]; // 因为标定时传感器静�
+ 1275              		.loc 1 348 48 is_stmt 0 discriminator 3 view .LVU334
+ 1276 00d4 DBB2     		uxtb	r3, r3
+ 1277              	.LVL118:
+ 1278              	.L77:
+ 348:modules/BMI088/bmi088.c ****                     _bmi088->gyro_offset[ii] += raw_data.gyro[ii]; // 因为标定时传感器静�
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 35
+
+
+ 1279              		.loc 1 348 41 is_stmt 1 discriminator 1 view .LVU335
+ 1280 00d6 022B     		cmp	r3, #2
+ 1281 00d8 ECD9     		bls	.L78
+ 1282              	.LBE13:
+ 351:modules/BMI088/bmi088.c ****                 {
+ 1283              		.loc 1 351 17 view .LVU336
+ 351:modules/BMI088/bmi088.c ****                 {
+ 1284              		.loc 1 351 20 is_stmt 0 view .LVU337
+ 1285 00da 25B3     		cbz	r5, .L113
+ 362:modules/BMI088/bmi088.c ****                     gNormMin = gNormMin < gNormTemp ? gNormMin : gNormTemp;
+ 1286              		.loc 1 362 21 is_stmt 1 view .LVU338
+ 362:modules/BMI088/bmi088.c ****                     gNormMin = gNormMin < gNormTemp ? gNormMin : gNormTemp;
+ 1287              		.loc 1 362 64 is_stmt 0 view .LVU339
+ 1288 00dc B4EEC08A 		vcmpe.f32	s16, s0
+ 1289 00e0 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1290 00e4 01DC     		bgt	.L83
+ 362:modules/BMI088/bmi088.c ****                     gNormMin = gNormMin < gNormTemp ? gNormMin : gNormTemp;
+ 1291              		.loc 1 362 30 discriminator 2 view .LVU340
+ 1292 00e6 B0EE408A 		vmov.f32	s16, s0
+ 1293              	.LVL119:
+ 1294              	.L83:
+ 363:modules/BMI088/bmi088.c ****                     for (uint8_t j = 0; j < 3; ++j)
+ 1295              		.loc 1 363 21 is_stmt 1 view .LVU341
+ 363:modules/BMI088/bmi088.c ****                     for (uint8_t j = 0; j < 3; ++j)
+ 1296              		.loc 1 363 64 is_stmt 0 view .LVU342
+ 1297 00ea B4EEC09A 		vcmpe.f32	s18, s0
+ 1298 00ee F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1299 00f2 01D4     		bmi	.L85
+ 363:modules/BMI088/bmi088.c ****                     for (uint8_t j = 0; j < 3; ++j)
+ 1300              		.loc 1 363 30 discriminator 2 view .LVU343
+ 1301 00f4 B0EE409A 		vmov.f32	s18, s0
+ 1302              	.LVL120:
+ 1303              	.L85:
+ 364:modules/BMI088/bmi088.c ****                     {
+ 1304              		.loc 1 364 21 is_stmt 1 view .LVU344
+ 1305              	.LBB14:
+ 364:modules/BMI088/bmi088.c ****                     {
+ 1306              		.loc 1 364 26 view .LVU345
+ 364:modules/BMI088/bmi088.c ****                     {
+ 1307              		.loc 1 364 34 is_stmt 0 view .LVU346
+ 1308 00f8 3346     		mov	r3, r6
+ 1309              	.LVL121:
+ 364:modules/BMI088/bmi088.c ****                     {
+ 1310              		.loc 1 364 21 view .LVU347
+ 1311 00fa 1DE0     		b	.L87
+ 1312              	.LVL122:
+ 1313              	.L81:
+ 364:modules/BMI088/bmi088.c ****                     {
+ 1314              		.loc 1 364 21 view .LVU348
+ 1315              	.LBE14:
+ 1316              	.LBB15:
+ 356:modules/BMI088/bmi088.c ****                         gyroMin[j] = raw_data.gyro[j];
+ 1317              		.loc 1 356 25 is_stmt 1 view .LVU349
+ 356:modules/BMI088/bmi088.c ****                         gyroMin[j] = raw_data.gyro[j];
+ 1318              		.loc 1 356 51 is_stmt 0 view .LVU350
+ 1319 00fc 10AA     		add	r2, sp, #64
+ 1320 00fe 02EB8302 		add	r2, r2, r3, lsl #2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 36
+
+
+ 1321 0102 52F81C1C 		ldr	r1, [r2, #-28]	@ float
+ 356:modules/BMI088/bmi088.c ****                         gyroMin[j] = raw_data.gyro[j];
+ 1322              		.loc 1 356 36 view .LVU351
+ 1323 0106 42F8401C 		str	r1, [r2, #-64]	@ float
+ 357:modules/BMI088/bmi088.c ****                     }
+ 1324              		.loc 1 357 25 is_stmt 1 view .LVU352
+ 357:modules/BMI088/bmi088.c ****                     }
+ 1325              		.loc 1 357 36 is_stmt 0 view .LVU353
+ 1326 010a 42F8341C 		str	r1, [r2, #-52]	@ float
+ 354:modules/BMI088/bmi088.c ****                     {
+ 1327              		.loc 1 354 48 is_stmt 1 discriminator 3 view .LVU354
+ 1328 010e 0133     		adds	r3, r3, #1
+ 1329              	.LVL123:
+ 354:modules/BMI088/bmi088.c ****                     {
+ 1330              		.loc 1 354 48 is_stmt 0 discriminator 3 view .LVU355
+ 1331 0110 DBB2     		uxtb	r3, r3
+ 1332              	.LVL124:
+ 1333              	.L79:
+ 354:modules/BMI088/bmi088.c ****                     {
+ 1334              		.loc 1 354 43 is_stmt 1 discriminator 1 view .LVU356
+ 1335 0112 022B     		cmp	r3, #2
+ 1336 0114 F2D9     		bls	.L81
+ 1337              	.LBE15:
+ 353:modules/BMI088/bmi088.c ****                     for (uint8_t j = 0; j < 3; ++j)
+ 1338              		.loc 1 353 41 is_stmt 0 view .LVU357
+ 1339 0116 B0EE409A 		vmov.f32	s18, s0
+ 353:modules/BMI088/bmi088.c ****                     for (uint8_t j = 0; j < 3; ++j)
+ 1340              		.loc 1 353 30 view .LVU358
+ 1341 011a B0EE408A 		vmov.f32	s16, s0
+ 1342              	.LVL125:
+ 1343              	.L82:
+ 371:modules/BMI088/bmi088.c ****                 for (uint8_t j = 0; j < 3; ++j)
+ 1344              		.loc 1 371 17 is_stmt 1 view .LVU359
+ 371:modules/BMI088/bmi088.c ****                 for (uint8_t j = 0; j < 3; ++j)
+ 1345              		.loc 1 371 27 is_stmt 0 view .LVU360
+ 1346 011e 78EE499A 		vsub.f32	s19, s16, s18
+ 1347              	.LVL126:
+ 372:modules/BMI088/bmi088.c ****                     gyroDiff[j] = gyroMax[j] - gyroMin[j]; // 分别计算三轴
+ 1348              		.loc 1 372 17 is_stmt 1 view .LVU361
+ 1349              	.LBB16:
+ 372:modules/BMI088/bmi088.c ****                     gyroDiff[j] = gyroMax[j] - gyroMin[j]; // 分别计算三轴
+ 1350              		.loc 1 372 22 view .LVU362
+ 372:modules/BMI088/bmi088.c ****                     gyroDiff[j] = gyroMax[j] - gyroMin[j]; // 分别计算三轴
+ 1351              		.loc 1 372 30 is_stmt 0 view .LVU363
+ 1352 0122 3346     		mov	r3, r6
+ 372:modules/BMI088/bmi088.c ****                     gyroDiff[j] = gyroMax[j] - gyroMin[j]; // 分别计算三轴
+ 1353              		.loc 1 372 17 view .LVU364
+ 1354 0124 39E0     		b	.L93
+ 1355              	.LVL127:
+ 1356              	.L113:
+ 372:modules/BMI088/bmi088.c ****                     gyroDiff[j] = gyroMax[j] - gyroMin[j]; // 分别计算三轴
+ 1357              		.loc 1 372 17 view .LVU365
+ 1358              	.LBE16:
+ 1359              	.LBB17:
+ 354:modules/BMI088/bmi088.c ****                     {
+ 1360              		.loc 1 354 34 view .LVU366
+ 1361 0126 3346     		mov	r3, r6
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 37
+
+
+ 1362              	.LVL128:
+ 354:modules/BMI088/bmi088.c ****                     {
+ 1363              		.loc 1 354 34 view .LVU367
+ 1364 0128 F3E7     		b	.L79
+ 1365              	.LVL129:
+ 1366              	.L90:
+ 354:modules/BMI088/bmi088.c ****                     {
+ 1367              		.loc 1 354 34 view .LVU368
+ 1368              	.LBE17:
+ 1369              	.LBB18:
+ 367:modules/BMI088/bmi088.c ****                     }
+ 1370              		.loc 1 367 36 discriminator 4 view .LVU369
+ 1371 012a 10A9     		add	r1, sp, #64
+ 1372 012c 01EB8202 		add	r2, r1, r2, lsl #2
+ 1373 0130 42ED0D7A 		vstr.32	s15, [r2, #-52]
+ 364:modules/BMI088/bmi088.c ****                     {
+ 1374              		.loc 1 364 48 is_stmt 1 discriminator 2 view .LVU370
+ 1375 0134 0133     		adds	r3, r3, #1
+ 1376              	.LVL130:
+ 364:modules/BMI088/bmi088.c ****                     {
+ 1377              		.loc 1 364 48 is_stmt 0 discriminator 2 view .LVU371
+ 1378 0136 DBB2     		uxtb	r3, r3
+ 1379              	.LVL131:
+ 1380              	.L87:
+ 364:modules/BMI088/bmi088.c ****                     {
+ 1381              		.loc 1 364 43 is_stmt 1 discriminator 1 view .LVU372
+ 1382 0138 022B     		cmp	r3, #2
+ 1383 013a F0D8     		bhi	.L82
+ 366:modules/BMI088/bmi088.c ****                         gyroMin[j] = gyroMin[j] < _bmi088->gyro[j] ? gyroMin[j] : _bmi088->gyro[j];
+ 1384              		.loc 1 366 25 view .LVU373
+ 366:modules/BMI088/bmi088.c ****                         gyroMin[j] = gyroMin[j] < _bmi088->gyro[j] ? gyroMin[j] : _bmi088->gyro[j];
+ 1385              		.loc 1 366 45 is_stmt 0 view .LVU374
+ 1386 013c 1A46     		mov	r2, r3
+ 1387 013e 10A9     		add	r1, sp, #64
+ 1388 0140 01EB8301 		add	r1, r1, r3, lsl #2
+ 1389 0144 11ED107A 		vldr.32	s14, [r1, #-64]
+ 366:modules/BMI088/bmi088.c ****                         gyroMin[j] = gyroMin[j] < _bmi088->gyro[j] ? gyroMin[j] : _bmi088->gyro[j];
+ 1390              		.loc 1 366 64 view .LVU375
+ 1391 0148 03F12401 		add	r1, r3, #36
+ 1392 014c 04EB8101 		add	r1, r4, r1, lsl #2
+ 1393 0150 D1ED017A 		vldr.32	s15, [r1, #4]
+ 366:modules/BMI088/bmi088.c ****                         gyroMin[j] = gyroMin[j] < _bmi088->gyro[j] ? gyroMin[j] : _bmi088->gyro[j];
+ 1394              		.loc 1 366 81 view .LVU376
+ 1395 0154 B4EEE77A 		vcmpe.f32	s14, s15
+ 1396 0158 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1397 015c 01DC     		bgt	.L88
+ 366:modules/BMI088/bmi088.c ****                         gyroMin[j] = gyroMin[j] < _bmi088->gyro[j] ? gyroMin[j] : _bmi088->gyro[j];
+ 1398              		.loc 1 366 81 discriminator 2 view .LVU377
+ 1399 015e B0EE677A 		vmov.f32	s14, s15
+ 1400              	.L88:
+ 366:modules/BMI088/bmi088.c ****                         gyroMin[j] = gyroMin[j] < _bmi088->gyro[j] ? gyroMin[j] : _bmi088->gyro[j];
+ 1401              		.loc 1 366 36 discriminator 4 view .LVU378
+ 1402 0162 10A9     		add	r1, sp, #64
+ 1403 0164 01EB8201 		add	r1, r1, r2, lsl #2
+ 1404 0168 01ED107A 		vstr.32	s14, [r1, #-64]
+ 367:modules/BMI088/bmi088.c ****                     }
+ 1405              		.loc 1 367 25 is_stmt 1 view .LVU379
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 38
+
+
+ 367:modules/BMI088/bmi088.c ****                     }
+ 1406              		.loc 1 367 45 is_stmt 0 view .LVU380
+ 1407 016c 11ED0D7A 		vldr.32	s14, [r1, #-52]
+ 367:modules/BMI088/bmi088.c ****                     }
+ 1408              		.loc 1 367 81 view .LVU381
+ 1409 0170 F4EEC77A 		vcmpe.f32	s15, s14
+ 1410 0174 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1411 0178 D7DD     		ble	.L90
+ 367:modules/BMI088/bmi088.c ****                     }
+ 1412              		.loc 1 367 81 discriminator 1 view .LVU382
+ 1413 017a F0EE477A 		vmov.f32	s15, s14
+ 1414 017e D4E7     		b	.L90
+ 1415              	.LVL132:
+ 1416              	.L94:
+ 367:modules/BMI088/bmi088.c ****                     }
+ 1417              		.loc 1 367 81 discriminator 1 view .LVU383
+ 1418              	.LBE18:
+ 1419              	.LBB19:
+ 373:modules/BMI088/bmi088.c ****                 if (gNormDiff > 0.5f ||
+ 1420              		.loc 1 373 21 is_stmt 1 view .LVU384
+ 373:modules/BMI088/bmi088.c ****                 if (gNormDiff > 0.5f ||
+ 1421              		.loc 1 373 42 is_stmt 0 view .LVU385
+ 1422 0180 10AA     		add	r2, sp, #64
+ 1423 0182 02EB8302 		add	r2, r2, r3, lsl #2
+ 1424 0186 52ED107A 		vldr.32	s15, [r2, #-64]
+ 373:modules/BMI088/bmi088.c ****                 if (gNormDiff > 0.5f ||
+ 1425              		.loc 1 373 55 view .LVU386
+ 1426 018a 12ED0D7A 		vldr.32	s14, [r2, #-52]
+ 373:modules/BMI088/bmi088.c ****                 if (gNormDiff > 0.5f ||
+ 1427              		.loc 1 373 46 view .LVU387
+ 1428 018e 77EEC77A 		vsub.f32	s15, s15, s14
+ 373:modules/BMI088/bmi088.c ****                 if (gNormDiff > 0.5f ||
+ 1429              		.loc 1 373 33 view .LVU388
+ 1430 0192 42ED0A7A 		vstr.32	s15, [r2, #-40]
+ 372:modules/BMI088/bmi088.c ****                     gyroDiff[j] = gyroMax[j] - gyroMin[j]; // 分别计算三轴
+ 1431              		.loc 1 372 44 is_stmt 1 discriminator 3 view .LVU389
+ 1432 0196 0133     		adds	r3, r3, #1
+ 1433              	.LVL133:
+ 372:modules/BMI088/bmi088.c ****                     gyroDiff[j] = gyroMax[j] - gyroMin[j]; // 分别计算三轴
+ 1434              		.loc 1 372 44 is_stmt 0 discriminator 3 view .LVU390
+ 1435 0198 DBB2     		uxtb	r3, r3
+ 1436              	.LVL134:
+ 1437              	.L93:
+ 372:modules/BMI088/bmi088.c ****                     gyroDiff[j] = gyroMax[j] - gyroMin[j]; // 分别计算三轴
+ 1438              		.loc 1 372 39 is_stmt 1 discriminator 1 view .LVU391
+ 1439 019a 022B     		cmp	r3, #2
+ 1440 019c F0D9     		bls	.L94
+ 1441              	.LBE19:
+ 374:modules/BMI088/bmi088.c ****                     gyroDiff[0] > 0.15f ||
+ 1442              		.loc 1 374 17 view .LVU392
+ 374:modules/BMI088/bmi088.c ****                     gyroDiff[0] > 0.15f ||
+ 1443              		.loc 1 374 20 is_stmt 0 view .LVU393
+ 1444 019e F6EE007A 		vmov.f32	s15, #5.0e-1
+ 1445 01a2 F4EEE79A 		vcmpe.f32	s19, s15
+ 1446 01a6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1447 01aa 2FDC     		bgt	.L95
+ 374:modules/BMI088/bmi088.c ****                     gyroDiff[0] > 0.15f ||
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 39
+
+
+ 1448              		.loc 1 374 38 discriminator 1 view .LVU394
+ 1449 01ac 9DED067A 		vldr.32	s14, [sp, #24]
+ 1450 01b0 DFED5C7A 		vldr.32	s15, .L115+20
+ 1451 01b4 B4EEE77A 		vcmpe.f32	s14, s15
+ 1452 01b8 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1453 01bc 26DC     		bgt	.L95
+ 375:modules/BMI088/bmi088.c ****                     gyroDiff[1] > 0.15f ||
+ 1454              		.loc 1 375 41 view .LVU395
+ 1455 01be 9DED077A 		vldr.32	s14, [sp, #28]
+ 1456 01c2 B4EEE77A 		vcmpe.f32	s14, s15
+ 1457 01c6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1458 01ca 1FDC     		bgt	.L95
+ 376:modules/BMI088/bmi088.c ****                     gyroDiff[2] > 0.15f)
+ 1459              		.loc 1 376 41 view .LVU396
+ 1460 01cc 9DED087A 		vldr.32	s14, [sp, #32]
+ 1461 01d0 B4EEE77A 		vcmpe.f32	s14, s15
+ 1462 01d4 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1463 01d8 18DC     		bgt	.L95
+ 379:modules/BMI088/bmi088.c ****             }
+ 1464              		.loc 1 379 17 is_stmt 1 view .LVU397
+ 1465 01da 9FED510A 		vldr.32	s0, .L115+16
+ 1466              	.LVL135:
+ 379:modules/BMI088/bmi088.c ****             }
+ 1467              		.loc 1 379 17 is_stmt 0 view .LVU398
+ 1468 01de FFF7FEFF 		bl	DWT_Delay
+ 1469              	.LVL136:
+ 343:modules/BMI088/bmi088.c ****             {
+ 1470              		.loc 1 343 49 is_stmt 1 discriminator 2 view .LVU399
+ 1471 01e2 0135     		adds	r5, r5, #1
+ 1472              	.LVL137:
+ 343:modules/BMI088/bmi088.c ****             {
+ 1473              		.loc 1 343 49 is_stmt 0 discriminator 2 view .LVU400
+ 1474 01e4 ADB2     		uxth	r5, r5
+ 1475              	.LVL138:
+ 1476              	.L76:
+ 343:modules/BMI088/bmi088.c ****             {
+ 1477              		.loc 1 343 36 is_stmt 1 discriminator 1 view .LVU401
+ 1478 01e6 41F26F73 		movw	r3, #5999
+ 1479 01ea 9D42     		cmp	r5, r3
+ 1480 01ec 0ED8     		bhi	.L95
+ 345:modules/BMI088/bmi088.c ****                 gNormTemp = NormOf3d(raw_data.acc);
+ 1481              		.loc 1 345 17 view .LVU402
+ 1482 01ee 09A9     		add	r1, sp, #36
+ 1483 01f0 2046     		mov	r0, r4
+ 1484 01f2 FFF7FEFF 		bl	BMI088Acquire
+ 1485              	.LVL139:
+ 346:modules/BMI088/bmi088.c ****                 _bmi088->gNorm += gNormTemp; // 计算范数并累加,最后除以calib times获取
+ 1486              		.loc 1 346 17 view .LVU403
+ 346:modules/BMI088/bmi088.c ****                 _bmi088->gNorm += gNormTemp; // 计算范数并累加,最后除以calib times获取
+ 1487              		.loc 1 346 29 is_stmt 0 view .LVU404
+ 1488 01f6 0CA8     		add	r0, sp, #48
+ 1489 01f8 FFF7FEFF 		bl	NormOf3d
+ 1490              	.LVL140:
+ 347:modules/BMI088/bmi088.c ****                 for (uint8_t ii = 0; ii < 3; ii++)
+ 1491              		.loc 1 347 17 is_stmt 1 view .LVU405
+ 347:modules/BMI088/bmi088.c ****                 for (uint8_t ii = 0; ii < 3; ii++)
+ 1492              		.loc 1 347 24 is_stmt 0 view .LVU406
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 40
+
+
+ 1493 01fc D4ED2F7A 		vldr.32	s15, [r4, #188]
+ 347:modules/BMI088/bmi088.c ****                 for (uint8_t ii = 0; ii < 3; ii++)
+ 1494              		.loc 1 347 32 view .LVU407
+ 1495 0200 77EE807A 		vadd.f32	s15, s15, s0
+ 1496 0204 C4ED2F7A 		vstr.32	s15, [r4, #188]
+ 348:modules/BMI088/bmi088.c ****                     _bmi088->gyro_offset[ii] += raw_data.gyro[ii]; // 因为标定时传感器静�
+ 1497              		.loc 1 348 17 is_stmt 1 view .LVU408
+ 1498              	.LBB20:
+ 348:modules/BMI088/bmi088.c ****                     _bmi088->gyro_offset[ii] += raw_data.gyro[ii]; // 因为标定时传感器静�
+ 1499              		.loc 1 348 22 view .LVU409
+ 1500              	.LVL141:
+ 348:modules/BMI088/bmi088.c ****                     _bmi088->gyro_offset[ii] += raw_data.gyro[ii]; // 因为标定时传感器静�
+ 1501              		.loc 1 348 30 is_stmt 0 view .LVU410
+ 1502 0208 3346     		mov	r3, r6
+ 348:modules/BMI088/bmi088.c ****                     _bmi088->gyro_offset[ii] += raw_data.gyro[ii]; // 因为标定时传感器静�
+ 1503              		.loc 1 348 17 view .LVU411
+ 1504 020a 64E7     		b	.L77
+ 1505              	.LVL142:
+ 1506              	.L95:
+ 348:modules/BMI088/bmi088.c ****                     _bmi088->gyro_offset[ii] += raw_data.gyro[ii]; // 因为标定时传感器静�
+ 1507              		.loc 1 348 17 view .LVU412
+ 1508              	.LBE20:
+ 1509              	.LBE12:
+ 381:modules/BMI088/bmi088.c ****             for (uint8_t i = 0; i < 3; ++i)
+ 1510              		.loc 1 381 13 is_stmt 1 view .LVU413
+ 381:modules/BMI088/bmi088.c ****             for (uint8_t i = 0; i < 3; ++i)
+ 1511              		.loc 1 381 20 is_stmt 0 view .LVU414
+ 1512 020c 94ED2F7A 		vldr.32	s14, [r4, #188]
+ 381:modules/BMI088/bmi088.c ****             for (uint8_t i = 0; i < 3; ++i)
+ 1513              		.loc 1 381 28 view .LVU415
+ 1514 0210 DFED457A 		vldr.32	s15, .L115+24
+ 1515 0214 87EE276A 		vdiv.f32	s12, s14, s15
+ 1516 0218 84ED2F6A 		vstr.32	s12, [r4, #188]
+ 382:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] /= (float)CaliTimes; // 三轴零飘
+ 1517              		.loc 1 382 13 is_stmt 1 view .LVU416
+ 1518              	.LBB21:
+ 382:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] /= (float)CaliTimes; // 三轴零飘
+ 1519              		.loc 1 382 18 view .LVU417
+ 1520              	.LVL143:
+ 382:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] /= (float)CaliTimes; // 三轴零飘
+ 1521              		.loc 1 382 26 is_stmt 0 view .LVU418
+ 1522 021c 3346     		mov	r3, r6
+ 1523              	.LVL144:
+ 1524              	.L97:
+ 382:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] /= (float)CaliTimes; // 三轴零飘
+ 1525              		.loc 1 382 35 is_stmt 1 discriminator 1 view .LVU419
+ 1526 021e 022B     		cmp	r3, #2
+ 1527 0220 0ED8     		bhi	.L114
+ 383:modules/BMI088/bmi088.c ****             // 这里直接存到temperature,可以另外增加BMI088Instance的成员变量TempWhe
+ 1528              		.loc 1 383 17 view .LVU420
+ 383:modules/BMI088/bmi088.c ****             // 这里直接存到temperature,可以另外增加BMI088Instance的成员变量TempWhe
+ 1529              		.loc 1 383 37 is_stmt 0 view .LVU421
+ 1530 0222 03F12C02 		add	r2, r3, #44
+ 1531 0226 04EB8202 		add	r2, r4, r2, lsl #2
+ 1532 022a D2ED006A 		vldr.32	s13, [r2]
+ 383:modules/BMI088/bmi088.c ****             // 这里直接存到temperature,可以另外增加BMI088Instance的成员变量TempWhe
+ 1533              		.loc 1 383 41 view .LVU422
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 41
+
+
+ 1534 022e 9FED3E7A 		vldr.32	s14, .L115+24
+ 1535 0232 C6EE877A 		vdiv.f32	s15, s13, s14
+ 1536 0236 C2ED007A 		vstr.32	s15, [r2]
+ 382:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] /= (float)CaliTimes; // 三轴零飘
+ 1537              		.loc 1 382 40 is_stmt 1 discriminator 3 view .LVU423
+ 1538 023a 0133     		adds	r3, r3, #1
+ 1539              	.LVL145:
+ 382:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] /= (float)CaliTimes; // 三轴零飘
+ 1540              		.loc 1 382 40 is_stmt 0 discriminator 3 view .LVU424
+ 1541 023c DBB2     		uxtb	r3, r3
+ 1542              	.LVL146:
+ 382:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] /= (float)CaliTimes; // 三轴零飘
+ 1543              		.loc 1 382 40 discriminator 3 view .LVU425
+ 1544 023e EEE7     		b	.L97
+ 1545              	.LVL147:
+ 1546              	.L114:
+ 382:modules/BMI088/bmi088.c ****                 _bmi088->gyro_offset[i] /= (float)CaliTimes; // 三轴零飘
+ 1547              		.loc 1 382 40 discriminator 3 view .LVU426
+ 1548              	.LBE21:
+ 385:modules/BMI088/bmi088.c ****             // caliTryOutCount++; 保存已经尝试的标定次数?由你.
+ 1549              		.loc 1 385 13 is_stmt 1 view .LVU427
+ 385:modules/BMI088/bmi088.c ****             // caliTryOutCount++; 保存已经尝试的标定次数?由你.
+ 1550              		.loc 1 385 57 is_stmt 0 view .LVU428
+ 1551 0240 DDED0F7A 		vldr.32	s15, [sp, #60]
+ 1552 0244 B4EE007A 		vmov.f32	s14, #1.25e-1
+ 1553 0248 67EE877A 		vmul.f32	s15, s15, s14
+ 385:modules/BMI088/bmi088.c ****             // caliTryOutCount++; 保存已经尝试的标定次数?由你.
+ 1554              		.loc 1 385 78 view .LVU429
+ 1555 024c B3EE077A 		vmov.f32	s14, #2.3e+1
+ 1556 0250 77EE877A 		vadd.f32	s15, s15, s14
+ 385:modules/BMI088/bmi088.c ****             // caliTryOutCount++; 保存已经尝试的标定次数?由你.
+ 1557              		.loc 1 385 34 view .LVU430
+ 1558 0254 C4ED2B7A 		vstr.32	s15, [r4, #172]
+ 393:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gyro_offset[2]) > 0.01f); // 满足条件说明标定环境不好
+ 1559              		.loc 1 393 57 is_stmt 1 view .LVU431
+ 1560 0258 F6EE007A 		vmov.f32	s15, #5.0e-1
+ 1561 025c F4EEE79A 		vcmpe.f32	s19, s15
+ 1562 0260 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1563 0264 3FF700AF 		bgt	.L99
+ 388:modules/BMI088/bmi088.c ****                  gyroDiff[0] > 0.15f ||
+ 1564              		.loc 1 388 39 is_stmt 0 view .LVU432
+ 1565 0268 DFED307A 		vldr.32	s15, .L115+28
+ 1566 026c 76EE677A 		vsub.f32	s15, s12, s15
+ 388:modules/BMI088/bmi088.c ****                  gyroDiff[0] > 0.15f ||
+ 1567              		.loc 1 388 18 view .LVU433
+ 1568 0270 F0EEE77A 		vabs.f32	s15, s15
+ 387:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gNorm - 9.8f) > 0.5f ||
+ 1569              		.loc 1 387 35 view .LVU434
+ 1570 0274 B6EE007A 		vmov.f32	s14, #5.0e-1
+ 1571 0278 F4EEC77A 		vcmpe.f32	s15, s14
+ 1572 027c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1573 0280 3FF7F2AE 		bgt	.L99
+ 388:modules/BMI088/bmi088.c ****                  gyroDiff[0] > 0.15f ||
+ 1574              		.loc 1 388 54 view .LVU435
+ 1575 0284 9DED067A 		vldr.32	s14, [sp, #24]
+ 1576 0288 DFED267A 		vldr.32	s15, .L115+20
+ 1577 028c B4EEE77A 		vcmpe.f32	s14, s15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 42
+
+
+ 1578 0290 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1579 0294 3FF7E8AE 		bgt	.L99
+ 389:modules/BMI088/bmi088.c ****                  gyroDiff[1] > 0.15f ||
+ 1580              		.loc 1 389 38 view .LVU436
+ 1581 0298 9DED077A 		vldr.32	s14, [sp, #28]
+ 1582 029c B4EEE77A 		vcmpe.f32	s14, s15
+ 1583 02a0 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1584 02a4 3FF7E0AE 		bgt	.L99
+ 390:modules/BMI088/bmi088.c ****                  gyroDiff[2] > 0.15f ||
+ 1585              		.loc 1 390 38 view .LVU437
+ 1586 02a8 9DED087A 		vldr.32	s14, [sp, #32]
+ 1587 02ac B4EEE77A 		vcmpe.f32	s14, s15
+ 1588 02b0 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1589 02b4 3FF7D8AE 		bgt	.L99
+ 392:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gyro_offset[1]) > 0.01f ||
+ 1590              		.loc 1 392 44 view .LVU438
+ 1591 02b8 D4ED2C7A 		vldr.32	s15, [r4, #176]
+ 392:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gyro_offset[1]) > 0.01f ||
+ 1592              		.loc 1 392 18 view .LVU439
+ 1593 02bc F0EEE77A 		vabs.f32	s15, s15
+ 391:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gyro_offset[0]) > 0.01f ||
+ 1594              		.loc 1 391 38 view .LVU440
+ 1595 02c0 9FED1B7A 		vldr.32	s14, .L115+32
+ 1596 02c4 F4EEC77A 		vcmpe.f32	s15, s14
+ 1597 02c8 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1598 02cc 3FF7CCAE 		bgt	.L99
+ 393:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gyro_offset[2]) > 0.01f); // 满足条件说明标定环境不好
+ 1599              		.loc 1 393 44 view .LVU441
+ 1600 02d0 D4ED2D7A 		vldr.32	s15, [r4, #180]
+ 393:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gyro_offset[2]) > 0.01f); // 满足条件说明标定环境不好
+ 1601              		.loc 1 393 18 view .LVU442
+ 1602 02d4 F0EEE77A 		vabs.f32	s15, s15
+ 392:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gyro_offset[1]) > 0.01f ||
+ 1603              		.loc 1 392 57 view .LVU443
+ 1604 02d8 F4EEC77A 		vcmpe.f32	s15, s14
+ 1605 02dc F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1606 02e0 3FF7C2AE 		bgt	.L99
+ 394:modules/BMI088/bmi088.c ****     }
+ 1607              		.loc 1 394 44 view .LVU444
+ 1608 02e4 D4ED2E7A 		vldr.32	s15, [r4, #184]
+ 394:modules/BMI088/bmi088.c ****     }
+ 1609              		.loc 1 394 18 view .LVU445
+ 1610 02e8 F0EEE77A 		vabs.f32	s15, s15
+ 393:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gyro_offset[2]) > 0.01f); // 满足条件说明标定环境不好
+ 1611              		.loc 1 393 57 view .LVU446
+ 1612 02ec F4EEC77A 		vcmpe.f32	s15, s14
+ 1613 02f0 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1614 02f4 3FF7B8AE 		bgt	.L99
+ 1615 02f8 89E6     		b	.L70
+ 1616              	.LVL148:
+ 1617              	.L111:
+ 393:modules/BMI088/bmi088.c ****                  fabsf(_bmi088->gyro_offset[2]) > 0.01f); // 满足条件说明标定环境不好
+ 1618              		.loc 1 393 57 view .LVU447
+ 1619              	.LBE9:
+ 400:modules/BMI088/bmi088.c ****         _bmi088->gyro_offset[1] = BMI088_PRE_CALI_ACC_Y_OFFSET;
+ 1620              		.loc 1 400 9 is_stmt 1 view .LVU448
+ 400:modules/BMI088/bmi088.c ****         _bmi088->gyro_offset[1] = BMI088_PRE_CALI_ACC_Y_OFFSET;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 43
+
+
+ 1621              		.loc 1 400 33 is_stmt 0 view .LVU449
+ 1622 02fa 0023     		movs	r3, #0
+ 1623 02fc C4F8B030 		str	r3, [r4, #176]	@ float
+ 401:modules/BMI088/bmi088.c ****         _bmi088->gyro_offset[2] = BMI088_PRE_CALI_ACC_Z_OFFSET;
+ 1624              		.loc 1 401 9 is_stmt 1 view .LVU450
+ 401:modules/BMI088/bmi088.c ****         _bmi088->gyro_offset[2] = BMI088_PRE_CALI_ACC_Z_OFFSET;
+ 1625              		.loc 1 401 33 is_stmt 0 view .LVU451
+ 1626 0300 C4F8B430 		str	r3, [r4, #180]	@ float
+ 402:modules/BMI088/bmi088.c ****         _bmi088->gNorm = BMI088_PRE_CALI_G_NORM;
+ 1627              		.loc 1 402 9 is_stmt 1 view .LVU452
+ 402:modules/BMI088/bmi088.c ****         _bmi088->gNorm = BMI088_PRE_CALI_G_NORM;
+ 1628              		.loc 1 402 33 is_stmt 0 view .LVU453
+ 1629 0304 C4F8B830 		str	r3, [r4, #184]	@ float
+ 403:modules/BMI088/bmi088.c ****     }
+ 1630              		.loc 1 403 9 is_stmt 1 view .LVU454
+ 403:modules/BMI088/bmi088.c ****     }
+ 1631              		.loc 1 403 24 is_stmt 0 view .LVU455
+ 1632 0308 0A4B     		ldr	r3, .L115+36
+ 1633 030a C4F8BC30 		str	r3, [r4, #188]	@ float
+ 1634 030e 82E6     		b	.L100
+ 1635              	.L116:
+ 1636              		.align	3
+ 1637              	.L115:
+ 1638 0310 85EB51B8 		.word	-1202590843
+ 1639 0314 1E052840 		.word	1076364574
+ 1640 0318 3333EB3A 		.word	988492595
+ 1641 031c 58A08B3A 		.word	982229080
+ 1642 0320 6F12033A 		.word	973279855
+ 1643 0324 9A99193E 		.word	1041865114
+ 1644 0328 0080BB45 		.word	1169915904
+ 1645 032c CDCC1C41 		.word	1092406477
+ 1646 0330 0AD7233C 		.word	1008981770
+ 1647 0334 48E11C41 		.word	1092411720
+ 1648 0338 5C8FC2F5 		.word	-171798692
+ 1649 033c 289C2340 		.word	1076075560
+ 1650              		.cfi_endproc
+ 1651              	.LFE287:
+ 1653              		.section	.text.BMI088Register,"ax",%progbits
+ 1654              		.align	1
+ 1655              		.global	BMI088Register
+ 1656              		.syntax unified
+ 1657              		.thumb
+ 1658              		.thumb_func
+ 1660              	BMI088Register:
+ 1661              	.LVL149:
+ 1662              	.LFB288:
+ 407:modules/BMI088/bmi088.c **** 
+ 408:modules/BMI088/bmi088.c **** // 考虑阻塞模式和非阻塞模式的兼容性,通过条件编译(则需要在编译前修改�
+ 409:modules/BMI088/bmi088.c **** // runtime的开销不大(一次性判断),但是需要修改函数原型,增加参数,代码长度
+ 410:modules/BMI088/bmi088.c **** // runtime如何修改callback?根据参数选择是否给spi传入callback,如果是阻塞模式,�
+ 411:modules/BMI088/bmi088.c **** // 条件编译的开销小,但是需要修改宏定义,增加编译时间,同时人力介入
+ 412:modules/BMI088/bmi088.c **** // 根据实际情况选择(说了和没说一样!)
+ 413:modules/BMI088/bmi088.c **** 
+ 414:modules/BMI088/bmi088.c **** BMI088Instance *BMI088Register(BMI088_Init_Config_s *config)
+ 415:modules/BMI088/bmi088.c **** {
+ 1663              		.loc 1 415 1 is_stmt 1 view -0
+ 1664              		.cfi_startproc
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 44
+
+
+ 1665              		@ args = 0, pretend = 0, frame = 0
+ 1666              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1667              		.loc 1 415 1 is_stmt 0 view .LVU457
+ 1668 0000 70B5     		push	{r4, r5, r6, lr}
+ 1669              		.cfi_def_cfa_offset 16
+ 1670              		.cfi_offset 4, -16
+ 1671              		.cfi_offset 5, -12
+ 1672              		.cfi_offset 6, -8
+ 1673              		.cfi_offset 14, -4
+ 1674 0002 0646     		mov	r6, r0
+ 416:modules/BMI088/bmi088.c ****     // 申请内存
+ 417:modules/BMI088/bmi088.c ****     BMI088Instance *bmi088_instance = (BMI088Instance *)zmalloc(sizeof(BMI088Instance));
+ 1675              		.loc 1 417 5 is_stmt 1 view .LVU458
+ 1676              		.loc 1 417 57 is_stmt 0 view .LVU459
+ 1677 0004 D820     		movs	r0, #216
+ 1678              	.LVL150:
+ 1679              		.loc 1 417 57 view .LVU460
+ 1680 0006 FFF7FEFF 		bl	zmalloc
+ 1681              	.LVL151:
+ 1682 000a 0546     		mov	r5, r0
+ 1683              	.LVL152:
+ 418:modules/BMI088/bmi088.c ****     // 从右向左赋值,让bsp instance保存指向bmi088_instance的指针(父指针),便于在�
+ 419:modules/BMI088/bmi088.c ****     config->acc_int_config.id =
+ 1684              		.loc 1 419 5 is_stmt 1 view .LVU461
+ 420:modules/BMI088/bmi088.c ****         config->gyro_int_config.id =
+ 421:modules/BMI088/bmi088.c ****             config->spi_acc_config.id =
+ 422:modules/BMI088/bmi088.c ****                 config->spi_gyro_config.id =
+ 423:modules/BMI088/bmi088.c ****                     config->heat_pwm_config.id = bmi088_instance;
+ 1685              		.loc 1 423 48 is_stmt 0 view .LVU462
+ 1686 000c C6F88C00 		str	r0, [r6, #140]
+ 422:modules/BMI088/bmi088.c ****                     config->heat_pwm_config.id = bmi088_instance;
+ 1687              		.loc 1 422 44 view .LVU463
+ 1688 0010 7061     		str	r0, [r6, #20]
+ 421:modules/BMI088/bmi088.c ****                 config->spi_gyro_config.id =
+ 1689              		.loc 1 421 39 view .LVU464
+ 1690 0012 B062     		str	r0, [r6, #40]
+ 420:modules/BMI088/bmi088.c ****         config->gyro_int_config.id =
+ 1691              		.loc 1 420 36 view .LVU465
+ 1692 0014 B063     		str	r0, [r6, #56]
+ 419:modules/BMI088/bmi088.c ****         config->gyro_int_config.id =
+ 1693              		.loc 1 419 31 view .LVU466
+ 1694 0016 B064     		str	r0, [r6, #72]
+ 424:modules/BMI088/bmi088.c ****     // @todo:
+ 425:modules/BMI088/bmi088.c ****     // 目前只实现了!!!阻塞读取模式!!!.如果需要使用IT模式,则需要修改这里�
+ 426:modules/BMI088/bmi088.c ****     // 还需要设置SPI的传输模式为DMA模式或IT模式(默认为blocking)
+ 427:modules/BMI088/bmi088.c ****     // 可以通过conditional compilation或者runtime参数判断
+ 428:modules/BMI088/bmi088.c ****     // code to go here ...
+ 429:modules/BMI088/bmi088.c **** 
+ 430:modules/BMI088/bmi088.c ****     // INT_ACC EXTI CALLBACK: 检查是否有传输正在进行,如果没有则开启SPI DMA传输,
+ 431:modules/BMI088/bmi088.c ****     // 第一次是加速度计,第二次是温度.
+ 432:modules/BMI088/bmi088.c **** 
+ 433:modules/BMI088/bmi088.c ****     // INT_GYRO EXTI CALLBACK: 开启SPI DMA传输,不会出现等待传输的情况
+ 434:modules/BMI088/bmi088.c ****     // SPI_GYRO DMA CALLBACK: 解算陀螺仪数据,
+ 435:modules/BMI088/bmi088.c ****     // SPI_ACC DMA CALLBACK: 解算加速度计数据,清除温度wait标志位并启动温度传�
+ 436:modules/BMI088/bmi088.c **** 
+ 437:modules/BMI088/bmi088.c ****     // 还有其他方案可用,比如阻塞等待传输完成,但是比较笨.
+ 438:modules/BMI088/bmi088.c ****         config->spi_acc_config.spi_work_mode = SPI_BLOCK_MODE;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 45
+
+
+ 1695              		.loc 1 438 9 is_stmt 1 view .LVU467
+ 1696              		.loc 1 438 46 is_stmt 0 view .LVU468
+ 1697 0018 0023     		movs	r3, #0
+ 1698 001a 86F82230 		strb	r3, [r6, #34]
+ 439:modules/BMI088/bmi088.c ****         config->spi_gyro_config.spi_work_mode = SPI_BLOCK_MODE;
+ 1699              		.loc 1 439 9 is_stmt 1 view .LVU469
+ 1700              		.loc 1 439 47 is_stmt 0 view .LVU470
+ 1701 001e B373     		strb	r3, [r6, #14]
+ 440:modules/BMI088/bmi088.c ****     // 根据参数选择工作模式
+ 441:modules/BMI088/bmi088.c ****     bmi088_instance->spi_acc = SPIRegister(&config->spi_acc_config);
+ 1702              		.loc 1 441 5 is_stmt 1 view .LVU471
+ 1703              		.loc 1 441 32 is_stmt 0 view .LVU472
+ 1704 0020 06F11800 		add	r0, r6, #24
+ 1705              	.LVL153:
+ 1706              		.loc 1 441 32 view .LVU473
+ 1707 0024 FFF7FEFF 		bl	SPIRegister
+ 1708              	.LVL154:
+ 1709              		.loc 1 441 30 discriminator 1 view .LVU474
+ 1710 0028 A860     		str	r0, [r5, #8]
+ 442:modules/BMI088/bmi088.c ****     bmi088_instance->spi_gyro = SPIRegister(&config->spi_gyro_config);
+ 1711              		.loc 1 442 5 is_stmt 1 view .LVU475
+ 1712              		.loc 1 442 33 is_stmt 0 view .LVU476
+ 1713 002a 301D     		adds	r0, r6, #4
+ 1714 002c FFF7FEFF 		bl	SPIRegister
+ 1715              	.LVL155:
+ 1716              		.loc 1 442 31 discriminator 1 view .LVU477
+ 1717 0030 6860     		str	r0, [r5, #4]
+ 443:modules/BMI088/bmi088.c ****     bmi088_instance->heat_pwm = PWMRegister(&config->heat_pwm_config);
+ 1718              		.loc 1 443 5 is_stmt 1 view .LVU478
+ 1719              		.loc 1 443 33 is_stmt 0 view .LVU479
+ 1720 0032 06F17800 		add	r0, r6, #120
+ 1721 0036 FFF7FEFF 		bl	PWMRegister
+ 1722              	.LVL156:
+ 1723              		.loc 1 443 31 discriminator 1 view .LVU480
+ 1724 003a C5F89000 		str	r0, [r5, #144]
+ 444:modules/BMI088/bmi088.c ****     PIDInit(&bmi088_instance->heat_pid, &config->heat_pid_config);
+ 1725              		.loc 1 444 5 is_stmt 1 view .LVU481
+ 1726 003e 06F14C01 		add	r1, r6, #76
+ 1727 0042 05F11800 		add	r0, r5, #24
+ 1728 0046 FFF7FEFF 		bl	PIDInit
+ 1729              	.LVL157:
+ 445:modules/BMI088/bmi088.c **** 
+ 446:modules/BMI088/bmi088.c ****     // 初始化acc和gyro
+ 447:modules/BMI088/bmi088.c ****     BMI088_ERORR_CODE_e error = BMI088_NO_ERROR;
+ 1730              		.loc 1 447 5 view .LVU482
+ 1731              	.L118:
+ 448:modules/BMI088/bmi088.c ****     do
+ 1732              		.loc 1 448 5 view .LVU483
+ 449:modules/BMI088/bmi088.c ****     {
+ 450:modules/BMI088/bmi088.c ****         error = BMI088_NO_ERROR;
+ 1733              		.loc 1 450 9 view .LVU484
+ 451:modules/BMI088/bmi088.c ****         error |= BMI088AccelInit(bmi088_instance);
+ 1734              		.loc 1 451 9 view .LVU485
+ 1735              		.loc 1 451 18 is_stmt 0 view .LVU486
+ 1736 004a 2846     		mov	r0, r5
+ 1737 004c FFF7FEFF 		bl	BMI088AccelInit
+ 1738              	.LVL158:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 46
+
+
+ 1739 0050 0446     		mov	r4, r0
+ 1740              	.LVL159:
+ 452:modules/BMI088/bmi088.c ****         error |= BMI088GyroInit(bmi088_instance);
+ 1741              		.loc 1 452 9 is_stmt 1 view .LVU487
+ 1742              		.loc 1 452 18 is_stmt 0 view .LVU488
+ 1743 0052 2846     		mov	r0, r5
+ 1744 0054 FFF7FEFF 		bl	BMI088GyroInit
+ 1745              	.LVL160:
+ 1746              		.loc 1 452 15 discriminator 1 view .LVU489
+ 1747 0058 0443     		orrs	r4, r4, r0
+ 1748              	.LVL161:
+ 453:modules/BMI088/bmi088.c ****         // 可以增加try out times,超出次数则返回错误
+ 454:modules/BMI088/bmi088.c ****     } while (error != 0);
+ 1749              		.loc 1 454 20 is_stmt 1 discriminator 1 view .LVU490
+ 1750 005a 14F0FF0F 		tst	r4, #255
+ 1751 005e F4D1     		bne	.L118
+ 455:modules/BMI088/bmi088.c **** 
+ 456:modules/BMI088/bmi088.c ****     bmi088_instance->work_mode = BMI088_BLOCK_PERIODIC_MODE; // 临时设置为阻塞模式
+ 1752              		.loc 1 456 5 view .LVU491
+ 1753              		.loc 1 456 32 is_stmt 0 view .LVU492
+ 1754 0060 0023     		movs	r3, #0
+ 1755 0062 2B70     		strb	r3, [r5]
+ 457:modules/BMI088/bmi088.c ****     BMI088CalibrateIMU(bmi088_instance);                     // 标定acc和gyro
+ 1756              		.loc 1 457 5 is_stmt 1 view .LVU493
+ 1757 0064 2846     		mov	r0, r5
+ 1758 0066 FFF7FEFF 		bl	BMI088CalibrateIMU
+ 1759              	.LVL162:
+ 458:modules/BMI088/bmi088.c ****     bmi088_instance->work_mode = config->work_mode;          // 恢复工作模式
+ 1760              		.loc 1 458 5 view .LVU494
+ 1761              		.loc 1 458 40 is_stmt 0 view .LVU495
+ 1762 006a 3378     		ldrb	r3, [r6]	@ zero_extendqisi2
+ 1763              		.loc 1 458 32 view .LVU496
+ 1764 006c 2B70     		strb	r3, [r5]
+ 459:modules/BMI088/bmi088.c ****     if (config->work_mode == BMI088_BLOCK_TRIGGER_MODE)
+ 1765              		.loc 1 459 5 is_stmt 1 view .LVU497
+ 1766              		.loc 1 459 8 is_stmt 0 view .LVU498
+ 1767 006e 012B     		cmp	r3, #1
+ 1768 0070 01D0     		beq	.L121
+ 1769              	.L117:
+ 460:modules/BMI088/bmi088.c ****     {
+ 461:modules/BMI088/bmi088.c ****         bmi088_instance->spi_acc->spi_work_mode = SPI_DMA_MODE;
+ 462:modules/BMI088/bmi088.c ****         bmi088_instance->spi_gyro->spi_work_mode = SPI_DMA_MODE;
+ 463:modules/BMI088/bmi088.c ****         
+ 464:modules/BMI088/bmi088.c ****         // 设置回调函数
+ 465:modules/BMI088/bmi088.c ****         bmi088_instance->spi_acc->callback = BMI088AccSPIFinishCallback;
+ 466:modules/BMI088/bmi088.c ****         bmi088_instance->spi_gyro->callback = BMI088GyroSPIFinishCallback;
+ 467:modules/BMI088/bmi088.c ****         
+ 468:modules/BMI088/bmi088.c ****         bmi088_instance->acc_int = GPIORegister(&config->acc_int_config); // 只有在非阻塞模�
+ 469:modules/BMI088/bmi088.c ****         bmi088_instance->gyro_int = GPIORegister(&config->gyro_int_config);
+ 470:modules/BMI088/bmi088.c **** 
+ 471:modules/BMI088/bmi088.c ****         bmi088_instance->acc_int->gpio_model_callback = BMI088AccINTCallback;
+ 472:modules/BMI088/bmi088.c ****         bmi088_instance->gyro_int->gpio_model_callback = BMI088GyroINTCallback;
+ 473:modules/BMI088/bmi088.c ****     } // 注册实例
+ 474:modules/BMI088/bmi088.c ****     return bmi088_instance;
+ 475:modules/BMI088/bmi088.c **** }
+ 1770              		.loc 1 475 1 view .LVU499
+ 1771 0072 2846     		mov	r0, r5
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 47
+
+
+ 1772 0074 70BD     		pop	{r4, r5, r6, pc}
+ 1773              	.LVL163:
+ 1774              	.L121:
+ 461:modules/BMI088/bmi088.c ****         bmi088_instance->spi_gyro->spi_work_mode = SPI_DMA_MODE;
+ 1775              		.loc 1 461 9 is_stmt 1 view .LVU500
+ 461:modules/BMI088/bmi088.c ****         bmi088_instance->spi_gyro->spi_work_mode = SPI_DMA_MODE;
+ 1776              		.loc 1 461 24 is_stmt 0 view .LVU501
+ 1777 0076 AA68     		ldr	r2, [r5, #8]
+ 461:modules/BMI088/bmi088.c ****         bmi088_instance->spi_gyro->spi_work_mode = SPI_DMA_MODE;
+ 1778              		.loc 1 461 49 view .LVU502
+ 1779 0078 0223     		movs	r3, #2
+ 1780 007a 9372     		strb	r3, [r2, #10]
+ 462:modules/BMI088/bmi088.c ****         
+ 1781              		.loc 1 462 9 is_stmt 1 view .LVU503
+ 462:modules/BMI088/bmi088.c ****         
+ 1782              		.loc 1 462 24 is_stmt 0 view .LVU504
+ 1783 007c 6A68     		ldr	r2, [r5, #4]
+ 462:modules/BMI088/bmi088.c ****         
+ 1784              		.loc 1 462 50 view .LVU505
+ 1785 007e 9372     		strb	r3, [r2, #10]
+ 465:modules/BMI088/bmi088.c ****         bmi088_instance->spi_gyro->callback = BMI088GyroSPIFinishCallback;
+ 1786              		.loc 1 465 9 is_stmt 1 view .LVU506
+ 465:modules/BMI088/bmi088.c ****         bmi088_instance->spi_gyro->callback = BMI088GyroSPIFinishCallback;
+ 1787              		.loc 1 465 24 is_stmt 0 view .LVU507
+ 1788 0080 AB68     		ldr	r3, [r5, #8]
+ 465:modules/BMI088/bmi088.c ****         bmi088_instance->spi_gyro->callback = BMI088GyroSPIFinishCallback;
+ 1789              		.loc 1 465 44 view .LVU508
+ 1790 0082 0B4A     		ldr	r2, .L122
+ 1791 0084 9A61     		str	r2, [r3, #24]
+ 466:modules/BMI088/bmi088.c ****         
+ 1792              		.loc 1 466 9 is_stmt 1 view .LVU509
+ 466:modules/BMI088/bmi088.c ****         
+ 1793              		.loc 1 466 24 is_stmt 0 view .LVU510
+ 1794 0086 6B68     		ldr	r3, [r5, #4]
+ 466:modules/BMI088/bmi088.c ****         
+ 1795              		.loc 1 466 45 view .LVU511
+ 1796 0088 0A4A     		ldr	r2, .L122+4
+ 1797 008a 9A61     		str	r2, [r3, #24]
+ 468:modules/BMI088/bmi088.c ****         bmi088_instance->gyro_int = GPIORegister(&config->gyro_int_config);
+ 1798              		.loc 1 468 9 is_stmt 1 view .LVU512
+ 468:modules/BMI088/bmi088.c ****         bmi088_instance->gyro_int = GPIORegister(&config->gyro_int_config);
+ 1799              		.loc 1 468 36 is_stmt 0 view .LVU513
+ 1800 008c 06F13C00 		add	r0, r6, #60
+ 1801 0090 FFF7FEFF 		bl	GPIORegister
+ 1802              	.LVL164:
+ 468:modules/BMI088/bmi088.c ****         bmi088_instance->gyro_int = GPIORegister(&config->gyro_int_config);
+ 1803              		.loc 1 468 34 discriminator 1 view .LVU514
+ 1804 0094 2861     		str	r0, [r5, #16]
+ 469:modules/BMI088/bmi088.c **** 
+ 1805              		.loc 1 469 9 is_stmt 1 view .LVU515
+ 469:modules/BMI088/bmi088.c **** 
+ 1806              		.loc 1 469 37 is_stmt 0 view .LVU516
+ 1807 0096 06F12C00 		add	r0, r6, #44
+ 1808 009a FFF7FEFF 		bl	GPIORegister
+ 1809              	.LVL165:
+ 469:modules/BMI088/bmi088.c **** 
+ 1810              		.loc 1 469 35 discriminator 1 view .LVU517
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 48
+
+
+ 1811 009e E860     		str	r0, [r5, #12]
+ 471:modules/BMI088/bmi088.c ****         bmi088_instance->gyro_int->gpio_model_callback = BMI088GyroINTCallback;
+ 1812              		.loc 1 471 9 is_stmt 1 view .LVU518
+ 471:modules/BMI088/bmi088.c ****         bmi088_instance->gyro_int->gpio_model_callback = BMI088GyroINTCallback;
+ 1813              		.loc 1 471 24 is_stmt 0 view .LVU519
+ 1814 00a0 2B69     		ldr	r3, [r5, #16]
+ 471:modules/BMI088/bmi088.c ****         bmi088_instance->gyro_int->gpio_model_callback = BMI088GyroINTCallback;
+ 1815              		.loc 1 471 55 view .LVU520
+ 1816 00a2 054A     		ldr	r2, .L122+8
+ 1817 00a4 9A60     		str	r2, [r3, #8]
+ 472:modules/BMI088/bmi088.c ****     } // 注册实例
+ 1818              		.loc 1 472 9 is_stmt 1 view .LVU521
+ 472:modules/BMI088/bmi088.c ****     } // 注册实例
+ 1819              		.loc 1 472 24 is_stmt 0 view .LVU522
+ 1820 00a6 EB68     		ldr	r3, [r5, #12]
+ 472:modules/BMI088/bmi088.c ****     } // 注册实例
+ 1821              		.loc 1 472 56 view .LVU523
+ 1822 00a8 044A     		ldr	r2, .L122+12
+ 1823 00aa 9A60     		str	r2, [r3, #8]
+ 474:modules/BMI088/bmi088.c **** }
+ 1824              		.loc 1 474 5 is_stmt 1 view .LVU524
+ 474:modules/BMI088/bmi088.c **** }
+ 1825              		.loc 1 474 12 is_stmt 0 view .LVU525
+ 1826 00ac E1E7     		b	.L117
+ 1827              	.L123:
+ 1828 00ae 00BF     		.align	2
+ 1829              	.L122:
+ 1830 00b0 00000000 		.word	BMI088AccSPIFinishCallback
+ 1831 00b4 00000000 		.word	BMI088GyroSPIFinishCallback
+ 1832 00b8 00000000 		.word	BMI088AccINTCallback
+ 1833 00bc 00000000 		.word	BMI088GyroINTCallback
+ 1834              		.cfi_endproc
+ 1835              	.LFE288:
+ 1837              		.section	.bss.buf.0,"aw",%nobits
+ 1838              		.align	2
+ 1841              	buf.0:
+ 1842 0000 00000000 		.space	6
+ 1842      0000
+ 1843              		.section	.bss.bmi088.1,"aw",%nobits
+ 1844              		.align	2
+ 1847              	bmi088.1:
+ 1848 0000 00000000 		.space	4
+ 1849              		.section	.bss.buf.2,"aw",%nobits
+ 1850              		.align	2
+ 1853              	buf.2:
+ 1854 0000 00000000 		.space	6
+ 1854      0000
+ 1855              		.section	.bss.bmi088.3,"aw",%nobits
+ 1856              		.align	2
+ 1859              	bmi088.3:
+ 1860 0000 00000000 		.space	4
+ 1861              		.section	.bss.rx.4,"aw",%nobits
+ 1862              		.align	2
+ 1865              	rx.4:
+ 1866 0000 00000000 		.space	8
+ 1866      00000000 
+ 1867              		.section	.bss.tx.5,"aw",%nobits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 49
+
+
+ 1868              		.align	2
+ 1871              	tx.5:
+ 1872 0000 00000000 		.space	8
+ 1872      00000000 
+ 1873              		.section	.bss.rx.6,"aw",%nobits
+ 1874              		.align	2
+ 1877              	rx.6:
+ 1878 0000 00000000 		.space	7
+ 1878      000000
+ 1879              		.section	.data.tx.7,"aw"
+ 1880              		.align	2
+ 1883              	tx.7:
+ 1884 0000 8000     		.ascii	"\200\000"
+ 1885 0002 00000000 		.space	5
+ 1885      00
+ 1886              		.section	.bss.buf.8,"aw",%nobits
+ 1887              		.align	2
+ 1890              	buf.8:
+ 1891 0000 00000000 		.space	6
+ 1891      0000
+ 1892              		.section	.rodata.BMI088_Gyro_Init_Table,"a"
+ 1893              		.align	2
+ 1896              	BMI088_Gyro_Init_Table:
+ 1897 0000 0F0008   		.ascii	"\017\000\010"
+ 1898 0003 108209   		.ascii	"\020\202\011"
+ 1899 0006 11000A   		.ascii	"\021\000\012"
+ 1900 0009 15800B   		.ascii	"\025\200\013"
+ 1901 000c 16000C   		.ascii	"\026\000\014"
+ 1902 000f 18010D   		.ascii	"\030\001\015"
+ 1903              		.section	.rodata.BMI088_Accel_Init_Table,"a"
+ 1904              		.align	2
+ 1907              	BMI088_Accel_Init_Table:
+ 1908 0000 7D0401   		.ascii	"}\004\001"
+ 1909 0003 7C0002   		.ascii	"|\000\002"
+ 1910 0006 40AB03   		.ascii	"@\253\003"
+ 1911 0009 410105   		.ascii	"A\001\005"
+ 1912 000c 530806   		.ascii	"S\010\006"
+ 1913 000f 580407   		.ascii	"X\004\007"
+ 1914              		.text
+ 1915              	.Letext0:
+ 1916              		.file 2 "modules/BMI088/bmi088_regNdef.h"
+ 1917              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1918              		.file 4 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1919              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 1920              		.file 6 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 1921              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 1922              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 1923              		.file 9 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 1924              		.file 10 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h"
+ 1925              		.file 11 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h"
+ 1926              		.file 12 "bsp/spi/bsp_spi.h"
+ 1927              		.file 13 "bsp/gpio/bsp_gpio.h"
+ 1928              		.file 14 "modules/algorithm/controller.h"
+ 1929              		.file 15 "bsp/pwm/bsp_pwm.h"
+ 1930              		.file 16 "modules/BMI088/bmi088.h"
+ 1931              		.file 17 "modules/daemon/daemon.h"
+ 1932              		.file 18 "modules/algorithm/user_lib.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 50
+
+
+ 1933              		.file 19 "bsp/dwt/bsp_dwt.h"
+ 1934              		.file 20 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 1935              		.file 21 "<built-in>"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 51
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bmi088.c
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:21     .text.BMI088AccSPIFinishCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:26     .text.BMI088AccSPIFinishCallback:00000000 BMI088AccSPIFinishCallback
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:40     .text.BMI088GyroSPIFinishCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:45     .text.BMI088GyroSPIFinishCallback:00000000 BMI088GyroSPIFinishCallback
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:59     .text.BMI088GyroRead:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:64     .text.BMI088GyroRead:00000000 BMI088GyroRead
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:125    .text.BMI088GyroRead:00000030 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1883   .data.tx.7:00000000 tx.7
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1877   .bss.rx.6:00000000 rx.6
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:131    .text.BMI088GyroINTCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:136    .text.BMI088GyroINTCallback:00000000 BMI088GyroINTCallback
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:228    .text.BMI088GyroINTCallback:0000006c $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1859   .bss.bmi088.3:00000000 bmi088.3
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1853   .bss.buf.2:00000000 buf.2
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:234    .text.BMI088AccelRead:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:239    .text.BMI088AccelRead:00000000 BMI088AccelRead
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:300    .text.BMI088AccelRead:00000030 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1871   .bss.tx.5:00000000 tx.5
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1865   .bss.rx.4:00000000 rx.4
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:306    .text.BMI088AccINTCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:311    .text.BMI088AccINTCallback:00000000 BMI088AccINTCallback
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:401    .text.BMI088AccINTCallback:0000006c $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1847   .bss.bmi088.1:00000000 bmi088.1
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1841   .bss.buf.0:00000000 buf.0
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:407    .text.BMI088AccelWriteSingleReg:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:412    .text.BMI088AccelWriteSingleReg:00000000 BMI088AccelWriteSingleReg
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:450    .text.BMI088AccelInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:455    .text.BMI088AccelInit:00000000 BMI088AccelInit
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:614    .text.BMI088AccelInit:000000cc $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1907   .rodata.BMI088_Accel_Init_Table:00000000 BMI088_Accel_Init_Table
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:623    .text.BMI088GyroWriteSingleReg:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:628    .text.BMI088GyroWriteSingleReg:00000000 BMI088GyroWriteSingleReg
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:666    .text.BMI088GyroInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:671    .text.BMI088GyroInit:00000000 BMI088GyroInit
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:819    .text.BMI088GyroInit:000000b8 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1896   .rodata.BMI088_Gyro_Init_Table:00000000 BMI088_Gyro_Init_Table
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:827    .text.BMI088Acquire:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:833    .text.BMI088Acquire:00000000 BMI088Acquire
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1076   .text.BMI088Acquire:0000014c $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1890   .bss.buf.8:00000000 buf.8
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1081   .text.BMI088CalibrateIMU:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1087   .text.BMI088CalibrateIMU:00000000 BMI088CalibrateIMU
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1638   .text.BMI088CalibrateIMU:00000310 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1654   .text.BMI088Register:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1660   .text.BMI088Register:00000000 BMI088Register
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1830   .text.BMI088Register:000000b0 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1838   .bss.buf.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1844   .bss.bmi088.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1850   .bss.buf.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1856   .bss.bmi088.3:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1862   .bss.rx.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1868   .bss.tx.5:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1874   .bss.rx.6:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1880   .data.tx.7:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1887   .bss.buf.8:00000000 $d
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s 			page 52
+
+
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1893   .rodata.BMI088_Gyro_Init_Table:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cccAnnVz.s:1904   .rodata.BMI088_Accel_Init_Table:00000000 $d
+
+UNDEFINED SYMBOLS
+SPITransRecv
+memcpy
+SPITransmit
+DWT_Delay
+__aeabi_f2d
+__aeabi_ddiv
+__aeabi_dmul
+__aeabi_d2f
+DWT_GetTimeline_s
+__aeabi_dcmpgt
+NormOf3d
+zmalloc
+SPIRegister
+PWMRegister
+PIDInit
+GPIORegister

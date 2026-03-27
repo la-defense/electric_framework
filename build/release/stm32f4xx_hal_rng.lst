@@ -1,0 +1,417 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"stm32f4xx_hal_rng.c"
+  16              		.text
+  17              		.section	.text.HAL_RNG_MspInit,"ax",%progbits
+  18              		.align	1
+  19              		.weak	HAL_RNG_MspInit
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	HAL_RNG_MspInit:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27              		@ link register save eliminated.
+  28 0000 7047     		bx	lr
+  30              		.section	.text.HAL_RNG_Init,"ax",%progbits
+  31              		.align	1
+  32              		.global	HAL_RNG_Init
+  33              		.syntax unified
+  34              		.thumb
+  35              		.thumb_func
+  37              	HAL_RNG_Init:
+  38              		@ args = 0, pretend = 0, frame = 0
+  39              		@ frame_needed = 0, uses_anonymous_args = 0
+  40 0000 98B1     		cbz	r0, .L5
+  41 0002 10B5     		push	{r4, lr}
+  42 0004 0446     		mov	r4, r0
+  43 0006 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+  44 0008 5BB1     		cbz	r3, .L10
+  45              	.L4:
+  46 000a 0223     		movs	r3, #2
+  47 000c 6371     		strb	r3, [r4, #5]
+  48 000e 2268     		ldr	r2, [r4]
+  49 0010 1368     		ldr	r3, [r2]
+  50 0012 43F00403 		orr	r3, r3, #4
+  51 0016 1360     		str	r3, [r2]
+  52 0018 0123     		movs	r3, #1
+  53 001a 6371     		strb	r3, [r4, #5]
+  54 001c 0020     		movs	r0, #0
+  55 001e A060     		str	r0, [r4, #8]
+  56 0020 10BD     		pop	{r4, pc}
+  57              	.L10:
+  58 0022 0371     		strb	r3, [r0, #4]
+  59 0024 FFF7FEFF 		bl	HAL_RNG_MspInit
+  60 0028 EFE7     		b	.L4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s 			page 2
+
+
+  61              	.L5:
+  62 002a 0120     		movs	r0, #1
+  63 002c 7047     		bx	lr
+  65              		.section	.text.HAL_RNG_MspDeInit,"ax",%progbits
+  66              		.align	1
+  67              		.weak	HAL_RNG_MspDeInit
+  68              		.syntax unified
+  69              		.thumb
+  70              		.thumb_func
+  72              	HAL_RNG_MspDeInit:
+  73              		@ args = 0, pretend = 0, frame = 0
+  74              		@ frame_needed = 0, uses_anonymous_args = 0
+  75              		@ link register save eliminated.
+  76 0000 7047     		bx	lr
+  78              		.section	.text.HAL_RNG_DeInit,"ax",%progbits
+  79              		.align	1
+  80              		.global	HAL_RNG_DeInit
+  81              		.syntax unified
+  82              		.thumb
+  83              		.thumb_func
+  85              	HAL_RNG_DeInit:
+  86              		@ args = 0, pretend = 0, frame = 0
+  87              		@ frame_needed = 0, uses_anonymous_args = 0
+  88 0000 90B1     		cbz	r0, .L14
+  89 0002 10B5     		push	{r4, lr}
+  90 0004 0446     		mov	r4, r0
+  91 0006 0268     		ldr	r2, [r0]
+  92 0008 1368     		ldr	r3, [r2]
+  93 000a 23F00C03 		bic	r3, r3, #12
+  94 000e 1360     		str	r3, [r2]
+  95 0010 0268     		ldr	r2, [r0]
+  96 0012 5368     		ldr	r3, [r2, #4]
+  97 0014 23F06003 		bic	r3, r3, #96
+  98 0018 5360     		str	r3, [r2, #4]
+  99 001a FFF7FEFF 		bl	HAL_RNG_MspDeInit
+ 100 001e 0020     		movs	r0, #0
+ 101 0020 6071     		strb	r0, [r4, #5]
+ 102 0022 A060     		str	r0, [r4, #8]
+ 103 0024 2071     		strb	r0, [r4, #4]
+ 104 0026 10BD     		pop	{r4, pc}
+ 105              	.L14:
+ 106 0028 0120     		movs	r0, #1
+ 107 002a 7047     		bx	lr
+ 109              		.section	.text.HAL_RNG_GenerateRandomNumber,"ax",%progbits
+ 110              		.align	1
+ 111              		.global	HAL_RNG_GenerateRandomNumber
+ 112              		.syntax unified
+ 113              		.thumb
+ 114              		.thumb_func
+ 116              	HAL_RNG_GenerateRandomNumber:
+ 117              		@ args = 0, pretend = 0, frame = 0
+ 118              		@ frame_needed = 0, uses_anonymous_args = 0
+ 119 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 120 0002 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 121 0004 012B     		cmp	r3, #1
+ 122 0006 30D0     		beq	.L25
+ 123 0008 0446     		mov	r4, r0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s 			page 3
+
+
+ 124 000a 0F46     		mov	r7, r1
+ 125 000c 0123     		movs	r3, #1
+ 126 000e 0371     		strb	r3, [r0, #4]
+ 127 0010 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 128 0012 DDB2     		uxtb	r5, r3
+ 129 0014 012B     		cmp	r3, #1
+ 130 0016 06D0     		beq	.L27
+ 131 0018 0423     		movs	r3, #4
+ 132 001a 8360     		str	r3, [r0, #8]
+ 133 001c 0125     		movs	r5, #1
+ 134              	.L24:
+ 135 001e 0023     		movs	r3, #0
+ 136 0020 2371     		strb	r3, [r4, #4]
+ 137              	.L20:
+ 138 0022 2846     		mov	r0, r5
+ 139 0024 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 140              	.L27:
+ 141 0026 0223     		movs	r3, #2
+ 142 0028 4371     		strb	r3, [r0, #5]
+ 143 002a FFF7FEFF 		bl	HAL_GetTick
+ 144 002e 0646     		mov	r6, r0
+ 145              	.L22:
+ 146 0030 2368     		ldr	r3, [r4]
+ 147 0032 5A68     		ldr	r2, [r3, #4]
+ 148 0034 12F0010F 		tst	r2, #1
+ 149 0038 10D1     		bne	.L28
+ 150 003a FFF7FEFF 		bl	HAL_GetTick
+ 151 003e 801B     		subs	r0, r0, r6
+ 152 0040 0228     		cmp	r0, #2
+ 153 0042 F5D9     		bls	.L22
+ 154 0044 2368     		ldr	r3, [r4]
+ 155 0046 5B68     		ldr	r3, [r3, #4]
+ 156 0048 13F0010F 		tst	r3, #1
+ 157 004c F0D1     		bne	.L22
+ 158 004e 0123     		movs	r3, #1
+ 159 0050 6371     		strb	r3, [r4, #5]
+ 160 0052 0223     		movs	r3, #2
+ 161 0054 A360     		str	r3, [r4, #8]
+ 162 0056 0023     		movs	r3, #0
+ 163 0058 2371     		strb	r3, [r4, #4]
+ 164 005a E2E7     		b	.L20
+ 165              	.L28:
+ 166 005c 9B68     		ldr	r3, [r3, #8]
+ 167 005e E360     		str	r3, [r4, #12]
+ 168 0060 3B60     		str	r3, [r7]
+ 169 0062 0123     		movs	r3, #1
+ 170 0064 6371     		strb	r3, [r4, #5]
+ 171 0066 0025     		movs	r5, #0
+ 172 0068 D9E7     		b	.L24
+ 173              	.L25:
+ 174 006a 0225     		movs	r5, #2
+ 175 006c D9E7     		b	.L20
+ 177              		.section	.text.HAL_RNG_GenerateRandomNumber_IT,"ax",%progbits
+ 178              		.align	1
+ 179              		.global	HAL_RNG_GenerateRandomNumber_IT
+ 180              		.syntax unified
+ 181              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s 			page 4
+
+
+ 182              		.thumb_func
+ 184              	HAL_RNG_GenerateRandomNumber_IT:
+ 185              		@ args = 0, pretend = 0, frame = 0
+ 186              		@ frame_needed = 0, uses_anonymous_args = 0
+ 187              		@ link register save eliminated.
+ 188 0000 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 189 0002 012B     		cmp	r3, #1
+ 190 0004 13D0     		beq	.L32
+ 191 0006 0123     		movs	r3, #1
+ 192 0008 0371     		strb	r3, [r0, #4]
+ 193 000a 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 194 000c 012B     		cmp	r3, #1
+ 195 000e 05D0     		beq	.L33
+ 196 0010 0023     		movs	r3, #0
+ 197 0012 0371     		strb	r3, [r0, #4]
+ 198 0014 0423     		movs	r3, #4
+ 199 0016 8360     		str	r3, [r0, #8]
+ 200 0018 0120     		movs	r0, #1
+ 201 001a 7047     		bx	lr
+ 202              	.L33:
+ 203 001c 0223     		movs	r3, #2
+ 204 001e 4371     		strb	r3, [r0, #5]
+ 205 0020 0268     		ldr	r2, [r0]
+ 206 0022 1368     		ldr	r3, [r2]
+ 207 0024 43F00803 		orr	r3, r3, #8
+ 208 0028 1360     		str	r3, [r2]
+ 209 002a 0020     		movs	r0, #0
+ 210 002c 7047     		bx	lr
+ 211              	.L32:
+ 212 002e 0220     		movs	r0, #2
+ 213 0030 7047     		bx	lr
+ 215              		.section	.text.HAL_RNG_GetRandomNumber,"ax",%progbits
+ 216              		.align	1
+ 217              		.global	HAL_RNG_GetRandomNumber
+ 218              		.syntax unified
+ 219              		.thumb
+ 220              		.thumb_func
+ 222              	HAL_RNG_GetRandomNumber:
+ 223              		@ args = 0, pretend = 0, frame = 0
+ 224              		@ frame_needed = 0, uses_anonymous_args = 0
+ 225 0000 10B5     		push	{r4, lr}
+ 226 0002 0446     		mov	r4, r0
+ 227 0004 00F10C01 		add	r1, r0, #12
+ 228 0008 FFF7FEFF 		bl	HAL_RNG_GenerateRandomNumber
+ 229 000c 08B9     		cbnz	r0, .L36
+ 230 000e E068     		ldr	r0, [r4, #12]
+ 231              	.L34:
+ 232 0010 10BD     		pop	{r4, pc}
+ 233              	.L36:
+ 234 0012 0020     		movs	r0, #0
+ 235 0014 FCE7     		b	.L34
+ 237              		.section	.text.HAL_RNG_GetRandomNumber_IT,"ax",%progbits
+ 238              		.align	1
+ 239              		.global	HAL_RNG_GetRandomNumber_IT
+ 240              		.syntax unified
+ 241              		.thumb
+ 242              		.thumb_func
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s 			page 5
+
+
+ 244              	HAL_RNG_GetRandomNumber_IT:
+ 245              		@ args = 0, pretend = 0, frame = 0
+ 246              		@ frame_needed = 0, uses_anonymous_args = 0
+ 247              		@ link register save eliminated.
+ 248 0000 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 249 0002 012B     		cmp	r3, #1
+ 250 0004 0AD0     		beq	.L40
+ 251 0006 0123     		movs	r3, #1
+ 252 0008 0371     		strb	r3, [r0, #4]
+ 253 000a 0223     		movs	r3, #2
+ 254 000c 4371     		strb	r3, [r0, #5]
+ 255 000e 0368     		ldr	r3, [r0]
+ 256 0010 9868     		ldr	r0, [r3, #8]
+ 257 0012 1A68     		ldr	r2, [r3]
+ 258 0014 42F00802 		orr	r2, r2, #8
+ 259 0018 1A60     		str	r2, [r3]
+ 260 001a 7047     		bx	lr
+ 261              	.L40:
+ 262 001c 0220     		movs	r0, #2
+ 263 001e 7047     		bx	lr
+ 265              		.section	.text.HAL_RNG_ReadLastRandomNumber,"ax",%progbits
+ 266              		.align	1
+ 267              		.global	HAL_RNG_ReadLastRandomNumber
+ 268              		.syntax unified
+ 269              		.thumb
+ 270              		.thumb_func
+ 272              	HAL_RNG_ReadLastRandomNumber:
+ 273              		@ args = 0, pretend = 0, frame = 0
+ 274              		@ frame_needed = 0, uses_anonymous_args = 0
+ 275              		@ link register save eliminated.
+ 276 0000 C068     		ldr	r0, [r0, #12]
+ 277 0002 7047     		bx	lr
+ 279              		.section	.text.HAL_RNG_ReadyDataCallback,"ax",%progbits
+ 280              		.align	1
+ 281              		.weak	HAL_RNG_ReadyDataCallback
+ 282              		.syntax unified
+ 283              		.thumb
+ 284              		.thumb_func
+ 286              	HAL_RNG_ReadyDataCallback:
+ 287              		@ args = 0, pretend = 0, frame = 0
+ 288              		@ frame_needed = 0, uses_anonymous_args = 0
+ 289              		@ link register save eliminated.
+ 290 0000 7047     		bx	lr
+ 292              		.section	.text.HAL_RNG_ErrorCallback,"ax",%progbits
+ 293              		.align	1
+ 294              		.weak	HAL_RNG_ErrorCallback
+ 295              		.syntax unified
+ 296              		.thumb
+ 297              		.thumb_func
+ 299              	HAL_RNG_ErrorCallback:
+ 300              		@ args = 0, pretend = 0, frame = 0
+ 301              		@ frame_needed = 0, uses_anonymous_args = 0
+ 302              		@ link register save eliminated.
+ 303 0000 7047     		bx	lr
+ 305              		.section	.text.HAL_RNG_IRQHandler,"ax",%progbits
+ 306              		.align	1
+ 307              		.global	HAL_RNG_IRQHandler
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s 			page 6
+
+
+ 308              		.syntax unified
+ 309              		.thumb
+ 310              		.thumb_func
+ 312              	HAL_RNG_IRQHandler:
+ 313              		@ args = 0, pretend = 0, frame = 0
+ 314              		@ frame_needed = 0, uses_anonymous_args = 0
+ 315 0000 10B5     		push	{r4, lr}
+ 316 0002 0446     		mov	r4, r0
+ 317 0004 0368     		ldr	r3, [r0]
+ 318 0006 5A68     		ldr	r2, [r3, #4]
+ 319 0008 12F0200F 		tst	r2, #32
+ 320 000c 18D1     		bne	.L51
+ 321 000e 5A68     		ldr	r2, [r3, #4]
+ 322 0010 12F0400F 		tst	r2, #64
+ 323 0014 20D1     		bne	.L52
+ 324 0016 5A68     		ldr	r2, [r3, #4]
+ 325 0018 12F0010F 		tst	r2, #1
+ 326 001c 1BD0     		beq	.L44
+ 327 001e 1A68     		ldr	r2, [r3]
+ 328 0020 22F00802 		bic	r2, r2, #8
+ 329 0024 1A60     		str	r2, [r3]
+ 330 0026 0368     		ldr	r3, [r0]
+ 331 0028 9968     		ldr	r1, [r3, #8]
+ 332 002a C160     		str	r1, [r0, #12]
+ 333 002c 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 334 002e 042B     		cmp	r3, #4
+ 335 0030 11D0     		beq	.L44
+ 336 0032 0123     		movs	r3, #1
+ 337 0034 4371     		strb	r3, [r0, #5]
+ 338 0036 0023     		movs	r3, #0
+ 339 0038 0371     		strb	r3, [r0, #4]
+ 340 003a FFF7FEFF 		bl	HAL_RNG_ReadyDataCallback
+ 341 003e 0AE0     		b	.L44
+ 342              	.L51:
+ 343 0040 1023     		movs	r3, #16
+ 344 0042 8360     		str	r3, [r0, #8]
+ 345              	.L46:
+ 346 0044 0423     		movs	r3, #4
+ 347 0046 6371     		strb	r3, [r4, #5]
+ 348 0048 2046     		mov	r0, r4
+ 349 004a FFF7FEFF 		bl	HAL_RNG_ErrorCallback
+ 350 004e 2368     		ldr	r3, [r4]
+ 351 0050 6FF06002 		mvn	r2, #96
+ 352 0054 5A60     		str	r2, [r3, #4]
+ 353              	.L44:
+ 354 0056 10BD     		pop	{r4, pc}
+ 355              	.L52:
+ 356 0058 0823     		movs	r3, #8
+ 357 005a 8360     		str	r3, [r0, #8]
+ 358 005c F2E7     		b	.L46
+ 360              		.section	.text.HAL_RNG_GetState,"ax",%progbits
+ 361              		.align	1
+ 362              		.global	HAL_RNG_GetState
+ 363              		.syntax unified
+ 364              		.thumb
+ 365              		.thumb_func
+ 367              	HAL_RNG_GetState:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s 			page 7
+
+
+ 368              		@ args = 0, pretend = 0, frame = 0
+ 369              		@ frame_needed = 0, uses_anonymous_args = 0
+ 370              		@ link register save eliminated.
+ 371 0000 4079     		ldrb	r0, [r0, #5]	@ zero_extendqisi2
+ 372 0002 7047     		bx	lr
+ 374              		.section	.text.HAL_RNG_GetError,"ax",%progbits
+ 375              		.align	1
+ 376              		.global	HAL_RNG_GetError
+ 377              		.syntax unified
+ 378              		.thumb
+ 379              		.thumb_func
+ 381              	HAL_RNG_GetError:
+ 382              		@ args = 0, pretend = 0, frame = 0
+ 383              		@ frame_needed = 0, uses_anonymous_args = 0
+ 384              		@ link register save eliminated.
+ 385 0000 8068     		ldr	r0, [r0, #8]
+ 386 0002 7047     		bx	lr
+ 388              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f4xx_hal_rng.c
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:18     .text.HAL_RNG_MspInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:24     .text.HAL_RNG_MspInit:00000000 HAL_RNG_MspInit
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:31     .text.HAL_RNG_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:37     .text.HAL_RNG_Init:00000000 HAL_RNG_Init
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:66     .text.HAL_RNG_MspDeInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:72     .text.HAL_RNG_MspDeInit:00000000 HAL_RNG_MspDeInit
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:79     .text.HAL_RNG_DeInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:85     .text.HAL_RNG_DeInit:00000000 HAL_RNG_DeInit
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:110    .text.HAL_RNG_GenerateRandomNumber:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:116    .text.HAL_RNG_GenerateRandomNumber:00000000 HAL_RNG_GenerateRandomNumber
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:178    .text.HAL_RNG_GenerateRandomNumber_IT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:184    .text.HAL_RNG_GenerateRandomNumber_IT:00000000 HAL_RNG_GenerateRandomNumber_IT
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:216    .text.HAL_RNG_GetRandomNumber:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:222    .text.HAL_RNG_GetRandomNumber:00000000 HAL_RNG_GetRandomNumber
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:238    .text.HAL_RNG_GetRandomNumber_IT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:244    .text.HAL_RNG_GetRandomNumber_IT:00000000 HAL_RNG_GetRandomNumber_IT
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:266    .text.HAL_RNG_ReadLastRandomNumber:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:272    .text.HAL_RNG_ReadLastRandomNumber:00000000 HAL_RNG_ReadLastRandomNumber
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:280    .text.HAL_RNG_ReadyDataCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:286    .text.HAL_RNG_ReadyDataCallback:00000000 HAL_RNG_ReadyDataCallback
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:293    .text.HAL_RNG_ErrorCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:299    .text.HAL_RNG_ErrorCallback:00000000 HAL_RNG_ErrorCallback
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:306    .text.HAL_RNG_IRQHandler:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:312    .text.HAL_RNG_IRQHandler:00000000 HAL_RNG_IRQHandler
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:361    .text.HAL_RNG_GetState:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:367    .text.HAL_RNG_GetState:00000000 HAL_RNG_GetState
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:375    .text.HAL_RNG_GetError:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQTBvgh.s:381    .text.HAL_RNG_GetError:00000000 HAL_RNG_GetError
+
+UNDEFINED SYMBOLS
+HAL_GetTick

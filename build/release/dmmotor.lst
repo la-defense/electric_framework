@@ -1,0 +1,565 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"dmmotor.c"
+  16              		.text
+  17              		.section	.text.float_to_uint,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	float_to_uint:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 31EE601A 		vsub.f32	s2, s2, s1
+  28 0004 30EE600A 		vsub.f32	s0, s0, s1
+  29 0008 0123     		movs	r3, #1
+  30 000a 8340     		lsls	r3, r3, r0
+  31 000c 013B     		subs	r3, r3, #1
+  32 000e 07EE903A 		vmov	s15, r3	@ int
+  33 0012 F8EEE77A 		vcvt.f32.s32	s15, s15
+  34 0016 20EE270A 		vmul.f32	s0, s0, s15
+  35 001a C0EE017A 		vdiv.f32	s15, s0, s2
+  36 001e FCEEE77A 		vcvt.u32.f32	s15, s15
+  37 0022 17EE903A 		vmov	r3, s15	@ int
+  38 0026 98B2     		uxth	r0, r3
+  39 0028 7047     		bx	lr
+  41              		.section	.text.uint_to_float,"ax",%progbits
+  42              		.align	1
+  43              		.syntax unified
+  44              		.thumb
+  45              		.thumb_func
+  47              	uint_to_float:
+  48              		@ args = 0, pretend = 0, frame = 0
+  49              		@ frame_needed = 0, uses_anonymous_args = 0
+  50              		@ link register save eliminated.
+  51 0000 07EE900A 		vmov	s15, r0	@ int
+  52 0004 70EEC00A 		vsub.f32	s1, s1, s0
+  53 0008 F8EEE77A 		vcvt.f32.s32	s15, s15
+  54 000c 27EEA07A 		vmul.f32	s14, s15, s1
+  55 0010 0123     		movs	r3, #1
+  56 0012 8B40     		lsls	r3, r3, r1
+  57 0014 013B     		subs	r3, r3, #1
+  58 0016 07EE903A 		vmov	s15, r3	@ int
+  59 001a F8EEE77A 		vcvt.f32.s32	s15, s15
+  60 001e C7EE276A 		vdiv.f32	s13, s14, s15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s 			page 2
+
+
+  61 0022 36EE800A 		vadd.f32	s0, s13, s0
+  62 0026 7047     		bx	lr
+  64              		.section	.text.DMMotorLostCallback,"ax",%progbits
+  65              		.align	1
+  66              		.syntax unified
+  67              		.thumb
+  68              		.thumb_func
+  70              	DMMotorLostCallback:
+  71              		@ args = 0, pretend = 0, frame = 0
+  72              		@ frame_needed = 0, uses_anonymous_args = 0
+  73              		@ link register save eliminated.
+  74 0000 7047     		bx	lr
+  76              		.section	.text.DMMotorSetMode,"ax",%progbits
+  77              		.align	1
+  78              		.syntax unified
+  79              		.thumb
+  80              		.thumb_func
+  82              	DMMotorSetMode:
+  83              		@ args = 0, pretend = 0, frame = 0
+  84              		@ frame_needed = 0, uses_anonymous_args = 0
+  85 0000 08B5     		push	{r3, lr}
+  86 0002 D1F8A831 		ldr	r3, [r1, #424]
+  87 0006 4FF0FF32 		mov	r2, #-1
+  88 000a 5A62     		str	r2, [r3, #36]	@ unaligned
+  89 000c C3F82720 		str	r2, [r3, #39]	@ unaligned
+  90 0010 D1F8A831 		ldr	r3, [r1, #424]
+  91 0014 83F82B00 		strb	r0, [r3, #43]
+  92 0018 B7EE000A 		vmov.f32	s0, #1.0e+0
+  93 001c D1F8A801 		ldr	r0, [r1, #424]
+  94 0020 FFF7FEFF 		bl	CANTransmit
+  95 0024 08BD     		pop	{r3, pc}
+  97              		.section	.text.DMMotorDecode,"ax",%progbits
+  98              		.align	1
+  99              		.syntax unified
+ 100              		.thumb
+ 101              		.thumb_func
+ 103              	DMMotorDecode:
+ 104              		@ args = 0, pretend = 0, frame = 0
+ 105              		@ frame_needed = 0, uses_anonymous_args = 0
+ 106 0000 38B5     		push	{r3, r4, r5, lr}
+ 107 0002 0446     		mov	r4, r0
+ 108 0004 D0F84150 		ldr	r5, [r0, #65]	@ unaligned
+ 109 0008 D5F8AC01 		ldr	r0, [r5, #428]
+ 110 000c FFF7FEFF 		bl	DaemonReload
+ 111 0010 EB68     		ldr	r3, [r5, #12]	@ float
+ 112 0012 AB60     		str	r3, [r5, #8]	@ float
+ 113 0014 94F82D00 		ldrb	r0, [r4, #45]	@ zero_extendqisi2
+ 114 0018 94F82E30 		ldrb	r3, [r4, #46]	@ zero_extendqisi2
+ 115 001c 1021     		movs	r1, #16
+ 116 001e F2EE090A 		vmov.f32	s1, #1.25e+1
+ 117 0022 BAEE090A 		vmov.f32	s0, #-1.25e+1
+ 118 0026 43EA0020 		orr	r0, r3, r0, lsl #8
+ 119 002a FFF7FEFF 		bl	uint_to_float
+ 120 002e 85ED030A 		vstr.32	s0, [r5, #12]
+ 121 0032 94F82F00 		ldrb	r0, [r4, #47]	@ zero_extendqisi2
+ 122 0036 94F83030 		ldrb	r3, [r4, #48]	@ zero_extendqisi2
+ 123 003a 1B09     		lsrs	r3, r3, #4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s 			page 3
+
+
+ 124 003c 0C21     		movs	r1, #12
+ 125 003e DFED160A 		vldr.32	s1, .L8
+ 126 0042 9FED160A 		vldr.32	s0, .L8+4
+ 127 0046 43EA0010 		orr	r0, r3, r0, lsl #4
+ 128 004a FFF7FEFF 		bl	uint_to_float
+ 129 004e 85ED010A 		vstr.32	s0, [r5, #4]
+ 130 0052 94F83030 		ldrb	r3, [r4, #48]	@ zero_extendqisi2
+ 131 0056 94F83100 		ldrb	r0, [r4, #49]	@ zero_extendqisi2
+ 132 005a 1B02     		lsls	r3, r3, #8
+ 133 005c 03F47063 		and	r3, r3, #3840
+ 134 0060 0C21     		movs	r1, #12
+ 135 0062 F3EE020A 		vmov.f32	s1, #1.8e+1
+ 136 0066 BBEE020A 		vmov.f32	s0, #-1.8e+1
+ 137 006a 1843     		orrs	r0, r0, r3
+ 138 006c FFF7FEFF 		bl	uint_to_float
+ 139 0070 85ED040A 		vstr.32	s0, [r5, #16]
+ 140 0074 94F83230 		ldrb	r3, [r4, #50]	@ zero_extendqisi2
+ 141 0078 07EE903A 		vmov	s15, r3	@ int
+ 142 007c F8EE677A 		vcvt.f32.u32	s15, s15
+ 143 0080 C5ED057A 		vstr.32	s15, [r5, #20]
+ 144 0084 94F83330 		ldrb	r3, [r4, #51]	@ zero_extendqisi2
+ 145 0088 07EE903A 		vmov	s15, r3	@ int
+ 146 008c F8EE677A 		vcvt.f32.u32	s15, s15
+ 147 0090 C5ED067A 		vstr.32	s15, [r5, #24]
+ 148 0094 38BD     		pop	{r3, r4, r5, pc}
+ 149              	.L9:
+ 150 0096 00BF     		.align	2
+ 151              	.L8:
+ 152 0098 00003442 		.word	1110704128
+ 153 009c 000034C2 		.word	-1036779520
+ 155              		.section	.text.DMMotorTask,"ax",%progbits
+ 156              		.align	1
+ 157              		.global	DMMotorTask
+ 158              		.syntax unified
+ 159              		.thumb
+ 160              		.thumb_func
+ 162              	DMMotorTask:
+ 163              		@ args = 0, pretend = 0, frame = 16
+ 164              		@ frame_needed = 0, uses_anonymous_args = 0
+ 165 0000 70B5     		push	{r4, r5, r6, lr}
+ 166 0002 2DED028B 		vpush.64	{d8}
+ 167 0006 84B0     		sub	sp, sp, #16
+ 168 0008 0446     		mov	r4, r0
+ 169 000a 3BE0     		b	.L12
+ 170              	.L14:
+ 171 000c 0C20     		movs	r0, #12
+ 172 000e B3EE021A 		vmov.f32	s2, #1.8e+1
+ 173 0012 FBEE020A 		vmov.f32	s1, #-1.8e+1
+ 174 0016 B0EE480A 		vmov.f32	s0, s16
+ 175 001a FFF7FEFF 		bl	float_to_uint
+ 176 001e ADF80800 		strh	r0, [sp, #8]	@ movhi
+ 177              	.L11:
+ 178 0022 D4F8A831 		ldr	r3, [r4, #424]
+ 179 0026 320A     		lsrs	r2, r6, #8
+ 180 0028 83F82420 		strb	r2, [r3, #36]
+ 181 002c D4F8A831 		ldr	r3, [r4, #424]
+ 182 0030 83F82560 		strb	r6, [r3, #37]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s 			page 4
+
+
+ 183 0034 D4F8A831 		ldr	r3, [r4, #424]
+ 184 0038 C5F30712 		ubfx	r2, r5, #4, #8
+ 185 003c 83F82620 		strb	r2, [r3, #38]
+ 186 0040 2D01     		lsls	r5, r5, #4
+ 187 0042 D4F8A831 		ldr	r3, [r4, #424]
+ 188 0046 83F82750 		strb	r5, [r3, #39]
+ 189 004a D4F8A821 		ldr	r2, [r4, #424]
+ 190 004e 0023     		movs	r3, #0
+ 191 0050 82F82830 		strb	r3, [r2, #40]
+ 192 0054 D4F8A821 		ldr	r2, [r4, #424]
+ 193 0058 82F82930 		strb	r3, [r2, #41]
+ 194 005c BDF80830 		ldrh	r3, [sp, #8]
+ 195 0060 D4F8A821 		ldr	r2, [r4, #424]
+ 196 0064 190A     		lsrs	r1, r3, #8
+ 197 0066 82F82A10 		strb	r1, [r2, #42]
+ 198 006a D4F8A821 		ldr	r2, [r4, #424]
+ 199 006e 82F82B30 		strb	r3, [r2, #43]
+ 200 0072 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 201 0076 D4F8A801 		ldr	r0, [r4, #424]
+ 202 007a FFF7FEFF 		bl	CANTransmit
+ 203 007e 0220     		movs	r0, #2
+ 204 0080 FFF7FEFF 		bl	osDelay
+ 205              	.L12:
+ 206 0084 D4ED688A 		vldr.32	s17, [r4, #416]
+ 207 0088 9FED178A 		vldr.32	s16, .L15
+ 208 008c 1020     		movs	r0, #16
+ 209 008e B2EE091A 		vmov.f32	s2, #1.25e+1
+ 210 0092 FAEE090A 		vmov.f32	s1, #-1.25e+1
+ 211 0096 B0EE480A 		vmov.f32	s0, s16
+ 212 009a FFF7FEFF 		bl	float_to_uint
+ 213 009e 0646     		mov	r6, r0
+ 214 00a0 ADF80400 		strh	r0, [sp, #4]	@ movhi
+ 215 00a4 0C20     		movs	r0, #12
+ 216 00a6 9FED111A 		vldr.32	s2, .L15+4
+ 217 00aa DFED110A 		vldr.32	s1, .L15+8
+ 218 00ae B0EE480A 		vmov.f32	s0, s16
+ 219 00b2 FFF7FEFF 		bl	float_to_uint
+ 220 00b6 0546     		mov	r5, r0
+ 221 00b8 ADF80600 		strh	r0, [sp, #6]	@ movhi
+ 222 00bc 0C20     		movs	r0, #12
+ 223 00be B3EE021A 		vmov.f32	s2, #1.8e+1
+ 224 00c2 FBEE020A 		vmov.f32	s1, #-1.8e+1
+ 225 00c6 B0EE680A 		vmov.f32	s0, s17
+ 226 00ca FFF7FEFF 		bl	float_to_uint
+ 227 00ce ADF80800 		strh	r0, [sp, #8]	@ movhi
+ 228 00d2 0023     		movs	r3, #0
+ 229 00d4 ADF80A30 		strh	r3, [sp, #10]	@ movhi
+ 230 00d8 ADF80C30 		strh	r3, [sp, #12]	@ movhi
+ 231 00dc 94F8A431 		ldrb	r3, [r4, #420]	@ zero_extendqisi2
+ 232 00e0 002B     		cmp	r3, #0
+ 233 00e2 93D0     		beq	.L14
+ 234 00e4 9DE7     		b	.L11
+ 235              	.L16:
+ 236 00e6 00BF     		.align	2
+ 237              	.L15:
+ 238 00e8 00000000 		.word	0
+ 239 00ec 00003442 		.word	1110704128
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s 			page 5
+
+
+ 240 00f0 000034C2 		.word	-1036779520
+ 242              		.section	.text.DMMotorCaliEncoder,"ax",%progbits
+ 243              		.align	1
+ 244              		.global	DMMotorCaliEncoder
+ 245              		.syntax unified
+ 246              		.thumb
+ 247              		.thumb_func
+ 249              	DMMotorCaliEncoder:
+ 250              		@ args = 0, pretend = 0, frame = 0
+ 251              		@ frame_needed = 0, uses_anonymous_args = 0
+ 252 0000 08B5     		push	{r3, lr}
+ 253 0002 0146     		mov	r1, r0
+ 254 0004 FE20     		movs	r0, #254
+ 255 0006 FFF7FEFF 		bl	DMMotorSetMode
+ 256 000a 9FED020A 		vldr.32	s0, .L19
+ 257 000e FFF7FEFF 		bl	DWT_Delay
+ 258 0012 08BD     		pop	{r3, pc}
+ 259              	.L20:
+ 260              		.align	2
+ 261              	.L19:
+ 262 0014 CDCCCC3D 		.word	1036831949
+ 264              		.section	.text.DMMotorSetRef,"ax",%progbits
+ 265              		.align	1
+ 266              		.global	DMMotorSetRef
+ 267              		.syntax unified
+ 268              		.thumb
+ 269              		.thumb_func
+ 271              	DMMotorSetRef:
+ 272              		@ args = 0, pretend = 0, frame = 0
+ 273              		@ frame_needed = 0, uses_anonymous_args = 0
+ 274              		@ link register save eliminated.
+ 275 0000 80ED680A 		vstr.32	s0, [r0, #416]
+ 276 0004 7047     		bx	lr
+ 278              		.section	.text.DMMotorEnable,"ax",%progbits
+ 279              		.align	1
+ 280              		.global	DMMotorEnable
+ 281              		.syntax unified
+ 282              		.thumb
+ 283              		.thumb_func
+ 285              	DMMotorEnable:
+ 286              		@ args = 0, pretend = 0, frame = 0
+ 287              		@ frame_needed = 0, uses_anonymous_args = 0
+ 288              		@ link register save eliminated.
+ 289 0000 0123     		movs	r3, #1
+ 290 0002 80F8A431 		strb	r3, [r0, #420]
+ 291 0006 7047     		bx	lr
+ 293              		.section	.text.DMMotorInit,"ax",%progbits
+ 294              		.align	1
+ 295              		.global	DMMotorInit
+ 296              		.syntax unified
+ 297              		.thumb
+ 298              		.thumb_func
+ 300              	DMMotorInit:
+ 301              		@ args = 0, pretend = 0, frame = 16
+ 302              		@ frame_needed = 0, uses_anonymous_args = 0
+ 303 0000 30B5     		push	{r4, r5, lr}
+ 304 0002 2DED028B 		vpush.64	{d8}
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s 			page 6
+
+
+ 305 0006 85B0     		sub	sp, sp, #20
+ 306 0008 0546     		mov	r5, r0
+ 307 000a 4FF4DC70 		mov	r0, #440
+ 308 000e FFF7FEFF 		bl	malloc
+ 309 0012 0446     		mov	r4, r0
+ 310 0014 4FF4DC72 		mov	r2, #440
+ 311 0018 0021     		movs	r1, #0
+ 312 001a FFF7FEFF 		bl	memset
+ 313 001e 04F12003 		add	r3, r4, #32
+ 314 0022 05F19402 		add	r2, r5, #148
+ 315 0026 92E80300 		ldm	r2, {r0, r1}
+ 316 002a 83E80300 		stm	r3, {r0, r1}
+ 317 002e 05F11001 		add	r1, r5, #16
+ 318 0032 04F12800 		add	r0, r4, #40
+ 319 0036 FFF7FEFF 		bl	PIDInit
+ 320 003a 05F13C01 		add	r1, r5, #60
+ 321 003e 04F1A000 		add	r0, r4, #160
+ 322 0042 FFF7FEFF 		bl	PIDInit
+ 323 0046 05F16801 		add	r1, r5, #104
+ 324 004a 04F58C70 		add	r0, r4, #280
+ 325 004e FFF7FEFF 		bl	PIDInit
+ 326 0052 2B68     		ldr	r3, [r5]
+ 327 0054 C4F89031 		str	r3, [r4, #400]
+ 328 0058 6B68     		ldr	r3, [r5, #4]
+ 329 005a C4F89431 		str	r3, [r4, #404]
+ 330 005e 1D4B     		ldr	r3, .L25
+ 331 0060 C5F8B430 		str	r3, [r5, #180]
+ 332 0064 C5F8B840 		str	r4, [r5, #184]
+ 333 0068 05F1A000 		add	r0, r5, #160
+ 334 006c FFF7FEFF 		bl	CANRegister
+ 335 0070 C4F8A801 		str	r0, [r4, #424]
+ 336 0074 01A8     		add	r0, sp, #4
+ 337 0076 0023     		movs	r3, #0
+ 338 0078 0193     		str	r3, [sp, #4]
+ 339 007a 4360     		str	r3, [r0, #4]
+ 340 007c 8360     		str	r3, [r0, #8]
+ 341 007e 0A23     		movs	r3, #10
+ 342 0080 ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 343 0084 144B     		ldr	r3, .L25+4
+ 344 0086 0293     		str	r3, [sp, #8]
+ 345 0088 0394     		str	r4, [sp, #12]
+ 346 008a FFF7FEFF 		bl	DaemonRegister
+ 347 008e C4F8AC01 		str	r0, [r4, #428]
+ 348 0092 2046     		mov	r0, r4
+ 349 0094 FFF7FEFF 		bl	DMMotorEnable
+ 350 0098 2146     		mov	r1, r4
+ 351 009a FC20     		movs	r0, #252
+ 352 009c FFF7FEFF 		bl	DMMotorSetMode
+ 353 00a0 9FED0E8A 		vldr.32	s16, .L25+8
+ 354 00a4 B0EE480A 		vmov.f32	s0, s16
+ 355 00a8 FFF7FEFF 		bl	DWT_Delay
+ 356 00ac 2046     		mov	r0, r4
+ 357 00ae FFF7FEFF 		bl	DMMotorCaliEncoder
+ 358 00b2 B0EE480A 		vmov.f32	s0, s16
+ 359 00b6 FFF7FEFF 		bl	DWT_Delay
+ 360 00ba 094A     		ldr	r2, .L25+12
+ 361 00bc 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s 			page 7
+
+
+ 362 00be 591C     		adds	r1, r3, #1
+ 363 00c0 1170     		strb	r1, [r2]
+ 364 00c2 084A     		ldr	r2, .L25+16
+ 365 00c4 42F82340 		str	r4, [r2, r3, lsl #2]
+ 366 00c8 2046     		mov	r0, r4
+ 367 00ca 05B0     		add	sp, sp, #20
+ 368              		@ sp needed
+ 369 00cc BDEC028B 		vldm	sp!, {d8}
+ 370 00d0 30BD     		pop	{r4, r5, pc}
+ 371              	.L26:
+ 372 00d2 00BF     		.align	2
+ 373              	.L25:
+ 374 00d4 00000000 		.word	DMMotorDecode
+ 375 00d8 00000000 		.word	DMMotorLostCallback
+ 376 00dc CDCCCC3D 		.word	1036831949
+ 377 00e0 00000000 		.word	idx
+ 378 00e4 00000000 		.word	dm_motor_instance
+ 380              		.section	.text.DMMotorStop,"ax",%progbits
+ 381              		.align	1
+ 382              		.global	DMMotorStop
+ 383              		.syntax unified
+ 384              		.thumb
+ 385              		.thumb_func
+ 387              	DMMotorStop:
+ 388              		@ args = 0, pretend = 0, frame = 0
+ 389              		@ frame_needed = 0, uses_anonymous_args = 0
+ 390              		@ link register save eliminated.
+ 391 0000 0023     		movs	r3, #0
+ 392 0002 80F8A431 		strb	r3, [r0, #420]
+ 393 0006 7047     		bx	lr
+ 395              		.section	.text.DMMotorOuterLoop,"ax",%progbits
+ 396              		.align	1
+ 397              		.global	DMMotorOuterLoop
+ 398              		.syntax unified
+ 399              		.thumb
+ 400              		.thumb_func
+ 402              	DMMotorOuterLoop:
+ 403              		@ args = 0, pretend = 0, frame = 0
+ 404              		@ frame_needed = 0, uses_anonymous_args = 0
+ 405              		@ link register save eliminated.
+ 406 0000 80F82010 		strb	r1, [r0, #32]
+ 407 0004 7047     		bx	lr
+ 409              		.section	.text.DMMotorControlInit,"ax",%progbits
+ 410              		.align	1
+ 411              		.global	DMMotorControlInit
+ 412              		.syntax unified
+ 413              		.thumb
+ 414              		.thumb_func
+ 416              	DMMotorControlInit:
+ 417              		@ args = 0, pretend = 0, frame = 40
+ 418              		@ frame_needed = 0, uses_anonymous_args = 0
+ 419 0000 30B5     		push	{r4, r5, lr}
+ 420 0002 8BB0     		sub	sp, sp, #44
+ 421 0004 46F66453 		movw	r3, #28004
+ 422 0008 0893     		str	r3, [sp, #32]
+ 423 000a 0023     		movs	r3, #0
+ 424 000c 8DF82430 		strb	r3, [sp, #36]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s 			page 8
+
+
+ 425 0010 154B     		ldr	r3, .L35
+ 426 0012 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 427 0014 2BB3     		cbz	r3, .L29
+ 428 0016 0024     		movs	r4, #0
+ 429 0018 1FE0     		b	.L30
+ 430              	.L32:
+ 431 001a 0023     		movs	r3, #0
+ 432 001c ADF80030 		strh	r3, [sp]	@ movhi
+ 433 0020 0A22     		movs	r2, #10
+ 434 0022 6946     		mov	r1, sp
+ 435 0024 2046     		mov	r0, r4
+ 436 0026 FFF7FEFF 		bl	__itoa
+ 437 002a 6946     		mov	r1, sp
+ 438 002c 08A8     		add	r0, sp, #32
+ 439 002e FFF7FEFF 		bl	strcat
+ 440 0032 0DF1040C 		add	ip, sp, #4
+ 441 0036 0D4D     		ldr	r5, .L35+4
+ 442 0038 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 443 003a ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 444 003e 95E80700 		ldm	r5, {r0, r1, r2}
+ 445 0042 8CE80700 		stm	ip, {r0, r1, r2}
+ 446 0046 0A4B     		ldr	r3, .L35+8
+ 447 0048 53F82410 		ldr	r1, [r3, r4, lsl #2]
+ 448 004c 01A8     		add	r0, sp, #4
+ 449 004e FFF7FEFF 		bl	osThreadCreate
+ 450 0052 084B     		ldr	r3, .L35+12
+ 451 0054 43F82400 		str	r0, [r3, r4, lsl #2]
+ 452 0058 0134     		adds	r4, r4, #1
+ 453              	.L30:
+ 454 005a 034B     		ldr	r3, .L35
+ 455 005c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 456 005e A342     		cmp	r3, r4
+ 457 0060 DBD8     		bhi	.L32
+ 458              	.L29:
+ 459 0062 0BB0     		add	sp, sp, #44
+ 460              		@ sp needed
+ 461 0064 30BD     		pop	{r4, r5, pc}
+ 462              	.L36:
+ 463 0066 00BF     		.align	2
+ 464              	.L35:
+ 465 0068 00000000 		.word	idx
+ 466 006c 00000000 		.word	.LANCHOR0
+ 467 0070 00000000 		.word	dm_motor_instance
+ 468 0074 00000000 		.word	dm_task_handle
+ 470              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 471              		.align	2
+ 472              	.LC0:
+ 473 0000 646D5F74 		.ascii	"dm_task_name\000"
+ 473      61736B5F 
+ 473      6E616D65 
+ 473      00
+ 474              		.section	.bss.dm_task_handle,"aw",%nobits
+ 475              		.align	2
+ 478              	dm_task_handle:
+ 479 0000 00000000 		.space	16
+ 479      00000000 
+ 479      00000000 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s 			page 9
+
+
+ 479      00000000 
+ 480              		.section	.bss.dm_motor_instance,"aw",%nobits
+ 481              		.align	2
+ 484              	dm_motor_instance:
+ 485 0000 00000000 		.space	16
+ 485      00000000 
+ 485      00000000 
+ 485      00000000 
+ 486              		.section	.bss.idx,"aw",%nobits
+ 489              	idx:
+ 490 0000 00       		.space	1
+ 491              		.section	.rodata
+ 492              		.align	2
+ 493              		.set	.LANCHOR0,. + 0
+ 494              	.LC2:
+ 495 0000 00000000 		.word	.LC0
+ 496 0004 00000000 		.word	DMMotorTask
+ 497 0008 0000     		.short	0
+ 498 000a 0000     		.space	2
+ 499 000c 00000000 		.word	0
+ 500 0010 80000000 		.word	128
+ 501 0014 00000000 		.word	0
+ 502 0018 00000000 		.word	0
+ 503              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 dmmotor.c
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:18     .text.float_to_uint:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:23     .text.float_to_uint:00000000 float_to_uint
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:42     .text.uint_to_float:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:47     .text.uint_to_float:00000000 uint_to_float
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:65     .text.DMMotorLostCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:70     .text.DMMotorLostCallback:00000000 DMMotorLostCallback
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:77     .text.DMMotorSetMode:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:82     .text.DMMotorSetMode:00000000 DMMotorSetMode
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:98     .text.DMMotorDecode:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:103    .text.DMMotorDecode:00000000 DMMotorDecode
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:152    .text.DMMotorDecode:00000098 $d
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:156    .text.DMMotorTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:162    .text.DMMotorTask:00000000 DMMotorTask
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:238    .text.DMMotorTask:000000e8 $d
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:243    .text.DMMotorCaliEncoder:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:249    .text.DMMotorCaliEncoder:00000000 DMMotorCaliEncoder
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:262    .text.DMMotorCaliEncoder:00000014 $d
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:265    .text.DMMotorSetRef:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:271    .text.DMMotorSetRef:00000000 DMMotorSetRef
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:279    .text.DMMotorEnable:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:285    .text.DMMotorEnable:00000000 DMMotorEnable
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:294    .text.DMMotorInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:300    .text.DMMotorInit:00000000 DMMotorInit
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:374    .text.DMMotorInit:000000d4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:489    .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:484    .bss.dm_motor_instance:00000000 dm_motor_instance
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:381    .text.DMMotorStop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:387    .text.DMMotorStop:00000000 DMMotorStop
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:396    .text.DMMotorOuterLoop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:402    .text.DMMotorOuterLoop:00000000 DMMotorOuterLoop
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:410    .text.DMMotorControlInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:416    .text.DMMotorControlInit:00000000 DMMotorControlInit
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:465    .text.DMMotorControlInit:00000068 $d
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:478    .bss.dm_task_handle:00000000 dm_task_handle
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:471    .rodata.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:475    .bss.dm_task_handle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:481    .bss.dm_motor_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:490    .bss.idx:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccbg71LH.s:492    .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+CANTransmit
+DaemonReload
+osDelay
+DWT_Delay
+malloc
+memset
+PIDInit
+CANRegister
+DaemonRegister
+__itoa
+strcat
+osThreadCreate

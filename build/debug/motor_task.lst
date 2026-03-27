@@ -1,0 +1,94 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccvwsl1.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"motor_task.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/motor/motor_task.c"
+  20              		.section	.text.MotorControlTask,"ax",%progbits
+  21              		.align	1
+  22              		.global	MotorControlTask
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	MotorControlTask:
+  28              	.LFB271:
+   1:modules/motor/motor_task.c **** #include "motor_task.h"
+   2:modules/motor/motor_task.c **** #include "LK9025.h"
+   3:modules/motor/motor_task.c **** #include "HT04.h"
+   4:modules/motor/motor_task.c **** #include "dji_motor.h"
+   5:modules/motor/motor_task.c **** #include "xmmotor.h"
+   6:modules/motor/motor_task.c **** #include "step_motor.h"
+   7:modules/motor/motor_task.c **** #include "servo_motor.h"
+   8:modules/motor/motor_task.c **** 
+   9:modules/motor/motor_task.c **** void MotorControlTask()
+  10:modules/motor/motor_task.c **** {
+  29              		.loc 1 10 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33 0000 08B5     		push	{r3, lr}
+  34              		.cfi_def_cfa_offset 8
+  35              		.cfi_offset 3, -8
+  36              		.cfi_offset 14, -4
+  11:modules/motor/motor_task.c ****     // static uint8_t cnt = 0; 设定不同电机的任务频率
+  12:modules/motor/motor_task.c ****     // if(cnt%5==0) //200hz
+  13:modules/motor/motor_task.c ****     // if(cnt%10==0) //100hz
+  14:modules/motor/motor_task.c ****     DJIMotorControl();
+  37              		.loc 1 14 5 view .LVU1
+  38 0002 FFF7FEFF 		bl	DJIMotorControl
+  39              	.LVL0:
+  15:modules/motor/motor_task.c **** 
+  16:modules/motor/motor_task.c ****     // XMMotorControl();
+  17:modules/motor/motor_task.c **** 
+  18:modules/motor/motor_task.c ****     /* 如果有对应的电机则取消注释,可以加入条件编译或者register对应的idx�
+  19:modules/motor/motor_task.c ****     LKMotorControl();
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccvwsl1.s 			page 2
+
+
+  40              		.loc 1 19 5 view .LVU2
+  41 0006 FFF7FEFF 		bl	LKMotorControl
+  42              	.LVL1:
+  20:modules/motor/motor_task.c **** 
+  21:modules/motor/motor_task.c ****     // legacy support
+  22:modules/motor/motor_task.c ****     // 由于ht04电机的反馈方式为接收到一帧消息后立刻回传,以此方式连续发
+  23:modules/motor/motor_task.c ****     // 为了保证高频率控制,HTMotor中提供了以任务方式启动控制的接口,可通�
+  24:modules/motor/motor_task.c ****     // HTMotorControl();
+  25:modules/motor/motor_task.c ****     // 将所有的CAN设备集中在一处发送,最高反馈频率仅能达到500Hz,为了更好�
+  26:modules/motor/motor_task.c **** 
+  27:modules/motor/motor_task.c ****     // StepMotorControl();
+  28:modules/motor/motor_task.c **** }
+  43              		.loc 1 28 1 is_stmt 0 view .LVU3
+  44 000a 08BD     		pop	{r3, pc}
+  45              		.cfi_endproc
+  46              	.LFE271:
+  48              		.text
+  49              	.Letext0:
+  50              		.file 2 "modules/motor/LKmotor/LK9025.h"
+  51              		.file 3 "modules/motor/DJImotor/dji_motor.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cccvwsl1.s 			page 3
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 motor_task.c
+C:\Users\Administrator\AppData\Local\Temp\cccvwsl1.s:21     .text.MotorControlTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cccvwsl1.s:27     .text.MotorControlTask:00000000 MotorControlTask
+
+UNDEFINED SYMBOLS
+DJIMotorControl
+LKMotorControl

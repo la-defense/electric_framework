@@ -1,0 +1,1233 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_flash.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "bsp/flash/bsp_flash.c"
+  20              		.section	.text.ger_sector,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	ger_sector:
+  27              	.LVL0:
+  28              	.LFB239:
+   1:bsp/flash/bsp_flash.c **** #include "bsp_flash.h"
+   2:bsp/flash/bsp_flash.c **** #include "main.h"
+   3:bsp/flash/bsp_flash.c **** #include "string.h"
+   4:bsp/flash/bsp_flash.c **** 
+   5:bsp/flash/bsp_flash.c **** static uint32_t ger_sector(uint32_t address);
+   6:bsp/flash/bsp_flash.c **** 
+   7:bsp/flash/bsp_flash.c **** /**
+   8:bsp/flash/bsp_flash.c ****   * @brief          erase flash
+   9:bsp/flash/bsp_flash.c ****   * @param[in]      address: flash address
+  10:bsp/flash/bsp_flash.c ****   * @param[in]      len: page num
+  11:bsp/flash/bsp_flash.c ****   * @retval         none
+  12:bsp/flash/bsp_flash.c ****   */
+  13:bsp/flash/bsp_flash.c **** /**
+  14:bsp/flash/bsp_flash.c ****   * @brief          擦除flash
+  15:bsp/flash/bsp_flash.c ****   * @param[in]      address: flash 地址
+  16:bsp/flash/bsp_flash.c ****   * @param[in]      len: 页数量
+  17:bsp/flash/bsp_flash.c ****   * @retval         none
+  18:bsp/flash/bsp_flash.c ****   */
+  19:bsp/flash/bsp_flash.c **** void flash_erase_address(uint32_t address, uint16_t len)
+  20:bsp/flash/bsp_flash.c **** {
+  21:bsp/flash/bsp_flash.c ****     FLASH_EraseInitTypeDef flash_erase;
+  22:bsp/flash/bsp_flash.c ****     uint32_t error;
+  23:bsp/flash/bsp_flash.c **** 
+  24:bsp/flash/bsp_flash.c ****     flash_erase.Sector = ger_sector(address);
+  25:bsp/flash/bsp_flash.c ****     flash_erase.TypeErase = FLASH_TYPEERASE_SECTORS;
+  26:bsp/flash/bsp_flash.c ****     flash_erase.VoltageRange = FLASH_VOLTAGE_RANGE_3;
+  27:bsp/flash/bsp_flash.c ****     flash_erase.NbSectors = len;
+  28:bsp/flash/bsp_flash.c **** 
+  29:bsp/flash/bsp_flash.c ****     HAL_FLASH_Unlock();
+  30:bsp/flash/bsp_flash.c ****     HAL_FLASHEx_Erase(&flash_erase, &error);
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 2
+
+
+  31:bsp/flash/bsp_flash.c ****     HAL_FLASH_Lock();
+  32:bsp/flash/bsp_flash.c **** }
+  33:bsp/flash/bsp_flash.c **** 
+  34:bsp/flash/bsp_flash.c **** /**
+  35:bsp/flash/bsp_flash.c ****   * @brief          write data to one page of flash
+  36:bsp/flash/bsp_flash.c ****   * @param[in]      start_address: flash address
+  37:bsp/flash/bsp_flash.c ****   * @param[in]      buf: data point
+  38:bsp/flash/bsp_flash.c ****   * @param[in]      len: data num
+  39:bsp/flash/bsp_flash.c ****   * @retval         success 0, fail -1
+  40:bsp/flash/bsp_flash.c ****   */
+  41:bsp/flash/bsp_flash.c **** /**
+  42:bsp/flash/bsp_flash.c ****   * @brief          往一页flash写数据
+  43:bsp/flash/bsp_flash.c ****   * @param[in]      start_address: flash 地址
+  44:bsp/flash/bsp_flash.c ****   * @param[in]      buf: 数据指针
+  45:bsp/flash/bsp_flash.c ****   * @param[in]      len: 数据长度
+  46:bsp/flash/bsp_flash.c ****   * @retval         success 0, fail -1
+  47:bsp/flash/bsp_flash.c ****   */
+  48:bsp/flash/bsp_flash.c **** int8_t flash_write_single_address(uint32_t start_address, uint32_t *buf, uint32_t len)
+  49:bsp/flash/bsp_flash.c **** {
+  50:bsp/flash/bsp_flash.c ****     static uint32_t uw_address;
+  51:bsp/flash/bsp_flash.c ****     static uint32_t end_address;
+  52:bsp/flash/bsp_flash.c ****     static uint32_t *data_buf;
+  53:bsp/flash/bsp_flash.c ****     static uint32_t data_len;
+  54:bsp/flash/bsp_flash.c **** 
+  55:bsp/flash/bsp_flash.c ****     HAL_FLASH_Unlock();
+  56:bsp/flash/bsp_flash.c **** 
+  57:bsp/flash/bsp_flash.c ****     uw_address = start_address;
+  58:bsp/flash/bsp_flash.c ****     end_address = get_next_flash_address(start_address);
+  59:bsp/flash/bsp_flash.c ****     data_buf = buf;
+  60:bsp/flash/bsp_flash.c ****     data_len = 0;
+  61:bsp/flash/bsp_flash.c **** 
+  62:bsp/flash/bsp_flash.c ****     while (uw_address <= end_address)
+  63:bsp/flash/bsp_flash.c ****     {
+  64:bsp/flash/bsp_flash.c **** 
+  65:bsp/flash/bsp_flash.c ****         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD,uw_address, *data_buf) == HAL_OK)
+  66:bsp/flash/bsp_flash.c ****         {
+  67:bsp/flash/bsp_flash.c ****             uw_address += 4;
+  68:bsp/flash/bsp_flash.c ****             data_buf++;
+  69:bsp/flash/bsp_flash.c ****             data_len++;
+  70:bsp/flash/bsp_flash.c ****             if (data_len == len)
+  71:bsp/flash/bsp_flash.c ****             {
+  72:bsp/flash/bsp_flash.c ****                 break;
+  73:bsp/flash/bsp_flash.c ****             }
+  74:bsp/flash/bsp_flash.c ****         }
+  75:bsp/flash/bsp_flash.c ****         else
+  76:bsp/flash/bsp_flash.c ****         {
+  77:bsp/flash/bsp_flash.c ****             HAL_FLASH_Lock();
+  78:bsp/flash/bsp_flash.c ****             return -1;
+  79:bsp/flash/bsp_flash.c ****         }
+  80:bsp/flash/bsp_flash.c ****     }
+  81:bsp/flash/bsp_flash.c **** 
+  82:bsp/flash/bsp_flash.c ****     HAL_FLASH_Lock();
+  83:bsp/flash/bsp_flash.c ****     return 0;
+  84:bsp/flash/bsp_flash.c **** }
+  85:bsp/flash/bsp_flash.c **** 
+  86:bsp/flash/bsp_flash.c **** /**
+  87:bsp/flash/bsp_flash.c ****   * @brief          write data to some pages of flash
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 3
+
+
+  88:bsp/flash/bsp_flash.c ****   * @param[in]      start_address: flash start address
+  89:bsp/flash/bsp_flash.c ****   * @param[in]      end_address: flash end address
+  90:bsp/flash/bsp_flash.c ****   * @param[in]      buf: data point
+  91:bsp/flash/bsp_flash.c ****   * @param[in]      len: data num
+  92:bsp/flash/bsp_flash.c ****   * @retval         success 0, fail -1
+  93:bsp/flash/bsp_flash.c ****   */
+  94:bsp/flash/bsp_flash.c **** /**
+  95:bsp/flash/bsp_flash.c ****   * @brief          往几页flash写数据
+  96:bsp/flash/bsp_flash.c ****   * @param[in]      start_address: flash 开始地址
+  97:bsp/flash/bsp_flash.c ****   * @param[in]      end_address: flash 结束地址
+  98:bsp/flash/bsp_flash.c ****   * @param[in]      buf: 数据指针
+  99:bsp/flash/bsp_flash.c ****   * @param[in]      len: 数据长度
+ 100:bsp/flash/bsp_flash.c ****   * @retval         success 0, fail -1
+ 101:bsp/flash/bsp_flash.c ****   */
+ 102:bsp/flash/bsp_flash.c **** int8_t flash_write_muli_address(uint32_t start_address, uint32_t end_address, uint32_t *buf, uint32
+ 103:bsp/flash/bsp_flash.c **** {
+ 104:bsp/flash/bsp_flash.c ****     uint32_t uw_address = 0;
+ 105:bsp/flash/bsp_flash.c ****     uint32_t *data_buf;
+ 106:bsp/flash/bsp_flash.c ****     uint32_t data_len;
+ 107:bsp/flash/bsp_flash.c **** 
+ 108:bsp/flash/bsp_flash.c ****     HAL_FLASH_Unlock();
+ 109:bsp/flash/bsp_flash.c **** 
+ 110:bsp/flash/bsp_flash.c ****     uw_address = start_address;
+ 111:bsp/flash/bsp_flash.c ****     data_buf = buf;
+ 112:bsp/flash/bsp_flash.c ****     data_len = 0;
+ 113:bsp/flash/bsp_flash.c ****     while (uw_address <= end_address)
+ 114:bsp/flash/bsp_flash.c ****     {
+ 115:bsp/flash/bsp_flash.c ****         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD,uw_address, *data_buf) == HAL_OK)
+ 116:bsp/flash/bsp_flash.c ****         {
+ 117:bsp/flash/bsp_flash.c ****             uw_address += 4;
+ 118:bsp/flash/bsp_flash.c ****             data_buf++;
+ 119:bsp/flash/bsp_flash.c ****             data_len++;
+ 120:bsp/flash/bsp_flash.c ****             if (data_len == len)
+ 121:bsp/flash/bsp_flash.c ****             {
+ 122:bsp/flash/bsp_flash.c ****                 break;
+ 123:bsp/flash/bsp_flash.c ****             }
+ 124:bsp/flash/bsp_flash.c ****         }
+ 125:bsp/flash/bsp_flash.c ****         else
+ 126:bsp/flash/bsp_flash.c ****         {
+ 127:bsp/flash/bsp_flash.c ****             HAL_FLASH_Lock();
+ 128:bsp/flash/bsp_flash.c ****             return -1;
+ 129:bsp/flash/bsp_flash.c ****         }
+ 130:bsp/flash/bsp_flash.c ****     }
+ 131:bsp/flash/bsp_flash.c **** 
+ 132:bsp/flash/bsp_flash.c ****     HAL_FLASH_Lock(); 
+ 133:bsp/flash/bsp_flash.c ****     return 0;
+ 134:bsp/flash/bsp_flash.c **** }
+ 135:bsp/flash/bsp_flash.c **** 
+ 136:bsp/flash/bsp_flash.c **** 
+ 137:bsp/flash/bsp_flash.c **** /**
+ 138:bsp/flash/bsp_flash.c ****   * @brief          read data for flash
+ 139:bsp/flash/bsp_flash.c ****   * @param[in]      address: flash address
+ 140:bsp/flash/bsp_flash.c ****   * @param[out]     buf: data point
+ 141:bsp/flash/bsp_flash.c ****   * @param[in]      len: data num
+ 142:bsp/flash/bsp_flash.c ****   * @retval         none
+ 143:bsp/flash/bsp_flash.c ****   */
+ 144:bsp/flash/bsp_flash.c **** /**
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 4
+
+
+ 145:bsp/flash/bsp_flash.c ****   * @brief          从flash读数据
+ 146:bsp/flash/bsp_flash.c ****   * @param[in]      start_address: flash 地址
+ 147:bsp/flash/bsp_flash.c ****   * @param[out]     buf: 数据指针
+ 148:bsp/flash/bsp_flash.c ****   * @param[in]      len: 数据长度
+ 149:bsp/flash/bsp_flash.c ****   * @retval         none
+ 150:bsp/flash/bsp_flash.c ****   */
+ 151:bsp/flash/bsp_flash.c **** void flash_read(uint32_t address, uint32_t *buf, uint32_t len)
+ 152:bsp/flash/bsp_flash.c **** {
+ 153:bsp/flash/bsp_flash.c ****     memcpy(buf, (void*)address, len *4);
+ 154:bsp/flash/bsp_flash.c **** }
+ 155:bsp/flash/bsp_flash.c **** 
+ 156:bsp/flash/bsp_flash.c **** 
+ 157:bsp/flash/bsp_flash.c **** /**
+ 158:bsp/flash/bsp_flash.c ****   * @brief          get the sector number of flash
+ 159:bsp/flash/bsp_flash.c ****   * @param[in]      address: flash address
+ 160:bsp/flash/bsp_flash.c ****   * @retval         sector number
+ 161:bsp/flash/bsp_flash.c ****   */
+ 162:bsp/flash/bsp_flash.c **** /**
+ 163:bsp/flash/bsp_flash.c ****   * @brief          获取flash的sector号
+ 164:bsp/flash/bsp_flash.c ****   * @param[in]      address: flash 地址
+ 165:bsp/flash/bsp_flash.c ****   * @retval         sector号
+ 166:bsp/flash/bsp_flash.c ****   */
+ 167:bsp/flash/bsp_flash.c **** static uint32_t ger_sector(uint32_t address)
+ 168:bsp/flash/bsp_flash.c **** {
+  29              		.loc 1 168 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+ 169:bsp/flash/bsp_flash.c ****     uint32_t sector = 0;
+  34              		.loc 1 169 5 view .LVU1
+ 170:bsp/flash/bsp_flash.c ****     if ((address < ADDR_FLASH_SECTOR_1) && (address >= ADDR_FLASH_SECTOR_0))
+  35              		.loc 1 170 5 view .LVU2
+  36              		.loc 1 170 41 is_stmt 0 view .LVU3
+  37 0000 00F17843 		add	r3, r0, #-134217728
+  38              		.loc 1 170 8 view .LVU4
+  39 0004 B3F5804F 		cmp	r3, #16384
+  40 0008 45D3     		bcc	.L3
+ 171:bsp/flash/bsp_flash.c ****     {
+ 172:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_0;
+ 173:bsp/flash/bsp_flash.c ****     }
+ 174:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_2) && (address >= ADDR_FLASH_SECTOR_1))
+  41              		.loc 1 174 10 is_stmt 1 view .LVU5
+  42              		.loc 1 174 46 is_stmt 0 view .LVU6
+  43 000a A3F58043 		sub	r3, r3, #16384
+  44              		.loc 1 174 13 view .LVU7
+  45 000e B3F5804F 		cmp	r3, #16384
+  46 0012 42D3     		bcc	.L4
+ 175:bsp/flash/bsp_flash.c ****     {
+ 176:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_1;
+ 177:bsp/flash/bsp_flash.c ****     }
+ 178:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_3) && (address >= ADDR_FLASH_SECTOR_2))
+  47              		.loc 1 178 10 is_stmt 1 view .LVU8
+  48              		.loc 1 178 46 is_stmt 0 view .LVU9
+  49 0014 00F17843 		add	r3, r0, #-134217728
+  50 0018 A3F50043 		sub	r3, r3, #32768
+  51              		.loc 1 178 13 view .LVU10
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 5
+
+
+  52 001c B3F5804F 		cmp	r3, #16384
+  53 0020 3DD3     		bcc	.L5
+ 179:bsp/flash/bsp_flash.c ****     {
+ 180:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_2;
+ 181:bsp/flash/bsp_flash.c ****     }
+ 182:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_4) && (address >= ADDR_FLASH_SECTOR_3))
+  54              		.loc 1 182 10 is_stmt 1 view .LVU11
+  55              		.loc 1 182 46 is_stmt 0 view .LVU12
+  56 0022 00F17843 		add	r3, r0, #-134217728
+  57 0026 A3F54043 		sub	r3, r3, #49152
+  58              		.loc 1 182 13 view .LVU13
+  59 002a B3F5804F 		cmp	r3, #16384
+  60 002e 38D3     		bcc	.L6
+ 183:bsp/flash/bsp_flash.c ****     {
+ 184:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_3;
+ 185:bsp/flash/bsp_flash.c ****     }
+ 186:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_5) && (address >= ADDR_FLASH_SECTOR_4))
+  61              		.loc 1 186 10 is_stmt 1 view .LVU14
+  62              		.loc 1 186 46 is_stmt 0 view .LVU15
+  63 0030 00F17743 		add	r3, r0, #-150994944
+  64 0034 03F57F03 		add	r3, r3, #16711680
+  65              		.loc 1 186 13 view .LVU16
+  66 0038 B3F5803F 		cmp	r3, #65536
+  67 003c 33D3     		bcc	.L7
+ 187:bsp/flash/bsp_flash.c ****     {
+ 188:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_4;
+ 189:bsp/flash/bsp_flash.c ****     }
+ 190:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_6) && (address >= ADDR_FLASH_SECTOR_5))
+  68              		.loc 1 190 10 is_stmt 1 view .LVU17
+  69              		.loc 1 190 46 is_stmt 0 view .LVU18
+  70 003e 00F17743 		add	r3, r0, #-150994944
+  71 0042 03F57E03 		add	r3, r3, #16646144
+  72              		.loc 1 190 13 view .LVU19
+  73 0046 B3F5003F 		cmp	r3, #131072
+  74 004a 2ED3     		bcc	.L8
+ 191:bsp/flash/bsp_flash.c ****     {
+ 192:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_5;
+ 193:bsp/flash/bsp_flash.c ****     }
+ 194:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_7) && (address >= ADDR_FLASH_SECTOR_6))
+  75              		.loc 1 194 10 is_stmt 1 view .LVU20
+  76              		.loc 1 194 46 is_stmt 0 view .LVU21
+  77 004c 00F17743 		add	r3, r0, #-150994944
+  78 0050 03F57C03 		add	r3, r3, #16515072
+  79              		.loc 1 194 13 view .LVU22
+  80 0054 B3F5003F 		cmp	r3, #131072
+  81 0058 29D3     		bcc	.L9
+ 195:bsp/flash/bsp_flash.c ****     {
+ 196:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_6;
+ 197:bsp/flash/bsp_flash.c ****     }
+ 198:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_8) && (address >= ADDR_FLASH_SECTOR_7))
+  82              		.loc 1 198 10 is_stmt 1 view .LVU23
+  83              		.loc 1 198 46 is_stmt 0 view .LVU24
+  84 005a 00F17743 		add	r3, r0, #-150994944
+  85 005e 03F57A03 		add	r3, r3, #16384000
+  86              		.loc 1 198 13 view .LVU25
+  87 0062 B3F5003F 		cmp	r3, #131072
+  88 0066 24D3     		bcc	.L10
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 6
+
+
+ 199:bsp/flash/bsp_flash.c ****     {
+ 200:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_7;
+ 201:bsp/flash/bsp_flash.c ****     }
+ 202:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_9) && (address >= ADDR_FLASH_SECTOR_8))
+  89              		.loc 1 202 10 is_stmt 1 view .LVU26
+  90              		.loc 1 202 46 is_stmt 0 view .LVU27
+  91 0068 00F17743 		add	r3, r0, #-150994944
+  92 006c 03F57803 		add	r3, r3, #16252928
+  93              		.loc 1 202 13 view .LVU28
+  94 0070 B3F5003F 		cmp	r3, #131072
+  95 0074 1FD3     		bcc	.L11
+ 203:bsp/flash/bsp_flash.c ****     {
+ 204:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_8;
+ 205:bsp/flash/bsp_flash.c ****     }
+ 206:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_10) && (address >= ADDR_FLASH_SECTOR_9))
+  96              		.loc 1 206 10 is_stmt 1 view .LVU29
+  97              		.loc 1 206 47 is_stmt 0 view .LVU30
+  98 0076 00F17743 		add	r3, r0, #-150994944
+  99 007a 03F57603 		add	r3, r3, #16121856
+ 100              		.loc 1 206 13 view .LVU31
+ 101 007e B3F5003F 		cmp	r3, #131072
+ 102 0082 1AD3     		bcc	.L12
+ 207:bsp/flash/bsp_flash.c ****     {
+ 208:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_9;
+ 209:bsp/flash/bsp_flash.c ****     }
+ 210:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_11) && (address >= ADDR_FLASH_SECTOR_10))
+ 103              		.loc 1 210 10 is_stmt 1 view .LVU32
+ 104              		.loc 1 210 47 is_stmt 0 view .LVU33
+ 105 0084 00F17740 		add	r0, r0, #-150994944
+ 106              	.LVL1:
+ 107              		.loc 1 210 47 view .LVU34
+ 108 0088 00F57400 		add	r0, r0, #15990784
+ 109              	.LVL2:
+ 110              		.loc 1 210 13 view .LVU35
+ 111 008c B0F5003F 		cmp	r0, #131072
+ 112 0090 15D2     		bcs	.L13
+ 211:bsp/flash/bsp_flash.c ****     {
+ 212:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_10;
+ 113              		.loc 1 212 16 view .LVU36
+ 114 0092 0A20     		movs	r0, #10
+ 115              	.LVL3:
+ 116              		.loc 1 212 16 view .LVU37
+ 117 0094 7047     		bx	lr
+ 118              	.LVL4:
+ 119              	.L3:
+ 172:bsp/flash/bsp_flash.c ****     }
+ 120              		.loc 1 172 16 view .LVU38
+ 121 0096 0020     		movs	r0, #0
+ 122              	.LVL5:
+ 172:bsp/flash/bsp_flash.c ****     }
+ 123              		.loc 1 172 16 view .LVU39
+ 124 0098 7047     		bx	lr
+ 125              	.LVL6:
+ 126              	.L4:
+ 176:bsp/flash/bsp_flash.c ****     }
+ 127              		.loc 1 176 16 view .LVU40
+ 128 009a 0120     		movs	r0, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 7
+
+
+ 129              	.LVL7:
+ 176:bsp/flash/bsp_flash.c ****     }
+ 130              		.loc 1 176 16 view .LVU41
+ 131 009c 7047     		bx	lr
+ 132              	.LVL8:
+ 133              	.L5:
+ 180:bsp/flash/bsp_flash.c ****     }
+ 134              		.loc 1 180 16 view .LVU42
+ 135 009e 0220     		movs	r0, #2
+ 136              	.LVL9:
+ 180:bsp/flash/bsp_flash.c ****     }
+ 137              		.loc 1 180 16 view .LVU43
+ 138 00a0 7047     		bx	lr
+ 139              	.LVL10:
+ 140              	.L6:
+ 184:bsp/flash/bsp_flash.c ****     }
+ 141              		.loc 1 184 16 view .LVU44
+ 142 00a2 0320     		movs	r0, #3
+ 143              	.LVL11:
+ 184:bsp/flash/bsp_flash.c ****     }
+ 144              		.loc 1 184 16 view .LVU45
+ 145 00a4 7047     		bx	lr
+ 146              	.LVL12:
+ 147              	.L7:
+ 188:bsp/flash/bsp_flash.c ****     }
+ 148              		.loc 1 188 16 view .LVU46
+ 149 00a6 0420     		movs	r0, #4
+ 150              	.LVL13:
+ 188:bsp/flash/bsp_flash.c ****     }
+ 151              		.loc 1 188 16 view .LVU47
+ 152 00a8 7047     		bx	lr
+ 153              	.LVL14:
+ 154              	.L8:
+ 192:bsp/flash/bsp_flash.c ****     }
+ 155              		.loc 1 192 16 view .LVU48
+ 156 00aa 0520     		movs	r0, #5
+ 157              	.LVL15:
+ 192:bsp/flash/bsp_flash.c ****     }
+ 158              		.loc 1 192 16 view .LVU49
+ 159 00ac 7047     		bx	lr
+ 160              	.LVL16:
+ 161              	.L9:
+ 196:bsp/flash/bsp_flash.c ****     }
+ 162              		.loc 1 196 16 view .LVU50
+ 163 00ae 0620     		movs	r0, #6
+ 164              	.LVL17:
+ 196:bsp/flash/bsp_flash.c ****     }
+ 165              		.loc 1 196 16 view .LVU51
+ 166 00b0 7047     		bx	lr
+ 167              	.LVL18:
+ 168              	.L10:
+ 200:bsp/flash/bsp_flash.c ****     }
+ 169              		.loc 1 200 16 view .LVU52
+ 170 00b2 0720     		movs	r0, #7
+ 171              	.LVL19:
+ 200:bsp/flash/bsp_flash.c ****     }
+ 172              		.loc 1 200 16 view .LVU53
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 8
+
+
+ 173 00b4 7047     		bx	lr
+ 174              	.LVL20:
+ 175              	.L11:
+ 204:bsp/flash/bsp_flash.c ****     }
+ 176              		.loc 1 204 16 view .LVU54
+ 177 00b6 0820     		movs	r0, #8
+ 178              	.LVL21:
+ 204:bsp/flash/bsp_flash.c ****     }
+ 179              		.loc 1 204 16 view .LVU55
+ 180 00b8 7047     		bx	lr
+ 181              	.LVL22:
+ 182              	.L12:
+ 208:bsp/flash/bsp_flash.c ****     }
+ 183              		.loc 1 208 16 view .LVU56
+ 184 00ba 0920     		movs	r0, #9
+ 185              	.LVL23:
+ 208:bsp/flash/bsp_flash.c ****     }
+ 186              		.loc 1 208 16 view .LVU57
+ 187 00bc 7047     		bx	lr
+ 188              	.L13:
+ 213:bsp/flash/bsp_flash.c ****     }
+ 214:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_12) && (address >= ADDR_FLASH_SECTOR_11))
+ 215:bsp/flash/bsp_flash.c ****     {
+ 216:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_11;
+ 189              		.loc 1 216 16 view .LVU58
+ 190 00be 0B20     		movs	r0, #11
+ 191              	.LVL24:
+ 217:bsp/flash/bsp_flash.c ****     }
+ 218:bsp/flash/bsp_flash.c ****     else
+ 219:bsp/flash/bsp_flash.c ****     {
+ 220:bsp/flash/bsp_flash.c ****         sector = FLASH_SECTOR_11;
+ 221:bsp/flash/bsp_flash.c ****     }
+ 222:bsp/flash/bsp_flash.c **** 
+ 223:bsp/flash/bsp_flash.c ****     return sector;
+ 192              		.loc 1 223 5 is_stmt 1 view .LVU59
+ 224:bsp/flash/bsp_flash.c **** }
+ 193              		.loc 1 224 1 is_stmt 0 view .LVU60
+ 194 00c0 7047     		bx	lr
+ 195              		.cfi_endproc
+ 196              	.LFE239:
+ 198              		.section	.text.flash_erase_address,"ax",%progbits
+ 199              		.align	1
+ 200              		.global	flash_erase_address
+ 201              		.syntax unified
+ 202              		.thumb
+ 203              		.thumb_func
+ 205              	flash_erase_address:
+ 206              	.LVL25:
+ 207              	.LFB235:
+  20:bsp/flash/bsp_flash.c ****     FLASH_EraseInitTypeDef flash_erase;
+ 208              		.loc 1 20 1 is_stmt 1 view -0
+ 209              		.cfi_startproc
+ 210              		@ args = 0, pretend = 0, frame = 24
+ 211              		@ frame_needed = 0, uses_anonymous_args = 0
+  20:bsp/flash/bsp_flash.c ****     FLASH_EraseInitTypeDef flash_erase;
+ 212              		.loc 1 20 1 is_stmt 0 view .LVU62
+ 213 0000 10B5     		push	{r4, lr}
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 9
+
+
+ 214              		.cfi_def_cfa_offset 8
+ 215              		.cfi_offset 4, -8
+ 216              		.cfi_offset 14, -4
+ 217 0002 86B0     		sub	sp, sp, #24
+ 218              		.cfi_def_cfa_offset 32
+ 219 0004 0C46     		mov	r4, r1
+  21:bsp/flash/bsp_flash.c ****     uint32_t error;
+ 220              		.loc 1 21 5 is_stmt 1 view .LVU63
+  22:bsp/flash/bsp_flash.c **** 
+ 221              		.loc 1 22 5 view .LVU64
+  24:bsp/flash/bsp_flash.c ****     flash_erase.TypeErase = FLASH_TYPEERASE_SECTORS;
+ 222              		.loc 1 24 5 view .LVU65
+  24:bsp/flash/bsp_flash.c ****     flash_erase.TypeErase = FLASH_TYPEERASE_SECTORS;
+ 223              		.loc 1 24 26 is_stmt 0 view .LVU66
+ 224 0006 FFF7FEFF 		bl	ger_sector
+ 225              	.LVL26:
+  24:bsp/flash/bsp_flash.c ****     flash_erase.TypeErase = FLASH_TYPEERASE_SECTORS;
+ 226              		.loc 1 24 24 discriminator 1 view .LVU67
+ 227 000a 0390     		str	r0, [sp, #12]
+  25:bsp/flash/bsp_flash.c ****     flash_erase.VoltageRange = FLASH_VOLTAGE_RANGE_3;
+ 228              		.loc 1 25 5 is_stmt 1 view .LVU68
+  25:bsp/flash/bsp_flash.c ****     flash_erase.VoltageRange = FLASH_VOLTAGE_RANGE_3;
+ 229              		.loc 1 25 27 is_stmt 0 view .LVU69
+ 230 000c 0023     		movs	r3, #0
+ 231 000e 0193     		str	r3, [sp, #4]
+  26:bsp/flash/bsp_flash.c ****     flash_erase.NbSectors = len;
+ 232              		.loc 1 26 5 is_stmt 1 view .LVU70
+  26:bsp/flash/bsp_flash.c ****     flash_erase.NbSectors = len;
+ 233              		.loc 1 26 30 is_stmt 0 view .LVU71
+ 234 0010 0223     		movs	r3, #2
+ 235 0012 0593     		str	r3, [sp, #20]
+  27:bsp/flash/bsp_flash.c **** 
+ 236              		.loc 1 27 5 is_stmt 1 view .LVU72
+  27:bsp/flash/bsp_flash.c **** 
+ 237              		.loc 1 27 27 is_stmt 0 view .LVU73
+ 238 0014 0494     		str	r4, [sp, #16]
+  29:bsp/flash/bsp_flash.c ****     HAL_FLASHEx_Erase(&flash_erase, &error);
+ 239              		.loc 1 29 5 is_stmt 1 view .LVU74
+ 240 0016 FFF7FEFF 		bl	HAL_FLASH_Unlock
+ 241              	.LVL27:
+  30:bsp/flash/bsp_flash.c ****     HAL_FLASH_Lock();
+ 242              		.loc 1 30 5 view .LVU75
+ 243 001a 6946     		mov	r1, sp
+ 244 001c 01A8     		add	r0, sp, #4
+ 245 001e FFF7FEFF 		bl	HAL_FLASHEx_Erase
+ 246              	.LVL28:
+  31:bsp/flash/bsp_flash.c **** }
+ 247              		.loc 1 31 5 view .LVU76
+ 248 0022 FFF7FEFF 		bl	HAL_FLASH_Lock
+ 249              	.LVL29:
+  32:bsp/flash/bsp_flash.c **** 
+ 250              		.loc 1 32 1 is_stmt 0 view .LVU77
+ 251 0026 06B0     		add	sp, sp, #24
+ 252              		.cfi_def_cfa_offset 8
+ 253              		@ sp needed
+ 254 0028 10BD     		pop	{r4, pc}
+  32:bsp/flash/bsp_flash.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 10
+
+
+ 255              		.loc 1 32 1 view .LVU78
+ 256              		.cfi_endproc
+ 257              	.LFE235:
+ 259              		.section	.text.flash_write_muli_address,"ax",%progbits
+ 260              		.align	1
+ 261              		.global	flash_write_muli_address
+ 262              		.syntax unified
+ 263              		.thumb
+ 264              		.thumb_func
+ 266              	flash_write_muli_address:
+ 267              	.LVL30:
+ 268              	.LFB237:
+ 103:bsp/flash/bsp_flash.c ****     uint32_t uw_address = 0;
+ 269              		.loc 1 103 1 is_stmt 1 view -0
+ 270              		.cfi_startproc
+ 271              		@ args = 0, pretend = 0, frame = 0
+ 272              		@ frame_needed = 0, uses_anonymous_args = 0
+ 103:bsp/flash/bsp_flash.c ****     uint32_t uw_address = 0;
+ 273              		.loc 1 103 1 is_stmt 0 view .LVU80
+ 274 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 275              		.cfi_def_cfa_offset 24
+ 276              		.cfi_offset 4, -24
+ 277              		.cfi_offset 5, -20
+ 278              		.cfi_offset 6, -16
+ 279              		.cfi_offset 7, -12
+ 280              		.cfi_offset 8, -8
+ 281              		.cfi_offset 14, -4
+ 282 0004 0446     		mov	r4, r0
+ 283 0006 0F46     		mov	r7, r1
+ 284 0008 1546     		mov	r5, r2
+ 285 000a 9846     		mov	r8, r3
+ 104:bsp/flash/bsp_flash.c ****     uint32_t *data_buf;
+ 286              		.loc 1 104 5 is_stmt 1 view .LVU81
+ 287              	.LVL31:
+ 105:bsp/flash/bsp_flash.c ****     uint32_t data_len;
+ 288              		.loc 1 105 5 view .LVU82
+ 106:bsp/flash/bsp_flash.c **** 
+ 289              		.loc 1 106 5 view .LVU83
+ 108:bsp/flash/bsp_flash.c **** 
+ 290              		.loc 1 108 5 view .LVU84
+ 291 000c FFF7FEFF 		bl	HAL_FLASH_Unlock
+ 292              	.LVL32:
+ 110:bsp/flash/bsp_flash.c ****     data_buf = buf;
+ 293              		.loc 1 110 5 view .LVU85
+ 111:bsp/flash/bsp_flash.c ****     data_len = 0;
+ 294              		.loc 1 111 5 view .LVU86
+ 112:bsp/flash/bsp_flash.c ****     while (uw_address <= end_address)
+ 295              		.loc 1 112 5 view .LVU87
+ 113:bsp/flash/bsp_flash.c ****     {
+ 296              		.loc 1 113 5 view .LVU88
+ 112:bsp/flash/bsp_flash.c ****     while (uw_address <= end_address)
+ 297              		.loc 1 112 14 is_stmt 0 view .LVU89
+ 298 0010 0026     		movs	r6, #0
+ 299              	.LVL33:
+ 300              	.L17:
+ 113:bsp/flash/bsp_flash.c ****     {
+ 301              		.loc 1 113 23 is_stmt 1 view .LVU90
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 11
+
+
+ 302 0012 BC42     		cmp	r4, r7
+ 303 0014 0BD8     		bhi	.L19
+ 115:bsp/flash/bsp_flash.c ****         {
+ 304              		.loc 1 115 9 view .LVU91
+ 115:bsp/flash/bsp_flash.c ****         {
+ 305              		.loc 1 115 13 is_stmt 0 view .LVU92
+ 306 0016 2A68     		ldr	r2, [r5]
+ 307 0018 0023     		movs	r3, #0
+ 308 001a 2146     		mov	r1, r4
+ 309 001c 0220     		movs	r0, #2
+ 310 001e FFF7FEFF 		bl	HAL_FLASH_Program
+ 311              	.LVL34:
+ 115:bsp/flash/bsp_flash.c ****         {
+ 312              		.loc 1 115 12 discriminator 1 view .LVU93
+ 313 0022 48B9     		cbnz	r0, .L18
+ 117:bsp/flash/bsp_flash.c ****             data_buf++;
+ 314              		.loc 1 117 13 is_stmt 1 view .LVU94
+ 117:bsp/flash/bsp_flash.c ****             data_buf++;
+ 315              		.loc 1 117 24 is_stmt 0 view .LVU95
+ 316 0024 0434     		adds	r4, r4, #4
+ 317              	.LVL35:
+ 118:bsp/flash/bsp_flash.c ****             data_len++;
+ 318              		.loc 1 118 13 is_stmt 1 view .LVU96
+ 118:bsp/flash/bsp_flash.c ****             data_len++;
+ 319              		.loc 1 118 21 is_stmt 0 view .LVU97
+ 320 0026 0435     		adds	r5, r5, #4
+ 321              	.LVL36:
+ 119:bsp/flash/bsp_flash.c ****             if (data_len == len)
+ 322              		.loc 1 119 13 is_stmt 1 view .LVU98
+ 119:bsp/flash/bsp_flash.c ****             if (data_len == len)
+ 323              		.loc 1 119 21 is_stmt 0 view .LVU99
+ 324 0028 0136     		adds	r6, r6, #1
+ 325              	.LVL37:
+ 120:bsp/flash/bsp_flash.c ****             {
+ 326              		.loc 1 120 13 is_stmt 1 view .LVU100
+ 120:bsp/flash/bsp_flash.c ****             {
+ 327              		.loc 1 120 16 is_stmt 0 view .LVU101
+ 328 002a 4645     		cmp	r6, r8
+ 329 002c F1D1     		bne	.L17
+ 330              	.L19:
+ 132:bsp/flash/bsp_flash.c ****     return 0;
+ 331              		.loc 1 132 5 is_stmt 1 view .LVU102
+ 332 002e FFF7FEFF 		bl	HAL_FLASH_Lock
+ 333              	.LVL38:
+ 133:bsp/flash/bsp_flash.c **** }
+ 334              		.loc 1 133 5 view .LVU103
+ 133:bsp/flash/bsp_flash.c **** }
+ 335              		.loc 1 133 12 is_stmt 0 view .LVU104
+ 336 0032 0020     		movs	r0, #0
+ 337              	.L20:
+ 134:bsp/flash/bsp_flash.c **** 
+ 338              		.loc 1 134 1 view .LVU105
+ 339 0034 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 340              	.LVL39:
+ 341              	.L18:
+ 127:bsp/flash/bsp_flash.c ****             return -1;
+ 342              		.loc 1 127 13 is_stmt 1 view .LVU106
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 12
+
+
+ 343 0038 FFF7FEFF 		bl	HAL_FLASH_Lock
+ 344              	.LVL40:
+ 128:bsp/flash/bsp_flash.c ****         }
+ 345              		.loc 1 128 13 view .LVU107
+ 128:bsp/flash/bsp_flash.c ****         }
+ 346              		.loc 1 128 20 is_stmt 0 view .LVU108
+ 347 003c 4FF0FF30 		mov	r0, #-1
+ 348 0040 F8E7     		b	.L20
+ 349              		.cfi_endproc
+ 350              	.LFE237:
+ 352              		.section	.text.flash_read,"ax",%progbits
+ 353              		.align	1
+ 354              		.global	flash_read
+ 355              		.syntax unified
+ 356              		.thumb
+ 357              		.thumb_func
+ 359              	flash_read:
+ 360              	.LVL41:
+ 361              	.LFB238:
+ 152:bsp/flash/bsp_flash.c ****     memcpy(buf, (void*)address, len *4);
+ 362              		.loc 1 152 1 is_stmt 1 view -0
+ 363              		.cfi_startproc
+ 364              		@ args = 0, pretend = 0, frame = 0
+ 365              		@ frame_needed = 0, uses_anonymous_args = 0
+ 152:bsp/flash/bsp_flash.c ****     memcpy(buf, (void*)address, len *4);
+ 366              		.loc 1 152 1 is_stmt 0 view .LVU110
+ 367 0000 08B5     		push	{r3, lr}
+ 368              		.cfi_def_cfa_offset 8
+ 369              		.cfi_offset 3, -8
+ 370              		.cfi_offset 14, -4
+ 371 0002 0B46     		mov	r3, r1
+ 153:bsp/flash/bsp_flash.c **** }
+ 372              		.loc 1 153 5 is_stmt 1 view .LVU111
+ 373 0004 9200     		lsls	r2, r2, #2
+ 374              	.LVL42:
+ 153:bsp/flash/bsp_flash.c **** }
+ 375              		.loc 1 153 5 is_stmt 0 view .LVU112
+ 376 0006 0146     		mov	r1, r0
+ 377              	.LVL43:
+ 153:bsp/flash/bsp_flash.c **** }
+ 378              		.loc 1 153 5 view .LVU113
+ 379 0008 1846     		mov	r0, r3
+ 380              	.LVL44:
+ 153:bsp/flash/bsp_flash.c **** }
+ 381              		.loc 1 153 5 view .LVU114
+ 382 000a FFF7FEFF 		bl	memcpy
+ 383              	.LVL45:
+ 154:bsp/flash/bsp_flash.c **** 
+ 384              		.loc 1 154 1 view .LVU115
+ 385 000e 08BD     		pop	{r3, pc}
+ 386              		.cfi_endproc
+ 387              	.LFE238:
+ 389              		.section	.text.get_next_flash_address,"ax",%progbits
+ 390              		.align	1
+ 391              		.global	get_next_flash_address
+ 392              		.syntax unified
+ 393              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 13
+
+
+ 394              		.thumb_func
+ 396              	get_next_flash_address:
+ 397              	.LVL46:
+ 398              	.LFB240:
+ 225:bsp/flash/bsp_flash.c **** 
+ 226:bsp/flash/bsp_flash.c **** /**
+ 227:bsp/flash/bsp_flash.c ****   * @brief          get the next page flash address
+ 228:bsp/flash/bsp_flash.c ****   * @param[in]      address: flash address
+ 229:bsp/flash/bsp_flash.c ****   * @retval         next page flash address
+ 230:bsp/flash/bsp_flash.c ****   */
+ 231:bsp/flash/bsp_flash.c **** /**
+ 232:bsp/flash/bsp_flash.c ****   * @brief          获取下一页flash地址
+ 233:bsp/flash/bsp_flash.c ****   * @param[in]      address: flash 地址
+ 234:bsp/flash/bsp_flash.c ****   * @retval         下一页flash地址
+ 235:bsp/flash/bsp_flash.c ****   */
+ 236:bsp/flash/bsp_flash.c **** uint32_t get_next_flash_address(uint32_t address)
+ 237:bsp/flash/bsp_flash.c **** {
+ 399              		.loc 1 237 1 is_stmt 1 view -0
+ 400              		.cfi_startproc
+ 401              		@ args = 0, pretend = 0, frame = 0
+ 402              		@ frame_needed = 0, uses_anonymous_args = 0
+ 403              		@ link register save eliminated.
+ 238:bsp/flash/bsp_flash.c ****     uint32_t sector = 0;
+ 404              		.loc 1 238 5 view .LVU117
+ 239:bsp/flash/bsp_flash.c **** 
+ 240:bsp/flash/bsp_flash.c ****     if ((address < ADDR_FLASH_SECTOR_1) && (address >= ADDR_FLASH_SECTOR_0))
+ 405              		.loc 1 240 5 view .LVU118
+ 406              		.loc 1 240 41 is_stmt 0 view .LVU119
+ 407 0000 00F17843 		add	r3, r0, #-134217728
+ 408              		.loc 1 240 8 view .LVU120
+ 409 0004 B3F5804F 		cmp	r3, #16384
+ 410 0008 45D3     		bcc	.L27
+ 241:bsp/flash/bsp_flash.c ****     {
+ 242:bsp/flash/bsp_flash.c ****         sector = ADDR_FLASH_SECTOR_1;
+ 243:bsp/flash/bsp_flash.c ****     }
+ 244:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_2) && (address >= ADDR_FLASH_SECTOR_1))
+ 411              		.loc 1 244 10 is_stmt 1 view .LVU121
+ 412              		.loc 1 244 46 is_stmt 0 view .LVU122
+ 413 000a A3F58043 		sub	r3, r3, #16384
+ 414              		.loc 1 244 13 view .LVU123
+ 415 000e B3F5804F 		cmp	r3, #16384
+ 416 0012 42D3     		bcc	.L28
+ 245:bsp/flash/bsp_flash.c ****     {
+ 246:bsp/flash/bsp_flash.c ****         sector = ADDR_FLASH_SECTOR_2;
+ 247:bsp/flash/bsp_flash.c ****     }
+ 248:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_3) && (address >= ADDR_FLASH_SECTOR_2))
+ 417              		.loc 1 248 10 is_stmt 1 view .LVU124
+ 418              		.loc 1 248 46 is_stmt 0 view .LVU125
+ 419 0014 00F17843 		add	r3, r0, #-134217728
+ 420 0018 A3F50043 		sub	r3, r3, #32768
+ 421              		.loc 1 248 13 view .LVU126
+ 422 001c B3F5804F 		cmp	r3, #16384
+ 423 0020 3DD3     		bcc	.L29
+ 249:bsp/flash/bsp_flash.c ****     {
+ 250:bsp/flash/bsp_flash.c ****         sector = ADDR_FLASH_SECTOR_3;
+ 251:bsp/flash/bsp_flash.c ****     }
+ 252:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_4) && (address >= ADDR_FLASH_SECTOR_3))
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 14
+
+
+ 424              		.loc 1 252 10 is_stmt 1 view .LVU127
+ 425              		.loc 1 252 46 is_stmt 0 view .LVU128
+ 426 0022 00F17843 		add	r3, r0, #-134217728
+ 427 0026 A3F54043 		sub	r3, r3, #49152
+ 428              		.loc 1 252 13 view .LVU129
+ 429 002a B3F5804F 		cmp	r3, #16384
+ 430 002e 38D3     		bcc	.L30
+ 253:bsp/flash/bsp_flash.c ****     {
+ 254:bsp/flash/bsp_flash.c ****         sector = ADDR_FLASH_SECTOR_4;
+ 255:bsp/flash/bsp_flash.c ****     }
+ 256:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_5) && (address >= ADDR_FLASH_SECTOR_4))
+ 431              		.loc 1 256 10 is_stmt 1 view .LVU130
+ 432              		.loc 1 256 46 is_stmt 0 view .LVU131
+ 433 0030 00F17743 		add	r3, r0, #-150994944
+ 434 0034 03F57F03 		add	r3, r3, #16711680
+ 435              		.loc 1 256 13 view .LVU132
+ 436 0038 B3F5803F 		cmp	r3, #65536
+ 437 003c 33D3     		bcc	.L31
+ 257:bsp/flash/bsp_flash.c ****     {
+ 258:bsp/flash/bsp_flash.c ****         sector = ADDR_FLASH_SECTOR_5;
+ 259:bsp/flash/bsp_flash.c ****     }
+ 260:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_6) && (address >= ADDR_FLASH_SECTOR_5))
+ 438              		.loc 1 260 10 is_stmt 1 view .LVU133
+ 439              		.loc 1 260 46 is_stmt 0 view .LVU134
+ 440 003e 00F17743 		add	r3, r0, #-150994944
+ 441 0042 03F57E03 		add	r3, r3, #16646144
+ 442              		.loc 1 260 13 view .LVU135
+ 443 0046 B3F5003F 		cmp	r3, #131072
+ 444 004a 2ED3     		bcc	.L32
+ 261:bsp/flash/bsp_flash.c ****     {
+ 262:bsp/flash/bsp_flash.c ****         sector = ADDR_FLASH_SECTOR_6;
+ 263:bsp/flash/bsp_flash.c ****     }
+ 264:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_7) && (address >= ADDR_FLASH_SECTOR_6))
+ 445              		.loc 1 264 10 is_stmt 1 view .LVU136
+ 446              		.loc 1 264 46 is_stmt 0 view .LVU137
+ 447 004c 00F17743 		add	r3, r0, #-150994944
+ 448 0050 03F57C03 		add	r3, r3, #16515072
+ 449              		.loc 1 264 13 view .LVU138
+ 450 0054 B3F5003F 		cmp	r3, #131072
+ 451 0058 29D3     		bcc	.L33
+ 265:bsp/flash/bsp_flash.c ****     {
+ 266:bsp/flash/bsp_flash.c ****         sector = ADDR_FLASH_SECTOR_7;
+ 267:bsp/flash/bsp_flash.c ****     }
+ 268:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_8) && (address >= ADDR_FLASH_SECTOR_7))
+ 452              		.loc 1 268 10 is_stmt 1 view .LVU139
+ 453              		.loc 1 268 46 is_stmt 0 view .LVU140
+ 454 005a 00F17743 		add	r3, r0, #-150994944
+ 455 005e 03F57A03 		add	r3, r3, #16384000
+ 456              		.loc 1 268 13 view .LVU141
+ 457 0062 B3F5003F 		cmp	r3, #131072
+ 458 0066 24D3     		bcc	.L34
+ 269:bsp/flash/bsp_flash.c ****     {
+ 270:bsp/flash/bsp_flash.c ****         sector = ADDR_FLASH_SECTOR_8;
+ 271:bsp/flash/bsp_flash.c ****     }
+ 272:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_9) && (address >= ADDR_FLASH_SECTOR_8))
+ 459              		.loc 1 272 10 is_stmt 1 view .LVU142
+ 460              		.loc 1 272 46 is_stmt 0 view .LVU143
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 15
+
+
+ 461 0068 00F17743 		add	r3, r0, #-150994944
+ 462 006c 03F57803 		add	r3, r3, #16252928
+ 463              		.loc 1 272 13 view .LVU144
+ 464 0070 B3F5003F 		cmp	r3, #131072
+ 465 0074 1FD3     		bcc	.L35
+ 273:bsp/flash/bsp_flash.c ****     {
+ 274:bsp/flash/bsp_flash.c ****         sector = ADDR_FLASH_SECTOR_9;
+ 275:bsp/flash/bsp_flash.c ****     }
+ 276:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_10) && (address >= ADDR_FLASH_SECTOR_9))
+ 466              		.loc 1 276 10 is_stmt 1 view .LVU145
+ 467              		.loc 1 276 47 is_stmt 0 view .LVU146
+ 468 0076 00F17743 		add	r3, r0, #-150994944
+ 469 007a 03F57603 		add	r3, r3, #16121856
+ 470              		.loc 1 276 13 view .LVU147
+ 471 007e B3F5003F 		cmp	r3, #131072
+ 472 0082 1AD3     		bcc	.L36
+ 277:bsp/flash/bsp_flash.c ****     {
+ 278:bsp/flash/bsp_flash.c ****         sector = ADDR_FLASH_SECTOR_10;
+ 279:bsp/flash/bsp_flash.c ****     }
+ 280:bsp/flash/bsp_flash.c ****     else if ((address < ADDR_FLASH_SECTOR_11) && (address >= ADDR_FLASH_SECTOR_10))
+ 473              		.loc 1 280 10 is_stmt 1 view .LVU148
+ 474              		.loc 1 280 47 is_stmt 0 view .LVU149
+ 475 0084 00F17740 		add	r0, r0, #-150994944
+ 476              	.LVL47:
+ 477              		.loc 1 280 47 view .LVU150
+ 478 0088 00F57400 		add	r0, r0, #15990784
+ 479              	.LVL48:
+ 480              		.loc 1 280 13 view .LVU151
+ 481 008c B0F5003F 		cmp	r0, #131072
+ 482 0090 15D2     		bcs	.L37
+ 281:bsp/flash/bsp_flash.c ****     {
+ 282:bsp/flash/bsp_flash.c ****         sector = ADDR_FLASH_SECTOR_11;
+ 483              		.loc 1 282 16 view .LVU152
+ 484 0092 0C48     		ldr	r0, .L38
+ 485              	.LVL49:
+ 486              		.loc 1 282 16 view .LVU153
+ 487 0094 7047     		bx	lr
+ 488              	.LVL50:
+ 489              	.L27:
+ 242:bsp/flash/bsp_flash.c ****     }
+ 490              		.loc 1 242 16 view .LVU154
+ 491 0096 0C48     		ldr	r0, .L38+4
+ 492              	.LVL51:
+ 242:bsp/flash/bsp_flash.c ****     }
+ 493              		.loc 1 242 16 view .LVU155
+ 494 0098 7047     		bx	lr
+ 495              	.LVL52:
+ 496              	.L28:
+ 246:bsp/flash/bsp_flash.c ****     }
+ 497              		.loc 1 246 16 view .LVU156
+ 498 009a 0C48     		ldr	r0, .L38+8
+ 499              	.LVL53:
+ 246:bsp/flash/bsp_flash.c ****     }
+ 500              		.loc 1 246 16 view .LVU157
+ 501 009c 7047     		bx	lr
+ 502              	.LVL54:
+ 503              	.L29:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 16
+
+
+ 250:bsp/flash/bsp_flash.c ****     }
+ 504              		.loc 1 250 16 view .LVU158
+ 505 009e 0C48     		ldr	r0, .L38+12
+ 506              	.LVL55:
+ 250:bsp/flash/bsp_flash.c ****     }
+ 507              		.loc 1 250 16 view .LVU159
+ 508 00a0 7047     		bx	lr
+ 509              	.LVL56:
+ 510              	.L30:
+ 254:bsp/flash/bsp_flash.c ****     }
+ 511              		.loc 1 254 16 view .LVU160
+ 512 00a2 0C48     		ldr	r0, .L38+16
+ 513              	.LVL57:
+ 254:bsp/flash/bsp_flash.c ****     }
+ 514              		.loc 1 254 16 view .LVU161
+ 515 00a4 7047     		bx	lr
+ 516              	.LVL58:
+ 517              	.L31:
+ 258:bsp/flash/bsp_flash.c ****     }
+ 518              		.loc 1 258 16 view .LVU162
+ 519 00a6 0C48     		ldr	r0, .L38+20
+ 520              	.LVL59:
+ 258:bsp/flash/bsp_flash.c ****     }
+ 521              		.loc 1 258 16 view .LVU163
+ 522 00a8 7047     		bx	lr
+ 523              	.LVL60:
+ 524              	.L32:
+ 262:bsp/flash/bsp_flash.c ****     }
+ 525              		.loc 1 262 16 view .LVU164
+ 526 00aa 0C48     		ldr	r0, .L38+24
+ 527              	.LVL61:
+ 262:bsp/flash/bsp_flash.c ****     }
+ 528              		.loc 1 262 16 view .LVU165
+ 529 00ac 7047     		bx	lr
+ 530              	.LVL62:
+ 531              	.L33:
+ 266:bsp/flash/bsp_flash.c ****     }
+ 532              		.loc 1 266 16 view .LVU166
+ 533 00ae 0C48     		ldr	r0, .L38+28
+ 534              	.LVL63:
+ 266:bsp/flash/bsp_flash.c ****     }
+ 535              		.loc 1 266 16 view .LVU167
+ 536 00b0 7047     		bx	lr
+ 537              	.LVL64:
+ 538              	.L34:
+ 270:bsp/flash/bsp_flash.c ****     }
+ 539              		.loc 1 270 16 view .LVU168
+ 540 00b2 0C48     		ldr	r0, .L38+32
+ 541              	.LVL65:
+ 270:bsp/flash/bsp_flash.c ****     }
+ 542              		.loc 1 270 16 view .LVU169
+ 543 00b4 7047     		bx	lr
+ 544              	.LVL66:
+ 545              	.L35:
+ 274:bsp/flash/bsp_flash.c ****     }
+ 546              		.loc 1 274 16 view .LVU170
+ 547 00b6 0C48     		ldr	r0, .L38+36
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 17
+
+
+ 548              	.LVL67:
+ 274:bsp/flash/bsp_flash.c ****     }
+ 549              		.loc 1 274 16 view .LVU171
+ 550 00b8 7047     		bx	lr
+ 551              	.LVL68:
+ 552              	.L36:
+ 278:bsp/flash/bsp_flash.c ****     }
+ 553              		.loc 1 278 16 view .LVU172
+ 554 00ba 0C48     		ldr	r0, .L38+40
+ 555              	.LVL69:
+ 278:bsp/flash/bsp_flash.c ****     }
+ 556              		.loc 1 278 16 view .LVU173
+ 557 00bc 7047     		bx	lr
+ 558              	.L37:
+ 283:bsp/flash/bsp_flash.c ****     }
+ 284:bsp/flash/bsp_flash.c ****     else /*(address < FLASH_END_ADDR) && (address >= ADDR_FLASH_SECTOR_23))*/
+ 285:bsp/flash/bsp_flash.c ****     {
+ 286:bsp/flash/bsp_flash.c ****         sector = FLASH_END_ADDR;
+ 559              		.loc 1 286 16 view .LVU174
+ 560 00be 4FF00160 		mov	r0, #135266304
+ 561              	.LVL70:
+ 287:bsp/flash/bsp_flash.c ****     }
+ 288:bsp/flash/bsp_flash.c ****     return sector;
+ 562              		.loc 1 288 5 is_stmt 1 view .LVU175
+ 289:bsp/flash/bsp_flash.c **** }
+ 563              		.loc 1 289 1 is_stmt 0 view .LVU176
+ 564 00c2 7047     		bx	lr
+ 565              	.L39:
+ 566              		.align	2
+ 567              	.L38:
+ 568 00c4 00000E08 		.word	135135232
+ 569 00c8 00400008 		.word	134234112
+ 570 00cc 00800008 		.word	134250496
+ 571 00d0 00C00008 		.word	134266880
+ 572 00d4 00000108 		.word	134283264
+ 573 00d8 00000208 		.word	134348800
+ 574 00dc 00000408 		.word	134479872
+ 575 00e0 00000608 		.word	134610944
+ 576 00e4 00000808 		.word	134742016
+ 577 00e8 00000A08 		.word	134873088
+ 578 00ec 00000C08 		.word	135004160
+ 579              		.cfi_endproc
+ 580              	.LFE240:
+ 582              		.section	.text.flash_write_single_address,"ax",%progbits
+ 583              		.align	1
+ 584              		.global	flash_write_single_address
+ 585              		.syntax unified
+ 586              		.thumb
+ 587              		.thumb_func
+ 589              	flash_write_single_address:
+ 590              	.LVL71:
+ 591              	.LFB236:
+  49:bsp/flash/bsp_flash.c ****     static uint32_t uw_address;
+ 592              		.loc 1 49 1 is_stmt 1 view -0
+ 593              		.cfi_startproc
+ 594              		@ args = 0, pretend = 0, frame = 0
+ 595              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 18
+
+
+  49:bsp/flash/bsp_flash.c ****     static uint32_t uw_address;
+ 596              		.loc 1 49 1 is_stmt 0 view .LVU178
+ 597 0000 70B5     		push	{r4, r5, r6, lr}
+ 598              		.cfi_def_cfa_offset 16
+ 599              		.cfi_offset 4, -16
+ 600              		.cfi_offset 5, -12
+ 601              		.cfi_offset 6, -8
+ 602              		.cfi_offset 14, -4
+ 603 0002 0546     		mov	r5, r0
+ 604 0004 0E46     		mov	r6, r1
+ 605 0006 1446     		mov	r4, r2
+  50:bsp/flash/bsp_flash.c ****     static uint32_t end_address;
+ 606              		.loc 1 50 5 is_stmt 1 view .LVU179
+  51:bsp/flash/bsp_flash.c ****     static uint32_t *data_buf;
+ 607              		.loc 1 51 5 view .LVU180
+  52:bsp/flash/bsp_flash.c ****     static uint32_t data_len;
+ 608              		.loc 1 52 5 view .LVU181
+  53:bsp/flash/bsp_flash.c **** 
+ 609              		.loc 1 53 5 view .LVU182
+  55:bsp/flash/bsp_flash.c **** 
+ 610              		.loc 1 55 5 view .LVU183
+ 611 0008 FFF7FEFF 		bl	HAL_FLASH_Unlock
+ 612              	.LVL72:
+  57:bsp/flash/bsp_flash.c ****     end_address = get_next_flash_address(start_address);
+ 613              		.loc 1 57 5 view .LVU184
+  57:bsp/flash/bsp_flash.c ****     end_address = get_next_flash_address(start_address);
+ 614              		.loc 1 57 16 is_stmt 0 view .LVU185
+ 615 000c 184B     		ldr	r3, .L47
+ 616 000e 1D60     		str	r5, [r3]
+  58:bsp/flash/bsp_flash.c ****     data_buf = buf;
+ 617              		.loc 1 58 5 is_stmt 1 view .LVU186
+  58:bsp/flash/bsp_flash.c ****     data_buf = buf;
+ 618              		.loc 1 58 19 is_stmt 0 view .LVU187
+ 619 0010 2846     		mov	r0, r5
+ 620 0012 FFF7FEFF 		bl	get_next_flash_address
+ 621              	.LVL73:
+  58:bsp/flash/bsp_flash.c ****     data_buf = buf;
+ 622              		.loc 1 58 17 discriminator 1 view .LVU188
+ 623 0016 174B     		ldr	r3, .L47+4
+ 624 0018 1860     		str	r0, [r3]
+  59:bsp/flash/bsp_flash.c ****     data_len = 0;
+ 625              		.loc 1 59 5 is_stmt 1 view .LVU189
+  59:bsp/flash/bsp_flash.c ****     data_len = 0;
+ 626              		.loc 1 59 14 is_stmt 0 view .LVU190
+ 627 001a 174B     		ldr	r3, .L47+8
+ 628 001c 1E60     		str	r6, [r3]
+  60:bsp/flash/bsp_flash.c **** 
+ 629              		.loc 1 60 5 is_stmt 1 view .LVU191
+  60:bsp/flash/bsp_flash.c **** 
+ 630              		.loc 1 60 14 is_stmt 0 view .LVU192
+ 631 001e 174B     		ldr	r3, .L47+12
+ 632 0020 0022     		movs	r2, #0
+ 633 0022 1A60     		str	r2, [r3]
+  62:bsp/flash/bsp_flash.c ****     {
+ 634              		.loc 1 62 5 is_stmt 1 view .LVU193
+ 635              	.L41:
+  62:bsp/flash/bsp_flash.c ****     {
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 19
+
+
+ 636              		.loc 1 62 23 view .LVU194
+ 637 0024 124B     		ldr	r3, .L47
+ 638 0026 1968     		ldr	r1, [r3]
+ 639 0028 124B     		ldr	r3, .L47+4
+ 640 002a 1B68     		ldr	r3, [r3]
+ 641 002c 9942     		cmp	r1, r3
+ 642 002e 15D8     		bhi	.L43
+  65:bsp/flash/bsp_flash.c ****         {
+ 643              		.loc 1 65 9 view .LVU195
+  65:bsp/flash/bsp_flash.c ****         {
+ 644              		.loc 1 65 66 is_stmt 0 view .LVU196
+ 645 0030 114B     		ldr	r3, .L47+8
+ 646 0032 1B68     		ldr	r3, [r3]
+  65:bsp/flash/bsp_flash.c ****         {
+ 647              		.loc 1 65 13 view .LVU197
+ 648 0034 1A68     		ldr	r2, [r3]
+ 649 0036 0023     		movs	r3, #0
+ 650 0038 0220     		movs	r0, #2
+ 651 003a FFF7FEFF 		bl	HAL_FLASH_Program
+ 652              	.LVL74:
+  65:bsp/flash/bsp_flash.c ****         {
+ 653              		.loc 1 65 12 discriminator 1 view .LVU198
+ 654 003e 88B9     		cbnz	r0, .L42
+  67:bsp/flash/bsp_flash.c ****             data_buf++;
+ 655              		.loc 1 67 13 is_stmt 1 view .LVU199
+  67:bsp/flash/bsp_flash.c ****             data_buf++;
+ 656              		.loc 1 67 24 is_stmt 0 view .LVU200
+ 657 0040 0B4A     		ldr	r2, .L47
+ 658 0042 1368     		ldr	r3, [r2]
+ 659 0044 0433     		adds	r3, r3, #4
+ 660 0046 1360     		str	r3, [r2]
+  68:bsp/flash/bsp_flash.c ****             data_len++;
+ 661              		.loc 1 68 13 is_stmt 1 view .LVU201
+  68:bsp/flash/bsp_flash.c ****             data_len++;
+ 662              		.loc 1 68 21 is_stmt 0 view .LVU202
+ 663 0048 0B4A     		ldr	r2, .L47+8
+ 664 004a 1368     		ldr	r3, [r2]
+ 665 004c 0433     		adds	r3, r3, #4
+ 666 004e 1360     		str	r3, [r2]
+  69:bsp/flash/bsp_flash.c ****             if (data_len == len)
+ 667              		.loc 1 69 13 is_stmt 1 view .LVU203
+  69:bsp/flash/bsp_flash.c ****             if (data_len == len)
+ 668              		.loc 1 69 21 is_stmt 0 view .LVU204
+ 669 0050 0A4A     		ldr	r2, .L47+12
+ 670 0052 1368     		ldr	r3, [r2]
+ 671 0054 0133     		adds	r3, r3, #1
+ 672 0056 1360     		str	r3, [r2]
+  70:bsp/flash/bsp_flash.c ****             {
+ 673              		.loc 1 70 13 is_stmt 1 view .LVU205
+  70:bsp/flash/bsp_flash.c ****             {
+ 674              		.loc 1 70 16 is_stmt 0 view .LVU206
+ 675 0058 A342     		cmp	r3, r4
+ 676 005a E3D1     		bne	.L41
+ 677              	.L43:
+  82:bsp/flash/bsp_flash.c ****     return 0;
+ 678              		.loc 1 82 5 is_stmt 1 view .LVU207
+ 679 005c FFF7FEFF 		bl	HAL_FLASH_Lock
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 20
+
+
+ 680              	.LVL75:
+  83:bsp/flash/bsp_flash.c **** }
+ 681              		.loc 1 83 5 view .LVU208
+  83:bsp/flash/bsp_flash.c **** }
+ 682              		.loc 1 83 12 is_stmt 0 view .LVU209
+ 683 0060 0020     		movs	r0, #0
+ 684              	.L44:
+  84:bsp/flash/bsp_flash.c **** 
+ 685              		.loc 1 84 1 view .LVU210
+ 686 0062 70BD     		pop	{r4, r5, r6, pc}
+ 687              	.LVL76:
+ 688              	.L42:
+  77:bsp/flash/bsp_flash.c ****             return -1;
+ 689              		.loc 1 77 13 is_stmt 1 view .LVU211
+ 690 0064 FFF7FEFF 		bl	HAL_FLASH_Lock
+ 691              	.LVL77:
+  78:bsp/flash/bsp_flash.c ****         }
+ 692              		.loc 1 78 13 view .LVU212
+  78:bsp/flash/bsp_flash.c ****         }
+ 693              		.loc 1 78 20 is_stmt 0 view .LVU213
+ 694 0068 4FF0FF30 		mov	r0, #-1
+ 695 006c F9E7     		b	.L44
+ 696              	.L48:
+ 697 006e 00BF     		.align	2
+ 698              	.L47:
+ 699 0070 00000000 		.word	uw_address.3
+ 700 0074 00000000 		.word	end_address.2
+ 701 0078 00000000 		.word	data_buf.1
+ 702 007c 00000000 		.word	data_len.0
+ 703              		.cfi_endproc
+ 704              	.LFE236:
+ 706              		.section	.bss.data_len.0,"aw",%nobits
+ 707              		.align	2
+ 710              	data_len.0:
+ 711 0000 00000000 		.space	4
+ 712              		.section	.bss.data_buf.1,"aw",%nobits
+ 713              		.align	2
+ 716              	data_buf.1:
+ 717 0000 00000000 		.space	4
+ 718              		.section	.bss.end_address.2,"aw",%nobits
+ 719              		.align	2
+ 722              	end_address.2:
+ 723 0000 00000000 		.space	4
+ 724              		.section	.bss.uw_address.3,"aw",%nobits
+ 725              		.align	2
+ 728              	uw_address.3:
+ 729 0000 00000000 		.space	4
+ 730              		.text
+ 731              	.Letext0:
+ 732              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 733              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 734              		.file 4 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 735              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h"
+ 736              		.file 6 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 737              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h"
+ 738              		.file 8 "<built-in>"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s 			page 21
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_flash.c
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:21     .text.ger_sector:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:26     .text.ger_sector:00000000 ger_sector
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:199    .text.flash_erase_address:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:205    .text.flash_erase_address:00000000 flash_erase_address
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:260    .text.flash_write_muli_address:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:266    .text.flash_write_muli_address:00000000 flash_write_muli_address
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:353    .text.flash_read:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:359    .text.flash_read:00000000 flash_read
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:390    .text.get_next_flash_address:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:396    .text.get_next_flash_address:00000000 get_next_flash_address
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:568    .text.get_next_flash_address:000000c4 $d
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:583    .text.flash_write_single_address:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:589    .text.flash_write_single_address:00000000 flash_write_single_address
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:699    .text.flash_write_single_address:00000070 $d
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:728    .bss.uw_address.3:00000000 uw_address.3
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:722    .bss.end_address.2:00000000 end_address.2
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:716    .bss.data_buf.1:00000000 data_buf.1
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:710    .bss.data_len.0:00000000 data_len.0
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:707    .bss.data_len.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:713    .bss.data_buf.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:719    .bss.end_address.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc4RHlkH.s:725    .bss.uw_address.3:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_FLASH_Unlock
+HAL_FLASHEx_Erase
+HAL_FLASH_Lock
+HAL_FLASH_Program
+memcpy

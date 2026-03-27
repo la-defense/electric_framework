@@ -1,0 +1,243 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"power_manager.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/power/power_manager.c"
+  20              		.section	.text.PowerControlInit,"ax",%progbits
+  21              		.align	1
+  22              		.global	PowerControlInit
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	PowerControlInit:
+  28              	.LVL0:
+  29              	.LFB163:
+   1:modules/power/power_manager.c **** #include "power_manager.h"
+   2:modules/power/power_manager.c **** #include "rls.h"
+   3:modules/power/power_manager.c **** 
+   4:modules/power/power_manager.c **** 
+   5:modules/power/power_manager.c **** float k[2] = {100.2f, 1.2f};
+   6:modules/power/power_manager.c **** 
+   7:modules/power/power_manager.c **** static PowerManagerInstance *power_control_instance = NULL; 
+   8:modules/power/power_manager.c **** 
+   9:modules/power/power_manager.c **** static RLS_t RLS;
+  10:modules/power/power_manager.c **** 
+  11:modules/power/power_manager.c **** PowerManagerInstance *PowerControlInit(PowerManager_Init_Config_s *power_manager_config)
+  12:modules/power/power_manager.c **** {
+  30              		.loc 1 12 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 12 1 is_stmt 0 view .LVU1
+  35 0000 10B5     		push	{r4, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 4, -8
+  39              		.cfi_offset 14, -4
+  40 0002 0446     		mov	r4, r0
+  13:modules/power/power_manager.c ****     power_control_instance = (PowerManagerInstance *)malloc(sizeof(PowerManagerInstance));
+  41              		.loc 1 13 5 is_stmt 1 view .LVU2
+  42              		.loc 1 13 54 is_stmt 0 view .LVU3
+  43 0004 1020     		movs	r0, #16
+  44              	.LVL1:
+  45              		.loc 1 13 54 view .LVU4
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s 			page 2
+
+
+  46 0006 FFF7FEFF 		bl	malloc
+  47              	.LVL2:
+  48              		.loc 1 13 28 discriminator 1 view .LVU5
+  49 000a 074A     		ldr	r2, .L3
+  50 000c 1060     		str	r0, [r2]
+  14:modules/power/power_manager.c ****     memset(power_control_instance, 0, sizeof(PowerManagerInstance));
+  51              		.loc 1 14 5 is_stmt 1 view .LVU6
+  52 000e 0022     		movs	r2, #0
+  53 0010 0260     		str	r2, [r0]	@ unaligned
+  54 0012 4260     		str	r2, [r0, #4]	@ unaligned
+  55 0014 8260     		str	r2, [r0, #8]	@ unaligned
+  56 0016 C260     		str	r2, [r0, #12]	@ unaligned
+  15:modules/power/power_manager.c ****     
+  16:modules/power/power_manager.c ****     power_control_instance->k1 = power_manager_config->k1;
+  57              		.loc 1 16 5 view .LVU7
+  58              		.loc 1 16 54 is_stmt 0 view .LVU8
+  59 0018 2268     		ldr	r2, [r4]	@ float
+  60              		.loc 1 16 32 view .LVU9
+  61 001a 4260     		str	r2, [r0, #4]	@ float
+  17:modules/power/power_manager.c ****     power_control_instance->k2 = power_manager_config->k2;
+  62              		.loc 1 17 5 is_stmt 1 view .LVU10
+  63              		.loc 1 17 54 is_stmt 0 view .LVU11
+  64 001c 6268     		ldr	r2, [r4, #4]	@ float
+  65              		.loc 1 17 32 view .LVU12
+  66 001e 8260     		str	r2, [r0, #8]	@ float
+  18:modules/power/power_manager.c ****     power_control_instance->k3 = power_manager_config->k3;
+  67              		.loc 1 18 5 is_stmt 1 view .LVU13
+  68              		.loc 1 18 54 is_stmt 0 view .LVU14
+  69 0020 A268     		ldr	r2, [r4, #8]	@ float
+  70              		.loc 1 18 32 view .LVU15
+  71 0022 C260     		str	r2, [r0, #12]	@ float
+  19:modules/power/power_manager.c **** 
+  20:modules/power/power_manager.c ****     // // 初始化RLS滤波器，用于解算k1，k2
+  21:modules/power/power_manager.c ****     // RLS_Init(&RLS, 2, 1e-5f, 0.99999f);
+  22:modules/power/power_manager.c ****     // RLS_Reset(&RLS);
+  23:modules/power/power_manager.c ****     // RLS_SetParam(&RLS, k);    
+  24:modules/power/power_manager.c **** 
+  25:modules/power/power_manager.c ****     return power_control_instance;
+  72              		.loc 1 25 5 is_stmt 1 view .LVU16
+  26:modules/power/power_manager.c **** }
+  73              		.loc 1 26 1 is_stmt 0 view .LVU17
+  74 0024 10BD     		pop	{r4, pc}
+  75              	.LVL3:
+  76              	.L4:
+  77              		.loc 1 26 1 view .LVU18
+  78 0026 00BF     		.align	2
+  79              	.L3:
+  80 0028 00000000 		.word	power_control_instance
+  81              		.cfi_endproc
+  82              	.LFE163:
+  84              		.section	.text.PowerManagerFeedback,"ax",%progbits
+  85              		.align	1
+  86              		.global	PowerManagerFeedback
+  87              		.syntax unified
+  88              		.thumb
+  89              		.thumb_func
+  91              	PowerManagerFeedback:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s 			page 3
+
+
+  92              	.LVL4:
+  93              	.LFB164:
+  27:modules/power/power_manager.c **** 
+  28:modules/power/power_manager.c **** void PowerManagerFeedback(PowerManagerInstance *instance, float power)
+  29:modules/power/power_manager.c **** {
+  94              		.loc 1 29 1 is_stmt 1 view -0
+  95              		.cfi_startproc
+  96              		@ args = 0, pretend = 0, frame = 0
+  97              		@ frame_needed = 0, uses_anonymous_args = 0
+  98              		@ link register save eliminated.
+  30:modules/power/power_manager.c ****     ;
+  99              		.loc 1 30 5 view .LVU20
+  31:modules/power/power_manager.c **** }
+ 100              		.loc 1 31 1 is_stmt 0 view .LVU21
+ 101 0000 7047     		bx	lr
+ 102              		.cfi_endproc
+ 103              	.LFE164:
+ 105              		.section	.text.PowerManagerEnable,"ax",%progbits
+ 106              		.align	1
+ 107              		.global	PowerManagerEnable
+ 108              		.syntax unified
+ 109              		.thumb
+ 110              		.thumb_func
+ 112              	PowerManagerEnable:
+ 113              	.LVL5:
+ 114              	.LFB165:
+  32:modules/power/power_manager.c **** 
+  33:modules/power/power_manager.c **** void PowerManagerEnable(PowerManagerInstance *instance)
+  34:modules/power/power_manager.c **** {
+ 115              		.loc 1 34 1 is_stmt 1 view -0
+ 116              		.cfi_startproc
+ 117              		@ args = 0, pretend = 0, frame = 0
+ 118              		@ frame_needed = 0, uses_anonymous_args = 0
+ 119              		@ link register save eliminated.
+  35:modules/power/power_manager.c ****     instance->rlsEnabled = 1;
+ 120              		.loc 1 35 5 view .LVU23
+ 121              		.loc 1 35 26 is_stmt 0 view .LVU24
+ 122 0000 0123     		movs	r3, #1
+ 123 0002 0370     		strb	r3, [r0]
+  36:modules/power/power_manager.c **** }
+ 124              		.loc 1 36 1 view .LVU25
+ 125 0004 7047     		bx	lr
+ 126              		.cfi_endproc
+ 127              	.LFE165:
+ 129              		.section	.text.PowerManagerUpdate,"ax",%progbits
+ 130              		.align	1
+ 131              		.global	PowerManagerUpdate
+ 132              		.syntax unified
+ 133              		.thumb
+ 134              		.thumb_func
+ 136              	PowerManagerUpdate:
+ 137              	.LVL6:
+ 138              	.LFB166:
+  37:modules/power/power_manager.c **** 
+  38:modules/power/power_manager.c **** void PowerManagerUpdate(float power, float sample_a, float sample_b)
+  39:modules/power/power_manager.c **** {
+ 139              		.loc 1 39 1 is_stmt 1 view -0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s 			page 4
+
+
+ 140              		.cfi_startproc
+ 141              		@ args = 0, pretend = 0, frame = 0
+ 142              		@ frame_needed = 0, uses_anonymous_args = 0
+ 143              		@ link register save eliminated.
+  40:modules/power/power_manager.c ****     // M[0] = sample_a;
+  41:modules/power/power_manager.c ****     // M[1] = sample_b;
+  42:modules/power/power_manager.c **** 
+  43:modules/power/power_manager.c ****     // if (power > 5.0f)
+  44:modules/power/power_manager.c ****     // { 
+  45:modules/power/power_manager.c ****     //     RLS_Update(&RLS, M, power);
+  46:modules/power/power_manager.c ****     //     power_control_instance->k1 = fmax(RLS.params_data[0], 1e-5f);  // In case the k1 diverge
+  47:modules/power/power_manager.c ****     //     power_control_instance->k2 = fmax(RLS.params_data[1], 1e-5f);  // In case the k2 diverge
+  48:modules/power/power_manager.c ****     // }
+  49:modules/power/power_manager.c **** } 
+ 144              		.loc 1 49 1 view .LVU27
+ 145 0000 7047     		bx	lr
+ 146              		.cfi_endproc
+ 147              	.LFE166:
+ 149              		.section	.bss.power_control_instance,"aw",%nobits
+ 150              		.align	2
+ 153              	power_control_instance:
+ 154 0000 00000000 		.space	4
+ 155              		.global	k
+ 156              		.section	.data.k,"aw"
+ 157              		.align	2
+ 160              	k:
+ 161 0000 6666C842 		.word	1120429670
+ 162 0004 9A99993F 		.word	1067030938
+ 163              		.text
+ 164              	.Letext0:
+ 165              		.file 2 "D:/msys2/mingw64/arm-none-eabi/include/machine/_default_types.h"
+ 166              		.file 3 "D:/msys2/mingw64/arm-none-eabi/include/sys/_stdint.h"
+ 167              		.file 4 "modules/power/power_manager.h"
+ 168              		.file 5 "D:/msys2/mingw64/lib/gcc/arm-none-eabi/13.3.0/include/stddef.h"
+ 169              		.file 6 "Middlewares/ST/ARM/DSP/Include/arm_math_types.h"
+ 170              		.file 7 "Middlewares/ST/ARM/DSP/Include/dsp/matrix_functions.h"
+ 171              		.file 8 "modules/algorithm/rls.h"
+ 172              		.file 9 "D:/msys2/mingw64/arm-none-eabi/include/string.h"
+ 173              		.file 10 "D:/msys2/mingw64/arm-none-eabi/include/stdlib.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 power_manager.c
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:21     .text.PowerControlInit:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:27     .text.PowerControlInit:00000000 PowerControlInit
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:80     .text.PowerControlInit:00000028 $d
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:153    .bss.power_control_instance:00000000 power_control_instance
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:85     .text.PowerManagerFeedback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:91     .text.PowerManagerFeedback:00000000 PowerManagerFeedback
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:106    .text.PowerManagerEnable:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:112    .text.PowerManagerEnable:00000000 PowerManagerEnable
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:130    .text.PowerManagerUpdate:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:136    .text.PowerManagerUpdate:00000000 PowerManagerUpdate
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:150    .bss.power_control_instance:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:160    .data.k:00000000 k
+C:\Users\lenovo\AppData\Local\Temp\cc8Imkg5.s:157    .data.k:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc

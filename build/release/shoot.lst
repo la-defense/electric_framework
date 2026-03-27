@@ -1,0 +1,636 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"shoot.c"
+  16              		.text
+  17              		.section	.rodata.ShootInit.str1.4,"aMS",%progbits,1
+  18              		.align	2
+  19              	.LC0:
+  20 0000 73686F6F 		.ascii	"shoot_feed\000"
+  20      745F6665 
+  20      656400
+  21 000b 00       		.align	2
+  22              	.LC1:
+  23 000c 73686F6F 		.ascii	"shoot_cmd\000"
+  23      745F636D 
+  23      6400
+  24              		.section	.text.ShootInit,"ax",%progbits
+  25              		.align	1
+  26              		.global	ShootInit
+  27              		.syntax unified
+  28              		.thumb
+  29              		.thumb_func
+  31              	ShootInit:
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34 0000 10B5     		push	{r4, lr}
+  35 0002 FFF7FEFF 		bl	ShootConfigFeed
+  36 0006 284C     		ldr	r4, .L5
+  37 0008 2060     		str	r0, [r4]
+  38 000a 90F87C31 		ldrb	r3, [r0, #380]	@ zero_extendqisi2
+  39 000e C0F8A830 		str	r3, [r0, #168]
+  40 0012 90F88031 		ldrb	r3, [r0, #384]	@ zero_extendqisi2
+  41 0016 80F89A30 		strb	r3, [r0, #154]
+  42 001a 0430     		adds	r0, r0, #4
+  43 001c FFF7FEFF 		bl	DJIMotorInit
+  44 0020 224B     		ldr	r3, .L5+4
+  45 0022 1860     		str	r0, [r3]
+  46 0024 2068     		ldr	r0, [r4]
+  47 0026 90F87D31 		ldrb	r3, [r0, #381]	@ zero_extendqisi2
+  48 002a C0F8A830 		str	r3, [r0, #168]
+  49 002e 90F88131 		ldrb	r3, [r0, #385]	@ zero_extendqisi2
+  50 0032 80F89A30 		strb	r3, [r0, #154]
+  51 0036 0430     		adds	r0, r0, #4
+  52 0038 FFF7FEFF 		bl	DJIMotorInit
+  53 003c 1C4B     		ldr	r3, .L5+8
+  54 003e 1860     		str	r0, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s 			page 2
+
+
+  55 0040 2068     		ldr	r0, [r4]
+  56 0042 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+  57 0044 022B     		cmp	r3, #2
+  58 0046 13D0     		beq	.L4
+  59              	.L2:
+  60 0048 174B     		ldr	r3, .L5
+  61 004a 1868     		ldr	r0, [r3]
+  62 004c C030     		adds	r0, r0, #192
+  63 004e FFF7FEFF 		bl	DJIMotorInit
+  64 0052 184B     		ldr	r3, .L5+12
+  65 0054 1860     		str	r0, [r3]
+  66 0056 0021     		movs	r1, #0
+  67 0058 1748     		ldr	r0, .L5+16
+  68 005a FFF7FEFF 		bl	PubRegister
+  69 005e 174B     		ldr	r3, .L5+20
+  70 0060 1860     		str	r0, [r3]
+  71 0062 0A21     		movs	r1, #10
+  72 0064 1648     		ldr	r0, .L5+24
+  73 0066 FFF7FEFF 		bl	SubRegister
+  74 006a 164B     		ldr	r3, .L5+28
+  75 006c 1860     		str	r0, [r3]
+  76 006e 10BD     		pop	{r4, pc}
+  77              	.L4:
+  78 0070 90F87E31 		ldrb	r3, [r0, #382]	@ zero_extendqisi2
+  79 0074 C0F8A830 		str	r3, [r0, #168]
+  80 0078 90F88231 		ldrb	r3, [r0, #386]	@ zero_extendqisi2
+  81 007c 80F89A30 		strb	r3, [r0, #154]
+  82 0080 0430     		adds	r0, r0, #4
+  83 0082 FFF7FEFF 		bl	DJIMotorInit
+  84 0086 104B     		ldr	r3, .L5+32
+  85 0088 1860     		str	r0, [r3]
+  86 008a 2068     		ldr	r0, [r4]
+  87 008c 90F87F31 		ldrb	r3, [r0, #383]	@ zero_extendqisi2
+  88 0090 C0F8A830 		str	r3, [r0, #168]
+  89 0094 90F88331 		ldrb	r3, [r0, #387]	@ zero_extendqisi2
+  90 0098 80F89A30 		strb	r3, [r0, #154]
+  91 009c 0430     		adds	r0, r0, #4
+  92 009e FFF7FEFF 		bl	DJIMotorInit
+  93 00a2 0A4B     		ldr	r3, .L5+36
+  94 00a4 1860     		str	r0, [r3]
+  95 00a6 CFE7     		b	.L2
+  96              	.L6:
+  97              		.align	2
+  98              	.L5:
+  99 00a8 00000000 		.word	shoot_config
+ 100 00ac 00000000 		.word	friction_lf
+ 101 00b0 00000000 		.word	friction_rf
+ 102 00b4 00000000 		.word	loader
+ 103 00b8 00000000 		.word	.LC0
+ 104 00bc 00000000 		.word	shoot_pub
+ 105 00c0 0C000000 		.word	.LC1
+ 106 00c4 00000000 		.word	shoot_sub
+ 107 00c8 00000000 		.word	friction_lb
+ 108 00cc 00000000 		.word	friction_rb
+ 110              		.section	.text.ShootTask,"ax",%progbits
+ 111              		.align	1
+ 112              		.global	ShootTask
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s 			page 3
+
+
+ 113              		.syntax unified
+ 114              		.thumb
+ 115              		.thumb_func
+ 117              	ShootTask:
+ 118              		@ args = 0, pretend = 0, frame = 0
+ 119              		@ frame_needed = 0, uses_anonymous_args = 0
+ 120 0000 10B5     		push	{r4, lr}
+ 121 0002 2DED028B 		vpush.64	{d8}
+ 122 0006 AA4C     		ldr	r4, .L40+8
+ 123 0008 2146     		mov	r1, r4
+ 124 000a AA4B     		ldr	r3, .L40+12
+ 125 000c 1868     		ldr	r0, [r3]
+ 126 000e FFF7FEFF 		bl	SubGetMessage
+ 127 0012 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 128 0014 012B     		cmp	r3, #1
+ 129 0016 77D9     		bls	.L35
+ 130 0018 A74B     		ldr	r3, .L40+16
+ 131 001a 1868     		ldr	r0, [r3]
+ 132 001c FFF7FEFF 		bl	DJIMotorEnable
+ 133 0020 A64B     		ldr	r3, .L40+20
+ 134 0022 1868     		ldr	r0, [r3]
+ 135 0024 FFF7FEFF 		bl	DJIMotorEnable
+ 136 0028 A54B     		ldr	r3, .L40+24
+ 137 002a 1B68     		ldr	r3, [r3]
+ 138 002c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 139 002e 022B     		cmp	r3, #2
+ 140 0030 00F08580 		beq	.L36
+ 141              	.L11:
+ 142 0034 A34B     		ldr	r3, .L40+28
+ 143 0036 1868     		ldr	r0, [r3]
+ 144 0038 FFF7FEFF 		bl	DJIMotorEnable
+ 145              	.L10:
+ 146 003c A14B     		ldr	r3, .L40+28
+ 147 003e 1B68     		ldr	r3, [r3]
+ 148 0040 B3F90C00 		ldrsh	r0, [r3, #12]
+ 149 0044 FFF7FEFF 		bl	__aeabi_i2d
+ 150 0048 21F00041 		bic	r1, r1, #-2147483648
+ 151 004c 96A3     		adr	r3, .L40
+ 152 004e D3E90023 		ldrd	r2, [r3]
+ 153 0052 FFF7FEFF 		bl	__aeabi_dcmpgt
+ 154 0056 40B1     		cbz	r0, .L12
+ 155 0058 9B4B     		ldr	r3, .L40+32
+ 156 005a D3ED007A 		vldr.32	s15, [r3]
+ 157 005e B7EE007A 		vmov.f32	s14, #1.0e+0
+ 158 0062 77EE877A 		vadd.f32	s15, s15, s14
+ 159 0066 C3ED007A 		vstr.32	s15, [r3]
+ 160              	.L12:
+ 161 006a 974B     		ldr	r3, .L40+32
+ 162 006c D3ED007A 		vldr.32	s15, [r3]
+ 163 0070 9FED967A 		vldr.32	s14, .L40+36
+ 164 0074 F4EEC77A 		vcmpe.f32	s15, s14
+ 165 0078 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 166 007c 05DD     		ble	.L14
+ 167 007e 8C4B     		ldr	r3, .L40+8
+ 168 0080 0122     		movs	r2, #1
+ 169 0082 5A70     		strb	r2, [r3, #1]
+ 170 0084 924B     		ldr	r3, .L40+40
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s 			page 4
+
+
+ 171 0086 0022     		movs	r2, #0
+ 172 0088 1A60     		str	r2, [r3]	@ float
+ 173              	.L14:
+ 174 008a 9FED927A 		vldr.32	s14, .L40+44
+ 175 008e F4EEC77A 		vcmpe.f32	s15, s14
+ 176 0092 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 177 0096 02DD     		ble	.L16
+ 178 0098 854B     		ldr	r3, .L40+8
+ 179 009a 0022     		movs	r2, #0
+ 180 009c 5A70     		strb	r2, [r3, #1]
+ 181              	.L16:
+ 182 009e 8E4B     		ldr	r3, .L40+48
+ 183 00a0 93ED008A 		vldr.32	s16, [r3]
+ 184 00a4 8A4B     		ldr	r3, .L40+40
+ 185 00a6 D3ED007A 		vldr.32	s15, [r3]
+ 186 00aa 38EE278A 		vadd.f32	s16, s16, s15
+ 187 00ae FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 188 00b2 B4EEC08A 		vcmpe.f32	s16, s0
+ 189 00b6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 190 00ba 00F38181 		bgt	.L7
+ 191 00be 7C4B     		ldr	r3, .L40+8
+ 192 00c0 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 193 00c2 022B     		cmp	r3, #2
+ 194 00c4 00F0A080 		beq	.L19
+ 195 00c8 42D9     		bls	.L37
+ 196 00ca 032B     		cmp	r3, #3
+ 197 00cc 00F0B380 		beq	.L24
+ 198 00d0 042B     		cmp	r3, #4
+ 199 00d2 69D1     		bne	.L23
+ 200 00d4 7B4C     		ldr	r4, .L40+28
+ 201 00d6 0221     		movs	r1, #2
+ 202 00d8 2068     		ldr	r0, [r4]
+ 203 00da FFF7FEFF 		bl	DJIMotorOuterLoop
+ 204 00de 744B     		ldr	r3, .L40+8
+ 205 00e0 D3F80630 		ldr	r3, [r3, #6]	@ unaligned
+ 206 00e4 07EE903A 		vmov	s15, r3	@ int
+ 207 00e8 9FED7C7A 		vldr.32	s14, .L40+52
+ 208 00ec 67EE877A 		vmul.f32	s15, s15, s14
+ 209 00f0 9FED7B7A 		vldr.32	s14, .L40+56
+ 210 00f4 67EE877A 		vmul.f32	s15, s15, s14
+ 211 00f8 B4EE000A 		vmov.f32	s0, #1.25e-1
+ 212 00fc 27EE800A 		vmul.f32	s0, s15, s0
+ 213 0100 2068     		ldr	r0, [r4]
+ 214 0102 FFF7FEFF 		bl	DJIMotorSetRef
+ 215 0106 4FE0     		b	.L23
+ 216              	.L35:
+ 217 0108 6B4B     		ldr	r3, .L40+16
+ 218 010a 1868     		ldr	r0, [r3]
+ 219 010c FFF7FEFF 		bl	DJIMotorStop
+ 220 0110 6A4B     		ldr	r3, .L40+20
+ 221 0112 1868     		ldr	r0, [r3]
+ 222 0114 FFF7FEFF 		bl	DJIMotorStop
+ 223 0118 694B     		ldr	r3, .L40+24
+ 224 011a 1B68     		ldr	r3, [r3]
+ 225 011c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 226 011e 022B     		cmp	r3, #2
+ 227 0120 04D0     		beq	.L38
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s 			page 5
+
+
+ 228              	.L9:
+ 229 0122 684B     		ldr	r3, .L40+28
+ 230 0124 1868     		ldr	r0, [r3]
+ 231 0126 FFF7FEFF 		bl	DJIMotorStop
+ 232 012a 87E7     		b	.L10
+ 233              	.L38:
+ 234 012c 6D4B     		ldr	r3, .L40+60
+ 235 012e 1868     		ldr	r0, [r3]
+ 236 0130 FFF7FEFF 		bl	DJIMotorStop
+ 237 0134 6C4B     		ldr	r3, .L40+64
+ 238 0136 1868     		ldr	r0, [r3]
+ 239 0138 FFF7FEFF 		bl	DJIMotorStop
+ 240 013c F1E7     		b	.L9
+ 241              	.L36:
+ 242 013e 694B     		ldr	r3, .L40+60
+ 243 0140 1868     		ldr	r0, [r3]
+ 244 0142 FFF7FEFF 		bl	DJIMotorEnable
+ 245 0146 684B     		ldr	r3, .L40+64
+ 246 0148 1868     		ldr	r0, [r3]
+ 247 014a FFF7FEFF 		bl	DJIMotorEnable
+ 248 014e 71E7     		b	.L11
+ 249              	.L37:
+ 250 0150 DBB1     		cbz	r3, .L21
+ 251 0152 012B     		cmp	r3, #1
+ 252 0154 28D1     		bne	.L23
+ 253 0156 5B4C     		ldr	r4, .L40+28
+ 254 0158 0221     		movs	r1, #2
+ 255 015a 2068     		ldr	r0, [r4]
+ 256 015c FFF7FEFF 		bl	DJIMotorOuterLoop
+ 257 0160 534B     		ldr	r3, .L40+8
+ 258 0162 D3F80630 		ldr	r3, [r3, #6]	@ unaligned
+ 259 0166 07EE903A 		vmov	s15, r3	@ int
+ 260 016a 9FED5C7A 		vldr.32	s14, .L40+52
+ 261 016e 67EEC77A 		vnmul.f32	s15, s15, s14
+ 262 0172 B2EE087A 		vmov.f32	s14, #1.2e+1
+ 263 0176 67EE877A 		vmul.f32	s15, s15, s14
+ 264 017a B4EE000A 		vmov.f32	s0, #1.25e-1
+ 265 017e 27EE800A 		vmul.f32	s0, s15, s0
+ 266 0182 2068     		ldr	r0, [r4]
+ 267 0184 FFF7FEFF 		bl	DJIMotorSetRef
+ 268 0188 0EE0     		b	.L23
+ 269              	.L21:
+ 270 018a 4E4C     		ldr	r4, .L40+28
+ 271 018c 0221     		movs	r1, #2
+ 272 018e 2068     		ldr	r0, [r4]
+ 273 0190 FFF7FEFF 		bl	DJIMotorOuterLoop
+ 274 0194 9FED558A 		vldr.32	s16, .L40+68
+ 275 0198 B0EE480A 		vmov.f32	s0, s16
+ 276 019c 2068     		ldr	r0, [r4]
+ 277 019e FFF7FEFF 		bl	DJIMotorSetRef
+ 278 01a2 494B     		ldr	r3, .L40+32
+ 279 01a4 83ED008A 		vstr.32	s16, [r3]
+ 280              	.L23:
+ 281 01a8 414B     		ldr	r3, .L40+8
+ 282 01aa DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 283 01ac 012B     		cmp	r3, #1
+ 284 01ae 40F0EF80 		bne	.L26
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s 			page 6
+
+
+ 285 01b2 3F4B     		ldr	r3, .L40+8
+ 286 01b4 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 287 01b6 122B     		cmp	r3, #18
+ 288 01b8 54D0     		beq	.L27
+ 289 01ba 1E2B     		cmp	r3, #30
+ 290 01bc 00F0A680 		beq	.L28
+ 291 01c0 0F2B     		cmp	r3, #15
+ 292 01c2 40F0C580 		bne	.L29
+ 293 01c6 9FED4A8A 		vldr.32	s16, .L40+72
+ 294 01ca B0EE480A 		vmov.f32	s0, s16
+ 295 01ce 3A4B     		ldr	r3, .L40+16
+ 296 01d0 1868     		ldr	r0, [r3]
+ 297 01d2 FFF7FEFF 		bl	DJIMotorSetRef
+ 298 01d6 B0EE480A 		vmov.f32	s0, s16
+ 299 01da 384B     		ldr	r3, .L40+20
+ 300 01dc 1868     		ldr	r0, [r3]
+ 301 01de FFF7FEFF 		bl	DJIMotorSetRef
+ 302 01e2 374B     		ldr	r3, .L40+24
+ 303 01e4 1B68     		ldr	r3, [r3]
+ 304 01e6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 305 01e8 022B     		cmp	r3, #2
+ 306 01ea 40F0E480 		bne	.L30
+ 307 01ee B0EE480A 		vmov.f32	s0, s16
+ 308 01f2 3C4B     		ldr	r3, .L40+60
+ 309 01f4 1868     		ldr	r0, [r3]
+ 310 01f6 FFF7FEFF 		bl	DJIMotorSetRef
+ 311 01fa B0EE480A 		vmov.f32	s0, s16
+ 312 01fe 3A4B     		ldr	r3, .L40+64
+ 313 0200 1868     		ldr	r0, [r3]
+ 314 0202 FFF7FEFF 		bl	DJIMotorSetRef
+ 315 0206 D6E0     		b	.L30
+ 316              	.L19:
+ 317 0208 2E4C     		ldr	r4, .L40+28
+ 318 020a 0421     		movs	r1, #4
+ 319 020c 2068     		ldr	r0, [r4]
+ 320 020e FFF7FEFF 		bl	DJIMotorOuterLoop
+ 321 0212 2068     		ldr	r0, [r4]
+ 322 0214 90ED040A 		vldr.32	s0, [r0, #16]
+ 323 0218 DFED367A 		vldr.32	s15, .L40+76
+ 324 021c 30EE270A 		vadd.f32	s0, s0, s15
+ 325 0220 FFF7FEFF 		bl	DJIMotorSetRef
+ 326 0224 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 327 0228 2B4B     		ldr	r3, .L40+48
+ 328 022a 83ED000A 		vstr.32	s0, [r3]
+ 329 022e 284B     		ldr	r3, .L40+40
+ 330 0230 314A     		ldr	r2, .L40+80
+ 331 0232 1A60     		str	r2, [r3]	@ float
+ 332 0234 B8E7     		b	.L23
+ 333              	.L24:
+ 334 0236 234C     		ldr	r4, .L40+28
+ 335 0238 0421     		movs	r1, #4
+ 336 023a 2068     		ldr	r0, [r4]
+ 337 023c FFF7FEFF 		bl	DJIMotorOuterLoop
+ 338 0240 2068     		ldr	r0, [r4]
+ 339 0242 90ED040A 		vldr.32	s0, [r0, #16]
+ 340 0246 DFED2D7A 		vldr.32	s15, .L40+84
+ 341 024a 30EE270A 		vadd.f32	s0, s0, s15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s 			page 7
+
+
+ 342 024e FFF7FEFF 		bl	DJIMotorSetRef
+ 343 0252 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 344 0256 204B     		ldr	r3, .L40+48
+ 345 0258 83ED000A 		vstr.32	s0, [r3]
+ 346 025c 1C4B     		ldr	r3, .L40+40
+ 347 025e 284A     		ldr	r2, .L40+88
+ 348 0260 1A60     		str	r2, [r3]	@ float
+ 349 0262 A1E7     		b	.L23
+ 350              	.L27:
+ 351 0264 9FED278A 		vldr.32	s16, .L40+92
+ 352 0268 B0EE480A 		vmov.f32	s0, s16
+ 353 026c 124B     		ldr	r3, .L40+16
+ 354 026e 1868     		ldr	r0, [r3]
+ 355 0270 FFF7FEFF 		bl	DJIMotorSetRef
+ 356 0274 B0EE480A 		vmov.f32	s0, s16
+ 357 0278 104B     		ldr	r3, .L40+20
+ 358 027a 1868     		ldr	r0, [r3]
+ 359 027c FFF7FEFF 		bl	DJIMotorSetRef
+ 360 0280 0F4B     		ldr	r3, .L40+24
+ 361 0282 1B68     		ldr	r3, [r3]
+ 362 0284 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 363 0286 022B     		cmp	r3, #2
+ 364 0288 40F09580 		bne	.L30
+ 365 028c B0EE480A 		vmov.f32	s0, s16
+ 366 0290 144B     		ldr	r3, .L40+60
+ 367 0292 1868     		ldr	r0, [r3]
+ 368 0294 FFF7FEFF 		bl	DJIMotorSetRef
+ 369 0298 B0EE480A 		vmov.f32	s0, s16
+ 370 029c 124B     		ldr	r3, .L40+64
+ 371 029e 1868     		ldr	r0, [r3]
+ 372 02a0 FFF7FEFF 		bl	DJIMotorSetRef
+ 373 02a4 87E0     		b	.L30
+ 374              	.L41:
+ 375 02a6 00BF     		.align	3
+ 376              	.L40:
+ 377 02a8 00000000 		.word	0
+ 378 02ac 0088B340 		.word	1085507584
+ 379 02b0 00000000 		.word	shoot_cmd_recv
+ 380 02b4 00000000 		.word	shoot_sub
+ 381 02b8 00000000 		.word	friction_lf
+ 382 02bc 00000000 		.word	friction_rf
+ 383 02c0 00000000 		.word	shoot_config
+ 384 02c4 00000000 		.word	loader
+ 385 02c8 00000000 		.word	lock_time
+ 386 02cc 0000C843 		.word	1137180672
+ 387 02d0 00000000 		.word	dead_time
+ 388 02d4 0080CA43 		.word	1137344512
+ 389 02d8 00000000 		.word	hibernate_time
+ 390 02dc 0000B443 		.word	1135869952
+ 391 02e0 00001042 		.word	1108344832
+ 392 02e4 00000000 		.word	friction_lb
+ 393 02e8 00000000 		.word	friction_rb
+ 394 02ec 00000000 		.word	0
+ 395 02f0 0060EA46 		.word	1189765120
+ 396 02f4 00000744 		.word	1141309440
+ 397 02f8 00009643 		.word	1133903872
+ 398 02fc 00C02845 		.word	1160298496
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s 			page 8
+
+
+ 399 0300 00009644 		.word	1150681088
+ 400 0304 00B80847 		.word	1191753728
+ 401 0308 00504347 		.word	1195593728
+ 402              	.L28:
+ 403 030c 1FED028A 		vldr.32	s16, .L40+96
+ 404 0310 B0EE480A 		vmov.f32	s0, s16
+ 405 0314 324B     		ldr	r3, .L42
+ 406 0316 1868     		ldr	r0, [r3]
+ 407 0318 FFF7FEFF 		bl	DJIMotorSetRef
+ 408 031c B0EE480A 		vmov.f32	s0, s16
+ 409 0320 304B     		ldr	r3, .L42+4
+ 410 0322 1868     		ldr	r0, [r3]
+ 411 0324 FFF7FEFF 		bl	DJIMotorSetRef
+ 412 0328 2F4B     		ldr	r3, .L42+8
+ 413 032a 1B68     		ldr	r3, [r3]
+ 414 032c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 415 032e 022B     		cmp	r3, #2
+ 416 0330 41D1     		bne	.L30
+ 417 0332 9FED2E8A 		vldr.32	s16, .L42+12
+ 418 0336 B0EE480A 		vmov.f32	s0, s16
+ 419 033a 2D4B     		ldr	r3, .L42+16
+ 420 033c 1868     		ldr	r0, [r3]
+ 421 033e FFF7FEFF 		bl	DJIMotorSetRef
+ 422 0342 B0EE480A 		vmov.f32	s0, s16
+ 423 0346 2B4B     		ldr	r3, .L42+20
+ 424 0348 1868     		ldr	r0, [r3]
+ 425 034a FFF7FEFF 		bl	DJIMotorSetRef
+ 426 034e 32E0     		b	.L30
+ 427              	.L29:
+ 428 0350 9FED268A 		vldr.32	s16, .L42+12
+ 429 0354 B0EE480A 		vmov.f32	s0, s16
+ 430 0358 214B     		ldr	r3, .L42
+ 431 035a 1868     		ldr	r0, [r3]
+ 432 035c FFF7FEFF 		bl	DJIMotorSetRef
+ 433 0360 B0EE480A 		vmov.f32	s0, s16
+ 434 0364 1F4B     		ldr	r3, .L42+4
+ 435 0366 1868     		ldr	r0, [r3]
+ 436 0368 FFF7FEFF 		bl	DJIMotorSetRef
+ 437 036c 1E4B     		ldr	r3, .L42+8
+ 438 036e 1B68     		ldr	r3, [r3]
+ 439 0370 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 440 0372 022B     		cmp	r3, #2
+ 441 0374 1FD1     		bne	.L30
+ 442 0376 B0EE480A 		vmov.f32	s0, s16
+ 443 037a 1D4B     		ldr	r3, .L42+16
+ 444 037c 1868     		ldr	r0, [r3]
+ 445 037e FFF7FEFF 		bl	DJIMotorSetRef
+ 446 0382 B0EE480A 		vmov.f32	s0, s16
+ 447 0386 1B4B     		ldr	r3, .L42+20
+ 448 0388 1868     		ldr	r0, [r3]
+ 449 038a FFF7FEFF 		bl	DJIMotorSetRef
+ 450 038e 12E0     		b	.L30
+ 451              	.L26:
+ 452 0390 9FED198A 		vldr.32	s16, .L42+24
+ 453 0394 B0EE480A 		vmov.f32	s0, s16
+ 454 0398 114B     		ldr	r3, .L42
+ 455 039a 1868     		ldr	r0, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s 			page 9
+
+
+ 456 039c FFF7FEFF 		bl	DJIMotorSetRef
+ 457 03a0 B0EE480A 		vmov.f32	s0, s16
+ 458 03a4 0F4B     		ldr	r3, .L42+4
+ 459 03a6 1868     		ldr	r0, [r3]
+ 460 03a8 FFF7FEFF 		bl	DJIMotorSetRef
+ 461 03ac 0E4B     		ldr	r3, .L42+8
+ 462 03ae 1B68     		ldr	r3, [r3]
+ 463 03b0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 464 03b2 022B     		cmp	r3, #2
+ 465 03b4 07D0     		beq	.L39
+ 466              	.L30:
+ 467 03b6 1149     		ldr	r1, .L42+28
+ 468 03b8 114B     		ldr	r3, .L42+32
+ 469 03ba 1868     		ldr	r0, [r3]
+ 470 03bc FFF7FEFF 		bl	PubPushMessage
+ 471              	.L7:
+ 472 03c0 BDEC028B 		vldm	sp!, {d8}
+ 473 03c4 10BD     		pop	{r4, pc}
+ 474              	.L39:
+ 475 03c6 B0EE480A 		vmov.f32	s0, s16
+ 476 03ca 094B     		ldr	r3, .L42+16
+ 477 03cc 1868     		ldr	r0, [r3]
+ 478 03ce FFF7FEFF 		bl	DJIMotorSetRef
+ 479 03d2 B0EE480A 		vmov.f32	s0, s16
+ 480 03d6 074B     		ldr	r3, .L42+20
+ 481 03d8 1868     		ldr	r0, [r3]
+ 482 03da FFF7FEFF 		bl	DJIMotorSetRef
+ 483 03de EAE7     		b	.L30
+ 484              	.L43:
+ 485              		.align	2
+ 486              	.L42:
+ 487 03e0 00000000 		.word	friction_lf
+ 488 03e4 00000000 		.word	friction_rf
+ 489 03e8 00000000 		.word	shoot_config
+ 490 03ec 00409C47 		.word	1201422336
+ 491 03f0 00000000 		.word	friction_lb
+ 492 03f4 00000000 		.word	friction_rb
+ 493 03f8 00000000 		.word	0
+ 494 03fc 00000000 		.word	shoot_feedback_data
+ 495 0400 00000000 		.word	shoot_pub
+ 497              		.section	.bss.lock_time,"aw",%nobits
+ 498              		.align	2
+ 501              	lock_time:
+ 502 0000 00000000 		.space	4
+ 503              		.section	.bss.dead_time,"aw",%nobits
+ 504              		.align	2
+ 507              	dead_time:
+ 508 0000 00000000 		.space	4
+ 509              		.section	.bss.hibernate_time,"aw",%nobits
+ 510              		.align	2
+ 513              	hibernate_time:
+ 514 0000 00000000 		.space	4
+ 515              		.section	.bss.shoot_feedback_data,"aw",%nobits
+ 516              		.align	2
+ 519              	shoot_feedback_data:
+ 520              		.section	.bss.shoot_sub,"aw",%nobits
+ 521              		.align	2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s 			page 10
+
+
+ 524              	shoot_sub:
+ 525 0000 00000000 		.space	4
+ 526              		.section	.bss.shoot_cmd_recv,"aw",%nobits
+ 527              		.align	2
+ 530              	shoot_cmd_recv:
+ 531 0000 00000000 		.space	10
+ 531      00000000 
+ 531      0000
+ 532              		.section	.bss.shoot_pub,"aw",%nobits
+ 533              		.align	2
+ 536              	shoot_pub:
+ 537 0000 00000000 		.space	4
+ 538              		.section	.bss.friction_rb,"aw",%nobits
+ 539              		.align	2
+ 542              	friction_rb:
+ 543 0000 00000000 		.space	4
+ 544              		.section	.bss.friction_lb,"aw",%nobits
+ 545              		.align	2
+ 548              	friction_lb:
+ 549 0000 00000000 		.space	4
+ 550              		.section	.bss.loader,"aw",%nobits
+ 551              		.align	2
+ 554              	loader:
+ 555 0000 00000000 		.space	4
+ 556              		.section	.bss.friction_rf,"aw",%nobits
+ 557              		.align	2
+ 560              	friction_rf:
+ 561 0000 00000000 		.space	4
+ 562              		.section	.bss.friction_lf,"aw",%nobits
+ 563              		.align	2
+ 566              	friction_lf:
+ 567 0000 00000000 		.space	4
+ 568              		.section	.bss.shoot_config,"aw",%nobits
+ 569              		.align	2
+ 572              	shoot_config:
+ 573 0000 00000000 		.space	4
+ 574              		.global	__aeabi_dcmpgt
+ 575              		.global	__aeabi_i2d
+ 576              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 shoot.c
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:18     .rodata.ShootInit.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:25     .text.ShootInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:31     .text.ShootInit:00000000 ShootInit
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:99     .text.ShootInit:000000a8 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:572    .bss.shoot_config:00000000 shoot_config
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:566    .bss.friction_lf:00000000 friction_lf
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:560    .bss.friction_rf:00000000 friction_rf
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:554    .bss.loader:00000000 loader
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:536    .bss.shoot_pub:00000000 shoot_pub
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:524    .bss.shoot_sub:00000000 shoot_sub
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:548    .bss.friction_lb:00000000 friction_lb
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:542    .bss.friction_rb:00000000 friction_rb
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:111    .text.ShootTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:117    .text.ShootTask:00000000 ShootTask
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:377    .text.ShootTask:000002a8 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:530    .bss.shoot_cmd_recv:00000000 shoot_cmd_recv
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:501    .bss.lock_time:00000000 lock_time
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:507    .bss.dead_time:00000000 dead_time
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:513    .bss.hibernate_time:00000000 hibernate_time
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:403    .text.ShootTask:0000030c $t
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:487    .text.ShootTask:000003e0 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:519    .bss.shoot_feedback_data:00000000 shoot_feedback_data
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:498    .bss.lock_time:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:504    .bss.dead_time:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:510    .bss.hibernate_time:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:521    .bss.shoot_sub:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:527    .bss.shoot_cmd_recv:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:533    .bss.shoot_pub:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:539    .bss.friction_rb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:545    .bss.friction_lb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:551    .bss.loader:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:557    .bss.friction_rf:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:563    .bss.friction_lf:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc1P1IMH.s:569    .bss.shoot_config:00000000 $d
+
+UNDEFINED SYMBOLS
+ShootConfigFeed
+DJIMotorInit
+PubRegister
+SubRegister
+SubGetMessage
+DJIMotorEnable
+__aeabi_i2d
+__aeabi_dcmpgt
+DWT_GetTimeline_ms
+DJIMotorOuterLoop
+DJIMotorSetRef
+DJIMotorStop
+PubPushMessage

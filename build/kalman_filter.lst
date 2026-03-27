@@ -1,0 +1,2929 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"kalman_filter.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/algorithm/kalman_filter.c"
+  20              		.section	.text.H_K_R_Adjustment,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	H_K_R_Adjustment:
+  27              	.LVL0:
+  28              	.LFB171:
+   1:modules/algorithm/kalman_filter.c **** /**
+   2:modules/algorithm/kalman_filter.c ****  ******************************************************************************
+   3:modules/algorithm/kalman_filter.c ****  * @file    kalman filter.c
+   4:modules/algorithm/kalman_filter.c ****  * @author  Wang Hongxi
+   5:modules/algorithm/kalman_filter.c ****  * @version V1.2.2
+   6:modules/algorithm/kalman_filter.c ****  * @date    2022/1/8
+   7:modules/algorithm/kalman_filter.c ****  * @brief   C implementation of kalman filter
+   8:modules/algorithm/kalman_filter.c ****  ******************************************************************************
+   9:modules/algorithm/kalman_filter.c ****  * @attention
+  10:modules/algorithm/kalman_filter.c ****  * 该卡尔曼滤波器可以在传感器采样频率不同的情况下，动态调整矩阵H R和
+  11:modules/algorithm/kalman_filter.c ****  * This implementation of kalman filter can dynamically adjust dimension and
+  12:modules/algorithm/kalman_filter.c ****  * value of matrix H R and K according to the measurement validity under any
+  13:modules/algorithm/kalman_filter.c ****  * circumstance that the sampling rate of component sensors are different.
+  14:modules/algorithm/kalman_filter.c ****  *
+  15:modules/algorithm/kalman_filter.c ****  * 因此矩阵H和R的初始化会与矩阵P A和Q有所不同。另外的，在初始化量测向
+  16:modules/algorithm/kalman_filter.c ****  * 入传感器量测所对应的状态与这个量测的方式，详情请见例程
+  17:modules/algorithm/kalman_filter.c ****  * Therefore, the initialization of matrix P, F, and Q is sometimes different
+  18:modules/algorithm/kalman_filter.c ****  * from that of matrices H R. when initialization. Additionally, the corresponding
+  19:modules/algorithm/kalman_filter.c ****  * state and the method of the measurement should be provided when initializing
+  20:modules/algorithm/kalman_filter.c ****  * measurement vector z. For more details, please see the example.
+  21:modules/algorithm/kalman_filter.c ****  *
+  22:modules/algorithm/kalman_filter.c ****  * 若不需要动态调整量测向量z，可简单将结构体中的Use_Auto_Adjustment初始化�
+  23:modules/algorithm/kalman_filter.c ****  * 始化矩阵P那样用常规方式初始化z H R即可。
+  24:modules/algorithm/kalman_filter.c ****  * If automatic adjustment is not required, assign zero to the UseAutoAdjustment
+  25:modules/algorithm/kalman_filter.c ****  * and initialize z H R in the normal way as matrix P.
+  26:modules/algorithm/kalman_filter.c ****  *
+  27:modules/algorithm/kalman_filter.c ****  * 要求量测向量z与控制向量u在传感器回调函数中更新。整数0意味着量测无
+  28:modules/algorithm/kalman_filter.c ****  * 滤波更新后无传感器数据更新。因此量测向量z与控制向量u会在卡尔曼滤�
+  29:modules/algorithm/kalman_filter.c ****  * MeasuredVector and ControlVector are required to be updated in the sensor
+  30:modules/algorithm/kalman_filter.c ****  * callback function. Integer 0 in measurement vector z indicates the invalidity
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 2
+
+
+  31:modules/algorithm/kalman_filter.c ****  * of current measurement, so MeasuredVector and ControlVector will be reset
+  32:modules/algorithm/kalman_filter.c ****  * (to 0) during each update.
+  33:modules/algorithm/kalman_filter.c ****  *
+  34:modules/algorithm/kalman_filter.c ****  * 此外，矩阵P过度收敛后滤波器将难以再适应状态的缓慢变化，从而产生�
+  35:modules/algorithm/kalman_filter.c ****  * 通过限制矩阵P最小值的方法，可有效抑制滤波器的过度收敛，详情请见�
+  36:modules/algorithm/kalman_filter.c ****  * Additionally, the excessive convergence of matrix P will make filter incapable
+  37:modules/algorithm/kalman_filter.c ****  * of adopting the slowly changing state. This implementation can effectively
+  38:modules/algorithm/kalman_filter.c ****  * suppress filter excessive convergence through boundary limiting for matrix P.
+  39:modules/algorithm/kalman_filter.c ****  * For more details, please see the example.
+  40:modules/algorithm/kalman_filter.c ****  *
+  41:modules/algorithm/kalman_filter.c ****  * @example:
+  42:modules/algorithm/kalman_filter.c ****  * x =
+  43:modules/algorithm/kalman_filter.c ****  *   |   height   |
+  44:modules/algorithm/kalman_filter.c ****  *   |  velocity  |
+  45:modules/algorithm/kalman_filter.c ****  *   |acceleration|
+  46:modules/algorithm/kalman_filter.c ****  *
+  47:modules/algorithm/kalman_filter.c ****  * KalmanFilter_t Height_KF;
+  48:modules/algorithm/kalman_filter.c ****  *
+  49:modules/algorithm/kalman_filter.c ****  * void INS_Task_Init(void)
+  50:modules/algorithm/kalman_filter.c ****  * {
+  51:modules/algorithm/kalman_filter.c ****  *     static float P_Init[9] =
+  52:modules/algorithm/kalman_filter.c ****  *     {
+  53:modules/algorithm/kalman_filter.c ****  *         10, 0, 0,
+  54:modules/algorithm/kalman_filter.c ****  *         0, 30, 0,
+  55:modules/algorithm/kalman_filter.c ****  *         0, 0, 10,
+  56:modules/algorithm/kalman_filter.c ****  *     };
+  57:modules/algorithm/kalman_filter.c ****  *     static float F_Init[9] =
+  58:modules/algorithm/kalman_filter.c ****  *     {
+  59:modules/algorithm/kalman_filter.c ****  *         1, dt, 0.5*dt*dt,
+  60:modules/algorithm/kalman_filter.c ****  *         0, 1, dt,
+  61:modules/algorithm/kalman_filter.c ****  *         0, 0, 1,
+  62:modules/algorithm/kalman_filter.c ****  *     };
+  63:modules/algorithm/kalman_filter.c ****  *     static float Q_Init[9] =
+  64:modules/algorithm/kalman_filter.c ****  *     {
+  65:modules/algorithm/kalman_filter.c ****  *         0.25*dt*dt*dt*dt, 0.5*dt*dt*dt, 0.5*dt*dt,
+  66:modules/algorithm/kalman_filter.c ****  *         0.5*dt*dt*dt,        dt*dt,         dt,
+  67:modules/algorithm/kalman_filter.c ****  *         0.5*dt*dt,              dt,         1,
+  68:modules/algorithm/kalman_filter.c ****  *     };
+  69:modules/algorithm/kalman_filter.c ****  *
+  70:modules/algorithm/kalman_filter.c ****  *     // 设置最小方差
+  71:modules/algorithm/kalman_filter.c ****  *     static float state_min_variance[3] = {0.03, 0.005, 0.1};
+  72:modules/algorithm/kalman_filter.c ****  *
+  73:modules/algorithm/kalman_filter.c ****  *     // 开启自动调整
+  74:modules/algorithm/kalman_filter.c ****  *     Height_KF.UseAutoAdjustment = 1;
+  75:modules/algorithm/kalman_filter.c ****  *
+  76:modules/algorithm/kalman_filter.c ****  *     // 气压测得高度 GPS测得高度 加速度计测得z轴运动加速度
+  77:modules/algorithm/kalman_filter.c ****  *     static uint8_t measurement_reference[3] = {1, 1, 3}
+  78:modules/algorithm/kalman_filter.c ****  *
+  79:modules/algorithm/kalman_filter.c ****  *     static float measurement_degree[3] = {1, 1, 1}
+  80:modules/algorithm/kalman_filter.c ****  *     // 根据measurement_reference与measurement_degree生成H矩阵如下（在当前周期全�
+  81:modules/algorithm/kalman_filter.c ****  *       |1   0   0|
+  82:modules/algorithm/kalman_filter.c ****  *       |1   0   0|
+  83:modules/algorithm/kalman_filter.c ****  *       |0   0   1|
+  84:modules/algorithm/kalman_filter.c ****  *
+  85:modules/algorithm/kalman_filter.c ****  *     static float mat_R_diagonal_elements = {30, 25, 35}
+  86:modules/algorithm/kalman_filter.c ****  *     //根据mat_R_diagonal_elements生成R矩阵如下（在当前周期全部测量数据有效
+  87:modules/algorithm/kalman_filter.c ****  *       |30   0   0|
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 3
+
+
+  88:modules/algorithm/kalman_filter.c ****  *       | 0  25   0|
+  89:modules/algorithm/kalman_filter.c ****  *       | 0   0  35|
+  90:modules/algorithm/kalman_filter.c ****  *
+  91:modules/algorithm/kalman_filter.c ****  *     Kalman_Filter_Init(&Height_KF, 3, 0, 3);
+  92:modules/algorithm/kalman_filter.c ****  *
+  93:modules/algorithm/kalman_filter.c ****  *     // 设置矩阵值
+  94:modules/algorithm/kalman_filter.c ****  *     memcpy(Height_KF.P_data, P_Init, sizeof(P_Init));
+  95:modules/algorithm/kalman_filter.c ****  *     memcpy(Height_KF.F_data, F_Init, sizeof(F_Init));
+  96:modules/algorithm/kalman_filter.c ****  *     memcpy(Height_KF.Q_data, Q_Init, sizeof(Q_Init));
+  97:modules/algorithm/kalman_filter.c ****  *     memcpy(Height_KF.MeasurementMap, measurement_reference, sizeof(measurement_reference));
+  98:modules/algorithm/kalman_filter.c ****  *     memcpy(Height_KF.MeasurementDegree, measurement_degree, sizeof(measurement_degree));
+  99:modules/algorithm/kalman_filter.c ****  *     memcpy(Height_KF.MatR_DiagonalElements, mat_R_diagonal_elements, sizeof(mat_R_diagonal_eleme
+ 100:modules/algorithm/kalman_filter.c ****  *     memcpy(Height_KF.StateMinVariance, state_min_variance, sizeof(state_min_variance));
+ 101:modules/algorithm/kalman_filter.c ****  * }
+ 102:modules/algorithm/kalman_filter.c ****  *
+ 103:modules/algorithm/kalman_filter.c ****  * void INS_Task(void const *pvParameters)
+ 104:modules/algorithm/kalman_filter.c ****  * {
+ 105:modules/algorithm/kalman_filter.c ****  *     // 循环更新
+ 106:modules/algorithm/kalman_filter.c ****  *     Kalman_Filter_Update(&Height_KF);
+ 107:modules/algorithm/kalman_filter.c ****  *     vTaskDelay(ts);
+ 108:modules/algorithm/kalman_filter.c ****  * }
+ 109:modules/algorithm/kalman_filter.c ****  *
+ 110:modules/algorithm/kalman_filter.c ****  * // 测量数据更新应按照以下形式 即向MeasuredVector赋值
+ 111:modules/algorithm/kalman_filter.c ****  * void Barometer_Read_Over(void)
+ 112:modules/algorithm/kalman_filter.c ****  * {
+ 113:modules/algorithm/kalman_filter.c ****  *     ......
+ 114:modules/algorithm/kalman_filter.c ****  *     INS_KF.MeasuredVector[0] = baro_height;
+ 115:modules/algorithm/kalman_filter.c ****  * }
+ 116:modules/algorithm/kalman_filter.c ****  * void GPS_Read_Over(void)
+ 117:modules/algorithm/kalman_filter.c ****  * {
+ 118:modules/algorithm/kalman_filter.c ****  *     ......
+ 119:modules/algorithm/kalman_filter.c ****  *     INS_KF.MeasuredVector[1] = GPS_height;
+ 120:modules/algorithm/kalman_filter.c ****  * }
+ 121:modules/algorithm/kalman_filter.c ****  * void Acc_Data_Process(void)
+ 122:modules/algorithm/kalman_filter.c ****  * {
+ 123:modules/algorithm/kalman_filter.c ****  *     ......
+ 124:modules/algorithm/kalman_filter.c ****  *     INS_KF.MeasuredVector[2] = acc.z;
+ 125:modules/algorithm/kalman_filter.c ****  * }
+ 126:modules/algorithm/kalman_filter.c ****  ******************************************************************************
+ 127:modules/algorithm/kalman_filter.c ****  */
+ 128:modules/algorithm/kalman_filter.c **** 
+ 129:modules/algorithm/kalman_filter.c **** #include "kalman_filter.h"
+ 130:modules/algorithm/kalman_filter.c **** 
+ 131:modules/algorithm/kalman_filter.c **** uint16_t sizeof_float, sizeof_double;
+ 132:modules/algorithm/kalman_filter.c **** 
+ 133:modules/algorithm/kalman_filter.c **** static void H_K_R_Adjustment(KalmanFilter_t *kf);
+ 134:modules/algorithm/kalman_filter.c **** 
+ 135:modules/algorithm/kalman_filter.c **** /**
+ 136:modules/algorithm/kalman_filter.c ****  * @brief 初始化矩阵维度信息并为矩阵分配空间
+ 137:modules/algorithm/kalman_filter.c ****  *
+ 138:modules/algorithm/kalman_filter.c ****  * @param kf kf类型定义
+ 139:modules/algorithm/kalman_filter.c ****  * @param xhatSize 状态变量维度
+ 140:modules/algorithm/kalman_filter.c ****  * @param uSize 控制变量维度
+ 141:modules/algorithm/kalman_filter.c ****  * @param zSize 观测量维度
+ 142:modules/algorithm/kalman_filter.c ****  */
+ 143:modules/algorithm/kalman_filter.c **** void Kalman_Filter_Init(KalmanFilter_t *kf, uint8_t xhatSize, uint8_t uSize, uint8_t zSize)
+ 144:modules/algorithm/kalman_filter.c **** {
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 4
+
+
+ 145:modules/algorithm/kalman_filter.c ****     sizeof_float = sizeof(float);
+ 146:modules/algorithm/kalman_filter.c ****     sizeof_double = sizeof(double);
+ 147:modules/algorithm/kalman_filter.c **** 
+ 148:modules/algorithm/kalman_filter.c ****     kf->xhatSize = xhatSize;
+ 149:modules/algorithm/kalman_filter.c ****     kf->uSize = uSize;
+ 150:modules/algorithm/kalman_filter.c ****     kf->zSize = zSize;
+ 151:modules/algorithm/kalman_filter.c **** 
+ 152:modules/algorithm/kalman_filter.c ****     kf->MeasurementValidNum = 0;
+ 153:modules/algorithm/kalman_filter.c **** 
+ 154:modules/algorithm/kalman_filter.c ****     // measurement flags
+ 155:modules/algorithm/kalman_filter.c ****     kf->MeasurementMap = (uint8_t *)user_malloc(sizeof(uint8_t) * zSize);
+ 156:modules/algorithm/kalman_filter.c ****     memset(kf->MeasurementMap, 0, sizeof(uint8_t) * zSize);
+ 157:modules/algorithm/kalman_filter.c ****     kf->MeasurementDegree = (float *)user_malloc(sizeof_float * zSize);
+ 158:modules/algorithm/kalman_filter.c ****     memset(kf->MeasurementDegree, 0, sizeof_float * zSize);
+ 159:modules/algorithm/kalman_filter.c ****     kf->MatR_DiagonalElements = (float *)user_malloc(sizeof_float * zSize);
+ 160:modules/algorithm/kalman_filter.c ****     memset(kf->MatR_DiagonalElements, 0, sizeof_float * zSize);
+ 161:modules/algorithm/kalman_filter.c ****     kf->StateMinVariance = (float *)user_malloc(sizeof_float * xhatSize);
+ 162:modules/algorithm/kalman_filter.c ****     memset(kf->StateMinVariance, 0, sizeof_float * xhatSize);
+ 163:modules/algorithm/kalman_filter.c ****     kf->temp = (uint8_t *)user_malloc(sizeof(uint8_t) * zSize);
+ 164:modules/algorithm/kalman_filter.c ****     memset(kf->temp, 0, sizeof(uint8_t) * zSize);
+ 165:modules/algorithm/kalman_filter.c **** 
+ 166:modules/algorithm/kalman_filter.c ****     // filter data
+ 167:modules/algorithm/kalman_filter.c ****     kf->FilteredValue = (float *)user_malloc(sizeof_float * xhatSize);
+ 168:modules/algorithm/kalman_filter.c ****     memset(kf->FilteredValue, 0, sizeof_float * xhatSize);
+ 169:modules/algorithm/kalman_filter.c ****     kf->MeasuredVector = (float *)user_malloc(sizeof_float * zSize);
+ 170:modules/algorithm/kalman_filter.c ****     memset(kf->MeasuredVector, 0, sizeof_float * zSize);
+ 171:modules/algorithm/kalman_filter.c ****     kf->ControlVector = (float *)user_malloc(sizeof_float * uSize);
+ 172:modules/algorithm/kalman_filter.c ****     memset(kf->ControlVector, 0, sizeof_float * uSize);
+ 173:modules/algorithm/kalman_filter.c **** 
+ 174:modules/algorithm/kalman_filter.c ****     // xhat x(k|k)
+ 175:modules/algorithm/kalman_filter.c ****     kf->xhat_data = (float *)user_malloc(sizeof_float * xhatSize);
+ 176:modules/algorithm/kalman_filter.c ****     memset(kf->xhat_data, 0, sizeof_float * xhatSize);
+ 177:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->xhat, kf->xhatSize, 1, (float *)kf->xhat_data);
+ 178:modules/algorithm/kalman_filter.c **** 
+ 179:modules/algorithm/kalman_filter.c ****     // xhatminus x(k|k-1)
+ 180:modules/algorithm/kalman_filter.c ****     kf->xhatminus_data = (float *)user_malloc(sizeof_float * xhatSize);
+ 181:modules/algorithm/kalman_filter.c ****     memset(kf->xhatminus_data, 0, sizeof_float * xhatSize);
+ 182:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->xhatminus, kf->xhatSize, 1, (float *)kf->xhatminus_data);
+ 183:modules/algorithm/kalman_filter.c **** 
+ 184:modules/algorithm/kalman_filter.c ****     if (uSize != 0)
+ 185:modules/algorithm/kalman_filter.c ****     {
+ 186:modules/algorithm/kalman_filter.c ****         // control vector u
+ 187:modules/algorithm/kalman_filter.c ****         kf->u_data = (float *)user_malloc(sizeof_float * uSize);
+ 188:modules/algorithm/kalman_filter.c ****         memset(kf->u_data, 0, sizeof_float * uSize);
+ 189:modules/algorithm/kalman_filter.c ****         Matrix_Init(&kf->u, kf->uSize, 1, (float *)kf->u_data);
+ 190:modules/algorithm/kalman_filter.c ****     }
+ 191:modules/algorithm/kalman_filter.c **** 
+ 192:modules/algorithm/kalman_filter.c ****     // measurement vector z
+ 193:modules/algorithm/kalman_filter.c ****     kf->z_data = (float *)user_malloc(sizeof_float * zSize);
+ 194:modules/algorithm/kalman_filter.c ****     memset(kf->z_data, 0, sizeof_float * zSize);
+ 195:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->z, kf->zSize, 1, (float *)kf->z_data);
+ 196:modules/algorithm/kalman_filter.c **** 
+ 197:modules/algorithm/kalman_filter.c ****     // covariance matrix P(k|k)
+ 198:modules/algorithm/kalman_filter.c ****     kf->P_data = (float *)user_malloc(sizeof_float * xhatSize * xhatSize);
+ 199:modules/algorithm/kalman_filter.c ****     memset(kf->P_data, 0, sizeof_float * xhatSize * xhatSize);
+ 200:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->P, kf->xhatSize, kf->xhatSize, (float *)kf->P_data);
+ 201:modules/algorithm/kalman_filter.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 5
+
+
+ 202:modules/algorithm/kalman_filter.c ****     // create covariance matrix P(k|k-1)
+ 203:modules/algorithm/kalman_filter.c ****     kf->Pminus_data = (float *)user_malloc(sizeof_float * xhatSize * xhatSize);
+ 204:modules/algorithm/kalman_filter.c ****     memset(kf->Pminus_data, 0, sizeof_float * xhatSize * xhatSize);
+ 205:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->Pminus, kf->xhatSize, kf->xhatSize, (float *)kf->Pminus_data);
+ 206:modules/algorithm/kalman_filter.c **** 
+ 207:modules/algorithm/kalman_filter.c ****     // state transition matrix F FT
+ 208:modules/algorithm/kalman_filter.c ****     kf->F_data = (float *)user_malloc(sizeof_float * xhatSize * xhatSize);
+ 209:modules/algorithm/kalman_filter.c ****     kf->FT_data = (float *)user_malloc(sizeof_float * xhatSize * xhatSize);
+ 210:modules/algorithm/kalman_filter.c ****     memset(kf->F_data, 0, sizeof_float * xhatSize * xhatSize);
+ 211:modules/algorithm/kalman_filter.c ****     memset(kf->FT_data, 0, sizeof_float * xhatSize * xhatSize);
+ 212:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->F, kf->xhatSize, kf->xhatSize, (float *)kf->F_data);
+ 213:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->FT, kf->xhatSize, kf->xhatSize, (float *)kf->FT_data);
+ 214:modules/algorithm/kalman_filter.c **** 
+ 215:modules/algorithm/kalman_filter.c ****     if (uSize != 0)
+ 216:modules/algorithm/kalman_filter.c ****     {
+ 217:modules/algorithm/kalman_filter.c ****         // control matrix B
+ 218:modules/algorithm/kalman_filter.c ****         kf->B_data = (float *)user_malloc(sizeof_float * xhatSize * uSize);
+ 219:modules/algorithm/kalman_filter.c ****         memset(kf->B_data, 0, sizeof_float * xhatSize * uSize);
+ 220:modules/algorithm/kalman_filter.c ****         Matrix_Init(&kf->B, kf->xhatSize, kf->uSize, (float *)kf->B_data);
+ 221:modules/algorithm/kalman_filter.c ****     }
+ 222:modules/algorithm/kalman_filter.c **** 
+ 223:modules/algorithm/kalman_filter.c ****     // measurement matrix H
+ 224:modules/algorithm/kalman_filter.c ****     kf->H_data = (float *)user_malloc(sizeof_float * zSize * xhatSize);
+ 225:modules/algorithm/kalman_filter.c ****     kf->HT_data = (float *)user_malloc(sizeof_float * xhatSize * zSize);
+ 226:modules/algorithm/kalman_filter.c ****     memset(kf->H_data, 0, sizeof_float * zSize * xhatSize);
+ 227:modules/algorithm/kalman_filter.c ****     memset(kf->HT_data, 0, sizeof_float * xhatSize * zSize);
+ 228:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->H, kf->zSize, kf->xhatSize, (float *)kf->H_data);
+ 229:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->HT, kf->xhatSize, kf->zSize, (float *)kf->HT_data);
+ 230:modules/algorithm/kalman_filter.c **** 
+ 231:modules/algorithm/kalman_filter.c ****     // process noise covariance matrix Q
+ 232:modules/algorithm/kalman_filter.c ****     kf->Q_data = (float *)user_malloc(sizeof_float * xhatSize * xhatSize);
+ 233:modules/algorithm/kalman_filter.c ****     memset(kf->Q_data, 0, sizeof_float * xhatSize * xhatSize);
+ 234:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->Q, kf->xhatSize, kf->xhatSize, (float *)kf->Q_data);
+ 235:modules/algorithm/kalman_filter.c **** 
+ 236:modules/algorithm/kalman_filter.c ****     // measurement noise covariance matrix R
+ 237:modules/algorithm/kalman_filter.c ****     kf->R_data = (float *)user_malloc(sizeof_float * zSize * zSize);
+ 238:modules/algorithm/kalman_filter.c ****     memset(kf->R_data, 0, sizeof_float * zSize * zSize);
+ 239:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->R, kf->zSize, kf->zSize, (float *)kf->R_data);
+ 240:modules/algorithm/kalman_filter.c **** 
+ 241:modules/algorithm/kalman_filter.c ****     // kalman gain K
+ 242:modules/algorithm/kalman_filter.c ****     kf->K_data = (float *)user_malloc(sizeof_float * xhatSize * zSize);
+ 243:modules/algorithm/kalman_filter.c ****     memset(kf->K_data, 0, sizeof_float * xhatSize * zSize);
+ 244:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->K, kf->xhatSize, kf->zSize, (float *)kf->K_data);
+ 245:modules/algorithm/kalman_filter.c **** 
+ 246:modules/algorithm/kalman_filter.c ****     kf->S_data = (float *)user_malloc(sizeof_float * kf->xhatSize * kf->xhatSize);
+ 247:modules/algorithm/kalman_filter.c ****     kf->temp_matrix_data = (float *)user_malloc(sizeof_float * kf->xhatSize * kf->xhatSize);
+ 248:modules/algorithm/kalman_filter.c ****     kf->temp_matrix_data1 = (float *)user_malloc(sizeof_float * kf->xhatSize * kf->xhatSize);
+ 249:modules/algorithm/kalman_filter.c ****     kf->temp_vector_data = (float *)user_malloc(sizeof_float * kf->xhatSize);
+ 250:modules/algorithm/kalman_filter.c ****     kf->temp_vector_data1 = (float *)user_malloc(sizeof_float * kf->xhatSize);
+ 251:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->S, kf->xhatSize, kf->xhatSize, (float *)kf->S_data);
+ 252:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->temp_matrix, kf->xhatSize, kf->xhatSize, (float *)kf->temp_matrix_data);
+ 253:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->temp_matrix1, kf->xhatSize, kf->xhatSize, (float *)kf->temp_matrix_data1);
+ 254:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->temp_vector, kf->xhatSize, 1, (float *)kf->temp_vector_data);
+ 255:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->temp_vector1, kf->xhatSize, 1, (float *)kf->temp_vector_data1);
+ 256:modules/algorithm/kalman_filter.c **** 
+ 257:modules/algorithm/kalman_filter.c ****     kf->SkipEq1 = 0;
+ 258:modules/algorithm/kalman_filter.c ****     kf->SkipEq2 = 0;
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 6
+
+
+ 259:modules/algorithm/kalman_filter.c ****     kf->SkipEq3 = 0;
+ 260:modules/algorithm/kalman_filter.c ****     kf->SkipEq4 = 0;
+ 261:modules/algorithm/kalman_filter.c ****     kf->SkipEq5 = 0;
+ 262:modules/algorithm/kalman_filter.c **** }
+ 263:modules/algorithm/kalman_filter.c **** 
+ 264:modules/algorithm/kalman_filter.c **** void Kalman_Filter_Measure(KalmanFilter_t *kf)
+ 265:modules/algorithm/kalman_filter.c **** {
+ 266:modules/algorithm/kalman_filter.c ****     // 矩阵H K R根据量测情况自动调整
+ 267:modules/algorithm/kalman_filter.c ****     // matrix H K R auto adjustment
+ 268:modules/algorithm/kalman_filter.c ****     if (kf->UseAutoAdjustment != 0)
+ 269:modules/algorithm/kalman_filter.c ****         H_K_R_Adjustment(kf);
+ 270:modules/algorithm/kalman_filter.c ****     else
+ 271:modules/algorithm/kalman_filter.c ****     {
+ 272:modules/algorithm/kalman_filter.c ****         memcpy(kf->z_data, kf->MeasuredVector, sizeof_float * kf->zSize);
+ 273:modules/algorithm/kalman_filter.c ****         memset(kf->MeasuredVector, 0, sizeof_float * kf->zSize);
+ 274:modules/algorithm/kalman_filter.c ****     }
+ 275:modules/algorithm/kalman_filter.c **** 
+ 276:modules/algorithm/kalman_filter.c ****     memcpy(kf->u_data, kf->ControlVector, sizeof_float * kf->uSize);
+ 277:modules/algorithm/kalman_filter.c **** }
+ 278:modules/algorithm/kalman_filter.c **** 
+ 279:modules/algorithm/kalman_filter.c **** void Kalman_Filter_xhatMinusUpdate(KalmanFilter_t *kf)
+ 280:modules/algorithm/kalman_filter.c **** {
+ 281:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq1)
+ 282:modules/algorithm/kalman_filter.c ****     {
+ 283:modules/algorithm/kalman_filter.c ****         if (kf->uSize > 0)
+ 284:modules/algorithm/kalman_filter.c ****         {
+ 285:modules/algorithm/kalman_filter.c ****             kf->temp_vector.numRows = kf->xhatSize;
+ 286:modules/algorithm/kalman_filter.c ****             kf->temp_vector.numCols = 1;
+ 287:modules/algorithm/kalman_filter.c ****             kf->MatStatus = Matrix_Multiply(&kf->F, &kf->xhat, &kf->temp_vector);
+ 288:modules/algorithm/kalman_filter.c ****             kf->temp_vector1.numRows = kf->xhatSize;
+ 289:modules/algorithm/kalman_filter.c ****             kf->temp_vector1.numCols = 1;
+ 290:modules/algorithm/kalman_filter.c ****             kf->MatStatus = Matrix_Multiply(&kf->B, &kf->u, &kf->temp_vector1);
+ 291:modules/algorithm/kalman_filter.c ****             kf->MatStatus = Matrix_Add(&kf->temp_vector, &kf->temp_vector1, &kf->xhatminus);
+ 292:modules/algorithm/kalman_filter.c ****         }
+ 293:modules/algorithm/kalman_filter.c ****         else
+ 294:modules/algorithm/kalman_filter.c ****         {
+ 295:modules/algorithm/kalman_filter.c ****             kf->MatStatus = Matrix_Multiply(&kf->F, &kf->xhat, &kf->xhatminus);
+ 296:modules/algorithm/kalman_filter.c ****         }
+ 297:modules/algorithm/kalman_filter.c ****     }
+ 298:modules/algorithm/kalman_filter.c **** }
+ 299:modules/algorithm/kalman_filter.c **** 
+ 300:modules/algorithm/kalman_filter.c **** void Kalman_Filter_PminusUpdate(KalmanFilter_t *kf)
+ 301:modules/algorithm/kalman_filter.c **** {
+ 302:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq2)
+ 303:modules/algorithm/kalman_filter.c ****     {
+ 304:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Transpose(&kf->F, &kf->FT);
+ 305:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->F, &kf->P, &kf->Pminus);
+ 306:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->Pminus.numRows;
+ 307:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->FT.numCols;
+ 308:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->Pminus, &kf->FT, &kf->temp_matrix); // temp_matrix = F
+ 309:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Add(&kf->temp_matrix, &kf->Q, &kf->Pminus);
+ 310:modules/algorithm/kalman_filter.c ****     }
+ 311:modules/algorithm/kalman_filter.c **** }
+ 312:modules/algorithm/kalman_filter.c **** void Kalman_Filter_SetK(KalmanFilter_t *kf)
+ 313:modules/algorithm/kalman_filter.c **** {
+ 314:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq3)
+ 315:modules/algorithm/kalman_filter.c ****     {
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 7
+
+
+ 316:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Transpose(&kf->H, &kf->HT); // z|x => x|z
+ 317:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->H.numRows;
+ 318:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->Pminus.numCols;
+ 319:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->H, &kf->Pminus, &kf->temp_matrix); // temp_matrix = H�
+ 320:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numRows = kf->temp_matrix.numRows;
+ 321:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numCols = kf->HT.numCols;
+ 322:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->HT, &kf->temp_matrix1); // temp_matr
+ 323:modules/algorithm/kalman_filter.c ****         kf->S.numRows = kf->R.numRows;
+ 324:modules/algorithm/kalman_filter.c ****         kf->S.numCols = kf->R.numCols;
+ 325:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Add(&kf->temp_matrix1, &kf->R, &kf->S); // S = H P'(k) HT + R
+ 326:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Inverse(&kf->S, &kf->temp_matrix1);     // temp_matrix1 = inv(H·P'(
+ 327:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->Pminus.numRows;
+ 328:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->HT.numCols;
+ 329:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->Pminus, &kf->HT, &kf->temp_matrix); // temp_matrix = P
+ 330:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->temp_matrix1, &kf->K);
+ 331:modules/algorithm/kalman_filter.c ****     }
+ 332:modules/algorithm/kalman_filter.c **** }
+ 333:modules/algorithm/kalman_filter.c **** void Kalman_Filter_xhatUpdate(KalmanFilter_t *kf)
+ 334:modules/algorithm/kalman_filter.c **** {
+ 335:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq4)
+ 336:modules/algorithm/kalman_filter.c ****     {
+ 337:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numRows = kf->H.numRows;
+ 338:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numCols = 1;
+ 339:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->H, &kf->xhatminus, &kf->temp_vector); // temp_vector =
+ 340:modules/algorithm/kalman_filter.c ****         kf->temp_vector1.numRows = kf->z.numRows;
+ 341:modules/algorithm/kalman_filter.c ****         kf->temp_vector1.numCols = 1;
+ 342:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Subtract(&kf->z, &kf->temp_vector, &kf->temp_vector1); // temp_vecto
+ 343:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numRows = kf->K.numRows;
+ 344:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numCols = 1;
+ 345:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->K, &kf->temp_vector1, &kf->temp_vector); // temp_vecto
+ 346:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Add(&kf->xhatminus, &kf->temp_vector, &kf->xhat);
+ 347:modules/algorithm/kalman_filter.c ****     }
+ 348:modules/algorithm/kalman_filter.c **** }
+ 349:modules/algorithm/kalman_filter.c **** void Kalman_Filter_P_Update(KalmanFilter_t *kf)
+ 350:modules/algorithm/kalman_filter.c **** {
+ 351:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq5)
+ 352:modules/algorithm/kalman_filter.c ****     {
+ 353:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->K.numRows;
+ 354:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->H.numCols;
+ 355:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numRows = kf->temp_matrix.numRows;
+ 356:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numCols = kf->Pminus.numCols;
+ 357:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->K, &kf->H, &kf->temp_matrix);                 // temp_
+ 358:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->Pminus, &kf->temp_matrix1); // temp_
+ 359:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Subtract(&kf->Pminus, &kf->temp_matrix1, &kf->P);
+ 360:modules/algorithm/kalman_filter.c ****     }
+ 361:modules/algorithm/kalman_filter.c **** }
+ 362:modules/algorithm/kalman_filter.c **** 
+ 363:modules/algorithm/kalman_filter.c **** /**
+ 364:modules/algorithm/kalman_filter.c ****  * @brief 执行卡尔曼滤波黄金五式,提供了用户定义函数,可以替代五个中的任
+ 365:modules/algorithm/kalman_filter.c ****  * 
+ 366:modules/algorithm/kalman_filter.c ****  * @param kf kf类型定义
+ 367:modules/algorithm/kalman_filter.c ****  * @return float* 返回滤波值
+ 368:modules/algorithm/kalman_filter.c ****  */
+ 369:modules/algorithm/kalman_filter.c **** float *Kalman_Filter_Update(KalmanFilter_t *kf)
+ 370:modules/algorithm/kalman_filter.c **** {
+ 371:modules/algorithm/kalman_filter.c ****     // 0. 获取量测信息
+ 372:modules/algorithm/kalman_filter.c ****     Kalman_Filter_Measure(kf);
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 8
+
+
+ 373:modules/algorithm/kalman_filter.c ****     if (kf->User_Func0_f != NULL)
+ 374:modules/algorithm/kalman_filter.c ****         kf->User_Func0_f(kf);
+ 375:modules/algorithm/kalman_filter.c **** 
+ 376:modules/algorithm/kalman_filter.c ****     // 先验估计
+ 377:modules/algorithm/kalman_filter.c ****     // 1. xhat'(k)= A·xhat(k-1) + B·u
+ 378:modules/algorithm/kalman_filter.c ****     Kalman_Filter_xhatMinusUpdate(kf);
+ 379:modules/algorithm/kalman_filter.c ****     if (kf->User_Func1_f != NULL)
+ 380:modules/algorithm/kalman_filter.c ****         kf->User_Func1_f(kf);
+ 381:modules/algorithm/kalman_filter.c **** 
+ 382:modules/algorithm/kalman_filter.c ****     // 预测更新
+ 383:modules/algorithm/kalman_filter.c ****     // 2. P'(k) = A·P(k-1)·AT + Q
+ 384:modules/algorithm/kalman_filter.c ****     Kalman_Filter_PminusUpdate(kf);
+ 385:modules/algorithm/kalman_filter.c ****     if (kf->User_Func2_f != NULL)
+ 386:modules/algorithm/kalman_filter.c ****         kf->User_Func2_f(kf);
+ 387:modules/algorithm/kalman_filter.c **** 
+ 388:modules/algorithm/kalman_filter.c ****     if (kf->MeasurementValidNum != 0 || kf->UseAutoAdjustment == 0)
+ 389:modules/algorithm/kalman_filter.c ****     {
+ 390:modules/algorithm/kalman_filter.c ****         // 量测更新
+ 391:modules/algorithm/kalman_filter.c ****         // 3. K(k) = P'(k)·HT / (H·P'(k)·HT + R)
+ 392:modules/algorithm/kalman_filter.c ****         Kalman_Filter_SetK(kf);
+ 393:modules/algorithm/kalman_filter.c **** 
+ 394:modules/algorithm/kalman_filter.c ****         if (kf->User_Func3_f != NULL)
+ 395:modules/algorithm/kalman_filter.c ****             kf->User_Func3_f(kf);
+ 396:modules/algorithm/kalman_filter.c **** 
+ 397:modules/algorithm/kalman_filter.c ****         // 融合
+ 398:modules/algorithm/kalman_filter.c ****         // 4. xhat(k) = xhat'(k) + K(k)·(z(k) - H·xhat'(k))
+ 399:modules/algorithm/kalman_filter.c ****         Kalman_Filter_xhatUpdate(kf);
+ 400:modules/algorithm/kalman_filter.c **** 
+ 401:modules/algorithm/kalman_filter.c ****         if (kf->User_Func4_f != NULL)
+ 402:modules/algorithm/kalman_filter.c ****             kf->User_Func4_f(kf);
+ 403:modules/algorithm/kalman_filter.c **** 
+ 404:modules/algorithm/kalman_filter.c ****         // 修正方差
+ 405:modules/algorithm/kalman_filter.c ****         // 5. P(k) = (1-K(k)·H)·P'(k) ==> P(k) = P'(k)-K(k)·H·P'(k)
+ 406:modules/algorithm/kalman_filter.c ****         Kalman_Filter_P_Update(kf);
+ 407:modules/algorithm/kalman_filter.c ****     }
+ 408:modules/algorithm/kalman_filter.c ****     else
+ 409:modules/algorithm/kalman_filter.c ****     {
+ 410:modules/algorithm/kalman_filter.c ****         // 无有效量测,仅预测
+ 411:modules/algorithm/kalman_filter.c ****         // xhat(k) = xhat'(k)
+ 412:modules/algorithm/kalman_filter.c ****         // P(k) = P'(k)
+ 413:modules/algorithm/kalman_filter.c ****         memcpy(kf->xhat_data, kf->xhatminus_data, sizeof_float * kf->xhatSize);
+ 414:modules/algorithm/kalman_filter.c ****         memcpy(kf->P_data, kf->Pminus_data, sizeof_float * kf->xhatSize * kf->xhatSize);
+ 415:modules/algorithm/kalman_filter.c ****     }
+ 416:modules/algorithm/kalman_filter.c **** 
+ 417:modules/algorithm/kalman_filter.c ****     // 自定义函数,可以提供后处理等
+ 418:modules/algorithm/kalman_filter.c ****     if (kf->User_Func5_f != NULL)
+ 419:modules/algorithm/kalman_filter.c ****         kf->User_Func5_f(kf);
+ 420:modules/algorithm/kalman_filter.c **** 
+ 421:modules/algorithm/kalman_filter.c ****     // 避免滤波器过度收敛
+ 422:modules/algorithm/kalman_filter.c ****     // suppress filter excessive convergence
+ 423:modules/algorithm/kalman_filter.c ****     for (uint8_t i = 0; i < kf->xhatSize; ++i)
+ 424:modules/algorithm/kalman_filter.c ****     {
+ 425:modules/algorithm/kalman_filter.c ****         if (kf->P_data[i * kf->xhatSize + i] < kf->StateMinVariance[i])
+ 426:modules/algorithm/kalman_filter.c ****             kf->P_data[i * kf->xhatSize + i] = kf->StateMinVariance[i];
+ 427:modules/algorithm/kalman_filter.c ****     }
+ 428:modules/algorithm/kalman_filter.c **** 
+ 429:modules/algorithm/kalman_filter.c ****     memcpy(kf->FilteredValue, kf->xhat_data, sizeof_float * kf->xhatSize);
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 9
+
+
+ 430:modules/algorithm/kalman_filter.c **** 
+ 431:modules/algorithm/kalman_filter.c ****     if (kf->User_Func6_f != NULL)
+ 432:modules/algorithm/kalman_filter.c ****         kf->User_Func6_f(kf);
+ 433:modules/algorithm/kalman_filter.c **** 
+ 434:modules/algorithm/kalman_filter.c ****     return kf->FilteredValue;
+ 435:modules/algorithm/kalman_filter.c **** }
+ 436:modules/algorithm/kalman_filter.c **** 
+ 437:modules/algorithm/kalman_filter.c **** static void H_K_R_Adjustment(KalmanFilter_t *kf)
+ 438:modules/algorithm/kalman_filter.c **** {
+  29              		.loc 1 438 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		.loc 1 438 1 is_stmt 0 view .LVU1
+  34 0000 70B5     		push	{r4, r5, r6, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 16
+  37              		.cfi_offset 4, -16
+  38              		.cfi_offset 5, -12
+  39              		.cfi_offset 6, -8
+  40              		.cfi_offset 14, -4
+  41 0002 0446     		mov	r4, r0
+ 439:modules/algorithm/kalman_filter.c ****     kf->MeasurementValidNum = 0;
+  42              		.loc 1 439 5 is_stmt 1 view .LVU2
+  43              		.loc 1 439 29 is_stmt 0 view .LVU3
+  44 0004 0025     		movs	r5, #0
+  45 0006 0574     		strb	r5, [r0, #16]
+ 440:modules/algorithm/kalman_filter.c **** 
+ 441:modules/algorithm/kalman_filter.c ****     memcpy(kf->z_data, kf->MeasuredVector, sizeof_float * kf->zSize);
+  46              		.loc 1 441 5 is_stmt 1 view .LVU4
+  47              		.loc 1 441 61 is_stmt 0 view .LVU5
+  48 0008 827B     		ldrb	r2, [r0, #14]	@ zero_extendqisi2
+  49              		.loc 1 441 57 view .LVU6
+  50 000a 414E     		ldr	r6, .L9
+  51 000c 3388     		ldrh	r3, [r6]
+  52              		.loc 1 441 5 view .LVU7
+  53 000e 03FB02F2 		mul	r2, r3, r2
+  54 0012 4168     		ldr	r1, [r0, #4]
+  55 0014 D0F8F400 		ldr	r0, [r0, #244]
+  56              	.LVL1:
+  57              		.loc 1 441 5 view .LVU8
+  58 0018 FFF7FEFF 		bl	memcpy
+  59              	.LVL2:
+ 442:modules/algorithm/kalman_filter.c ****     memset(kf->MeasuredVector, 0, sizeof_float * kf->zSize);
+  60              		.loc 1 442 5 is_stmt 1 view .LVU9
+  61              		.loc 1 442 52 is_stmt 0 view .LVU10
+  62 001c A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+  63              		.loc 1 442 48 view .LVU11
+  64 001e 3388     		ldrh	r3, [r6]
+  65              		.loc 1 442 5 view .LVU12
+  66 0020 03FB02F2 		mul	r2, r3, r2
+  67 0024 2946     		mov	r1, r5
+  68 0026 6068     		ldr	r0, [r4, #4]
+  69 0028 FFF7FEFF 		bl	memset
+  70              	.LVL3:
+ 443:modules/algorithm/kalman_filter.c **** 
+ 444:modules/algorithm/kalman_filter.c ****     // 识别量测数据有效性并调整矩阵H R K
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 10
+
+
+ 445:modules/algorithm/kalman_filter.c ****     // recognize measurement validity and adjust matrices H R K
+ 446:modules/algorithm/kalman_filter.c ****     memset(kf->R_data, 0, sizeof_float * kf->zSize * kf->zSize);
+  71              		.loc 1 446 5 is_stmt 1 view .LVU13
+  72              		.loc 1 446 44 is_stmt 0 view .LVU14
+  73 002c A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+  74              		.loc 1 446 40 view .LVU15
+  75 002e 3388     		ldrh	r3, [r6]
+  76 0030 02FB03F3 		mul	r3, r2, r3
+  77              		.loc 1 446 5 view .LVU16
+  78 0034 03FB02F2 		mul	r2, r3, r2
+  79 0038 2946     		mov	r1, r5
+  80 003a D4F81801 		ldr	r0, [r4, #280]
+  81 003e FFF7FEFF 		bl	memset
+  82              	.LVL4:
+ 447:modules/algorithm/kalman_filter.c ****     memset(kf->H_data, 0, sizeof_float * kf->xhatSize * kf->zSize);
+  83              		.loc 1 447 5 is_stmt 1 view .LVU17
+  84              		.loc 1 447 44 is_stmt 0 view .LVU18
+  85 0042 227B     		ldrb	r2, [r4, #12]	@ zero_extendqisi2
+  86              		.loc 1 447 40 view .LVU19
+  87 0044 3388     		ldrh	r3, [r6]
+  88 0046 02FB03F3 		mul	r3, r2, r3
+  89              		.loc 1 447 59 view .LVU20
+  90 004a A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+  91              		.loc 1 447 5 view .LVU21
+  92 004c 03FB02F2 		mul	r2, r3, r2
+  93 0050 2946     		mov	r1, r5
+  94 0052 D4F80C01 		ldr	r0, [r4, #268]
+  95 0056 FFF7FEFF 		bl	memset
+  96              	.LVL5:
+ 448:modules/algorithm/kalman_filter.c ****     for (uint8_t i = 0; i < kf->zSize; ++i)
+  97              		.loc 1 448 5 is_stmt 1 view .LVU22
+  98              	.LBB2:
+  99              		.loc 1 448 10 view .LVU23
+ 100              		.loc 1 448 18 is_stmt 0 view .LVU24
+ 101 005a 2946     		mov	r1, r5
+ 102              		.loc 1 448 5 view .LVU25
+ 103 005c 01E0     		b	.L2
+ 104              	.LVL6:
+ 105              	.L3:
+ 106              		.loc 1 448 40 is_stmt 1 discriminator 2 view .LVU26
+ 107 005e 0131     		adds	r1, r1, #1
+ 108              	.LVL7:
+ 109              		.loc 1 448 40 is_stmt 0 discriminator 2 view .LVU27
+ 110 0060 C9B2     		uxtb	r1, r1
+ 111              	.LVL8:
+ 112              	.L2:
+ 113              		.loc 1 448 27 is_stmt 1 discriminator 1 view .LVU28
+ 114              		.loc 1 448 31 is_stmt 0 discriminator 1 view .LVU29
+ 115 0062 A37B     		ldrb	r3, [r4, #14]	@ zero_extendqisi2
+ 116              		.loc 1 448 27 discriminator 1 view .LVU30
+ 117 0064 8B42     		cmp	r3, r1
+ 118 0066 2AD9     		bls	.L8
+ 449:modules/algorithm/kalman_filter.c ****     {
+ 450:modules/algorithm/kalman_filter.c ****         if (kf->z_data[i] != 0)
+ 119              		.loc 1 450 9 is_stmt 1 view .LVU31
+ 120              		.loc 1 450 15 is_stmt 0 view .LVU32
+ 121 0068 D4F8F430 		ldr	r3, [r4, #244]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 11
+
+
+ 122              		.loc 1 450 23 view .LVU33
+ 123 006c 4FEA810C 		lsl	ip, r1, #2
+ 124 0070 03EB8102 		add	r2, r3, r1, lsl #2
+ 125 0074 D2ED007A 		vldr.32	s15, [r2]
+ 126              		.loc 1 450 12 view .LVU34
+ 127 0078 F5EE407A 		vcmp.f32	s15, #0
+ 128 007c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 129 0080 EDD0     		beq	.L3
+ 451:modules/algorithm/kalman_filter.c ****         {
+ 452:modules/algorithm/kalman_filter.c ****             // 重构向量z
+ 453:modules/algorithm/kalman_filter.c ****             // rebuild vector z
+ 454:modules/algorithm/kalman_filter.c ****             kf->z_data[kf->MeasurementValidNum] = kf->z_data[i];
+ 130              		.loc 1 454 13 is_stmt 1 view .LVU35
+ 131              		.loc 1 454 26 is_stmt 0 view .LVU36
+ 132 0082 227C     		ldrb	r2, [r4, #16]	@ zero_extendqisi2
+ 133              		.loc 1 454 23 view .LVU37
+ 134 0084 03EB8203 		add	r3, r3, r2, lsl #2
+ 135              		.loc 1 454 49 view .LVU38
+ 136 0088 C3ED007A 		vstr.32	s15, [r3]
+ 455:modules/algorithm/kalman_filter.c ****             kf->temp[kf->MeasurementValidNum] = i;
+ 137              		.loc 1 455 13 is_stmt 1 view .LVU39
+ 138              		.loc 1 455 15 is_stmt 0 view .LVU40
+ 139 008c 626A     		ldr	r2, [r4, #36]
+ 140              		.loc 1 455 24 view .LVU41
+ 141 008e 237C     		ldrb	r3, [r4, #16]	@ zero_extendqisi2
+ 142              		.loc 1 455 47 view .LVU42
+ 143 0090 D154     		strb	r1, [r2, r3]
+ 456:modules/algorithm/kalman_filter.c ****             // 重构矩阵H
+ 457:modules/algorithm/kalman_filter.c ****             // rebuild matrix H
+ 458:modules/algorithm/kalman_filter.c ****             kf->H_data[kf->xhatSize * kf->MeasurementValidNum + kf->MeasurementMap[i] - 1] = kf->Me
+ 144              		.loc 1 458 13 is_stmt 1 view .LVU43
+ 145              		.loc 1 458 96 is_stmt 0 view .LVU44
+ 146 0092 A069     		ldr	r0, [r4, #24]
+ 147              		.loc 1 458 15 view .LVU45
+ 148 0094 D4F80C21 		ldr	r2, [r4, #268]
+ 149              		.loc 1 458 26 view .LVU46
+ 150 0098 94F80CE0 		ldrb	lr, [r4, #12]	@ zero_extendqisi2
+ 151              		.loc 1 458 41 view .LVU47
+ 152 009c 257C     		ldrb	r5, [r4, #16]	@ zero_extendqisi2
+ 153              		.loc 1 458 67 view .LVU48
+ 154 009e 6369     		ldr	r3, [r4, #20]
+ 155              		.loc 1 458 83 view .LVU49
+ 156 00a0 5B5C     		ldrb	r3, [r3, r1]	@ zero_extendqisi2
+ 157              		.loc 1 458 63 view .LVU50
+ 158 00a2 05FB0E33 		mla	r3, r5, lr, r3
+ 159              		.loc 1 458 23 view .LVU51
+ 160 00a6 03F18043 		add	r3, r3, #1073741824
+ 161 00aa 013B     		subs	r3, r3, #1
+ 162 00ac 02EB8302 		add	r2, r2, r3, lsl #2
+ 163              		.loc 1 458 115 view .LVU52
+ 164 00b0 6044     		add	r0, r0, ip
+ 165 00b2 0368     		ldr	r3, [r0]	@ float
+ 166              		.loc 1 458 92 view .LVU53
+ 167 00b4 1360     		str	r3, [r2]	@ float
+ 459:modules/algorithm/kalman_filter.c ****             kf->MeasurementValidNum++;
+ 168              		.loc 1 459 13 is_stmt 1 view .LVU54
+ 169              		.loc 1 459 15 is_stmt 0 view .LVU55
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 12
+
+
+ 170 00b6 237C     		ldrb	r3, [r4, #16]	@ zero_extendqisi2
+ 171              		.loc 1 459 36 view .LVU56
+ 172 00b8 0133     		adds	r3, r3, #1
+ 173 00ba 2374     		strb	r3, [r4, #16]
+ 174 00bc CFE7     		b	.L3
+ 175              	.L8:
+ 176              	.LBE2:
+ 177              	.LBB3:
+ 460:modules/algorithm/kalman_filter.c ****         }
+ 461:modules/algorithm/kalman_filter.c ****     }
+ 462:modules/algorithm/kalman_filter.c ****     for (uint8_t i = 0; i < kf->MeasurementValidNum; ++i)
+ 178              		.loc 1 462 18 view .LVU57
+ 179 00be 0023     		movs	r3, #0
+ 180 00c0 0FE0     		b	.L5
+ 181              	.LVL9:
+ 182              	.L6:
+ 463:modules/algorithm/kalman_filter.c ****     {
+ 464:modules/algorithm/kalman_filter.c ****         // 重构矩阵R
+ 465:modules/algorithm/kalman_filter.c ****         // rebuild matrix R
+ 466:modules/algorithm/kalman_filter.c ****         kf->R_data[i * kf->MeasurementValidNum + i] = kf->MatR_DiagonalElements[kf->temp[i]];
+ 183              		.loc 1 466 9 is_stmt 1 view .LVU58
+ 184              		.loc 1 466 57 is_stmt 0 view .LVU59
+ 185 00c2 E069     		ldr	r0, [r4, #28]
+ 186              		.loc 1 466 83 view .LVU60
+ 187 00c4 616A     		ldr	r1, [r4, #36]
+ 188              		.loc 1 466 89 view .LVU61
+ 189 00c6 11F803C0 		ldrb	ip, [r1, r3]	@ zero_extendqisi2
+ 190              		.loc 1 466 11 view .LVU62
+ 191 00ca D4F81811 		ldr	r1, [r4, #280]
+ 192              		.loc 1 466 48 view .LVU63
+ 193 00ce 02FB0332 		mla	r2, r2, r3, r3
+ 194              		.loc 1 466 19 view .LVU64
+ 195 00d2 01EB8201 		add	r1, r1, r2, lsl #2
+ 196              		.loc 1 466 80 view .LVU65
+ 197 00d6 00EB8C00 		add	r0, r0, ip, lsl #2
+ 198 00da 0268     		ldr	r2, [r0]	@ float
+ 199              		.loc 1 466 53 view .LVU66
+ 200 00dc 0A60     		str	r2, [r1]	@ float
+ 462:modules/algorithm/kalman_filter.c ****     {
+ 201              		.loc 1 462 54 is_stmt 1 discriminator 3 view .LVU67
+ 202 00de 0133     		adds	r3, r3, #1
+ 203              	.LVL10:
+ 462:modules/algorithm/kalman_filter.c ****     {
+ 204              		.loc 1 462 54 is_stmt 0 discriminator 3 view .LVU68
+ 205 00e0 DBB2     		uxtb	r3, r3
+ 206              	.LVL11:
+ 207              	.L5:
+ 462:modules/algorithm/kalman_filter.c ****     {
+ 208              		.loc 1 462 27 is_stmt 1 discriminator 1 view .LVU69
+ 462:modules/algorithm/kalman_filter.c ****     {
+ 209              		.loc 1 462 31 is_stmt 0 discriminator 1 view .LVU70
+ 210 00e2 227C     		ldrb	r2, [r4, #16]	@ zero_extendqisi2
+ 462:modules/algorithm/kalman_filter.c ****     {
+ 211              		.loc 1 462 27 discriminator 1 view .LVU71
+ 212 00e4 9A42     		cmp	r2, r3
+ 213 00e6 ECD8     		bhi	.L6
+ 214              	.LBE3:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 13
+
+
+ 467:modules/algorithm/kalman_filter.c ****     }
+ 468:modules/algorithm/kalman_filter.c **** 
+ 469:modules/algorithm/kalman_filter.c ****     // 调整矩阵维数
+ 470:modules/algorithm/kalman_filter.c ****     // adjust the dimensions of system matrices
+ 471:modules/algorithm/kalman_filter.c ****     kf->H.numRows = kf->MeasurementValidNum;
+ 215              		.loc 1 471 5 is_stmt 1 view .LVU72
+ 216              		.loc 1 471 19 is_stmt 0 view .LVU73
+ 217 00e8 A4F87820 		strh	r2, [r4, #120]	@ movhi
+ 472:modules/algorithm/kalman_filter.c ****     kf->H.numCols = kf->xhatSize;
+ 218              		.loc 1 472 5 is_stmt 1 view .LVU74
+ 219              		.loc 1 472 23 is_stmt 0 view .LVU75
+ 220 00ec 237B     		ldrb	r3, [r4, #12]	@ zero_extendqisi2
+ 221              	.LVL12:
+ 222              		.loc 1 472 19 view .LVU76
+ 223 00ee A4F87A30 		strh	r3, [r4, #122]	@ movhi
+ 473:modules/algorithm/kalman_filter.c ****     kf->HT.numRows = kf->xhatSize;
+ 224              		.loc 1 473 5 is_stmt 1 view .LVU77
+ 225              		.loc 1 473 20 is_stmt 0 view .LVU78
+ 226 00f2 A4F88030 		strh	r3, [r4, #128]	@ movhi
+ 474:modules/algorithm/kalman_filter.c ****     kf->HT.numCols = kf->MeasurementValidNum;
+ 227              		.loc 1 474 5 is_stmt 1 view .LVU79
+ 228              		.loc 1 474 20 is_stmt 0 view .LVU80
+ 229 00f6 A4F88220 		strh	r2, [r4, #130]	@ movhi
+ 475:modules/algorithm/kalman_filter.c ****     kf->R.numRows = kf->MeasurementValidNum;
+ 230              		.loc 1 475 5 is_stmt 1 view .LVU81
+ 231              		.loc 1 475 19 is_stmt 0 view .LVU82
+ 232 00fa A4F89020 		strh	r2, [r4, #144]	@ movhi
+ 476:modules/algorithm/kalman_filter.c ****     kf->R.numCols = kf->MeasurementValidNum;
+ 233              		.loc 1 476 5 is_stmt 1 view .LVU83
+ 234              		.loc 1 476 19 is_stmt 0 view .LVU84
+ 235 00fe A4F89220 		strh	r2, [r4, #146]	@ movhi
+ 477:modules/algorithm/kalman_filter.c ****     kf->K.numRows = kf->xhatSize;
+ 236              		.loc 1 477 5 is_stmt 1 view .LVU85
+ 237              		.loc 1 477 19 is_stmt 0 view .LVU86
+ 238 0102 A4F89830 		strh	r3, [r4, #152]	@ movhi
+ 478:modules/algorithm/kalman_filter.c ****     kf->K.numCols = kf->MeasurementValidNum;
+ 239              		.loc 1 478 5 is_stmt 1 view .LVU87
+ 240              		.loc 1 478 19 is_stmt 0 view .LVU88
+ 241 0106 A4F89A20 		strh	r2, [r4, #154]	@ movhi
+ 479:modules/algorithm/kalman_filter.c ****     kf->z.numRows = kf->MeasurementValidNum;
+ 242              		.loc 1 479 5 is_stmt 1 view .LVU89
+ 243              		.loc 1 479 19 is_stmt 0 view .LVU90
+ 244 010a A4F84820 		strh	r2, [r4, #72]	@ movhi
+ 480:modules/algorithm/kalman_filter.c **** }
+ 245              		.loc 1 480 1 view .LVU91
+ 246 010e 70BD     		pop	{r4, r5, r6, pc}
+ 247              	.LVL13:
+ 248              	.L10:
+ 249              		.loc 1 480 1 view .LVU92
+ 250              		.align	2
+ 251              	.L9:
+ 252 0110 00000000 		.word	sizeof_float
+ 253              		.cfi_endproc
+ 254              	.LFE171:
+ 256              		.section	.text.Kalman_Filter_Init,"ax",%progbits
+ 257              		.align	1
+ 258              		.global	Kalman_Filter_Init
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 14
+
+
+ 259              		.syntax unified
+ 260              		.thumb
+ 261              		.thumb_func
+ 263              	Kalman_Filter_Init:
+ 264              	.LVL14:
+ 265              	.LFB163:
+ 144:modules/algorithm/kalman_filter.c ****     sizeof_float = sizeof(float);
+ 266              		.loc 1 144 1 is_stmt 1 view -0
+ 267              		.cfi_startproc
+ 268              		@ args = 0, pretend = 0, frame = 0
+ 269              		@ frame_needed = 0, uses_anonymous_args = 0
+ 144:modules/algorithm/kalman_filter.c ****     sizeof_float = sizeof(float);
+ 270              		.loc 1 144 1 is_stmt 0 view .LVU94
+ 271 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 272              	.LCFI1:
+ 273              		.cfi_def_cfa_offset 32
+ 274              		.cfi_offset 4, -32
+ 275              		.cfi_offset 5, -28
+ 276              		.cfi_offset 6, -24
+ 277              		.cfi_offset 7, -20
+ 278              		.cfi_offset 8, -16
+ 279              		.cfi_offset 9, -12
+ 280              		.cfi_offset 10, -8
+ 281              		.cfi_offset 14, -4
+ 282 0004 0446     		mov	r4, r0
+ 283 0006 0D46     		mov	r5, r1
+ 284 0008 9146     		mov	r9, r2
+ 285 000a 1E46     		mov	r6, r3
+ 145:modules/algorithm/kalman_filter.c ****     sizeof_double = sizeof(double);
+ 286              		.loc 1 145 5 is_stmt 1 view .LVU95
+ 145:modules/algorithm/kalman_filter.c ****     sizeof_double = sizeof(double);
+ 287              		.loc 1 145 18 is_stmt 0 view .LVU96
+ 288 000c DFF8B883 		ldr	r8, .L17+4
+ 289 0010 0423     		movs	r3, #4
+ 290              	.LVL15:
+ 145:modules/algorithm/kalman_filter.c ****     sizeof_double = sizeof(double);
+ 291              		.loc 1 145 18 view .LVU97
+ 292 0012 A8F80030 		strh	r3, [r8]	@ movhi
+ 146:modules/algorithm/kalman_filter.c **** 
+ 293              		.loc 1 146 5 is_stmt 1 view .LVU98
+ 146:modules/algorithm/kalman_filter.c **** 
+ 294              		.loc 1 146 19 is_stmt 0 view .LVU99
+ 295 0016 EB4B     		ldr	r3, .L17
+ 296 0018 0822     		movs	r2, #8
+ 297              	.LVL16:
+ 146:modules/algorithm/kalman_filter.c **** 
+ 298              		.loc 1 146 19 view .LVU100
+ 299 001a 1A80     		strh	r2, [r3]	@ movhi
+ 148:modules/algorithm/kalman_filter.c ****     kf->uSize = uSize;
+ 300              		.loc 1 148 5 is_stmt 1 view .LVU101
+ 148:modules/algorithm/kalman_filter.c ****     kf->uSize = uSize;
+ 301              		.loc 1 148 18 is_stmt 0 view .LVU102
+ 302 001c 0173     		strb	r1, [r0, #12]
+ 149:modules/algorithm/kalman_filter.c ****     kf->zSize = zSize;
+ 303              		.loc 1 149 5 is_stmt 1 view .LVU103
+ 149:modules/algorithm/kalman_filter.c ****     kf->zSize = zSize;
+ 304              		.loc 1 149 15 is_stmt 0 view .LVU104
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 15
+
+
+ 305 001e 80F80D90 		strb	r9, [r0, #13]
+ 150:modules/algorithm/kalman_filter.c **** 
+ 306              		.loc 1 150 5 is_stmt 1 view .LVU105
+ 150:modules/algorithm/kalman_filter.c **** 
+ 307              		.loc 1 150 15 is_stmt 0 view .LVU106
+ 308 0022 8673     		strb	r6, [r0, #14]
+ 152:modules/algorithm/kalman_filter.c **** 
+ 309              		.loc 1 152 5 is_stmt 1 view .LVU107
+ 152:modules/algorithm/kalman_filter.c **** 
+ 310              		.loc 1 152 29 is_stmt 0 view .LVU108
+ 311 0024 0027     		movs	r7, #0
+ 312 0026 0774     		strb	r7, [r0, #16]
+ 155:modules/algorithm/kalman_filter.c ****     memset(kf->MeasurementMap, 0, sizeof(uint8_t) * zSize);
+ 313              		.loc 1 155 5 is_stmt 1 view .LVU109
+ 155:modules/algorithm/kalman_filter.c ****     memset(kf->MeasurementMap, 0, sizeof(uint8_t) * zSize);
+ 314              		.loc 1 155 37 is_stmt 0 view .LVU110
+ 315 0028 3046     		mov	r0, r6
+ 316              	.LVL17:
+ 155:modules/algorithm/kalman_filter.c ****     memset(kf->MeasurementMap, 0, sizeof(uint8_t) * zSize);
+ 317              		.loc 1 155 37 view .LVU111
+ 318 002a FFF7FEFF 		bl	malloc
+ 319              	.LVL18:
+ 155:modules/algorithm/kalman_filter.c ****     memset(kf->MeasurementMap, 0, sizeof(uint8_t) * zSize);
+ 320              		.loc 1 155 24 discriminator 1 view .LVU112
+ 321 002e 6061     		str	r0, [r4, #20]
+ 156:modules/algorithm/kalman_filter.c ****     kf->MeasurementDegree = (float *)user_malloc(sizeof_float * zSize);
+ 322              		.loc 1 156 5 is_stmt 1 view .LVU113
+ 323 0030 3246     		mov	r2, r6
+ 324 0032 3946     		mov	r1, r7
+ 325 0034 FFF7FEFF 		bl	memset
+ 326              	.LVL19:
+ 157:modules/algorithm/kalman_filter.c ****     memset(kf->MeasurementDegree, 0, sizeof_float * zSize);
+ 327              		.loc 1 157 5 view .LVU114
+ 157:modules/algorithm/kalman_filter.c ****     memset(kf->MeasurementDegree, 0, sizeof_float * zSize);
+ 328              		.loc 1 157 63 is_stmt 0 view .LVU115
+ 329 0038 B8F800A0 		ldrh	r10, [r8]
+ 330 003c 06FB0AFA 		mul	r10, r6, r10
+ 157:modules/algorithm/kalman_filter.c ****     memset(kf->MeasurementDegree, 0, sizeof_float * zSize);
+ 331              		.loc 1 157 38 view .LVU116
+ 332 0040 5046     		mov	r0, r10
+ 333 0042 FFF7FEFF 		bl	malloc
+ 334              	.LVL20:
+ 157:modules/algorithm/kalman_filter.c ****     memset(kf->MeasurementDegree, 0, sizeof_float * zSize);
+ 335              		.loc 1 157 27 discriminator 1 view .LVU117
+ 336 0046 A061     		str	r0, [r4, #24]
+ 158:modules/algorithm/kalman_filter.c ****     kf->MatR_DiagonalElements = (float *)user_malloc(sizeof_float * zSize);
+ 337              		.loc 1 158 5 is_stmt 1 view .LVU118
+ 338 0048 5246     		mov	r2, r10
+ 339 004a 3946     		mov	r1, r7
+ 340 004c FFF7FEFF 		bl	memset
+ 341              	.LVL21:
+ 159:modules/algorithm/kalman_filter.c ****     memset(kf->MatR_DiagonalElements, 0, sizeof_float * zSize);
+ 342              		.loc 1 159 5 view .LVU119
+ 159:modules/algorithm/kalman_filter.c ****     memset(kf->MatR_DiagonalElements, 0, sizeof_float * zSize);
+ 343              		.loc 1 159 67 is_stmt 0 view .LVU120
+ 344 0050 B8F800A0 		ldrh	r10, [r8]
+ 345 0054 06FB0AFA 		mul	r10, r6, r10
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 16
+
+
+ 159:modules/algorithm/kalman_filter.c ****     memset(kf->MatR_DiagonalElements, 0, sizeof_float * zSize);
+ 346              		.loc 1 159 42 view .LVU121
+ 347 0058 5046     		mov	r0, r10
+ 348 005a FFF7FEFF 		bl	malloc
+ 349              	.LVL22:
+ 159:modules/algorithm/kalman_filter.c ****     memset(kf->MatR_DiagonalElements, 0, sizeof_float * zSize);
+ 350              		.loc 1 159 31 discriminator 1 view .LVU122
+ 351 005e E061     		str	r0, [r4, #28]
+ 160:modules/algorithm/kalman_filter.c ****     kf->StateMinVariance = (float *)user_malloc(sizeof_float * xhatSize);
+ 352              		.loc 1 160 5 is_stmt 1 view .LVU123
+ 353 0060 5246     		mov	r2, r10
+ 354 0062 3946     		mov	r1, r7
+ 355 0064 FFF7FEFF 		bl	memset
+ 356              	.LVL23:
+ 161:modules/algorithm/kalman_filter.c ****     memset(kf->StateMinVariance, 0, sizeof_float * xhatSize);
+ 357              		.loc 1 161 5 view .LVU124
+ 161:modules/algorithm/kalman_filter.c ****     memset(kf->StateMinVariance, 0, sizeof_float * xhatSize);
+ 358              		.loc 1 161 62 is_stmt 0 view .LVU125
+ 359 0068 B8F800A0 		ldrh	r10, [r8]
+ 360 006c 05FB0AFA 		mul	r10, r5, r10
+ 161:modules/algorithm/kalman_filter.c ****     memset(kf->StateMinVariance, 0, sizeof_float * xhatSize);
+ 361              		.loc 1 161 37 view .LVU126
+ 362 0070 5046     		mov	r0, r10
+ 363 0072 FFF7FEFF 		bl	malloc
+ 364              	.LVL24:
+ 161:modules/algorithm/kalman_filter.c ****     memset(kf->StateMinVariance, 0, sizeof_float * xhatSize);
+ 365              		.loc 1 161 26 discriminator 1 view .LVU127
+ 366 0076 2062     		str	r0, [r4, #32]
+ 162:modules/algorithm/kalman_filter.c ****     kf->temp = (uint8_t *)user_malloc(sizeof(uint8_t) * zSize);
+ 367              		.loc 1 162 5 is_stmt 1 view .LVU128
+ 368 0078 5246     		mov	r2, r10
+ 369 007a 3946     		mov	r1, r7
+ 370 007c FFF7FEFF 		bl	memset
+ 371              	.LVL25:
+ 163:modules/algorithm/kalman_filter.c ****     memset(kf->temp, 0, sizeof(uint8_t) * zSize);
+ 372              		.loc 1 163 5 view .LVU129
+ 163:modules/algorithm/kalman_filter.c ****     memset(kf->temp, 0, sizeof(uint8_t) * zSize);
+ 373              		.loc 1 163 27 is_stmt 0 view .LVU130
+ 374 0080 3046     		mov	r0, r6
+ 375 0082 FFF7FEFF 		bl	malloc
+ 376              	.LVL26:
+ 163:modules/algorithm/kalman_filter.c ****     memset(kf->temp, 0, sizeof(uint8_t) * zSize);
+ 377              		.loc 1 163 14 discriminator 1 view .LVU131
+ 378 0086 6062     		str	r0, [r4, #36]
+ 164:modules/algorithm/kalman_filter.c **** 
+ 379              		.loc 1 164 5 is_stmt 1 view .LVU132
+ 380 0088 3246     		mov	r2, r6
+ 381 008a 3946     		mov	r1, r7
+ 382 008c FFF7FEFF 		bl	memset
+ 383              	.LVL27:
+ 167:modules/algorithm/kalman_filter.c ****     memset(kf->FilteredValue, 0, sizeof_float * xhatSize);
+ 384              		.loc 1 167 5 view .LVU133
+ 167:modules/algorithm/kalman_filter.c ****     memset(kf->FilteredValue, 0, sizeof_float * xhatSize);
+ 385              		.loc 1 167 59 is_stmt 0 view .LVU134
+ 386 0090 B8F800A0 		ldrh	r10, [r8]
+ 387 0094 05FB0AFA 		mul	r10, r5, r10
+ 167:modules/algorithm/kalman_filter.c ****     memset(kf->FilteredValue, 0, sizeof_float * xhatSize);
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 17
+
+
+ 388              		.loc 1 167 34 view .LVU135
+ 389 0098 5046     		mov	r0, r10
+ 390 009a FFF7FEFF 		bl	malloc
+ 391              	.LVL28:
+ 167:modules/algorithm/kalman_filter.c ****     memset(kf->FilteredValue, 0, sizeof_float * xhatSize);
+ 392              		.loc 1 167 23 discriminator 1 view .LVU136
+ 393 009e 2060     		str	r0, [r4]
+ 168:modules/algorithm/kalman_filter.c ****     kf->MeasuredVector = (float *)user_malloc(sizeof_float * zSize);
+ 394              		.loc 1 168 5 is_stmt 1 view .LVU137
+ 395 00a0 5246     		mov	r2, r10
+ 396 00a2 3946     		mov	r1, r7
+ 397 00a4 FFF7FEFF 		bl	memset
+ 398              	.LVL29:
+ 169:modules/algorithm/kalman_filter.c ****     memset(kf->MeasuredVector, 0, sizeof_float * zSize);
+ 399              		.loc 1 169 5 view .LVU138
+ 169:modules/algorithm/kalman_filter.c ****     memset(kf->MeasuredVector, 0, sizeof_float * zSize);
+ 400              		.loc 1 169 60 is_stmt 0 view .LVU139
+ 401 00a8 B8F800A0 		ldrh	r10, [r8]
+ 402 00ac 06FB0AFA 		mul	r10, r6, r10
+ 169:modules/algorithm/kalman_filter.c ****     memset(kf->MeasuredVector, 0, sizeof_float * zSize);
+ 403              		.loc 1 169 35 view .LVU140
+ 404 00b0 5046     		mov	r0, r10
+ 405 00b2 FFF7FEFF 		bl	malloc
+ 406              	.LVL30:
+ 169:modules/algorithm/kalman_filter.c ****     memset(kf->MeasuredVector, 0, sizeof_float * zSize);
+ 407              		.loc 1 169 24 discriminator 1 view .LVU141
+ 408 00b6 6060     		str	r0, [r4, #4]
+ 170:modules/algorithm/kalman_filter.c ****     kf->ControlVector = (float *)user_malloc(sizeof_float * uSize);
+ 409              		.loc 1 170 5 is_stmt 1 view .LVU142
+ 410 00b8 5246     		mov	r2, r10
+ 411 00ba 3946     		mov	r1, r7
+ 412 00bc FFF7FEFF 		bl	memset
+ 413              	.LVL31:
+ 171:modules/algorithm/kalman_filter.c ****     memset(kf->ControlVector, 0, sizeof_float * uSize);
+ 414              		.loc 1 171 5 view .LVU143
+ 171:modules/algorithm/kalman_filter.c ****     memset(kf->ControlVector, 0, sizeof_float * uSize);
+ 415              		.loc 1 171 59 is_stmt 0 view .LVU144
+ 416 00c0 B8F800A0 		ldrh	r10, [r8]
+ 417 00c4 09FB0AFA 		mul	r10, r9, r10
+ 171:modules/algorithm/kalman_filter.c ****     memset(kf->ControlVector, 0, sizeof_float * uSize);
+ 418              		.loc 1 171 34 view .LVU145
+ 419 00c8 5046     		mov	r0, r10
+ 420 00ca FFF7FEFF 		bl	malloc
+ 421              	.LVL32:
+ 171:modules/algorithm/kalman_filter.c ****     memset(kf->ControlVector, 0, sizeof_float * uSize);
+ 422              		.loc 1 171 23 discriminator 1 view .LVU146
+ 423 00ce A060     		str	r0, [r4, #8]
+ 172:modules/algorithm/kalman_filter.c **** 
+ 424              		.loc 1 172 5 is_stmt 1 view .LVU147
+ 425 00d0 5246     		mov	r2, r10
+ 426 00d2 3946     		mov	r1, r7
+ 427 00d4 FFF7FEFF 		bl	memset
+ 428              	.LVL33:
+ 175:modules/algorithm/kalman_filter.c ****     memset(kf->xhat_data, 0, sizeof_float * xhatSize);
+ 429              		.loc 1 175 5 view .LVU148
+ 175:modules/algorithm/kalman_filter.c ****     memset(kf->xhat_data, 0, sizeof_float * xhatSize);
+ 430              		.loc 1 175 55 is_stmt 0 view .LVU149
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 18
+
+
+ 431 00d8 B8F800A0 		ldrh	r10, [r8]
+ 432 00dc 05FB0AFA 		mul	r10, r5, r10
+ 175:modules/algorithm/kalman_filter.c ****     memset(kf->xhat_data, 0, sizeof_float * xhatSize);
+ 433              		.loc 1 175 30 view .LVU150
+ 434 00e0 5046     		mov	r0, r10
+ 435 00e2 FFF7FEFF 		bl	malloc
+ 436              	.LVL34:
+ 175:modules/algorithm/kalman_filter.c ****     memset(kf->xhat_data, 0, sizeof_float * xhatSize);
+ 437              		.loc 1 175 19 discriminator 1 view .LVU151
+ 438 00e6 C4F8E800 		str	r0, [r4, #232]
+ 176:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->xhat, kf->xhatSize, 1, (float *)kf->xhat_data);
+ 439              		.loc 1 176 5 is_stmt 1 view .LVU152
+ 440 00ea 5246     		mov	r2, r10
+ 441 00ec 3946     		mov	r1, r7
+ 442 00ee FFF7FEFF 		bl	memset
+ 443              	.LVL35:
+ 177:modules/algorithm/kalman_filter.c **** 
+ 444              		.loc 1 177 5 view .LVU153
+ 445 00f2 D4F8E830 		ldr	r3, [r4, #232]
+ 446 00f6 0122     		movs	r2, #1
+ 447 00f8 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 448 00fa 04F13000 		add	r0, r4, #48
+ 449 00fe FFF7FEFF 		bl	arm_mat_init_f32
+ 450              	.LVL36:
+ 180:modules/algorithm/kalman_filter.c ****     memset(kf->xhatminus_data, 0, sizeof_float * xhatSize);
+ 451              		.loc 1 180 5 view .LVU154
+ 180:modules/algorithm/kalman_filter.c ****     memset(kf->xhatminus_data, 0, sizeof_float * xhatSize);
+ 452              		.loc 1 180 60 is_stmt 0 view .LVU155
+ 453 0102 B8F80080 		ldrh	r8, [r8]
+ 454 0106 05FB08F8 		mul	r8, r5, r8
+ 180:modules/algorithm/kalman_filter.c ****     memset(kf->xhatminus_data, 0, sizeof_float * xhatSize);
+ 455              		.loc 1 180 35 view .LVU156
+ 456 010a 4046     		mov	r0, r8
+ 457 010c FFF7FEFF 		bl	malloc
+ 458              	.LVL37:
+ 180:modules/algorithm/kalman_filter.c ****     memset(kf->xhatminus_data, 0, sizeof_float * xhatSize);
+ 459              		.loc 1 180 24 discriminator 1 view .LVU157
+ 460 0110 C4F8EC00 		str	r0, [r4, #236]
+ 181:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->xhatminus, kf->xhatSize, 1, (float *)kf->xhatminus_data);
+ 461              		.loc 1 181 5 is_stmt 1 view .LVU158
+ 462 0114 4246     		mov	r2, r8
+ 463 0116 3946     		mov	r1, r7
+ 464 0118 FFF7FEFF 		bl	memset
+ 465              	.LVL38:
+ 182:modules/algorithm/kalman_filter.c **** 
+ 466              		.loc 1 182 5 view .LVU159
+ 467 011c D4F8EC30 		ldr	r3, [r4, #236]
+ 468 0120 0122     		movs	r2, #1
+ 469 0122 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 470 0124 04F13800 		add	r0, r4, #56
+ 471 0128 FFF7FEFF 		bl	arm_mat_init_f32
+ 472              	.LVL39:
+ 184:modules/algorithm/kalman_filter.c ****     {
+ 473              		.loc 1 184 5 view .LVU160
+ 184:modules/algorithm/kalman_filter.c ****     {
+ 474              		.loc 1 184 8 is_stmt 0 view .LVU161
+ 475 012c B9F1000F 		cmp	r9, #0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 19
+
+
+ 476 0130 40F04C81 		bne	.L15
+ 477              	.L12:
+ 193:modules/algorithm/kalman_filter.c ****     memset(kf->z_data, 0, sizeof_float * zSize);
+ 478              		.loc 1 193 5 is_stmt 1 view .LVU162
+ 193:modules/algorithm/kalman_filter.c ****     memset(kf->z_data, 0, sizeof_float * zSize);
+ 479              		.loc 1 193 52 is_stmt 0 view .LVU163
+ 480 0134 DFF89082 		ldr	r8, .L17+4
+ 481 0138 B8F80070 		ldrh	r7, [r8]
+ 482 013c 06FB07F7 		mul	r7, r6, r7
+ 193:modules/algorithm/kalman_filter.c ****     memset(kf->z_data, 0, sizeof_float * zSize);
+ 483              		.loc 1 193 27 view .LVU164
+ 484 0140 3846     		mov	r0, r7
+ 485 0142 FFF7FEFF 		bl	malloc
+ 486              	.LVL40:
+ 193:modules/algorithm/kalman_filter.c ****     memset(kf->z_data, 0, sizeof_float * zSize);
+ 487              		.loc 1 193 16 discriminator 1 view .LVU165
+ 488 0146 C4F8F400 		str	r0, [r4, #244]
+ 194:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->z, kf->zSize, 1, (float *)kf->z_data);
+ 489              		.loc 1 194 5 is_stmt 1 view .LVU166
+ 490 014a 3A46     		mov	r2, r7
+ 491 014c 0021     		movs	r1, #0
+ 492 014e FFF7FEFF 		bl	memset
+ 493              	.LVL41:
+ 195:modules/algorithm/kalman_filter.c **** 
+ 494              		.loc 1 195 5 view .LVU167
+ 495 0152 D4F8F430 		ldr	r3, [r4, #244]
+ 496 0156 0122     		movs	r2, #1
+ 497 0158 A17B     		ldrb	r1, [r4, #14]	@ zero_extendqisi2
+ 498 015a 04F14800 		add	r0, r4, #72
+ 499 015e FFF7FEFF 		bl	arm_mat_init_f32
+ 500              	.LVL42:
+ 198:modules/algorithm/kalman_filter.c ****     memset(kf->P_data, 0, sizeof_float * xhatSize * xhatSize);
+ 501              		.loc 1 198 5 view .LVU168
+ 198:modules/algorithm/kalman_filter.c ****     memset(kf->P_data, 0, sizeof_float * xhatSize * xhatSize);
+ 502              		.loc 1 198 52 is_stmt 0 view .LVU169
+ 503 0162 B8F80070 		ldrh	r7, [r8]
+ 504 0166 05FB07F7 		mul	r7, r5, r7
+ 198:modules/algorithm/kalman_filter.c ****     memset(kf->P_data, 0, sizeof_float * xhatSize * xhatSize);
+ 505              		.loc 1 198 63 view .LVU170
+ 506 016a 05FB07F7 		mul	r7, r5, r7
+ 198:modules/algorithm/kalman_filter.c ****     memset(kf->P_data, 0, sizeof_float * xhatSize * xhatSize);
+ 507              		.loc 1 198 27 view .LVU171
+ 508 016e 3846     		mov	r0, r7
+ 509 0170 FFF7FEFF 		bl	malloc
+ 510              	.LVL43:
+ 198:modules/algorithm/kalman_filter.c ****     memset(kf->P_data, 0, sizeof_float * xhatSize * xhatSize);
+ 511              		.loc 1 198 16 discriminator 1 view .LVU172
+ 512 0174 C4F8F800 		str	r0, [r4, #248]
+ 199:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->P, kf->xhatSize, kf->xhatSize, (float *)kf->P_data);
+ 513              		.loc 1 199 5 is_stmt 1 view .LVU173
+ 514 0178 3A46     		mov	r2, r7
+ 515 017a 0021     		movs	r1, #0
+ 516 017c FFF7FEFF 		bl	memset
+ 517              	.LVL44:
+ 200:modules/algorithm/kalman_filter.c **** 
+ 518              		.loc 1 200 5 view .LVU174
+ 200:modules/algorithm/kalman_filter.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 20
+
+
+ 519              		.loc 1 200 27 is_stmt 0 view .LVU175
+ 520 0180 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 200:modules/algorithm/kalman_filter.c **** 
+ 521              		.loc 1 200 5 view .LVU176
+ 522 0182 D4F8F830 		ldr	r3, [r4, #248]
+ 523 0186 0A46     		mov	r2, r1
+ 524 0188 04F15000 		add	r0, r4, #80
+ 525 018c FFF7FEFF 		bl	arm_mat_init_f32
+ 526              	.LVL45:
+ 203:modules/algorithm/kalman_filter.c ****     memset(kf->Pminus_data, 0, sizeof_float * xhatSize * xhatSize);
+ 527              		.loc 1 203 5 is_stmt 1 view .LVU177
+ 203:modules/algorithm/kalman_filter.c ****     memset(kf->Pminus_data, 0, sizeof_float * xhatSize * xhatSize);
+ 528              		.loc 1 203 57 is_stmt 0 view .LVU178
+ 529 0190 B8F80070 		ldrh	r7, [r8]
+ 530 0194 05FB07F7 		mul	r7, r5, r7
+ 203:modules/algorithm/kalman_filter.c ****     memset(kf->Pminus_data, 0, sizeof_float * xhatSize * xhatSize);
+ 531              		.loc 1 203 68 view .LVU179
+ 532 0198 05FB07F7 		mul	r7, r5, r7
+ 203:modules/algorithm/kalman_filter.c ****     memset(kf->Pminus_data, 0, sizeof_float * xhatSize * xhatSize);
+ 533              		.loc 1 203 32 view .LVU180
+ 534 019c 3846     		mov	r0, r7
+ 535 019e FFF7FEFF 		bl	malloc
+ 536              	.LVL46:
+ 203:modules/algorithm/kalman_filter.c ****     memset(kf->Pminus_data, 0, sizeof_float * xhatSize * xhatSize);
+ 537              		.loc 1 203 21 discriminator 1 view .LVU181
+ 538 01a2 C4F8FC00 		str	r0, [r4, #252]
+ 204:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->Pminus, kf->xhatSize, kf->xhatSize, (float *)kf->Pminus_data);
+ 539              		.loc 1 204 5 is_stmt 1 view .LVU182
+ 540 01a6 3A46     		mov	r2, r7
+ 541 01a8 0021     		movs	r1, #0
+ 542 01aa FFF7FEFF 		bl	memset
+ 543              	.LVL47:
+ 205:modules/algorithm/kalman_filter.c **** 
+ 544              		.loc 1 205 5 view .LVU183
+ 205:modules/algorithm/kalman_filter.c **** 
+ 545              		.loc 1 205 32 is_stmt 0 view .LVU184
+ 546 01ae 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 205:modules/algorithm/kalman_filter.c **** 
+ 547              		.loc 1 205 5 view .LVU185
+ 548 01b0 D4F8FC30 		ldr	r3, [r4, #252]
+ 549 01b4 0A46     		mov	r2, r1
+ 550 01b6 04F15800 		add	r0, r4, #88
+ 551 01ba FFF7FEFF 		bl	arm_mat_init_f32
+ 552              	.LVL48:
+ 208:modules/algorithm/kalman_filter.c ****     kf->FT_data = (float *)user_malloc(sizeof_float * xhatSize * xhatSize);
+ 553              		.loc 1 208 5 is_stmt 1 view .LVU186
+ 208:modules/algorithm/kalman_filter.c ****     kf->FT_data = (float *)user_malloc(sizeof_float * xhatSize * xhatSize);
+ 554              		.loc 1 208 52 is_stmt 0 view .LVU187
+ 555 01be B8F80070 		ldrh	r7, [r8]
+ 556 01c2 05FB07F7 		mul	r7, r5, r7
+ 208:modules/algorithm/kalman_filter.c ****     kf->FT_data = (float *)user_malloc(sizeof_float * xhatSize * xhatSize);
+ 557              		.loc 1 208 63 view .LVU188
+ 558 01c6 05FB07F7 		mul	r7, r5, r7
+ 208:modules/algorithm/kalman_filter.c ****     kf->FT_data = (float *)user_malloc(sizeof_float * xhatSize * xhatSize);
+ 559              		.loc 1 208 27 view .LVU189
+ 560 01ca 3846     		mov	r0, r7
+ 561 01cc FFF7FEFF 		bl	malloc
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 21
+
+
+ 562              	.LVL49:
+ 563 01d0 8246     		mov	r10, r0
+ 208:modules/algorithm/kalman_filter.c ****     kf->FT_data = (float *)user_malloc(sizeof_float * xhatSize * xhatSize);
+ 564              		.loc 1 208 16 discriminator 1 view .LVU190
+ 565 01d2 C4F80001 		str	r0, [r4, #256]
+ 209:modules/algorithm/kalman_filter.c ****     memset(kf->F_data, 0, sizeof_float * xhatSize * xhatSize);
+ 566              		.loc 1 209 5 is_stmt 1 view .LVU191
+ 209:modules/algorithm/kalman_filter.c ****     memset(kf->F_data, 0, sizeof_float * xhatSize * xhatSize);
+ 567              		.loc 1 209 28 is_stmt 0 view .LVU192
+ 568 01d6 3846     		mov	r0, r7
+ 569 01d8 FFF7FEFF 		bl	malloc
+ 570              	.LVL50:
+ 209:modules/algorithm/kalman_filter.c ****     memset(kf->F_data, 0, sizeof_float * xhatSize * xhatSize);
+ 571              		.loc 1 209 17 discriminator 1 view .LVU193
+ 572 01dc C4F80401 		str	r0, [r4, #260]
+ 210:modules/algorithm/kalman_filter.c ****     memset(kf->FT_data, 0, sizeof_float * xhatSize * xhatSize);
+ 573              		.loc 1 210 5 is_stmt 1 view .LVU194
+ 574 01e0 3A46     		mov	r2, r7
+ 575 01e2 0021     		movs	r1, #0
+ 576 01e4 5046     		mov	r0, r10
+ 577 01e6 FFF7FEFF 		bl	memset
+ 578              	.LVL51:
+ 211:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->F, kf->xhatSize, kf->xhatSize, (float *)kf->F_data);
+ 579              		.loc 1 211 5 view .LVU195
+ 211:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->F, kf->xhatSize, kf->xhatSize, (float *)kf->F_data);
+ 580              		.loc 1 211 41 is_stmt 0 view .LVU196
+ 581 01ea B8F80020 		ldrh	r2, [r8]
+ 582 01ee 05FB02F2 		mul	r2, r5, r2
+ 211:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->F, kf->xhatSize, kf->xhatSize, (float *)kf->F_data);
+ 583              		.loc 1 211 5 view .LVU197
+ 584 01f2 05FB02F2 		mul	r2, r5, r2
+ 585 01f6 0021     		movs	r1, #0
+ 586 01f8 D4F80401 		ldr	r0, [r4, #260]
+ 587 01fc FFF7FEFF 		bl	memset
+ 588              	.LVL52:
+ 212:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->FT, kf->xhatSize, kf->xhatSize, (float *)kf->FT_data);
+ 589              		.loc 1 212 5 is_stmt 1 view .LVU198
+ 212:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->FT, kf->xhatSize, kf->xhatSize, (float *)kf->FT_data);
+ 590              		.loc 1 212 27 is_stmt 0 view .LVU199
+ 591 0200 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 212:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->FT, kf->xhatSize, kf->xhatSize, (float *)kf->FT_data);
+ 592              		.loc 1 212 5 view .LVU200
+ 593 0202 D4F80031 		ldr	r3, [r4, #256]
+ 594 0206 0A46     		mov	r2, r1
+ 595 0208 04F16000 		add	r0, r4, #96
+ 596 020c FFF7FEFF 		bl	arm_mat_init_f32
+ 597              	.LVL53:
+ 213:modules/algorithm/kalman_filter.c **** 
+ 598              		.loc 1 213 5 is_stmt 1 view .LVU201
+ 213:modules/algorithm/kalman_filter.c **** 
+ 599              		.loc 1 213 28 is_stmt 0 view .LVU202
+ 600 0210 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 213:modules/algorithm/kalman_filter.c **** 
+ 601              		.loc 1 213 5 view .LVU203
+ 602 0212 D4F80431 		ldr	r3, [r4, #260]
+ 603 0216 0A46     		mov	r2, r1
+ 604 0218 04F16800 		add	r0, r4, #104
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 22
+
+
+ 605 021c FFF7FEFF 		bl	arm_mat_init_f32
+ 606              	.LVL54:
+ 215:modules/algorithm/kalman_filter.c ****     {
+ 607              		.loc 1 215 5 is_stmt 1 view .LVU204
+ 215:modules/algorithm/kalman_filter.c ****     {
+ 608              		.loc 1 215 8 is_stmt 0 view .LVU205
+ 609 0220 B9F1000F 		cmp	r9, #0
+ 610 0224 40F0E880 		bne	.L16
+ 611              	.LVL55:
+ 612              	.L13:
+ 224:modules/algorithm/kalman_filter.c ****     kf->HT_data = (float *)user_malloc(sizeof_float * xhatSize * zSize);
+ 613              		.loc 1 224 5 is_stmt 1 view .LVU206
+ 224:modules/algorithm/kalman_filter.c ****     kf->HT_data = (float *)user_malloc(sizeof_float * xhatSize * zSize);
+ 614              		.loc 1 224 52 is_stmt 0 view .LVU207
+ 615 0228 674F     		ldr	r7, .L17+4
+ 616 022a B7F800A0 		ldrh	r10, [r7]
+ 617 022e 0AFB06F9 		mul	r9, r10, r6
+ 224:modules/algorithm/kalman_filter.c ****     kf->HT_data = (float *)user_malloc(sizeof_float * xhatSize * zSize);
+ 618              		.loc 1 224 60 view .LVU208
+ 619 0232 09FB05F9 		mul	r9, r9, r5
+ 224:modules/algorithm/kalman_filter.c ****     kf->HT_data = (float *)user_malloc(sizeof_float * xhatSize * zSize);
+ 620              		.loc 1 224 27 view .LVU209
+ 621 0236 4846     		mov	r0, r9
+ 622 0238 FFF7FEFF 		bl	malloc
+ 623              	.LVL56:
+ 624 023c 8046     		mov	r8, r0
+ 224:modules/algorithm/kalman_filter.c ****     kf->HT_data = (float *)user_malloc(sizeof_float * xhatSize * zSize);
+ 625              		.loc 1 224 16 discriminator 1 view .LVU210
+ 626 023e C4F80C01 		str	r0, [r4, #268]
+ 225:modules/algorithm/kalman_filter.c ****     memset(kf->H_data, 0, sizeof_float * zSize * xhatSize);
+ 627              		.loc 1 225 5 is_stmt 1 view .LVU211
+ 225:modules/algorithm/kalman_filter.c ****     memset(kf->H_data, 0, sizeof_float * zSize * xhatSize);
+ 628              		.loc 1 225 53 is_stmt 0 view .LVU212
+ 629 0242 0AFB05F0 		mul	r0, r10, r5
+ 225:modules/algorithm/kalman_filter.c ****     memset(kf->H_data, 0, sizeof_float * zSize * xhatSize);
+ 630              		.loc 1 225 28 view .LVU213
+ 631 0246 06FB00F0 		mul	r0, r6, r0
+ 632 024a FFF7FEFF 		bl	malloc
+ 633              	.LVL57:
+ 225:modules/algorithm/kalman_filter.c ****     memset(kf->H_data, 0, sizeof_float * zSize * xhatSize);
+ 634              		.loc 1 225 17 discriminator 1 view .LVU214
+ 635 024e C4F81001 		str	r0, [r4, #272]
+ 226:modules/algorithm/kalman_filter.c ****     memset(kf->HT_data, 0, sizeof_float * xhatSize * zSize);
+ 636              		.loc 1 226 5 is_stmt 1 view .LVU215
+ 637 0252 4A46     		mov	r2, r9
+ 638 0254 0021     		movs	r1, #0
+ 639 0256 4046     		mov	r0, r8
+ 640 0258 FFF7FEFF 		bl	memset
+ 641              	.LVL58:
+ 227:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->H, kf->zSize, kf->xhatSize, (float *)kf->H_data);
+ 642              		.loc 1 227 5 view .LVU216
+ 227:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->H, kf->zSize, kf->xhatSize, (float *)kf->H_data);
+ 643              		.loc 1 227 41 is_stmt 0 view .LVU217
+ 644 025c 3A88     		ldrh	r2, [r7]
+ 645 025e 05FB02F2 		mul	r2, r5, r2
+ 227:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->H, kf->zSize, kf->xhatSize, (float *)kf->H_data);
+ 646              		.loc 1 227 5 view .LVU218
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 23
+
+
+ 647 0262 06FB02F2 		mul	r2, r6, r2
+ 648 0266 0021     		movs	r1, #0
+ 649 0268 D4F81001 		ldr	r0, [r4, #272]
+ 650 026c FFF7FEFF 		bl	memset
+ 651              	.LVL59:
+ 228:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->HT, kf->xhatSize, kf->zSize, (float *)kf->HT_data);
+ 652              		.loc 1 228 5 is_stmt 1 view .LVU219
+ 653 0270 D4F80C31 		ldr	r3, [r4, #268]
+ 654 0274 227B     		ldrb	r2, [r4, #12]	@ zero_extendqisi2
+ 655 0276 A17B     		ldrb	r1, [r4, #14]	@ zero_extendqisi2
+ 656 0278 04F17800 		add	r0, r4, #120
+ 657 027c FFF7FEFF 		bl	arm_mat_init_f32
+ 658              	.LVL60:
+ 229:modules/algorithm/kalman_filter.c **** 
+ 659              		.loc 1 229 5 view .LVU220
+ 660 0280 D4F81031 		ldr	r3, [r4, #272]
+ 661 0284 A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+ 662 0286 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 663 0288 04F18000 		add	r0, r4, #128
+ 664 028c FFF7FEFF 		bl	arm_mat_init_f32
+ 665              	.LVL61:
+ 232:modules/algorithm/kalman_filter.c ****     memset(kf->Q_data, 0, sizeof_float * xhatSize * xhatSize);
+ 666              		.loc 1 232 5 view .LVU221
+ 232:modules/algorithm/kalman_filter.c ****     memset(kf->Q_data, 0, sizeof_float * xhatSize * xhatSize);
+ 667              		.loc 1 232 52 is_stmt 0 view .LVU222
+ 668 0290 B7F80080 		ldrh	r8, [r7]
+ 669 0294 05FB08F8 		mul	r8, r5, r8
+ 232:modules/algorithm/kalman_filter.c ****     memset(kf->Q_data, 0, sizeof_float * xhatSize * xhatSize);
+ 670              		.loc 1 232 63 view .LVU223
+ 671 0298 08FB05F8 		mul	r8, r8, r5
+ 232:modules/algorithm/kalman_filter.c ****     memset(kf->Q_data, 0, sizeof_float * xhatSize * xhatSize);
+ 672              		.loc 1 232 27 view .LVU224
+ 673 029c 4046     		mov	r0, r8
+ 674 029e FFF7FEFF 		bl	malloc
+ 675              	.LVL62:
+ 232:modules/algorithm/kalman_filter.c ****     memset(kf->Q_data, 0, sizeof_float * xhatSize * xhatSize);
+ 676              		.loc 1 232 16 discriminator 1 view .LVU225
+ 677 02a2 C4F81401 		str	r0, [r4, #276]
+ 233:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->Q, kf->xhatSize, kf->xhatSize, (float *)kf->Q_data);
+ 678              		.loc 1 233 5 is_stmt 1 view .LVU226
+ 679 02a6 4246     		mov	r2, r8
+ 680 02a8 0021     		movs	r1, #0
+ 681 02aa FFF7FEFF 		bl	memset
+ 682              	.LVL63:
+ 234:modules/algorithm/kalman_filter.c **** 
+ 683              		.loc 1 234 5 view .LVU227
+ 234:modules/algorithm/kalman_filter.c **** 
+ 684              		.loc 1 234 27 is_stmt 0 view .LVU228
+ 685 02ae 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 234:modules/algorithm/kalman_filter.c **** 
+ 686              		.loc 1 234 5 view .LVU229
+ 687 02b0 D4F81431 		ldr	r3, [r4, #276]
+ 688 02b4 0A46     		mov	r2, r1
+ 689 02b6 04F18800 		add	r0, r4, #136
+ 690 02ba FFF7FEFF 		bl	arm_mat_init_f32
+ 691              	.LVL64:
+ 237:modules/algorithm/kalman_filter.c ****     memset(kf->R_data, 0, sizeof_float * zSize * zSize);
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 24
+
+
+ 692              		.loc 1 237 5 is_stmt 1 view .LVU230
+ 237:modules/algorithm/kalman_filter.c ****     memset(kf->R_data, 0, sizeof_float * zSize * zSize);
+ 693              		.loc 1 237 52 is_stmt 0 view .LVU231
+ 694 02be B7F80080 		ldrh	r8, [r7]
+ 695 02c2 06FB08F8 		mul	r8, r6, r8
+ 237:modules/algorithm/kalman_filter.c ****     memset(kf->R_data, 0, sizeof_float * zSize * zSize);
+ 696              		.loc 1 237 60 view .LVU232
+ 697 02c6 08FB06F8 		mul	r8, r8, r6
+ 237:modules/algorithm/kalman_filter.c ****     memset(kf->R_data, 0, sizeof_float * zSize * zSize);
+ 698              		.loc 1 237 27 view .LVU233
+ 699 02ca 4046     		mov	r0, r8
+ 700 02cc FFF7FEFF 		bl	malloc
+ 701              	.LVL65:
+ 237:modules/algorithm/kalman_filter.c ****     memset(kf->R_data, 0, sizeof_float * zSize * zSize);
+ 702              		.loc 1 237 16 discriminator 1 view .LVU234
+ 703 02d0 C4F81801 		str	r0, [r4, #280]
+ 238:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->R, kf->zSize, kf->zSize, (float *)kf->R_data);
+ 704              		.loc 1 238 5 is_stmt 1 view .LVU235
+ 705 02d4 4246     		mov	r2, r8
+ 706 02d6 0021     		movs	r1, #0
+ 707 02d8 FFF7FEFF 		bl	memset
+ 708              	.LVL66:
+ 239:modules/algorithm/kalman_filter.c **** 
+ 709              		.loc 1 239 5 view .LVU236
+ 239:modules/algorithm/kalman_filter.c **** 
+ 710              		.loc 1 239 27 is_stmt 0 view .LVU237
+ 711 02dc A17B     		ldrb	r1, [r4, #14]	@ zero_extendqisi2
+ 239:modules/algorithm/kalman_filter.c **** 
+ 712              		.loc 1 239 5 view .LVU238
+ 713 02de D4F81831 		ldr	r3, [r4, #280]
+ 714 02e2 0A46     		mov	r2, r1
+ 715 02e4 04F19000 		add	r0, r4, #144
+ 716 02e8 FFF7FEFF 		bl	arm_mat_init_f32
+ 717              	.LVL67:
+ 242:modules/algorithm/kalman_filter.c ****     memset(kf->K_data, 0, sizeof_float * xhatSize * zSize);
+ 718              		.loc 1 242 5 is_stmt 1 view .LVU239
+ 242:modules/algorithm/kalman_filter.c ****     memset(kf->K_data, 0, sizeof_float * xhatSize * zSize);
+ 719              		.loc 1 242 52 is_stmt 0 view .LVU240
+ 720 02ec 3B88     		ldrh	r3, [r7]
+ 721 02ee 05FB03F3 		mul	r3, r5, r3
+ 242:modules/algorithm/kalman_filter.c ****     memset(kf->K_data, 0, sizeof_float * xhatSize * zSize);
+ 722              		.loc 1 242 63 view .LVU241
+ 723 02f2 03FB06F6 		mul	r6, r3, r6
+ 724              	.LVL68:
+ 242:modules/algorithm/kalman_filter.c ****     memset(kf->K_data, 0, sizeof_float * xhatSize * zSize);
+ 725              		.loc 1 242 27 view .LVU242
+ 726 02f6 3046     		mov	r0, r6
+ 727 02f8 FFF7FEFF 		bl	malloc
+ 728              	.LVL69:
+ 242:modules/algorithm/kalman_filter.c ****     memset(kf->K_data, 0, sizeof_float * xhatSize * zSize);
+ 729              		.loc 1 242 16 discriminator 1 view .LVU243
+ 730 02fc C4F81C01 		str	r0, [r4, #284]
+ 243:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->K, kf->xhatSize, kf->zSize, (float *)kf->K_data);
+ 731              		.loc 1 243 5 is_stmt 1 view .LVU244
+ 732 0300 3246     		mov	r2, r6
+ 733 0302 0021     		movs	r1, #0
+ 734 0304 FFF7FEFF 		bl	memset
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 25
+
+
+ 735              	.LVL70:
+ 244:modules/algorithm/kalman_filter.c **** 
+ 736              		.loc 1 244 5 view .LVU245
+ 737 0308 D4F81C31 		ldr	r3, [r4, #284]
+ 738 030c A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+ 739 030e 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 740 0310 04F19800 		add	r0, r4, #152
+ 741 0314 FFF7FEFF 		bl	arm_mat_init_f32
+ 742              	.LVL71:
+ 246:modules/algorithm/kalman_filter.c ****     kf->temp_matrix_data = (float *)user_malloc(sizeof_float * kf->xhatSize * kf->xhatSize);
+ 743              		.loc 1 246 5 view .LVU246
+ 246:modules/algorithm/kalman_filter.c ****     kf->temp_matrix_data = (float *)user_malloc(sizeof_float * kf->xhatSize * kf->xhatSize);
+ 744              		.loc 1 246 56 is_stmt 0 view .LVU247
+ 745 0318 94F80C80 		ldrb	r8, [r4, #12]	@ zero_extendqisi2
+ 246:modules/algorithm/kalman_filter.c ****     kf->temp_matrix_data = (float *)user_malloc(sizeof_float * kf->xhatSize * kf->xhatSize);
+ 746              		.loc 1 246 52 view .LVU248
+ 747 031c 3E88     		ldrh	r6, [r7]
+ 748 031e 08FB06F6 		mul	r6, r8, r6
+ 246:modules/algorithm/kalman_filter.c ****     kf->temp_matrix_data = (float *)user_malloc(sizeof_float * kf->xhatSize * kf->xhatSize);
+ 749              		.loc 1 246 67 view .LVU249
+ 750 0322 06FB08F5 		mul	r5, r6, r8
+ 751              	.LVL72:
+ 246:modules/algorithm/kalman_filter.c ****     kf->temp_matrix_data = (float *)user_malloc(sizeof_float * kf->xhatSize * kf->xhatSize);
+ 752              		.loc 1 246 27 view .LVU250
+ 753 0326 2846     		mov	r0, r5
+ 754 0328 FFF7FEFF 		bl	malloc
+ 755              	.LVL73:
+ 756 032c 0746     		mov	r7, r0
+ 246:modules/algorithm/kalman_filter.c ****     kf->temp_matrix_data = (float *)user_malloc(sizeof_float * kf->xhatSize * kf->xhatSize);
+ 757              		.loc 1 246 16 discriminator 1 view .LVU251
+ 758 032e C4F82001 		str	r0, [r4, #288]
+ 247:modules/algorithm/kalman_filter.c ****     kf->temp_matrix_data1 = (float *)user_malloc(sizeof_float * kf->xhatSize * kf->xhatSize);
+ 759              		.loc 1 247 5 is_stmt 1 view .LVU252
+ 247:modules/algorithm/kalman_filter.c ****     kf->temp_matrix_data1 = (float *)user_malloc(sizeof_float * kf->xhatSize * kf->xhatSize);
+ 760              		.loc 1 247 37 is_stmt 0 view .LVU253
+ 761 0332 2846     		mov	r0, r5
+ 762 0334 FFF7FEFF 		bl	malloc
+ 763              	.LVL74:
+ 247:modules/algorithm/kalman_filter.c ****     kf->temp_matrix_data1 = (float *)user_malloc(sizeof_float * kf->xhatSize * kf->xhatSize);
+ 764              		.loc 1 247 26 discriminator 1 view .LVU254
+ 765 0338 C4F82401 		str	r0, [r4, #292]
+ 248:modules/algorithm/kalman_filter.c ****     kf->temp_vector_data = (float *)user_malloc(sizeof_float * kf->xhatSize);
+ 766              		.loc 1 248 5 is_stmt 1 view .LVU255
+ 248:modules/algorithm/kalman_filter.c ****     kf->temp_vector_data = (float *)user_malloc(sizeof_float * kf->xhatSize);
+ 767              		.loc 1 248 38 is_stmt 0 view .LVU256
+ 768 033c 2846     		mov	r0, r5
+ 769 033e FFF7FEFF 		bl	malloc
+ 770              	.LVL75:
+ 248:modules/algorithm/kalman_filter.c ****     kf->temp_vector_data = (float *)user_malloc(sizeof_float * kf->xhatSize);
+ 771              		.loc 1 248 27 discriminator 1 view .LVU257
+ 772 0342 C4F82801 		str	r0, [r4, #296]
+ 249:modules/algorithm/kalman_filter.c ****     kf->temp_vector_data1 = (float *)user_malloc(sizeof_float * kf->xhatSize);
+ 773              		.loc 1 249 5 is_stmt 1 view .LVU258
+ 249:modules/algorithm/kalman_filter.c ****     kf->temp_vector_data1 = (float *)user_malloc(sizeof_float * kf->xhatSize);
+ 774              		.loc 1 249 37 is_stmt 0 view .LVU259
+ 775 0346 3046     		mov	r0, r6
+ 776 0348 FFF7FEFF 		bl	malloc
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 26
+
+
+ 777              	.LVL76:
+ 249:modules/algorithm/kalman_filter.c ****     kf->temp_vector_data1 = (float *)user_malloc(sizeof_float * kf->xhatSize);
+ 778              		.loc 1 249 26 discriminator 1 view .LVU260
+ 779 034c C4F82C01 		str	r0, [r4, #300]
+ 250:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->S, kf->xhatSize, kf->xhatSize, (float *)kf->S_data);
+ 780              		.loc 1 250 5 is_stmt 1 view .LVU261
+ 250:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->S, kf->xhatSize, kf->xhatSize, (float *)kf->S_data);
+ 781              		.loc 1 250 38 is_stmt 0 view .LVU262
+ 782 0350 3046     		mov	r0, r6
+ 783 0352 FFF7FEFF 		bl	malloc
+ 784              	.LVL77:
+ 250:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->S, kf->xhatSize, kf->xhatSize, (float *)kf->S_data);
+ 785              		.loc 1 250 27 discriminator 1 view .LVU263
+ 786 0356 C4F83001 		str	r0, [r4, #304]
+ 251:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->temp_matrix, kf->xhatSize, kf->xhatSize, (float *)kf->temp_matrix_data);
+ 787              		.loc 1 251 5 is_stmt 1 view .LVU264
+ 788 035a 3B46     		mov	r3, r7
+ 789 035c 4246     		mov	r2, r8
+ 790 035e 4146     		mov	r1, r8
+ 791 0360 04F1A000 		add	r0, r4, #160
+ 792 0364 FFF7FEFF 		bl	arm_mat_init_f32
+ 793              	.LVL78:
+ 252:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->temp_matrix1, kf->xhatSize, kf->xhatSize, (float *)kf->temp_matrix_data1);
+ 794              		.loc 1 252 5 view .LVU265
+ 252:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->temp_matrix1, kf->xhatSize, kf->xhatSize, (float *)kf->temp_matrix_data1);
+ 795              		.loc 1 252 37 is_stmt 0 view .LVU266
+ 796 0368 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 252:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->temp_matrix1, kf->xhatSize, kf->xhatSize, (float *)kf->temp_matrix_data1);
+ 797              		.loc 1 252 5 view .LVU267
+ 798 036a D4F82431 		ldr	r3, [r4, #292]
+ 799 036e 0A46     		mov	r2, r1
+ 800 0370 04F1A800 		add	r0, r4, #168
+ 801 0374 FFF7FEFF 		bl	arm_mat_init_f32
+ 802              	.LVL79:
+ 253:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->temp_vector, kf->xhatSize, 1, (float *)kf->temp_vector_data);
+ 803              		.loc 1 253 5 is_stmt 1 view .LVU268
+ 253:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->temp_vector, kf->xhatSize, 1, (float *)kf->temp_vector_data);
+ 804              		.loc 1 253 38 is_stmt 0 view .LVU269
+ 805 0378 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 253:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->temp_vector, kf->xhatSize, 1, (float *)kf->temp_vector_data);
+ 806              		.loc 1 253 5 view .LVU270
+ 807 037a D4F82831 		ldr	r3, [r4, #296]
+ 808 037e 0A46     		mov	r2, r1
+ 809 0380 04F1B000 		add	r0, r4, #176
+ 810 0384 FFF7FEFF 		bl	arm_mat_init_f32
+ 811              	.LVL80:
+ 254:modules/algorithm/kalman_filter.c ****     Matrix_Init(&kf->temp_vector1, kf->xhatSize, 1, (float *)kf->temp_vector_data1);
+ 812              		.loc 1 254 5 is_stmt 1 view .LVU271
+ 813 0388 D4F82C31 		ldr	r3, [r4, #300]
+ 814 038c 0122     		movs	r2, #1
+ 815 038e 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 816 0390 04F1B800 		add	r0, r4, #184
+ 817 0394 FFF7FEFF 		bl	arm_mat_init_f32
+ 818              	.LVL81:
+ 255:modules/algorithm/kalman_filter.c **** 
+ 819              		.loc 1 255 5 view .LVU272
+ 820 0398 D4F83031 		ldr	r3, [r4, #304]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 27
+
+
+ 821 039c 0122     		movs	r2, #1
+ 822 039e 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 823 03a0 04F1C000 		add	r0, r4, #192
+ 824 03a4 FFF7FEFF 		bl	arm_mat_init_f32
+ 825              	.LVL82:
+ 257:modules/algorithm/kalman_filter.c ****     kf->SkipEq2 = 0;
+ 826              		.loc 1 257 5 view .LVU273
+ 257:modules/algorithm/kalman_filter.c ****     kf->SkipEq2 = 0;
+ 827              		.loc 1 257 17 is_stmt 0 view .LVU274
+ 828 03a8 0023     		movs	r3, #0
+ 829 03aa 84F82830 		strb	r3, [r4, #40]
+ 258:modules/algorithm/kalman_filter.c ****     kf->SkipEq3 = 0;
+ 830              		.loc 1 258 5 is_stmt 1 view .LVU275
+ 258:modules/algorithm/kalman_filter.c ****     kf->SkipEq3 = 0;
+ 831              		.loc 1 258 17 is_stmt 0 view .LVU276
+ 832 03ae 84F82930 		strb	r3, [r4, #41]
+ 259:modules/algorithm/kalman_filter.c ****     kf->SkipEq4 = 0;
+ 833              		.loc 1 259 5 is_stmt 1 view .LVU277
+ 259:modules/algorithm/kalman_filter.c ****     kf->SkipEq4 = 0;
+ 834              		.loc 1 259 17 is_stmt 0 view .LVU278
+ 835 03b2 84F82A30 		strb	r3, [r4, #42]
+ 260:modules/algorithm/kalman_filter.c ****     kf->SkipEq5 = 0;
+ 836              		.loc 1 260 5 is_stmt 1 view .LVU279
+ 260:modules/algorithm/kalman_filter.c ****     kf->SkipEq5 = 0;
+ 837              		.loc 1 260 17 is_stmt 0 view .LVU280
+ 838 03b6 84F82B30 		strb	r3, [r4, #43]
+ 261:modules/algorithm/kalman_filter.c **** }
+ 839              		.loc 1 261 5 is_stmt 1 view .LVU281
+ 261:modules/algorithm/kalman_filter.c **** }
+ 840              		.loc 1 261 17 is_stmt 0 view .LVU282
+ 841 03ba 84F82C30 		strb	r3, [r4, #44]
+ 262:modules/algorithm/kalman_filter.c **** 
+ 842              		.loc 1 262 1 view .LVU283
+ 843 03be BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 844              	.LVL83:
+ 845              	.L18:
+ 262:modules/algorithm/kalman_filter.c **** 
+ 846              		.loc 1 262 1 view .LVU284
+ 847 03c2 00BF     		.align	2
+ 848              	.L17:
+ 849 03c4 00000000 		.word	sizeof_double
+ 850 03c8 00000000 		.word	sizeof_float
+ 851              	.LVL84:
+ 852              	.L15:
+ 187:modules/algorithm/kalman_filter.c ****         memset(kf->u_data, 0, sizeof_float * uSize);
+ 853              		.loc 1 187 9 is_stmt 1 view .LVU285
+ 187:modules/algorithm/kalman_filter.c ****         memset(kf->u_data, 0, sizeof_float * uSize);
+ 854              		.loc 1 187 56 is_stmt 0 view .LVU286
+ 855 03cc 164B     		ldr	r3, .L19
+ 856 03ce 1F88     		ldrh	r7, [r3]
+ 857 03d0 09FB07F7 		mul	r7, r9, r7
+ 187:modules/algorithm/kalman_filter.c ****         memset(kf->u_data, 0, sizeof_float * uSize);
+ 858              		.loc 1 187 31 view .LVU287
+ 859 03d4 3846     		mov	r0, r7
+ 860 03d6 FFF7FEFF 		bl	malloc
+ 861              	.LVL85:
+ 187:modules/algorithm/kalman_filter.c ****         memset(kf->u_data, 0, sizeof_float * uSize);
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 28
+
+
+ 862              		.loc 1 187 20 discriminator 1 view .LVU288
+ 863 03da C4F8F000 		str	r0, [r4, #240]
+ 188:modules/algorithm/kalman_filter.c ****         Matrix_Init(&kf->u, kf->uSize, 1, (float *)kf->u_data);
+ 864              		.loc 1 188 9 is_stmt 1 view .LVU289
+ 865 03de 3A46     		mov	r2, r7
+ 866 03e0 0021     		movs	r1, #0
+ 867 03e2 FFF7FEFF 		bl	memset
+ 868              	.LVL86:
+ 189:modules/algorithm/kalman_filter.c ****     }
+ 869              		.loc 1 189 9 view .LVU290
+ 870 03e6 D4F8F030 		ldr	r3, [r4, #240]
+ 871 03ea 0122     		movs	r2, #1
+ 872 03ec 617B     		ldrb	r1, [r4, #13]	@ zero_extendqisi2
+ 873 03ee 04F14000 		add	r0, r4, #64
+ 874 03f2 FFF7FEFF 		bl	arm_mat_init_f32
+ 875              	.LVL87:
+ 876 03f6 9DE6     		b	.L12
+ 877              	.L16:
+ 218:modules/algorithm/kalman_filter.c ****         memset(kf->B_data, 0, sizeof_float * xhatSize * uSize);
+ 878              		.loc 1 218 9 view .LVU291
+ 218:modules/algorithm/kalman_filter.c ****         memset(kf->B_data, 0, sizeof_float * xhatSize * uSize);
+ 879              		.loc 1 218 56 is_stmt 0 view .LVU292
+ 880 03f8 B8F80030 		ldrh	r3, [r8]
+ 881 03fc 05FB03F3 		mul	r3, r5, r3
+ 218:modules/algorithm/kalman_filter.c ****         memset(kf->B_data, 0, sizeof_float * xhatSize * uSize);
+ 882              		.loc 1 218 67 view .LVU293
+ 883 0400 03FB09F9 		mul	r9, r3, r9
+ 218:modules/algorithm/kalman_filter.c ****         memset(kf->B_data, 0, sizeof_float * xhatSize * uSize);
+ 884              		.loc 1 218 31 view .LVU294
+ 885 0404 4846     		mov	r0, r9
+ 886 0406 FFF7FEFF 		bl	malloc
+ 887              	.LVL88:
+ 218:modules/algorithm/kalman_filter.c ****         memset(kf->B_data, 0, sizeof_float * xhatSize * uSize);
+ 888              		.loc 1 218 20 discriminator 1 view .LVU295
+ 889 040a C4F80801 		str	r0, [r4, #264]
+ 219:modules/algorithm/kalman_filter.c ****         Matrix_Init(&kf->B, kf->xhatSize, kf->uSize, (float *)kf->B_data);
+ 890              		.loc 1 219 9 is_stmt 1 view .LVU296
+ 891 040e 4A46     		mov	r2, r9
+ 892 0410 0021     		movs	r1, #0
+ 893 0412 FFF7FEFF 		bl	memset
+ 894              	.LVL89:
+ 220:modules/algorithm/kalman_filter.c ****     }
+ 895              		.loc 1 220 9 view .LVU297
+ 896 0416 D4F80831 		ldr	r3, [r4, #264]
+ 897 041a 627B     		ldrb	r2, [r4, #13]	@ zero_extendqisi2
+ 898 041c 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 899 041e 04F17000 		add	r0, r4, #112
+ 900 0422 FFF7FEFF 		bl	arm_mat_init_f32
+ 901              	.LVL90:
+ 902 0426 FFE6     		b	.L13
+ 903              	.L20:
+ 904              		.align	2
+ 905              	.L19:
+ 906 0428 00000000 		.word	sizeof_float
+ 907              		.cfi_endproc
+ 908              	.LFE163:
+ 910              		.section	.text.Kalman_Filter_Measure,"ax",%progbits
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 29
+
+
+ 911              		.align	1
+ 912              		.global	Kalman_Filter_Measure
+ 913              		.syntax unified
+ 914              		.thumb
+ 915              		.thumb_func
+ 917              	Kalman_Filter_Measure:
+ 918              	.LVL91:
+ 919              	.LFB164:
+ 265:modules/algorithm/kalman_filter.c ****     // 矩阵H K R根据量测情况自动调整
+ 920              		.loc 1 265 1 view -0
+ 921              		.cfi_startproc
+ 922              		@ args = 0, pretend = 0, frame = 0
+ 923              		@ frame_needed = 0, uses_anonymous_args = 0
+ 265:modules/algorithm/kalman_filter.c ****     // 矩阵H K R根据量测情况自动调整
+ 924              		.loc 1 265 1 is_stmt 0 view .LVU299
+ 925 0000 38B5     		push	{r3, r4, r5, lr}
+ 926              	.LCFI2:
+ 927              		.cfi_def_cfa_offset 16
+ 928              		.cfi_offset 3, -16
+ 929              		.cfi_offset 4, -12
+ 930              		.cfi_offset 5, -8
+ 931              		.cfi_offset 14, -4
+ 932 0002 0446     		mov	r4, r0
+ 268:modules/algorithm/kalman_filter.c ****         H_K_R_Adjustment(kf);
+ 933              		.loc 1 268 5 is_stmt 1 view .LVU300
+ 268:modules/algorithm/kalman_filter.c ****         H_K_R_Adjustment(kf);
+ 934              		.loc 1 268 11 is_stmt 0 view .LVU301
+ 935 0004 C37B     		ldrb	r3, [r0, #15]	@ zero_extendqisi2
+ 268:modules/algorithm/kalman_filter.c ****         H_K_R_Adjustment(kf);
+ 936              		.loc 1 268 8 view .LVU302
+ 937 0006 63B1     		cbz	r3, .L22
+ 269:modules/algorithm/kalman_filter.c ****     else
+ 938              		.loc 1 269 9 is_stmt 1 view .LVU303
+ 939 0008 FFF7FEFF 		bl	H_K_R_Adjustment
+ 940              	.LVL92:
+ 941              	.L23:
+ 276:modules/algorithm/kalman_filter.c **** }
+ 942              		.loc 1 276 5 view .LVU304
+ 276:modules/algorithm/kalman_filter.c **** }
+ 943              		.loc 1 276 60 is_stmt 0 view .LVU305
+ 944 000c 627B     		ldrb	r2, [r4, #13]	@ zero_extendqisi2
+ 276:modules/algorithm/kalman_filter.c **** }
+ 945              		.loc 1 276 56 view .LVU306
+ 946 000e 0E4B     		ldr	r3, .L25
+ 947 0010 1B88     		ldrh	r3, [r3]
+ 276:modules/algorithm/kalman_filter.c **** }
+ 948              		.loc 1 276 5 view .LVU307
+ 949 0012 03FB02F2 		mul	r2, r3, r2
+ 950 0016 A168     		ldr	r1, [r4, #8]
+ 951 0018 D4F8F000 		ldr	r0, [r4, #240]
+ 952 001c FFF7FEFF 		bl	memcpy
+ 953              	.LVL93:
+ 277:modules/algorithm/kalman_filter.c **** 
+ 954              		.loc 1 277 1 view .LVU308
+ 955 0020 38BD     		pop	{r3, r4, r5, pc}
+ 956              	.LVL94:
+ 957              	.L22:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 30
+
+
+ 272:modules/algorithm/kalman_filter.c ****         memset(kf->MeasuredVector, 0, sizeof_float * kf->zSize);
+ 958              		.loc 1 272 9 is_stmt 1 view .LVU309
+ 272:modules/algorithm/kalman_filter.c ****         memset(kf->MeasuredVector, 0, sizeof_float * kf->zSize);
+ 959              		.loc 1 272 65 is_stmt 0 view .LVU310
+ 960 0022 827B     		ldrb	r2, [r0, #14]	@ zero_extendqisi2
+ 272:modules/algorithm/kalman_filter.c ****         memset(kf->MeasuredVector, 0, sizeof_float * kf->zSize);
+ 961              		.loc 1 272 61 view .LVU311
+ 962 0024 084D     		ldr	r5, .L25
+ 963 0026 2B88     		ldrh	r3, [r5]
+ 272:modules/algorithm/kalman_filter.c ****         memset(kf->MeasuredVector, 0, sizeof_float * kf->zSize);
+ 964              		.loc 1 272 9 view .LVU312
+ 965 0028 03FB02F2 		mul	r2, r3, r2
+ 966 002c 4168     		ldr	r1, [r0, #4]
+ 967 002e D0F8F400 		ldr	r0, [r0, #244]
+ 968              	.LVL95:
+ 272:modules/algorithm/kalman_filter.c ****         memset(kf->MeasuredVector, 0, sizeof_float * kf->zSize);
+ 969              		.loc 1 272 9 view .LVU313
+ 970 0032 FFF7FEFF 		bl	memcpy
+ 971              	.LVL96:
+ 273:modules/algorithm/kalman_filter.c ****     }
+ 972              		.loc 1 273 9 is_stmt 1 view .LVU314
+ 273:modules/algorithm/kalman_filter.c ****     }
+ 973              		.loc 1 273 56 is_stmt 0 view .LVU315
+ 974 0036 A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+ 273:modules/algorithm/kalman_filter.c ****     }
+ 975              		.loc 1 273 52 view .LVU316
+ 976 0038 2B88     		ldrh	r3, [r5]
+ 273:modules/algorithm/kalman_filter.c ****     }
+ 977              		.loc 1 273 9 view .LVU317
+ 978 003a 03FB02F2 		mul	r2, r3, r2
+ 979 003e 0021     		movs	r1, #0
+ 980 0040 6068     		ldr	r0, [r4, #4]
+ 981 0042 FFF7FEFF 		bl	memset
+ 982              	.LVL97:
+ 983 0046 E1E7     		b	.L23
+ 984              	.L26:
+ 985              		.align	2
+ 986              	.L25:
+ 987 0048 00000000 		.word	sizeof_float
+ 988              		.cfi_endproc
+ 989              	.LFE164:
+ 991              		.section	.text.Kalman_Filter_xhatMinusUpdate,"ax",%progbits
+ 992              		.align	1
+ 993              		.global	Kalman_Filter_xhatMinusUpdate
+ 994              		.syntax unified
+ 995              		.thumb
+ 996              		.thumb_func
+ 998              	Kalman_Filter_xhatMinusUpdate:
+ 999              	.LVL98:
+ 1000              	.LFB165:
+ 280:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq1)
+ 1001              		.loc 1 280 1 is_stmt 1 view -0
+ 1002              		.cfi_startproc
+ 1003              		@ args = 0, pretend = 0, frame = 0
+ 1004              		@ frame_needed = 0, uses_anonymous_args = 0
+ 281:modules/algorithm/kalman_filter.c ****     {
+ 1005              		.loc 1 281 5 view .LVU319
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 31
+
+
+ 281:modules/algorithm/kalman_filter.c ****     {
+ 1006              		.loc 1 281 12 is_stmt 0 view .LVU320
+ 1007 0000 90F82830 		ldrb	r3, [r0, #40]	@ zero_extendqisi2
+ 281:modules/algorithm/kalman_filter.c ****     {
+ 1008              		.loc 1 281 8 view .LVU321
+ 1009 0004 B3BB     		cbnz	r3, .L31
+ 280:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq1)
+ 1010              		.loc 1 280 1 view .LVU322
+ 1011 0006 70B5     		push	{r4, r5, r6, lr}
+ 1012              	.LCFI3:
+ 1013              		.cfi_def_cfa_offset 16
+ 1014              		.cfi_offset 4, -16
+ 1015              		.cfi_offset 5, -12
+ 1016              		.cfi_offset 6, -8
+ 1017              		.cfi_offset 14, -4
+ 1018 0008 0446     		mov	r4, r0
+ 283:modules/algorithm/kalman_filter.c ****         {
+ 1019              		.loc 1 283 9 is_stmt 1 view .LVU323
+ 283:modules/algorithm/kalman_filter.c ****         {
+ 1020              		.loc 1 283 15 is_stmt 0 view .LVU324
+ 1021 000a 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 283:modules/algorithm/kalman_filter.c ****         {
+ 1022              		.loc 1 283 12 view .LVU325
+ 1023 000c 43B3     		cbz	r3, .L29
+ 285:modules/algorithm/kalman_filter.c ****             kf->temp_vector.numCols = 1;
+ 1024              		.loc 1 285 13 is_stmt 1 view .LVU326
+ 285:modules/algorithm/kalman_filter.c ****             kf->temp_vector.numCols = 1;
+ 1025              		.loc 1 285 41 is_stmt 0 view .LVU327
+ 1026 000e 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 285:modules/algorithm/kalman_filter.c ****             kf->temp_vector.numCols = 1;
+ 1027              		.loc 1 285 37 view .LVU328
+ 1028 0010 A0F8B830 		strh	r3, [r0, #184]	@ movhi
+ 286:modules/algorithm/kalman_filter.c ****             kf->MatStatus = Matrix_Multiply(&kf->F, &kf->xhat, &kf->temp_vector);
+ 1029              		.loc 1 286 13 is_stmt 1 view .LVU329
+ 286:modules/algorithm/kalman_filter.c ****             kf->MatStatus = Matrix_Multiply(&kf->F, &kf->xhat, &kf->temp_vector);
+ 1030              		.loc 1 286 37 is_stmt 0 view .LVU330
+ 1031 0014 0126     		movs	r6, #1
+ 1032 0016 A0F8BA60 		strh	r6, [r0, #186]	@ movhi
+ 287:modules/algorithm/kalman_filter.c ****             kf->temp_vector1.numRows = kf->xhatSize;
+ 1033              		.loc 1 287 13 is_stmt 1 view .LVU331
+ 287:modules/algorithm/kalman_filter.c ****             kf->temp_vector1.numRows = kf->xhatSize;
+ 1034              		.loc 1 287 29 is_stmt 0 view .LVU332
+ 1035 001a 00F1B805 		add	r5, r0, #184
+ 1036 001e 2A46     		mov	r2, r5
+ 1037 0020 00F13001 		add	r1, r0, #48
+ 1038 0024 6030     		adds	r0, r0, #96
+ 1039              	.LVL99:
+ 287:modules/algorithm/kalman_filter.c ****             kf->temp_vector1.numRows = kf->xhatSize;
+ 1040              		.loc 1 287 29 view .LVU333
+ 1041 0026 FFF7FEFF 		bl	arm_mat_mult_f32
+ 1042              	.LVL100:
+ 287:modules/algorithm/kalman_filter.c ****             kf->temp_vector1.numRows = kf->xhatSize;
+ 1043              		.loc 1 287 27 discriminator 1 view .LVU334
+ 1044 002a 84F8C800 		strb	r0, [r4, #200]
+ 288:modules/algorithm/kalman_filter.c ****             kf->temp_vector1.numCols = 1;
+ 1045              		.loc 1 288 13 is_stmt 1 view .LVU335
+ 288:modules/algorithm/kalman_filter.c ****             kf->temp_vector1.numCols = 1;
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 32
+
+
+ 1046              		.loc 1 288 42 is_stmt 0 view .LVU336
+ 1047 002e 237B     		ldrb	r3, [r4, #12]	@ zero_extendqisi2
+ 288:modules/algorithm/kalman_filter.c ****             kf->temp_vector1.numCols = 1;
+ 1048              		.loc 1 288 38 view .LVU337
+ 1049 0030 A4F8C030 		strh	r3, [r4, #192]	@ movhi
+ 289:modules/algorithm/kalman_filter.c ****             kf->MatStatus = Matrix_Multiply(&kf->B, &kf->u, &kf->temp_vector1);
+ 1050              		.loc 1 289 13 is_stmt 1 view .LVU338
+ 289:modules/algorithm/kalman_filter.c ****             kf->MatStatus = Matrix_Multiply(&kf->B, &kf->u, &kf->temp_vector1);
+ 1051              		.loc 1 289 38 is_stmt 0 view .LVU339
+ 1052 0034 A4F8C260 		strh	r6, [r4, #194]	@ movhi
+ 290:modules/algorithm/kalman_filter.c ****             kf->MatStatus = Matrix_Add(&kf->temp_vector, &kf->temp_vector1, &kf->xhatminus);
+ 1053              		.loc 1 290 13 is_stmt 1 view .LVU340
+ 290:modules/algorithm/kalman_filter.c ****             kf->MatStatus = Matrix_Add(&kf->temp_vector, &kf->temp_vector1, &kf->xhatminus);
+ 1054              		.loc 1 290 29 is_stmt 0 view .LVU341
+ 1055 0038 04F1C006 		add	r6, r4, #192
+ 1056 003c 3246     		mov	r2, r6
+ 1057 003e 04F14001 		add	r1, r4, #64
+ 1058 0042 04F17000 		add	r0, r4, #112
+ 1059 0046 FFF7FEFF 		bl	arm_mat_mult_f32
+ 1060              	.LVL101:
+ 290:modules/algorithm/kalman_filter.c ****             kf->MatStatus = Matrix_Add(&kf->temp_vector, &kf->temp_vector1, &kf->xhatminus);
+ 1061              		.loc 1 290 27 discriminator 1 view .LVU342
+ 1062 004a 84F8C800 		strb	r0, [r4, #200]
+ 291:modules/algorithm/kalman_filter.c ****         }
+ 1063              		.loc 1 291 13 is_stmt 1 view .LVU343
+ 291:modules/algorithm/kalman_filter.c ****         }
+ 1064              		.loc 1 291 29 is_stmt 0 view .LVU344
+ 1065 004e 04F13802 		add	r2, r4, #56
+ 1066 0052 3146     		mov	r1, r6
+ 1067 0054 2846     		mov	r0, r5
+ 1068 0056 FFF7FEFF 		bl	arm_mat_add_f32
+ 1069              	.LVL102:
+ 291:modules/algorithm/kalman_filter.c ****         }
+ 1070              		.loc 1 291 27 discriminator 1 view .LVU345
+ 1071 005a 84F8C800 		strb	r0, [r4, #200]
+ 1072              	.L27:
+ 298:modules/algorithm/kalman_filter.c **** 
+ 1073              		.loc 1 298 1 view .LVU346
+ 1074 005e 70BD     		pop	{r4, r5, r6, pc}
+ 1075              	.LVL103:
+ 1076              	.L29:
+ 295:modules/algorithm/kalman_filter.c ****         }
+ 1077              		.loc 1 295 13 is_stmt 1 view .LVU347
+ 295:modules/algorithm/kalman_filter.c ****         }
+ 1078              		.loc 1 295 29 is_stmt 0 view .LVU348
+ 1079 0060 00F13802 		add	r2, r0, #56
+ 1080 0064 00F13001 		add	r1, r0, #48
+ 1081 0068 6030     		adds	r0, r0, #96
+ 1082              	.LVL104:
+ 295:modules/algorithm/kalman_filter.c ****         }
+ 1083              		.loc 1 295 29 view .LVU349
+ 1084 006a FFF7FEFF 		bl	arm_mat_mult_f32
+ 1085              	.LVL105:
+ 295:modules/algorithm/kalman_filter.c ****         }
+ 1086              		.loc 1 295 27 discriminator 1 view .LVU350
+ 1087 006e 84F8C800 		strb	r0, [r4, #200]
+ 298:modules/algorithm/kalman_filter.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 33
+
+
+ 1088              		.loc 1 298 1 view .LVU351
+ 1089 0072 F4E7     		b	.L27
+ 1090              	.LVL106:
+ 1091              	.L31:
+ 1092              	.LCFI4:
+ 1093              		.cfi_def_cfa_offset 0
+ 1094              		.cfi_restore 4
+ 1095              		.cfi_restore 5
+ 1096              		.cfi_restore 6
+ 1097              		.cfi_restore 14
+ 298:modules/algorithm/kalman_filter.c **** 
+ 1098              		.loc 1 298 1 view .LVU352
+ 1099 0074 7047     		bx	lr
+ 1100              		.cfi_endproc
+ 1101              	.LFE165:
+ 1103              		.section	.text.Kalman_Filter_PminusUpdate,"ax",%progbits
+ 1104              		.align	1
+ 1105              		.global	Kalman_Filter_PminusUpdate
+ 1106              		.syntax unified
+ 1107              		.thumb
+ 1108              		.thumb_func
+ 1110              	Kalman_Filter_PminusUpdate:
+ 1111              	.LVL107:
+ 1112              	.LFB166:
+ 301:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq2)
+ 1113              		.loc 1 301 1 is_stmt 1 view -0
+ 1114              		.cfi_startproc
+ 1115              		@ args = 0, pretend = 0, frame = 0
+ 1116              		@ frame_needed = 0, uses_anonymous_args = 0
+ 301:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq2)
+ 1117              		.loc 1 301 1 is_stmt 0 view .LVU354
+ 1118 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 1119              	.LCFI5:
+ 1120              		.cfi_def_cfa_offset 24
+ 1121              		.cfi_offset 3, -24
+ 1122              		.cfi_offset 4, -20
+ 1123              		.cfi_offset 5, -16
+ 1124              		.cfi_offset 6, -12
+ 1125              		.cfi_offset 7, -8
+ 1126              		.cfi_offset 14, -4
+ 302:modules/algorithm/kalman_filter.c ****     {
+ 1127              		.loc 1 302 5 is_stmt 1 view .LVU355
+ 302:modules/algorithm/kalman_filter.c ****     {
+ 1128              		.loc 1 302 12 is_stmt 0 view .LVU356
+ 1129 0002 90F82930 		ldrb	r3, [r0, #41]	@ zero_extendqisi2
+ 302:modules/algorithm/kalman_filter.c ****     {
+ 1130              		.loc 1 302 8 view .LVU357
+ 1131 0006 03B1     		cbz	r3, .L37
+ 1132              	.LVL108:
+ 1133              	.L34:
+ 311:modules/algorithm/kalman_filter.c **** void Kalman_Filter_SetK(KalmanFilter_t *kf)
+ 1134              		.loc 1 311 1 view .LVU358
+ 1135 0008 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 1136              	.LVL109:
+ 1137              	.L37:
+ 311:modules/algorithm/kalman_filter.c **** void Kalman_Filter_SetK(KalmanFilter_t *kf)
+ 1138              		.loc 1 311 1 view .LVU359
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 34
+
+
+ 1139 000a 0446     		mov	r4, r0
+ 304:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->F, &kf->P, &kf->Pminus);
+ 1140              		.loc 1 304 9 is_stmt 1 view .LVU360
+ 304:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->F, &kf->P, &kf->Pminus);
+ 1141              		.loc 1 304 42 is_stmt 0 view .LVU361
+ 1142 000c 00F16006 		add	r6, r0, #96
+ 304:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->F, &kf->P, &kf->Pminus);
+ 1143              		.loc 1 304 25 view .LVU362
+ 1144 0010 00F16807 		add	r7, r0, #104
+ 1145 0014 3946     		mov	r1, r7
+ 1146 0016 3046     		mov	r0, r6
+ 1147              	.LVL110:
+ 304:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->F, &kf->P, &kf->Pminus);
+ 1148              		.loc 1 304 25 view .LVU363
+ 1149 0018 FFF7FEFF 		bl	arm_mat_trans_f32
+ 1150              	.LVL111:
+ 304:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->F, &kf->P, &kf->Pminus);
+ 1151              		.loc 1 304 23 discriminator 1 view .LVU364
+ 1152 001c 84F8C800 		strb	r0, [r4, #200]
+ 305:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->Pminus.numRows;
+ 1153              		.loc 1 305 9 is_stmt 1 view .LVU365
+ 305:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->Pminus.numRows;
+ 1154              		.loc 1 305 25 is_stmt 0 view .LVU366
+ 1155 0020 04F15805 		add	r5, r4, #88
+ 1156 0024 2A46     		mov	r2, r5
+ 1157 0026 04F15001 		add	r1, r4, #80
+ 1158 002a 3046     		mov	r0, r6
+ 1159 002c FFF7FEFF 		bl	arm_mat_mult_f32
+ 1160              	.LVL112:
+ 305:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->Pminus.numRows;
+ 1161              		.loc 1 305 23 discriminator 1 view .LVU367
+ 1162 0030 84F8C800 		strb	r0, [r4, #200]
+ 306:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->FT.numCols;
+ 1163              		.loc 1 306 9 is_stmt 1 view .LVU368
+ 306:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->FT.numCols;
+ 1164              		.loc 1 306 45 is_stmt 0 view .LVU369
+ 1165 0034 B4F85830 		ldrh	r3, [r4, #88]
+ 306:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->FT.numCols;
+ 1166              		.loc 1 306 33 view .LVU370
+ 1167 0038 A4F8A830 		strh	r3, [r4, #168]	@ movhi
+ 307:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->Pminus, &kf->FT, &kf->temp_matrix); // temp_matrix = F
+ 1168              		.loc 1 307 9 is_stmt 1 view .LVU371
+ 307:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->Pminus, &kf->FT, &kf->temp_matrix); // temp_matrix = F
+ 1169              		.loc 1 307 41 is_stmt 0 view .LVU372
+ 1170 003c B4F86A30 		ldrh	r3, [r4, #106]
+ 307:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->Pminus, &kf->FT, &kf->temp_matrix); // temp_matrix = F
+ 1171              		.loc 1 307 33 view .LVU373
+ 1172 0040 A4F8AA30 		strh	r3, [r4, #170]	@ movhi
+ 308:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Add(&kf->temp_matrix, &kf->Q, &kf->Pminus);
+ 1173              		.loc 1 308 9 is_stmt 1 view .LVU374
+ 308:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Add(&kf->temp_matrix, &kf->Q, &kf->Pminus);
+ 1174              		.loc 1 308 25 is_stmt 0 view .LVU375
+ 1175 0044 04F1A806 		add	r6, r4, #168
+ 1176 0048 3246     		mov	r2, r6
+ 1177 004a 3946     		mov	r1, r7
+ 1178 004c 2846     		mov	r0, r5
+ 1179 004e FFF7FEFF 		bl	arm_mat_mult_f32
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 35
+
+
+ 1180              	.LVL113:
+ 308:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Add(&kf->temp_matrix, &kf->Q, &kf->Pminus);
+ 1181              		.loc 1 308 23 discriminator 1 view .LVU376
+ 1182 0052 84F8C800 		strb	r0, [r4, #200]
+ 309:modules/algorithm/kalman_filter.c ****     }
+ 1183              		.loc 1 309 9 is_stmt 1 view .LVU377
+ 309:modules/algorithm/kalman_filter.c ****     }
+ 1184              		.loc 1 309 25 is_stmt 0 view .LVU378
+ 1185 0056 2A46     		mov	r2, r5
+ 1186 0058 04F18801 		add	r1, r4, #136
+ 1187 005c 3046     		mov	r0, r6
+ 1188 005e FFF7FEFF 		bl	arm_mat_add_f32
+ 1189              	.LVL114:
+ 309:modules/algorithm/kalman_filter.c ****     }
+ 1190              		.loc 1 309 23 discriminator 1 view .LVU379
+ 1191 0062 84F8C800 		strb	r0, [r4, #200]
+ 311:modules/algorithm/kalman_filter.c **** void Kalman_Filter_SetK(KalmanFilter_t *kf)
+ 1192              		.loc 1 311 1 view .LVU380
+ 1193 0066 CFE7     		b	.L34
+ 1194              		.cfi_endproc
+ 1195              	.LFE166:
+ 1197              		.section	.text.Kalman_Filter_SetK,"ax",%progbits
+ 1198              		.align	1
+ 1199              		.global	Kalman_Filter_SetK
+ 1200              		.syntax unified
+ 1201              		.thumb
+ 1202              		.thumb_func
+ 1204              	Kalman_Filter_SetK:
+ 1205              	.LVL115:
+ 1206              	.LFB167:
+ 313:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq3)
+ 1207              		.loc 1 313 1 is_stmt 1 view -0
+ 1208              		.cfi_startproc
+ 1209              		@ args = 0, pretend = 0, frame = 0
+ 1210              		@ frame_needed = 0, uses_anonymous_args = 0
+ 313:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq3)
+ 1211              		.loc 1 313 1 is_stmt 0 view .LVU382
+ 1212 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+ 1213              	.LCFI6:
+ 1214              		.cfi_def_cfa_offset 32
+ 1215              		.cfi_offset 3, -32
+ 1216              		.cfi_offset 4, -28
+ 1217              		.cfi_offset 5, -24
+ 1218              		.cfi_offset 6, -20
+ 1219              		.cfi_offset 7, -16
+ 1220              		.cfi_offset 8, -12
+ 1221              		.cfi_offset 9, -8
+ 1222              		.cfi_offset 14, -4
+ 314:modules/algorithm/kalman_filter.c ****     {
+ 1223              		.loc 1 314 5 is_stmt 1 view .LVU383
+ 314:modules/algorithm/kalman_filter.c ****     {
+ 1224              		.loc 1 314 12 is_stmt 0 view .LVU384
+ 1225 0004 90F82A30 		ldrb	r3, [r0, #42]	@ zero_extendqisi2
+ 314:modules/algorithm/kalman_filter.c ****     {
+ 1226              		.loc 1 314 8 view .LVU385
+ 1227 0008 0BB1     		cbz	r3, .L41
+ 1228              	.LVL116:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 36
+
+
+ 1229              	.L38:
+ 332:modules/algorithm/kalman_filter.c **** void Kalman_Filter_xhatUpdate(KalmanFilter_t *kf)
+ 1230              		.loc 1 332 1 view .LVU386
+ 1231 000a BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 1232              	.LVL117:
+ 1233              	.L41:
+ 332:modules/algorithm/kalman_filter.c **** void Kalman_Filter_xhatUpdate(KalmanFilter_t *kf)
+ 1234              		.loc 1 332 1 view .LVU387
+ 1235 000e 0446     		mov	r4, r0
+ 316:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->H.numRows;
+ 1236              		.loc 1 316 9 is_stmt 1 view .LVU388
+ 316:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->H.numRows;
+ 1237              		.loc 1 316 42 is_stmt 0 view .LVU389
+ 1238 0010 00F17806 		add	r6, r0, #120
+ 316:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->H.numRows;
+ 1239              		.loc 1 316 25 view .LVU390
+ 1240 0014 00F18007 		add	r7, r0, #128
+ 1241 0018 3946     		mov	r1, r7
+ 1242 001a 3046     		mov	r0, r6
+ 1243              	.LVL118:
+ 316:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->H.numRows;
+ 1244              		.loc 1 316 25 view .LVU391
+ 1245 001c FFF7FEFF 		bl	arm_mat_trans_f32
+ 1246              	.LVL119:
+ 316:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->H.numRows;
+ 1247              		.loc 1 316 23 discriminator 1 view .LVU392
+ 1248 0020 84F8C800 		strb	r0, [r4, #200]
+ 317:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->Pminus.numCols;
+ 1249              		.loc 1 317 9 is_stmt 1 view .LVU393
+ 317:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->Pminus.numCols;
+ 1250              		.loc 1 317 40 is_stmt 0 view .LVU394
+ 1251 0024 B4F87830 		ldrh	r3, [r4, #120]
+ 317:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->Pminus.numCols;
+ 1252              		.loc 1 317 33 view .LVU395
+ 1253 0028 A4F8A830 		strh	r3, [r4, #168]	@ movhi
+ 318:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->H, &kf->Pminus, &kf->temp_matrix); // temp_matrix = H�
+ 1254              		.loc 1 318 9 is_stmt 1 view .LVU396
+ 318:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->H, &kf->Pminus, &kf->temp_matrix); // temp_matrix = H�
+ 1255              		.loc 1 318 45 is_stmt 0 view .LVU397
+ 1256 002c B4F85A30 		ldrh	r3, [r4, #90]
+ 318:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->H, &kf->Pminus, &kf->temp_matrix); // temp_matrix = H�
+ 1257              		.loc 1 318 33 view .LVU398
+ 1258 0030 A4F8AA30 		strh	r3, [r4, #170]	@ movhi
+ 319:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numRows = kf->temp_matrix.numRows;
+ 1259              		.loc 1 319 9 is_stmt 1 view .LVU399
+ 319:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numRows = kf->temp_matrix.numRows;
+ 1260              		.loc 1 319 49 is_stmt 0 view .LVU400
+ 1261 0034 04F15808 		add	r8, r4, #88
+ 319:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numRows = kf->temp_matrix.numRows;
+ 1262              		.loc 1 319 25 view .LVU401
+ 1263 0038 04F1A805 		add	r5, r4, #168
+ 1264 003c 2A46     		mov	r2, r5
+ 1265 003e 4146     		mov	r1, r8
+ 1266 0040 3046     		mov	r0, r6
+ 1267 0042 FFF7FEFF 		bl	arm_mat_mult_f32
+ 1268              	.LVL120:
+ 319:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numRows = kf->temp_matrix.numRows;
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 37
+
+
+ 1269              		.loc 1 319 23 discriminator 1 view .LVU402
+ 1270 0046 84F8C800 		strb	r0, [r4, #200]
+ 320:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numCols = kf->HT.numCols;
+ 1271              		.loc 1 320 9 is_stmt 1 view .LVU403
+ 320:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numCols = kf->HT.numCols;
+ 1272              		.loc 1 320 51 is_stmt 0 view .LVU404
+ 1273 004a B4F8A830 		ldrh	r3, [r4, #168]
+ 320:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numCols = kf->HT.numCols;
+ 1274              		.loc 1 320 34 view .LVU405
+ 1275 004e A4F8B030 		strh	r3, [r4, #176]	@ movhi
+ 321:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->HT, &kf->temp_matrix1); // temp_matr
+ 1276              		.loc 1 321 9 is_stmt 1 view .LVU406
+ 321:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->HT, &kf->temp_matrix1); // temp_matr
+ 1277              		.loc 1 321 42 is_stmt 0 view .LVU407
+ 1278 0052 B4F88230 		ldrh	r3, [r4, #130]
+ 321:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->HT, &kf->temp_matrix1); // temp_matr
+ 1279              		.loc 1 321 34 view .LVU408
+ 1280 0056 A4F8B230 		strh	r3, [r4, #178]	@ movhi
+ 322:modules/algorithm/kalman_filter.c ****         kf->S.numRows = kf->R.numRows;
+ 1281              		.loc 1 322 9 is_stmt 1 view .LVU409
+ 322:modules/algorithm/kalman_filter.c ****         kf->S.numRows = kf->R.numRows;
+ 1282              		.loc 1 322 25 is_stmt 0 view .LVU410
+ 1283 005a 04F1B006 		add	r6, r4, #176
+ 1284 005e 3246     		mov	r2, r6
+ 1285 0060 3946     		mov	r1, r7
+ 1286 0062 2846     		mov	r0, r5
+ 1287 0064 FFF7FEFF 		bl	arm_mat_mult_f32
+ 1288              	.LVL121:
+ 322:modules/algorithm/kalman_filter.c ****         kf->S.numRows = kf->R.numRows;
+ 1289              		.loc 1 322 23 discriminator 1 view .LVU411
+ 1290 0068 84F8C800 		strb	r0, [r4, #200]
+ 323:modules/algorithm/kalman_filter.c ****         kf->S.numCols = kf->R.numCols;
+ 1291              		.loc 1 323 9 is_stmt 1 view .LVU412
+ 323:modules/algorithm/kalman_filter.c ****         kf->S.numCols = kf->R.numCols;
+ 1292              		.loc 1 323 30 is_stmt 0 view .LVU413
+ 1293 006c B4F89030 		ldrh	r3, [r4, #144]
+ 323:modules/algorithm/kalman_filter.c ****         kf->S.numCols = kf->R.numCols;
+ 1294              		.loc 1 323 23 view .LVU414
+ 1295 0070 A4F8A030 		strh	r3, [r4, #160]	@ movhi
+ 324:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Add(&kf->temp_matrix1, &kf->R, &kf->S); // S = H P'(k) HT + R
+ 1296              		.loc 1 324 9 is_stmt 1 view .LVU415
+ 324:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Add(&kf->temp_matrix1, &kf->R, &kf->S); // S = H P'(k) HT + R
+ 1297              		.loc 1 324 30 is_stmt 0 view .LVU416
+ 1298 0074 B4F89230 		ldrh	r3, [r4, #146]
+ 324:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Add(&kf->temp_matrix1, &kf->R, &kf->S); // S = H P'(k) HT + R
+ 1299              		.loc 1 324 23 view .LVU417
+ 1300 0078 A4F8A230 		strh	r3, [r4, #162]	@ movhi
+ 325:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Inverse(&kf->S, &kf->temp_matrix1);     // temp_matrix1 = inv(H·P'(
+ 1301              		.loc 1 325 9 is_stmt 1 view .LVU418
+ 325:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Inverse(&kf->S, &kf->temp_matrix1);     // temp_matrix1 = inv(H·P'(
+ 1302              		.loc 1 325 25 is_stmt 0 view .LVU419
+ 1303 007c 04F1A009 		add	r9, r4, #160
+ 1304 0080 4A46     		mov	r2, r9
+ 1305 0082 04F19001 		add	r1, r4, #144
+ 1306 0086 3046     		mov	r0, r6
+ 1307 0088 FFF7FEFF 		bl	arm_mat_add_f32
+ 1308              	.LVL122:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 38
+
+
+ 325:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Inverse(&kf->S, &kf->temp_matrix1);     // temp_matrix1 = inv(H·P'(
+ 1309              		.loc 1 325 23 discriminator 1 view .LVU420
+ 1310 008c 84F8C800 		strb	r0, [r4, #200]
+ 326:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->Pminus.numRows;
+ 1311              		.loc 1 326 9 is_stmt 1 view .LVU421
+ 326:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->Pminus.numRows;
+ 1312              		.loc 1 326 25 is_stmt 0 view .LVU422
+ 1313 0090 3146     		mov	r1, r6
+ 1314 0092 4846     		mov	r0, r9
+ 1315 0094 FFF7FEFF 		bl	arm_mat_inverse_f32
+ 1316              	.LVL123:
+ 326:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numRows = kf->Pminus.numRows;
+ 1317              		.loc 1 326 23 discriminator 1 view .LVU423
+ 1318 0098 84F8C800 		strb	r0, [r4, #200]
+ 327:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->HT.numCols;
+ 1319              		.loc 1 327 9 is_stmt 1 view .LVU424
+ 327:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->HT.numCols;
+ 1320              		.loc 1 327 45 is_stmt 0 view .LVU425
+ 1321 009c B4F85830 		ldrh	r3, [r4, #88]
+ 327:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->HT.numCols;
+ 1322              		.loc 1 327 33 view .LVU426
+ 1323 00a0 A4F8A830 		strh	r3, [r4, #168]	@ movhi
+ 328:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->Pminus, &kf->HT, &kf->temp_matrix); // temp_matrix = P
+ 1324              		.loc 1 328 9 is_stmt 1 view .LVU427
+ 328:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->Pminus, &kf->HT, &kf->temp_matrix); // temp_matrix = P
+ 1325              		.loc 1 328 41 is_stmt 0 view .LVU428
+ 1326 00a4 B4F88230 		ldrh	r3, [r4, #130]
+ 328:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->Pminus, &kf->HT, &kf->temp_matrix); // temp_matrix = P
+ 1327              		.loc 1 328 33 view .LVU429
+ 1328 00a8 A4F8AA30 		strh	r3, [r4, #170]	@ movhi
+ 329:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->temp_matrix1, &kf->K);
+ 1329              		.loc 1 329 9 is_stmt 1 view .LVU430
+ 329:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->temp_matrix1, &kf->K);
+ 1330              		.loc 1 329 25 is_stmt 0 view .LVU431
+ 1331 00ac 2A46     		mov	r2, r5
+ 1332 00ae 3946     		mov	r1, r7
+ 1333 00b0 4046     		mov	r0, r8
+ 1334 00b2 FFF7FEFF 		bl	arm_mat_mult_f32
+ 1335              	.LVL124:
+ 329:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->temp_matrix1, &kf->K);
+ 1336              		.loc 1 329 23 discriminator 1 view .LVU432
+ 1337 00b6 84F8C800 		strb	r0, [r4, #200]
+ 330:modules/algorithm/kalman_filter.c ****     }
+ 1338              		.loc 1 330 9 is_stmt 1 view .LVU433
+ 330:modules/algorithm/kalman_filter.c ****     }
+ 1339              		.loc 1 330 25 is_stmt 0 view .LVU434
+ 1340 00ba 04F19802 		add	r2, r4, #152
+ 1341 00be 3146     		mov	r1, r6
+ 1342 00c0 2846     		mov	r0, r5
+ 1343 00c2 FFF7FEFF 		bl	arm_mat_mult_f32
+ 1344              	.LVL125:
+ 330:modules/algorithm/kalman_filter.c ****     }
+ 1345              		.loc 1 330 23 discriminator 1 view .LVU435
+ 1346 00c6 84F8C800 		strb	r0, [r4, #200]
+ 332:modules/algorithm/kalman_filter.c **** void Kalman_Filter_xhatUpdate(KalmanFilter_t *kf)
+ 1347              		.loc 1 332 1 view .LVU436
+ 1348 00ca 9EE7     		b	.L38
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 39
+
+
+ 1349              		.cfi_endproc
+ 1350              	.LFE167:
+ 1352              		.section	.text.Kalman_Filter_xhatUpdate,"ax",%progbits
+ 1353              		.align	1
+ 1354              		.global	Kalman_Filter_xhatUpdate
+ 1355              		.syntax unified
+ 1356              		.thumb
+ 1357              		.thumb_func
+ 1359              	Kalman_Filter_xhatUpdate:
+ 1360              	.LVL126:
+ 1361              	.LFB168:
+ 334:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq4)
+ 1362              		.loc 1 334 1 is_stmt 1 view -0
+ 1363              		.cfi_startproc
+ 1364              		@ args = 0, pretend = 0, frame = 0
+ 1365              		@ frame_needed = 0, uses_anonymous_args = 0
+ 335:modules/algorithm/kalman_filter.c ****     {
+ 1366              		.loc 1 335 5 view .LVU438
+ 335:modules/algorithm/kalman_filter.c ****     {
+ 1367              		.loc 1 335 12 is_stmt 0 view .LVU439
+ 1368 0000 90F82B30 		ldrb	r3, [r0, #43]	@ zero_extendqisi2
+ 335:modules/algorithm/kalman_filter.c ****     {
+ 1369              		.loc 1 335 8 view .LVU440
+ 1370 0004 03B1     		cbz	r3, .L48
+ 1371 0006 7047     		bx	lr
+ 1372              	.L48:
+ 334:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq4)
+ 1373              		.loc 1 334 1 view .LVU441
+ 1374 0008 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 1375              	.LCFI7:
+ 1376              		.cfi_def_cfa_offset 24
+ 1377              		.cfi_offset 4, -24
+ 1378              		.cfi_offset 5, -20
+ 1379              		.cfi_offset 6, -16
+ 1380              		.cfi_offset 7, -12
+ 1381              		.cfi_offset 8, -8
+ 1382              		.cfi_offset 14, -4
+ 1383 000c 0446     		mov	r4, r0
+ 337:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numCols = 1;
+ 1384              		.loc 1 337 9 is_stmt 1 view .LVU442
+ 337:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numCols = 1;
+ 1385              		.loc 1 337 40 is_stmt 0 view .LVU443
+ 1386 000e B0F87830 		ldrh	r3, [r0, #120]
+ 337:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numCols = 1;
+ 1387              		.loc 1 337 33 view .LVU444
+ 1388 0012 A0F8B830 		strh	r3, [r0, #184]	@ movhi
+ 338:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->H, &kf->xhatminus, &kf->temp_vector); // temp_vector =
+ 1389              		.loc 1 338 9 is_stmt 1 view .LVU445
+ 338:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->H, &kf->xhatminus, &kf->temp_vector); // temp_vector =
+ 1390              		.loc 1 338 33 is_stmt 0 view .LVU446
+ 1391 0016 0126     		movs	r6, #1
+ 1392 0018 A0F8BA60 		strh	r6, [r0, #186]	@ movhi
+ 339:modules/algorithm/kalman_filter.c ****         kf->temp_vector1.numRows = kf->z.numRows;
+ 1393              		.loc 1 339 9 is_stmt 1 view .LVU447
+ 339:modules/algorithm/kalman_filter.c ****         kf->temp_vector1.numRows = kf->z.numRows;
+ 1394              		.loc 1 339 49 is_stmt 0 view .LVU448
+ 1395 001c 00F13807 		add	r7, r0, #56
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 40
+
+
+ 339:modules/algorithm/kalman_filter.c ****         kf->temp_vector1.numRows = kf->z.numRows;
+ 1396              		.loc 1 339 25 view .LVU449
+ 1397 0020 00F1B805 		add	r5, r0, #184
+ 1398 0024 2A46     		mov	r2, r5
+ 1399 0026 3946     		mov	r1, r7
+ 1400 0028 7830     		adds	r0, r0, #120
+ 1401              	.LVL127:
+ 339:modules/algorithm/kalman_filter.c ****         kf->temp_vector1.numRows = kf->z.numRows;
+ 1402              		.loc 1 339 25 view .LVU450
+ 1403 002a FFF7FEFF 		bl	arm_mat_mult_f32
+ 1404              	.LVL128:
+ 339:modules/algorithm/kalman_filter.c ****         kf->temp_vector1.numRows = kf->z.numRows;
+ 1405              		.loc 1 339 23 discriminator 1 view .LVU451
+ 1406 002e 84F8C800 		strb	r0, [r4, #200]
+ 340:modules/algorithm/kalman_filter.c ****         kf->temp_vector1.numCols = 1;
+ 1407              		.loc 1 340 9 is_stmt 1 view .LVU452
+ 340:modules/algorithm/kalman_filter.c ****         kf->temp_vector1.numCols = 1;
+ 1408              		.loc 1 340 41 is_stmt 0 view .LVU453
+ 1409 0032 B4F84830 		ldrh	r3, [r4, #72]
+ 340:modules/algorithm/kalman_filter.c ****         kf->temp_vector1.numCols = 1;
+ 1410              		.loc 1 340 34 view .LVU454
+ 1411 0036 A4F8C030 		strh	r3, [r4, #192]	@ movhi
+ 341:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Subtract(&kf->z, &kf->temp_vector, &kf->temp_vector1); // temp_vecto
+ 1412              		.loc 1 341 9 is_stmt 1 view .LVU455
+ 341:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Subtract(&kf->z, &kf->temp_vector, &kf->temp_vector1); // temp_vecto
+ 1413              		.loc 1 341 34 is_stmt 0 view .LVU456
+ 1414 003a A4F8C260 		strh	r6, [r4, #194]	@ movhi
+ 342:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numRows = kf->K.numRows;
+ 1415              		.loc 1 342 9 is_stmt 1 view .LVU457
+ 342:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numRows = kf->K.numRows;
+ 1416              		.loc 1 342 25 is_stmt 0 view .LVU458
+ 1417 003e 04F1C008 		add	r8, r4, #192
+ 1418 0042 4246     		mov	r2, r8
+ 1419 0044 2946     		mov	r1, r5
+ 1420 0046 04F14800 		add	r0, r4, #72
+ 1421 004a FFF7FEFF 		bl	arm_mat_sub_f32
+ 1422              	.LVL129:
+ 342:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numRows = kf->K.numRows;
+ 1423              		.loc 1 342 23 discriminator 1 view .LVU459
+ 1424 004e 84F8C800 		strb	r0, [r4, #200]
+ 343:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numCols = 1;
+ 1425              		.loc 1 343 9 is_stmt 1 view .LVU460
+ 343:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numCols = 1;
+ 1426              		.loc 1 343 40 is_stmt 0 view .LVU461
+ 1427 0052 B4F89830 		ldrh	r3, [r4, #152]
+ 343:modules/algorithm/kalman_filter.c ****         kf->temp_vector.numCols = 1;
+ 1428              		.loc 1 343 33 view .LVU462
+ 1429 0056 A4F8B830 		strh	r3, [r4, #184]	@ movhi
+ 344:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->K, &kf->temp_vector1, &kf->temp_vector); // temp_vecto
+ 1430              		.loc 1 344 9 is_stmt 1 view .LVU463
+ 344:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->K, &kf->temp_vector1, &kf->temp_vector); // temp_vecto
+ 1431              		.loc 1 344 33 is_stmt 0 view .LVU464
+ 1432 005a A4F8BA60 		strh	r6, [r4, #186]	@ movhi
+ 345:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Add(&kf->xhatminus, &kf->temp_vector, &kf->xhat);
+ 1433              		.loc 1 345 9 is_stmt 1 view .LVU465
+ 345:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Add(&kf->xhatminus, &kf->temp_vector, &kf->xhat);
+ 1434              		.loc 1 345 25 is_stmt 0 view .LVU466
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 41
+
+
+ 1435 005e 2A46     		mov	r2, r5
+ 1436 0060 4146     		mov	r1, r8
+ 1437 0062 04F19800 		add	r0, r4, #152
+ 1438 0066 FFF7FEFF 		bl	arm_mat_mult_f32
+ 1439              	.LVL130:
+ 345:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Add(&kf->xhatminus, &kf->temp_vector, &kf->xhat);
+ 1440              		.loc 1 345 23 discriminator 1 view .LVU467
+ 1441 006a 84F8C800 		strb	r0, [r4, #200]
+ 346:modules/algorithm/kalman_filter.c ****     }
+ 1442              		.loc 1 346 9 is_stmt 1 view .LVU468
+ 346:modules/algorithm/kalman_filter.c ****     }
+ 1443              		.loc 1 346 25 is_stmt 0 view .LVU469
+ 1444 006e 04F13002 		add	r2, r4, #48
+ 1445 0072 2946     		mov	r1, r5
+ 1446 0074 3846     		mov	r0, r7
+ 1447 0076 FFF7FEFF 		bl	arm_mat_add_f32
+ 1448              	.LVL131:
+ 346:modules/algorithm/kalman_filter.c ****     }
+ 1449              		.loc 1 346 23 discriminator 1 view .LVU470
+ 1450 007a 84F8C800 		strb	r0, [r4, #200]
+ 348:modules/algorithm/kalman_filter.c **** void Kalman_Filter_P_Update(KalmanFilter_t *kf)
+ 1451              		.loc 1 348 1 view .LVU471
+ 1452 007e BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 348:modules/algorithm/kalman_filter.c **** void Kalman_Filter_P_Update(KalmanFilter_t *kf)
+ 1453              		.loc 1 348 1 view .LVU472
+ 1454              		.cfi_endproc
+ 1455              	.LFE168:
+ 1457              		.section	.text.Kalman_Filter_P_Update,"ax",%progbits
+ 1458              		.align	1
+ 1459              		.global	Kalman_Filter_P_Update
+ 1460              		.syntax unified
+ 1461              		.thumb
+ 1462              		.thumb_func
+ 1464              	Kalman_Filter_P_Update:
+ 1465              	.LVL132:
+ 1466              	.LFB169:
+ 350:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq5)
+ 1467              		.loc 1 350 1 is_stmt 1 view -0
+ 1468              		.cfi_startproc
+ 1469              		@ args = 0, pretend = 0, frame = 0
+ 1470              		@ frame_needed = 0, uses_anonymous_args = 0
+ 350:modules/algorithm/kalman_filter.c ****     if (!kf->SkipEq5)
+ 1471              		.loc 1 350 1 is_stmt 0 view .LVU474
+ 1472 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 1473              	.LCFI8:
+ 1474              		.cfi_def_cfa_offset 24
+ 1475              		.cfi_offset 3, -24
+ 1476              		.cfi_offset 4, -20
+ 1477              		.cfi_offset 5, -16
+ 1478              		.cfi_offset 6, -12
+ 1479              		.cfi_offset 7, -8
+ 1480              		.cfi_offset 14, -4
+ 351:modules/algorithm/kalman_filter.c ****     {
+ 1481              		.loc 1 351 5 is_stmt 1 view .LVU475
+ 351:modules/algorithm/kalman_filter.c ****     {
+ 1482              		.loc 1 351 12 is_stmt 0 view .LVU476
+ 1483 0002 90F82C30 		ldrb	r3, [r0, #44]	@ zero_extendqisi2
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 42
+
+
+ 351:modules/algorithm/kalman_filter.c ****     {
+ 1484              		.loc 1 351 8 view .LVU477
+ 1485 0006 03B1     		cbz	r3, .L52
+ 1486              	.LVL133:
+ 1487              	.L49:
+ 361:modules/algorithm/kalman_filter.c **** 
+ 1488              		.loc 1 361 1 view .LVU478
+ 1489 0008 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 1490              	.LVL134:
+ 1491              	.L52:
+ 361:modules/algorithm/kalman_filter.c **** 
+ 1492              		.loc 1 361 1 view .LVU479
+ 1493 000a 0446     		mov	r4, r0
+ 353:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->H.numCols;
+ 1494              		.loc 1 353 9 is_stmt 1 view .LVU480
+ 353:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->H.numCols;
+ 1495              		.loc 1 353 40 is_stmt 0 view .LVU481
+ 1496 000c B0F89830 		ldrh	r3, [r0, #152]
+ 353:modules/algorithm/kalman_filter.c ****         kf->temp_matrix.numCols = kf->H.numCols;
+ 1497              		.loc 1 353 33 view .LVU482
+ 1498 0010 A0F8A830 		strh	r3, [r0, #168]	@ movhi
+ 354:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numRows = kf->temp_matrix.numRows;
+ 1499              		.loc 1 354 9 is_stmt 1 view .LVU483
+ 354:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numRows = kf->temp_matrix.numRows;
+ 1500              		.loc 1 354 40 is_stmt 0 view .LVU484
+ 1501 0014 B0F87A20 		ldrh	r2, [r0, #122]
+ 354:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numRows = kf->temp_matrix.numRows;
+ 1502              		.loc 1 354 33 view .LVU485
+ 1503 0018 A0F8AA20 		strh	r2, [r0, #170]	@ movhi
+ 355:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numCols = kf->Pminus.numCols;
+ 1504              		.loc 1 355 9 is_stmt 1 view .LVU486
+ 355:modules/algorithm/kalman_filter.c ****         kf->temp_matrix1.numCols = kf->Pminus.numCols;
+ 1505              		.loc 1 355 34 is_stmt 0 view .LVU487
+ 1506 001c A0F8B030 		strh	r3, [r0, #176]	@ movhi
+ 356:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->K, &kf->H, &kf->temp_matrix);                 // temp_
+ 1507              		.loc 1 356 9 is_stmt 1 view .LVU488
+ 356:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->K, &kf->H, &kf->temp_matrix);                 // temp_
+ 1508              		.loc 1 356 46 is_stmt 0 view .LVU489
+ 1509 0020 B0F85A30 		ldrh	r3, [r0, #90]
+ 356:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->K, &kf->H, &kf->temp_matrix);                 // temp_
+ 1510              		.loc 1 356 34 view .LVU490
+ 1511 0024 A0F8B230 		strh	r3, [r0, #178]	@ movhi
+ 357:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->Pminus, &kf->temp_matrix1); // temp_
+ 1512              		.loc 1 357 9 is_stmt 1 view .LVU491
+ 357:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->Pminus, &kf->temp_matrix1); // temp_
+ 1513              		.loc 1 357 25 is_stmt 0 view .LVU492
+ 1514 0028 00F1A807 		add	r7, r0, #168
+ 1515 002c 3A46     		mov	r2, r7
+ 1516 002e 00F17801 		add	r1, r0, #120
+ 1517 0032 9830     		adds	r0, r0, #152
+ 1518              	.LVL135:
+ 357:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->Pminus, &kf->temp_matrix1); // temp_
+ 1519              		.loc 1 357 25 view .LVU493
+ 1520 0034 FFF7FEFF 		bl	arm_mat_mult_f32
+ 1521              	.LVL136:
+ 357:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Multiply(&kf->temp_matrix, &kf->Pminus, &kf->temp_matrix1); // temp_
+ 1522              		.loc 1 357 23 discriminator 1 view .LVU494
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 43
+
+
+ 1523 0038 84F8C800 		strb	r0, [r4, #200]
+ 358:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Subtract(&kf->Pminus, &kf->temp_matrix1, &kf->P);
+ 1524              		.loc 1 358 9 is_stmt 1 view .LVU495
+ 358:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Subtract(&kf->Pminus, &kf->temp_matrix1, &kf->P);
+ 1525              		.loc 1 358 59 is_stmt 0 view .LVU496
+ 1526 003c 04F15805 		add	r5, r4, #88
+ 358:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Subtract(&kf->Pminus, &kf->temp_matrix1, &kf->P);
+ 1527              		.loc 1 358 25 view .LVU497
+ 1528 0040 04F1B006 		add	r6, r4, #176
+ 1529 0044 3246     		mov	r2, r6
+ 1530 0046 2946     		mov	r1, r5
+ 1531 0048 3846     		mov	r0, r7
+ 1532 004a FFF7FEFF 		bl	arm_mat_mult_f32
+ 1533              	.LVL137:
+ 358:modules/algorithm/kalman_filter.c ****         kf->MatStatus = Matrix_Subtract(&kf->Pminus, &kf->temp_matrix1, &kf->P);
+ 1534              		.loc 1 358 23 discriminator 1 view .LVU498
+ 1535 004e 84F8C800 		strb	r0, [r4, #200]
+ 359:modules/algorithm/kalman_filter.c ****     }
+ 1536              		.loc 1 359 9 is_stmt 1 view .LVU499
+ 359:modules/algorithm/kalman_filter.c ****     }
+ 1537              		.loc 1 359 25 is_stmt 0 view .LVU500
+ 1538 0052 04F15002 		add	r2, r4, #80
+ 1539 0056 3146     		mov	r1, r6
+ 1540 0058 2846     		mov	r0, r5
+ 1541 005a FFF7FEFF 		bl	arm_mat_sub_f32
+ 1542              	.LVL138:
+ 359:modules/algorithm/kalman_filter.c ****     }
+ 1543              		.loc 1 359 23 discriminator 1 view .LVU501
+ 1544 005e 84F8C800 		strb	r0, [r4, #200]
+ 361:modules/algorithm/kalman_filter.c **** 
+ 1545              		.loc 1 361 1 view .LVU502
+ 1546 0062 D1E7     		b	.L49
+ 1547              		.cfi_endproc
+ 1548              	.LFE169:
+ 1550              		.section	.text.Kalman_Filter_Update,"ax",%progbits
+ 1551              		.align	1
+ 1552              		.global	Kalman_Filter_Update
+ 1553              		.syntax unified
+ 1554              		.thumb
+ 1555              		.thumb_func
+ 1557              	Kalman_Filter_Update:
+ 1558              	.LVL139:
+ 1559              	.LFB170:
+ 370:modules/algorithm/kalman_filter.c ****     // 0. 获取量测信息
+ 1560              		.loc 1 370 1 is_stmt 1 view -0
+ 1561              		.cfi_startproc
+ 1562              		@ args = 0, pretend = 0, frame = 0
+ 1563              		@ frame_needed = 0, uses_anonymous_args = 0
+ 370:modules/algorithm/kalman_filter.c ****     // 0. 获取量测信息
+ 1564              		.loc 1 370 1 is_stmt 0 view .LVU504
+ 1565 0000 38B5     		push	{r3, r4, r5, lr}
+ 1566              	.LCFI9:
+ 1567              		.cfi_def_cfa_offset 16
+ 1568              		.cfi_offset 3, -16
+ 1569              		.cfi_offset 4, -12
+ 1570              		.cfi_offset 5, -8
+ 1571              		.cfi_offset 14, -4
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 44
+
+
+ 1572 0002 0446     		mov	r4, r0
+ 372:modules/algorithm/kalman_filter.c ****     if (kf->User_Func0_f != NULL)
+ 1573              		.loc 1 372 5 is_stmt 1 view .LVU505
+ 1574 0004 FFF7FEFF 		bl	Kalman_Filter_Measure
+ 1575              	.LVL140:
+ 373:modules/algorithm/kalman_filter.c ****         kf->User_Func0_f(kf);
+ 1576              		.loc 1 373 5 view .LVU506
+ 373:modules/algorithm/kalman_filter.c ****         kf->User_Func0_f(kf);
+ 1577              		.loc 1 373 11 is_stmt 0 view .LVU507
+ 1578 0008 D4F8CC30 		ldr	r3, [r4, #204]
+ 373:modules/algorithm/kalman_filter.c ****         kf->User_Func0_f(kf);
+ 1579              		.loc 1 373 8 view .LVU508
+ 1580 000c 0BB1     		cbz	r3, .L54
+ 374:modules/algorithm/kalman_filter.c **** 
+ 1581              		.loc 1 374 9 is_stmt 1 view .LVU509
+ 1582 000e 2046     		mov	r0, r4
+ 1583 0010 9847     		blx	r3
+ 1584              	.LVL141:
+ 1585              	.L54:
+ 378:modules/algorithm/kalman_filter.c ****     if (kf->User_Func1_f != NULL)
+ 1586              		.loc 1 378 5 view .LVU510
+ 1587 0012 2046     		mov	r0, r4
+ 1588 0014 FFF7FEFF 		bl	Kalman_Filter_xhatMinusUpdate
+ 1589              	.LVL142:
+ 379:modules/algorithm/kalman_filter.c ****         kf->User_Func1_f(kf);
+ 1590              		.loc 1 379 5 view .LVU511
+ 379:modules/algorithm/kalman_filter.c ****         kf->User_Func1_f(kf);
+ 1591              		.loc 1 379 11 is_stmt 0 view .LVU512
+ 1592 0018 D4F8D030 		ldr	r3, [r4, #208]
+ 379:modules/algorithm/kalman_filter.c ****         kf->User_Func1_f(kf);
+ 1593              		.loc 1 379 8 view .LVU513
+ 1594 001c 0BB1     		cbz	r3, .L55
+ 380:modules/algorithm/kalman_filter.c **** 
+ 1595              		.loc 1 380 9 is_stmt 1 view .LVU514
+ 1596 001e 2046     		mov	r0, r4
+ 1597 0020 9847     		blx	r3
+ 1598              	.LVL143:
+ 1599              	.L55:
+ 384:modules/algorithm/kalman_filter.c ****     if (kf->User_Func2_f != NULL)
+ 1600              		.loc 1 384 5 view .LVU515
+ 1601 0022 2046     		mov	r0, r4
+ 1602 0024 FFF7FEFF 		bl	Kalman_Filter_PminusUpdate
+ 1603              	.LVL144:
+ 385:modules/algorithm/kalman_filter.c ****         kf->User_Func2_f(kf);
+ 1604              		.loc 1 385 5 view .LVU516
+ 385:modules/algorithm/kalman_filter.c ****         kf->User_Func2_f(kf);
+ 1605              		.loc 1 385 11 is_stmt 0 view .LVU517
+ 1606 0028 D4F8D430 		ldr	r3, [r4, #212]
+ 385:modules/algorithm/kalman_filter.c ****         kf->User_Func2_f(kf);
+ 1607              		.loc 1 385 8 view .LVU518
+ 1608 002c 0BB1     		cbz	r3, .L56
+ 386:modules/algorithm/kalman_filter.c **** 
+ 1609              		.loc 1 386 9 is_stmt 1 view .LVU519
+ 1610 002e 2046     		mov	r0, r4
+ 1611 0030 9847     		blx	r3
+ 1612              	.LVL145:
+ 1613              	.L56:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 45
+
+
+ 388:modules/algorithm/kalman_filter.c ****     {
+ 1614              		.loc 1 388 5 view .LVU520
+ 388:modules/algorithm/kalman_filter.c ****     {
+ 1615              		.loc 1 388 11 is_stmt 0 view .LVU521
+ 1616 0032 237C     		ldrb	r3, [r4, #16]	@ zero_extendqisi2
+ 388:modules/algorithm/kalman_filter.c ****     {
+ 1617              		.loc 1 388 8 view .LVU522
+ 1618 0034 0BB9     		cbnz	r3, .L57
+ 388:modules/algorithm/kalman_filter.c ****     {
+ 1619              		.loc 1 388 43 discriminator 1 view .LVU523
+ 1620 0036 E37B     		ldrb	r3, [r4, #15]	@ zero_extendqisi2
+ 388:modules/algorithm/kalman_filter.c ****     {
+ 1621              		.loc 1 388 38 discriminator 1 view .LVU524
+ 1622 0038 CBB9     		cbnz	r3, .L58
+ 1623              	.L57:
+ 392:modules/algorithm/kalman_filter.c **** 
+ 1624              		.loc 1 392 9 is_stmt 1 view .LVU525
+ 1625 003a 2046     		mov	r0, r4
+ 1626 003c FFF7FEFF 		bl	Kalman_Filter_SetK
+ 1627              	.LVL146:
+ 394:modules/algorithm/kalman_filter.c ****             kf->User_Func3_f(kf);
+ 1628              		.loc 1 394 9 view .LVU526
+ 394:modules/algorithm/kalman_filter.c ****             kf->User_Func3_f(kf);
+ 1629              		.loc 1 394 15 is_stmt 0 view .LVU527
+ 1630 0040 D4F8D830 		ldr	r3, [r4, #216]
+ 394:modules/algorithm/kalman_filter.c ****             kf->User_Func3_f(kf);
+ 1631              		.loc 1 394 12 view .LVU528
+ 1632 0044 0BB1     		cbz	r3, .L59
+ 395:modules/algorithm/kalman_filter.c **** 
+ 1633              		.loc 1 395 13 is_stmt 1 view .LVU529
+ 1634 0046 2046     		mov	r0, r4
+ 1635 0048 9847     		blx	r3
+ 1636              	.LVL147:
+ 1637              	.L59:
+ 399:modules/algorithm/kalman_filter.c **** 
+ 1638              		.loc 1 399 9 view .LVU530
+ 1639 004a 2046     		mov	r0, r4
+ 1640 004c FFF7FEFF 		bl	Kalman_Filter_xhatUpdate
+ 1641              	.LVL148:
+ 401:modules/algorithm/kalman_filter.c ****             kf->User_Func4_f(kf);
+ 1642              		.loc 1 401 9 view .LVU531
+ 401:modules/algorithm/kalman_filter.c ****             kf->User_Func4_f(kf);
+ 1643              		.loc 1 401 15 is_stmt 0 view .LVU532
+ 1644 0050 D4F8DC30 		ldr	r3, [r4, #220]
+ 401:modules/algorithm/kalman_filter.c ****             kf->User_Func4_f(kf);
+ 1645              		.loc 1 401 12 view .LVU533
+ 1646 0054 0BB1     		cbz	r3, .L60
+ 402:modules/algorithm/kalman_filter.c **** 
+ 1647              		.loc 1 402 13 is_stmt 1 view .LVU534
+ 1648 0056 2046     		mov	r0, r4
+ 1649 0058 9847     		blx	r3
+ 1650              	.LVL149:
+ 1651              	.L60:
+ 406:modules/algorithm/kalman_filter.c ****     }
+ 1652              		.loc 1 406 9 view .LVU535
+ 1653 005a 2046     		mov	r0, r4
+ 1654 005c FFF7FEFF 		bl	Kalman_Filter_P_Update
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 46
+
+
+ 1655              	.LVL150:
+ 1656              	.L61:
+ 418:modules/algorithm/kalman_filter.c ****         kf->User_Func5_f(kf);
+ 1657              		.loc 1 418 5 view .LVU536
+ 418:modules/algorithm/kalman_filter.c ****         kf->User_Func5_f(kf);
+ 1658              		.loc 1 418 11 is_stmt 0 view .LVU537
+ 1659 0060 D4F8E030 		ldr	r3, [r4, #224]
+ 418:modules/algorithm/kalman_filter.c ****         kf->User_Func5_f(kf);
+ 1660              		.loc 1 418 8 view .LVU538
+ 1661 0064 0BB1     		cbz	r3, .L62
+ 419:modules/algorithm/kalman_filter.c **** 
+ 1662              		.loc 1 419 9 is_stmt 1 view .LVU539
+ 1663 0066 2046     		mov	r0, r4
+ 1664 0068 9847     		blx	r3
+ 1665              	.LVL151:
+ 1666              	.L62:
+ 370:modules/algorithm/kalman_filter.c ****     // 0. 获取量测信息
+ 1667              		.loc 1 370 1 is_stmt 0 view .LVU540
+ 1668 006a 0023     		movs	r3, #0
+ 1669 006c 19E0     		b	.L63
+ 1670              	.L58:
+ 413:modules/algorithm/kalman_filter.c ****         memcpy(kf->P_data, kf->Pminus_data, sizeof_float * kf->xhatSize * kf->xhatSize);
+ 1671              		.loc 1 413 9 is_stmt 1 view .LVU541
+ 413:modules/algorithm/kalman_filter.c ****         memcpy(kf->P_data, kf->Pminus_data, sizeof_float * kf->xhatSize * kf->xhatSize);
+ 1672              		.loc 1 413 68 is_stmt 0 view .LVU542
+ 1673 006e 227B     		ldrb	r2, [r4, #12]	@ zero_extendqisi2
+ 413:modules/algorithm/kalman_filter.c ****         memcpy(kf->P_data, kf->Pminus_data, sizeof_float * kf->xhatSize * kf->xhatSize);
+ 1674              		.loc 1 413 64 view .LVU543
+ 1675 0070 204D     		ldr	r5, .L71
+ 1676 0072 2B88     		ldrh	r3, [r5]
+ 413:modules/algorithm/kalman_filter.c ****         memcpy(kf->P_data, kf->Pminus_data, sizeof_float * kf->xhatSize * kf->xhatSize);
+ 1677              		.loc 1 413 9 view .LVU544
+ 1678 0074 03FB02F2 		mul	r2, r3, r2
+ 1679 0078 D4F8EC10 		ldr	r1, [r4, #236]
+ 1680 007c D4F8E800 		ldr	r0, [r4, #232]
+ 1681 0080 FFF7FEFF 		bl	memcpy
+ 1682              	.LVL152:
+ 414:modules/algorithm/kalman_filter.c ****     }
+ 1683              		.loc 1 414 9 is_stmt 1 view .LVU545
+ 414:modules/algorithm/kalman_filter.c ****     }
+ 1684              		.loc 1 414 62 is_stmt 0 view .LVU546
+ 1685 0084 227B     		ldrb	r2, [r4, #12]	@ zero_extendqisi2
+ 414:modules/algorithm/kalman_filter.c ****     }
+ 1686              		.loc 1 414 58 view .LVU547
+ 1687 0086 2B88     		ldrh	r3, [r5]
+ 1688 0088 02FB03F3 		mul	r3, r2, r3
+ 414:modules/algorithm/kalman_filter.c ****     }
+ 1689              		.loc 1 414 9 view .LVU548
+ 1690 008c 03FB02F2 		mul	r2, r3, r2
+ 1691 0090 D4F8FC10 		ldr	r1, [r4, #252]
+ 1692 0094 D4F8F800 		ldr	r0, [r4, #248]
+ 1693 0098 FFF7FEFF 		bl	memcpy
+ 1694              	.LVL153:
+ 1695 009c E0E7     		b	.L61
+ 1696              	.LVL154:
+ 1697              	.L64:
+ 1698              	.LBB4:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 47
+
+
+ 423:modules/algorithm/kalman_filter.c ****     {
+ 1699              		.loc 1 423 43 is_stmt 1 discriminator 2 view .LVU549
+ 1700 009e 0133     		adds	r3, r3, #1
+ 1701              	.LVL155:
+ 423:modules/algorithm/kalman_filter.c ****     {
+ 1702              		.loc 1 423 43 is_stmt 0 discriminator 2 view .LVU550
+ 1703 00a0 DBB2     		uxtb	r3, r3
+ 1704              	.LVL156:
+ 1705              	.L63:
+ 423:modules/algorithm/kalman_filter.c ****     {
+ 1706              		.loc 1 423 27 is_stmt 1 discriminator 1 view .LVU551
+ 423:modules/algorithm/kalman_filter.c ****     {
+ 1707              		.loc 1 423 31 is_stmt 0 discriminator 1 view .LVU552
+ 1708 00a2 227B     		ldrb	r2, [r4, #12]	@ zero_extendqisi2
+ 423:modules/algorithm/kalman_filter.c ****     {
+ 1709              		.loc 1 423 27 discriminator 1 view .LVU553
+ 1710 00a4 9A42     		cmp	r2, r3
+ 1711 00a6 14D9     		bls	.L70
+ 425:modules/algorithm/kalman_filter.c ****             kf->P_data[i * kf->xhatSize + i] = kf->StateMinVariance[i];
+ 1712              		.loc 1 425 9 is_stmt 1 view .LVU554
+ 425:modules/algorithm/kalman_filter.c ****             kf->P_data[i * kf->xhatSize + i] = kf->StateMinVariance[i];
+ 1713              		.loc 1 425 15 is_stmt 0 view .LVU555
+ 1714 00a8 D4F8F810 		ldr	r1, [r4, #248]
+ 425:modules/algorithm/kalman_filter.c ****             kf->P_data[i * kf->xhatSize + i] = kf->StateMinVariance[i];
+ 1715              		.loc 1 425 41 view .LVU556
+ 1716 00ac 02FB0332 		mla	r2, r2, r3, r3
+ 425:modules/algorithm/kalman_filter.c ****             kf->P_data[i * kf->xhatSize + i] = kf->StateMinVariance[i];
+ 1717              		.loc 1 425 23 view .LVU557
+ 1718 00b0 01EB8202 		add	r2, r1, r2, lsl #2
+ 1719 00b4 92ED007A 		vldr.32	s14, [r2]
+ 425:modules/algorithm/kalman_filter.c ****             kf->P_data[i * kf->xhatSize + i] = kf->StateMinVariance[i];
+ 1720              		.loc 1 425 50 view .LVU558
+ 1721 00b8 216A     		ldr	r1, [r4, #32]
+ 425:modules/algorithm/kalman_filter.c ****             kf->P_data[i * kf->xhatSize + i] = kf->StateMinVariance[i];
+ 1722              		.loc 1 425 68 view .LVU559
+ 1723 00ba 01EB8301 		add	r1, r1, r3, lsl #2
+ 1724 00be D1ED007A 		vldr.32	s15, [r1]
+ 425:modules/algorithm/kalman_filter.c ****             kf->P_data[i * kf->xhatSize + i] = kf->StateMinVariance[i];
+ 1725              		.loc 1 425 12 view .LVU560
+ 1726 00c2 B4EEE77A 		vcmpe.f32	s14, s15
+ 1727 00c6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1728 00ca E8D5     		bpl	.L64
+ 426:modules/algorithm/kalman_filter.c ****     }
+ 1729              		.loc 1 426 13 is_stmt 1 view .LVU561
+ 426:modules/algorithm/kalman_filter.c ****     }
+ 1730              		.loc 1 426 46 is_stmt 0 view .LVU562
+ 1731 00cc C2ED007A 		vstr.32	s15, [r2]
+ 1732 00d0 E5E7     		b	.L64
+ 1733              	.L70:
+ 1734              	.LBE4:
+ 429:modules/algorithm/kalman_filter.c **** 
+ 1735              		.loc 1 429 5 is_stmt 1 view .LVU563
+ 429:modules/algorithm/kalman_filter.c **** 
+ 1736              		.loc 1 429 59 is_stmt 0 view .LVU564
+ 1737 00d2 084B     		ldr	r3, .L71
+ 1738              	.LVL157:
+ 429:modules/algorithm/kalman_filter.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 48
+
+
+ 1739              		.loc 1 429 59 view .LVU565
+ 1740 00d4 1B88     		ldrh	r3, [r3]
+ 429:modules/algorithm/kalman_filter.c **** 
+ 1741              		.loc 1 429 5 view .LVU566
+ 1742 00d6 03FB02F2 		mul	r2, r3, r2
+ 1743 00da D4F8E810 		ldr	r1, [r4, #232]
+ 1744 00de 2068     		ldr	r0, [r4]
+ 1745 00e0 FFF7FEFF 		bl	memcpy
+ 1746              	.LVL158:
+ 431:modules/algorithm/kalman_filter.c ****         kf->User_Func6_f(kf);
+ 1747              		.loc 1 431 5 is_stmt 1 view .LVU567
+ 431:modules/algorithm/kalman_filter.c ****         kf->User_Func6_f(kf);
+ 1748              		.loc 1 431 11 is_stmt 0 view .LVU568
+ 1749 00e4 D4F8E430 		ldr	r3, [r4, #228]
+ 431:modules/algorithm/kalman_filter.c ****         kf->User_Func6_f(kf);
+ 1750              		.loc 1 431 8 view .LVU569
+ 1751 00e8 0BB1     		cbz	r3, .L67
+ 432:modules/algorithm/kalman_filter.c **** 
+ 1752              		.loc 1 432 9 is_stmt 1 view .LVU570
+ 1753 00ea 2046     		mov	r0, r4
+ 1754 00ec 9847     		blx	r3
+ 1755              	.LVL159:
+ 1756              	.L67:
+ 434:modules/algorithm/kalman_filter.c **** }
+ 1757              		.loc 1 434 5 view .LVU571
+ 435:modules/algorithm/kalman_filter.c **** 
+ 1758              		.loc 1 435 1 is_stmt 0 view .LVU572
+ 1759 00ee 2068     		ldr	r0, [r4]
+ 1760 00f0 38BD     		pop	{r3, r4, r5, pc}
+ 1761              	.LVL160:
+ 1762              	.L72:
+ 435:modules/algorithm/kalman_filter.c **** 
+ 1763              		.loc 1 435 1 view .LVU573
+ 1764 00f2 00BF     		.align	2
+ 1765              	.L71:
+ 1766 00f4 00000000 		.word	sizeof_float
+ 1767              		.cfi_endproc
+ 1768              	.LFE170:
+ 1770              		.global	sizeof_double
+ 1771              		.section	.bss.sizeof_double,"aw",%nobits
+ 1772              		.align	1
+ 1775              	sizeof_double:
+ 1776 0000 0000     		.space	2
+ 1777              		.global	sizeof_float
+ 1778              		.section	.bss.sizeof_float,"aw",%nobits
+ 1779              		.align	1
+ 1782              	sizeof_float:
+ 1783 0000 0000     		.space	2
+ 1784              		.text
+ 1785              	.Letext0:
+ 1786              		.file 2 "D:/msys2/mingw64/arm-none-eabi/include/machine/_default_types.h"
+ 1787              		.file 3 "D:/msys2/mingw64/arm-none-eabi/include/sys/_stdint.h"
+ 1788              		.file 4 "D:/msys2/mingw64/lib/gcc/arm-none-eabi/13.3.0/include/stddef.h"
+ 1789              		.file 5 "Middlewares/ST/ARM/DSP/Include/arm_math_types.h"
+ 1790              		.file 6 "Middlewares/ST/ARM/DSP/Include/dsp/matrix_functions.h"
+ 1791              		.file 7 "modules/algorithm/kalman_filter.h"
+ 1792              		.file 8 "D:/msys2/mingw64/arm-none-eabi/include/string.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 49
+
+
+ 1793              		.file 9 "D:/msys2/mingw64/arm-none-eabi/include/stdlib.h"
+ 1794              		.file 10 "<built-in>"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s 			page 50
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 kalman_filter.c
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:21     .text.H_K_R_Adjustment:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:26     .text.H_K_R_Adjustment:00000000 H_K_R_Adjustment
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:252    .text.H_K_R_Adjustment:00000110 $d
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1782   .bss.sizeof_float:00000000 sizeof_float
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:257    .text.Kalman_Filter_Init:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:263    .text.Kalman_Filter_Init:00000000 Kalman_Filter_Init
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:849    .text.Kalman_Filter_Init:000003c4 $d
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1775   .bss.sizeof_double:00000000 sizeof_double
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:855    .text.Kalman_Filter_Init:000003cc $t
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:906    .text.Kalman_Filter_Init:00000428 $d
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:911    .text.Kalman_Filter_Measure:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:917    .text.Kalman_Filter_Measure:00000000 Kalman_Filter_Measure
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:987    .text.Kalman_Filter_Measure:00000048 $d
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:992    .text.Kalman_Filter_xhatMinusUpdate:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:998    .text.Kalman_Filter_xhatMinusUpdate:00000000 Kalman_Filter_xhatMinusUpdate
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1104   .text.Kalman_Filter_PminusUpdate:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1110   .text.Kalman_Filter_PminusUpdate:00000000 Kalman_Filter_PminusUpdate
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1198   .text.Kalman_Filter_SetK:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1204   .text.Kalman_Filter_SetK:00000000 Kalman_Filter_SetK
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1353   .text.Kalman_Filter_xhatUpdate:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1359   .text.Kalman_Filter_xhatUpdate:00000000 Kalman_Filter_xhatUpdate
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1458   .text.Kalman_Filter_P_Update:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1464   .text.Kalman_Filter_P_Update:00000000 Kalman_Filter_P_Update
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1551   .text.Kalman_Filter_Update:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1557   .text.Kalman_Filter_Update:00000000 Kalman_Filter_Update
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1766   .text.Kalman_Filter_Update:000000f4 $d
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1772   .bss.sizeof_double:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccd6A9I7.s:1779   .bss.sizeof_float:00000000 $d
+
+UNDEFINED SYMBOLS
+memcpy
+memset
+malloc
+arm_mat_init_f32
+arm_mat_mult_f32
+arm_mat_add_f32
+arm_mat_trans_f32
+arm_mat_inverse_f32
+arm_mat_sub_f32

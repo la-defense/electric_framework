@@ -1,0 +1,404 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"rm_referee.c"
+  16              		.text
+  17              		.section	.text.RefereeLostCallback,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	RefereeLostCallback:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 08B5     		push	{r3, lr}
+  27 0002 024B     		ldr	r3, .L3
+  28 0004 1868     		ldr	r0, [r3]
+  29 0006 FFF7FEFF 		bl	USARTServiceInit
+  30 000a 08BD     		pop	{r3, pc}
+  31              	.L4:
+  32              		.align	2
+  33              	.L3:
+  34 000c 00000000 		.word	referee_usart_instance
+  36              		.section	.text.JudgeReadData,"ax",%progbits
+  37              		.align	1
+  38              		.syntax unified
+  39              		.thumb
+  40              		.thumb_func
+  42              	JudgeReadData:
+  43              		@ args = 0, pretend = 0, frame = 0
+  44              		@ frame_needed = 0, uses_anonymous_args = 0
+  45 0000 0028     		cmp	r0, #0
+  46 0002 00F00581 		beq	.L25
+  47 0006 10B5     		push	{r4, lr}
+  48 0008 0446     		mov	r4, r0
+  49 000a 824B     		ldr	r3, .L31
+  50 000c 0268     		ldr	r2, [r0]	@ unaligned
+  51 000e C3F80720 		str	r2, [r3, #7]	@ unaligned
+  52 0012 0279     		ldrb	r2, [r0, #4]	@ zero_extendqisi2
+  53 0014 DA72     		strb	r2, [r3, #11]
+  54 0016 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+  55 0018 A52B     		cmp	r3, #165
+  56 001a 00D0     		beq	.L28
+  57              	.L5:
+  58 001c 10BD     		pop	{r4, pc}
+  59              	.L28:
+  60 001e 0521     		movs	r1, #5
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s 			page 2
+
+
+  61 0020 FFF7FEFF 		bl	Verify_CRC8_Check_Sum
+  62 0024 0128     		cmp	r0, #1
+  63 0026 09D0     		beq	.L29
+  64              	.L7:
+  65 0028 7A4B     		ldr	r3, .L31
+  66 002a 1B89     		ldrh	r3, [r3, #8]
+  67 002c 0933     		adds	r3, r3, #9
+  68 002e E018     		adds	r0, r4, r3
+  69 0030 E35C     		ldrb	r3, [r4, r3]	@ zero_extendqisi2
+  70 0032 A52B     		cmp	r3, #165
+  71 0034 F2D1     		bne	.L5
+  72 0036 FFF7E3FF 		bl	JudgeReadData
+  73 003a EFE7     		b	.L5
+  74              	.L29:
+  75 003c 6178     		ldrb	r1, [r4, #1]	@ zero_extendqisi2
+  76 003e 0931     		adds	r1, r1, #9
+  77 0040 2046     		mov	r0, r4
+  78 0042 FFF7FEFF 		bl	Verify_CRC16_Check_Sum
+  79 0046 0128     		cmp	r0, #1
+  80 0048 EED1     		bne	.L7
+  81 004a A279     		ldrb	r2, [r4, #6]	@ zero_extendqisi2
+  82 004c 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+  83 004e 43EA0223 		orr	r3, r3, r2, lsl #8
+  84 0052 704A     		ldr	r2, .L31
+  85 0054 9381     		strh	r3, [r2, #12]	@ movhi
+  86 0056 40F20222 		movw	r2, #514
+  87 005a 9342     		cmp	r3, r2
+  88 005c 00F0A580 		beq	.L8
+  89 0060 24D9     		bls	.L30
+  90 0062 40F20622 		movw	r2, #518
+  91 0066 9342     		cmp	r3, r2
+  92 0068 00F0C180 		beq	.L17
+  93 006c 52D8     		bhi	.L18
+  94 006e B3F5017F 		cmp	r3, #516
+  95 0072 00F0AC80 		beq	.L19
+  96 0076 40F20522 		movw	r2, #517
+  97 007a 9342     		cmp	r3, r2
+  98 007c 00F0B180 		beq	.L20
+  99 0080 40F20322 		movw	r2, #515
+ 100 0084 9342     		cmp	r3, r2
+ 101 0086 CFD1     		bne	.L7
+ 102 0088 624B     		ldr	r3, .L31
+ 103 008a D4F807C0 		ldr	ip, [r4, #7]	@ unaligned
+ 104 008e D4F80B00 		ldr	r0, [r4, #11]	@ unaligned
+ 105 0092 D4F80F10 		ldr	r1, [r4, #15]	@ unaligned
+ 106 0096 D4F81320 		ldr	r2, [r4, #19]	@ unaligned
+ 107 009a C3F85FC0 		str	ip, [r3, #95]	@ unaligned
+ 108 009e C3F86300 		str	r0, [r3, #99]	@ unaligned
+ 109 00a2 C3F86710 		str	r1, [r3, #103]	@ unaligned
+ 110 00a6 C3F86B20 		str	r2, [r3, #107]	@ unaligned
+ 111 00aa BDE7     		b	.L7
+ 112              	.L30:
+ 113 00ac 40F20112 		movw	r2, #257
+ 114 00b0 9342     		cmp	r3, r2
+ 115 00b2 6ED0     		beq	.L10
+ 116 00b4 B3F5817F 		cmp	r3, #258
+ 117 00b8 14D2     		bcs	.L11
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s 			page 3
+
+
+ 118 00ba 022B     		cmp	r3, #2
+ 119 00bc 43D0     		beq	.L12
+ 120 00be 032B     		cmp	r3, #3
+ 121 00c0 45D0     		beq	.L13
+ 122 00c2 012B     		cmp	r3, #1
+ 123 00c4 B0D1     		bne	.L7
+ 124 00c6 534B     		ldr	r3, .L31
+ 125 00c8 D4F80710 		ldr	r1, [r4, #7]	@ unaligned
+ 126 00cc D4F80B20 		ldr	r2, [r4, #11]	@ unaligned
+ 127 00d0 C3F80E10 		str	r1, [r3, #14]	@ unaligned
+ 128 00d4 C3F81220 		str	r2, [r3, #18]	@ unaligned
+ 129 00d8 B4F80F10 		ldrh	r1, [r4, #15]	@ unaligned
+ 130 00dc 627C     		ldrb	r2, [r4, #17]	@ zero_extendqisi2
+ 131 00de D982     		strh	r1, [r3, #22]	@ unaligned
+ 132 00e0 1A76     		strb	r2, [r3, #24]
+ 133 00e2 A1E7     		b	.L7
+ 134              	.L11:
+ 135 00e4 B3F5817F 		cmp	r3, #258
+ 136 00e8 59D0     		beq	.L15
+ 137 00ea 40F20122 		movw	r2, #513
+ 138 00ee 9342     		cmp	r3, r2
+ 139 00f0 9AD1     		bne	.L7
+ 140 00f2 484B     		ldr	r3, .L31
+ 141 00f4 D4F80700 		ldr	r0, [r4, #7]	@ unaligned
+ 142 00f8 D4F80B10 		ldr	r1, [r4, #11]	@ unaligned
+ 143 00fc D4F80F20 		ldr	r2, [r4, #15]	@ unaligned
+ 144 0100 C3F84200 		str	r0, [r3, #66]	@ unaligned
+ 145 0104 C3F84610 		str	r1, [r3, #70]	@ unaligned
+ 146 0108 C3F84A20 		str	r2, [r3, #74]	@ unaligned
+ 147 010c E27C     		ldrb	r2, [r4, #19]	@ zero_extendqisi2
+ 148 010e 83F84E20 		strb	r2, [r3, #78]
+ 149 0112 89E7     		b	.L7
+ 150              	.L18:
+ 151 0114 40F20722 		movw	r2, #519
+ 152 0118 9342     		cmp	r3, r2
+ 153 011a 6DD0     		beq	.L22
+ 154 011c 40F20132 		movw	r2, #769
+ 155 0120 9342     		cmp	r3, r2
+ 156 0122 81D1     		bne	.L7
+ 157 0124 3B4B     		ldr	r3, .L31
+ 158 0126 D4F80710 		ldr	r1, [r4, #7]	@ unaligned
+ 159 012a D4F80B20 		ldr	r2, [r4, #11]	@ unaligned
+ 160 012e C3F87F10 		str	r1, [r3, #127]	@ unaligned
+ 161 0132 C3F88320 		str	r2, [r3, #131]	@ unaligned
+ 162 0136 B4F80F10 		ldrh	r1, [r4, #15]	@ unaligned
+ 163 013a 627C     		ldrb	r2, [r4, #17]	@ zero_extendqisi2
+ 164 013c A3F88710 		strh	r1, [r3, #135]	@ unaligned
+ 165 0140 83F88920 		strb	r2, [r3, #137]
+ 166 0144 70E7     		b	.L7
+ 167              	.L12:
+ 168 0146 E279     		ldrb	r2, [r4, #7]	@ zero_extendqisi2
+ 169 0148 324B     		ldr	r3, .L31
+ 170 014a 5A76     		strb	r2, [r3, #25]
+ 171 014c 6CE7     		b	.L7
+ 172              	.L13:
+ 173 014e 314B     		ldr	r3, .L31
+ 174 0150 D4F807C0 		ldr	ip, [r4, #7]	@ unaligned
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s 			page 4
+
+
+ 175 0154 D4F80B00 		ldr	r0, [r4, #11]	@ unaligned
+ 176 0158 D4F80F10 		ldr	r1, [r4, #15]	@ unaligned
+ 177 015c D4F81320 		ldr	r2, [r4, #19]	@ unaligned
+ 178 0160 C3F81AC0 		str	ip, [r3, #26]	@ unaligned
+ 179 0164 C3F81E00 		str	r0, [r3, #30]	@ unaligned
+ 180 0168 C3F82210 		str	r1, [r3, #34]	@ unaligned
+ 181 016c C3F82620 		str	r2, [r3, #38]	@ unaligned
+ 182 0170 D4F817C0 		ldr	ip, [r4, #23]	@ unaligned
+ 183 0174 D4F81B00 		ldr	r0, [r4, #27]	@ unaligned
+ 184 0178 D4F81F10 		ldr	r1, [r4, #31]	@ unaligned
+ 185 017c D4F82320 		ldr	r2, [r4, #35]	@ unaligned
+ 186 0180 C3F82AC0 		str	ip, [r3, #42]	@ unaligned
+ 187 0184 C3F82E00 		str	r0, [r3, #46]	@ unaligned
+ 188 0188 C3F83210 		str	r1, [r3, #50]	@ unaligned
+ 189 018c C3F83620 		str	r2, [r3, #54]	@ unaligned
+ 190 0190 4AE7     		b	.L7
+ 191              	.L10:
+ 192 0192 D4F80720 		ldr	r2, [r4, #7]	@ unaligned
+ 193 0196 1F4B     		ldr	r3, .L31
+ 194 0198 C3F83A20 		str	r2, [r3, #58]	@ unaligned
+ 195 019c 44E7     		b	.L7
+ 196              	.L15:
+ 197 019e D4F80720 		ldr	r2, [r4, #7]	@ unaligned
+ 198 01a2 1C4B     		ldr	r3, .L31
+ 199 01a4 C3F83E20 		str	r2, [r3, #62]	@ unaligned
+ 200 01a8 3EE7     		b	.L7
+ 201              	.L8:
+ 202 01aa 1A4B     		ldr	r3, .L31
+ 203 01ac D4F807C0 		ldr	ip, [r4, #7]	@ unaligned
+ 204 01b0 D4F80B00 		ldr	r0, [r4, #11]	@ unaligned
+ 205 01b4 D4F80F10 		ldr	r1, [r4, #15]	@ unaligned
+ 206 01b8 D4F81320 		ldr	r2, [r4, #19]	@ unaligned
+ 207 01bc C3F84FC0 		str	ip, [r3, #79]	@ unaligned
+ 208 01c0 C3F85300 		str	r0, [r3, #83]	@ unaligned
+ 209 01c4 C3F85710 		str	r1, [r3, #87]	@ unaligned
+ 210 01c8 C3F85B20 		str	r2, [r3, #91]	@ unaligned
+ 211 01cc 2CE7     		b	.L7
+ 212              	.L19:
+ 213 01ce 114B     		ldr	r3, .L31
+ 214 01d0 D4F80720 		ldr	r2, [r4, #7]	@ unaligned
+ 215 01d4 C3F86F20 		str	r2, [r3, #111]	@ unaligned
+ 216 01d8 B4F80B20 		ldrh	r2, [r4, #11]	@ unaligned
+ 217 01dc A3F87320 		strh	r2, [r3, #115]	@ unaligned
+ 218 01e0 22E7     		b	.L7
+ 219              	.L20:
+ 220 01e2 B4F80720 		ldrh	r2, [r4, #7]	@ unaligned
+ 221 01e6 0B4B     		ldr	r3, .L31
+ 222 01e8 A3F87520 		strh	r2, [r3, #117]	@ unaligned
+ 223 01ec 1CE7     		b	.L7
+ 224              	.L17:
+ 225 01ee E279     		ldrb	r2, [r4, #7]	@ zero_extendqisi2
+ 226 01f0 084B     		ldr	r3, .L31
+ 227 01f2 83F87720 		strb	r2, [r3, #119]
+ 228 01f6 17E7     		b	.L7
+ 229              	.L22:
+ 230 01f8 064B     		ldr	r3, .L31
+ 231 01fa D4F80700 		ldr	r0, [r4, #7]	@ unaligned
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s 			page 5
+
+
+ 232 01fe 9867     		str	r0, [r3, #120]
+ 233 0200 B4F80B10 		ldrh	r1, [r4, #11]	@ unaligned
+ 234 0204 627B     		ldrb	r2, [r4, #13]	@ zero_extendqisi2
+ 235 0206 A3F87C10 		strh	r1, [r3, #124]	@ unaligned
+ 236 020a 83F87E20 		strb	r2, [r3, #126]
+ 237 020e 0BE7     		b	.L7
+ 238              	.L25:
+ 239 0210 7047     		bx	lr
+ 240              	.L32:
+ 241 0212 00BF     		.align	2
+ 242              	.L31:
+ 243 0214 00000000 		.word	referee_info
+ 245              		.section	.text.RefereeRxCallback,"ax",%progbits
+ 246              		.align	1
+ 247              		.syntax unified
+ 248              		.thumb
+ 249              		.thumb_func
+ 251              	RefereeRxCallback:
+ 252              		@ args = 0, pretend = 0, frame = 0
+ 253              		@ frame_needed = 0, uses_anonymous_args = 0
+ 254 0000 08B5     		push	{r3, lr}
+ 255 0002 044B     		ldr	r3, .L35
+ 256 0004 1868     		ldr	r0, [r3]
+ 257 0006 FFF7FEFF 		bl	DaemonReload
+ 258 000a 034B     		ldr	r3, .L35+4
+ 259 000c 1868     		ldr	r0, [r3]
+ 260 000e FFF7FEFF 		bl	JudgeReadData
+ 261 0012 08BD     		pop	{r3, pc}
+ 262              	.L36:
+ 263              		.align	2
+ 264              	.L35:
+ 265 0014 00000000 		.word	referee_daemon
+ 266 0018 00000000 		.word	referee_usart_instance
+ 268              		.section	.text.RefereeInit,"ax",%progbits
+ 269              		.align	1
+ 270              		.global	RefereeInit
+ 271              		.syntax unified
+ 272              		.thumb
+ 273              		.thumb_func
+ 275              	RefereeInit:
+ 276              		@ args = 0, pretend = 0, frame = 24
+ 277              		@ frame_needed = 0, uses_anonymous_args = 0
+ 278 0000 00B5     		push	{lr}
+ 279 0002 87B0     		sub	sp, sp, #28
+ 280 0004 0E4B     		ldr	r3, .L39
+ 281 0006 0593     		str	r3, [sp, #20]
+ 282 0008 0490     		str	r0, [sp, #16]
+ 283 000a FF23     		movs	r3, #255
+ 284 000c 8DF80C30 		strb	r3, [sp, #12]
+ 285 0010 03A8     		add	r0, sp, #12
+ 286 0012 FFF7FEFF 		bl	USARTRegister
+ 287 0016 0346     		mov	r3, r0
+ 288 0018 0A4A     		ldr	r2, .L39+4
+ 289 001a 1060     		str	r0, [r2]
+ 290 001c 6846     		mov	r0, sp
+ 291 001e 0022     		movs	r2, #0
+ 292 0020 0092     		str	r2, [sp]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s 			page 6
+
+
+ 293 0022 0192     		str	r2, [sp, #4]
+ 294 0024 0292     		str	r2, [sp, #8]
+ 295 0026 1E22     		movs	r2, #30
+ 296 0028 ADF80020 		strh	r2, [sp]	@ movhi
+ 297 002c 064A     		ldr	r2, .L39+8
+ 298 002e 0192     		str	r2, [sp, #4]
+ 299 0030 0293     		str	r3, [sp, #8]
+ 300 0032 FFF7FEFF 		bl	DaemonRegister
+ 301 0036 054B     		ldr	r3, .L39+12
+ 302 0038 1860     		str	r0, [r3]
+ 303 003a 0548     		ldr	r0, .L39+16
+ 304 003c 07B0     		add	sp, sp, #28
+ 305              		@ sp needed
+ 306 003e 00BD     		pop	{pc}
+ 307              	.L40:
+ 308              		.align	2
+ 309              	.L39:
+ 310 0040 00000000 		.word	RefereeRxCallback
+ 311 0044 00000000 		.word	referee_usart_instance
+ 312 0048 00000000 		.word	RefereeLostCallback
+ 313 004c 00000000 		.word	referee_daemon
+ 314 0050 00000000 		.word	referee_info
+ 316              		.section	.text.RefereeSend,"ax",%progbits
+ 317              		.align	1
+ 318              		.global	RefereeSend
+ 319              		.syntax unified
+ 320              		.thumb
+ 321              		.thumb_func
+ 323              	RefereeSend:
+ 324              		@ args = 0, pretend = 0, frame = 0
+ 325              		@ frame_needed = 0, uses_anonymous_args = 0
+ 326 0000 08B5     		push	{r3, lr}
+ 327 0002 0A46     		mov	r2, r1
+ 328 0004 0323     		movs	r3, #3
+ 329 0006 0146     		mov	r1, r0
+ 330 0008 0348     		ldr	r0, .L43
+ 331 000a 0068     		ldr	r0, [r0]
+ 332 000c FFF7FEFF 		bl	USARTSend
+ 333 0010 7320     		movs	r0, #115
+ 334 0012 FFF7FEFF 		bl	osDelay
+ 335 0016 08BD     		pop	{r3, pc}
+ 336              	.L44:
+ 337              		.align	2
+ 338              	.L43:
+ 339 0018 00000000 		.word	referee_usart_instance
+ 341              		.section	.bss.referee_info,"aw",%nobits
+ 342              		.align	2
+ 345              	referee_info:
+ 346 0000 00000000 		.space	139
+ 346      00000000 
+ 346      00000000 
+ 346      00000000 
+ 346      00000000 
+ 347              		.section	.bss.referee_daemon,"aw",%nobits
+ 348              		.align	2
+ 351              	referee_daemon:
+ 352 0000 00000000 		.space	4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s 			page 7
+
+
+ 353              		.section	.bss.referee_usart_instance,"aw",%nobits
+ 354              		.align	2
+ 357              	referee_usart_instance:
+ 358 0000 00000000 		.space	4
+ 359              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 rm_referee.c
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:18     .text.RefereeLostCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:23     .text.RefereeLostCallback:00000000 RefereeLostCallback
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:34     .text.RefereeLostCallback:0000000c $d
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:357    .bss.referee_usart_instance:00000000 referee_usart_instance
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:37     .text.JudgeReadData:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:42     .text.JudgeReadData:00000000 JudgeReadData
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:243    .text.JudgeReadData:00000214 $d
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:345    .bss.referee_info:00000000 referee_info
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:246    .text.RefereeRxCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:251    .text.RefereeRxCallback:00000000 RefereeRxCallback
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:265    .text.RefereeRxCallback:00000014 $d
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:351    .bss.referee_daemon:00000000 referee_daemon
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:269    .text.RefereeInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:275    .text.RefereeInit:00000000 RefereeInit
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:310    .text.RefereeInit:00000040 $d
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:317    .text.RefereeSend:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:323    .text.RefereeSend:00000000 RefereeSend
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:339    .text.RefereeSend:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:342    .bss.referee_info:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:348    .bss.referee_daemon:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc4ZPmeg.s:354    .bss.referee_usart_instance:00000000 $d
+
+UNDEFINED SYMBOLS
+USARTServiceInit
+Verify_CRC8_Check_Sum
+Verify_CRC16_Check_Sum
+DaemonReload
+USARTRegister
+DaemonRegister
+USARTSend
+osDelay

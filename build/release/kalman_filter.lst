@@ -1,0 +1,1020 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"kalman_filter.c"
+  16              		.text
+  17              		.section	.text.H_K_R_Adjustment,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	H_K_R_Adjustment:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 70B5     		push	{r4, r5, r6, lr}
+  27 0002 0446     		mov	r4, r0
+  28 0004 0025     		movs	r5, #0
+  29 0006 0574     		strb	r5, [r0, #16]
+  30 0008 827B     		ldrb	r2, [r0, #14]	@ zero_extendqisi2
+  31 000a 414E     		ldr	r6, .L9
+  32 000c 3388     		ldrh	r3, [r6]
+  33 000e 03FB02F2 		mul	r2, r3, r2
+  34 0012 4168     		ldr	r1, [r0, #4]
+  35 0014 D0F8F400 		ldr	r0, [r0, #244]
+  36 0018 FFF7FEFF 		bl	memcpy
+  37 001c A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+  38 001e 3388     		ldrh	r3, [r6]
+  39 0020 03FB02F2 		mul	r2, r3, r2
+  40 0024 2946     		mov	r1, r5
+  41 0026 6068     		ldr	r0, [r4, #4]
+  42 0028 FFF7FEFF 		bl	memset
+  43 002c A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+  44 002e 3388     		ldrh	r3, [r6]
+  45 0030 02FB03F3 		mul	r3, r2, r3
+  46 0034 03FB02F2 		mul	r2, r3, r2
+  47 0038 2946     		mov	r1, r5
+  48 003a D4F81801 		ldr	r0, [r4, #280]
+  49 003e FFF7FEFF 		bl	memset
+  50 0042 227B     		ldrb	r2, [r4, #12]	@ zero_extendqisi2
+  51 0044 3388     		ldrh	r3, [r6]
+  52 0046 02FB03F3 		mul	r3, r2, r3
+  53 004a A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+  54 004c 03FB02F2 		mul	r2, r3, r2
+  55 0050 2946     		mov	r1, r5
+  56 0052 D4F80C01 		ldr	r0, [r4, #268]
+  57 0056 FFF7FEFF 		bl	memset
+  58 005a 2946     		mov	r1, r5
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 2
+
+
+  59 005c 01E0     		b	.L2
+  60              	.L3:
+  61 005e 0131     		adds	r1, r1, #1
+  62 0060 C9B2     		uxtb	r1, r1
+  63              	.L2:
+  64 0062 A37B     		ldrb	r3, [r4, #14]	@ zero_extendqisi2
+  65 0064 8B42     		cmp	r3, r1
+  66 0066 2AD9     		bls	.L8
+  67 0068 D4F8F430 		ldr	r3, [r4, #244]
+  68 006c 4FEA810C 		lsl	ip, r1, #2
+  69 0070 03EB8102 		add	r2, r3, r1, lsl #2
+  70 0074 D2ED007A 		vldr.32	s15, [r2]
+  71 0078 F5EE407A 		vcmp.f32	s15, #0
+  72 007c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  73 0080 EDD0     		beq	.L3
+  74 0082 227C     		ldrb	r2, [r4, #16]	@ zero_extendqisi2
+  75 0084 03EB8203 		add	r3, r3, r2, lsl #2
+  76 0088 C3ED007A 		vstr.32	s15, [r3]
+  77 008c 626A     		ldr	r2, [r4, #36]
+  78 008e 237C     		ldrb	r3, [r4, #16]	@ zero_extendqisi2
+  79 0090 D154     		strb	r1, [r2, r3]
+  80 0092 A069     		ldr	r0, [r4, #24]
+  81 0094 D4F80C21 		ldr	r2, [r4, #268]
+  82 0098 94F80CE0 		ldrb	lr, [r4, #12]	@ zero_extendqisi2
+  83 009c 257C     		ldrb	r5, [r4, #16]	@ zero_extendqisi2
+  84 009e 6369     		ldr	r3, [r4, #20]
+  85 00a0 5B5C     		ldrb	r3, [r3, r1]	@ zero_extendqisi2
+  86 00a2 05FB0E33 		mla	r3, r5, lr, r3
+  87 00a6 03F18043 		add	r3, r3, #1073741824
+  88 00aa 013B     		subs	r3, r3, #1
+  89 00ac 02EB8302 		add	r2, r2, r3, lsl #2
+  90 00b0 6044     		add	r0, r0, ip
+  91 00b2 0368     		ldr	r3, [r0]	@ float
+  92 00b4 1360     		str	r3, [r2]	@ float
+  93 00b6 237C     		ldrb	r3, [r4, #16]	@ zero_extendqisi2
+  94 00b8 0133     		adds	r3, r3, #1
+  95 00ba 2374     		strb	r3, [r4, #16]
+  96 00bc CFE7     		b	.L3
+  97              	.L8:
+  98 00be 0023     		movs	r3, #0
+  99 00c0 0FE0     		b	.L5
+ 100              	.L6:
+ 101 00c2 E069     		ldr	r0, [r4, #28]
+ 102 00c4 616A     		ldr	r1, [r4, #36]
+ 103 00c6 11F803C0 		ldrb	ip, [r1, r3]	@ zero_extendqisi2
+ 104 00ca D4F81811 		ldr	r1, [r4, #280]
+ 105 00ce 02FB0332 		mla	r2, r2, r3, r3
+ 106 00d2 01EB8201 		add	r1, r1, r2, lsl #2
+ 107 00d6 00EB8C00 		add	r0, r0, ip, lsl #2
+ 108 00da 0268     		ldr	r2, [r0]	@ float
+ 109 00dc 0A60     		str	r2, [r1]	@ float
+ 110 00de 0133     		adds	r3, r3, #1
+ 111 00e0 DBB2     		uxtb	r3, r3
+ 112              	.L5:
+ 113 00e2 227C     		ldrb	r2, [r4, #16]	@ zero_extendqisi2
+ 114 00e4 9A42     		cmp	r2, r3
+ 115 00e6 ECD8     		bhi	.L6
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 3
+
+
+ 116 00e8 A4F87820 		strh	r2, [r4, #120]	@ movhi
+ 117 00ec 237B     		ldrb	r3, [r4, #12]	@ zero_extendqisi2
+ 118 00ee A4F87A30 		strh	r3, [r4, #122]	@ movhi
+ 119 00f2 A4F88030 		strh	r3, [r4, #128]	@ movhi
+ 120 00f6 A4F88220 		strh	r2, [r4, #130]	@ movhi
+ 121 00fa A4F89020 		strh	r2, [r4, #144]	@ movhi
+ 122 00fe A4F89220 		strh	r2, [r4, #146]	@ movhi
+ 123 0102 A4F89830 		strh	r3, [r4, #152]	@ movhi
+ 124 0106 A4F89A20 		strh	r2, [r4, #154]	@ movhi
+ 125 010a A4F84820 		strh	r2, [r4, #72]	@ movhi
+ 126 010e 70BD     		pop	{r4, r5, r6, pc}
+ 127              	.L10:
+ 128              		.align	2
+ 129              	.L9:
+ 130 0110 00000000 		.word	sizeof_float
+ 132              		.section	.text.Kalman_Filter_Init,"ax",%progbits
+ 133              		.align	1
+ 134              		.global	Kalman_Filter_Init
+ 135              		.syntax unified
+ 136              		.thumb
+ 137              		.thumb_func
+ 139              	Kalman_Filter_Init:
+ 140              		@ args = 0, pretend = 0, frame = 0
+ 141              		@ frame_needed = 0, uses_anonymous_args = 0
+ 142 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 143 0004 0446     		mov	r4, r0
+ 144 0006 0D46     		mov	r5, r1
+ 145 0008 9146     		mov	r9, r2
+ 146 000a 1E46     		mov	r6, r3
+ 147 000c DFF8B883 		ldr	r8, .L17+4
+ 148 0010 0423     		movs	r3, #4
+ 149 0012 A8F80030 		strh	r3, [r8]	@ movhi
+ 150 0016 EB4B     		ldr	r3, .L17
+ 151 0018 0822     		movs	r2, #8
+ 152 001a 1A80     		strh	r2, [r3]	@ movhi
+ 153 001c 0173     		strb	r1, [r0, #12]
+ 154 001e 80F80D90 		strb	r9, [r0, #13]
+ 155 0022 8673     		strb	r6, [r0, #14]
+ 156 0024 0027     		movs	r7, #0
+ 157 0026 0774     		strb	r7, [r0, #16]
+ 158 0028 3046     		mov	r0, r6
+ 159 002a FFF7FEFF 		bl	malloc
+ 160 002e 6061     		str	r0, [r4, #20]
+ 161 0030 3246     		mov	r2, r6
+ 162 0032 3946     		mov	r1, r7
+ 163 0034 FFF7FEFF 		bl	memset
+ 164 0038 B8F800A0 		ldrh	r10, [r8]
+ 165 003c 06FB0AFA 		mul	r10, r6, r10
+ 166 0040 5046     		mov	r0, r10
+ 167 0042 FFF7FEFF 		bl	malloc
+ 168 0046 A061     		str	r0, [r4, #24]
+ 169 0048 5246     		mov	r2, r10
+ 170 004a 3946     		mov	r1, r7
+ 171 004c FFF7FEFF 		bl	memset
+ 172 0050 B8F800A0 		ldrh	r10, [r8]
+ 173 0054 06FB0AFA 		mul	r10, r6, r10
+ 174 0058 5046     		mov	r0, r10
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 4
+
+
+ 175 005a FFF7FEFF 		bl	malloc
+ 176 005e E061     		str	r0, [r4, #28]
+ 177 0060 5246     		mov	r2, r10
+ 178 0062 3946     		mov	r1, r7
+ 179 0064 FFF7FEFF 		bl	memset
+ 180 0068 B8F800A0 		ldrh	r10, [r8]
+ 181 006c 05FB0AFA 		mul	r10, r5, r10
+ 182 0070 5046     		mov	r0, r10
+ 183 0072 FFF7FEFF 		bl	malloc
+ 184 0076 2062     		str	r0, [r4, #32]
+ 185 0078 5246     		mov	r2, r10
+ 186 007a 3946     		mov	r1, r7
+ 187 007c FFF7FEFF 		bl	memset
+ 188 0080 3046     		mov	r0, r6
+ 189 0082 FFF7FEFF 		bl	malloc
+ 190 0086 6062     		str	r0, [r4, #36]
+ 191 0088 3246     		mov	r2, r6
+ 192 008a 3946     		mov	r1, r7
+ 193 008c FFF7FEFF 		bl	memset
+ 194 0090 B8F800A0 		ldrh	r10, [r8]
+ 195 0094 05FB0AFA 		mul	r10, r5, r10
+ 196 0098 5046     		mov	r0, r10
+ 197 009a FFF7FEFF 		bl	malloc
+ 198 009e 2060     		str	r0, [r4]
+ 199 00a0 5246     		mov	r2, r10
+ 200 00a2 3946     		mov	r1, r7
+ 201 00a4 FFF7FEFF 		bl	memset
+ 202 00a8 B8F800A0 		ldrh	r10, [r8]
+ 203 00ac 06FB0AFA 		mul	r10, r6, r10
+ 204 00b0 5046     		mov	r0, r10
+ 205 00b2 FFF7FEFF 		bl	malloc
+ 206 00b6 6060     		str	r0, [r4, #4]
+ 207 00b8 5246     		mov	r2, r10
+ 208 00ba 3946     		mov	r1, r7
+ 209 00bc FFF7FEFF 		bl	memset
+ 210 00c0 B8F800A0 		ldrh	r10, [r8]
+ 211 00c4 09FB0AFA 		mul	r10, r9, r10
+ 212 00c8 5046     		mov	r0, r10
+ 213 00ca FFF7FEFF 		bl	malloc
+ 214 00ce A060     		str	r0, [r4, #8]
+ 215 00d0 5246     		mov	r2, r10
+ 216 00d2 3946     		mov	r1, r7
+ 217 00d4 FFF7FEFF 		bl	memset
+ 218 00d8 B8F800A0 		ldrh	r10, [r8]
+ 219 00dc 05FB0AFA 		mul	r10, r5, r10
+ 220 00e0 5046     		mov	r0, r10
+ 221 00e2 FFF7FEFF 		bl	malloc
+ 222 00e6 C4F8E800 		str	r0, [r4, #232]
+ 223 00ea 5246     		mov	r2, r10
+ 224 00ec 3946     		mov	r1, r7
+ 225 00ee FFF7FEFF 		bl	memset
+ 226 00f2 D4F8E830 		ldr	r3, [r4, #232]
+ 227 00f6 0122     		movs	r2, #1
+ 228 00f8 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 229 00fa 04F13000 		add	r0, r4, #48
+ 230 00fe FFF7FEFF 		bl	arm_mat_init_f32
+ 231 0102 B8F80080 		ldrh	r8, [r8]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 5
+
+
+ 232 0106 05FB08F8 		mul	r8, r5, r8
+ 233 010a 4046     		mov	r0, r8
+ 234 010c FFF7FEFF 		bl	malloc
+ 235 0110 C4F8EC00 		str	r0, [r4, #236]
+ 236 0114 4246     		mov	r2, r8
+ 237 0116 3946     		mov	r1, r7
+ 238 0118 FFF7FEFF 		bl	memset
+ 239 011c D4F8EC30 		ldr	r3, [r4, #236]
+ 240 0120 0122     		movs	r2, #1
+ 241 0122 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 242 0124 04F13800 		add	r0, r4, #56
+ 243 0128 FFF7FEFF 		bl	arm_mat_init_f32
+ 244 012c B9F1000F 		cmp	r9, #0
+ 245 0130 40F04C81 		bne	.L15
+ 246              	.L12:
+ 247 0134 DFF89082 		ldr	r8, .L17+4
+ 248 0138 B8F80070 		ldrh	r7, [r8]
+ 249 013c 06FB07F7 		mul	r7, r6, r7
+ 250 0140 3846     		mov	r0, r7
+ 251 0142 FFF7FEFF 		bl	malloc
+ 252 0146 C4F8F400 		str	r0, [r4, #244]
+ 253 014a 3A46     		mov	r2, r7
+ 254 014c 0021     		movs	r1, #0
+ 255 014e FFF7FEFF 		bl	memset
+ 256 0152 D4F8F430 		ldr	r3, [r4, #244]
+ 257 0156 0122     		movs	r2, #1
+ 258 0158 A17B     		ldrb	r1, [r4, #14]	@ zero_extendqisi2
+ 259 015a 04F14800 		add	r0, r4, #72
+ 260 015e FFF7FEFF 		bl	arm_mat_init_f32
+ 261 0162 B8F80070 		ldrh	r7, [r8]
+ 262 0166 05FB07F7 		mul	r7, r5, r7
+ 263 016a 05FB07F7 		mul	r7, r5, r7
+ 264 016e 3846     		mov	r0, r7
+ 265 0170 FFF7FEFF 		bl	malloc
+ 266 0174 C4F8F800 		str	r0, [r4, #248]
+ 267 0178 3A46     		mov	r2, r7
+ 268 017a 0021     		movs	r1, #0
+ 269 017c FFF7FEFF 		bl	memset
+ 270 0180 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 271 0182 D4F8F830 		ldr	r3, [r4, #248]
+ 272 0186 0A46     		mov	r2, r1
+ 273 0188 04F15000 		add	r0, r4, #80
+ 274 018c FFF7FEFF 		bl	arm_mat_init_f32
+ 275 0190 B8F80070 		ldrh	r7, [r8]
+ 276 0194 05FB07F7 		mul	r7, r5, r7
+ 277 0198 05FB07F7 		mul	r7, r5, r7
+ 278 019c 3846     		mov	r0, r7
+ 279 019e FFF7FEFF 		bl	malloc
+ 280 01a2 C4F8FC00 		str	r0, [r4, #252]
+ 281 01a6 3A46     		mov	r2, r7
+ 282 01a8 0021     		movs	r1, #0
+ 283 01aa FFF7FEFF 		bl	memset
+ 284 01ae 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 285 01b0 D4F8FC30 		ldr	r3, [r4, #252]
+ 286 01b4 0A46     		mov	r2, r1
+ 287 01b6 04F15800 		add	r0, r4, #88
+ 288 01ba FFF7FEFF 		bl	arm_mat_init_f32
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 6
+
+
+ 289 01be B8F80070 		ldrh	r7, [r8]
+ 290 01c2 05FB07F7 		mul	r7, r5, r7
+ 291 01c6 05FB07F7 		mul	r7, r5, r7
+ 292 01ca 3846     		mov	r0, r7
+ 293 01cc FFF7FEFF 		bl	malloc
+ 294 01d0 8246     		mov	r10, r0
+ 295 01d2 C4F80001 		str	r0, [r4, #256]
+ 296 01d6 3846     		mov	r0, r7
+ 297 01d8 FFF7FEFF 		bl	malloc
+ 298 01dc C4F80401 		str	r0, [r4, #260]
+ 299 01e0 3A46     		mov	r2, r7
+ 300 01e2 0021     		movs	r1, #0
+ 301 01e4 5046     		mov	r0, r10
+ 302 01e6 FFF7FEFF 		bl	memset
+ 303 01ea B8F80020 		ldrh	r2, [r8]
+ 304 01ee 05FB02F2 		mul	r2, r5, r2
+ 305 01f2 05FB02F2 		mul	r2, r5, r2
+ 306 01f6 0021     		movs	r1, #0
+ 307 01f8 D4F80401 		ldr	r0, [r4, #260]
+ 308 01fc FFF7FEFF 		bl	memset
+ 309 0200 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 310 0202 D4F80031 		ldr	r3, [r4, #256]
+ 311 0206 0A46     		mov	r2, r1
+ 312 0208 04F16000 		add	r0, r4, #96
+ 313 020c FFF7FEFF 		bl	arm_mat_init_f32
+ 314 0210 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 315 0212 D4F80431 		ldr	r3, [r4, #260]
+ 316 0216 0A46     		mov	r2, r1
+ 317 0218 04F16800 		add	r0, r4, #104
+ 318 021c FFF7FEFF 		bl	arm_mat_init_f32
+ 319 0220 B9F1000F 		cmp	r9, #0
+ 320 0224 40F0E880 		bne	.L16
+ 321              	.L13:
+ 322 0228 674F     		ldr	r7, .L17+4
+ 323 022a B7F800A0 		ldrh	r10, [r7]
+ 324 022e 0AFB06F9 		mul	r9, r10, r6
+ 325 0232 09FB05F9 		mul	r9, r9, r5
+ 326 0236 4846     		mov	r0, r9
+ 327 0238 FFF7FEFF 		bl	malloc
+ 328 023c 8046     		mov	r8, r0
+ 329 023e C4F80C01 		str	r0, [r4, #268]
+ 330 0242 0AFB05F0 		mul	r0, r10, r5
+ 331 0246 06FB00F0 		mul	r0, r6, r0
+ 332 024a FFF7FEFF 		bl	malloc
+ 333 024e C4F81001 		str	r0, [r4, #272]
+ 334 0252 4A46     		mov	r2, r9
+ 335 0254 0021     		movs	r1, #0
+ 336 0256 4046     		mov	r0, r8
+ 337 0258 FFF7FEFF 		bl	memset
+ 338 025c 3A88     		ldrh	r2, [r7]
+ 339 025e 05FB02F2 		mul	r2, r5, r2
+ 340 0262 06FB02F2 		mul	r2, r6, r2
+ 341 0266 0021     		movs	r1, #0
+ 342 0268 D4F81001 		ldr	r0, [r4, #272]
+ 343 026c FFF7FEFF 		bl	memset
+ 344 0270 D4F80C31 		ldr	r3, [r4, #268]
+ 345 0274 227B     		ldrb	r2, [r4, #12]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 7
+
+
+ 346 0276 A17B     		ldrb	r1, [r4, #14]	@ zero_extendqisi2
+ 347 0278 04F17800 		add	r0, r4, #120
+ 348 027c FFF7FEFF 		bl	arm_mat_init_f32
+ 349 0280 D4F81031 		ldr	r3, [r4, #272]
+ 350 0284 A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+ 351 0286 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 352 0288 04F18000 		add	r0, r4, #128
+ 353 028c FFF7FEFF 		bl	arm_mat_init_f32
+ 354 0290 B7F80080 		ldrh	r8, [r7]
+ 355 0294 05FB08F8 		mul	r8, r5, r8
+ 356 0298 08FB05F8 		mul	r8, r8, r5
+ 357 029c 4046     		mov	r0, r8
+ 358 029e FFF7FEFF 		bl	malloc
+ 359 02a2 C4F81401 		str	r0, [r4, #276]
+ 360 02a6 4246     		mov	r2, r8
+ 361 02a8 0021     		movs	r1, #0
+ 362 02aa FFF7FEFF 		bl	memset
+ 363 02ae 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 364 02b0 D4F81431 		ldr	r3, [r4, #276]
+ 365 02b4 0A46     		mov	r2, r1
+ 366 02b6 04F18800 		add	r0, r4, #136
+ 367 02ba FFF7FEFF 		bl	arm_mat_init_f32
+ 368 02be B7F80080 		ldrh	r8, [r7]
+ 369 02c2 06FB08F8 		mul	r8, r6, r8
+ 370 02c6 08FB06F8 		mul	r8, r8, r6
+ 371 02ca 4046     		mov	r0, r8
+ 372 02cc FFF7FEFF 		bl	malloc
+ 373 02d0 C4F81801 		str	r0, [r4, #280]
+ 374 02d4 4246     		mov	r2, r8
+ 375 02d6 0021     		movs	r1, #0
+ 376 02d8 FFF7FEFF 		bl	memset
+ 377 02dc A17B     		ldrb	r1, [r4, #14]	@ zero_extendqisi2
+ 378 02de D4F81831 		ldr	r3, [r4, #280]
+ 379 02e2 0A46     		mov	r2, r1
+ 380 02e4 04F19000 		add	r0, r4, #144
+ 381 02e8 FFF7FEFF 		bl	arm_mat_init_f32
+ 382 02ec 3B88     		ldrh	r3, [r7]
+ 383 02ee 05FB03F3 		mul	r3, r5, r3
+ 384 02f2 03FB06F6 		mul	r6, r3, r6
+ 385 02f6 3046     		mov	r0, r6
+ 386 02f8 FFF7FEFF 		bl	malloc
+ 387 02fc C4F81C01 		str	r0, [r4, #284]
+ 388 0300 3246     		mov	r2, r6
+ 389 0302 0021     		movs	r1, #0
+ 390 0304 FFF7FEFF 		bl	memset
+ 391 0308 D4F81C31 		ldr	r3, [r4, #284]
+ 392 030c A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+ 393 030e 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 394 0310 04F19800 		add	r0, r4, #152
+ 395 0314 FFF7FEFF 		bl	arm_mat_init_f32
+ 396 0318 94F80C80 		ldrb	r8, [r4, #12]	@ zero_extendqisi2
+ 397 031c 3E88     		ldrh	r6, [r7]
+ 398 031e 08FB06F6 		mul	r6, r8, r6
+ 399 0322 06FB08F5 		mul	r5, r6, r8
+ 400 0326 2846     		mov	r0, r5
+ 401 0328 FFF7FEFF 		bl	malloc
+ 402 032c 0746     		mov	r7, r0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 8
+
+
+ 403 032e C4F82001 		str	r0, [r4, #288]
+ 404 0332 2846     		mov	r0, r5
+ 405 0334 FFF7FEFF 		bl	malloc
+ 406 0338 C4F82401 		str	r0, [r4, #292]
+ 407 033c 2846     		mov	r0, r5
+ 408 033e FFF7FEFF 		bl	malloc
+ 409 0342 C4F82801 		str	r0, [r4, #296]
+ 410 0346 3046     		mov	r0, r6
+ 411 0348 FFF7FEFF 		bl	malloc
+ 412 034c C4F82C01 		str	r0, [r4, #300]
+ 413 0350 3046     		mov	r0, r6
+ 414 0352 FFF7FEFF 		bl	malloc
+ 415 0356 C4F83001 		str	r0, [r4, #304]
+ 416 035a 3B46     		mov	r3, r7
+ 417 035c 4246     		mov	r2, r8
+ 418 035e 4146     		mov	r1, r8
+ 419 0360 04F1A000 		add	r0, r4, #160
+ 420 0364 FFF7FEFF 		bl	arm_mat_init_f32
+ 421 0368 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 422 036a D4F82431 		ldr	r3, [r4, #292]
+ 423 036e 0A46     		mov	r2, r1
+ 424 0370 04F1A800 		add	r0, r4, #168
+ 425 0374 FFF7FEFF 		bl	arm_mat_init_f32
+ 426 0378 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 427 037a D4F82831 		ldr	r3, [r4, #296]
+ 428 037e 0A46     		mov	r2, r1
+ 429 0380 04F1B000 		add	r0, r4, #176
+ 430 0384 FFF7FEFF 		bl	arm_mat_init_f32
+ 431 0388 D4F82C31 		ldr	r3, [r4, #300]
+ 432 038c 0122     		movs	r2, #1
+ 433 038e 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 434 0390 04F1B800 		add	r0, r4, #184
+ 435 0394 FFF7FEFF 		bl	arm_mat_init_f32
+ 436 0398 D4F83031 		ldr	r3, [r4, #304]
+ 437 039c 0122     		movs	r2, #1
+ 438 039e 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 439 03a0 04F1C000 		add	r0, r4, #192
+ 440 03a4 FFF7FEFF 		bl	arm_mat_init_f32
+ 441 03a8 0023     		movs	r3, #0
+ 442 03aa 84F82830 		strb	r3, [r4, #40]
+ 443 03ae 84F82930 		strb	r3, [r4, #41]
+ 444 03b2 84F82A30 		strb	r3, [r4, #42]
+ 445 03b6 84F82B30 		strb	r3, [r4, #43]
+ 446 03ba 84F82C30 		strb	r3, [r4, #44]
+ 447 03be BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 448              	.L18:
+ 449 03c2 00BF     		.align	2
+ 450              	.L17:
+ 451 03c4 00000000 		.word	sizeof_double
+ 452 03c8 00000000 		.word	sizeof_float
+ 453              	.L15:
+ 454 03cc 164B     		ldr	r3, .L19
+ 455 03ce 1F88     		ldrh	r7, [r3]
+ 456 03d0 09FB07F7 		mul	r7, r9, r7
+ 457 03d4 3846     		mov	r0, r7
+ 458 03d6 FFF7FEFF 		bl	malloc
+ 459 03da C4F8F000 		str	r0, [r4, #240]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 9
+
+
+ 460 03de 3A46     		mov	r2, r7
+ 461 03e0 0021     		movs	r1, #0
+ 462 03e2 FFF7FEFF 		bl	memset
+ 463 03e6 D4F8F030 		ldr	r3, [r4, #240]
+ 464 03ea 0122     		movs	r2, #1
+ 465 03ec 617B     		ldrb	r1, [r4, #13]	@ zero_extendqisi2
+ 466 03ee 04F14000 		add	r0, r4, #64
+ 467 03f2 FFF7FEFF 		bl	arm_mat_init_f32
+ 468 03f6 9DE6     		b	.L12
+ 469              	.L16:
+ 470 03f8 B8F80030 		ldrh	r3, [r8]
+ 471 03fc 05FB03F3 		mul	r3, r5, r3
+ 472 0400 03FB09F9 		mul	r9, r3, r9
+ 473 0404 4846     		mov	r0, r9
+ 474 0406 FFF7FEFF 		bl	malloc
+ 475 040a C4F80801 		str	r0, [r4, #264]
+ 476 040e 4A46     		mov	r2, r9
+ 477 0410 0021     		movs	r1, #0
+ 478 0412 FFF7FEFF 		bl	memset
+ 479 0416 D4F80831 		ldr	r3, [r4, #264]
+ 480 041a 627B     		ldrb	r2, [r4, #13]	@ zero_extendqisi2
+ 481 041c 217B     		ldrb	r1, [r4, #12]	@ zero_extendqisi2
+ 482 041e 04F17000 		add	r0, r4, #112
+ 483 0422 FFF7FEFF 		bl	arm_mat_init_f32
+ 484 0426 FFE6     		b	.L13
+ 485              	.L20:
+ 486              		.align	2
+ 487              	.L19:
+ 488 0428 00000000 		.word	sizeof_float
+ 490              		.section	.text.Kalman_Filter_Measure,"ax",%progbits
+ 491              		.align	1
+ 492              		.global	Kalman_Filter_Measure
+ 493              		.syntax unified
+ 494              		.thumb
+ 495              		.thumb_func
+ 497              	Kalman_Filter_Measure:
+ 498              		@ args = 0, pretend = 0, frame = 0
+ 499              		@ frame_needed = 0, uses_anonymous_args = 0
+ 500 0000 38B5     		push	{r3, r4, r5, lr}
+ 501 0002 0446     		mov	r4, r0
+ 502 0004 C37B     		ldrb	r3, [r0, #15]	@ zero_extendqisi2
+ 503 0006 63B1     		cbz	r3, .L22
+ 504 0008 FFF7FEFF 		bl	H_K_R_Adjustment
+ 505              	.L23:
+ 506 000c 627B     		ldrb	r2, [r4, #13]	@ zero_extendqisi2
+ 507 000e 0E4B     		ldr	r3, .L25
+ 508 0010 1B88     		ldrh	r3, [r3]
+ 509 0012 03FB02F2 		mul	r2, r3, r2
+ 510 0016 A168     		ldr	r1, [r4, #8]
+ 511 0018 D4F8F000 		ldr	r0, [r4, #240]
+ 512 001c FFF7FEFF 		bl	memcpy
+ 513 0020 38BD     		pop	{r3, r4, r5, pc}
+ 514              	.L22:
+ 515 0022 827B     		ldrb	r2, [r0, #14]	@ zero_extendqisi2
+ 516 0024 084D     		ldr	r5, .L25
+ 517 0026 2B88     		ldrh	r3, [r5]
+ 518 0028 03FB02F2 		mul	r2, r3, r2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 10
+
+
+ 519 002c 4168     		ldr	r1, [r0, #4]
+ 520 002e D0F8F400 		ldr	r0, [r0, #244]
+ 521 0032 FFF7FEFF 		bl	memcpy
+ 522 0036 A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+ 523 0038 2B88     		ldrh	r3, [r5]
+ 524 003a 03FB02F2 		mul	r2, r3, r2
+ 525 003e 0021     		movs	r1, #0
+ 526 0040 6068     		ldr	r0, [r4, #4]
+ 527 0042 FFF7FEFF 		bl	memset
+ 528 0046 E1E7     		b	.L23
+ 529              	.L26:
+ 530              		.align	2
+ 531              	.L25:
+ 532 0048 00000000 		.word	sizeof_float
+ 534              		.section	.text.Kalman_Filter_xhatMinusUpdate,"ax",%progbits
+ 535              		.align	1
+ 536              		.global	Kalman_Filter_xhatMinusUpdate
+ 537              		.syntax unified
+ 538              		.thumb
+ 539              		.thumb_func
+ 541              	Kalman_Filter_xhatMinusUpdate:
+ 542              		@ args = 0, pretend = 0, frame = 0
+ 543              		@ frame_needed = 0, uses_anonymous_args = 0
+ 544 0000 90F82830 		ldrb	r3, [r0, #40]	@ zero_extendqisi2
+ 545 0004 CBBB     		cbnz	r3, .L31
+ 546 0006 70B5     		push	{r4, r5, r6, lr}
+ 547 0008 0446     		mov	r4, r0
+ 548 000a 437B     		ldrb	r3, [r0, #13]	@ zero_extendqisi2
+ 549 000c 5BB3     		cbz	r3, .L29
+ 550 000e 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 551 0010 A0F8B830 		strh	r3, [r0, #184]	@ movhi
+ 552 0014 4FF00105 		mov	r5, #1	@ movhi
+ 553 0018 A0F8BA50 		strh	r5, [r0, #186]	@ movhi
+ 554 001c 00F1B803 		add	r3, r0, #184
+ 555 0020 1E46     		mov	r6, r3
+ 556 0022 1A46     		mov	r2, r3
+ 557 0024 00F13001 		add	r1, r0, #48
+ 558 0028 6030     		adds	r0, r0, #96
+ 559 002a FFF7FEFF 		bl	arm_mat_mult_f32
+ 560 002e 84F8C800 		strb	r0, [r4, #200]
+ 561 0032 237B     		ldrb	r3, [r4, #12]	@ zero_extendqisi2
+ 562 0034 A4F8C030 		strh	r3, [r4, #192]	@ movhi
+ 563 0038 A4F8C250 		strh	r5, [r4, #194]	@ movhi
+ 564 003c 04F1C003 		add	r3, r4, #192
+ 565 0040 1D46     		mov	r5, r3
+ 566 0042 1A46     		mov	r2, r3
+ 567 0044 04F14001 		add	r1, r4, #64
+ 568 0048 04F17000 		add	r0, r4, #112
+ 569 004c FFF7FEFF 		bl	arm_mat_mult_f32
+ 570 0050 84F8C800 		strb	r0, [r4, #200]
+ 571 0054 04F13802 		add	r2, r4, #56
+ 572 0058 2946     		mov	r1, r5
+ 573 005a 3046     		mov	r0, r6
+ 574 005c FFF7FEFF 		bl	arm_mat_add_f32
+ 575 0060 84F8C800 		strb	r0, [r4, #200]
+ 576              	.L27:
+ 577 0064 70BD     		pop	{r4, r5, r6, pc}
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 11
+
+
+ 578              	.L29:
+ 579 0066 00F13802 		add	r2, r0, #56
+ 580 006a 00F13001 		add	r1, r0, #48
+ 581 006e 6030     		adds	r0, r0, #96
+ 582 0070 FFF7FEFF 		bl	arm_mat_mult_f32
+ 583 0074 84F8C800 		strb	r0, [r4, #200]
+ 584 0078 F4E7     		b	.L27
+ 585              	.L31:
+ 586 007a 7047     		bx	lr
+ 588              		.section	.text.Kalman_Filter_PminusUpdate,"ax",%progbits
+ 589              		.align	1
+ 590              		.global	Kalman_Filter_PminusUpdate
+ 591              		.syntax unified
+ 592              		.thumb
+ 593              		.thumb_func
+ 595              	Kalman_Filter_PminusUpdate:
+ 596              		@ args = 0, pretend = 0, frame = 0
+ 597              		@ frame_needed = 0, uses_anonymous_args = 0
+ 598 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 599 0002 90F82930 		ldrb	r3, [r0, #41]	@ zero_extendqisi2
+ 600 0006 03B1     		cbz	r3, .L37
+ 601              	.L34:
+ 602 0008 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 603              	.L37:
+ 604 000a 0446     		mov	r4, r0
+ 605 000c 00F16003 		add	r3, r0, #96
+ 606 0010 1E46     		mov	r6, r3
+ 607 0012 00F16802 		add	r2, r0, #104
+ 608 0016 1746     		mov	r7, r2
+ 609 0018 1146     		mov	r1, r2
+ 610 001a 1846     		mov	r0, r3
+ 611 001c FFF7FEFF 		bl	arm_mat_trans_f32
+ 612 0020 84F8C800 		strb	r0, [r4, #200]
+ 613 0024 04F15803 		add	r3, r4, #88
+ 614 0028 1D46     		mov	r5, r3
+ 615 002a 1A46     		mov	r2, r3
+ 616 002c 04F15001 		add	r1, r4, #80
+ 617 0030 3046     		mov	r0, r6
+ 618 0032 FFF7FEFF 		bl	arm_mat_mult_f32
+ 619 0036 84F8C800 		strb	r0, [r4, #200]
+ 620 003a B4F85830 		ldrh	r3, [r4, #88]
+ 621 003e A4F8A830 		strh	r3, [r4, #168]	@ movhi
+ 622 0042 B4F86A30 		ldrh	r3, [r4, #106]
+ 623 0046 A4F8AA30 		strh	r3, [r4, #170]	@ movhi
+ 624 004a 04F1A800 		add	r0, r4, #168
+ 625 004e 0646     		mov	r6, r0
+ 626 0050 0246     		mov	r2, r0
+ 627 0052 3946     		mov	r1, r7
+ 628 0054 2846     		mov	r0, r5
+ 629 0056 FFF7FEFF 		bl	arm_mat_mult_f32
+ 630 005a 84F8C800 		strb	r0, [r4, #200]
+ 631 005e 2A46     		mov	r2, r5
+ 632 0060 04F18801 		add	r1, r4, #136
+ 633 0064 3046     		mov	r0, r6
+ 634 0066 FFF7FEFF 		bl	arm_mat_add_f32
+ 635 006a 84F8C800 		strb	r0, [r4, #200]
+ 636 006e CBE7     		b	.L34
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 12
+
+
+ 638              		.section	.text.Kalman_Filter_SetK,"ax",%progbits
+ 639              		.align	1
+ 640              		.global	Kalman_Filter_SetK
+ 641              		.syntax unified
+ 642              		.thumb
+ 643              		.thumb_func
+ 645              	Kalman_Filter_SetK:
+ 646              		@ args = 0, pretend = 0, frame = 0
+ 647              		@ frame_needed = 0, uses_anonymous_args = 0
+ 648 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+ 649 0004 90F82A30 		ldrb	r3, [r0, #42]	@ zero_extendqisi2
+ 650 0008 0BB1     		cbz	r3, .L41
+ 651              	.L38:
+ 652 000a BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 653              	.L41:
+ 654 000e 0446     		mov	r4, r0
+ 655 0010 00F17803 		add	r3, r0, #120
+ 656 0014 1E46     		mov	r6, r3
+ 657 0016 00F18002 		add	r2, r0, #128
+ 658 001a 1746     		mov	r7, r2
+ 659 001c 1146     		mov	r1, r2
+ 660 001e 1846     		mov	r0, r3
+ 661 0020 FFF7FEFF 		bl	arm_mat_trans_f32
+ 662 0024 84F8C800 		strb	r0, [r4, #200]
+ 663 0028 B4F87830 		ldrh	r3, [r4, #120]
+ 664 002c A4F8A830 		strh	r3, [r4, #168]	@ movhi
+ 665 0030 B4F85A30 		ldrh	r3, [r4, #90]
+ 666 0034 A4F8AA30 		strh	r3, [r4, #170]	@ movhi
+ 667 0038 04F15803 		add	r3, r4, #88
+ 668 003c 04F1A801 		add	r1, r4, #168
+ 669 0040 0D46     		mov	r5, r1
+ 670 0042 0A46     		mov	r2, r1
+ 671 0044 9946     		mov	r9, r3
+ 672 0046 1946     		mov	r1, r3
+ 673 0048 3046     		mov	r0, r6
+ 674 004a FFF7FEFF 		bl	arm_mat_mult_f32
+ 675 004e 84F8C800 		strb	r0, [r4, #200]
+ 676 0052 B4F8A830 		ldrh	r3, [r4, #168]
+ 677 0056 A4F8B030 		strh	r3, [r4, #176]	@ movhi
+ 678 005a B4F88230 		ldrh	r3, [r4, #130]
+ 679 005e A4F8B230 		strh	r3, [r4, #178]	@ movhi
+ 680 0062 04F1B003 		add	r3, r4, #176
+ 681 0066 1E46     		mov	r6, r3
+ 682 0068 1A46     		mov	r2, r3
+ 683 006a 3946     		mov	r1, r7
+ 684 006c 2846     		mov	r0, r5
+ 685 006e FFF7FEFF 		bl	arm_mat_mult_f32
+ 686 0072 84F8C800 		strb	r0, [r4, #200]
+ 687 0076 B4F89030 		ldrh	r3, [r4, #144]
+ 688 007a A4F8A030 		strh	r3, [r4, #160]	@ movhi
+ 689 007e B4F89230 		ldrh	r3, [r4, #146]
+ 690 0082 A4F8A230 		strh	r3, [r4, #162]	@ movhi
+ 691 0086 04F1A003 		add	r3, r4, #160
+ 692 008a 9846     		mov	r8, r3
+ 693 008c 1A46     		mov	r2, r3
+ 694 008e 04F19001 		add	r1, r4, #144
+ 695 0092 3046     		mov	r0, r6
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 13
+
+
+ 696 0094 FFF7FEFF 		bl	arm_mat_add_f32
+ 697 0098 84F8C800 		strb	r0, [r4, #200]
+ 698 009c 3146     		mov	r1, r6
+ 699 009e 4046     		mov	r0, r8
+ 700 00a0 FFF7FEFF 		bl	arm_mat_inverse_f32
+ 701 00a4 84F8C800 		strb	r0, [r4, #200]
+ 702 00a8 B4F85830 		ldrh	r3, [r4, #88]
+ 703 00ac A4F8A830 		strh	r3, [r4, #168]	@ movhi
+ 704 00b0 B4F88230 		ldrh	r3, [r4, #130]
+ 705 00b4 A4F8AA30 		strh	r3, [r4, #170]	@ movhi
+ 706 00b8 2A46     		mov	r2, r5
+ 707 00ba 3946     		mov	r1, r7
+ 708 00bc 4846     		mov	r0, r9
+ 709 00be FFF7FEFF 		bl	arm_mat_mult_f32
+ 710 00c2 84F8C800 		strb	r0, [r4, #200]
+ 711 00c6 04F19802 		add	r2, r4, #152
+ 712 00ca 3146     		mov	r1, r6
+ 713 00cc 2846     		mov	r0, r5
+ 714 00ce FFF7FEFF 		bl	arm_mat_mult_f32
+ 715 00d2 84F8C800 		strb	r0, [r4, #200]
+ 716 00d6 98E7     		b	.L38
+ 718              		.section	.text.Kalman_Filter_xhatUpdate,"ax",%progbits
+ 719              		.align	1
+ 720              		.global	Kalman_Filter_xhatUpdate
+ 721              		.syntax unified
+ 722              		.thumb
+ 723              		.thumb_func
+ 725              	Kalman_Filter_xhatUpdate:
+ 726              		@ args = 0, pretend = 0, frame = 0
+ 727              		@ frame_needed = 0, uses_anonymous_args = 0
+ 728 0000 90F82B30 		ldrb	r3, [r0, #43]	@ zero_extendqisi2
+ 729 0004 03B1     		cbz	r3, .L48
+ 730 0006 7047     		bx	lr
+ 731              	.L48:
+ 732 0008 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 733 000c 0446     		mov	r4, r0
+ 734 000e B0F87830 		ldrh	r3, [r0, #120]
+ 735 0012 A0F8B830 		strh	r3, [r0, #184]	@ movhi
+ 736 0016 4FF00106 		mov	r6, #1	@ movhi
+ 737 001a A0F8BA60 		strh	r6, [r0, #186]	@ movhi
+ 738 001e 00F13803 		add	r3, r0, #56
+ 739 0022 00F1B802 		add	r2, r0, #184
+ 740 0026 1546     		mov	r5, r2
+ 741 0028 9846     		mov	r8, r3
+ 742 002a 1946     		mov	r1, r3
+ 743 002c 7830     		adds	r0, r0, #120
+ 744 002e FFF7FEFF 		bl	arm_mat_mult_f32
+ 745 0032 84F8C800 		strb	r0, [r4, #200]
+ 746 0036 B4F84830 		ldrh	r3, [r4, #72]
+ 747 003a A4F8C030 		strh	r3, [r4, #192]	@ movhi
+ 748 003e A4F8C260 		strh	r6, [r4, #194]	@ movhi
+ 749 0042 04F1C003 		add	r3, r4, #192
+ 750 0046 1F46     		mov	r7, r3
+ 751 0048 1A46     		mov	r2, r3
+ 752 004a 2946     		mov	r1, r5
+ 753 004c 04F14800 		add	r0, r4, #72
+ 754 0050 FFF7FEFF 		bl	arm_mat_sub_f32
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 14
+
+
+ 755 0054 84F8C800 		strb	r0, [r4, #200]
+ 756 0058 B4F89830 		ldrh	r3, [r4, #152]
+ 757 005c A4F8B830 		strh	r3, [r4, #184]	@ movhi
+ 758 0060 A4F8BA60 		strh	r6, [r4, #186]	@ movhi
+ 759 0064 2A46     		mov	r2, r5
+ 760 0066 3946     		mov	r1, r7
+ 761 0068 04F19800 		add	r0, r4, #152
+ 762 006c FFF7FEFF 		bl	arm_mat_mult_f32
+ 763 0070 84F8C800 		strb	r0, [r4, #200]
+ 764 0074 04F13002 		add	r2, r4, #48
+ 765 0078 2946     		mov	r1, r5
+ 766 007a 4046     		mov	r0, r8
+ 767 007c FFF7FEFF 		bl	arm_mat_add_f32
+ 768 0080 84F8C800 		strb	r0, [r4, #200]
+ 769 0084 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 771              		.section	.text.Kalman_Filter_P_Update,"ax",%progbits
+ 772              		.align	1
+ 773              		.global	Kalman_Filter_P_Update
+ 774              		.syntax unified
+ 775              		.thumb
+ 776              		.thumb_func
+ 778              	Kalman_Filter_P_Update:
+ 779              		@ args = 0, pretend = 0, frame = 0
+ 780              		@ frame_needed = 0, uses_anonymous_args = 0
+ 781 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 782 0002 90F82C30 		ldrb	r3, [r0, #44]	@ zero_extendqisi2
+ 783 0006 03B1     		cbz	r3, .L52
+ 784              	.L49:
+ 785 0008 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 786              	.L52:
+ 787 000a 0446     		mov	r4, r0
+ 788 000c B0F89830 		ldrh	r3, [r0, #152]
+ 789 0010 A0F8A830 		strh	r3, [r0, #168]	@ movhi
+ 790 0014 B0F87A20 		ldrh	r2, [r0, #122]
+ 791 0018 A0F8AA20 		strh	r2, [r0, #170]	@ movhi
+ 792 001c A0F8B030 		strh	r3, [r0, #176]	@ movhi
+ 793 0020 B0F85A30 		ldrh	r3, [r0, #90]
+ 794 0024 A0F8B230 		strh	r3, [r0, #178]	@ movhi
+ 795 0028 00F1A803 		add	r3, r0, #168
+ 796 002c 1F46     		mov	r7, r3
+ 797 002e 1A46     		mov	r2, r3
+ 798 0030 00F17801 		add	r1, r0, #120
+ 799 0034 9830     		adds	r0, r0, #152
+ 800 0036 FFF7FEFF 		bl	arm_mat_mult_f32
+ 801 003a 84F8C800 		strb	r0, [r4, #200]
+ 802 003e 04F15803 		add	r3, r4, #88
+ 803 0042 1D46     		mov	r5, r3
+ 804 0044 04F1B001 		add	r1, r4, #176
+ 805 0048 0E46     		mov	r6, r1
+ 806 004a 0A46     		mov	r2, r1
+ 807 004c 1946     		mov	r1, r3
+ 808 004e 3846     		mov	r0, r7
+ 809 0050 FFF7FEFF 		bl	arm_mat_mult_f32
+ 810 0054 84F8C800 		strb	r0, [r4, #200]
+ 811 0058 04F15002 		add	r2, r4, #80
+ 812 005c 3146     		mov	r1, r6
+ 813 005e 2846     		mov	r0, r5
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 15
+
+
+ 814 0060 FFF7FEFF 		bl	arm_mat_sub_f32
+ 815 0064 84F8C800 		strb	r0, [r4, #200]
+ 816 0068 CEE7     		b	.L49
+ 818              		.section	.text.Kalman_Filter_Update,"ax",%progbits
+ 819              		.align	1
+ 820              		.global	Kalman_Filter_Update
+ 821              		.syntax unified
+ 822              		.thumb
+ 823              		.thumb_func
+ 825              	Kalman_Filter_Update:
+ 826              		@ args = 0, pretend = 0, frame = 0
+ 827              		@ frame_needed = 0, uses_anonymous_args = 0
+ 828 0000 38B5     		push	{r3, r4, r5, lr}
+ 829 0002 0446     		mov	r4, r0
+ 830 0004 FFF7FEFF 		bl	Kalman_Filter_Measure
+ 831 0008 D4F8CC30 		ldr	r3, [r4, #204]
+ 832 000c 0BB1     		cbz	r3, .L54
+ 833 000e 2046     		mov	r0, r4
+ 834 0010 9847     		blx	r3
+ 835              	.L54:
+ 836 0012 2046     		mov	r0, r4
+ 837 0014 FFF7FEFF 		bl	Kalman_Filter_xhatMinusUpdate
+ 838 0018 D4F8D030 		ldr	r3, [r4, #208]
+ 839 001c 0BB1     		cbz	r3, .L55
+ 840 001e 2046     		mov	r0, r4
+ 841 0020 9847     		blx	r3
+ 842              	.L55:
+ 843 0022 2046     		mov	r0, r4
+ 844 0024 FFF7FEFF 		bl	Kalman_Filter_PminusUpdate
+ 845 0028 D4F8D430 		ldr	r3, [r4, #212]
+ 846 002c 0BB1     		cbz	r3, .L56
+ 847 002e 2046     		mov	r0, r4
+ 848 0030 9847     		blx	r3
+ 849              	.L56:
+ 850 0032 237C     		ldrb	r3, [r4, #16]	@ zero_extendqisi2
+ 851 0034 0BB9     		cbnz	r3, .L57
+ 852 0036 E37B     		ldrb	r3, [r4, #15]	@ zero_extendqisi2
+ 853 0038 CBB9     		cbnz	r3, .L58
+ 854              	.L57:
+ 855 003a 2046     		mov	r0, r4
+ 856 003c FFF7FEFF 		bl	Kalman_Filter_SetK
+ 857 0040 D4F8D830 		ldr	r3, [r4, #216]
+ 858 0044 0BB1     		cbz	r3, .L59
+ 859 0046 2046     		mov	r0, r4
+ 860 0048 9847     		blx	r3
+ 861              	.L59:
+ 862 004a 2046     		mov	r0, r4
+ 863 004c FFF7FEFF 		bl	Kalman_Filter_xhatUpdate
+ 864 0050 D4F8DC30 		ldr	r3, [r4, #220]
+ 865 0054 0BB1     		cbz	r3, .L60
+ 866 0056 2046     		mov	r0, r4
+ 867 0058 9847     		blx	r3
+ 868              	.L60:
+ 869 005a 2046     		mov	r0, r4
+ 870 005c FFF7FEFF 		bl	Kalman_Filter_P_Update
+ 871              	.L61:
+ 872 0060 D4F8E030 		ldr	r3, [r4, #224]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 16
+
+
+ 873 0064 0BB1     		cbz	r3, .L62
+ 874 0066 2046     		mov	r0, r4
+ 875 0068 9847     		blx	r3
+ 876              	.L62:
+ 877 006a 0023     		movs	r3, #0
+ 878 006c 19E0     		b	.L65
+ 879              	.L58:
+ 880 006e 227B     		ldrb	r2, [r4, #12]	@ zero_extendqisi2
+ 881 0070 204D     		ldr	r5, .L71
+ 882 0072 2B88     		ldrh	r3, [r5]
+ 883 0074 03FB02F2 		mul	r2, r3, r2
+ 884 0078 D4F8EC10 		ldr	r1, [r4, #236]
+ 885 007c D4F8E800 		ldr	r0, [r4, #232]
+ 886 0080 FFF7FEFF 		bl	memcpy
+ 887 0084 227B     		ldrb	r2, [r4, #12]	@ zero_extendqisi2
+ 888 0086 2B88     		ldrh	r3, [r5]
+ 889 0088 02FB03F3 		mul	r3, r2, r3
+ 890 008c 03FB02F2 		mul	r2, r3, r2
+ 891 0090 D4F8FC10 		ldr	r1, [r4, #252]
+ 892 0094 D4F8F800 		ldr	r0, [r4, #248]
+ 893 0098 FFF7FEFF 		bl	memcpy
+ 894 009c E0E7     		b	.L61
+ 895              	.L63:
+ 896 009e 0133     		adds	r3, r3, #1
+ 897 00a0 DBB2     		uxtb	r3, r3
+ 898              	.L65:
+ 899 00a2 227B     		ldrb	r2, [r4, #12]	@ zero_extendqisi2
+ 900 00a4 9A42     		cmp	r2, r3
+ 901 00a6 14D9     		bls	.L70
+ 902 00a8 D4F8F810 		ldr	r1, [r4, #248]
+ 903 00ac 02FB0332 		mla	r2, r2, r3, r3
+ 904 00b0 01EB8202 		add	r2, r1, r2, lsl #2
+ 905 00b4 92ED007A 		vldr.32	s14, [r2]
+ 906 00b8 216A     		ldr	r1, [r4, #32]
+ 907 00ba 01EB8301 		add	r1, r1, r3, lsl #2
+ 908 00be D1ED007A 		vldr.32	s15, [r1]
+ 909 00c2 B4EEE77A 		vcmpe.f32	s14, s15
+ 910 00c6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 911 00ca E8D5     		bpl	.L63
+ 912 00cc C2ED007A 		vstr.32	s15, [r2]
+ 913 00d0 E5E7     		b	.L63
+ 914              	.L70:
+ 915 00d2 084B     		ldr	r3, .L71
+ 916 00d4 1B88     		ldrh	r3, [r3]
+ 917 00d6 03FB02F2 		mul	r2, r3, r2
+ 918 00da D4F8E810 		ldr	r1, [r4, #232]
+ 919 00de 2068     		ldr	r0, [r4]
+ 920 00e0 FFF7FEFF 		bl	memcpy
+ 921 00e4 D4F8E430 		ldr	r3, [r4, #228]
+ 922 00e8 0BB1     		cbz	r3, .L67
+ 923 00ea 2046     		mov	r0, r4
+ 924 00ec 9847     		blx	r3
+ 925              	.L67:
+ 926 00ee 2068     		ldr	r0, [r4]
+ 927 00f0 38BD     		pop	{r3, r4, r5, pc}
+ 928              	.L72:
+ 929 00f2 00BF     		.align	2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 17
+
+
+ 930              	.L71:
+ 931 00f4 00000000 		.word	sizeof_float
+ 933              		.global	sizeof_double
+ 934              		.section	.bss.sizeof_double,"aw",%nobits
+ 935              		.align	1
+ 938              	sizeof_double:
+ 939 0000 0000     		.space	2
+ 940              		.global	sizeof_float
+ 941              		.section	.bss.sizeof_float,"aw",%nobits
+ 942              		.align	1
+ 945              	sizeof_float:
+ 946 0000 0000     		.space	2
+ 947              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s 			page 18
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 kalman_filter.c
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:18     .text.H_K_R_Adjustment:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:23     .text.H_K_R_Adjustment:00000000 H_K_R_Adjustment
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:130    .text.H_K_R_Adjustment:00000110 $d
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:945    .bss.sizeof_float:00000000 sizeof_float
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:133    .text.Kalman_Filter_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:139    .text.Kalman_Filter_Init:00000000 Kalman_Filter_Init
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:451    .text.Kalman_Filter_Init:000003c4 $d
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:938    .bss.sizeof_double:00000000 sizeof_double
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:454    .text.Kalman_Filter_Init:000003cc $t
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:488    .text.Kalman_Filter_Init:00000428 $d
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:491    .text.Kalman_Filter_Measure:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:497    .text.Kalman_Filter_Measure:00000000 Kalman_Filter_Measure
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:532    .text.Kalman_Filter_Measure:00000048 $d
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:535    .text.Kalman_Filter_xhatMinusUpdate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:541    .text.Kalman_Filter_xhatMinusUpdate:00000000 Kalman_Filter_xhatMinusUpdate
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:589    .text.Kalman_Filter_PminusUpdate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:595    .text.Kalman_Filter_PminusUpdate:00000000 Kalman_Filter_PminusUpdate
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:639    .text.Kalman_Filter_SetK:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:645    .text.Kalman_Filter_SetK:00000000 Kalman_Filter_SetK
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:719    .text.Kalman_Filter_xhatUpdate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:725    .text.Kalman_Filter_xhatUpdate:00000000 Kalman_Filter_xhatUpdate
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:772    .text.Kalman_Filter_P_Update:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:778    .text.Kalman_Filter_P_Update:00000000 Kalman_Filter_P_Update
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:819    .text.Kalman_Filter_Update:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:825    .text.Kalman_Filter_Update:00000000 Kalman_Filter_Update
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:931    .text.Kalman_Filter_Update:000000f4 $d
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:935    .bss.sizeof_double:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cckyvPgl.s:942    .bss.sizeof_float:00000000 $d
+
+UNDEFINED SYMBOLS
+memcpy
+memset
+malloc
+arm_mat_init_f32
+arm_mat_mult_f32
+arm_mat_add_f32
+arm_mat_trans_f32
+arm_mat_inverse_f32
+arm_mat_sub_f32

@@ -1,0 +1,942 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_iic.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "bsp/iic/bsp_iic.c"
+  20              		.section	.text.IICRegister,"ax",%progbits
+  21              		.align	1
+  22              		.global	IICRegister
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	IICRegister:
+  28              	.LVL0:
+  29              	.LFB235:
+   1:bsp/iic/bsp_iic.c **** #include "bsp_iic.h"
+   2:bsp/iic/bsp_iic.c **** #include "memory.h"
+   3:bsp/iic/bsp_iic.c **** #include "stdlib.h"
+   4:bsp/iic/bsp_iic.c **** 
+   5:bsp/iic/bsp_iic.c **** static uint8_t idx = 0; // 配合中断以及初始化
+   6:bsp/iic/bsp_iic.c **** static IICInstance *iic_instance[IIC_DEVICE_CNT] = {NULL};
+   7:bsp/iic/bsp_iic.c **** 
+   8:bsp/iic/bsp_iic.c **** IICInstance *IICRegister(IIC_Init_Config_s *conf)
+   9:bsp/iic/bsp_iic.c **** {
+  30              		.loc 1 9 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 9 1 is_stmt 0 view .LVU1
+  35 0000 38B5     		push	{r3, r4, r5, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 16
+  38              		.cfi_offset 3, -16
+  39              		.cfi_offset 4, -12
+  40              		.cfi_offset 5, -8
+  41              		.cfi_offset 14, -4
+  10:bsp/iic/bsp_iic.c ****     if (idx >= MX_IIC_SLAVE_CNT) // 超过最大实例数
+  42              		.loc 1 10 5 is_stmt 1 view .LVU2
+  43              		.loc 1 10 13 is_stmt 0 view .LVU3
+  44 0002 114B     		ldr	r3, .L5
+  45 0004 1D78     		ldrb	r5, [r3]	@ zero_extendqisi2
+  46              		.loc 1 10 8 view .LVU4
+  47 0006 072D     		cmp	r5, #7
+  48 0008 00D9     		bls	.L2
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 2
+
+
+  49              	.L3:
+  11:bsp/iic/bsp_iic.c ****         while (1)                // 酌情增加允许的实例上限,也有可能是内存泄漏
+  50              		.loc 1 11 9 is_stmt 1 view .LVU5
+  51              		.loc 1 11 15 view .LVU6
+  52 000a FEE7     		b	.L3
+  53              	.L2:
+  54 000c 0446     		mov	r4, r0
+  12:bsp/iic/bsp_iic.c ****             ;
+  13:bsp/iic/bsp_iic.c ****     // 申请到的空间未必是0, 所以需要手动初始化
+  14:bsp/iic/bsp_iic.c ****     IICInstance *instance = (IICInstance *)malloc(sizeof(IICInstance));
+  55              		.loc 1 14 5 view .LVU7
+  15:bsp/iic/bsp_iic.c ****     instance = (IICInstance *)malloc(sizeof(IICInstance));
+  56              		.loc 1 15 5 view .LVU8
+  57              		.loc 1 15 31 is_stmt 0 view .LVU9
+  58 000e 1820     		movs	r0, #24
+  59              	.LVL1:
+  60              		.loc 1 15 31 view .LVU10
+  61 0010 FFF7FEFF 		bl	malloc
+  62              	.LVL2:
+  16:bsp/iic/bsp_iic.c ****     memset(instance, 0, sizeof(IICInstance));
+  63              		.loc 1 16 5 is_stmt 1 view .LVU11
+  64 0014 0022     		movs	r2, #0
+  65 0016 0260     		str	r2, [r0]	@ unaligned
+  66 0018 4260     		str	r2, [r0, #4]	@ unaligned
+  67 001a 8260     		str	r2, [r0, #8]	@ unaligned
+  68 001c C260     		str	r2, [r0, #12]	@ unaligned
+  69 001e 0261     		str	r2, [r0, #16]	@ unaligned
+  70 0020 4261     		str	r2, [r0, #20]	@ unaligned
+  17:bsp/iic/bsp_iic.c **** 
+  18:bsp/iic/bsp_iic.c ****     instance->dev_address = conf->dev_address << 1; // 地址左移一位,最低位为读写位
+  71              		.loc 1 18 5 view .LVU12
+  72              		.loc 1 18 33 is_stmt 0 view .LVU13
+  73 0022 2279     		ldrb	r2, [r4, #4]	@ zero_extendqisi2
+  74              		.loc 1 18 47 view .LVU14
+  75 0024 5200     		lsls	r2, r2, #1
+  76              		.loc 1 18 27 view .LVU15
+  77 0026 0271     		strb	r2, [r0, #4]
+  19:bsp/iic/bsp_iic.c ****     instance->callback = conf->callback;
+  78              		.loc 1 19 5 is_stmt 1 view .LVU16
+  79              		.loc 1 19 30 is_stmt 0 view .LVU17
+  80 0028 A268     		ldr	r2, [r4, #8]
+  81              		.loc 1 19 24 view .LVU18
+  82 002a 0261     		str	r2, [r0, #16]
+  20:bsp/iic/bsp_iic.c ****     instance->work_mode = conf->work_mode;
+  83              		.loc 1 20 5 is_stmt 1 view .LVU19
+  84              		.loc 1 20 31 is_stmt 0 view .LVU20
+  85 002c 6279     		ldrb	r2, [r4, #5]	@ zero_extendqisi2
+  86              		.loc 1 20 25 view .LVU21
+  87 002e 4271     		strb	r2, [r0, #5]
+  21:bsp/iic/bsp_iic.c ****     instance->handle = conf->handle;
+  88              		.loc 1 21 5 is_stmt 1 view .LVU22
+  89              		.loc 1 21 28 is_stmt 0 view .LVU23
+  90 0030 2268     		ldr	r2, [r4]
+  91              		.loc 1 21 22 view .LVU24
+  92 0032 0260     		str	r2, [r0]
+  22:bsp/iic/bsp_iic.c ****     instance->id = conf->id;
+  93              		.loc 1 22 5 is_stmt 1 view .LVU25
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 3
+
+
+  94              		.loc 1 22 24 is_stmt 0 view .LVU26
+  95 0034 E268     		ldr	r2, [r4, #12]
+  96              		.loc 1 22 18 view .LVU27
+  97 0036 4261     		str	r2, [r0, #20]
+  23:bsp/iic/bsp_iic.c **** 
+  24:bsp/iic/bsp_iic.c ****     iic_instance[idx++] = instance;
+  98              		.loc 1 24 5 is_stmt 1 view .LVU28
+  99              		.loc 1 24 21 is_stmt 0 view .LVU29
+ 100 0038 691C     		adds	r1, r5, #1
+ 101 003a 034A     		ldr	r2, .L5
+ 102 003c 1170     		strb	r1, [r2]
+ 103              		.loc 1 24 25 view .LVU30
+ 104 003e 034A     		ldr	r2, .L5+4
+ 105 0040 42F82500 		str	r0, [r2, r5, lsl #2]
+  25:bsp/iic/bsp_iic.c ****     return instance;
+ 106              		.loc 1 25 5 is_stmt 1 view .LVU31
+  26:bsp/iic/bsp_iic.c **** }
+ 107              		.loc 1 26 1 is_stmt 0 view .LVU32
+ 108 0044 38BD     		pop	{r3, r4, r5, pc}
+ 109              	.LVL3:
+ 110              	.L6:
+ 111              		.loc 1 26 1 view .LVU33
+ 112 0046 00BF     		.align	2
+ 113              	.L5:
+ 114 0048 00000000 		.word	idx
+ 115 004c 00000000 		.word	iic_instance
+ 116              		.cfi_endproc
+ 117              	.LFE235:
+ 119              		.section	.text.IICSetMode,"ax",%progbits
+ 120              		.align	1
+ 121              		.global	IICSetMode
+ 122              		.syntax unified
+ 123              		.thumb
+ 124              		.thumb_func
+ 126              	IICSetMode:
+ 127              	.LVL4:
+ 128              	.LFB236:
+  27:bsp/iic/bsp_iic.c **** 
+  28:bsp/iic/bsp_iic.c **** void IICSetMode(IICInstance *iic, IIC_Work_Mode_e mode)
+  29:bsp/iic/bsp_iic.c **** { // HAL自带重入保护,不需要手动终止或等待传输完成
+ 129              		.loc 1 29 1 is_stmt 1 view -0
+ 130              		.cfi_startproc
+ 131              		@ args = 0, pretend = 0, frame = 0
+ 132              		@ frame_needed = 0, uses_anonymous_args = 0
+ 133              		@ link register save eliminated.
+  30:bsp/iic/bsp_iic.c ****     if (iic->work_mode != mode)
+ 134              		.loc 1 30 5 view .LVU35
+ 135              		.loc 1 30 12 is_stmt 0 view .LVU36
+ 136 0000 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 137              		.loc 1 30 8 view .LVU37
+ 138 0002 8B42     		cmp	r3, r1
+ 139 0004 00D0     		beq	.L7
+  31:bsp/iic/bsp_iic.c ****     {
+  32:bsp/iic/bsp_iic.c ****         iic->work_mode = mode; // 如果不同才需要修改
+ 140              		.loc 1 32 9 is_stmt 1 view .LVU38
+ 141              		.loc 1 32 24 is_stmt 0 view .LVU39
+ 142 0006 4171     		strb	r1, [r0, #5]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 4
+
+
+ 143              	.L7:
+  33:bsp/iic/bsp_iic.c ****     }
+  34:bsp/iic/bsp_iic.c **** }
+ 144              		.loc 1 34 1 view .LVU40
+ 145 0008 7047     		bx	lr
+ 146              		.cfi_endproc
+ 147              	.LFE236:
+ 149              		.section	.text.IICTransmit,"ax",%progbits
+ 150              		.align	1
+ 151              		.global	IICTransmit
+ 152              		.syntax unified
+ 153              		.thumb
+ 154              		.thumb_func
+ 156              	IICTransmit:
+ 157              	.LVL5:
+ 158              	.LFB237:
+  35:bsp/iic/bsp_iic.c **** 
+  36:bsp/iic/bsp_iic.c **** void IICTransmit(IICInstance *iic, uint8_t *data, uint16_t size, IIC_Seq_Mode_e seq_mode)
+  37:bsp/iic/bsp_iic.c **** {
+ 159              		.loc 1 37 1 is_stmt 1 view -0
+ 160              		.cfi_startproc
+ 161              		@ args = 0, pretend = 0, frame = 0
+ 162              		@ frame_needed = 0, uses_anonymous_args = 0
+  38:bsp/iic/bsp_iic.c ****     if (seq_mode != IIC_SEQ_RELEASE && seq_mode != IIC_SEQ_HOLDON)
+ 163              		.loc 1 38 5 view .LVU42
+ 164              		.loc 1 38 8 is_stmt 0 view .LVU43
+ 165 0000 03B1     		cbz	r3, .L10
+ 166              	.L11:
+  39:bsp/iic/bsp_iic.c ****         while (1)
+ 167              		.loc 1 39 9 is_stmt 1 view .LVU44
+ 168              		.loc 1 39 15 view .LVU45
+ 169 0002 FEE7     		b	.L11
+ 170              	.L10:
+  37:bsp/iic/bsp_iic.c ****     if (seq_mode != IIC_SEQ_RELEASE && seq_mode != IIC_SEQ_HOLDON)
+ 171              		.loc 1 37 1 is_stmt 0 view .LVU46
+ 172 0004 00B5     		push	{lr}
+ 173              	.LCFI1:
+ 174              		.cfi_def_cfa_offset 4
+ 175              		.cfi_offset 14, -4
+ 176 0006 83B0     		sub	sp, sp, #12
+ 177              	.LCFI2:
+ 178              		.cfi_def_cfa_offset 16
+  40:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+  41:bsp/iic/bsp_iic.c **** 
+  42:bsp/iic/bsp_iic.c ****     // 根据不同的工作模式进行不同的传输
+  43:bsp/iic/bsp_iic.c ****     switch (iic->work_mode)
+ 179              		.loc 1 43 5 is_stmt 1 view .LVU47
+ 180              		.loc 1 43 16 is_stmt 0 view .LVU48
+ 181 0008 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 182              	.LVL6:
+ 183              		.loc 1 43 5 view .LVU49
+ 184 000a 012B     		cmp	r3, #1
+ 185 000c 0DD0     		beq	.L12
+ 186 000e 022B     		cmp	r3, #2
+ 187 0010 15D0     		beq	.L13
+ 188 0012 F3B9     		cbnz	r3, .L14
+  44:bsp/iic/bsp_iic.c ****     {
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 5
+
+
+  45:bsp/iic/bsp_iic.c ****     case IIC_BLOCK_MODE:
+  46:bsp/iic/bsp_iic.c ****         if (seq_mode != IIC_SEQ_RELEASE)
+ 189              		.loc 1 46 9 is_stmt 1 view .LVU50
+  47:bsp/iic/bsp_iic.c ****             while (1)
+  48:bsp/iic/bsp_iic.c ****                 ;                                                                // 阻塞模式下
+  49:bsp/iic/bsp_iic.c ****         HAL_I2C_Master_Transmit(iic->handle, iic->dev_address, data, size, 100); // 默认超时时
+ 190              		.loc 1 49 9 view .LVU51
+ 191 0014 6423     		movs	r3, #100
+ 192 0016 0093     		str	r3, [sp]
+ 193 0018 1346     		mov	r3, r2
+ 194 001a 0A46     		mov	r2, r1
+ 195              	.LVL7:
+ 196              		.loc 1 49 9 is_stmt 0 view .LVU52
+ 197 001c 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 198              	.LVL8:
+ 199              		.loc 1 49 9 view .LVU53
+ 200 001e 0068     		ldr	r0, [r0]
+ 201              	.LVL9:
+ 202              		.loc 1 49 9 view .LVU54
+ 203 0020 FFF7FEFF 		bl	HAL_I2C_Master_Transmit
+ 204              	.LVL10:
+  50:bsp/iic/bsp_iic.c ****         break;
+ 205              		.loc 1 50 9 is_stmt 1 view .LVU55
+ 206              	.L9:
+  51:bsp/iic/bsp_iic.c ****     case IIC_IT_MODE:
+  52:bsp/iic/bsp_iic.c ****         if (seq_mode == IIC_SEQ_RELEASE)
+  53:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Transmit_IT(iic->handle, iic->dev_address, data, size, I2C_OTHER_AND
+  54:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+  55:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Transmit_IT(iic->handle, iic->dev_address, data, size, I2C_OTHER_FRA
+  56:bsp/iic/bsp_iic.c ****         break;
+  57:bsp/iic/bsp_iic.c ****     case IIC_DMA_MODE:
+  58:bsp/iic/bsp_iic.c ****         if (seq_mode == IIC_SEQ_RELEASE)
+  59:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Transmit_DMA(iic->handle, iic->dev_address, data, size, I2C_OTHER_AN
+  60:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+  61:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Transmit_DMA(iic->handle, iic->dev_address, data, size, I2C_OTHER_FR
+  62:bsp/iic/bsp_iic.c ****         break;
+  63:bsp/iic/bsp_iic.c ****     default:
+  64:bsp/iic/bsp_iic.c ****         while (1)
+  65:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+  66:bsp/iic/bsp_iic.c ****     }
+  67:bsp/iic/bsp_iic.c **** }
+ 207              		.loc 1 67 1 is_stmt 0 view .LVU56
+ 208 0024 03B0     		add	sp, sp, #12
+ 209              	.LCFI3:
+ 210              		.cfi_remember_state
+ 211              		.cfi_def_cfa_offset 4
+ 212              		@ sp needed
+ 213 0026 5DF804FB 		ldr	pc, [sp], #4
+ 214              	.LVL11:
+ 215              	.L12:
+ 216              	.LCFI4:
+ 217              		.cfi_restore_state
+  52:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Transmit_IT(iic->handle, iic->dev_address, data, size, I2C_OTHER_AND
+ 218              		.loc 1 52 9 is_stmt 1 view .LVU57
+  53:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 219              		.loc 1 53 13 view .LVU58
+ 220 002a 4FF02A43 		mov	r3, #-1442840576
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 6
+
+
+ 221 002e 0093     		str	r3, [sp]
+ 222 0030 1346     		mov	r3, r2
+ 223 0032 0A46     		mov	r2, r1
+ 224              	.LVL12:
+  53:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 225              		.loc 1 53 13 is_stmt 0 view .LVU59
+ 226 0034 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 227              	.LVL13:
+  53:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 228              		.loc 1 53 13 view .LVU60
+ 229 0036 0068     		ldr	r0, [r0]
+ 230              	.LVL14:
+  53:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 231              		.loc 1 53 13 view .LVU61
+ 232 0038 FFF7FEFF 		bl	HAL_I2C_Master_Seq_Transmit_IT
+ 233              	.LVL15:
+  53:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 234              		.loc 1 53 13 view .LVU62
+ 235 003c F2E7     		b	.L9
+ 236              	.LVL16:
+ 237              	.L13:
+  58:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Transmit_DMA(iic->handle, iic->dev_address, data, size, I2C_OTHER_AN
+ 238              		.loc 1 58 9 is_stmt 1 view .LVU63
+  59:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 239              		.loc 1 59 13 view .LVU64
+ 240 003e 4FF02A43 		mov	r3, #-1442840576
+ 241 0042 0093     		str	r3, [sp]
+ 242 0044 1346     		mov	r3, r2
+ 243 0046 0A46     		mov	r2, r1
+ 244              	.LVL17:
+  59:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 245              		.loc 1 59 13 is_stmt 0 view .LVU65
+ 246 0048 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 247              	.LVL18:
+  59:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 248              		.loc 1 59 13 view .LVU66
+ 249 004a 0068     		ldr	r0, [r0]
+ 250              	.LVL19:
+  59:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 251              		.loc 1 59 13 view .LVU67
+ 252 004c FFF7FEFF 		bl	HAL_I2C_Master_Seq_Transmit_DMA
+ 253              	.LVL20:
+  59:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 254              		.loc 1 59 13 view .LVU68
+ 255 0050 E8E7     		b	.L9
+ 256              	.LVL21:
+ 257              	.L14:
+  64:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+ 258              		.loc 1 64 9 is_stmt 1 view .LVU69
+  64:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+ 259              		.loc 1 64 15 view .LVU70
+ 260 0052 FEE7     		b	.L14
+ 261              		.cfi_endproc
+ 262              	.LFE237:
+ 264              		.section	.text.IICReceive,"ax",%progbits
+ 265              		.align	1
+ 266              		.global	IICReceive
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 7
+
+
+ 267              		.syntax unified
+ 268              		.thumb
+ 269              		.thumb_func
+ 271              	IICReceive:
+ 272              	.LVL22:
+ 273              	.LFB238:
+  68:bsp/iic/bsp_iic.c **** 
+  69:bsp/iic/bsp_iic.c **** void IICReceive(IICInstance *iic, uint8_t *data, uint16_t size, IIC_Seq_Mode_e seq_mode)
+  70:bsp/iic/bsp_iic.c **** {
+ 274              		.loc 1 70 1 view -0
+ 275              		.cfi_startproc
+ 276              		@ args = 0, pretend = 0, frame = 0
+ 277              		@ frame_needed = 0, uses_anonymous_args = 0
+  71:bsp/iic/bsp_iic.c ****     if (seq_mode != IIC_SEQ_RELEASE && seq_mode != IIC_SEQ_HOLDON)
+ 278              		.loc 1 71 5 view .LVU72
+ 279              		.loc 1 71 8 is_stmt 0 view .LVU73
+ 280 0000 03B1     		cbz	r3, .L19
+ 281              	.L20:
+  72:bsp/iic/bsp_iic.c ****         while (1)
+ 282              		.loc 1 72 9 is_stmt 1 view .LVU74
+ 283              		.loc 1 72 15 view .LVU75
+ 284 0002 FEE7     		b	.L20
+ 285              	.L19:
+  70:bsp/iic/bsp_iic.c ****     if (seq_mode != IIC_SEQ_RELEASE && seq_mode != IIC_SEQ_HOLDON)
+ 286              		.loc 1 70 1 is_stmt 0 view .LVU76
+ 287 0004 00B5     		push	{lr}
+ 288              	.LCFI5:
+ 289              		.cfi_def_cfa_offset 4
+ 290              		.cfi_offset 14, -4
+ 291 0006 83B0     		sub	sp, sp, #12
+ 292              	.LCFI6:
+ 293              		.cfi_def_cfa_offset 16
+  73:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止,请检查指针越界
+  74:bsp/iic/bsp_iic.c **** 
+  75:bsp/iic/bsp_iic.c ****     // 初始化接收缓冲区地址以及接受长度, 用于中断回调函数
+  76:bsp/iic/bsp_iic.c ****     iic->rx_buffer = data;
+ 294              		.loc 1 76 5 is_stmt 1 view .LVU77
+ 295              		.loc 1 76 20 is_stmt 0 view .LVU78
+ 296 0008 8160     		str	r1, [r0, #8]
+  77:bsp/iic/bsp_iic.c ****     iic->rx_len = size;
+ 297              		.loc 1 77 5 is_stmt 1 view .LVU79
+ 298              		.loc 1 77 17 is_stmt 0 view .LVU80
+ 299 000a 0273     		strb	r2, [r0, #12]
+  78:bsp/iic/bsp_iic.c **** 
+  79:bsp/iic/bsp_iic.c ****     switch (iic->work_mode)
+ 300              		.loc 1 79 5 is_stmt 1 view .LVU81
+ 301              		.loc 1 79 16 is_stmt 0 view .LVU82
+ 302 000c 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 303              	.LVL23:
+ 304              		.loc 1 79 5 view .LVU83
+ 305 000e 012B     		cmp	r3, #1
+ 306 0010 0DD0     		beq	.L21
+ 307              		.loc 1 79 5 view .LVU84
+ 308 0012 022B     		cmp	r3, #2
+ 309 0014 15D0     		beq	.L22
+ 310 0016 F3B9     		cbnz	r3, .L23
+  80:bsp/iic/bsp_iic.c ****     {
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 8
+
+
+  81:bsp/iic/bsp_iic.c ****     case IIC_BLOCK_MODE:
+  82:bsp/iic/bsp_iic.c ****         if (seq_mode != IIC_SEQ_RELEASE)
+ 311              		.loc 1 82 9 is_stmt 1 view .LVU85
+  83:bsp/iic/bsp_iic.c ****             while (1)
+  84:bsp/iic/bsp_iic.c ****                 ;                                                               // 阻塞模式下�
+  85:bsp/iic/bsp_iic.c ****         HAL_I2C_Master_Receive(iic->handle, iic->dev_address, data, size, 100); // 默认超时时�
+ 312              		.loc 1 85 9 view .LVU86
+ 313 0018 6423     		movs	r3, #100
+ 314 001a 0093     		str	r3, [sp]
+ 315 001c 1346     		mov	r3, r2
+ 316 001e 0A46     		mov	r2, r1
+ 317              	.LVL24:
+ 318              		.loc 1 85 9 is_stmt 0 view .LVU87
+ 319 0020 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 320              	.LVL25:
+ 321              		.loc 1 85 9 view .LVU88
+ 322 0022 0068     		ldr	r0, [r0]
+ 323              	.LVL26:
+ 324              		.loc 1 85 9 view .LVU89
+ 325 0024 FFF7FEFF 		bl	HAL_I2C_Master_Receive
+ 326              	.LVL27:
+  86:bsp/iic/bsp_iic.c ****         break;
+ 327              		.loc 1 86 9 is_stmt 1 view .LVU90
+ 328              	.L18:
+  87:bsp/iic/bsp_iic.c ****     case IIC_IT_MODE:
+  88:bsp/iic/bsp_iic.c ****         if (seq_mode == IIC_SEQ_RELEASE)
+  89:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Receive_IT(iic->handle, iic->dev_address, data, size, I2C_OTHER_AND_
+  90:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+  91:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Receive_IT(iic->handle, iic->dev_address, data, size, I2C_OTHER_FRAM
+  92:bsp/iic/bsp_iic.c ****         break;
+  93:bsp/iic/bsp_iic.c ****     case IIC_DMA_MODE:
+  94:bsp/iic/bsp_iic.c ****         if (seq_mode == IIC_SEQ_RELEASE)
+  95:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Receive_DMA(iic->handle, iic->dev_address, data, size, I2C_OTHER_AND
+  96:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+  97:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Receive_DMA(iic->handle, iic->dev_address, data, size, I2C_OTHER_FRA
+  98:bsp/iic/bsp_iic.c ****         break;
+  99:bsp/iic/bsp_iic.c ****     default:
+ 100:bsp/iic/bsp_iic.c ****         while (1)
+ 101:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+ 102:bsp/iic/bsp_iic.c ****         break;
+ 103:bsp/iic/bsp_iic.c ****     }
+ 104:bsp/iic/bsp_iic.c **** }
+ 329              		.loc 1 104 1 is_stmt 0 view .LVU91
+ 330 0028 03B0     		add	sp, sp, #12
+ 331              	.LCFI7:
+ 332              		.cfi_remember_state
+ 333              		.cfi_def_cfa_offset 4
+ 334              		@ sp needed
+ 335 002a 5DF804FB 		ldr	pc, [sp], #4
+ 336              	.LVL28:
+ 337              	.L21:
+ 338              	.LCFI8:
+ 339              		.cfi_restore_state
+  88:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Receive_IT(iic->handle, iic->dev_address, data, size, I2C_OTHER_AND_
+ 340              		.loc 1 88 9 is_stmt 1 view .LVU92
+  89:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 341              		.loc 1 89 13 view .LVU93
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 9
+
+
+ 342 002e 4FF02A43 		mov	r3, #-1442840576
+ 343 0032 0093     		str	r3, [sp]
+ 344 0034 1346     		mov	r3, r2
+ 345 0036 0A46     		mov	r2, r1
+ 346              	.LVL29:
+  89:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 347              		.loc 1 89 13 is_stmt 0 view .LVU94
+ 348 0038 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 349              	.LVL30:
+  89:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 350              		.loc 1 89 13 view .LVU95
+ 351 003a 0068     		ldr	r0, [r0]
+ 352              	.LVL31:
+  89:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 353              		.loc 1 89 13 view .LVU96
+ 354 003c FFF7FEFF 		bl	HAL_I2C_Master_Seq_Receive_IT
+ 355              	.LVL32:
+  89:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 356              		.loc 1 89 13 view .LVU97
+ 357 0040 F2E7     		b	.L18
+ 358              	.LVL33:
+ 359              	.L22:
+  94:bsp/iic/bsp_iic.c ****             HAL_I2C_Master_Seq_Receive_DMA(iic->handle, iic->dev_address, data, size, I2C_OTHER_AND
+ 360              		.loc 1 94 9 is_stmt 1 view .LVU98
+  95:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 361              		.loc 1 95 13 view .LVU99
+ 362 0042 4FF02A43 		mov	r3, #-1442840576
+ 363 0046 0093     		str	r3, [sp]
+ 364 0048 1346     		mov	r3, r2
+ 365 004a 0A46     		mov	r2, r1
+ 366              	.LVL34:
+  95:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 367              		.loc 1 95 13 is_stmt 0 view .LVU100
+ 368 004c 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 369              	.LVL35:
+  95:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 370              		.loc 1 95 13 view .LVU101
+ 371 004e 0068     		ldr	r0, [r0]
+ 372              	.LVL36:
+  95:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 373              		.loc 1 95 13 view .LVU102
+ 374 0050 FFF7FEFF 		bl	HAL_I2C_Master_Seq_Receive_DMA
+ 375              	.LVL37:
+  95:bsp/iic/bsp_iic.c ****         else if (seq_mode == IIC_SEQ_HOLDON)
+ 376              		.loc 1 95 13 view .LVU103
+ 377 0054 E8E7     		b	.L18
+ 378              	.LVL38:
+ 379              	.L23:
+ 100:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+ 380              		.loc 1 100 9 is_stmt 1 view .LVU104
+ 100:bsp/iic/bsp_iic.c ****             ; // 未知传输模式, 程序停止
+ 381              		.loc 1 100 15 view .LVU105
+ 382 0056 FEE7     		b	.L23
+ 383              		.cfi_endproc
+ 384              	.LFE238:
+ 386              		.section	.text.IICAccessMem,"ax",%progbits
+ 387              		.align	1
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 10
+
+
+ 388              		.global	IICAccessMem
+ 389              		.syntax unified
+ 390              		.thumb
+ 391              		.thumb_func
+ 393              	IICAccessMem:
+ 394              	.LVL39:
+ 395              	.LFB239:
+ 105:bsp/iic/bsp_iic.c **** 
+ 106:bsp/iic/bsp_iic.c **** void IICAccessMem(IICInstance *iic, uint16_t mem_addr, uint8_t *data, uint16_t size, IIC_Mem_Mode_e
+ 107:bsp/iic/bsp_iic.c **** {
+ 396              		.loc 1 107 1 view -0
+ 397              		.cfi_startproc
+ 398              		@ args = 8, pretend = 0, frame = 0
+ 399              		@ frame_needed = 0, uses_anonymous_args = 0
+ 400              		.loc 1 107 1 is_stmt 0 view .LVU107
+ 401 0000 10B5     		push	{r4, lr}
+ 402              	.LCFI9:
+ 403              		.cfi_def_cfa_offset 8
+ 404              		.cfi_offset 4, -8
+ 405              		.cfi_offset 14, -4
+ 406 0002 84B0     		sub	sp, sp, #16
+ 407              	.LCFI10:
+ 408              		.cfi_def_cfa_offset 24
+ 409 0004 8446     		mov	ip, r0
+ 410 0006 9DF81800 		ldrb	r0, [sp, #24]	@ zero_extendqisi2
+ 411              	.LVL40:
+ 412              		.loc 1 107 1 view .LVU108
+ 413 000a 9DF81C40 		ldrb	r4, [sp, #28]	@ zero_extendqisi2
+ 108:bsp/iic/bsp_iic.c ****     uint16_t bit_flag = mem8bit_flag ? I2C_MEMADD_SIZE_8BIT : I2C_MEMADD_SIZE_16BIT;
+ 414              		.loc 1 108 5 is_stmt 1 view .LVU109
+ 415              		.loc 1 108 14 is_stmt 0 view .LVU110
+ 416 000e 24B1     		cbz	r4, .L32
+ 417              		.loc 1 108 14 discriminator 1 view .LVU111
+ 418 0010 0124     		movs	r4, #1
+ 419              	.L28:
+ 420              	.LVL41:
+ 109:bsp/iic/bsp_iic.c ****     if (mem_mode == IIC_WRITE_MEM)
+ 421              		.loc 1 109 5 is_stmt 1 view .LVU112
+ 422              		.loc 1 109 8 is_stmt 0 view .LVU113
+ 423 0012 0128     		cmp	r0, #1
+ 424 0014 03D0     		beq	.L34
+ 110:bsp/iic/bsp_iic.c ****     {
+ 111:bsp/iic/bsp_iic.c ****         HAL_I2C_Mem_Write(iic->handle, iic->dev_address, mem_addr, bit_flag, data, size, 100);
+ 112:bsp/iic/bsp_iic.c ****     }
+ 113:bsp/iic/bsp_iic.c ****     else if (mem_mode == IIC_READ_MEM)
+ 425              		.loc 1 113 10 is_stmt 1 view .LVU114
+ 426              		.loc 1 113 13 is_stmt 0 view .LVU115
+ 427 0016 78B1     		cbz	r0, .L35
+ 428              	.L31:
+ 114:bsp/iic/bsp_iic.c ****     {
+ 115:bsp/iic/bsp_iic.c ****         HAL_I2C_Mem_Read(iic->handle, iic->dev_address, mem_addr, bit_flag, data, size, 100);
+ 116:bsp/iic/bsp_iic.c ****     }
+ 117:bsp/iic/bsp_iic.c ****     else
+ 118:bsp/iic/bsp_iic.c ****     {
+ 119:bsp/iic/bsp_iic.c ****         while (1)
+ 429              		.loc 1 119 9 is_stmt 1 view .LVU116
+ 430              		.loc 1 119 15 view .LVU117
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 11
+
+
+ 431 0018 FEE7     		b	.L31
+ 432              	.LVL42:
+ 433              	.L32:
+ 108:bsp/iic/bsp_iic.c ****     if (mem_mode == IIC_WRITE_MEM)
+ 434              		.loc 1 108 14 is_stmt 0 discriminator 2 view .LVU118
+ 435 001a 1024     		movs	r4, #16
+ 436 001c F9E7     		b	.L28
+ 437              	.LVL43:
+ 438              	.L34:
+ 111:bsp/iic/bsp_iic.c ****     }
+ 439              		.loc 1 111 9 is_stmt 1 view .LVU119
+ 440 001e 6420     		movs	r0, #100
+ 441 0020 0290     		str	r0, [sp, #8]
+ 442 0022 0193     		str	r3, [sp, #4]
+ 443 0024 0092     		str	r2, [sp]
+ 444 0026 2346     		mov	r3, r4
+ 445              	.LVL44:
+ 111:bsp/iic/bsp_iic.c ****     }
+ 446              		.loc 1 111 9 is_stmt 0 view .LVU120
+ 447 0028 0A46     		mov	r2, r1
+ 448              	.LVL45:
+ 111:bsp/iic/bsp_iic.c ****     }
+ 449              		.loc 1 111 9 view .LVU121
+ 450 002a 9CF80410 		ldrb	r1, [ip, #4]	@ zero_extendqisi2
+ 451              	.LVL46:
+ 111:bsp/iic/bsp_iic.c ****     }
+ 452              		.loc 1 111 9 view .LVU122
+ 453 002e DCF80000 		ldr	r0, [ip]
+ 454 0032 FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 455              	.LVL47:
+ 111:bsp/iic/bsp_iic.c ****     }
+ 456              		.loc 1 111 9 view .LVU123
+ 457 0036 0BE0     		b	.L27
+ 458              	.LVL48:
+ 459              	.L35:
+ 115:bsp/iic/bsp_iic.c ****     }
+ 460              		.loc 1 115 9 is_stmt 1 view .LVU124
+ 461 0038 6420     		movs	r0, #100
+ 462 003a 0290     		str	r0, [sp, #8]
+ 463 003c 0193     		str	r3, [sp, #4]
+ 464 003e 0092     		str	r2, [sp]
+ 465 0040 2346     		mov	r3, r4
+ 466              	.LVL49:
+ 115:bsp/iic/bsp_iic.c ****     }
+ 467              		.loc 1 115 9 is_stmt 0 view .LVU125
+ 468 0042 0A46     		mov	r2, r1
+ 469              	.LVL50:
+ 115:bsp/iic/bsp_iic.c ****     }
+ 470              		.loc 1 115 9 view .LVU126
+ 471 0044 9CF80410 		ldrb	r1, [ip, #4]	@ zero_extendqisi2
+ 472              	.LVL51:
+ 115:bsp/iic/bsp_iic.c ****     }
+ 473              		.loc 1 115 9 view .LVU127
+ 474 0048 DCF80000 		ldr	r0, [ip]
+ 475 004c FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 476              	.LVL52:
+ 477              	.L27:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 12
+
+
+ 120:bsp/iic/bsp_iic.c ****             ; // 未知模式, 程序停止
+ 121:bsp/iic/bsp_iic.c ****     }
+ 122:bsp/iic/bsp_iic.c **** }
+ 478              		.loc 1 122 1 view .LVU128
+ 479 0050 04B0     		add	sp, sp, #16
+ 480              	.LCFI11:
+ 481              		.cfi_def_cfa_offset 8
+ 482              		@ sp needed
+ 483 0052 10BD     		pop	{r4, pc}
+ 484              		.loc 1 122 1 view .LVU129
+ 485              		.cfi_endproc
+ 486              	.LFE239:
+ 488              		.section	.text.HAL_I2C_MasterRxCpltCallback,"ax",%progbits
+ 489              		.align	1
+ 490              		.global	HAL_I2C_MasterRxCpltCallback
+ 491              		.syntax unified
+ 492              		.thumb
+ 493              		.thumb_func
+ 495              	HAL_I2C_MasterRxCpltCallback:
+ 496              	.LVL53:
+ 497              	.LFB240:
+ 123:bsp/iic/bsp_iic.c **** 
+ 124:bsp/iic/bsp_iic.c **** /**
+ 125:bsp/iic/bsp_iic.c ****  * @brief IIC接收完成回调函数
+ 126:bsp/iic/bsp_iic.c ****  *
+ 127:bsp/iic/bsp_iic.c ****  * @param hi2c handle
+ 128:bsp/iic/bsp_iic.c ****  */
+ 129:bsp/iic/bsp_iic.c **** void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
+ 130:bsp/iic/bsp_iic.c **** {
+ 498              		.loc 1 130 1 is_stmt 1 view -0
+ 499              		.cfi_startproc
+ 500              		@ args = 0, pretend = 0, frame = 0
+ 501              		@ frame_needed = 0, uses_anonymous_args = 0
+ 131:bsp/iic/bsp_iic.c ****     // 如果是当前i2c硬件发出的complete,且dev_address和之前发起接收的地址相同
+ 132:bsp/iic/bsp_iic.c ****     for (uint8_t i = 0; i < idx; i++)
+ 502              		.loc 1 132 5 view .LVU131
+ 503              	.LBB2:
+ 504              		.loc 1 132 10 view .LVU132
+ 505              		.loc 1 132 18 is_stmt 0 view .LVU133
+ 506 0000 0023     		movs	r3, #0
+ 507              		.loc 1 132 5 view .LVU134
+ 508 0002 06E0     		b	.L43
+ 509              	.LVL54:
+ 510              	.L51:
+ 511              	.LCFI12:
+ 512              		.cfi_def_cfa_offset 8
+ 513              		.cfi_offset 4, -8
+ 514              		.cfi_offset 14, -4
+ 133:bsp/iic/bsp_iic.c ****     {
+ 134:bsp/iic/bsp_iic.c ****         if (iic_instance[i]->handle == hi2c && hi2c->Devaddress == iic_instance[i]->dev_address)
+ 135:bsp/iic/bsp_iic.c ****         {
+ 136:bsp/iic/bsp_iic.c ****             if (iic_instance[i]->callback != NULL) // 回调函数不为空
+ 515              		.loc 1 136 13 is_stmt 1 view .LVU135
+ 516              		.loc 1 136 32 is_stmt 0 view .LVU136
+ 517 0004 1369     		ldr	r3, [r2, #16]
+ 518              	.LVL55:
+ 519              		.loc 1 136 16 view .LVU137
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 13
+
+
+ 520 0006 0BB1     		cbz	r3, .L36
+ 137:bsp/iic/bsp_iic.c ****                 iic_instance[i]->callback(iic_instance[i]);
+ 521              		.loc 1 137 17 is_stmt 1 view .LVU138
+ 522 0008 1046     		mov	r0, r2
+ 523              	.LVL56:
+ 524              		.loc 1 137 17 is_stmt 0 view .LVU139
+ 525 000a 9847     		blx	r3
+ 526              	.LVL57:
+ 138:bsp/iic/bsp_iic.c ****             return;
+ 527              		.loc 1 138 13 is_stmt 1 view .LVU140
+ 528              	.L36:
+ 529              		.loc 1 138 13 is_stmt 0 view .LVU141
+ 530              	.LBE2:
+ 139:bsp/iic/bsp_iic.c ****         }
+ 140:bsp/iic/bsp_iic.c ****     }
+ 141:bsp/iic/bsp_iic.c **** }
+ 531              		.loc 1 141 1 view .LVU142
+ 532 000c 10BD     		pop	{r4, pc}
+ 533              	.LVL58:
+ 534              	.L50:
+ 535              	.LCFI13:
+ 536              		.cfi_def_cfa_offset 0
+ 537              		.cfi_restore 4
+ 538              		.cfi_restore 14
+ 539              	.LBB3:
+ 132:bsp/iic/bsp_iic.c ****     {
+ 540              		.loc 1 132 35 is_stmt 1 discriminator 2 view .LVU143
+ 541 000e 0133     		adds	r3, r3, #1
+ 542              	.LVL59:
+ 132:bsp/iic/bsp_iic.c ****     {
+ 543              		.loc 1 132 35 is_stmt 0 discriminator 2 view .LVU144
+ 544 0010 DBB2     		uxtb	r3, r3
+ 545              	.LVL60:
+ 546              	.L43:
+ 132:bsp/iic/bsp_iic.c ****     {
+ 547              		.loc 1 132 27 is_stmt 1 discriminator 1 view .LVU145
+ 548 0012 0E4A     		ldr	r2, .L52
+ 549 0014 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 550 0016 9A42     		cmp	r2, r3
+ 551 0018 17D9     		bls	.L49
+ 134:bsp/iic/bsp_iic.c ****         {
+ 552              		.loc 1 134 9 view .LVU146
+ 134:bsp/iic/bsp_iic.c ****         {
+ 553              		.loc 1 134 25 is_stmt 0 view .LVU147
+ 554 001a 0D4A     		ldr	r2, .L52+4
+ 555 001c 52F82320 		ldr	r2, [r2, r3, lsl #2]
+ 134:bsp/iic/bsp_iic.c ****         {
+ 556              		.loc 1 134 28 view .LVU148
+ 557 0020 1168     		ldr	r1, [r2]
+ 134:bsp/iic/bsp_iic.c ****         {
+ 558              		.loc 1 134 12 view .LVU149
+ 559 0022 8142     		cmp	r1, r0
+ 560 0024 F3D1     		bne	.L50
+ 561              	.LBE3:
+ 130:bsp/iic/bsp_iic.c ****     // 如果是当前i2c硬件发出的complete,且dev_address和之前发起接收的地址相同
+ 562              		.loc 1 130 1 view .LVU150
+ 563 0026 10B5     		push	{r4, lr}
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 14
+
+
+ 564              	.LCFI14:
+ 565              		.cfi_def_cfa_offset 8
+ 566              		.cfi_offset 4, -8
+ 567              		.cfi_offset 14, -4
+ 568              	.L44:
+ 569              	.LBB4:
+ 134:bsp/iic/bsp_iic.c ****         {
+ 570              		.loc 1 134 52 discriminator 1 view .LVU151
+ 571 0028 446C     		ldr	r4, [r0, #68]
+ 134:bsp/iic/bsp_iic.c ****         {
+ 572              		.loc 1 134 83 discriminator 1 view .LVU152
+ 573 002a 1179     		ldrb	r1, [r2, #4]	@ zero_extendqisi2
+ 134:bsp/iic/bsp_iic.c ****         {
+ 574              		.loc 1 134 45 discriminator 1 view .LVU153
+ 575 002c 8C42     		cmp	r4, r1
+ 576 002e E9D0     		beq	.L51
+ 577              	.L38:
+ 132:bsp/iic/bsp_iic.c ****     {
+ 578              		.loc 1 132 35 is_stmt 1 discriminator 2 view .LVU154
+ 579 0030 0133     		adds	r3, r3, #1
+ 580              	.LVL61:
+ 132:bsp/iic/bsp_iic.c ****     {
+ 581              		.loc 1 132 35 is_stmt 0 discriminator 2 view .LVU155
+ 582 0032 DBB2     		uxtb	r3, r3
+ 583              	.LVL62:
+ 132:bsp/iic/bsp_iic.c ****     {
+ 584              		.loc 1 132 27 is_stmt 1 discriminator 1 view .LVU156
+ 585 0034 054A     		ldr	r2, .L52
+ 586 0036 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 587 0038 9A42     		cmp	r2, r3
+ 588 003a E7D9     		bls	.L36
+ 134:bsp/iic/bsp_iic.c ****         {
+ 589              		.loc 1 134 9 view .LVU157
+ 134:bsp/iic/bsp_iic.c ****         {
+ 590              		.loc 1 134 25 is_stmt 0 view .LVU158
+ 591 003c 044A     		ldr	r2, .L52+4
+ 592 003e 52F82320 		ldr	r2, [r2, r3, lsl #2]
+ 134:bsp/iic/bsp_iic.c ****         {
+ 593              		.loc 1 134 28 view .LVU159
+ 594 0042 1168     		ldr	r1, [r2]
+ 134:bsp/iic/bsp_iic.c ****         {
+ 595              		.loc 1 134 12 view .LVU160
+ 596 0044 8142     		cmp	r1, r0
+ 597 0046 F3D1     		bne	.L38
+ 598 0048 EEE7     		b	.L44
+ 599              	.L49:
+ 600              	.LCFI15:
+ 601              		.cfi_def_cfa_offset 0
+ 602              		.cfi_restore 4
+ 603              		.cfi_restore 14
+ 134:bsp/iic/bsp_iic.c ****         {
+ 604              		.loc 1 134 12 view .LVU161
+ 605 004a 7047     		bx	lr
+ 606              	.L53:
+ 607              		.align	2
+ 608              	.L52:
+ 609 004c 00000000 		.word	idx
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 15
+
+
+ 610 0050 00000000 		.word	iic_instance
+ 611              	.LBE4:
+ 612              		.cfi_endproc
+ 613              	.LFE240:
+ 615              		.section	.text.HAL_I2C_MemRxCpltCallback,"ax",%progbits
+ 616              		.align	1
+ 617              		.global	HAL_I2C_MemRxCpltCallback
+ 618              		.syntax unified
+ 619              		.thumb
+ 620              		.thumb_func
+ 622              	HAL_I2C_MemRxCpltCallback:
+ 623              	.LVL63:
+ 624              	.LFB241:
+ 142:bsp/iic/bsp_iic.c **** 
+ 143:bsp/iic/bsp_iic.c **** /**
+ 144:bsp/iic/bsp_iic.c ****  * @brief 内存访问回调函数,仅做形式上的封装,仍然使用HAL_I2C_MasterRxCpltCallbac
+ 145:bsp/iic/bsp_iic.c ****  *
+ 146:bsp/iic/bsp_iic.c ****  * @param hi2c handle
+ 147:bsp/iic/bsp_iic.c ****  */
+ 148:bsp/iic/bsp_iic.c **** void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
+ 149:bsp/iic/bsp_iic.c **** {
+ 625              		.loc 1 149 1 is_stmt 1 view -0
+ 626              		.cfi_startproc
+ 627              		@ args = 0, pretend = 0, frame = 0
+ 628              		@ frame_needed = 0, uses_anonymous_args = 0
+ 629              		.loc 1 149 1 is_stmt 0 view .LVU163
+ 630 0000 08B5     		push	{r3, lr}
+ 631              	.LCFI16:
+ 632              		.cfi_def_cfa_offset 8
+ 633              		.cfi_offset 3, -8
+ 634              		.cfi_offset 14, -4
+ 150:bsp/iic/bsp_iic.c ****     HAL_I2C_MasterRxCpltCallback(hi2c);
+ 635              		.loc 1 150 5 is_stmt 1 view .LVU164
+ 636 0002 FFF7FEFF 		bl	HAL_I2C_MasterRxCpltCallback
+ 637              	.LVL64:
+ 151:bsp/iic/bsp_iic.c **** }
+ 638              		.loc 1 151 1 is_stmt 0 view .LVU165
+ 639 0006 08BD     		pop	{r3, pc}
+ 640              		.cfi_endproc
+ 641              	.LFE241:
+ 643              		.section	.bss.iic_instance,"aw",%nobits
+ 644              		.align	2
+ 647              	iic_instance:
+ 648 0000 00000000 		.space	8
+ 648      00000000 
+ 649              		.section	.bss.idx,"aw",%nobits
+ 652              	idx:
+ 653 0000 00       		.space	1
+ 654              		.text
+ 655              	.Letext0:
+ 656              		.file 2 "D:/msys2/mingw64/arm-none-eabi/include/machine/_default_types.h"
+ 657              		.file 3 "D:/msys2/mingw64/arm-none-eabi/include/sys/_stdint.h"
+ 658              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 659              		.file 5 "D:/msys2/mingw64/lib/gcc/arm-none-eabi/13.3.0/include/stddef.h"
+ 660              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 661              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 662              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 16
+
+
+ 663              		.file 9 "bsp/iic/bsp_iic.h"
+ 664              		.file 10 "D:/msys2/mingw64/arm-none-eabi/include/string.h"
+ 665              		.file 11 "D:/msys2/mingw64/arm-none-eabi/include/stdlib.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s 			page 17
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_iic.c
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:21     .text.IICRegister:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:27     .text.IICRegister:00000000 IICRegister
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:114    .text.IICRegister:00000048 $d
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:652    .bss.idx:00000000 idx
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:647    .bss.iic_instance:00000000 iic_instance
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:120    .text.IICSetMode:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:126    .text.IICSetMode:00000000 IICSetMode
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:150    .text.IICTransmit:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:156    .text.IICTransmit:00000000 IICTransmit
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:265    .text.IICReceive:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:271    .text.IICReceive:00000000 IICReceive
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:387    .text.IICAccessMem:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:393    .text.IICAccessMem:00000000 IICAccessMem
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:489    .text.HAL_I2C_MasterRxCpltCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:495    .text.HAL_I2C_MasterRxCpltCallback:00000000 HAL_I2C_MasterRxCpltCallback
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:609    .text.HAL_I2C_MasterRxCpltCallback:0000004c $d
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:616    .text.HAL_I2C_MemRxCpltCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:622    .text.HAL_I2C_MemRxCpltCallback:00000000 HAL_I2C_MemRxCpltCallback
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:644    .bss.iic_instance:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccXrLxLK.s:653    .bss.idx:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc
+HAL_I2C_Master_Transmit
+HAL_I2C_Master_Seq_Transmit_IT
+HAL_I2C_Master_Seq_Transmit_DMA
+HAL_I2C_Master_Receive
+HAL_I2C_Master_Seq_Receive_IT
+HAL_I2C_Master_Seq_Receive_DMA
+HAL_I2C_Mem_Write
+HAL_I2C_Mem_Read

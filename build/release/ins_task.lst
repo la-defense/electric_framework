@@ -1,0 +1,1276 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"ins_task.c"
+  16              		.text
+  17              		.section	.text.IMUPWMSet,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	IMUPWMSet:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 014B     		ldr	r3, .L2
+  28 0002 1B68     		ldr	r3, [r3]
+  29 0004 5863     		str	r0, [r3, #52]
+  30 0006 7047     		bx	lr
+  31              	.L3:
+  32              		.align	2
+  33              	.L2:
+  34 0008 00000000 		.word	htim10
+  36              		.section	.text.InitQuaternion,"ax",%progbits
+  37              		.align	1
+  38              		.syntax unified
+  39              		.thumb
+  40              		.thumb_func
+  42              	InitQuaternion:
+  43              		@ args = 0, pretend = 0, frame = 40
+  44              		@ frame_needed = 0, uses_anonymous_args = 0
+  45 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+  46 0002 2DED028B 		vpush.64	{d8}
+  47 0006 8BB0     		sub	sp, sp, #44
+  48 0008 0646     		mov	r6, r0
+  49 000a 0024     		movs	r4, #0
+  50 000c 0794     		str	r4, [sp, #28]
+  51 000e 0894     		str	r4, [sp, #32]
+  52 0010 0994     		str	r4, [sp, #36]
+  53 0012 0023     		movs	r3, #0
+  54 0014 0493     		str	r3, [sp, #16]	@ float
+  55 0016 0593     		str	r3, [sp, #20]	@ float
+  56 0018 4FF07E53 		mov	r3, #1065353216
+  57 001c 0693     		str	r3, [sp, #24]	@ float
+  58 001e 0194     		str	r4, [sp, #4]
+  59 0020 0294     		str	r4, [sp, #8]
+  60 0022 0394     		str	r4, [sp, #12]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 2
+
+
+  61 0024 21E0     		b	.L5
+  62              	.L6:
+  63 0026 374D     		ldr	r5, .L12
+  64 0028 2846     		mov	r0, r5
+  65 002a FFF7FEFF 		bl	BMI088_Read
+  66 002e 95ED007A 		vldr.32	s14, [r5]
+  67 0032 DDED077A 		vldr.32	s15, [sp, #28]
+  68 0036 77EE877A 		vadd.f32	s15, s15, s14
+  69 003a CDED077A 		vstr.32	s15, [sp, #28]
+  70 003e 95ED017A 		vldr.32	s14, [r5, #4]
+  71 0042 DDED087A 		vldr.32	s15, [sp, #32]
+  72 0046 77EE877A 		vadd.f32	s15, s15, s14
+  73 004a CDED087A 		vstr.32	s15, [sp, #32]
+  74 004e 95ED027A 		vldr.32	s14, [r5, #8]
+  75 0052 DDED097A 		vldr.32	s15, [sp, #36]
+  76 0056 77EE877A 		vadd.f32	s15, s15, s14
+  77 005a CDED097A 		vstr.32	s15, [sp, #36]
+  78 005e 9FED2A0A 		vldr.32	s0, .L12+4
+  79 0062 FFF7FEFF 		bl	DWT_Delay
+  80 0066 0134     		adds	r4, r4, #1
+  81 0068 E4B2     		uxtb	r4, r4
+  82              	.L5:
+  83 006a 632C     		cmp	r4, #99
+  84 006c DBD9     		bls	.L6
+  85 006e 0023     		movs	r3, #0
+  86 0070 0CE0     		b	.L7
+  87              	.L8:
+  88 0072 0AAA     		add	r2, sp, #40
+  89 0074 02EB8302 		add	r2, r2, r3, lsl #2
+  90 0078 52ED036A 		vldr.32	s13, [r2, #-12]
+  91 007c 9FED237A 		vldr.32	s14, .L12+8
+  92 0080 C6EE877A 		vdiv.f32	s15, s13, s14
+  93 0084 42ED037A 		vstr.32	s15, [r2, #-12]
+  94 0088 0133     		adds	r3, r3, #1
+  95 008a DBB2     		uxtb	r3, r3
+  96              	.L7:
+  97 008c 022B     		cmp	r3, #2
+  98 008e F0D9     		bls	.L8
+  99 0090 07AC     		add	r4, sp, #28
+ 100 0092 2046     		mov	r0, r4
+ 101 0094 FFF7FEFF 		bl	Norm3d
+ 102 0098 04AF     		add	r7, sp, #16
+ 103 009a 3946     		mov	r1, r7
+ 104 009c 2046     		mov	r0, r4
+ 105 009e FFF7FEFF 		bl	Dot3d
+ 106 00a2 FFF7FEFF 		bl	acosf
+ 107 00a6 B0EE408A 		vmov.f32	s16, s0
+ 108 00aa 01AD     		add	r5, sp, #4
+ 109 00ac 2A46     		mov	r2, r5
+ 110 00ae 3946     		mov	r1, r7
+ 111 00b0 2046     		mov	r0, r4
+ 112 00b2 FFF7FEFF 		bl	Cross3d
+ 113 00b6 2846     		mov	r0, r5
+ 114 00b8 FFF7FEFF 		bl	Norm3d
+ 115 00bc F6EE007A 		vmov.f32	s15, #5.0e-1
+ 116 00c0 28EE278A 		vmul.f32	s16, s16, s15
+ 117 00c4 B0EE480A 		vmov.f32	s0, s16
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 3
+
+
+ 118 00c8 FFF7FEFF 		bl	cosf
+ 119 00cc 86ED000A 		vstr.32	s0, [r6]
+ 120 00d0 0024     		movs	r4, #0
+ 121 00d2 10E0     		b	.L9
+ 122              	.L10:
+ 123 00d4 0AAB     		add	r3, sp, #40
+ 124 00d6 03EB8403 		add	r3, r3, r4, lsl #2
+ 125 00da 53ED098A 		vldr.32	s17, [r3, #-36]
+ 126 00de B0EE480A 		vmov.f32	s0, s16
+ 127 00e2 FFF7FEFF 		bl	sinf
+ 128 00e6 0134     		adds	r4, r4, #1
+ 129 00e8 06EB8403 		add	r3, r6, r4, lsl #2
+ 130 00ec 68EE808A 		vmul.f32	s17, s17, s0
+ 131 00f0 C3ED008A 		vstr.32	s17, [r3]
+ 132 00f4 E4B2     		uxtb	r4, r4
+ 133              	.L9:
+ 134 00f6 012C     		cmp	r4, #1
+ 135 00f8 ECD9     		bls	.L10
+ 136 00fa 0BB0     		add	sp, sp, #44
+ 137              		@ sp needed
+ 138 00fc BDEC028B 		vldm	sp!, {d8}
+ 139 0100 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 140              	.L13:
+ 141 0102 00BF     		.align	2
+ 142              	.L12:
+ 143 0104 00000000 		.word	BMI088
+ 144 0108 6F12833A 		.word	981668463
+ 145 010c 0000C842 		.word	1120403456
+ 147              		.section	.text.IMU_Param_Correction,"ax",%progbits
+ 148              		.align	1
+ 149              		.syntax unified
+ 150              		.thumb
+ 151              		.thumb_func
+ 153              	IMU_Param_Correction:
+ 154              		@ args = 0, pretend = 0, frame = 24
+ 155              		@ frame_needed = 0, uses_anonymous_args = 0
+ 156 0000 70B5     		push	{r4, r5, r6, lr}
+ 157 0002 2DED068B 		vpush.64	{d8, d9, d10}
+ 158 0006 86B0     		sub	sp, sp, #24
+ 159 0008 0446     		mov	r4, r0
+ 160 000a 0D46     		mov	r5, r1
+ 161 000c 1646     		mov	r6, r2
+ 162 000e 90ED040A 		vldr.32	s0, [r0, #16]
+ 163 0012 9F4B     		ldr	r3, .L22
+ 164 0014 D3ED007A 		vldr.32	s15, [r3]
+ 165 0018 70EE677A 		vsub.f32	s15, s0, s15
+ 166 001c F0EEE77A 		vabs.f32	s15, s15
+ 167 0020 9FED9C7A 		vldr.32	s14, .L22+4
+ 168 0024 F4EEC77A 		vcmpe.f32	s15, s14
+ 169 0028 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 170 002c 22DC     		bgt	.L15
+ 171 002e D0ED057A 		vldr.32	s15, [r0, #20]
+ 172 0032 994B     		ldr	r3, .L22+8
+ 173 0034 93ED007A 		vldr.32	s14, [r3]
+ 174 0038 77EEC77A 		vsub.f32	s15, s15, s14
+ 175 003c F0EEE77A 		vabs.f32	s15, s15
+ 176 0040 9FED947A 		vldr.32	s14, .L22+4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 4
+
+
+ 177 0044 F4EEC77A 		vcmpe.f32	s15, s14
+ 178 0048 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 179 004c 12DC     		bgt	.L15
+ 180 004e D0ED067A 		vldr.32	s15, [r0, #24]
+ 181 0052 924B     		ldr	r3, .L22+12
+ 182 0054 93ED007A 		vldr.32	s14, [r3]
+ 183 0058 77EEC77A 		vsub.f32	s15, s15, s14
+ 184 005c F0EEE77A 		vabs.f32	s15, s15
+ 185 0060 9FED8C7A 		vldr.32	s14, .L22+4
+ 186 0064 F4EEC77A 		vcmpe.f32	s15, s14
+ 187 0068 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 188 006c 02DC     		bgt	.L15
+ 189 006e 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 190 0070 002B     		cmp	r3, #0
+ 191 0072 6ED0     		beq	.L16
+ 192              	.L15:
+ 193 0074 9FED8AAA 		vldr.32	s20, .L22+16
+ 194 0078 80EE0A0A 		vdiv.f32	s0, s0, s20
+ 195 007c FFF7FEFF 		bl	arm_cos_f32
+ 196 0080 B0EE409A 		vmov.f32	s18, s0
+ 197 0084 94ED050A 		vldr.32	s0, [r4, #20]
+ 198 0088 80EE0A0A 		vdiv.f32	s0, s0, s20
+ 199 008c FFF7FEFF 		bl	arm_cos_f32
+ 200 0090 F0EE408A 		vmov.f32	s17, s0
+ 201 0094 94ED060A 		vldr.32	s0, [r4, #24]
+ 202 0098 80EE0A0A 		vdiv.f32	s0, s0, s20
+ 203 009c FFF7FEFF 		bl	arm_cos_f32
+ 204 00a0 F0EE40AA 		vmov.f32	s21, s0
+ 205 00a4 94ED040A 		vldr.32	s0, [r4, #16]
+ 206 00a8 80EE0A0A 		vdiv.f32	s0, s0, s20
+ 207 00ac FFF7FEFF 		bl	arm_sin_f32
+ 208 00b0 B0EE408A 		vmov.f32	s16, s0
+ 209 00b4 94ED050A 		vldr.32	s0, [r4, #20]
+ 210 00b8 80EE0A0A 		vdiv.f32	s0, s0, s20
+ 211 00bc FFF7FEFF 		bl	arm_sin_f32
+ 212 00c0 F0EE409A 		vmov.f32	s19, s0
+ 213 00c4 94ED060A 		vldr.32	s0, [r4, #24]
+ 214 00c8 80EE0A0A 		vdiv.f32	s0, s0, s20
+ 215 00cc FFF7FEFF 		bl	arm_sin_f32
+ 216 00d0 69EE2A6A 		vmul.f32	s13, s18, s21
+ 217 00d4 28EE297A 		vmul.f32	s14, s16, s19
+ 218 00d8 27EE007A 		vmul.f32	s14, s14, s0
+ 219 00dc 36EE877A 		vadd.f32	s14, s13, s14
+ 220 00e0 704B     		ldr	r3, .L22+20
+ 221 00e2 83ED007A 		vstr.32	s14, [r3]
+ 222 00e6 28EE887A 		vmul.f32	s14, s17, s16
+ 223 00ea 6F4B     		ldr	r3, .L22+24
+ 224 00ec 83ED007A 		vstr.32	s14, [r3]
+ 225 00f0 29EE007A 		vmul.f32	s14, s18, s0
+ 226 00f4 2AEE886A 		vmul.f32	s12, s21, s16
+ 227 00f8 66EE295A 		vmul.f32	s11, s12, s19
+ 228 00fc 37EE657A 		vsub.f32	s14, s14, s11
+ 229 0100 6A4B     		ldr	r3, .L22+28
+ 230 0102 83ED007A 		vstr.32	s14, [r3]
+ 231 0106 29EE297A 		vmul.f32	s14, s18, s19
+ 232 010a 27EE007A 		vmul.f32	s14, s14, s0
+ 233 010e 37EE467A 		vsub.f32	s14, s14, s12
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 5
+
+
+ 234 0112 674B     		ldr	r3, .L22+32
+ 235 0114 83ED007A 		vstr.32	s14, [r3]
+ 236 0118 29EE289A 		vmul.f32	s18, s18, s17
+ 237 011c 654B     		ldr	r3, .L22+36
+ 238 011e 83ED009A 		vstr.32	s18, [r3]
+ 239 0122 28EE408A 		vnmul.f32	s16, s16, s0
+ 240 0126 66EEA96A 		vmul.f32	s13, s13, s19
+ 241 012a 38EE668A 		vsub.f32	s16, s16, s13
+ 242 012e 624B     		ldr	r3, .L22+40
+ 243 0130 83ED008A 		vstr.32	s16, [r3]
+ 244 0134 68EEC07A 		vnmul.f32	s15, s17, s0
+ 245 0138 604B     		ldr	r3, .L22+44
+ 246 013a C3ED007A 		vstr.32	s15, [r3]
+ 247 013e 604B     		ldr	r3, .L22+48
+ 248 0140 C3ED009A 		vstr.32	s19, [r3]
+ 249 0144 68EEAA8A 		vmul.f32	s17, s17, s21
+ 250 0148 5E4B     		ldr	r3, .L22+52
+ 251 014a C3ED008A 		vstr.32	s17, [r3]
+ 252 014e 0023     		movs	r3, #0
+ 253 0150 2370     		strb	r3, [r4]
+ 254              	.L16:
+ 255 0152 0023     		movs	r3, #0
+ 256 0154 10E0     		b	.L17
+ 257              	.L18:
+ 258 0156 05EB8302 		add	r2, r5, r3, lsl #2
+ 259 015a D2ED007A 		vldr.32	s15, [r2]
+ 260 015e 04EB8302 		add	r2, r4, r3, lsl #2
+ 261 0162 92ED017A 		vldr.32	s14, [r2, #4]
+ 262 0166 67EE877A 		vmul.f32	s15, s15, s14
+ 263 016a 06AA     		add	r2, sp, #24
+ 264 016c 02EB8302 		add	r2, r2, r3, lsl #2
+ 265 0170 42ED037A 		vstr.32	s15, [r2, #-12]
+ 266 0174 0133     		adds	r3, r3, #1
+ 267 0176 DBB2     		uxtb	r3, r3
+ 268              	.L17:
+ 269 0178 022B     		cmp	r3, #2
+ 270 017a ECD9     		bls	.L18
+ 271 017c DDED037A 		vldr.32	s15, [sp, #12]
+ 272 0180 484B     		ldr	r3, .L22+20
+ 273 0182 93ED006A 		vldr.32	s12, [r3]
+ 274 0186 27EE867A 		vmul.f32	s14, s15, s12
+ 275 018a 9DED045A 		vldr.32	s10, [sp, #16]
+ 276 018e 464B     		ldr	r3, .L22+24
+ 277 0190 D3ED002A 		vldr.32	s5, [r3]
+ 278 0194 65EE226A 		vmul.f32	s13, s10, s5
+ 279 0198 37EE267A 		vadd.f32	s14, s14, s13
+ 280 019c DDED055A 		vldr.32	s11, [sp, #20]
+ 281 01a0 424B     		ldr	r3, .L22+28
+ 282 01a2 93ED003A 		vldr.32	s6, [r3]
+ 283 01a6 65EE836A 		vmul.f32	s13, s11, s6
+ 284 01aa 37EE267A 		vadd.f32	s14, s14, s13
+ 285 01ae 85ED007A 		vstr.32	s14, [r5]
+ 286 01b2 3F4B     		ldr	r3, .L22+32
+ 287 01b4 D3ED006A 		vldr.32	s13, [r3]
+ 288 01b8 27EEA67A 		vmul.f32	s14, s15, s13
+ 289 01bc 3D4B     		ldr	r3, .L22+36
+ 290 01be D3ED003A 		vldr.32	s7, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 6
+
+
+ 291 01c2 65EE234A 		vmul.f32	s9, s10, s7
+ 292 01c6 37EE247A 		vadd.f32	s14, s14, s9
+ 293 01ca 3B4B     		ldr	r3, .L22+40
+ 294 01cc 93ED004A 		vldr.32	s8, [r3]
+ 295 01d0 65EE844A 		vmul.f32	s9, s11, s8
+ 296 01d4 37EE247A 		vadd.f32	s14, s14, s9
+ 297 01d8 85ED017A 		vstr.32	s14, [r5, #4]
+ 298 01dc 374B     		ldr	r3, .L22+44
+ 299 01de 93ED007A 		vldr.32	s14, [r3]
+ 300 01e2 67EE877A 		vmul.f32	s15, s15, s14
+ 301 01e6 364B     		ldr	r3, .L22+48
+ 302 01e8 D3ED004A 		vldr.32	s9, [r3]
+ 303 01ec 25EE245A 		vmul.f32	s10, s10, s9
+ 304 01f0 77EE857A 		vadd.f32	s15, s15, s10
+ 305 01f4 334B     		ldr	r3, .L22+52
+ 306 01f6 93ED005A 		vldr.32	s10, [r3]
+ 307 01fa 65EE855A 		vmul.f32	s11, s11, s10
+ 308 01fe 77EEA57A 		vadd.f32	s15, s15, s11
+ 309 0202 C5ED027A 		vstr.32	s15, [r5, #8]
+ 310 0206 0023     		movs	r3, #0
+ 311 0208 09E0     		b	.L19
+ 312              	.L20:
+ 313 020a 06EB8302 		add	r2, r6, r3, lsl #2
+ 314 020e 1168     		ldr	r1, [r2]	@ float
+ 315 0210 06AA     		add	r2, sp, #24
+ 316 0212 02EB8302 		add	r2, r2, r3, lsl #2
+ 317 0216 42F8181C 		str	r1, [r2, #-24]	@ float
+ 318 021a 0133     		adds	r3, r3, #1
+ 319 021c DBB2     		uxtb	r3, r3
+ 320              	.L19:
+ 321 021e 022B     		cmp	r3, #2
+ 322 0220 F3D9     		bls	.L20
+ 323 0222 9DED002A 		vldr.32	s4, [sp]
+ 324 0226 26EE026A 		vmul.f32	s12, s12, s4
+ 325 022a DDED015A 		vldr.32	s11, [sp, #4]
+ 326 022e 62EEA52A 		vmul.f32	s5, s5, s11
+ 327 0232 36EE226A 		vadd.f32	s12, s12, s5
+ 328 0236 DDED027A 		vldr.32	s15, [sp, #8]
+ 329 023a 23EE273A 		vmul.f32	s6, s6, s15
+ 330 023e 36EE036A 		vadd.f32	s12, s12, s6
+ 331 0242 86ED006A 		vstr.32	s12, [r6]
+ 332 0246 66EE826A 		vmul.f32	s13, s13, s4
+ 333 024a 63EEA53A 		vmul.f32	s7, s7, s11
+ 334 024e 76EEA36A 		vadd.f32	s13, s13, s7
+ 335 0252 24EE274A 		vmul.f32	s8, s8, s15
+ 336 0256 76EE846A 		vadd.f32	s13, s13, s8
+ 337 025a C6ED016A 		vstr.32	s13, [r6, #4]
+ 338 025e 27EE027A 		vmul.f32	s14, s14, s4
+ 339 0262 64EEA54A 		vmul.f32	s9, s9, s11
+ 340 0266 37EE247A 		vadd.f32	s14, s14, s9
+ 341 026a 25EE275A 		vmul.f32	s10, s10, s15
+ 342 026e 37EE057A 		vadd.f32	s14, s14, s10
+ 343 0272 86ED027A 		vstr.32	s14, [r6, #8]
+ 344 0276 2269     		ldr	r2, [r4, #16]	@ float
+ 345 0278 054B     		ldr	r3, .L22
+ 346 027a 1A60     		str	r2, [r3]	@ float
+ 347 027c 6269     		ldr	r2, [r4, #20]	@ float
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 7
+
+
+ 348 027e 064B     		ldr	r3, .L22+8
+ 349 0280 1A60     		str	r2, [r3]	@ float
+ 350 0282 A269     		ldr	r2, [r4, #24]	@ float
+ 351 0284 054B     		ldr	r3, .L22+12
+ 352 0286 1A60     		str	r2, [r3]	@ float
+ 353 0288 06B0     		add	sp, sp, #24
+ 354              		@ sp needed
+ 355 028a BDEC068B 		vldm	sp!, {d8-d10}
+ 356 028e 70BD     		pop	{r4, r5, r6, pc}
+ 357              	.L23:
+ 358              		.align	2
+ 359              	.L22:
+ 360 0290 00000000 		.word	lastYawOffset.11
+ 361 0294 6F12833A 		.word	981668463
+ 362 0298 00000000 		.word	lastPitchOffset.10
+ 363 029c 00000000 		.word	lastRollOffset.9
+ 364 02a0 E12E6542 		.word	1113927393
+ 365 02a4 00000000 		.word	c_11.8
+ 366 02a8 00000000 		.word	c_12.7
+ 367 02ac 00000000 		.word	c_13.6
+ 368 02b0 00000000 		.word	c_21.5
+ 369 02b4 00000000 		.word	c_22.4
+ 370 02b8 00000000 		.word	c_23.3
+ 371 02bc 00000000 		.word	c_31.2
+ 372 02c0 00000000 		.word	c_32.1
+ 373 02c4 00000000 		.word	c_33.0
+ 375              		.section	.text.IMU_Temperature_Ctrl,"ax",%progbits
+ 376              		.align	1
+ 377              		.syntax unified
+ 378              		.thumb
+ 379              		.thumb_func
+ 381              	IMU_Temperature_Ctrl:
+ 382              		@ args = 0, pretend = 0, frame = 0
+ 383              		@ frame_needed = 0, uses_anonymous_args = 0
+ 384 0000 10B5     		push	{r4, lr}
+ 385 0002 0F4C     		ldr	r4, .L26
+ 386 0004 DFED0F0A 		vldr.32	s1, .L26+4
+ 387 0008 0F4B     		ldr	r3, .L26+8
+ 388 000a 93ED070A 		vldr.32	s0, [r3, #28]
+ 389 000e 2046     		mov	r0, r4
+ 390 0010 FFF7FEFF 		bl	PIDCalculate
+ 391 0014 94ED140A 		vldr.32	s0, [r4, #80]
+ 392 0018 FFF7FEFF 		bl	float_rounding
+ 393 001c 00EE100A 		vmov	s0, r0	@ int
+ 394 0020 9FED0A1A 		vldr.32	s2, .L26+12
+ 395 0024 DFED0A0A 		vldr.32	s1, .L26+16
+ 396 0028 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 397 002c FFF7FEFF 		bl	float_constrain
+ 398 0030 BCEEC00A 		vcvt.u32.f32	s0, s0
+ 399 0034 10EE103A 		vmov	r3, s0	@ int
+ 400 0038 98B2     		uxth	r0, r3
+ 401 003a FFF7FEFF 		bl	IMUPWMSet
+ 402 003e 10BD     		pop	{r4, pc}
+ 403              	.L27:
+ 404              		.align	2
+ 405              	.L26:
+ 406 0040 00000000 		.word	TempCtrl
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 8
+
+
+ 407 0044 00002042 		.word	1109393408
+ 408 0048 00000000 		.word	BMI088
+ 409 004c 0000804F 		.word	1333788672
+ 410 0050 00000000 		.word	0
+ 412              		.section	.text.INS_Init,"ax",%progbits
+ 413              		.align	1
+ 414              		.global	INS_Init
+ 415              		.syntax unified
+ 416              		.thumb
+ 417              		.thumb_func
+ 419              	INS_Init:
+ 420              		@ args = 0, pretend = 0, frame = 64
+ 421              		@ frame_needed = 0, uses_anonymous_args = 0
+ 422 0000 304B     		ldr	r3, .L36
+ 423 0002 93F87830 		ldrb	r3, [r3, #120]	@ zero_extendqisi2
+ 424 0006 0BB1     		cbz	r3, .L35
+ 425 0008 2F48     		ldr	r0, .L36+4
+ 426 000a 7047     		bx	lr
+ 427              	.L35:
+ 428 000c 70B5     		push	{r4, r5, r6, lr}
+ 429 000e 2DED028B 		vpush.64	{d8}
+ 430 0012 90B0     		sub	sp, sp, #64
+ 431 0014 2B4B     		ldr	r3, .L36
+ 432 0016 0122     		movs	r2, #1
+ 433 0018 83F87820 		strb	r2, [r3, #120]
+ 434 001c 0021     		movs	r1, #0
+ 435 001e 2B48     		ldr	r0, .L36+8
+ 436 0020 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 437              	.L30:
+ 438 0024 0121     		movs	r1, #1
+ 439 0026 2A48     		ldr	r0, .L36+12
+ 440 0028 FFF7FEFF 		bl	BMI088Init
+ 441 002c 0028     		cmp	r0, #0
+ 442 002e F9D1     		bne	.L30
+ 443 0030 284B     		ldr	r3, .L36+16
+ 444 0032 B7EE008A 		vmov.f32	s16, #1.0e+0
+ 445 0036 83ED018A 		vstr.32	s16, [r3, #4]
+ 446 003a 83ED028A 		vstr.32	s16, [r3, #8]
+ 447 003e 83ED038A 		vstr.32	s16, [r3, #12]
+ 448 0042 DFED258A 		vldr.32	s17, .L36+20
+ 449 0046 C3ED048A 		vstr.32	s17, [r3, #16]
+ 450 004a C3ED058A 		vstr.32	s17, [r3, #20]
+ 451 004e C3ED068A 		vstr.32	s17, [r3, #24]
+ 452 0052 4FF00106 		mov	r6, #1
+ 453 0056 1E70     		strb	r6, [r3]
+ 454 0058 0CAD     		add	r5, sp, #48
+ 455 005a 0446     		mov	r4, r0
+ 456 005c 0C90     		str	r0, [sp, #48]
+ 457 005e 0D90     		str	r0, [sp, #52]
+ 458 0060 0E90     		str	r0, [sp, #56]
+ 459 0062 0F90     		str	r0, [sp, #60]
+ 460 0064 2846     		mov	r0, r5
+ 461 0066 FFF7FEFF 		bl	InitQuaternion
+ 462 006a B0EE682A 		vmov.f32	s4, s17
+ 463 006e F0EE481A 		vmov.f32	s3, s16
+ 464 0072 9FED1A1A 		vldr.32	s2, .L36+24
+ 465 0076 DFED1A0A 		vldr.32	s1, .L36+28
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 9
+
+
+ 466 007a B2EE040A 		vmov.f32	s0, #1.0e+1
+ 467 007e 2846     		mov	r0, r5
+ 468 0080 FFF7FEFF 		bl	IMU_QuaternionEKF_Init
+ 469 0084 01AD     		add	r5, sp, #4
+ 470 0086 2C22     		movs	r2, #44
+ 471 0088 2146     		mov	r1, r4
+ 472 008a 2846     		mov	r0, r5
+ 473 008c FFF7FEFF 		bl	memset
+ 474 0090 144B     		ldr	r3, .L36+32
+ 475 0092 0193     		str	r3, [sp, #4]	@ float
+ 476 0094 144B     		ldr	r3, .L36+36
+ 477 0096 0293     		str	r3, [sp, #8]	@ float
+ 478 0098 144B     		ldr	r3, .L36+40
+ 479 009a 0493     		str	r3, [sp, #16]	@ float
+ 480 009c 8DF81860 		strb	r6, [sp, #24]
+ 481 00a0 134B     		ldr	r3, .L36+44
+ 482 00a2 0793     		str	r3, [sp, #28]	@ float
+ 483 00a4 2946     		mov	r1, r5
+ 484 00a6 1348     		ldr	r0, .L36+48
+ 485 00a8 FFF7FEFF 		bl	PIDInit
+ 486 00ac 054B     		ldr	r3, .L36
+ 487 00ae 124A     		ldr	r2, .L36+52
+ 488 00b0 9A62     		str	r2, [r3, #40]	@ float
+ 489 00b2 1248     		ldr	r0, .L36+56
+ 490 00b4 FFF7FEFF 		bl	DWT_GetDeltaT
+ 491 00b8 0348     		ldr	r0, .L36+4
+ 492 00ba 10B0     		add	sp, sp, #64
+ 493              		@ sp needed
+ 494 00bc BDEC028B 		vldm	sp!, {d8}
+ 495 00c0 70BD     		pop	{r4, r5, r6, pc}
+ 496              	.L37:
+ 497 00c2 00BF     		.align	2
+ 498              	.L36:
+ 499 00c4 00000000 		.word	INS
+ 500 00c8 50000000 		.word	INS+80
+ 501 00cc 00000000 		.word	htim10
+ 502 00d0 00000000 		.word	hspi1
+ 503 00d4 00000000 		.word	IMU_Param
+ 504 00d8 00000000 		.word	0
+ 505 00dc 00247449 		.word	1232348160
+ 506 00e0 6F12833A 		.word	981668463
+ 507 00e4 00007A44 		.word	1148846080
+ 508 00e8 0000A041 		.word	1101004800
+ 509 00ec 0000FA44 		.word	1157234688
+ 510 00f0 00009643 		.word	1133903872
+ 511 00f4 00000000 		.word	TempCtrl
+ 512 00f8 96430B3C 		.word	1007371158
+ 513 00fc 00000000 		.word	INS_DWT_Count
+ 515              		.section	.text.BodyFrameToEarthFrame,"ax",%progbits
+ 516              		.align	1
+ 517              		.global	BodyFrameToEarthFrame
+ 518              		.syntax unified
+ 519              		.thumb
+ 520              		.thumb_func
+ 522              	BodyFrameToEarthFrame:
+ 523              		@ args = 0, pretend = 0, frame = 0
+ 524              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 10
+
+
+ 525              		@ link register save eliminated.
+ 526 0000 92ED026A 		vldr.32	s12, [r2, #8]
+ 527 0004 66EE067A 		vmul.f32	s15, s12, s12
+ 528 0008 F6EE006A 		vmov.f32	s13, #5.0e-1
+ 529 000c 76EEE77A 		vsub.f32	s15, s13, s15
+ 530 0010 92ED037A 		vldr.32	s14, [r2, #12]
+ 531 0014 67EE075A 		vmul.f32	s11, s14, s14
+ 532 0018 77EEE57A 		vsub.f32	s15, s15, s11
+ 533 001c D0ED005A 		vldr.32	s11, [r0]
+ 534 0020 67EEA57A 		vmul.f32	s15, s15, s11
+ 535 0024 D2ED014A 		vldr.32	s9, [r2, #4]
+ 536 0028 66EE245A 		vmul.f32	s11, s12, s9
+ 537 002c 92ED005A 		vldr.32	s10, [r2]
+ 538 0030 27EE054A 		vmul.f32	s8, s14, s10
+ 539 0034 75EEC45A 		vsub.f32	s11, s11, s8
+ 540 0038 90ED014A 		vldr.32	s8, [r0, #4]
+ 541 003c 65EE845A 		vmul.f32	s11, s11, s8
+ 542 0040 77EEA57A 		vadd.f32	s15, s15, s11
+ 543 0044 27EE247A 		vmul.f32	s14, s14, s9
+ 544 0048 26EE056A 		vmul.f32	s12, s12, s10
+ 545 004c 37EE067A 		vadd.f32	s14, s14, s12
+ 546 0050 90ED026A 		vldr.32	s12, [r0, #8]
+ 547 0054 27EE067A 		vmul.f32	s14, s14, s12
+ 548 0058 77EE877A 		vadd.f32	s15, s15, s14
+ 549 005c 77EEA77A 		vadd.f32	s15, s15, s15
+ 550 0060 C1ED007A 		vstr.32	s15, [r1]
+ 551 0064 D2ED015A 		vldr.32	s11, [r2, #4]
+ 552 0068 92ED027A 		vldr.32	s14, [r2, #8]
+ 553 006c 65EE877A 		vmul.f32	s15, s11, s14
+ 554 0070 D2ED004A 		vldr.32	s9, [r2]
+ 555 0074 92ED035A 		vldr.32	s10, [r2, #12]
+ 556 0078 24EE856A 		vmul.f32	s12, s9, s10
+ 557 007c 77EE867A 		vadd.f32	s15, s15, s12
+ 558 0080 90ED006A 		vldr.32	s12, [r0]
+ 559 0084 67EE867A 		vmul.f32	s15, s15, s12
+ 560 0088 25EEA56A 		vmul.f32	s12, s11, s11
+ 561 008c 36EEC66A 		vsub.f32	s12, s13, s12
+ 562 0090 25EE054A 		vmul.f32	s8, s10, s10
+ 563 0094 36EE446A 		vsub.f32	s12, s12, s8
+ 564 0098 90ED014A 		vldr.32	s8, [r0, #4]
+ 565 009c 26EE046A 		vmul.f32	s12, s12, s8
+ 566 00a0 77EE867A 		vadd.f32	s15, s15, s12
+ 567 00a4 27EE057A 		vmul.f32	s14, s14, s10
+ 568 00a8 65EEA45A 		vmul.f32	s11, s11, s9
+ 569 00ac 37EE657A 		vsub.f32	s14, s14, s11
+ 570 00b0 90ED026A 		vldr.32	s12, [r0, #8]
+ 571 00b4 27EE067A 		vmul.f32	s14, s14, s12
+ 572 00b8 77EE877A 		vadd.f32	s15, s15, s14
+ 573 00bc 77EEA77A 		vadd.f32	s15, s15, s15
+ 574 00c0 C1ED017A 		vstr.32	s15, [r1, #4]
+ 575 00c4 D2ED015A 		vldr.32	s11, [r2, #4]
+ 576 00c8 92ED037A 		vldr.32	s14, [r2, #12]
+ 577 00cc 65EE877A 		vmul.f32	s15, s11, s14
+ 578 00d0 92ED005A 		vldr.32	s10, [r2]
+ 579 00d4 92ED026A 		vldr.32	s12, [r2, #8]
+ 580 00d8 65EE064A 		vmul.f32	s9, s10, s12
+ 581 00dc 77EEE47A 		vsub.f32	s15, s15, s9
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 11
+
+
+ 582 00e0 D0ED004A 		vldr.32	s9, [r0]
+ 583 00e4 67EEA47A 		vmul.f32	s15, s15, s9
+ 584 00e8 27EE067A 		vmul.f32	s14, s14, s12
+ 585 00ec 25EE855A 		vmul.f32	s10, s11, s10
+ 586 00f0 37EE057A 		vadd.f32	s14, s14, s10
+ 587 00f4 90ED015A 		vldr.32	s10, [r0, #4]
+ 588 00f8 27EE057A 		vmul.f32	s14, s14, s10
+ 589 00fc 77EE877A 		vadd.f32	s15, s15, s14
+ 590 0100 65EEA55A 		vmul.f32	s11, s11, s11
+ 591 0104 76EEE56A 		vsub.f32	s13, s13, s11
+ 592 0108 26EE066A 		vmul.f32	s12, s12, s12
+ 593 010c 76EEC66A 		vsub.f32	s13, s13, s12
+ 594 0110 90ED027A 		vldr.32	s14, [r0, #8]
+ 595 0114 66EE876A 		vmul.f32	s13, s13, s14
+ 596 0118 77EEA67A 		vadd.f32	s15, s15, s13
+ 597 011c 77EEA77A 		vadd.f32	s15, s15, s15
+ 598 0120 C1ED027A 		vstr.32	s15, [r1, #8]
+ 599 0124 7047     		bx	lr
+ 601              		.section	.text.EarthFrameToBodyFrame,"ax",%progbits
+ 602              		.align	1
+ 603              		.global	EarthFrameToBodyFrame
+ 604              		.syntax unified
+ 605              		.thumb
+ 606              		.thumb_func
+ 608              	EarthFrameToBodyFrame:
+ 609              		@ args = 0, pretend = 0, frame = 0
+ 610              		@ frame_needed = 0, uses_anonymous_args = 0
+ 611              		@ link register save eliminated.
+ 612 0000 92ED026A 		vldr.32	s12, [r2, #8]
+ 613 0004 66EE067A 		vmul.f32	s15, s12, s12
+ 614 0008 F6EE006A 		vmov.f32	s13, #5.0e-1
+ 615 000c 76EEE77A 		vsub.f32	s15, s13, s15
+ 616 0010 92ED037A 		vldr.32	s14, [r2, #12]
+ 617 0014 67EE075A 		vmul.f32	s11, s14, s14
+ 618 0018 77EEE57A 		vsub.f32	s15, s15, s11
+ 619 001c D0ED005A 		vldr.32	s11, [r0]
+ 620 0020 67EEA57A 		vmul.f32	s15, s15, s11
+ 621 0024 D2ED014A 		vldr.32	s9, [r2, #4]
+ 622 0028 66EE245A 		vmul.f32	s11, s12, s9
+ 623 002c 92ED005A 		vldr.32	s10, [r2]
+ 624 0030 27EE054A 		vmul.f32	s8, s14, s10
+ 625 0034 75EE845A 		vadd.f32	s11, s11, s8
+ 626 0038 90ED014A 		vldr.32	s8, [r0, #4]
+ 627 003c 65EE845A 		vmul.f32	s11, s11, s8
+ 628 0040 77EEA57A 		vadd.f32	s15, s15, s11
+ 629 0044 27EE247A 		vmul.f32	s14, s14, s9
+ 630 0048 26EE056A 		vmul.f32	s12, s12, s10
+ 631 004c 37EE467A 		vsub.f32	s14, s14, s12
+ 632 0050 90ED026A 		vldr.32	s12, [r0, #8]
+ 633 0054 27EE067A 		vmul.f32	s14, s14, s12
+ 634 0058 77EE877A 		vadd.f32	s15, s15, s14
+ 635 005c 77EEA77A 		vadd.f32	s15, s15, s15
+ 636 0060 C1ED007A 		vstr.32	s15, [r1]
+ 637 0064 D2ED015A 		vldr.32	s11, [r2, #4]
+ 638 0068 92ED027A 		vldr.32	s14, [r2, #8]
+ 639 006c 65EE877A 		vmul.f32	s15, s11, s14
+ 640 0070 D2ED004A 		vldr.32	s9, [r2]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 12
+
+
+ 641 0074 92ED035A 		vldr.32	s10, [r2, #12]
+ 642 0078 24EE856A 		vmul.f32	s12, s9, s10
+ 643 007c 77EEC67A 		vsub.f32	s15, s15, s12
+ 644 0080 90ED006A 		vldr.32	s12, [r0]
+ 645 0084 67EE867A 		vmul.f32	s15, s15, s12
+ 646 0088 25EEA56A 		vmul.f32	s12, s11, s11
+ 647 008c 36EEC66A 		vsub.f32	s12, s13, s12
+ 648 0090 25EE054A 		vmul.f32	s8, s10, s10
+ 649 0094 36EE446A 		vsub.f32	s12, s12, s8
+ 650 0098 90ED014A 		vldr.32	s8, [r0, #4]
+ 651 009c 26EE046A 		vmul.f32	s12, s12, s8
+ 652 00a0 77EE867A 		vadd.f32	s15, s15, s12
+ 653 00a4 27EE057A 		vmul.f32	s14, s14, s10
+ 654 00a8 65EEA45A 		vmul.f32	s11, s11, s9
+ 655 00ac 37EE257A 		vadd.f32	s14, s14, s11
+ 656 00b0 90ED026A 		vldr.32	s12, [r0, #8]
+ 657 00b4 27EE067A 		vmul.f32	s14, s14, s12
+ 658 00b8 77EE877A 		vadd.f32	s15, s15, s14
+ 659 00bc 77EEA77A 		vadd.f32	s15, s15, s15
+ 660 00c0 C1ED017A 		vstr.32	s15, [r1, #4]
+ 661 00c4 D2ED015A 		vldr.32	s11, [r2, #4]
+ 662 00c8 92ED037A 		vldr.32	s14, [r2, #12]
+ 663 00cc 65EE877A 		vmul.f32	s15, s11, s14
+ 664 00d0 92ED005A 		vldr.32	s10, [r2]
+ 665 00d4 92ED026A 		vldr.32	s12, [r2, #8]
+ 666 00d8 65EE064A 		vmul.f32	s9, s10, s12
+ 667 00dc 77EEA47A 		vadd.f32	s15, s15, s9
+ 668 00e0 D0ED004A 		vldr.32	s9, [r0]
+ 669 00e4 67EEA47A 		vmul.f32	s15, s15, s9
+ 670 00e8 27EE067A 		vmul.f32	s14, s14, s12
+ 671 00ec 25EE855A 		vmul.f32	s10, s11, s10
+ 672 00f0 37EE457A 		vsub.f32	s14, s14, s10
+ 673 00f4 90ED015A 		vldr.32	s10, [r0, #4]
+ 674 00f8 27EE057A 		vmul.f32	s14, s14, s10
+ 675 00fc 77EE877A 		vadd.f32	s15, s15, s14
+ 676 0100 65EEA55A 		vmul.f32	s11, s11, s11
+ 677 0104 76EEE56A 		vsub.f32	s13, s13, s11
+ 678 0108 26EE066A 		vmul.f32	s12, s12, s12
+ 679 010c 76EEC66A 		vsub.f32	s13, s13, s12
+ 680 0110 90ED027A 		vldr.32	s14, [r0, #8]
+ 681 0114 66EE876A 		vmul.f32	s13, s13, s14
+ 682 0118 77EEA67A 		vadd.f32	s15, s15, s13
+ 683 011c 77EEA77A 		vadd.f32	s15, s15, s15
+ 684 0120 C1ED027A 		vstr.32	s15, [r1, #8]
+ 685 0124 7047     		bx	lr
+ 687              		.section	.text.INS_Task,"ax",%progbits
+ 688              		.align	1
+ 689              		.global	INS_Task
+ 690              		.syntax unified
+ 691              		.thumb
+ 692              		.thumb_func
+ 694              	INS_Task:
+ 695              		@ args = 0, pretend = 0, frame = 24
+ 696              		@ frame_needed = 0, uses_anonymous_args = 0
+ 697 0000 70B5     		push	{r4, r5, r6, lr}
+ 698 0002 86B0     		sub	sp, sp, #24
+ 699 0004 0023     		movs	r3, #0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 13
+
+
+ 700 0006 0393     		str	r3, [sp, #12]	@ float
+ 701 0008 0493     		str	r3, [sp, #16]	@ float
+ 702 000a 534B     		ldr	r3, .L46
+ 703 000c 0593     		str	r3, [sp, #20]	@ float
+ 704 000e 5348     		ldr	r0, .L46+4
+ 705 0010 FFF7FEFF 		bl	DWT_GetDeltaT
+ 706 0014 524E     		ldr	r6, .L46+8
+ 707 0016 86ED000A 		vstr.32	s0, [r6]
+ 708 001a 524B     		ldr	r3, .L46+12
+ 709 001c D3ED007A 		vldr.32	s15, [r3]
+ 710 0020 77EE807A 		vadd.f32	s15, s15, s0
+ 711 0024 C3ED007A 		vstr.32	s15, [r3]
+ 712 0028 4F4D     		ldr	r5, .L46+16
+ 713 002a 2846     		mov	r0, r5
+ 714 002c FFF7FEFF 		bl	BMI088_Read
+ 715 0030 2B68     		ldr	r3, [r5]	@ float
+ 716 0032 4E4C     		ldr	r4, .L46+20
+ 717 0034 E365     		str	r3, [r4, #92]	@ float
+ 718 0036 6B68     		ldr	r3, [r5, #4]	@ float
+ 719 0038 2366     		str	r3, [r4, #96]	@ float
+ 720 003a AB68     		ldr	r3, [r5, #8]	@ float
+ 721 003c 6366     		str	r3, [r4, #100]	@ float
+ 722 003e EB68     		ldr	r3, [r5, #12]	@ float
+ 723 0040 2365     		str	r3, [r4, #80]	@ float
+ 724 0042 2B69     		ldr	r3, [r5, #16]	@ float
+ 725 0044 6365     		str	r3, [r4, #84]	@ float
+ 726 0046 6B69     		ldr	r3, [r5, #20]	@ float
+ 727 0048 A365     		str	r3, [r4, #88]	@ float
+ 728 004a 04F15C02 		add	r2, r4, #92
+ 729 004e 04F15001 		add	r1, r4, #80
+ 730 0052 4748     		ldr	r0, .L46+24
+ 731 0054 FFF7FEFF 		bl	IMU_Param_Correction
+ 732 0058 96ED003A 		vldr.32	s6, [r6]
+ 733 005c D4ED192A 		vldr.32	s5, [r4, #100]
+ 734 0060 94ED182A 		vldr.32	s4, [r4, #96]
+ 735 0064 D4ED171A 		vldr.32	s3, [r4, #92]
+ 736 0068 94ED161A 		vldr.32	s2, [r4, #88]
+ 737 006c D4ED150A 		vldr.32	s1, [r4, #84]
+ 738 0070 94ED140A 		vldr.32	s0, [r4, #80]
+ 739 0074 FFF7FEFF 		bl	IMU_QuaternionEKF_Update
+ 740 0078 3E4B     		ldr	r3, .L46+28
+ 741 007a 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 742 007c 84E80F00 		stm	r4, {r0, r1, r2, r3}
+ 743 0080 2246     		mov	r2, r4
+ 744 0082 04F12C01 		add	r1, r4, #44
+ 745 0086 3C48     		ldr	r0, .L46+32
+ 746 0088 FFF7FEFF 		bl	BodyFrameToEarthFrame
+ 747 008c 2246     		mov	r2, r4
+ 748 008e 04F13801 		add	r1, r4, #56
+ 749 0092 3A48     		ldr	r0, .L46+36
+ 750 0094 FFF7FEFF 		bl	BodyFrameToEarthFrame
+ 751 0098 2246     		mov	r2, r4
+ 752 009a 04F14401 		add	r1, r4, #68
+ 753 009e 3848     		ldr	r0, .L46+40
+ 754 00a0 FFF7FEFF 		bl	BodyFrameToEarthFrame
+ 755 00a4 2246     		mov	r2, r4
+ 756 00a6 6946     		mov	r1, sp
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 14
+
+
+ 757 00a8 03A8     		add	r0, sp, #12
+ 758 00aa FFF7FEFF 		bl	EarthFrameToBodyFrame
+ 759 00ae 0023     		movs	r3, #0
+ 760 00b0 27E0     		b	.L41
+ 761              	.L42:
+ 762 00b2 2E4A     		ldr	r2, .L46+20
+ 763 00b4 03F11601 		add	r1, r3, #22
+ 764 00b8 02EB8101 		add	r1, r2, r1, lsl #2
+ 765 00bc 91ED017A 		vldr.32	s14, [r1, #4]
+ 766 00c0 06A9     		add	r1, sp, #24
+ 767 00c2 01EB8301 		add	r1, r1, r3, lsl #2
+ 768 00c6 51ED067A 		vldr.32	s15, [r1, #-24]
+ 769 00ca 37EE677A 		vsub.f32	s14, s14, s15
+ 770 00ce 2449     		ldr	r1, .L46+8
+ 771 00d0 D1ED007A 		vldr.32	s15, [r1]
+ 772 00d4 27EE277A 		vmul.f32	s14, s14, s15
+ 773 00d8 D2ED0A6A 		vldr.32	s13, [r2, #40]
+ 774 00dc 77EEA67A 		vadd.f32	s15, s15, s13
+ 775 00e0 87EE276A 		vdiv.f32	s12, s14, s15
+ 776 00e4 191D     		adds	r1, r3, #4
+ 777 00e6 02EB8102 		add	r2, r2, r1, lsl #2
+ 778 00ea 92ED007A 		vldr.32	s14, [r2]
+ 779 00ee 66EE876A 		vmul.f32	s13, s13, s14
+ 780 00f2 86EEA77A 		vdiv.f32	s14, s13, s15
+ 781 00f6 76EE077A 		vadd.f32	s15, s12, s14
+ 782 00fa C2ED007A 		vstr.32	s15, [r2]
+ 783 00fe 0133     		adds	r3, r3, #1
+ 784 0100 DBB2     		uxtb	r3, r3
+ 785              	.L41:
+ 786 0102 022B     		cmp	r3, #2
+ 787 0104 D5D9     		bls	.L42
+ 788 0106 194C     		ldr	r4, .L46+20
+ 789 0108 2246     		mov	r2, r4
+ 790 010a 04F11C01 		add	r1, r4, #28
+ 791 010e 04F11000 		add	r0, r4, #16
+ 792 0112 FFF7FEFF 		bl	BodyFrameToEarthFrame
+ 793 0116 1B4B     		ldr	r3, .L46+44
+ 794 0118 93ED6A0A 		vldr.32	s0, [r3, #424]
+ 795 011c 84ED1C0A 		vstr.32	s0, [r4, #112]
+ 796 0120 D3ED690A 		vldr.32	s1, [r3, #420]
+ 797 0124 C4ED1B0A 		vstr.32	s1, [r4, #108]
+ 798 0128 93ED681A 		vldr.32	s2, [r3, #416]
+ 799 012c 84ED1A1A 		vstr.32	s2, [r4, #104]
+ 800 0130 D3F8AC31 		ldr	r3, [r3, #428]	@ float
+ 801 0134 6367     		str	r3, [r4, #116]	@ float
+ 802 0136 FFF7FEFF 		bl	VisionSetAltitude
+ 803 013a 134B     		ldr	r3, .L46+48
+ 804 013c 1B68     		ldr	r3, [r3]
+ 805 013e 13F0010F 		tst	r3, #1
+ 806 0142 05D0     		beq	.L45
+ 807              	.L43:
+ 808 0144 104A     		ldr	r2, .L46+48
+ 809 0146 1368     		ldr	r3, [r2]
+ 810 0148 0133     		adds	r3, r3, #1
+ 811 014a 1360     		str	r3, [r2]
+ 812 014c 06B0     		add	sp, sp, #24
+ 813              		@ sp needed
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 15
+
+
+ 814 014e 70BD     		pop	{r4, r5, r6, pc}
+ 815              	.L45:
+ 816 0150 FFF7FEFF 		bl	IMU_Temperature_Ctrl
+ 817 0154 F6E7     		b	.L43
+ 818              	.L47:
+ 819 0156 00BF     		.align	2
+ 820              	.L46:
+ 821 0158 C3F51C41 		.word	1092416963
+ 822 015c 00000000 		.word	INS_DWT_Count
+ 823 0160 00000000 		.word	dt
+ 824 0164 00000000 		.word	t
+ 825 0168 00000000 		.word	BMI088
+ 826 016c 00000000 		.word	INS
+ 827 0170 00000000 		.word	IMU_Param
+ 828 0174 50010000 		.word	QEKF_INS+336
+ 829 0178 00000000 		.word	xb
+ 830 017c 00000000 		.word	yb
+ 831 0180 00000000 		.word	zb
+ 832 0184 00000000 		.word	QEKF_INS
+ 833 0188 00000000 		.word	count.12
+ 835              		.section	.text.QuaternionUpdate,"ax",%progbits
+ 836              		.align	1
+ 837              		.global	QuaternionUpdate
+ 838              		.syntax unified
+ 839              		.thumb
+ 840              		.thumb_func
+ 842              	QuaternionUpdate:
+ 843              		@ args = 0, pretend = 0, frame = 0
+ 844              		@ frame_needed = 0, uses_anonymous_args = 0
+ 845              		@ link register save eliminated.
+ 846 0000 F6EE007A 		vmov.f32	s15, #5.0e-1
+ 847 0004 61EEA71A 		vmul.f32	s3, s3, s15
+ 848 0008 21EE800A 		vmul.f32	s0, s3, s0
+ 849 000c 61EEA00A 		vmul.f32	s1, s3, s1
+ 850 0010 21EE811A 		vmul.f32	s2, s3, s2
+ 851 0014 D0ED005A 		vldr.32	s11, [r0]
+ 852 0018 90ED016A 		vldr.32	s12, [r0, #4]
+ 853 001c D0ED026A 		vldr.32	s13, [r0, #8]
+ 854 0020 66EE407A 		vnmul.f32	s15, s12, s0
+ 855 0024 20EEA67A 		vmul.f32	s14, s1, s13
+ 856 0028 77EEC77A 		vsub.f32	s15, s15, s14
+ 857 002c 90ED037A 		vldr.32	s14, [r0, #12]
+ 858 0030 27EE015A 		vmul.f32	s10, s14, s2
+ 859 0034 77EEC57A 		vsub.f32	s15, s15, s10
+ 860 0038 77EEA57A 		vadd.f32	s15, s15, s11
+ 861 003c C0ED007A 		vstr.32	s15, [r0]
+ 862 0040 60EE257A 		vmul.f32	s15, s0, s11
+ 863 0044 21EE265A 		vmul.f32	s10, s2, s13
+ 864 0048 77EE857A 		vadd.f32	s15, s15, s10
+ 865 004c 27EE205A 		vmul.f32	s10, s14, s1
+ 866 0050 77EEC57A 		vsub.f32	s15, s15, s10
+ 867 0054 77EE867A 		vadd.f32	s15, s15, s12
+ 868 0058 C0ED017A 		vstr.32	s15, [r0, #4]
+ 869 005c 60EEA57A 		vmul.f32	s15, s1, s11
+ 870 0060 21EE065A 		vmul.f32	s10, s2, s12
+ 871 0064 77EEC57A 		vsub.f32	s15, s15, s10
+ 872 0068 27EE005A 		vmul.f32	s10, s14, s0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 16
+
+
+ 873 006c 77EE857A 		vadd.f32	s15, s15, s10
+ 874 0070 77EEA67A 		vadd.f32	s15, s15, s13
+ 875 0074 C0ED027A 		vstr.32	s15, [r0, #8]
+ 876 0078 21EE251A 		vmul.f32	s2, s2, s11
+ 877 007c 60EE860A 		vmul.f32	s1, s1, s12
+ 878 0080 31EE201A 		vadd.f32	s2, s2, s1
+ 879 0084 20EE260A 		vmul.f32	s0, s0, s13
+ 880 0088 31EE401A 		vsub.f32	s2, s2, s0
+ 881 008c 37EE017A 		vadd.f32	s14, s14, s2
+ 882 0090 80ED037A 		vstr.32	s14, [r0, #12]
+ 883 0094 7047     		bx	lr
+ 885              		.section	.text.QuaternionToEularAngle,"ax",%progbits
+ 886              		.align	1
+ 887              		.global	QuaternionToEularAngle
+ 888              		.syntax unified
+ 889              		.thumb
+ 890              		.thumb_func
+ 892              	QuaternionToEularAngle:
+ 893              		@ args = 0, pretend = 0, frame = 0
+ 894              		@ frame_needed = 0, uses_anonymous_args = 0
+ 895 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 896 0002 2DED028B 		vpush.64	{d8}
+ 897 0006 0446     		mov	r4, r0
+ 898 0008 0F46     		mov	r7, r1
+ 899 000a 1646     		mov	r6, r2
+ 900 000c 1D46     		mov	r5, r3
+ 901 000e D0ED000A 		vldr.32	s1, [r0]
+ 902 0012 90ED030A 		vldr.32	s0, [r0, #12]
+ 903 0016 20EE800A 		vmul.f32	s0, s1, s0
+ 904 001a D0ED017A 		vldr.32	s15, [r0, #4]
+ 905 001e 90ED027A 		vldr.32	s14, [r0, #8]
+ 906 0022 27EE877A 		vmul.f32	s14, s15, s14
+ 907 0026 30EE070A 		vadd.f32	s0, s0, s14
+ 908 002a 60EEA00A 		vmul.f32	s1, s1, s1
+ 909 002e 67EEA77A 		vmul.f32	s15, s15, s15
+ 910 0032 70EEA70A 		vadd.f32	s1, s1, s15
+ 911 0036 70EEA00A 		vadd.f32	s1, s1, s1
+ 912 003a F7EE008A 		vmov.f32	s17, #1.0e+0
+ 913 003e 70EEE80A 		vsub.f32	s1, s1, s17
+ 914 0042 30EE000A 		vadd.f32	s0, s0, s0
+ 915 0046 FFF7FEFF 		bl	atan2f
+ 916 004a 9FED1F8A 		vldr.32	s16, .L51
+ 917 004e 20EE080A 		vmul.f32	s0, s0, s16
+ 918 0052 87ED000A 		vstr.32	s0, [r7]
+ 919 0056 D4ED000A 		vldr.32	s1, [r4]
+ 920 005a 94ED010A 		vldr.32	s0, [r4, #4]
+ 921 005e 20EE800A 		vmul.f32	s0, s1, s0
+ 922 0062 94ED027A 		vldr.32	s14, [r4, #8]
+ 923 0066 D4ED037A 		vldr.32	s15, [r4, #12]
+ 924 006a 27EE277A 		vmul.f32	s14, s14, s15
+ 925 006e 30EE070A 		vadd.f32	s0, s0, s14
+ 926 0072 60EEA00A 		vmul.f32	s1, s1, s1
+ 927 0076 67EEA77A 		vmul.f32	s15, s15, s15
+ 928 007a 70EEA70A 		vadd.f32	s1, s1, s15
+ 929 007e 70EEA00A 		vadd.f32	s1, s1, s1
+ 930 0082 70EEE80A 		vsub.f32	s1, s1, s17
+ 931 0086 30EE000A 		vadd.f32	s0, s0, s0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 17
+
+
+ 932 008a FFF7FEFF 		bl	atan2f
+ 933 008e 20EE080A 		vmul.f32	s0, s0, s16
+ 934 0092 86ED000A 		vstr.32	s0, [r6]
+ 935 0096 94ED000A 		vldr.32	s0, [r4]
+ 936 009a D4ED027A 		vldr.32	s15, [r4, #8]
+ 937 009e 20EE270A 		vmul.f32	s0, s0, s15
+ 938 00a2 D4ED017A 		vldr.32	s15, [r4, #4]
+ 939 00a6 94ED037A 		vldr.32	s14, [r4, #12]
+ 940 00aa 67EE877A 		vmul.f32	s15, s15, s14
+ 941 00ae 30EE670A 		vsub.f32	s0, s0, s15
+ 942 00b2 30EE000A 		vadd.f32	s0, s0, s0
+ 943 00b6 FFF7FEFF 		bl	asinf
+ 944 00ba 20EE080A 		vmul.f32	s0, s0, s16
+ 945 00be 85ED000A 		vstr.32	s0, [r5]
+ 946 00c2 BDEC028B 		vldm	sp!, {d8}
+ 947 00c6 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 948              	.L52:
+ 949              		.align	2
+ 950              	.L51:
+ 951 00c8 E12E6542 		.word	1113927393
+ 953              		.section	.text.EularAngleToQuaternion,"ax",%progbits
+ 954              		.align	1
+ 955              		.global	EularAngleToQuaternion
+ 956              		.syntax unified
+ 957              		.thumb
+ 958              		.thumb_func
+ 960              	EularAngleToQuaternion:
+ 961              		@ args = 0, pretend = 0, frame = 0
+ 962              		@ frame_needed = 0, uses_anonymous_args = 0
+ 963 0000 10B5     		push	{r4, lr}
+ 964 0002 2DED068B 		vpush.64	{d8, d9, d10}
+ 965 0006 0446     		mov	r4, r0
+ 966 0008 DFED2E7A 		vldr.32	s15, .L55
+ 967 000c C0EE279A 		vdiv.f32	s19, s0, s15
+ 968 0010 80EEA7AA 		vdiv.f32	s20, s1, s15
+ 969 0014 C1EE27AA 		vdiv.f32	s21, s2, s15
+ 970 0018 B6EE008A 		vmov.f32	s16, #5.0e-1
+ 971 001c 2AEE08AA 		vmul.f32	s20, s20, s16
+ 972 0020 B0EE4A0A 		vmov.f32	s0, s20
+ 973 0024 FFF7FEFF 		bl	arm_cos_f32
+ 974 0028 F0EE408A 		vmov.f32	s17, s0
+ 975 002c 69EE889A 		vmul.f32	s19, s19, s16
+ 976 0030 B0EE690A 		vmov.f32	s0, s19
+ 977 0034 FFF7FEFF 		bl	arm_cos_f32
+ 978 0038 B0EE409A 		vmov.f32	s18, s0
+ 979 003c 6AEE88AA 		vmul.f32	s21, s21, s16
+ 980 0040 B0EE6A0A 		vmov.f32	s0, s21
+ 981 0044 FFF7FEFF 		bl	arm_cos_f32
+ 982 0048 B0EE408A 		vmov.f32	s16, s0
+ 983 004c B0EE4A0A 		vmov.f32	s0, s20
+ 984 0050 FFF7FEFF 		bl	arm_sin_f32
+ 985 0054 B0EE40AA 		vmov.f32	s20, s0
+ 986 0058 B0EE690A 		vmov.f32	s0, s19
+ 987 005c FFF7FEFF 		bl	arm_sin_f32
+ 988 0060 F0EE409A 		vmov.f32	s19, s0
+ 989 0064 B0EE6A0A 		vmov.f32	s0, s21
+ 990 0068 FFF7FEFF 		bl	arm_sin_f32
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 18
+
+
+ 991 006c 68EE887A 		vmul.f32	s15, s17, s16
+ 992 0070 67EE896A 		vmul.f32	s13, s15, s18
+ 993 0074 2AEE007A 		vmul.f32	s14, s20, s0
+ 994 0078 27EE296A 		vmul.f32	s12, s14, s19
+ 995 007c 76EE866A 		vadd.f32	s13, s13, s12
+ 996 0080 C4ED006A 		vstr.32	s13, [r4]
+ 997 0084 28EE0A8A 		vmul.f32	s16, s16, s20
+ 998 0088 68EE096A 		vmul.f32	s13, s16, s18
+ 999 008c 68EE808A 		vmul.f32	s17, s17, s0
+ 1000 0090 28EEA96A 		vmul.f32	s12, s17, s19
+ 1001 0094 76EEC66A 		vsub.f32	s13, s13, s12
+ 1002 0098 C4ED016A 		vstr.32	s13, [r4, #4]
+ 1003 009c 28EE298A 		vmul.f32	s16, s16, s19
+ 1004 00a0 68EE898A 		vmul.f32	s17, s17, s18
+ 1005 00a4 38EE288A 		vadd.f32	s16, s16, s17
+ 1006 00a8 84ED028A 		vstr.32	s16, [r4, #8]
+ 1007 00ac 67EEA97A 		vmul.f32	s15, s15, s19
+ 1008 00b0 27EE097A 		vmul.f32	s14, s14, s18
+ 1009 00b4 77EEC77A 		vsub.f32	s15, s15, s14
+ 1010 00b8 C4ED037A 		vstr.32	s15, [r4, #12]
+ 1011 00bc BDEC068B 		vldm	sp!, {d8-d10}
+ 1012 00c0 10BD     		pop	{r4, pc}
+ 1013              	.L56:
+ 1014 00c2 00BF     		.align	2
+ 1015              	.L55:
+ 1016 00c4 E12E6542 		.word	1113927393
+ 1018              		.section	.bss.c_33.0,"aw",%nobits
+ 1019              		.align	2
+ 1022              	c_33.0:
+ 1023 0000 00000000 		.space	4
+ 1024              		.section	.bss.c_32.1,"aw",%nobits
+ 1025              		.align	2
+ 1028              	c_32.1:
+ 1029 0000 00000000 		.space	4
+ 1030              		.section	.bss.c_31.2,"aw",%nobits
+ 1031              		.align	2
+ 1034              	c_31.2:
+ 1035 0000 00000000 		.space	4
+ 1036              		.section	.bss.c_23.3,"aw",%nobits
+ 1037              		.align	2
+ 1040              	c_23.3:
+ 1041 0000 00000000 		.space	4
+ 1042              		.section	.bss.c_22.4,"aw",%nobits
+ 1043              		.align	2
+ 1046              	c_22.4:
+ 1047 0000 00000000 		.space	4
+ 1048              		.section	.bss.c_21.5,"aw",%nobits
+ 1049              		.align	2
+ 1052              	c_21.5:
+ 1053 0000 00000000 		.space	4
+ 1054              		.section	.bss.c_13.6,"aw",%nobits
+ 1055              		.align	2
+ 1058              	c_13.6:
+ 1059 0000 00000000 		.space	4
+ 1060              		.section	.bss.c_12.7,"aw",%nobits
+ 1061              		.align	2
+ 1064              	c_12.7:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 19
+
+
+ 1065 0000 00000000 		.space	4
+ 1066              		.section	.bss.c_11.8,"aw",%nobits
+ 1067              		.align	2
+ 1070              	c_11.8:
+ 1071 0000 00000000 		.space	4
+ 1072              		.section	.bss.lastRollOffset.9,"aw",%nobits
+ 1073              		.align	2
+ 1076              	lastRollOffset.9:
+ 1077 0000 00000000 		.space	4
+ 1078              		.section	.bss.lastPitchOffset.10,"aw",%nobits
+ 1079              		.align	2
+ 1082              	lastPitchOffset.10:
+ 1083 0000 00000000 		.space	4
+ 1084              		.section	.bss.lastYawOffset.11,"aw",%nobits
+ 1085              		.align	2
+ 1088              	lastYawOffset.11:
+ 1089 0000 00000000 		.space	4
+ 1090              		.section	.bss.count.12,"aw",%nobits
+ 1091              		.align	2
+ 1094              	count.12:
+ 1095 0000 00000000 		.space	4
+ 1096              		.section	.bss.t,"aw",%nobits
+ 1097              		.align	2
+ 1100              	t:
+ 1101 0000 00000000 		.space	4
+ 1102              		.section	.bss.dt,"aw",%nobits
+ 1103              		.align	2
+ 1106              	dt:
+ 1107 0000 00000000 		.space	4
+ 1108              		.section	.bss.INS_DWT_Count,"aw",%nobits
+ 1109              		.align	2
+ 1112              	INS_DWT_Count:
+ 1113 0000 00000000 		.space	4
+ 1114              		.global	zb
+ 1115              		.section	.rodata.zb,"a"
+ 1116              		.align	2
+ 1119              	zb:
+ 1120 0000 00000000 		.word	0
+ 1121 0004 00000000 		.word	0
+ 1122 0008 0000803F 		.word	1065353216
+ 1123              		.global	yb
+ 1124              		.section	.rodata.yb,"a"
+ 1125              		.align	2
+ 1128              	yb:
+ 1129 0000 00000000 		.word	0
+ 1130 0004 0000803F 		.word	1065353216
+ 1131 0008 00000000 		.word	0
+ 1132              		.global	xb
+ 1133              		.section	.rodata.xb,"a"
+ 1134              		.align	2
+ 1137              	xb:
+ 1138 0000 0000803F 		.word	1065353216
+ 1139 0004 00000000 		.word	0
+ 1140 0008 00000000 		.word	0
+ 1141              		.section	.bss.TempCtrl,"aw",%nobits
+ 1142              		.align	3
+ 1145              	TempCtrl:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 20
+
+
+ 1146 0000 00000000 		.space	120
+ 1146      00000000 
+ 1146      00000000 
+ 1146      00000000 
+ 1146      00000000 
+ 1147              		.section	.bss.IMU_Param,"aw",%nobits
+ 1148              		.align	2
+ 1151              	IMU_Param:
+ 1152 0000 00000000 		.space	28
+ 1152      00000000 
+ 1152      00000000 
+ 1152      00000000 
+ 1152      00000000 
+ 1153              		.section	.bss.INS,"aw",%nobits
+ 1154              		.align	2
+ 1157              	INS:
+ 1158 0000 00000000 		.space	124
+ 1158      00000000 
+ 1158      00000000 
+ 1158      00000000 
+ 1158      00000000 
+ 1159              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 21
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 ins_task.c
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:18     .text.IMUPWMSet:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:23     .text.IMUPWMSet:00000000 IMUPWMSet
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:34     .text.IMUPWMSet:00000008 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:37     .text.InitQuaternion:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:42     .text.InitQuaternion:00000000 InitQuaternion
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:143    .text.InitQuaternion:00000104 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:148    .text.IMU_Param_Correction:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:153    .text.IMU_Param_Correction:00000000 IMU_Param_Correction
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:360    .text.IMU_Param_Correction:00000290 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1088   .bss.lastYawOffset.11:00000000 lastYawOffset.11
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1082   .bss.lastPitchOffset.10:00000000 lastPitchOffset.10
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1076   .bss.lastRollOffset.9:00000000 lastRollOffset.9
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1070   .bss.c_11.8:00000000 c_11.8
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1064   .bss.c_12.7:00000000 c_12.7
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1058   .bss.c_13.6:00000000 c_13.6
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1052   .bss.c_21.5:00000000 c_21.5
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1046   .bss.c_22.4:00000000 c_22.4
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1040   .bss.c_23.3:00000000 c_23.3
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1034   .bss.c_31.2:00000000 c_31.2
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1028   .bss.c_32.1:00000000 c_32.1
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1022   .bss.c_33.0:00000000 c_33.0
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:376    .text.IMU_Temperature_Ctrl:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:381    .text.IMU_Temperature_Ctrl:00000000 IMU_Temperature_Ctrl
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:406    .text.IMU_Temperature_Ctrl:00000040 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1145   .bss.TempCtrl:00000000 TempCtrl
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:413    .text.INS_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:419    .text.INS_Init:00000000 INS_Init
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:499    .text.INS_Init:000000c4 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1157   .bss.INS:00000000 INS
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1151   .bss.IMU_Param:00000000 IMU_Param
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1112   .bss.INS_DWT_Count:00000000 INS_DWT_Count
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:516    .text.BodyFrameToEarthFrame:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:522    .text.BodyFrameToEarthFrame:00000000 BodyFrameToEarthFrame
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:602    .text.EarthFrameToBodyFrame:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:608    .text.EarthFrameToBodyFrame:00000000 EarthFrameToBodyFrame
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:688    .text.INS_Task:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:694    .text.INS_Task:00000000 INS_Task
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:821    .text.INS_Task:00000158 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1106   .bss.dt:00000000 dt
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1100   .bss.t:00000000 t
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1137   .rodata.xb:00000000 xb
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1128   .rodata.yb:00000000 yb
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1119   .rodata.zb:00000000 zb
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1094   .bss.count.12:00000000 count.12
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:836    .text.QuaternionUpdate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:842    .text.QuaternionUpdate:00000000 QuaternionUpdate
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:886    .text.QuaternionToEularAngle:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:892    .text.QuaternionToEularAngle:00000000 QuaternionToEularAngle
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:951    .text.QuaternionToEularAngle:000000c8 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:954    .text.EularAngleToQuaternion:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:960    .text.EularAngleToQuaternion:00000000 EularAngleToQuaternion
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1016   .text.EularAngleToQuaternion:000000c4 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1019   .bss.c_33.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1025   .bss.c_32.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1031   .bss.c_31.2:00000000 $d
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s 			page 22
+
+
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1037   .bss.c_23.3:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1043   .bss.c_22.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1049   .bss.c_21.5:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1055   .bss.c_13.6:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1061   .bss.c_12.7:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1067   .bss.c_11.8:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1073   .bss.lastRollOffset.9:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1079   .bss.lastPitchOffset.10:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1085   .bss.lastYawOffset.11:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1091   .bss.count.12:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1097   .bss.t:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1103   .bss.dt:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1109   .bss.INS_DWT_Count:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1116   .rodata.zb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1125   .rodata.yb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1134   .rodata.xb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1142   .bss.TempCtrl:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1148   .bss.IMU_Param:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cce1VsWd.s:1154   .bss.INS:00000000 $d
+
+UNDEFINED SYMBOLS
+htim10
+BMI088_Read
+DWT_Delay
+Norm3d
+Dot3d
+acosf
+Cross3d
+cosf
+sinf
+BMI088
+arm_cos_f32
+arm_sin_f32
+PIDCalculate
+float_rounding
+float_constrain
+HAL_TIM_PWM_Start
+BMI088Init
+IMU_QuaternionEKF_Init
+memset
+PIDInit
+DWT_GetDeltaT
+hspi1
+IMU_QuaternionEKF_Update
+VisionSetAltitude
+QEKF_INS
+atan2f
+asinf

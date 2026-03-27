@@ -74,7 +74,8 @@ typedef enum
 	ID_game_robot_survivors = 0x0003,	   // 比赛机器人血量数据
 	ID_event_data = 0x0101,				   // 场地事件数据
 	ID_supply_projectile_action = 0x0102,  // 场地补给站动作标识数据
-	ID_supply_projectile_booking = 0x0103, // 场地补给站预约子弹数据
+	ID_referee_warning = 0x0104, 		   // 裁判系统警告数据
+	ID_dart_shoot_data = 0x0105, 		   // 飞镖发射相关数据
 	ID_game_robot_state = 0x0201,		   // 机器人状态数据
 	ID_power_heat_data = 0x0202,		   // 实时功率热量数据
 	ID_game_robot_pos = 0x0203,			   // 机器人位置数据
@@ -93,6 +94,8 @@ typedef enum
 	LEN_game_robot_HP = 32,						 // 0x0003
 	LEN_event_data = 4,							 // 0x0101
 	LEN_supply_projectile_action = 4,			 // 0x0102
+	LEN_referee_warning = 3,					 // 0x0104
+	LEN_dart_shoot_data = 3,					 // 0x0105
 	LEN_game_robot_state = 13,					 // 0x0201
 	LEN_power_heat_data = 16,					 // 0x0202
 	LEN_game_robot_pos = 16,					 // 0x0203
@@ -327,7 +330,7 @@ typedef struct
 	uint32_t layer : 4;
 	uint32_t color : 4;
 	uint32_t start_angle : 9;
-	uint32_t end_angle : 9;
+	uint32_t end_angle : 9;		
 	uint32_t width : 10;
 	uint32_t start_x : 11;
 	uint32_t start_y : 11;

@@ -1,0 +1,1173 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"BMI088driver.c"
+  16              		.text
+  17              		.section	.text.BMI088_read_muli_reg,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	BMI088_read_muli_reg:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 38B5     		push	{r3, r4, r5, lr}
+  27 0002 0D46     		mov	r5, r1
+  28 0004 1446     		mov	r4, r2
+  29 0006 40F08000 		orr	r0, r0, #128
+  30 000a FFF7FEFF 		bl	BMI088_read_write_byte
+  31 000e 06E0     		b	.L2
+  32              	.L3:
+  33 0010 5520     		movs	r0, #85
+  34 0012 FFF7FEFF 		bl	BMI088_read_write_byte
+  35 0016 05F8010B 		strb	r0, [r5], #1
+  36 001a 013C     		subs	r4, r4, #1
+  37 001c E4B2     		uxtb	r4, r4
+  38              	.L2:
+  39 001e 002C     		cmp	r4, #0
+  40 0020 F6D1     		bne	.L3
+  41 0022 38BD     		pop	{r3, r4, r5, pc}
+  43              		.section	.text.BMI088_write_single_reg,"ax",%progbits
+  44              		.align	1
+  45              		.syntax unified
+  46              		.thumb
+  47              		.thumb_func
+  49              	BMI088_write_single_reg:
+  50              		@ args = 0, pretend = 0, frame = 0
+  51              		@ frame_needed = 0, uses_anonymous_args = 0
+  52 0000 10B5     		push	{r4, lr}
+  53 0002 0C46     		mov	r4, r1
+  54 0004 FFF7FEFF 		bl	BMI088_read_write_byte
+  55 0008 2046     		mov	r0, r4
+  56 000a FFF7FEFF 		bl	BMI088_read_write_byte
+  57 000e 10BD     		pop	{r4, pc}
+  59              		.section	.text.BMI088_read_single_reg,"ax",%progbits
+  60              		.align	1
+  61              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 2
+
+
+  62              		.thumb
+  63              		.thumb_func
+  65              	BMI088_read_single_reg:
+  66              		@ args = 0, pretend = 0, frame = 0
+  67              		@ frame_needed = 0, uses_anonymous_args = 0
+  68 0000 10B5     		push	{r4, lr}
+  69 0002 0C46     		mov	r4, r1
+  70 0004 40F08000 		orr	r0, r0, #128
+  71 0008 FFF7FEFF 		bl	BMI088_read_write_byte
+  72 000c 5520     		movs	r0, #85
+  73 000e FFF7FEFF 		bl	BMI088_read_write_byte
+  74 0012 2070     		strb	r0, [r4]
+  75 0014 10BD     		pop	{r4, pc}
+  77              		.section	.text.Calibrate_MPU_Offset,"ax",%progbits
+  78              		.align	1
+  79              		.syntax unified
+  80              		.thumb
+  81              		.thumb_func
+  83              	Calibrate_MPU_Offset:
+  84              		@ args = 0, pretend = 0, frame = 32
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86 0000 70B5     		push	{r4, r5, r6, lr}
+  87 0002 2DED048B 		vpush.64	{d8, d9}
+  88 0006 88B0     		sub	sp, sp, #32
+  89 0008 0446     		mov	r4, r0
+  90 000a 0023     		movs	r3, #0
+  91 000c 0693     		str	r3, [sp, #24]
+  92 000e 0793     		str	r3, [sp, #28]
+  93 0010 FFF7FEFF 		bl	DWT_GetTimeline_s
+  94 0014 C04B     		ldr	r3, .L48
+  95 0016 83ED000A 		vstr.32	s0, [r3]
+  96 001a 9FEDC08A 		vldr.32	s16, .L48+4
+  97 001e F0EE488A 		vmov.f32	s17, s16
+  98              	.L34:
+  99 0022 FFF7FEFF 		bl	DWT_GetTimeline_s
+ 100 0026 BC4B     		ldr	r3, .L48
+ 101 0028 D3ED007A 		vldr.32	s15, [r3]
+ 102 002c 30EE670A 		vsub.f32	s0, s0, s15
+ 103 0030 F2EE087A 		vmov.f32	s15, #1.2e+1
+ 104 0034 B4EEE70A 		vcmpe.f32	s0, s15
+ 105 0038 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 106 003c 0CDC     		bgt	.L44
+ 107 003e 9FEDB80A 		vldr.32	s0, .L48+8
+ 108 0042 FFF7FEFF 		bl	DWT_Delay
+ 109 0046 0023     		movs	r3, #0
+ 110 0048 2363     		str	r3, [r4, #48]	@ float
+ 111 004a 6362     		str	r3, [r4, #36]	@ float
+ 112 004c A362     		str	r3, [r4, #40]	@ float
+ 113 004e E362     		str	r3, [r4, #44]	@ float
+ 114 0050 B0EE689A 		vmov.f32	s18, s17
+ 115 0054 0025     		movs	r5, #0
+ 116 0056 DAE0     		b	.L13
+ 117              	.L44:
+ 118 0058 B24B     		ldr	r3, .L48+12
+ 119 005a 6362     		str	r3, [r4, #36]	@ float
+ 120 005c B24B     		ldr	r3, .L48+16
+ 121 005e A362     		str	r3, [r4, #40]	@ float
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 3
+
+
+ 122 0060 E362     		str	r3, [r4, #44]	@ float
+ 123 0062 B24B     		ldr	r3, .L48+20
+ 124 0064 2363     		str	r3, [r4, #48]	@ float
+ 125 0066 B24B     		ldr	r3, .L48+24
+ 126 0068 A361     		str	r3, [r4, #24]	@ float
+ 127              	.L12:
+ 128 006a 94ED0C7A 		vldr.32	s14, [r4, #48]
+ 129 006e DFEDB16A 		vldr.32	s13, .L48+28
+ 130 0072 C6EE877A 		vdiv.f32	s15, s13, s14
+ 131 0076 C4ED087A 		vstr.32	s15, [r4, #32]
+ 132 007a 08B0     		add	sp, sp, #32
+ 133              		@ sp needed
+ 134 007c BDEC048B 		vldm	sp!, {d8-d9}
+ 135 0080 70BD     		pop	{r4, r5, r6, pc}
+ 136              	.L47:
+ 137 0082 9DF81B30 		ldrb	r3, [sp, #27]	@ zero_extendqisi2
+ 138 0086 1B02     		lsls	r3, r3, #8
+ 139 0088 1BB2     		sxth	r3, r3
+ 140 008a 9DF81A20 		ldrb	r2, [sp, #26]	@ zero_extendqisi2
+ 141 008e 1343     		orrs	r3, r3, r2
+ 142 0090 07EE903A 		vmov	s15, r3	@ int
+ 143 0094 A84B     		ldr	r3, .L48+32
+ 144 0096 93ED007A 		vldr.32	s14, [r3]
+ 145 009a F8EEE77A 		vcvt.f32.s32	s15, s15
+ 146 009e 67EE877A 		vmul.f32	s15, s15, s14
+ 147 00a2 C4ED037A 		vstr.32	s15, [r4, #12]
+ 148 00a6 D4ED096A 		vldr.32	s13, [r4, #36]
+ 149 00aa 77EEA67A 		vadd.f32	s15, s15, s13
+ 150 00ae C4ED097A 		vstr.32	s15, [r4, #36]
+ 151 00b2 9DF81D30 		ldrb	r3, [sp, #29]	@ zero_extendqisi2
+ 152 00b6 1B02     		lsls	r3, r3, #8
+ 153 00b8 1BB2     		sxth	r3, r3
+ 154 00ba 9DF81C20 		ldrb	r2, [sp, #28]	@ zero_extendqisi2
+ 155 00be 1343     		orrs	r3, r3, r2
+ 156 00c0 07EE903A 		vmov	s15, r3	@ int
+ 157 00c4 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 158 00c8 67EE877A 		vmul.f32	s15, s15, s14
+ 159 00cc C4ED047A 		vstr.32	s15, [r4, #16]
+ 160 00d0 D4ED0A6A 		vldr.32	s13, [r4, #40]
+ 161 00d4 77EEA67A 		vadd.f32	s15, s15, s13
+ 162 00d8 C4ED0A7A 		vstr.32	s15, [r4, #40]
+ 163 00dc 9DF81F30 		ldrb	r3, [sp, #31]	@ zero_extendqisi2
+ 164 00e0 1B02     		lsls	r3, r3, #8
+ 165 00e2 1BB2     		sxth	r3, r3
+ 166 00e4 9DF81E20 		ldrb	r2, [sp, #30]	@ zero_extendqisi2
+ 167 00e8 1343     		orrs	r3, r3, r2
+ 168 00ea 07EE903A 		vmov	s15, r3	@ int
+ 169 00ee F8EEE77A 		vcvt.f32.s32	s15, s15
+ 170 00f2 67EE877A 		vmul.f32	s15, s15, s14
+ 171 00f6 C4ED057A 		vstr.32	s15, [r4, #20]
+ 172 00fa 94ED0B7A 		vldr.32	s14, [r4, #44]
+ 173 00fe 77EE877A 		vadd.f32	s15, s15, s14
+ 174 0102 C4ED0B7A 		vstr.32	s15, [r4, #44]
+ 175 0106 E7E0     		b	.L14
+ 176              	.L17:
+ 177 0108 9A1C     		adds	r2, r3, #2
+ 178 010a 04EB8202 		add	r2, r4, r2, lsl #2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 4
+
+
+ 179 010e 5168     		ldr	r1, [r2, #4]	@ float
+ 180 0110 08AA     		add	r2, sp, #32
+ 181 0112 02EB8302 		add	r2, r2, r3, lsl #2
+ 182 0116 42F8141C 		str	r1, [r2, #-20]	@ float
+ 183 011a 42F8201C 		str	r1, [r2, #-32]	@ float
+ 184 011e 0133     		adds	r3, r3, #1
+ 185 0120 DBB2     		uxtb	r3, r3
+ 186              	.L15:
+ 187 0122 022B     		cmp	r3, #2
+ 188 0124 F0D9     		bls	.L17
+ 189 0126 B0EE688A 		vmov.f32	s16, s17
+ 190              	.L18:
+ 191 012a 78EEC86A 		vsub.f32	s13, s17, s16
+ 192 012e 834B     		ldr	r3, .L48+36
+ 193 0130 C3ED006A 		vstr.32	s13, [r3]
+ 194 0134 0023     		movs	r3, #0
+ 195 0136 3DE0     		b	.L27
+ 196              	.L35:
+ 197 0138 2B46     		mov	r3, r5
+ 198 013a F2E7     		b	.L15
+ 199              	.L24:
+ 200 013c 0133     		adds	r3, r3, #1
+ 201 013e DBB2     		uxtb	r3, r3
+ 202              	.L21:
+ 203 0140 022B     		cmp	r3, #2
+ 204 0142 24D8     		bhi	.L45
+ 205 0144 1946     		mov	r1, r3
+ 206 0146 9A1C     		adds	r2, r3, #2
+ 207 0148 04EB8202 		add	r2, r4, r2, lsl #2
+ 208 014c D2ED017A 		vldr.32	s15, [r2, #4]
+ 209 0150 08AA     		add	r2, sp, #32
+ 210 0152 02EB8302 		add	r2, r2, r3, lsl #2
+ 211 0156 12ED057A 		vldr.32	s14, [r2, #-20]
+ 212 015a F4EEC77A 		vcmpe.f32	s15, s14
+ 213 015e F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 214 0162 04DD     		ble	.L22
+ 215 0164 08AA     		add	r2, sp, #32
+ 216 0166 02EB8302 		add	r2, r2, r3, lsl #2
+ 217 016a 42ED057A 		vstr.32	s15, [r2, #-20]
+ 218              	.L22:
+ 219 016e 08AA     		add	r2, sp, #32
+ 220 0170 02EB8102 		add	r2, r2, r1, lsl #2
+ 221 0174 12ED087A 		vldr.32	s14, [r2, #-32]
+ 222 0178 F4EEC77A 		vcmpe.f32	s15, s14
+ 223 017c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 224 0180 DCD5     		bpl	.L24
+ 225 0182 08AA     		add	r2, sp, #32
+ 226 0184 02EB8101 		add	r1, r2, r1, lsl #2
+ 227 0188 41ED087A 		vstr.32	s15, [r1, #-32]
+ 228 018c D6E7     		b	.L24
+ 229              	.L45:
+ 230 018e F0EE498A 		vmov.f32	s17, s18
+ 231 0192 CAE7     		b	.L18
+ 232              	.L28:
+ 233 0194 08AA     		add	r2, sp, #32
+ 234 0196 02EB8302 		add	r2, r2, r3, lsl #2
+ 235 019a 52ED057A 		vldr.32	s15, [r2, #-20]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 5
+
+
+ 236 019e 12ED087A 		vldr.32	s14, [r2, #-32]
+ 237 01a2 77EEC77A 		vsub.f32	s15, s15, s14
+ 238 01a6 664A     		ldr	r2, .L48+40
+ 239 01a8 02EB8302 		add	r2, r2, r3, lsl #2
+ 240 01ac C2ED007A 		vstr.32	s15, [r2]
+ 241 01b0 0133     		adds	r3, r3, #1
+ 242 01b2 DBB2     		uxtb	r3, r3
+ 243              	.L27:
+ 244 01b4 022B     		cmp	r3, #2
+ 245 01b6 EDD9     		bls	.L28
+ 246 01b8 F6EE007A 		vmov.f32	s15, #5.0e-1
+ 247 01bc F4EEE76A 		vcmpe.f32	s13, s15
+ 248 01c0 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 249 01c4 00F39D80 		bgt	.L29
+ 250 01c8 5D4B     		ldr	r3, .L48+40
+ 251 01ca 93ED007A 		vldr.32	s14, [r3]
+ 252 01ce DFED5D7A 		vldr.32	s15, .L48+44
+ 253 01d2 B4EEE77A 		vcmpe.f32	s14, s15
+ 254 01d6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 255 01da 00F39280 		bgt	.L29
+ 256 01de 93ED017A 		vldr.32	s14, [r3, #4]
+ 257 01e2 B4EEE77A 		vcmpe.f32	s14, s15
+ 258 01e6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 259 01ea 00F38A80 		bgt	.L29
+ 260 01ee 93ED027A 		vldr.32	s14, [r3, #8]
+ 261 01f2 B4EEE77A 		vcmpe.f32	s14, s15
+ 262 01f6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 263 01fa 00F38280 		bgt	.L29
+ 264 01fe 9FED520A 		vldr.32	s0, .L48+48
+ 265 0202 FFF7FEFF 		bl	DWT_Delay
+ 266 0206 0135     		adds	r5, r5, #1
+ 267 0208 ADB2     		uxth	r5, r5
+ 268 020a B0EE689A 		vmov.f32	s18, s17
+ 269              	.L13:
+ 270 020e 41F26F73 		movw	r3, #5999
+ 271 0212 9D42     		cmp	r5, r3
+ 272 0214 73D8     		bhi	.L46
+ 273 0216 FFF7FEFF 		bl	BMI088_ACCEL_NS_L
+ 274 021a 9220     		movs	r0, #146
+ 275 021c FFF7FEFF 		bl	BMI088_read_write_byte
+ 276 0220 06AE     		add	r6, sp, #24
+ 277 0222 0622     		movs	r2, #6
+ 278 0224 3146     		mov	r1, r6
+ 279 0226 1220     		movs	r0, #18
+ 280 0228 FFF7FEFF 		bl	BMI088_read_muli_reg
+ 281 022c FFF7FEFF 		bl	BMI088_ACCEL_NS_H
+ 282 0230 9DF81930 		ldrb	r3, [sp, #25]	@ zero_extendqisi2
+ 283 0234 1B02     		lsls	r3, r3, #8
+ 284 0236 1BB2     		sxth	r3, r3
+ 285 0238 9DF81820 		ldrb	r2, [sp, #24]	@ zero_extendqisi2
+ 286 023c 1343     		orrs	r3, r3, r2
+ 287 023e 07EE903A 		vmov	s15, r3	@ int
+ 288 0242 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 289 0246 414A     		ldr	r2, .L48+52
+ 290 0248 92ED007A 		vldr.32	s14, [r2]
+ 291 024c 67EE877A 		vmul.f32	s15, s15, s14
+ 292 0250 C4ED007A 		vstr.32	s15, [r4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 6
+
+
+ 293 0254 9DF81B30 		ldrb	r3, [sp, #27]	@ zero_extendqisi2
+ 294 0258 1B02     		lsls	r3, r3, #8
+ 295 025a 1BB2     		sxth	r3, r3
+ 296 025c 9DF81A10 		ldrb	r1, [sp, #26]	@ zero_extendqisi2
+ 297 0260 0B43     		orrs	r3, r3, r1
+ 298 0262 07EE103A 		vmov	s14, r3	@ int
+ 299 0266 D2ED006A 		vldr.32	s13, [r2]
+ 300 026a B8EEC77A 		vcvt.f32.s32	s14, s14
+ 301 026e 27EE267A 		vmul.f32	s14, s14, s13
+ 302 0272 84ED017A 		vstr.32	s14, [r4, #4]
+ 303 0276 9DF81D30 		ldrb	r3, [sp, #29]	@ zero_extendqisi2
+ 304 027a 1B02     		lsls	r3, r3, #8
+ 305 027c 1BB2     		sxth	r3, r3
+ 306 027e 9DF81C20 		ldrb	r2, [sp, #28]	@ zero_extendqisi2
+ 307 0282 1343     		orrs	r3, r3, r2
+ 308 0284 00EE103A 		vmov	s0, r3	@ int
+ 309 0288 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 310 028c 20EE260A 		vmul.f32	s0, s0, s13
+ 311 0290 84ED020A 		vstr.32	s0, [r4, #8]
+ 312 0294 67EEA77A 		vmul.f32	s15, s15, s15
+ 313 0298 27EE077A 		vmul.f32	s14, s14, s14
+ 314 029c 77EE877A 		vadd.f32	s15, s15, s14
+ 315 02a0 20EE000A 		vmul.f32	s0, s0, s0
+ 316 02a4 37EE800A 		vadd.f32	s0, s15, s0
+ 317 02a8 FFF7FEFF 		bl	sqrtf
+ 318 02ac F0EE408A 		vmov.f32	s17, s0
+ 319 02b0 D4ED0C7A 		vldr.32	s15, [r4, #48]
+ 320 02b4 77EE807A 		vadd.f32	s15, s15, s0
+ 321 02b8 C4ED0C7A 		vstr.32	s15, [r4, #48]
+ 322 02bc FFF7FEFF 		bl	BMI088_GYRO_NS_L
+ 323 02c0 0822     		movs	r2, #8
+ 324 02c2 3146     		mov	r1, r6
+ 325 02c4 0020     		movs	r0, #0
+ 326 02c6 FFF7FEFF 		bl	BMI088_read_muli_reg
+ 327 02ca FFF7FEFF 		bl	BMI088_GYRO_NS_H
+ 328 02ce 9DF81830 		ldrb	r3, [sp, #24]	@ zero_extendqisi2
+ 329 02d2 0F2B     		cmp	r3, #15
+ 330 02d4 3FF4D5AE 		beq	.L47
+ 331              	.L14:
+ 332 02d8 002D     		cmp	r5, #0
+ 333 02da 3FF42DAF 		beq	.L35
+ 334 02de B4EEE89A 		vcmpe.f32	s18, s17
+ 335 02e2 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 336 02e6 01D5     		bpl	.L19
+ 337 02e8 B0EE689A 		vmov.f32	s18, s17
+ 338              	.L19:
+ 339 02ec B4EEE88A 		vcmpe.f32	s16, s17
+ 340 02f0 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 341 02f4 01DD     		ble	.L20
+ 342 02f6 B0EE688A 		vmov.f32	s16, s17
+ 343              	.L20:
+ 344 02fa 0023     		movs	r3, #0
+ 345 02fc 20E7     		b	.L21
+ 346              	.L46:
+ 347 02fe F0EE498A 		vmov.f32	s17, s18
+ 348              	.L29:
+ 349 0302 D4ED0C6A 		vldr.32	s13, [r4, #48]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 7
+
+
+ 350 0306 9FED127A 		vldr.32	s14, .L48+56
+ 351 030a C6EE877A 		vdiv.f32	s15, s13, s14
+ 352 030e C4ED0C7A 		vstr.32	s15, [r4, #48]
+ 353 0312 0023     		movs	r3, #0
+ 354 0314 2CE0     		b	.L31
+ 355              	.L49:
+ 356 0316 00BF     		.align	2
+ 357              	.L48:
+ 358 0318 00000000 		.word	startTime.3
+ 359 031c 00000000 		.word	0
+ 360 0320 0AD7A33B 		.word	1000593162
+ 361 0324 AC38223B 		.word	992098476
+ 362 0328 B016CE39 		.word	969807536
+ 363 032c 3F161B41 		.word	1092294207
+ 364 0330 00002042 		.word	1109393408
+ 365 0334 C3F51C41 		.word	1092416963
+ 366 0338 00000000 		.word	BMI088_GYRO_SEN
+ 367 033c 00000000 		.word	gNormDiff
+ 368 0340 00000000 		.word	gyroDiff
+ 369 0344 9A99193E 		.word	1041865114
+ 370 0348 6F12033A 		.word	973279855
+ 371 034c 00000000 		.word	BMI088_ACCEL_SEN
+ 372 0350 0080BB45 		.word	1169915904
+ 373              	.L32:
+ 374 0354 03F10802 		add	r2, r3, #8
+ 375 0358 04EB8202 		add	r2, r4, r2, lsl #2
+ 376 035c D2ED016A 		vldr.32	s13, [r2, #4]
+ 377 0360 1FED057A 		vldr.32	s14, .L48+56
+ 378 0364 C6EE877A 		vdiv.f32	s15, s13, s14
+ 379 0368 C2ED017A 		vstr.32	s15, [r2, #4]
+ 380 036c 0133     		adds	r3, r3, #1
+ 381 036e DBB2     		uxtb	r3, r3
+ 382              	.L31:
+ 383 0370 022B     		cmp	r3, #2
+ 384 0372 EFD9     		bls	.L32
+ 385 0374 FFF7FEFF 		bl	BMI088_ACCEL_NS_L
+ 386 0378 A220     		movs	r0, #162
+ 387 037a FFF7FEFF 		bl	BMI088_read_write_byte
+ 388 037e 0222     		movs	r2, #2
+ 389 0380 06A9     		add	r1, sp, #24
+ 390 0382 2220     		movs	r0, #34
+ 391 0384 FFF7FEFF 		bl	BMI088_read_muli_reg
+ 392 0388 FFF7FEFF 		bl	BMI088_ACCEL_NS_H
+ 393 038c 9DF81820 		ldrb	r2, [sp, #24]	@ zero_extendqisi2
+ 394 0390 9DF81930 		ldrb	r3, [sp, #25]	@ zero_extendqisi2
+ 395 0394 5B09     		lsrs	r3, r3, #5
+ 396 0396 43EAC203 		orr	r3, r3, r2, lsl #3
+ 397 039a B3F5806F 		cmp	r3, #1024
+ 398 039e 01DB     		blt	.L33
+ 399 03a0 A3F50063 		sub	r3, r3, #2048
+ 400              	.L33:
+ 401 03a4 07EE903A 		vmov	s15, r3	@ int
+ 402 03a8 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 403 03ac B4EE007A 		vmov.f32	s14, #1.25e-1
+ 404 03b0 67EE877A 		vmul.f32	s15, s15, s14
+ 405 03b4 B3EE077A 		vmov.f32	s14, #2.3e+1
+ 406 03b8 77EE877A 		vadd.f32	s15, s15, s14
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 8
+
+
+ 407 03bc C4ED067A 		vstr.32	s15, [r4, #24]
+ 408 03c0 2D4A     		ldr	r2, .L50
+ 409 03c2 1388     		ldrh	r3, [r2]
+ 410 03c4 0133     		adds	r3, r3, #1
+ 411 03c6 1380     		strh	r3, [r2]	@ movhi
+ 412 03c8 2C4B     		ldr	r3, .L50+4
+ 413 03ca 93ED007A 		vldr.32	s14, [r3]
+ 414 03ce F6EE007A 		vmov.f32	s15, #5.0e-1
+ 415 03d2 B4EEE77A 		vcmpe.f32	s14, s15
+ 416 03d6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 417 03da 3FF722AE 		bgt	.L34
+ 418 03de D4ED0C7A 		vldr.32	s15, [r4, #48]
+ 419 03e2 9FED277A 		vldr.32	s14, .L50+8
+ 420 03e6 77EEC77A 		vsub.f32	s15, s15, s14
+ 421 03ea F0EEE77A 		vabs.f32	s15, s15
+ 422 03ee B6EE007A 		vmov.f32	s14, #5.0e-1
+ 423 03f2 F4EEC77A 		vcmpe.f32	s15, s14
+ 424 03f6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 425 03fa 3FF712AE 		bgt	.L34
+ 426 03fe 214B     		ldr	r3, .L50+12
+ 427 0400 93ED007A 		vldr.32	s14, [r3]
+ 428 0404 DFED207A 		vldr.32	s15, .L50+16
+ 429 0408 B4EEE77A 		vcmpe.f32	s14, s15
+ 430 040c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 431 0410 3FF707AE 		bgt	.L34
+ 432 0414 93ED017A 		vldr.32	s14, [r3, #4]
+ 433 0418 B4EEE77A 		vcmpe.f32	s14, s15
+ 434 041c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 435 0420 3FF7FFAD 		bgt	.L34
+ 436 0424 93ED027A 		vldr.32	s14, [r3, #8]
+ 437 0428 B4EEE77A 		vcmpe.f32	s14, s15
+ 438 042c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 439 0430 3FF7F7AD 		bgt	.L34
+ 440 0434 D4ED097A 		vldr.32	s15, [r4, #36]
+ 441 0438 F0EEE77A 		vabs.f32	s15, s15
+ 442 043c 9FED137A 		vldr.32	s14, .L50+20
+ 443 0440 F4EEC77A 		vcmpe.f32	s15, s14
+ 444 0444 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 445 0448 3FF7EBAD 		bgt	.L34
+ 446 044c D4ED0A7A 		vldr.32	s15, [r4, #40]
+ 447 0450 F0EEE77A 		vabs.f32	s15, s15
+ 448 0454 F4EEC77A 		vcmpe.f32	s15, s14
+ 449 0458 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 450 045c 3FF7E1AD 		bgt	.L34
+ 451 0460 D4ED0B7A 		vldr.32	s15, [r4, #44]
+ 452 0464 F0EEE77A 		vabs.f32	s15, s15
+ 453 0468 F4EEC77A 		vcmpe.f32	s15, s14
+ 454 046c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 455 0470 3FF7D7AD 		bgt	.L34
+ 456 0474 F9E5     		b	.L12
+ 457              	.L51:
+ 458 0476 00BF     		.align	2
+ 459              	.L50:
+ 460 0478 00000000 		.word	caliCount
+ 461 047c 00000000 		.word	gNormDiff
+ 462 0480 CDCC1C41 		.word	1092406477
+ 463 0484 00000000 		.word	gyroDiff
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 9
+
+
+ 464 0488 9A99193E 		.word	1041865114
+ 465 048c 0AD7233C 		.word	1008981770
+ 467              		.section	.text.bmi088_accel_init,"ax",%progbits
+ 468              		.align	1
+ 469              		.global	bmi088_accel_init
+ 470              		.syntax unified
+ 471              		.thumb
+ 472              		.thumb_func
+ 474              	bmi088_accel_init:
+ 475              		@ args = 0, pretend = 0, frame = 0
+ 476              		@ frame_needed = 0, uses_anonymous_args = 0
+ 477 0000 70B5     		push	{r4, r5, r6, lr}
+ 478 0002 2DED028B 		vpush.64	{d8}
+ 479 0006 FFF7FEFF 		bl	BMI088_ACCEL_NS_L
+ 480 000a 8020     		movs	r0, #128
+ 481 000c FFF7FEFF 		bl	BMI088_read_write_byte
+ 482 0010 5520     		movs	r0, #85
+ 483 0012 FFF7FEFF 		bl	BMI088_read_write_byte
+ 484 0016 5520     		movs	r0, #85
+ 485 0018 FFF7FEFF 		bl	BMI088_read_write_byte
+ 486 001c 4C4C     		ldr	r4, .L60
+ 487 001e 2070     		strb	r0, [r4]
+ 488 0020 FFF7FEFF 		bl	BMI088_ACCEL_NS_H
+ 489 0024 9FED4B8A 		vldr.32	s16, .L60+4
+ 490 0028 B0EE480A 		vmov.f32	s0, s16
+ 491 002c FFF7FEFF 		bl	DWT_Delay
+ 492 0030 FFF7FEFF 		bl	BMI088_ACCEL_NS_L
+ 493 0034 8020     		movs	r0, #128
+ 494 0036 FFF7FEFF 		bl	BMI088_read_write_byte
+ 495 003a 5520     		movs	r0, #85
+ 496 003c FFF7FEFF 		bl	BMI088_read_write_byte
+ 497 0040 5520     		movs	r0, #85
+ 498 0042 FFF7FEFF 		bl	BMI088_read_write_byte
+ 499 0046 2070     		strb	r0, [r4]
+ 500 0048 FFF7FEFF 		bl	BMI088_ACCEL_NS_H
+ 501 004c B0EE480A 		vmov.f32	s0, s16
+ 502 0050 FFF7FEFF 		bl	DWT_Delay
+ 503 0054 FFF7FEFF 		bl	BMI088_ACCEL_NS_L
+ 504 0058 B621     		movs	r1, #182
+ 505 005a 7E20     		movs	r0, #126
+ 506 005c FFF7FEFF 		bl	BMI088_write_single_reg
+ 507 0060 FFF7FEFF 		bl	BMI088_ACCEL_NS_H
+ 508 0064 9FED3C0A 		vldr.32	s0, .L60+8
+ 509 0068 FFF7FEFF 		bl	DWT_Delay
+ 510 006c FFF7FEFF 		bl	BMI088_ACCEL_NS_L
+ 511 0070 8020     		movs	r0, #128
+ 512 0072 FFF7FEFF 		bl	BMI088_read_write_byte
+ 513 0076 5520     		movs	r0, #85
+ 514 0078 FFF7FEFF 		bl	BMI088_read_write_byte
+ 515 007c 5520     		movs	r0, #85
+ 516 007e FFF7FEFF 		bl	BMI088_read_write_byte
+ 517 0082 2070     		strb	r0, [r4]
+ 518 0084 FFF7FEFF 		bl	BMI088_ACCEL_NS_H
+ 519 0088 B0EE480A 		vmov.f32	s0, s16
+ 520 008c FFF7FEFF 		bl	DWT_Delay
+ 521 0090 FFF7FEFF 		bl	BMI088_ACCEL_NS_L
+ 522 0094 8020     		movs	r0, #128
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 10
+
+
+ 523 0096 FFF7FEFF 		bl	BMI088_read_write_byte
+ 524 009a 5520     		movs	r0, #85
+ 525 009c FFF7FEFF 		bl	BMI088_read_write_byte
+ 526 00a0 5520     		movs	r0, #85
+ 527 00a2 FFF7FEFF 		bl	BMI088_read_write_byte
+ 528 00a6 2070     		strb	r0, [r4]
+ 529 00a8 FFF7FEFF 		bl	BMI088_ACCEL_NS_H
+ 530 00ac B0EE480A 		vmov.f32	s0, s16
+ 531 00b0 FFF7FEFF 		bl	DWT_Delay
+ 532 00b4 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 533 00b6 1E2B     		cmp	r3, #30
+ 534 00b8 48D1     		bne	.L57
+ 535 00ba 284B     		ldr	r3, .L60+12
+ 536 00bc 0022     		movs	r2, #0
+ 537 00be 1A70     		strb	r2, [r3]
+ 538 00c0 02E0     		b	.L54
+ 539              	.L55:
+ 540 00c2 0133     		adds	r3, r3, #1
+ 541 00c4 254A     		ldr	r2, .L60+12
+ 542 00c6 1370     		strb	r3, [r2]
+ 543              	.L54:
+ 544 00c8 244B     		ldr	r3, .L60+12
+ 545 00ca 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 546 00cc 052B     		cmp	r3, #5
+ 547 00ce 39D8     		bhi	.L59
+ 548 00d0 FFF7FEFF 		bl	BMI088_ACCEL_NS_L
+ 549 00d4 214D     		ldr	r5, .L60+12
+ 550 00d6 2B78     		ldrb	r3, [r5]	@ zero_extendqisi2
+ 551 00d8 214C     		ldr	r4, .L60+16
+ 552 00da 03EB4303 		add	r3, r3, r3, lsl #1
+ 553 00de E218     		adds	r2, r4, r3
+ 554 00e0 5178     		ldrb	r1, [r2, #1]	@ zero_extendqisi2
+ 555 00e2 E05C     		ldrb	r0, [r4, r3]	@ zero_extendqisi2
+ 556 00e4 FFF7FEFF 		bl	BMI088_write_single_reg
+ 557 00e8 FFF7FEFF 		bl	BMI088_ACCEL_NS_H
+ 558 00ec 9FED198A 		vldr.32	s16, .L60+4
+ 559 00f0 B0EE480A 		vmov.f32	s0, s16
+ 560 00f4 FFF7FEFF 		bl	DWT_Delay
+ 561 00f8 FFF7FEFF 		bl	BMI088_ACCEL_NS_L
+ 562 00fc 2B78     		ldrb	r3, [r5]	@ zero_extendqisi2
+ 563 00fe 03EB4303 		add	r3, r3, r3, lsl #1
+ 564 0102 E05C     		ldrb	r0, [r4, r3]	@ zero_extendqisi2
+ 565 0104 40F08000 		orr	r0, r0, #128
+ 566 0108 FFF7FEFF 		bl	BMI088_read_write_byte
+ 567 010c 5520     		movs	r0, #85
+ 568 010e FFF7FEFF 		bl	BMI088_read_write_byte
+ 569 0112 5520     		movs	r0, #85
+ 570 0114 FFF7FEFF 		bl	BMI088_read_write_byte
+ 571 0118 0D4E     		ldr	r6, .L60
+ 572 011a 3070     		strb	r0, [r6]
+ 573 011c FFF7FEFF 		bl	BMI088_ACCEL_NS_H
+ 574 0120 B0EE480A 		vmov.f32	s0, s16
+ 575 0124 FFF7FEFF 		bl	DWT_Delay
+ 576 0128 2B78     		ldrb	r3, [r5]	@ zero_extendqisi2
+ 577 012a 03EB4302 		add	r2, r3, r3, lsl #1
+ 578 012e 1444     		add	r4, r4, r2
+ 579 0130 6178     		ldrb	r1, [r4, #1]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 11
+
+
+ 580 0132 3278     		ldrb	r2, [r6]	@ zero_extendqisi2
+ 581 0134 9142     		cmp	r1, r2
+ 582 0136 C4D0     		beq	.L55
+ 583 0138 A278     		ldrb	r2, [r4, #2]	@ zero_extendqisi2
+ 584 013a 0A49     		ldr	r1, .L60+20
+ 585 013c 0878     		ldrb	r0, [r1]	@ zero_extendqisi2
+ 586 013e 0243     		orrs	r2, r2, r0
+ 587 0140 0A70     		strb	r2, [r1]
+ 588 0142 BEE7     		b	.L55
+ 589              	.L59:
+ 590 0144 0020     		movs	r0, #0
+ 591              	.L53:
+ 592 0146 BDEC028B 		vldm	sp!, {d8}
+ 593 014a 70BD     		pop	{r4, r5, r6, pc}
+ 594              	.L57:
+ 595 014c FF20     		movs	r0, #255
+ 596 014e FAE7     		b	.L53
+ 597              	.L61:
+ 598              		.align	2
+ 599              	.L60:
+ 600 0150 00000000 		.word	res
+ 601 0154 6F12833A 		.word	981668463
+ 602 0158 0AD7A33D 		.word	1034147594
+ 603 015c 00000000 		.word	write_reg_num
+ 604 0160 00000000 		.word	BMI088_Accel_Init_Table
+ 605 0164 00000000 		.word	error
+ 607              		.section	.text.bmi088_gyro_init,"ax",%progbits
+ 608              		.align	1
+ 609              		.global	bmi088_gyro_init
+ 610              		.syntax unified
+ 611              		.thumb
+ 612              		.thumb_func
+ 614              	bmi088_gyro_init:
+ 615              		@ args = 0, pretend = 0, frame = 0
+ 616              		@ frame_needed = 0, uses_anonymous_args = 0
+ 617 0000 70B5     		push	{r4, r5, r6, lr}
+ 618 0002 2DED028B 		vpush.64	{d8}
+ 619 0006 FFF7FEFF 		bl	BMI088_GYRO_NS_L
+ 620 000a 454C     		ldr	r4, .L70
+ 621 000c 2146     		mov	r1, r4
+ 622 000e 0020     		movs	r0, #0
+ 623 0010 FFF7FEFF 		bl	BMI088_read_single_reg
+ 624 0014 FFF7FEFF 		bl	BMI088_GYRO_NS_H
+ 625 0018 9FED428A 		vldr.32	s16, .L70+4
+ 626 001c B0EE480A 		vmov.f32	s0, s16
+ 627 0020 FFF7FEFF 		bl	DWT_Delay
+ 628 0024 FFF7FEFF 		bl	BMI088_GYRO_NS_L
+ 629 0028 2146     		mov	r1, r4
+ 630 002a 0020     		movs	r0, #0
+ 631 002c FFF7FEFF 		bl	BMI088_read_single_reg
+ 632 0030 FFF7FEFF 		bl	BMI088_GYRO_NS_H
+ 633 0034 B0EE480A 		vmov.f32	s0, s16
+ 634 0038 FFF7FEFF 		bl	DWT_Delay
+ 635 003c FFF7FEFF 		bl	BMI088_GYRO_NS_L
+ 636 0040 B621     		movs	r1, #182
+ 637 0042 1420     		movs	r0, #20
+ 638 0044 FFF7FEFF 		bl	BMI088_write_single_reg
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 12
+
+
+ 639 0048 FFF7FEFF 		bl	BMI088_GYRO_NS_H
+ 640 004c 9FED360A 		vldr.32	s0, .L70+8
+ 641 0050 FFF7FEFF 		bl	DWT_Delay
+ 642 0054 FFF7FEFF 		bl	BMI088_GYRO_NS_L
+ 643 0058 2146     		mov	r1, r4
+ 644 005a 0020     		movs	r0, #0
+ 645 005c FFF7FEFF 		bl	BMI088_read_single_reg
+ 646 0060 FFF7FEFF 		bl	BMI088_GYRO_NS_H
+ 647 0064 B0EE480A 		vmov.f32	s0, s16
+ 648 0068 FFF7FEFF 		bl	DWT_Delay
+ 649 006c FFF7FEFF 		bl	BMI088_GYRO_NS_L
+ 650 0070 2146     		mov	r1, r4
+ 651 0072 0020     		movs	r0, #0
+ 652 0074 FFF7FEFF 		bl	BMI088_read_single_reg
+ 653 0078 FFF7FEFF 		bl	BMI088_GYRO_NS_H
+ 654 007c B0EE480A 		vmov.f32	s0, s16
+ 655 0080 FFF7FEFF 		bl	DWT_Delay
+ 656 0084 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 657 0086 0F2B     		cmp	r3, #15
+ 658 0088 48D1     		bne	.L67
+ 659 008a 284B     		ldr	r3, .L70+12
+ 660 008c 0022     		movs	r2, #0
+ 661 008e 1A70     		strb	r2, [r3]
+ 662 0090 03E0     		b	.L64
+ 663              	.L65:
+ 664 0092 264A     		ldr	r2, .L70+12
+ 665 0094 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 666 0096 0133     		adds	r3, r3, #1
+ 667 0098 1370     		strb	r3, [r2]
+ 668              	.L64:
+ 669 009a 244B     		ldr	r3, .L70+12
+ 670 009c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 671 009e 052B     		cmp	r3, #5
+ 672 00a0 38D8     		bhi	.L69
+ 673 00a2 FFF7FEFF 		bl	BMI088_GYRO_NS_L
+ 674 00a6 214D     		ldr	r5, .L70+12
+ 675 00a8 2B78     		ldrb	r3, [r5]	@ zero_extendqisi2
+ 676 00aa 214C     		ldr	r4, .L70+16
+ 677 00ac 03EB4303 		add	r3, r3, r3, lsl #1
+ 678 00b0 E218     		adds	r2, r4, r3
+ 679 00b2 5178     		ldrb	r1, [r2, #1]	@ zero_extendqisi2
+ 680 00b4 E05C     		ldrb	r0, [r4, r3]	@ zero_extendqisi2
+ 681 00b6 FFF7FEFF 		bl	BMI088_write_single_reg
+ 682 00ba FFF7FEFF 		bl	BMI088_GYRO_NS_H
+ 683 00be 9FED198A 		vldr.32	s16, .L70+4
+ 684 00c2 B0EE480A 		vmov.f32	s0, s16
+ 685 00c6 FFF7FEFF 		bl	DWT_Delay
+ 686 00ca FFF7FEFF 		bl	BMI088_GYRO_NS_L
+ 687 00ce 144E     		ldr	r6, .L70
+ 688 00d0 2B78     		ldrb	r3, [r5]	@ zero_extendqisi2
+ 689 00d2 03EB4303 		add	r3, r3, r3, lsl #1
+ 690 00d6 3146     		mov	r1, r6
+ 691 00d8 E05C     		ldrb	r0, [r4, r3]	@ zero_extendqisi2
+ 692 00da FFF7FEFF 		bl	BMI088_read_single_reg
+ 693 00de FFF7FEFF 		bl	BMI088_GYRO_NS_H
+ 694 00e2 B0EE480A 		vmov.f32	s0, s16
+ 695 00e6 FFF7FEFF 		bl	DWT_Delay
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 13
+
+
+ 696 00ea 2B78     		ldrb	r3, [r5]	@ zero_extendqisi2
+ 697 00ec 03EB4302 		add	r2, r3, r3, lsl #1
+ 698 00f0 1444     		add	r4, r4, r2
+ 699 00f2 6178     		ldrb	r1, [r4, #1]	@ zero_extendqisi2
+ 700 00f4 3278     		ldrb	r2, [r6]	@ zero_extendqisi2
+ 701 00f6 9142     		cmp	r1, r2
+ 702 00f8 CBD0     		beq	.L65
+ 703 00fa 013B     		subs	r3, r3, #1
+ 704 00fc DBB2     		uxtb	r3, r3
+ 705 00fe 2B70     		strb	r3, [r5]
+ 706 0100 03EB4303 		add	r3, r3, r3, lsl #1
+ 707 0104 0B4A     		ldr	r2, .L70+20
+ 708 0106 1344     		add	r3, r3, r2
+ 709 0108 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 710 010a 0B4A     		ldr	r2, .L70+24
+ 711 010c 1178     		ldrb	r1, [r2]	@ zero_extendqisi2
+ 712 010e 0B43     		orrs	r3, r3, r1
+ 713 0110 1370     		strb	r3, [r2]
+ 714 0112 BEE7     		b	.L65
+ 715              	.L69:
+ 716 0114 0020     		movs	r0, #0
+ 717              	.L63:
+ 718 0116 BDEC028B 		vldm	sp!, {d8}
+ 719 011a 70BD     		pop	{r4, r5, r6, pc}
+ 720              	.L67:
+ 721 011c FF20     		movs	r0, #255
+ 722 011e FAE7     		b	.L63
+ 723              	.L71:
+ 724              		.align	2
+ 725              	.L70:
+ 726 0120 00000000 		.word	res
+ 727 0124 6F12833A 		.word	981668463
+ 728 0128 0AD7A33D 		.word	1034147594
+ 729 012c 00000000 		.word	write_reg_num
+ 730 0130 00000000 		.word	BMI088_Gyro_Init_Table
+ 731 0134 00000000 		.word	BMI088_Accel_Init_Table
+ 732 0138 00000000 		.word	error
+ 734              		.section	.text.BMI088Init,"ax",%progbits
+ 735              		.align	1
+ 736              		.global	BMI088Init
+ 737              		.syntax unified
+ 738              		.thumb
+ 739              		.thumb_func
+ 741              	BMI088Init:
+ 742              		@ args = 0, pretend = 0, frame = 0
+ 743              		@ frame_needed = 0, uses_anonymous_args = 0
+ 744 0000 38B5     		push	{r3, r4, r5, lr}
+ 745 0002 0D46     		mov	r5, r1
+ 746 0004 114B     		ldr	r3, .L77
+ 747 0006 1860     		str	r0, [r3]
+ 748 0008 114C     		ldr	r4, .L77+4
+ 749 000a 0023     		movs	r3, #0
+ 750 000c 2370     		strb	r3, [r4]
+ 751 000e FFF7FEFF 		bl	bmi088_accel_init
+ 752 0012 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 753 0014 1843     		orrs	r0, r0, r3
+ 754 0016 2070     		strb	r0, [r4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 14
+
+
+ 755 0018 FFF7FEFF 		bl	bmi088_gyro_init
+ 756 001c 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 757 001e 1843     		orrs	r0, r0, r3
+ 758 0020 2070     		strb	r0, [r4]
+ 759 0022 75B9     		cbnz	r5, .L76
+ 760 0024 0B4B     		ldr	r3, .L77+8
+ 761 0026 0C4A     		ldr	r2, .L77+12
+ 762 0028 5A62     		str	r2, [r3, #36]	@ float
+ 763 002a 0C4A     		ldr	r2, .L77+16
+ 764 002c 9A62     		str	r2, [r3, #40]	@ float
+ 765 002e DA62     		str	r2, [r3, #44]	@ float
+ 766 0030 0B4A     		ldr	r2, .L77+20
+ 767 0032 1A63     		str	r2, [r3, #48]	@ float
+ 768 0034 0B4A     		ldr	r2, .L77+24
+ 769 0036 1A62     		str	r2, [r3, #32]	@ float
+ 770 0038 0B4A     		ldr	r2, .L77+28
+ 771 003a 9A61     		str	r2, [r3, #24]	@ float
+ 772              	.L74:
+ 773 003c 044B     		ldr	r3, .L77+4
+ 774 003e 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 775 0040 38BD     		pop	{r3, r4, r5, pc}
+ 776              	.L76:
+ 777 0042 0448     		ldr	r0, .L77+8
+ 778 0044 FFF7FEFF 		bl	Calibrate_MPU_Offset
+ 779 0048 F8E7     		b	.L74
+ 780              	.L78:
+ 781 004a 00BF     		.align	2
+ 782              	.L77:
+ 783 004c 00000000 		.word	BMI088_SPI
+ 784 0050 00000000 		.word	error
+ 785 0054 00000000 		.word	BMI088
+ 786 0058 AC38223B 		.word	992098476
+ 787 005c B016CE39 		.word	969807536
+ 788 0060 3F161B41 		.word	1092294207
+ 789 0064 C48B813F 		.word	1065454532
+ 790 0068 00002042 		.word	1109393408
+ 792              		.section	.text.BMI088_Read,"ax",%progbits
+ 793              		.align	1
+ 794              		.global	BMI088_Read
+ 795              		.syntax unified
+ 796              		.thumb
+ 797              		.thumb_func
+ 799              	BMI088_Read:
+ 800              		@ args = 0, pretend = 0, frame = 0
+ 801              		@ frame_needed = 0, uses_anonymous_args = 0
+ 802 0000 38B5     		push	{r3, r4, r5, lr}
+ 803 0002 0546     		mov	r5, r0
+ 804 0004 FFF7FEFF 		bl	BMI088_ACCEL_NS_L
+ 805 0008 9220     		movs	r0, #146
+ 806 000a FFF7FEFF 		bl	BMI088_read_write_byte
+ 807 000e 734C     		ldr	r4, .L85
+ 808 0010 0622     		movs	r2, #6
+ 809 0012 2146     		mov	r1, r4
+ 810 0014 1220     		movs	r0, #18
+ 811 0016 FFF7FEFF 		bl	BMI088_read_muli_reg
+ 812 001a FFF7FEFF 		bl	BMI088_ACCEL_NS_H
+ 813 001e 6378     		ldrb	r3, [r4, #1]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 15
+
+
+ 814 0020 1B02     		lsls	r3, r3, #8
+ 815 0022 1BB2     		sxth	r3, r3
+ 816 0024 2278     		ldrb	r2, [r4]	@ zero_extendqisi2
+ 817 0026 1343     		orrs	r3, r3, r2
+ 818 0028 6D4A     		ldr	r2, .L85+4
+ 819 002a 1380     		strh	r3, [r2]	@ movhi
+ 820 002c 07EE903A 		vmov	s15, r3	@ int
+ 821 0030 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 822 0034 6B49     		ldr	r1, .L85+8
+ 823 0036 91ED007A 		vldr.32	s14, [r1]
+ 824 003a 67EE877A 		vmul.f32	s15, s15, s14
+ 825 003e 95ED087A 		vldr.32	s14, [r5, #32]
+ 826 0042 67EE877A 		vmul.f32	s15, s15, s14
+ 827 0046 C5ED007A 		vstr.32	s15, [r5]
+ 828 004a E378     		ldrb	r3, [r4, #3]	@ zero_extendqisi2
+ 829 004c 1B02     		lsls	r3, r3, #8
+ 830 004e 1BB2     		sxth	r3, r3
+ 831 0050 A078     		ldrb	r0, [r4, #2]	@ zero_extendqisi2
+ 832 0052 0343     		orrs	r3, r3, r0
+ 833 0054 1380     		strh	r3, [r2]	@ movhi
+ 834 0056 D1ED006A 		vldr.32	s13, [r1]
+ 835 005a 07EE903A 		vmov	s15, r3	@ int
+ 836 005e F8EEE77A 		vcvt.f32.s32	s15, s15
+ 837 0062 67EEA67A 		vmul.f32	s15, s15, s13
+ 838 0066 67EE277A 		vmul.f32	s15, s14, s15
+ 839 006a C5ED017A 		vstr.32	s15, [r5, #4]
+ 840 006e 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 841 0070 1B02     		lsls	r3, r3, #8
+ 842 0072 1BB2     		sxth	r3, r3
+ 843 0074 2179     		ldrb	r1, [r4, #4]	@ zero_extendqisi2
+ 844 0076 0B43     		orrs	r3, r3, r1
+ 845 0078 1380     		strh	r3, [r2]	@ movhi
+ 846 007a 07EE903A 		vmov	s15, r3	@ int
+ 847 007e F8EEE77A 		vcvt.f32.s32	s15, s15
+ 848 0082 67EEA67A 		vmul.f32	s15, s15, s13
+ 849 0086 27EE277A 		vmul.f32	s14, s14, s15
+ 850 008a 85ED027A 		vstr.32	s14, [r5, #8]
+ 851 008e FFF7FEFF 		bl	BMI088_GYRO_NS_L
+ 852 0092 0822     		movs	r2, #8
+ 853 0094 2146     		mov	r1, r4
+ 854 0096 0020     		movs	r0, #0
+ 855 0098 FFF7FEFF 		bl	BMI088_read_muli_reg
+ 856 009c FFF7FEFF 		bl	BMI088_GYRO_NS_H
+ 857 00a0 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 858 00a2 0F2B     		cmp	r3, #15
+ 859 00a4 2BD0     		beq	.L84
+ 860              	.L80:
+ 861 00a6 FFF7FEFF 		bl	BMI088_ACCEL_NS_L
+ 862 00aa A220     		movs	r0, #162
+ 863 00ac FFF7FEFF 		bl	BMI088_read_write_byte
+ 864 00b0 4A4C     		ldr	r4, .L85
+ 865 00b2 0222     		movs	r2, #2
+ 866 00b4 2146     		mov	r1, r4
+ 867 00b6 2220     		movs	r0, #34
+ 868 00b8 FFF7FEFF 		bl	BMI088_read_muli_reg
+ 869 00bc FFF7FEFF 		bl	BMI088_ACCEL_NS_H
+ 870 00c0 2278     		ldrb	r2, [r4]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 16
+
+
+ 871 00c2 6378     		ldrb	r3, [r4, #1]	@ zero_extendqisi2
+ 872 00c4 5B09     		lsrs	r3, r3, #5
+ 873 00c6 43EAC203 		orr	r3, r3, r2, lsl #3
+ 874 00ca 454A     		ldr	r2, .L85+4
+ 875 00cc 1380     		strh	r3, [r2]	@ movhi
+ 876 00ce B3F5806F 		cmp	r3, #1024
+ 877 00d2 02DB     		blt	.L82
+ 878 00d4 A3F50063 		sub	r3, r3, #2048
+ 879 00d8 1380     		strh	r3, [r2]	@ movhi
+ 880              	.L82:
+ 881 00da 414B     		ldr	r3, .L85+4
+ 882 00dc B3F90030 		ldrsh	r3, [r3]
+ 883 00e0 07EE903A 		vmov	s15, r3	@ int
+ 884 00e4 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 885 00e8 B4EE007A 		vmov.f32	s14, #1.25e-1
+ 886 00ec 67EE877A 		vmul.f32	s15, s15, s14
+ 887 00f0 B3EE077A 		vmov.f32	s14, #2.3e+1
+ 888 00f4 77EE877A 		vadd.f32	s15, s15, s14
+ 889 00f8 C5ED077A 		vstr.32	s15, [r5, #28]
+ 890 00fc 38BD     		pop	{r3, r4, r5, pc}
+ 891              	.L84:
+ 892 00fe 3A4B     		ldr	r3, .L85+12
+ 893 0100 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 894 0102 002B     		cmp	r3, #0
+ 895 0104 3AD0     		beq	.L81
+ 896 0106 E378     		ldrb	r3, [r4, #3]	@ zero_extendqisi2
+ 897 0108 1B02     		lsls	r3, r3, #8
+ 898 010a 1BB2     		sxth	r3, r3
+ 899 010c A178     		ldrb	r1, [r4, #2]	@ zero_extendqisi2
+ 900 010e 0B43     		orrs	r3, r3, r1
+ 901 0110 3349     		ldr	r1, .L85+4
+ 902 0112 0B80     		strh	r3, [r1]	@ movhi
+ 903 0114 3548     		ldr	r0, .L85+16
+ 904 0116 90ED007A 		vldr.32	s14, [r0]
+ 905 011a 07EE903A 		vmov	s15, r3	@ int
+ 906 011e F8EEE77A 		vcvt.f32.s32	s15, s15
+ 907 0122 67EE877A 		vmul.f32	s15, s15, s14
+ 908 0126 D5ED096A 		vldr.32	s13, [r5, #36]
+ 909 012a 77EEE67A 		vsub.f32	s15, s15, s13
+ 910 012e C5ED037A 		vstr.32	s15, [r5, #12]
+ 911 0132 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 912 0134 1B02     		lsls	r3, r3, #8
+ 913 0136 1BB2     		sxth	r3, r3
+ 914 0138 2079     		ldrb	r0, [r4, #4]	@ zero_extendqisi2
+ 915 013a 0343     		orrs	r3, r3, r0
+ 916 013c 0B80     		strh	r3, [r1]	@ movhi
+ 917 013e 07EE903A 		vmov	s15, r3	@ int
+ 918 0142 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 919 0146 67EE877A 		vmul.f32	s15, s15, s14
+ 920 014a D5ED0A6A 		vldr.32	s13, [r5, #40]
+ 921 014e 77EEE67A 		vsub.f32	s15, s15, s13
+ 922 0152 C5ED047A 		vstr.32	s15, [r5, #16]
+ 923 0156 E379     		ldrb	r3, [r4, #7]	@ zero_extendqisi2
+ 924 0158 1B02     		lsls	r3, r3, #8
+ 925 015a 1BB2     		sxth	r3, r3
+ 926 015c A279     		ldrb	r2, [r4, #6]	@ zero_extendqisi2
+ 927 015e 1343     		orrs	r3, r3, r2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 17
+
+
+ 928 0160 0B80     		strh	r3, [r1]	@ movhi
+ 929 0162 07EE903A 		vmov	s15, r3	@ int
+ 930 0166 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 931 016a 67EE877A 		vmul.f32	s15, s15, s14
+ 932 016e 95ED0B7A 		vldr.32	s14, [r5, #44]
+ 933 0172 77EEC77A 		vsub.f32	s15, s15, s14
+ 934 0176 C5ED057A 		vstr.32	s15, [r5, #20]
+ 935 017a 94E7     		b	.L80
+ 936              	.L81:
+ 937 017c 174A     		ldr	r2, .L85
+ 938 017e D378     		ldrb	r3, [r2, #3]	@ zero_extendqisi2
+ 939 0180 1B02     		lsls	r3, r3, #8
+ 940 0182 1BB2     		sxth	r3, r3
+ 941 0184 9178     		ldrb	r1, [r2, #2]	@ zero_extendqisi2
+ 942 0186 0B43     		orrs	r3, r3, r1
+ 943 0188 1549     		ldr	r1, .L85+4
+ 944 018a 0B80     		strh	r3, [r1]	@ movhi
+ 945 018c 1748     		ldr	r0, .L85+16
+ 946 018e 90ED007A 		vldr.32	s14, [r0]
+ 947 0192 07EE903A 		vmov	s15, r3	@ int
+ 948 0196 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 949 019a 67EE877A 		vmul.f32	s15, s15, s14
+ 950 019e C5ED037A 		vstr.32	s15, [r5, #12]
+ 951 01a2 5379     		ldrb	r3, [r2, #5]	@ zero_extendqisi2
+ 952 01a4 1B02     		lsls	r3, r3, #8
+ 953 01a6 1BB2     		sxth	r3, r3
+ 954 01a8 1079     		ldrb	r0, [r2, #4]	@ zero_extendqisi2
+ 955 01aa 0343     		orrs	r3, r3, r0
+ 956 01ac 0B80     		strh	r3, [r1]	@ movhi
+ 957 01ae 07EE903A 		vmov	s15, r3	@ int
+ 958 01b2 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 959 01b6 67EE877A 		vmul.f32	s15, s15, s14
+ 960 01ba C5ED047A 		vstr.32	s15, [r5, #16]
+ 961 01be D379     		ldrb	r3, [r2, #7]	@ zero_extendqisi2
+ 962 01c0 1B02     		lsls	r3, r3, #8
+ 963 01c2 1BB2     		sxth	r3, r3
+ 964 01c4 9279     		ldrb	r2, [r2, #6]	@ zero_extendqisi2
+ 965 01c6 1343     		orrs	r3, r3, r2
+ 966 01c8 0B80     		strh	r3, [r1]	@ movhi
+ 967 01ca 07EE903A 		vmov	s15, r3	@ int
+ 968 01ce F8EEE77A 		vcvt.f32.s32	s15, s15
+ 969 01d2 67EE877A 		vmul.f32	s15, s15, s14
+ 970 01d6 C5ED057A 		vstr.32	s15, [r5, #20]
+ 971 01da 64E7     		b	.L80
+ 972              	.L86:
+ 973              		.align	2
+ 974              	.L85:
+ 975 01dc 00000000 		.word	buf.1
+ 976 01e0 00000000 		.word	bmi088_raw_temp.0
+ 977 01e4 00000000 		.word	BMI088_ACCEL_SEN
+ 978 01e8 00000000 		.word	caliOffset
+ 979 01ec 00000000 		.word	BMI088_GYRO_SEN
+ 981              		.section	.bss.bmi088_raw_temp.0,"aw",%nobits
+ 982              		.align	1
+ 985              	bmi088_raw_temp.0:
+ 986 0000 0000     		.space	2
+ 987              		.section	.bss.buf.1,"aw",%nobits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 18
+
+
+ 988              		.align	2
+ 991              	buf.1:
+ 992 0000 00000000 		.space	8
+ 992      00000000 
+ 993              		.section	.bss.startTime.3,"aw",%nobits
+ 994              		.align	2
+ 997              	startTime.3:
+ 998 0000 00000000 		.space	4
+ 999              		.section	.rodata.BMI088_Gyro_Init_Table,"a"
+ 1000              		.align	2
+ 1003              	BMI088_Gyro_Init_Table:
+ 1004 0000 0F0008   		.ascii	"\017\000\010"
+ 1005 0003 108109   		.ascii	"\020\201\011"
+ 1006 0006 11000A   		.ascii	"\021\000\012"
+ 1007 0009 15800B   		.ascii	"\025\200\013"
+ 1008 000c 16000C   		.ascii	"\026\000\014"
+ 1009 000f 18010D   		.ascii	"\030\001\015"
+ 1010              		.section	.rodata.BMI088_Accel_Init_Table,"a"
+ 1011              		.align	2
+ 1014              	BMI088_Accel_Init_Table:
+ 1015 0000 7D0401   		.ascii	"}\004\001"
+ 1016 0003 7C0002   		.ascii	"|\000\002"
+ 1017 0006 40AB03   		.ascii	"@\253\003"
+ 1018 0009 410105   		.ascii	"A\001\005"
+ 1019 000c 530806   		.ascii	"S\010\006"
+ 1020 000f 580407   		.ascii	"X\004\007"
+ 1021              		.global	BMI088
+ 1022              		.section	.bss.BMI088,"aw",%nobits
+ 1023              		.align	2
+ 1026              	BMI088:
+ 1027 0000 00000000 		.space	52
+ 1027      00000000 
+ 1027      00000000 
+ 1027      00000000 
+ 1027      00000000 
+ 1028              		.global	caliCount
+ 1029              		.section	.bss.caliCount,"aw",%nobits
+ 1030              		.align	1
+ 1033              	caliCount:
+ 1034 0000 0000     		.space	2
+ 1035              		.global	caliOffset
+ 1036              		.section	.data.caliOffset,"aw"
+ 1039              	caliOffset:
+ 1040 0000 01       		.byte	1
+ 1041              		.global	gNormDiff
+ 1042              		.section	.bss.gNormDiff,"aw",%nobits
+ 1043              		.align	2
+ 1046              	gNormDiff:
+ 1047 0000 00000000 		.space	4
+ 1048              		.global	gyroDiff
+ 1049              		.section	.bss.gyroDiff,"aw",%nobits
+ 1050              		.align	2
+ 1053              	gyroDiff:
+ 1054 0000 00000000 		.space	12
+ 1054      00000000 
+ 1054      00000000 
+ 1055              		.section	.bss.error,"aw",%nobits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 19
+
+
+ 1058              	error:
+ 1059 0000 00       		.space	1
+ 1060              		.section	.bss.write_reg_num,"aw",%nobits
+ 1063              	write_reg_num:
+ 1064 0000 00       		.space	1
+ 1065              		.section	.bss.res,"aw",%nobits
+ 1068              	res:
+ 1069 0000 00       		.space	1
+ 1070              		.global	BMI088_GYRO_SEN
+ 1071              		.section	.data.BMI088_GYRO_SEN,"aw"
+ 1072              		.align	2
+ 1075              	BMI088_GYRO_SEN:
+ 1076 0000 58A08B3A 		.word	982229080
+ 1077              		.global	BMI088_ACCEL_SEN
+ 1078              		.section	.data.BMI088_ACCEL_SEN,"aw"
+ 1079              		.align	2
+ 1082              	BMI088_ACCEL_SEN:
+ 1083 0000 3333EB3A 		.word	988492595
+ 1084              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 20
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 BMI088driver.c
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:18     .text.BMI088_read_muli_reg:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:23     .text.BMI088_read_muli_reg:00000000 BMI088_read_muli_reg
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:44     .text.BMI088_write_single_reg:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:49     .text.BMI088_write_single_reg:00000000 BMI088_write_single_reg
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:60     .text.BMI088_read_single_reg:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:65     .text.BMI088_read_single_reg:00000000 BMI088_read_single_reg
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:78     .text.Calibrate_MPU_Offset:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:83     .text.Calibrate_MPU_Offset:00000000 Calibrate_MPU_Offset
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:358    .text.Calibrate_MPU_Offset:00000318 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:997    .bss.startTime.3:00000000 startTime.3
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1075   .data.BMI088_GYRO_SEN:00000000 BMI088_GYRO_SEN
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1046   .bss.gNormDiff:00000000 gNormDiff
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1053   .bss.gyroDiff:00000000 gyroDiff
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1082   .data.BMI088_ACCEL_SEN:00000000 BMI088_ACCEL_SEN
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:374    .text.Calibrate_MPU_Offset:00000354 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:460    .text.Calibrate_MPU_Offset:00000478 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1033   .bss.caliCount:00000000 caliCount
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:468    .text.bmi088_accel_init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:474    .text.bmi088_accel_init:00000000 bmi088_accel_init
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:600    .text.bmi088_accel_init:00000150 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1068   .bss.res:00000000 res
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1063   .bss.write_reg_num:00000000 write_reg_num
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1014   .rodata.BMI088_Accel_Init_Table:00000000 BMI088_Accel_Init_Table
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1058   .bss.error:00000000 error
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:608    .text.bmi088_gyro_init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:614    .text.bmi088_gyro_init:00000000 bmi088_gyro_init
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:726    .text.bmi088_gyro_init:00000120 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1003   .rodata.BMI088_Gyro_Init_Table:00000000 BMI088_Gyro_Init_Table
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:735    .text.BMI088Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:741    .text.BMI088Init:00000000 BMI088Init
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:783    .text.BMI088Init:0000004c $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1026   .bss.BMI088:00000000 BMI088
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:793    .text.BMI088_Read:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:799    .text.BMI088_Read:00000000 BMI088_Read
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:975    .text.BMI088_Read:000001dc $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:991    .bss.buf.1:00000000 buf.1
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:985    .bss.bmi088_raw_temp.0:00000000 bmi088_raw_temp.0
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1039   .data.caliOffset:00000000 caliOffset
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:982    .bss.bmi088_raw_temp.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:988    .bss.buf.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:994    .bss.startTime.3:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1000   .rodata.BMI088_Gyro_Init_Table:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1011   .rodata.BMI088_Accel_Init_Table:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1023   .bss.BMI088:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1030   .bss.caliCount:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1043   .bss.gNormDiff:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1050   .bss.gyroDiff:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1059   .bss.error:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1064   .bss.write_reg_num:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1069   .bss.res:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1072   .data.BMI088_GYRO_SEN:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s:1079   .data.BMI088_ACCEL_SEN:00000000 $d
+
+UNDEFINED SYMBOLS
+BMI088_read_write_byte
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXn0p1H.s 			page 21
+
+
+DWT_GetTimeline_s
+DWT_Delay
+BMI088_ACCEL_NS_L
+BMI088_ACCEL_NS_H
+sqrtf
+BMI088_GYRO_NS_L
+BMI088_GYRO_NS_H
+BMI088_SPI

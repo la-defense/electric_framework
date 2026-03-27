@@ -1,0 +1,361 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"HC05.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/bluetooth/HC05.c"
+  20              		.section	.text.HC05RxCallback,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	HC05RxCallback:
+  27              	.LFB235:
+   1:modules/bluetooth/HC05.c **** #include "HC05.h"
+   2:modules/bluetooth/HC05.c **** #include "bsp_usart.h"
+   3:modules/bluetooth/HC05.c **** 
+   4:modules/bluetooth/HC05.c **** #define HC05_BUFFERSIZE  HC05_DATASIZE+2  // HC05发送和接收数据buffer大小，不得大于25
+   5:modules/bluetooth/HC05.c **** 
+   6:modules/bluetooth/HC05.c **** #define FRAME_HEAD  0XAA    // 帧头
+   7:modules/bluetooth/HC05.c **** #define FRAME_END   0X55    // 帧尾
+   8:modules/bluetooth/HC05.c **** 
+   9:modules/bluetooth/HC05.c **** static HC05 hc05_msg;   // HC05通信数据
+  10:modules/bluetooth/HC05.c **** static USARTInstance *hc05_usart_instance;    // HC05串口通信实例
+  11:modules/bluetooth/HC05.c **** 
+  12:modules/bluetooth/HC05.c **** static uint8_t hc05_init_flag = 0;  // HC05初始化标志位
+  13:modules/bluetooth/HC05.c **** 
+  14:modules/bluetooth/HC05.c **** // *hc05_usart_instance串口回调函数
+  15:modules/bluetooth/HC05.c **** static void HC05RxCallback()
+  16:modules/bluetooth/HC05.c **** {
+  28              		.loc 1 16 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  17:modules/bluetooth/HC05.c ****     uint8_t *rxbuff;
+  33              		.loc 1 17 5 view .LVU1
+  18:modules/bluetooth/HC05.c ****     rxbuff = hc05_usart_instance->recv_buff;
+  34              		.loc 1 18 5 view .LVU2
+  35              		.loc 1 18 33 is_stmt 0 view .LVU3
+  36 0000 0A4B     		ldr	r3, .L7
+  37 0002 1B68     		ldr	r3, [r3]
+  38              	.LVL0:
+  19:modules/bluetooth/HC05.c **** 
+  20:modules/bluetooth/HC05.c ****     // 帧头帧尾判断
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s 			page 2
+
+
+  21:modules/bluetooth/HC05.c ****     if(rxbuff[0] == FRAME_HEAD && rxbuff[HC05_BUFFERSIZE - 1] == FRAME_END)
+  39              		.loc 1 21 5 is_stmt 1 view .LVU4
+  40              		.loc 1 21 14 is_stmt 0 view .LVU5
+  41 0004 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+  42              		.loc 1 21 7 view .LVU6
+  43 0006 AA2A     		cmp	r2, #170
+  44 0008 00D0     		beq	.L6
+  45              	.L1:
+  22:modules/bluetooth/HC05.c ****     {
+  23:modules/bluetooth/HC05.c ****         for(int i = 0; i < HC05_DATASIZE; i++)
+  24:modules/bluetooth/HC05.c ****             hc05_msg.recv_data[i] = (uint8_t)rxbuff[i+1];
+  25:modules/bluetooth/HC05.c ****     }
+  26:modules/bluetooth/HC05.c ****     
+  27:modules/bluetooth/HC05.c ****     return;
+  28:modules/bluetooth/HC05.c **** }
+  46              		.loc 1 28 1 view .LVU7
+  47 000a 7047     		bx	lr
+  48              	.L6:
+  21:modules/bluetooth/HC05.c ****     {
+  49              		.loc 1 21 41 discriminator 1 view .LVU8
+  50 000c 5A79     		ldrb	r2, [r3, #5]	@ zero_extendqisi2
+  21:modules/bluetooth/HC05.c ****     {
+  51              		.loc 1 21 32 discriminator 1 view .LVU9
+  52 000e 552A     		cmp	r2, #85
+  53 0010 FBD1     		bne	.L1
+  54              	.LBB2:
+  23:modules/bluetooth/HC05.c ****             hc05_msg.recv_data[i] = (uint8_t)rxbuff[i+1];
+  55              		.loc 1 23 17 view .LVU10
+  56 0012 0022     		movs	r2, #0
+  57 0014 07E0     		b	.L3
+  58              	.LVL1:
+  59              	.L4:
+  24:modules/bluetooth/HC05.c ****     }
+  60              		.loc 1 24 13 is_stmt 1 view .LVU11
+  24:modules/bluetooth/HC05.c ****     }
+  61              		.loc 1 24 54 is_stmt 0 view .LVU12
+  62 0016 501C     		adds	r0, r2, #1
+  24:modules/bluetooth/HC05.c ****     }
+  63              		.loc 1 24 52 view .LVU13
+  64 0018 13F800C0 		ldrb	ip, [r3, r0]	@ zero_extendqisi2
+  24:modules/bluetooth/HC05.c ****     }
+  65              		.loc 1 24 35 view .LVU14
+  66 001c 0449     		ldr	r1, .L7+4
+  67 001e 0A44     		add	r2, r2, r1
+  68              	.LVL2:
+  24:modules/bluetooth/HC05.c ****     }
+  69              		.loc 1 24 35 view .LVU15
+  70 0020 82F806C0 		strb	ip, [r2, #6]
+  23:modules/bluetooth/HC05.c ****             hc05_msg.recv_data[i] = (uint8_t)rxbuff[i+1];
+  71              		.loc 1 23 44 is_stmt 1 discriminator 3 view .LVU16
+  72 0024 0246     		mov	r2, r0
+  73              	.LVL3:
+  74              	.L3:
+  23:modules/bluetooth/HC05.c ****             hc05_msg.recv_data[i] = (uint8_t)rxbuff[i+1];
+  75              		.loc 1 23 26 discriminator 1 view .LVU17
+  76 0026 032A     		cmp	r2, #3
+  77 0028 F5DD     		ble	.L4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s 			page 3
+
+
+  78 002a EEE7     		b	.L1
+  79              	.L8:
+  80              		.align	2
+  81              	.L7:
+  82 002c 00000000 		.word	hc05_usart_instance
+  83 0030 00000000 		.word	hc05_msg
+  84              	.LBE2:
+  85              		.cfi_endproc
+  86              	.LFE235:
+  88              		.section	.text.HC05Init,"ax",%progbits
+  89              		.align	1
+  90              		.global	HC05Init
+  91              		.syntax unified
+  92              		.thumb
+  93              		.thumb_func
+  95              	HC05Init:
+  96              	.LVL4:
+  97              	.LFB236:
+  29:modules/bluetooth/HC05.c **** 
+  30:modules/bluetooth/HC05.c **** // HC05串口接收初始化
+  31:modules/bluetooth/HC05.c **** HC05 *HC05Init(UART_HandleTypeDef *hc05_usart_handle)
+  32:modules/bluetooth/HC05.c **** {
+  98              		.loc 1 32 1 view -0
+  99              		.cfi_startproc
+ 100              		@ args = 0, pretend = 0, frame = 16
+ 101              		@ frame_needed = 0, uses_anonymous_args = 0
+ 102              		.loc 1 32 1 is_stmt 0 view .LVU19
+ 103 0000 00B5     		push	{lr}
+ 104              		.cfi_def_cfa_offset 4
+ 105              		.cfi_offset 14, -4
+ 106 0002 85B0     		sub	sp, sp, #20
+ 107              		.cfi_def_cfa_offset 24
+  33:modules/bluetooth/HC05.c ****     USART_Init_Config_s conf;
+ 108              		.loc 1 33 5 is_stmt 1 view .LVU20
+  34:modules/bluetooth/HC05.c ****     conf.module_callback = HC05RxCallback;
+ 109              		.loc 1 34 5 view .LVU21
+ 110              		.loc 1 34 26 is_stmt 0 view .LVU22
+ 111 0004 084B     		ldr	r3, .L11
+ 112 0006 0393     		str	r3, [sp, #12]
+  35:modules/bluetooth/HC05.c ****     conf.usart_handle = hc05_usart_handle;
+ 113              		.loc 1 35 5 is_stmt 1 view .LVU23
+ 114              		.loc 1 35 23 is_stmt 0 view .LVU24
+ 115 0008 0290     		str	r0, [sp, #8]
+  36:modules/bluetooth/HC05.c ****     conf.recv_buff_size = HC05_BUFFERSIZE;
+ 116              		.loc 1 36 5 is_stmt 1 view .LVU25
+ 117              		.loc 1 36 25 is_stmt 0 view .LVU26
+ 118 000a 0623     		movs	r3, #6
+ 119 000c 8DF80430 		strb	r3, [sp, #4]
+  37:modules/bluetooth/HC05.c ****     hc05_usart_instance = USARTRegister(&conf);
+ 120              		.loc 1 37 5 is_stmt 1 view .LVU27
+ 121              		.loc 1 37 27 is_stmt 0 view .LVU28
+ 122 0010 01A8     		add	r0, sp, #4
+ 123              	.LVL5:
+ 124              		.loc 1 37 27 view .LVU29
+ 125 0012 FFF7FEFF 		bl	USARTRegister
+ 126              	.LVL6:
+ 127              		.loc 1 37 25 discriminator 1 view .LVU30
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s 			page 4
+
+
+ 128 0016 054B     		ldr	r3, .L11+4
+ 129 0018 1860     		str	r0, [r3]
+  38:modules/bluetooth/HC05.c **** 
+  39:modules/bluetooth/HC05.c ****     hc05_init_flag = 1;
+ 130              		.loc 1 39 5 is_stmt 1 view .LVU31
+ 131              		.loc 1 39 20 is_stmt 0 view .LVU32
+ 132 001a 054B     		ldr	r3, .L11+8
+ 133 001c 0122     		movs	r2, #1
+ 134 001e 1A70     		strb	r2, [r3]
+  40:modules/bluetooth/HC05.c ****     return (HC05*)&hc05_msg;
+ 135              		.loc 1 40 5 is_stmt 1 view .LVU33
+  41:modules/bluetooth/HC05.c **** }
+ 136              		.loc 1 41 1 is_stmt 0 view .LVU34
+ 137 0020 0448     		ldr	r0, .L11+12
+ 138 0022 05B0     		add	sp, sp, #20
+ 139              		.cfi_def_cfa_offset 4
+ 140              		@ sp needed
+ 141 0024 00BD     		pop	{pc}
+ 142              	.L12:
+ 143 0026 00BF     		.align	2
+ 144              	.L11:
+ 145 0028 00000000 		.word	HC05RxCallback
+ 146 002c 00000000 		.word	hc05_usart_instance
+ 147 0030 00000000 		.word	hc05_init_flag
+ 148 0034 00000000 		.word	hc05_msg
+ 149              		.cfi_endproc
+ 150              	.LFE236:
+ 152              		.section	.text.HC05_SendData,"ax",%progbits
+ 153              		.align	1
+ 154              		.global	HC05_SendData
+ 155              		.syntax unified
+ 156              		.thumb
+ 157              		.thumb_func
+ 159              	HC05_SendData:
+ 160              	.LVL7:
+ 161              	.LFB237:
+  42:modules/bluetooth/HC05.c **** 
+  43:modules/bluetooth/HC05.c **** // HC05串口发送函数，一次最多发送HC05_DATASIZE个数据
+  44:modules/bluetooth/HC05.c **** void HC05_SendData(uint8_t *data, uint8_t data_num)
+  45:modules/bluetooth/HC05.c **** {
+ 162              		.loc 1 45 1 is_stmt 1 view -0
+ 163              		.cfi_startproc
+ 164              		@ args = 0, pretend = 0, frame = 0
+ 165              		@ frame_needed = 0, uses_anonymous_args = 0
+ 166              		.loc 1 45 1 is_stmt 0 view .LVU36
+ 167 0000 08B5     		push	{r3, lr}
+ 168              		.cfi_def_cfa_offset 8
+ 169              		.cfi_offset 3, -8
+ 170              		.cfi_offset 14, -4
+ 171 0002 8E46     		mov	lr, r1
+  46:modules/bluetooth/HC05.c **** 
+  47:modules/bluetooth/HC05.c ****     // 发送数据中加入帧头和帧尾
+  48:modules/bluetooth/HC05.c ****     hc05_msg.send_data[0] = FRAME_HEAD;
+ 172              		.loc 1 48 5 is_stmt 1 view .LVU37
+ 173              		.loc 1 48 27 is_stmt 0 view .LVU38
+ 174 0004 0C4B     		ldr	r3, .L17
+ 175 0006 AA22     		movs	r2, #170
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s 			page 5
+
+
+ 176 0008 1A70     		strb	r2, [r3]
+  49:modules/bluetooth/HC05.c **** 
+  50:modules/bluetooth/HC05.c ****     for (int i = 0; i < data_num; i++)
+ 177              		.loc 1 50 5 is_stmt 1 view .LVU39
+ 178              	.LBB3:
+ 179              		.loc 1 50 10 view .LVU40
+ 180              	.LVL8:
+ 181              		.loc 1 50 14 is_stmt 0 view .LVU41
+ 182 000a 0023     		movs	r3, #0
+ 183              		.loc 1 50 5 view .LVU42
+ 184 000c 07E0     		b	.L14
+ 185              	.LVL9:
+ 186              	.L15:
+  51:modules/bluetooth/HC05.c ****         hc05_msg.send_data[i+1] = data[i];
+ 187              		.loc 1 51 9 is_stmt 1 view .LVU43
+ 188              		.loc 1 51 39 is_stmt 0 view .LVU44
+ 189 000e 00EB030C 		add	ip, r0, r3
+ 190              		.loc 1 51 29 view .LVU45
+ 191 0012 0133     		adds	r3, r3, #1
+ 192              	.LVL10:
+ 193              		.loc 1 51 39 view .LVU46
+ 194 0014 9CF800C0 		ldrb	ip, [ip]	@ zero_extendqisi2
+ 195              		.loc 1 51 33 view .LVU47
+ 196 0018 074A     		ldr	r2, .L17
+ 197 001a 02F803C0 		strb	ip, [r2, r3]
+  50:modules/bluetooth/HC05.c ****         hc05_msg.send_data[i+1] = data[i];
+ 198              		.loc 1 50 36 is_stmt 1 discriminator 3 view .LVU48
+ 199              	.LVL11:
+ 200              	.L14:
+  50:modules/bluetooth/HC05.c ****         hc05_msg.send_data[i+1] = data[i];
+ 201              		.loc 1 50 23 discriminator 1 view .LVU49
+ 202 001e 9E45     		cmp	lr, r3
+ 203 0020 F5DC     		bgt	.L15
+ 204              	.LBE3:
+  52:modules/bluetooth/HC05.c ****     
+  53:modules/bluetooth/HC05.c ****     hc05_msg.send_data[HC05_BUFFERSIZE - 1] = FRAME_END;
+ 205              		.loc 1 53 5 view .LVU50
+ 206              		.loc 1 53 45 is_stmt 0 view .LVU51
+ 207 0022 0549     		ldr	r1, .L17
+ 208              	.LVL12:
+ 209              		.loc 1 53 45 view .LVU52
+ 210 0024 5523     		movs	r3, #85
+ 211              	.LVL13:
+ 212              		.loc 1 53 45 view .LVU53
+ 213 0026 4B71     		strb	r3, [r1, #5]
+  54:modules/bluetooth/HC05.c **** 
+  55:modules/bluetooth/HC05.c ****     // 发送数据
+  56:modules/bluetooth/HC05.c ****     USARTSend(hc05_usart_instance, hc05_msg.send_data, data_num+2, USART_TRANSFER_IT); 
+ 214              		.loc 1 56 5 is_stmt 1 view .LVU54
+ 215 0028 0223     		movs	r3, #2
+ 216 002a 0EEB0302 		add	r2, lr, r3
+ 217 002e 0348     		ldr	r0, .L17+4
+ 218              	.LVL14:
+ 219              		.loc 1 56 5 is_stmt 0 view .LVU55
+ 220 0030 0068     		ldr	r0, [r0]
+ 221 0032 FFF7FEFF 		bl	USARTSend
+ 222              	.LVL15:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s 			page 6
+
+
+  57:modules/bluetooth/HC05.c **** 
+  58:modules/bluetooth/HC05.c **** }...
+ 223              		.loc 1 58 1 view .LVU56
+ 224 0036 08BD     		pop	{r3, pc}
+ 225              	.L18:
+ 226              		.align	2
+ 227              	.L17:
+ 228 0038 00000000 		.word	hc05_msg
+ 229 003c 00000000 		.word	hc05_usart_instance
+ 230              		.cfi_endproc
+ 231              	.LFE237:
+ 233              		.section	.bss.hc05_init_flag,"aw",%nobits
+ 236              	hc05_init_flag:
+ 237 0000 00       		.space	1
+ 238              		.section	.bss.hc05_usart_instance,"aw",%nobits
+ 239              		.align	2
+ 242              	hc05_usart_instance:
+ 243 0000 00000000 		.space	4
+ 244              		.section	.bss.hc05_msg,"aw",%nobits
+ 245              		.align	2
+ 248              	hc05_msg:
+ 249 0000 00000000 		.space	10
+ 249      00000000 
+ 249      0000
+ 250              		.text
+ 251              	.Letext0:
+ 252              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 253              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 254              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 255              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 256              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 257              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 258              		.file 8 "modules/bluetooth/HC05.h"
+ 259              		.file 9 "bsp/usart/bsp_usart.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 HC05.c
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:21     .text.HC05RxCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:26     .text.HC05RxCallback:00000000 HC05RxCallback
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:82     .text.HC05RxCallback:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:242    .bss.hc05_usart_instance:00000000 hc05_usart_instance
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:248    .bss.hc05_msg:00000000 hc05_msg
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:89     .text.HC05Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:95     .text.HC05Init:00000000 HC05Init
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:145    .text.HC05Init:00000028 $d
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:236    .bss.hc05_init_flag:00000000 hc05_init_flag
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:153    .text.HC05_SendData:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:159    .text.HC05_SendData:00000000 HC05_SendData
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:228    .text.HC05_SendData:00000038 $d
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:237    .bss.hc05_init_flag:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:239    .bss.hc05_usart_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctFlTKa.s:245    .bss.hc05_msg:00000000 $d
+
+UNDEFINED SYMBOLS
+USARTRegister
+USARTSend

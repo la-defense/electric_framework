@@ -1,0 +1,1236 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"stm32f4xx_hal_adc_ex.c"
+  16              		.text
+  17              		.section	.text.ADC_MultiModeDMAError,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	ADC_MultiModeDMAError:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 08B5     		push	{r3, lr}
+  27 0002 806B     		ldr	r0, [r0, #56]
+  28 0004 4023     		movs	r3, #64
+  29 0006 0364     		str	r3, [r0, #64]
+  30 0008 436C     		ldr	r3, [r0, #68]
+  31 000a 43F00403 		orr	r3, r3, #4
+  32 000e 4364     		str	r3, [r0, #68]
+  33 0010 FFF7FEFF 		bl	HAL_ADC_ErrorCallback
+  34 0014 08BD     		pop	{r3, pc}
+  36              		.section	.text.ADC_MultiModeDMAHalfConvCplt,"ax",%progbits
+  37              		.align	1
+  38              		.syntax unified
+  39              		.thumb
+  40              		.thumb_func
+  42              	ADC_MultiModeDMAHalfConvCplt:
+  43              		@ args = 0, pretend = 0, frame = 0
+  44              		@ frame_needed = 0, uses_anonymous_args = 0
+  45 0000 08B5     		push	{r3, lr}
+  46 0002 806B     		ldr	r0, [r0, #56]
+  47 0004 FFF7FEFF 		bl	HAL_ADC_ConvHalfCpltCallback
+  48 0008 08BD     		pop	{r3, pc}
+  50              		.section	.text.ADC_MultiModeDMAConvCplt,"ax",%progbits
+  51              		.align	1
+  52              		.syntax unified
+  53              		.thumb
+  54              		.thumb_func
+  56              	ADC_MultiModeDMAConvCplt:
+  57              		@ args = 0, pretend = 0, frame = 0
+  58              		@ frame_needed = 0, uses_anonymous_args = 0
+  59 0000 08B5     		push	{r3, lr}
+  60 0002 836B     		ldr	r3, [r0, #56]
+  61 0004 1A6C     		ldr	r2, [r3, #64]
+  62 0006 12F0500F 		tst	r2, #80
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 2
+
+
+  63 000a 26D1     		bne	.L6
+  64 000c 1A6C     		ldr	r2, [r3, #64]
+  65 000e 42F40072 		orr	r2, r2, #512
+  66 0012 1A64     		str	r2, [r3, #64]
+  67 0014 1A68     		ldr	r2, [r3]
+  68 0016 9168     		ldr	r1, [r2, #8]
+  69 0018 11F0405F 		tst	r1, #805306368
+  70 001c 19D1     		bne	.L7
+  71 001e 197E     		ldrb	r1, [r3, #24]	@ zero_extendqisi2
+  72 0020 B9B9     		cbnz	r1, .L7
+  73 0022 D16A     		ldr	r1, [r2, #44]
+  74 0024 11F4700F 		tst	r1, #15728640
+  75 0028 03D0     		beq	.L8
+  76 002a 9168     		ldr	r1, [r2, #8]
+  77 002c 11F4806F 		tst	r1, #1024
+  78 0030 0FD1     		bne	.L7
+  79              	.L8:
+  80 0032 5168     		ldr	r1, [r2, #4]
+  81 0034 21F02001 		bic	r1, r1, #32
+  82 0038 5160     		str	r1, [r2, #4]
+  83 003a 1A6C     		ldr	r2, [r3, #64]
+  84 003c 22F48072 		bic	r2, r2, #256
+  85 0040 1A64     		str	r2, [r3, #64]
+  86 0042 1A6C     		ldr	r2, [r3, #64]
+  87 0044 12F4805F 		tst	r2, #4096
+  88 0048 03D1     		bne	.L7
+  89 004a 1A6C     		ldr	r2, [r3, #64]
+  90 004c 42F00102 		orr	r2, r2, #1
+  91 0050 1A64     		str	r2, [r3, #64]
+  92              	.L7:
+  93 0052 1846     		mov	r0, r3
+  94 0054 FFF7FEFF 		bl	HAL_ADC_ConvCpltCallback
+  95              	.L5:
+  96 0058 08BD     		pop	{r3, pc}
+  97              	.L6:
+  98 005a 9B6B     		ldr	r3, [r3, #56]
+  99 005c DB6C     		ldr	r3, [r3, #76]
+ 100 005e 9847     		blx	r3
+ 101 0060 FAE7     		b	.L5
+ 103              		.section	.text.HAL_ADCEx_InjectedStart,"ax",%progbits
+ 104              		.align	1
+ 105              		.global	HAL_ADCEx_InjectedStart
+ 106              		.syntax unified
+ 107              		.thumb
+ 108              		.thumb_func
+ 110              	HAL_ADCEx_InjectedStart:
+ 111              		@ args = 0, pretend = 0, frame = 8
+ 112              		@ frame_needed = 0, uses_anonymous_args = 0
+ 113              		@ link register save eliminated.
+ 114 0000 82B0     		sub	sp, sp, #8
+ 115 0002 0023     		movs	r3, #0
+ 116 0004 0193     		str	r3, [sp, #4]
+ 117 0006 90F83C30 		ldrb	r3, [r0, #60]	@ zero_extendqisi2
+ 118 000a 012B     		cmp	r3, #1
+ 119 000c 67D0     		beq	.L19
+ 120 000e 0123     		movs	r3, #1
+ 121 0010 80F83C30 		strb	r3, [r0, #60]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 3
+
+
+ 122 0014 0368     		ldr	r3, [r0]
+ 123 0016 9A68     		ldr	r2, [r3, #8]
+ 124 0018 12F0010F 		tst	r2, #1
+ 125 001c 13D1     		bne	.L13
+ 126 001e 9A68     		ldr	r2, [r3, #8]
+ 127 0020 42F00102 		orr	r2, r2, #1
+ 128 0024 9A60     		str	r2, [r3, #8]
+ 129 0026 334B     		ldr	r3, .L27
+ 130 0028 1B68     		ldr	r3, [r3]
+ 131 002a 334A     		ldr	r2, .L27+4
+ 132 002c A2FB0323 		umull	r2, r3, r2, r3
+ 133 0030 9B0C     		lsrs	r3, r3, #18
+ 134 0032 03EB4303 		add	r3, r3, r3, lsl #1
+ 135 0036 0193     		str	r3, [sp, #4]
+ 136 0038 02E0     		b	.L14
+ 137              	.L15:
+ 138 003a 019B     		ldr	r3, [sp, #4]
+ 139 003c 013B     		subs	r3, r3, #1
+ 140 003e 0193     		str	r3, [sp, #4]
+ 141              	.L14:
+ 142 0040 019B     		ldr	r3, [sp, #4]
+ 143 0042 002B     		cmp	r3, #0
+ 144 0044 F9D1     		bne	.L15
+ 145              	.L13:
+ 146 0046 0268     		ldr	r2, [r0]
+ 147 0048 9368     		ldr	r3, [r2, #8]
+ 148 004a 13F0010F 		tst	r3, #1
+ 149 004e 3BD0     		beq	.L16
+ 150 0050 036C     		ldr	r3, [r0, #64]
+ 151 0052 23F44053 		bic	r3, r3, #12288
+ 152 0056 23F00103 		bic	r3, r3, #1
+ 153 005a 43F48053 		orr	r3, r3, #4096
+ 154 005e 0364     		str	r3, [r0, #64]
+ 155 0060 036C     		ldr	r3, [r0, #64]
+ 156 0062 13F4807F 		tst	r3, #256
+ 157 0066 01D1     		bne	.L17
+ 158 0068 0023     		movs	r3, #0
+ 159 006a 4364     		str	r3, [r0, #68]
+ 160              	.L17:
+ 161 006c 0023     		movs	r3, #0
+ 162 006e 80F83C30 		strb	r3, [r0, #60]
+ 163 0072 6FF00403 		mvn	r3, #4
+ 164 0076 1360     		str	r3, [r2]
+ 165 0078 204B     		ldr	r3, .L27+8
+ 166 007a 5B68     		ldr	r3, [r3, #4]
+ 167 007c 13F01F0F 		tst	r3, #31
+ 168 0080 0ED1     		bne	.L18
+ 169 0082 0268     		ldr	r2, [r0]
+ 170 0084 9168     		ldr	r1, [r2, #8]
+ 171 0086 5368     		ldr	r3, [r2, #4]
+ 172 0088 03F48063 		and	r3, r3, #1024
+ 173 008c 11F4401F 		tst	r1, #3145728
+ 174 0090 27D1     		bne	.L20
+ 175 0092 43BB     		cbnz	r3, .L21
+ 176 0094 9368     		ldr	r3, [r2, #8]
+ 177 0096 43F48003 		orr	r3, r3, #4194304
+ 178 009a 9360     		str	r3, [r2, #8]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 4
+
+
+ 179 009c 0020     		movs	r0, #0
+ 180 009e 1CE0     		b	.L12
+ 181              	.L18:
+ 182 00a0 0368     		ldr	r3, [r0]
+ 183 00a2 9A68     		ldr	r2, [r3, #8]
+ 184 00a4 02F44012 		and	r2, r2, #3145728
+ 185 00a8 5968     		ldr	r1, [r3, #4]
+ 186 00aa 01F48061 		and	r1, r1, #1024
+ 187 00ae 1448     		ldr	r0, .L27+12
+ 188 00b0 8342     		cmp	r3, r0
+ 189 00b2 01D0     		beq	.L26
+ 190 00b4 0020     		movs	r0, #0
+ 191 00b6 10E0     		b	.L12
+ 192              	.L26:
+ 193 00b8 BAB9     		cbnz	r2, .L23
+ 194 00ba C1B9     		cbnz	r1, .L24
+ 195 00bc 9A68     		ldr	r2, [r3, #8]
+ 196 00be 42F48002 		orr	r2, r2, #4194304
+ 197 00c2 9A60     		str	r2, [r3, #8]
+ 198 00c4 0846     		mov	r0, r1
+ 199 00c6 08E0     		b	.L12
+ 200              	.L16:
+ 201 00c8 036C     		ldr	r3, [r0, #64]
+ 202 00ca 43F01003 		orr	r3, r3, #16
+ 203 00ce 0364     		str	r3, [r0, #64]
+ 204 00d0 436C     		ldr	r3, [r0, #68]
+ 205 00d2 43F00103 		orr	r3, r3, #1
+ 206 00d6 4364     		str	r3, [r0, #68]
+ 207 00d8 0020     		movs	r0, #0
+ 208              	.L12:
+ 209 00da 02B0     		add	sp, sp, #8
+ 210              		@ sp needed
+ 211 00dc 7047     		bx	lr
+ 212              	.L19:
+ 213 00de 0220     		movs	r0, #2
+ 214 00e0 FBE7     		b	.L12
+ 215              	.L20:
+ 216 00e2 0020     		movs	r0, #0
+ 217 00e4 F9E7     		b	.L12
+ 218              	.L21:
+ 219 00e6 0020     		movs	r0, #0
+ 220 00e8 F7E7     		b	.L12
+ 221              	.L23:
+ 222 00ea 0020     		movs	r0, #0
+ 223 00ec F5E7     		b	.L12
+ 224              	.L24:
+ 225 00ee 0020     		movs	r0, #0
+ 226 00f0 F3E7     		b	.L12
+ 227              	.L28:
+ 228 00f2 00BF     		.align	2
+ 229              	.L27:
+ 230 00f4 00000000 		.word	SystemCoreClock
+ 231 00f8 83DE1B43 		.word	1125899907
+ 232 00fc 00230140 		.word	1073816320
+ 233 0100 00200140 		.word	1073815552
+ 235              		.section	.text.HAL_ADCEx_InjectedStart_IT,"ax",%progbits
+ 236              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 5
+
+
+ 237              		.global	HAL_ADCEx_InjectedStart_IT
+ 238              		.syntax unified
+ 239              		.thumb
+ 240              		.thumb_func
+ 242              	HAL_ADCEx_InjectedStart_IT:
+ 243              		@ args = 0, pretend = 0, frame = 8
+ 244              		@ frame_needed = 0, uses_anonymous_args = 0
+ 245              		@ link register save eliminated.
+ 246 0000 82B0     		sub	sp, sp, #8
+ 247 0002 0023     		movs	r3, #0
+ 248 0004 0193     		str	r3, [sp, #4]
+ 249 0006 90F83C30 		ldrb	r3, [r0, #60]	@ zero_extendqisi2
+ 250 000a 012B     		cmp	r3, #1
+ 251 000c 6CD0     		beq	.L37
+ 252 000e 0123     		movs	r3, #1
+ 253 0010 80F83C30 		strb	r3, [r0, #60]
+ 254 0014 0368     		ldr	r3, [r0]
+ 255 0016 9A68     		ldr	r2, [r3, #8]
+ 256 0018 12F0010F 		tst	r2, #1
+ 257 001c 13D1     		bne	.L31
+ 258 001e 9A68     		ldr	r2, [r3, #8]
+ 259 0020 42F00102 		orr	r2, r2, #1
+ 260 0024 9A60     		str	r2, [r3, #8]
+ 261 0026 354B     		ldr	r3, .L45
+ 262 0028 1B68     		ldr	r3, [r3]
+ 263 002a 354A     		ldr	r2, .L45+4
+ 264 002c A2FB0323 		umull	r2, r3, r2, r3
+ 265 0030 9B0C     		lsrs	r3, r3, #18
+ 266 0032 03EB4303 		add	r3, r3, r3, lsl #1
+ 267 0036 0193     		str	r3, [sp, #4]
+ 268 0038 02E0     		b	.L32
+ 269              	.L33:
+ 270 003a 019B     		ldr	r3, [sp, #4]
+ 271 003c 013B     		subs	r3, r3, #1
+ 272 003e 0193     		str	r3, [sp, #4]
+ 273              	.L32:
+ 274 0040 019B     		ldr	r3, [sp, #4]
+ 275 0042 002B     		cmp	r3, #0
+ 276 0044 F9D1     		bne	.L33
+ 277              	.L31:
+ 278 0046 0268     		ldr	r2, [r0]
+ 279 0048 9368     		ldr	r3, [r2, #8]
+ 280 004a 13F0010F 		tst	r3, #1
+ 281 004e 40D0     		beq	.L34
+ 282 0050 036C     		ldr	r3, [r0, #64]
+ 283 0052 23F44053 		bic	r3, r3, #12288
+ 284 0056 23F00103 		bic	r3, r3, #1
+ 285 005a 43F48053 		orr	r3, r3, #4096
+ 286 005e 0364     		str	r3, [r0, #64]
+ 287 0060 036C     		ldr	r3, [r0, #64]
+ 288 0062 13F4807F 		tst	r3, #256
+ 289 0066 01D1     		bne	.L35
+ 290 0068 0023     		movs	r3, #0
+ 291 006a 4364     		str	r3, [r0, #68]
+ 292              	.L35:
+ 293 006c 0023     		movs	r3, #0
+ 294 006e 80F83C30 		strb	r3, [r0, #60]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 6
+
+
+ 295 0072 6FF00403 		mvn	r3, #4
+ 296 0076 1360     		str	r3, [r2]
+ 297 0078 0268     		ldr	r2, [r0]
+ 298 007a 5368     		ldr	r3, [r2, #4]
+ 299 007c 43F08003 		orr	r3, r3, #128
+ 300 0080 5360     		str	r3, [r2, #4]
+ 301 0082 204B     		ldr	r3, .L45+8
+ 302 0084 5B68     		ldr	r3, [r3, #4]
+ 303 0086 13F01F0F 		tst	r3, #31
+ 304 008a 0ED1     		bne	.L36
+ 305 008c 0268     		ldr	r2, [r0]
+ 306 008e 9168     		ldr	r1, [r2, #8]
+ 307 0090 5368     		ldr	r3, [r2, #4]
+ 308 0092 03F48063 		and	r3, r3, #1024
+ 309 0096 11F4401F 		tst	r1, #3145728
+ 310 009a 27D1     		bne	.L38
+ 311 009c 43BB     		cbnz	r3, .L39
+ 312 009e 9368     		ldr	r3, [r2, #8]
+ 313 00a0 43F48003 		orr	r3, r3, #4194304
+ 314 00a4 9360     		str	r3, [r2, #8]
+ 315 00a6 0020     		movs	r0, #0
+ 316 00a8 1CE0     		b	.L30
+ 317              	.L36:
+ 318 00aa 0368     		ldr	r3, [r0]
+ 319 00ac 9A68     		ldr	r2, [r3, #8]
+ 320 00ae 02F44012 		and	r2, r2, #3145728
+ 321 00b2 5968     		ldr	r1, [r3, #4]
+ 322 00b4 01F48061 		and	r1, r1, #1024
+ 323 00b8 1348     		ldr	r0, .L45+12
+ 324 00ba 8342     		cmp	r3, r0
+ 325 00bc 01D0     		beq	.L44
+ 326 00be 0020     		movs	r0, #0
+ 327 00c0 10E0     		b	.L30
+ 328              	.L44:
+ 329 00c2 BAB9     		cbnz	r2, .L41
+ 330 00c4 C1B9     		cbnz	r1, .L42
+ 331 00c6 9A68     		ldr	r2, [r3, #8]
+ 332 00c8 42F48002 		orr	r2, r2, #4194304
+ 333 00cc 9A60     		str	r2, [r3, #8]
+ 334 00ce 0846     		mov	r0, r1
+ 335 00d0 08E0     		b	.L30
+ 336              	.L34:
+ 337 00d2 036C     		ldr	r3, [r0, #64]
+ 338 00d4 43F01003 		orr	r3, r3, #16
+ 339 00d8 0364     		str	r3, [r0, #64]
+ 340 00da 436C     		ldr	r3, [r0, #68]
+ 341 00dc 43F00103 		orr	r3, r3, #1
+ 342 00e0 4364     		str	r3, [r0, #68]
+ 343 00e2 0020     		movs	r0, #0
+ 344              	.L30:
+ 345 00e4 02B0     		add	sp, sp, #8
+ 346              		@ sp needed
+ 347 00e6 7047     		bx	lr
+ 348              	.L37:
+ 349 00e8 0220     		movs	r0, #2
+ 350 00ea FBE7     		b	.L30
+ 351              	.L38:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 7
+
+
+ 352 00ec 0020     		movs	r0, #0
+ 353 00ee F9E7     		b	.L30
+ 354              	.L39:
+ 355 00f0 0020     		movs	r0, #0
+ 356 00f2 F7E7     		b	.L30
+ 357              	.L41:
+ 358 00f4 0020     		movs	r0, #0
+ 359 00f6 F5E7     		b	.L30
+ 360              	.L42:
+ 361 00f8 0020     		movs	r0, #0
+ 362 00fa F3E7     		b	.L30
+ 363              	.L46:
+ 364              		.align	2
+ 365              	.L45:
+ 366 00fc 00000000 		.word	SystemCoreClock
+ 367 0100 83DE1B43 		.word	1125899907
+ 368 0104 00230140 		.word	1073816320
+ 369 0108 00200140 		.word	1073815552
+ 371              		.section	.text.HAL_ADCEx_InjectedStop,"ax",%progbits
+ 372              		.align	1
+ 373              		.global	HAL_ADCEx_InjectedStop
+ 374              		.syntax unified
+ 375              		.thumb
+ 376              		.thumb_func
+ 378              	HAL_ADCEx_InjectedStop:
+ 379              		@ args = 0, pretend = 0, frame = 0
+ 380              		@ frame_needed = 0, uses_anonymous_args = 0
+ 381              		@ link register save eliminated.
+ 382 0000 0346     		mov	r3, r0
+ 383 0002 90F83C20 		ldrb	r2, [r0, #60]	@ zero_extendqisi2
+ 384 0006 012A     		cmp	r2, #1
+ 385 0008 29D0     		beq	.L51
+ 386 000a 0122     		movs	r2, #1
+ 387 000c 80F83C20 		strb	r2, [r0, #60]
+ 388 0010 026C     		ldr	r2, [r0, #64]
+ 389 0012 12F4807F 		tst	r2, #256
+ 390 0016 17D1     		bne	.L49
+ 391 0018 0268     		ldr	r2, [r0]
+ 392 001a 5168     		ldr	r1, [r2, #4]
+ 393 001c 11F4806F 		tst	r1, #1024
+ 394 0020 12D1     		bne	.L49
+ 395 0022 9168     		ldr	r1, [r2, #8]
+ 396 0024 21F00101 		bic	r1, r1, #1
+ 397 0028 9160     		str	r1, [r2, #8]
+ 398 002a 0268     		ldr	r2, [r0]
+ 399 002c 9268     		ldr	r2, [r2, #8]
+ 400 002e 12F0010F 		tst	r2, #1
+ 401 0032 12D1     		bne	.L52
+ 402 0034 026C     		ldr	r2, [r0, #64]
+ 403 0036 22F48852 		bic	r2, r2, #4352
+ 404 003a 22F00102 		bic	r2, r2, #1
+ 405 003e 42F00102 		orr	r2, r2, #1
+ 406 0042 0264     		str	r2, [r0, #64]
+ 407 0044 0020     		movs	r0, #0
+ 408 0046 04E0     		b	.L50
+ 409              	.L49:
+ 410 0048 1A6C     		ldr	r2, [r3, #64]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 8
+
+
+ 411 004a 42F02002 		orr	r2, r2, #32
+ 412 004e 1A64     		str	r2, [r3, #64]
+ 413 0050 0120     		movs	r0, #1
+ 414              	.L50:
+ 415 0052 0022     		movs	r2, #0
+ 416 0054 83F83C20 		strb	r2, [r3, #60]
+ 417 0058 7047     		bx	lr
+ 418              	.L52:
+ 419 005a 0020     		movs	r0, #0
+ 420 005c F9E7     		b	.L50
+ 421              	.L51:
+ 422 005e 0220     		movs	r0, #2
+ 423 0060 7047     		bx	lr
+ 425              		.section	.text.HAL_ADCEx_InjectedPollForConversion,"ax",%progbits
+ 426              		.align	1
+ 427              		.global	HAL_ADCEx_InjectedPollForConversion
+ 428              		.syntax unified
+ 429              		.thumb
+ 430              		.thumb_func
+ 432              	HAL_ADCEx_InjectedPollForConversion:
+ 433              		@ args = 0, pretend = 0, frame = 0
+ 434              		@ frame_needed = 0, uses_anonymous_args = 0
+ 435 0000 70B5     		push	{r4, r5, r6, lr}
+ 436 0002 0446     		mov	r4, r0
+ 437 0004 0D46     		mov	r5, r1
+ 438 0006 FFF7FEFF 		bl	HAL_GetTick
+ 439 000a 0646     		mov	r6, r0
+ 440              	.L55:
+ 441 000c 2368     		ldr	r3, [r4]
+ 442 000e 1A68     		ldr	r2, [r3]
+ 443 0010 12F0040F 		tst	r2, #4
+ 444 0014 15D1     		bne	.L67
+ 445 0016 B5F1FF3F 		cmp	r5, #-1
+ 446 001a F7D0     		beq	.L55
+ 447 001c 5DB9     		cbnz	r5, .L68
+ 448              	.L56:
+ 449 001e 2368     		ldr	r3, [r4]
+ 450 0020 1B68     		ldr	r3, [r3]
+ 451 0022 13F0040F 		tst	r3, #4
+ 452 0026 F1D1     		bne	.L55
+ 453 0028 0423     		movs	r3, #4
+ 454 002a 2364     		str	r3, [r4, #64]
+ 455 002c 0023     		movs	r3, #0
+ 456 002e 84F83C30 		strb	r3, [r4, #60]
+ 457 0032 0320     		movs	r0, #3
+ 458 0034 31E0     		b	.L58
+ 459              	.L68:
+ 460 0036 FFF7FEFF 		bl	HAL_GetTick
+ 461 003a 801B     		subs	r0, r0, r6
+ 462 003c A842     		cmp	r0, r5
+ 463 003e E5D9     		bls	.L55
+ 464 0040 EDE7     		b	.L56
+ 465              	.L67:
+ 466 0042 6FF00C02 		mvn	r2, #12
+ 467 0046 1A60     		str	r2, [r3]
+ 468 0048 236C     		ldr	r3, [r4, #64]
+ 469 004a 43F40053 		orr	r3, r3, #8192
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 9
+
+
+ 470 004e 2364     		str	r3, [r4, #64]
+ 471 0050 2368     		ldr	r3, [r4]
+ 472 0052 9A68     		ldr	r2, [r3, #8]
+ 473 0054 12F4401F 		tst	r2, #3145728
+ 474 0058 1ED1     		bne	.L61
+ 475 005a 9A6B     		ldr	r2, [r3, #56]
+ 476 005c 12F4401F 		tst	r2, #3145728
+ 477 0060 03D0     		beq	.L60
+ 478 0062 9A68     		ldr	r2, [r3, #8]
+ 479 0064 12F4806F 		tst	r2, #1024
+ 480 0068 18D1     		bne	.L62
+ 481              	.L60:
+ 482 006a 5A68     		ldr	r2, [r3, #4]
+ 483 006c 12F4806F 		tst	r2, #1024
+ 484 0070 16D1     		bne	.L63
+ 485 0072 9B68     		ldr	r3, [r3, #8]
+ 486 0074 13F0405F 		tst	r3, #805306368
+ 487 0078 14D1     		bne	.L64
+ 488 007a 207E     		ldrb	r0, [r4, #24]	@ zero_extendqisi2
+ 489 007c A0B9     		cbnz	r0, .L65
+ 490 007e 236C     		ldr	r3, [r4, #64]
+ 491 0080 23F48053 		bic	r3, r3, #4096
+ 492 0084 2364     		str	r3, [r4, #64]
+ 493 0086 236C     		ldr	r3, [r4, #64]
+ 494 0088 13F4807F 		tst	r3, #256
+ 495 008c 05D1     		bne	.L58
+ 496 008e 236C     		ldr	r3, [r4, #64]
+ 497 0090 43F00103 		orr	r3, r3, #1
+ 498 0094 2364     		str	r3, [r4, #64]
+ 499 0096 00E0     		b	.L58
+ 500              	.L61:
+ 501 0098 0020     		movs	r0, #0
+ 502              	.L58:
+ 503 009a 70BD     		pop	{r4, r5, r6, pc}
+ 504              	.L62:
+ 505 009c 0020     		movs	r0, #0
+ 506 009e FCE7     		b	.L58
+ 507              	.L63:
+ 508 00a0 0020     		movs	r0, #0
+ 509 00a2 FAE7     		b	.L58
+ 510              	.L64:
+ 511 00a4 0020     		movs	r0, #0
+ 512 00a6 F8E7     		b	.L58
+ 513              	.L65:
+ 514 00a8 0020     		movs	r0, #0
+ 515 00aa F6E7     		b	.L58
+ 517              		.section	.text.HAL_ADCEx_InjectedStop_IT,"ax",%progbits
+ 518              		.align	1
+ 519              		.global	HAL_ADCEx_InjectedStop_IT
+ 520              		.syntax unified
+ 521              		.thumb
+ 522              		.thumb_func
+ 524              	HAL_ADCEx_InjectedStop_IT:
+ 525              		@ args = 0, pretend = 0, frame = 0
+ 526              		@ frame_needed = 0, uses_anonymous_args = 0
+ 527              		@ link register save eliminated.
+ 528 0000 0346     		mov	r3, r0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 10
+
+
+ 529 0002 90F83C20 		ldrb	r2, [r0, #60]	@ zero_extendqisi2
+ 530 0006 012A     		cmp	r2, #1
+ 531 0008 2DD0     		beq	.L73
+ 532 000a 0122     		movs	r2, #1
+ 533 000c 80F83C20 		strb	r2, [r0, #60]
+ 534 0010 026C     		ldr	r2, [r0, #64]
+ 535 0012 12F4807F 		tst	r2, #256
+ 536 0016 1BD1     		bne	.L71
+ 537 0018 0268     		ldr	r2, [r0]
+ 538 001a 5168     		ldr	r1, [r2, #4]
+ 539 001c 11F4806F 		tst	r1, #1024
+ 540 0020 16D1     		bne	.L71
+ 541 0022 9168     		ldr	r1, [r2, #8]
+ 542 0024 21F00101 		bic	r1, r1, #1
+ 543 0028 9160     		str	r1, [r2, #8]
+ 544 002a 0268     		ldr	r2, [r0]
+ 545 002c 9168     		ldr	r1, [r2, #8]
+ 546 002e 11F0010F 		tst	r1, #1
+ 547 0032 16D1     		bne	.L74
+ 548 0034 5168     		ldr	r1, [r2, #4]
+ 549 0036 21F08001 		bic	r1, r1, #128
+ 550 003a 5160     		str	r1, [r2, #4]
+ 551 003c 026C     		ldr	r2, [r0, #64]
+ 552 003e 22F48852 		bic	r2, r2, #4352
+ 553 0042 22F00102 		bic	r2, r2, #1
+ 554 0046 42F00102 		orr	r2, r2, #1
+ 555 004a 0264     		str	r2, [r0, #64]
+ 556 004c 0020     		movs	r0, #0
+ 557 004e 04E0     		b	.L72
+ 558              	.L71:
+ 559 0050 1A6C     		ldr	r2, [r3, #64]
+ 560 0052 42F02002 		orr	r2, r2, #32
+ 561 0056 1A64     		str	r2, [r3, #64]
+ 562 0058 0120     		movs	r0, #1
+ 563              	.L72:
+ 564 005a 0022     		movs	r2, #0
+ 565 005c 83F83C20 		strb	r2, [r3, #60]
+ 566 0060 7047     		bx	lr
+ 567              	.L74:
+ 568 0062 0020     		movs	r0, #0
+ 569 0064 F9E7     		b	.L72
+ 570              	.L73:
+ 571 0066 0220     		movs	r0, #2
+ 572 0068 7047     		bx	lr
+ 574              		.section	.text.HAL_ADCEx_InjectedGetValue,"ax",%progbits
+ 575              		.align	1
+ 576              		.global	HAL_ADCEx_InjectedGetValue
+ 577              		.syntax unified
+ 578              		.thumb
+ 579              		.thumb_func
+ 581              	HAL_ADCEx_InjectedGetValue:
+ 582              		@ args = 0, pretend = 0, frame = 8
+ 583              		@ frame_needed = 0, uses_anonymous_args = 0
+ 584              		@ link register save eliminated.
+ 585 0000 82B0     		sub	sp, sp, #8
+ 586 0002 0023     		movs	r3, #0
+ 587 0004 0193     		str	r3, [sp, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 11
+
+
+ 588 0006 0368     		ldr	r3, [r0]
+ 589 0008 6FF00402 		mvn	r2, #4
+ 590 000c 1A60     		str	r2, [r3]
+ 591 000e 0329     		cmp	r1, #3
+ 592 0010 10D0     		beq	.L76
+ 593 0012 07D8     		bhi	.L77
+ 594 0014 0129     		cmp	r1, #1
+ 595 0016 11D0     		beq	.L78
+ 596 0018 0229     		cmp	r1, #2
+ 597 001a 08D1     		bne	.L80
+ 598 001c 0368     		ldr	r3, [r0]
+ 599 001e 1B6C     		ldr	r3, [r3, #64]
+ 600 0020 0193     		str	r3, [sp, #4]
+ 601 0022 04E0     		b	.L80
+ 602              	.L77:
+ 603 0024 0429     		cmp	r1, #4
+ 604 0026 02D1     		bne	.L80
+ 605 0028 0368     		ldr	r3, [r0]
+ 606 002a 9B6C     		ldr	r3, [r3, #72]
+ 607 002c 0193     		str	r3, [sp, #4]
+ 608              	.L80:
+ 609 002e 0198     		ldr	r0, [sp, #4]
+ 610 0030 02B0     		add	sp, sp, #8
+ 611              		@ sp needed
+ 612 0032 7047     		bx	lr
+ 613              	.L76:
+ 614 0034 0368     		ldr	r3, [r0]
+ 615 0036 5B6C     		ldr	r3, [r3, #68]
+ 616 0038 0193     		str	r3, [sp, #4]
+ 617 003a F8E7     		b	.L80
+ 618              	.L78:
+ 619 003c 0368     		ldr	r3, [r0]
+ 620 003e DB6B     		ldr	r3, [r3, #60]
+ 621 0040 0193     		str	r3, [sp, #4]
+ 622 0042 F4E7     		b	.L80
+ 624              		.section	.text.HAL_ADCEx_MultiModeStart_DMA,"ax",%progbits
+ 625              		.align	1
+ 626              		.global	HAL_ADCEx_MultiModeStart_DMA
+ 627              		.syntax unified
+ 628              		.thumb
+ 629              		.thumb_func
+ 631              	HAL_ADCEx_MultiModeStart_DMA:
+ 632              		@ args = 0, pretend = 0, frame = 8
+ 633              		@ frame_needed = 0, uses_anonymous_args = 0
+ 634 0000 10B5     		push	{r4, lr}
+ 635 0002 82B0     		sub	sp, sp, #8
+ 636 0004 1346     		mov	r3, r2
+ 637 0006 0022     		movs	r2, #0
+ 638 0008 0192     		str	r2, [sp, #4]
+ 639 000a 90F83C20 		ldrb	r2, [r0, #60]	@ zero_extendqisi2
+ 640 000e 012A     		cmp	r2, #1
+ 641 0010 7CD0     		beq	.L93
+ 642 0012 0446     		mov	r4, r0
+ 643 0014 0122     		movs	r2, #1
+ 644 0016 80F83C20 		strb	r2, [r0, #60]
+ 645 001a 0268     		ldr	r2, [r0]
+ 646 001c 9068     		ldr	r0, [r2, #8]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 12
+
+
+ 647 001e 10F0010F 		tst	r0, #1
+ 648 0022 13D1     		bne	.L84
+ 649 0024 9068     		ldr	r0, [r2, #8]
+ 650 0026 40F00100 		orr	r0, r0, #1
+ 651 002a 9060     		str	r0, [r2, #8]
+ 652 002c 394A     		ldr	r2, .L96
+ 653 002e 1068     		ldr	r0, [r2]
+ 654 0030 394A     		ldr	r2, .L96+4
+ 655 0032 A2FB0020 		umull	r2, r0, r2, r0
+ 656 0036 800C     		lsrs	r0, r0, #18
+ 657 0038 00EB4000 		add	r0, r0, r0, lsl #1
+ 658 003c 0190     		str	r0, [sp, #4]
+ 659 003e 02E0     		b	.L85
+ 660              	.L86:
+ 661 0040 0198     		ldr	r0, [sp, #4]
+ 662 0042 0138     		subs	r0, r0, #1
+ 663 0044 0190     		str	r0, [sp, #4]
+ 664              	.L85:
+ 665 0046 0198     		ldr	r0, [sp, #4]
+ 666 0048 0028     		cmp	r0, #0
+ 667 004a F9D1     		bne	.L86
+ 668              	.L84:
+ 669 004c 2268     		ldr	r2, [r4]
+ 670 004e 9068     		ldr	r0, [r2, #8]
+ 671 0050 10F0010F 		tst	r0, #1
+ 672 0054 4FD0     		beq	.L87
+ 673 0056 206C     		ldr	r0, [r4, #64]
+ 674 0058 20F4E060 		bic	r0, r0, #1792
+ 675 005c 20F00100 		bic	r0, r0, #1
+ 676 0060 40F48070 		orr	r0, r0, #256
+ 677 0064 2064     		str	r0, [r4, #64]
+ 678 0066 5268     		ldr	r2, [r2, #4]
+ 679 0068 12F4806F 		tst	r2, #1024
+ 680 006c 05D0     		beq	.L88
+ 681 006e 226C     		ldr	r2, [r4, #64]
+ 682 0070 22F44052 		bic	r2, r2, #12288
+ 683 0074 42F48052 		orr	r2, r2, #4096
+ 684 0078 2264     		str	r2, [r4, #64]
+ 685              	.L88:
+ 686 007a 226C     		ldr	r2, [r4, #64]
+ 687 007c 12F4805F 		tst	r2, #4096
+ 688 0080 30D0     		beq	.L89
+ 689 0082 626C     		ldr	r2, [r4, #68]
+ 690 0084 22F00602 		bic	r2, r2, #6
+ 691 0088 6264     		str	r2, [r4, #68]
+ 692              	.L90:
+ 693 008a 0022     		movs	r2, #0
+ 694 008c 84F83C20 		strb	r2, [r4, #60]
+ 695 0090 A26B     		ldr	r2, [r4, #56]
+ 696 0092 2248     		ldr	r0, .L96+8
+ 697 0094 D063     		str	r0, [r2, #60]
+ 698 0096 A26B     		ldr	r2, [r4, #56]
+ 699 0098 2148     		ldr	r0, .L96+12
+ 700 009a 1064     		str	r0, [r2, #64]
+ 701 009c A26B     		ldr	r2, [r4, #56]
+ 702 009e 2148     		ldr	r0, .L96+16
+ 703 00a0 D064     		str	r0, [r2, #76]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 13
+
+
+ 704 00a2 2268     		ldr	r2, [r4]
+ 705 00a4 6FF00200 		mvn	r0, #2
+ 706 00a8 1060     		str	r0, [r2]
+ 707 00aa 2068     		ldr	r0, [r4]
+ 708 00ac 4268     		ldr	r2, [r0, #4]
+ 709 00ae 42F08062 		orr	r2, r2, #67108864
+ 710 00b2 4260     		str	r2, [r0, #4]
+ 711 00b4 94F83020 		ldrb	r2, [r4, #48]	@ zero_extendqisi2
+ 712 00b8 BAB1     		cbz	r2, .L91
+ 713 00ba 1B48     		ldr	r0, .L96+20
+ 714 00bc 4268     		ldr	r2, [r0, #4]
+ 715 00be 42F40052 		orr	r2, r2, #8192
+ 716 00c2 4260     		str	r2, [r0, #4]
+ 717              	.L92:
+ 718 00c4 0A46     		mov	r2, r1
+ 719 00c6 1949     		ldr	r1, .L96+24
+ 720 00c8 A06B     		ldr	r0, [r4, #56]
+ 721 00ca FFF7FEFF 		bl	HAL_DMA_Start_IT
+ 722 00ce 2368     		ldr	r3, [r4]
+ 723 00d0 9A68     		ldr	r2, [r3, #8]
+ 724 00d2 12F0405F 		tst	r2, #805306368
+ 725 00d6 1BD1     		bne	.L94
+ 726 00d8 9A68     		ldr	r2, [r3, #8]
+ 727 00da 42F08042 		orr	r2, r2, #1073741824
+ 728 00de 9A60     		str	r2, [r3, #8]
+ 729 00e0 0020     		movs	r0, #0
+ 730 00e2 11E0     		b	.L83
+ 731              	.L89:
+ 732 00e4 0022     		movs	r2, #0
+ 733 00e6 6264     		str	r2, [r4, #68]
+ 734 00e8 CFE7     		b	.L90
+ 735              	.L91:
+ 736 00ea 0F48     		ldr	r0, .L96+20
+ 737 00ec 4268     		ldr	r2, [r0, #4]
+ 738 00ee 22F40052 		bic	r2, r2, #8192
+ 739 00f2 4260     		str	r2, [r0, #4]
+ 740 00f4 E6E7     		b	.L92
+ 741              	.L87:
+ 742 00f6 236C     		ldr	r3, [r4, #64]
+ 743 00f8 43F01003 		orr	r3, r3, #16
+ 744 00fc 2364     		str	r3, [r4, #64]
+ 745 00fe 636C     		ldr	r3, [r4, #68]
+ 746 0100 43F00103 		orr	r3, r3, #1
+ 747 0104 6364     		str	r3, [r4, #68]
+ 748 0106 0020     		movs	r0, #0
+ 749              	.L83:
+ 750 0108 02B0     		add	sp, sp, #8
+ 751              		@ sp needed
+ 752 010a 10BD     		pop	{r4, pc}
+ 753              	.L93:
+ 754 010c 0220     		movs	r0, #2
+ 755 010e FBE7     		b	.L83
+ 756              	.L94:
+ 757 0110 0020     		movs	r0, #0
+ 758 0112 F9E7     		b	.L83
+ 759              	.L97:
+ 760              		.align	2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 14
+
+
+ 761              	.L96:
+ 762 0114 00000000 		.word	SystemCoreClock
+ 763 0118 83DE1B43 		.word	1125899907
+ 764 011c 00000000 		.word	ADC_MultiModeDMAConvCplt
+ 765 0120 00000000 		.word	ADC_MultiModeDMAHalfConvCplt
+ 766 0124 00000000 		.word	ADC_MultiModeDMAError
+ 767 0128 00230140 		.word	1073816320
+ 768 012c 08230140 		.word	1073816328
+ 770              		.section	.text.HAL_ADCEx_MultiModeStop_DMA,"ax",%progbits
+ 771              		.align	1
+ 772              		.global	HAL_ADCEx_MultiModeStop_DMA
+ 773              		.syntax unified
+ 774              		.thumb
+ 775              		.thumb_func
+ 777              	HAL_ADCEx_MultiModeStop_DMA:
+ 778              		@ args = 0, pretend = 0, frame = 0
+ 779              		@ frame_needed = 0, uses_anonymous_args = 0
+ 780 0000 90F83C30 		ldrb	r3, [r0, #60]	@ zero_extendqisi2
+ 781 0004 012B     		cmp	r3, #1
+ 782 0006 29D0     		beq	.L101
+ 783 0008 10B5     		push	{r4, lr}
+ 784 000a 0446     		mov	r4, r0
+ 785 000c 0123     		movs	r3, #1
+ 786 000e 80F83C30 		strb	r3, [r0, #60]
+ 787 0012 0268     		ldr	r2, [r0]
+ 788 0014 9368     		ldr	r3, [r2, #8]
+ 789 0016 23F00103 		bic	r3, r3, #1
+ 790 001a 9360     		str	r3, [r2, #8]
+ 791 001c 0368     		ldr	r3, [r0]
+ 792 001e 9B68     		ldr	r3, [r3, #8]
+ 793 0020 13F0010F 		tst	r3, #1
+ 794 0024 04D0     		beq	.L107
+ 795 0026 0020     		movs	r0, #0
+ 796              	.L100:
+ 797 0028 0023     		movs	r3, #0
+ 798 002a 84F83C30 		strb	r3, [r4, #60]
+ 799 002e 10BD     		pop	{r4, pc}
+ 800              	.L107:
+ 801 0030 0B4A     		ldr	r2, .L108
+ 802 0032 5368     		ldr	r3, [r2, #4]
+ 803 0034 23F40053 		bic	r3, r3, #8192
+ 804 0038 5360     		str	r3, [r2, #4]
+ 805 003a 806B     		ldr	r0, [r0, #56]
+ 806 003c FFF7FEFF 		bl	HAL_DMA_Abort
+ 807 0040 2268     		ldr	r2, [r4]
+ 808 0042 5368     		ldr	r3, [r2, #4]
+ 809 0044 23F08063 		bic	r3, r3, #67108864
+ 810 0048 5360     		str	r3, [r2, #4]
+ 811 004a 236C     		ldr	r3, [r4, #64]
+ 812 004c 23F48853 		bic	r3, r3, #4352
+ 813 0050 23F00103 		bic	r3, r3, #1
+ 814 0054 43F00103 		orr	r3, r3, #1
+ 815 0058 2364     		str	r3, [r4, #64]
+ 816 005a E5E7     		b	.L100
+ 817              	.L101:
+ 818 005c 0220     		movs	r0, #2
+ 819 005e 7047     		bx	lr
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 15
+
+
+ 820              	.L109:
+ 821              		.align	2
+ 822              	.L108:
+ 823 0060 00230140 		.word	1073816320
+ 825              		.section	.text.HAL_ADCEx_MultiModeGetValue,"ax",%progbits
+ 826              		.align	1
+ 827              		.global	HAL_ADCEx_MultiModeGetValue
+ 828              		.syntax unified
+ 829              		.thumb
+ 830              		.thumb_func
+ 832              	HAL_ADCEx_MultiModeGetValue:
+ 833              		@ args = 0, pretend = 0, frame = 0
+ 834              		@ frame_needed = 0, uses_anonymous_args = 0
+ 835              		@ link register save eliminated.
+ 836 0000 014B     		ldr	r3, .L111
+ 837 0002 9868     		ldr	r0, [r3, #8]
+ 838 0004 7047     		bx	lr
+ 839              	.L112:
+ 840 0006 00BF     		.align	2
+ 841              	.L111:
+ 842 0008 00230140 		.word	1073816320
+ 844              		.section	.text.HAL_ADCEx_InjectedConvCpltCallback,"ax",%progbits
+ 845              		.align	1
+ 846              		.weak	HAL_ADCEx_InjectedConvCpltCallback
+ 847              		.syntax unified
+ 848              		.thumb
+ 849              		.thumb_func
+ 851              	HAL_ADCEx_InjectedConvCpltCallback:
+ 852              		@ args = 0, pretend = 0, frame = 0
+ 853              		@ frame_needed = 0, uses_anonymous_args = 0
+ 854              		@ link register save eliminated.
+ 855 0000 7047     		bx	lr
+ 857              		.section	.text.HAL_ADCEx_InjectedConfigChannel,"ax",%progbits
+ 858              		.align	1
+ 859              		.global	HAL_ADCEx_InjectedConfigChannel
+ 860              		.syntax unified
+ 861              		.thumb
+ 862              		.thumb_func
+ 864              	HAL_ADCEx_InjectedConfigChannel:
+ 865              		@ args = 0, pretend = 0, frame = 0
+ 866              		@ frame_needed = 0, uses_anonymous_args = 0
+ 867 0000 90F83C20 		ldrb	r2, [r0, #60]	@ zero_extendqisi2
+ 868 0004 012A     		cmp	r2, #1
+ 869 0006 00F00A81 		beq	.L130
+ 870 000a 10B5     		push	{r4, lr}
+ 871 000c 0346     		mov	r3, r0
+ 872 000e 0122     		movs	r2, #1
+ 873 0010 80F83C20 		strb	r2, [r0, #60]
+ 874 0014 0A68     		ldr	r2, [r1]
+ 875 0016 092A     		cmp	r2, #9
+ 876 0018 40F29980 		bls	.L116
+ 877 001c D0F800E0 		ldr	lr, [r0]
+ 878 0020 DEF80C00 		ldr	r0, [lr, #12]
+ 879 0024 92B2     		uxth	r2, r2
+ 880 0026 0A3A     		subs	r2, r2, #10
+ 881 0028 02EB4202 		add	r2, r2, r2, lsl #1
+ 882 002c 4FF0070C 		mov	ip, #7
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 16
+
+
+ 883 0030 0CFA02F2 		lsl	r2, ip, r2
+ 884 0034 20EA0202 		bic	r2, r0, r2
+ 885 0038 CEF80C20 		str	r2, [lr, #12]
+ 886 003c D3F800C0 		ldr	ip, [r3]
+ 887 0040 DCF80C00 		ldr	r0, [ip, #12]
+ 888 0044 0A88     		ldrh	r2, [r1]
+ 889 0046 0A3A     		subs	r2, r2, #10
+ 890 0048 02EB4202 		add	r2, r2, r2, lsl #1
+ 891 004c 8C68     		ldr	r4, [r1, #8]
+ 892 004e 04FA02F2 		lsl	r2, r4, r2
+ 893 0052 0243     		orrs	r2, r2, r0
+ 894 0054 CCF80C20 		str	r2, [ip, #12]
+ 895              	.L117:
+ 896 0058 1868     		ldr	r0, [r3]
+ 897 005a 826B     		ldr	r2, [r0, #56]
+ 898 005c 22F44012 		bic	r2, r2, #3145728
+ 899 0060 8263     		str	r2, [r0, #56]
+ 900 0062 D3F800C0 		ldr	ip, [r3]
+ 901 0066 DCF83820 		ldr	r2, [ip, #56]
+ 902 006a 0869     		ldr	r0, [r1, #16]
+ 903 006c 0138     		subs	r0, r0, #1
+ 904 006e 42EA0052 		orr	r2, r2, r0, lsl #20
+ 905 0072 CCF83820 		str	r2, [ip, #56]
+ 906 0076 D3F800E0 		ldr	lr, [r3]
+ 907 007a DEF83800 		ldr	r0, [lr, #56]
+ 908 007e 4A68     		ldr	r2, [r1, #4]
+ 909 0080 0C69     		ldr	r4, [r1, #16]
+ 910 0082 121B     		subs	r2, r2, r4
+ 911 0084 D2B2     		uxtb	r2, r2
+ 912 0086 0332     		adds	r2, r2, #3
+ 913 0088 D2B2     		uxtb	r2, r2
+ 914 008a 02EB8202 		add	r2, r2, r2, lsl #2
+ 915 008e 4FF01F0C 		mov	ip, #31
+ 916 0092 0CFA02F2 		lsl	r2, ip, r2
+ 917 0096 20EA0202 		bic	r2, r0, r2
+ 918 009a CEF83820 		str	r2, [lr, #56]
+ 919 009e D3F800E0 		ldr	lr, [r3]
+ 920 00a2 DEF83800 		ldr	r0, [lr, #56]
+ 921 00a6 4A68     		ldr	r2, [r1, #4]
+ 922 00a8 0C69     		ldr	r4, [r1, #16]
+ 923 00aa 121B     		subs	r2, r2, r4
+ 924 00ac D2B2     		uxtb	r2, r2
+ 925 00ae 0332     		adds	r2, r2, #3
+ 926 00b0 D2B2     		uxtb	r2, r2
+ 927 00b2 02EB8202 		add	r2, r2, r2, lsl #2
+ 928 00b6 B1F800C0 		ldrh	ip, [r1]
+ 929 00ba 0CFA02F2 		lsl	r2, ip, r2
+ 930 00be 0243     		orrs	r2, r2, r0
+ 931 00c0 CEF83820 		str	r2, [lr, #56]
+ 932 00c4 8869     		ldr	r0, [r1, #24]
+ 933 00c6 574A     		ldr	r2, .L137
+ 934 00c8 9042     		cmp	r0, r2
+ 935 00ca 5DD0     		beq	.L118
+ 936 00cc 1868     		ldr	r0, [r3]
+ 937 00ce 8268     		ldr	r2, [r0, #8]
+ 938 00d0 22F47022 		bic	r2, r2, #983040
+ 939 00d4 8260     		str	r2, [r0, #8]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 17
+
+
+ 940 00d6 1868     		ldr	r0, [r3]
+ 941 00d8 8268     		ldr	r2, [r0, #8]
+ 942 00da 8C69     		ldr	r4, [r1, #24]
+ 943 00dc 2243     		orrs	r2, r2, r4
+ 944 00de 8260     		str	r2, [r0, #8]
+ 945 00e0 1868     		ldr	r0, [r3]
+ 946 00e2 8268     		ldr	r2, [r0, #8]
+ 947 00e4 22F44012 		bic	r2, r2, #3145728
+ 948 00e8 8260     		str	r2, [r0, #8]
+ 949 00ea 1868     		ldr	r0, [r3]
+ 950 00ec 8268     		ldr	r2, [r0, #8]
+ 951 00ee CC69     		ldr	r4, [r1, #28]
+ 952 00f0 2243     		orrs	r2, r2, r4
+ 953 00f2 8260     		str	r2, [r0, #8]
+ 954              	.L119:
+ 955 00f4 4A7D     		ldrb	r2, [r1, #21]	@ zero_extendqisi2
+ 956 00f6 002A     		cmp	r2, #0
+ 957 00f8 51D0     		beq	.L120
+ 958 00fa 1868     		ldr	r0, [r3]
+ 959 00fc 4268     		ldr	r2, [r0, #4]
+ 960 00fe 42F48062 		orr	r2, r2, #1024
+ 961 0102 4260     		str	r2, [r0, #4]
+ 962              	.L121:
+ 963 0104 0A7D     		ldrb	r2, [r1, #20]	@ zero_extendqisi2
+ 964 0106 002A     		cmp	r2, #0
+ 965 0108 4FD0     		beq	.L122
+ 966 010a 1868     		ldr	r0, [r3]
+ 967 010c 4268     		ldr	r2, [r0, #4]
+ 968 010e 42F48052 		orr	r2, r2, #4096
+ 969 0112 4260     		str	r2, [r0, #4]
+ 970              	.L123:
+ 971 0114 4A68     		ldr	r2, [r1, #4]
+ 972 0116 022A     		cmp	r2, #2
+ 973 0118 4DD0     		beq	.L124
+ 974 011a 032A     		cmp	r2, #3
+ 975 011c 56D0     		beq	.L125
+ 976 011e 012A     		cmp	r2, #1
+ 977 0120 5FD1     		bne	.L126
+ 978 0122 1868     		ldr	r0, [r3]
+ 979 0124 4269     		ldr	r2, [r0, #20]
+ 980 0126 6FF30B02 		bfc	r2, #0, #12
+ 981 012a 4261     		str	r2, [r0, #20]
+ 982 012c 1868     		ldr	r0, [r3]
+ 983 012e 4269     		ldr	r2, [r0, #20]
+ 984 0130 CC68     		ldr	r4, [r1, #12]
+ 985 0132 2243     		orrs	r2, r2, r4
+ 986 0134 4261     		str	r2, [r0, #20]
+ 987              	.L127:
+ 988 0136 1868     		ldr	r0, [r3]
+ 989 0138 3B4A     		ldr	r2, .L137+4
+ 990 013a 9042     		cmp	r0, r2
+ 991 013c 5CD0     		beq	.L135
+ 992              	.L128:
+ 993 013e 1868     		ldr	r0, [r3]
+ 994 0140 394A     		ldr	r2, .L137+4
+ 995 0142 9042     		cmp	r0, r2
+ 996 0144 61D0     		beq	.L136
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 18
+
+
+ 997              	.L129:
+ 998 0146 0020     		movs	r0, #0
+ 999 0148 83F83C00 		strb	r0, [r3, #60]
+ 1000 014c 10BD     		pop	{r4, pc}
+ 1001              	.L116:
+ 1002 014e D0F800E0 		ldr	lr, [r0]
+ 1003 0152 DEF81000 		ldr	r0, [lr, #16]
+ 1004 0156 92B2     		uxth	r2, r2
+ 1005 0158 02EB4202 		add	r2, r2, r2, lsl #1
+ 1006 015c 4FF0070C 		mov	ip, #7
+ 1007 0160 0CFA02F2 		lsl	r2, ip, r2
+ 1008 0164 20EA0202 		bic	r2, r0, r2
+ 1009 0168 CEF81020 		str	r2, [lr, #16]
+ 1010 016c D3F800C0 		ldr	ip, [r3]
+ 1011 0170 DCF81000 		ldr	r0, [ip, #16]
+ 1012 0174 0A88     		ldrh	r2, [r1]
+ 1013 0176 02EB4202 		add	r2, r2, r2, lsl #1
+ 1014 017a 8C68     		ldr	r4, [r1, #8]
+ 1015 017c 04FA02F2 		lsl	r2, r4, r2
+ 1016 0180 0243     		orrs	r2, r2, r0
+ 1017 0182 CCF81020 		str	r2, [ip, #16]
+ 1018 0186 67E7     		b	.L117
+ 1019              	.L118:
+ 1020 0188 1868     		ldr	r0, [r3]
+ 1021 018a 8268     		ldr	r2, [r0, #8]
+ 1022 018c 22F47022 		bic	r2, r2, #983040
+ 1023 0190 8260     		str	r2, [r0, #8]
+ 1024 0192 1868     		ldr	r0, [r3]
+ 1025 0194 8268     		ldr	r2, [r0, #8]
+ 1026 0196 22F44012 		bic	r2, r2, #3145728
+ 1027 019a 8260     		str	r2, [r0, #8]
+ 1028 019c AAE7     		b	.L119
+ 1029              	.L120:
+ 1030 019e 1868     		ldr	r0, [r3]
+ 1031 01a0 4268     		ldr	r2, [r0, #4]
+ 1032 01a2 22F48062 		bic	r2, r2, #1024
+ 1033 01a6 4260     		str	r2, [r0, #4]
+ 1034 01a8 ACE7     		b	.L121
+ 1035              	.L122:
+ 1036 01aa 1868     		ldr	r0, [r3]
+ 1037 01ac 4268     		ldr	r2, [r0, #4]
+ 1038 01ae 22F48052 		bic	r2, r2, #4096
+ 1039 01b2 4260     		str	r2, [r0, #4]
+ 1040 01b4 AEE7     		b	.L123
+ 1041              	.L124:
+ 1042 01b6 1868     		ldr	r0, [r3]
+ 1043 01b8 8269     		ldr	r2, [r0, #24]
+ 1044 01ba 6FF30B02 		bfc	r2, #0, #12
+ 1045 01be 8261     		str	r2, [r0, #24]
+ 1046 01c0 1868     		ldr	r0, [r3]
+ 1047 01c2 8269     		ldr	r2, [r0, #24]
+ 1048 01c4 CC68     		ldr	r4, [r1, #12]
+ 1049 01c6 2243     		orrs	r2, r2, r4
+ 1050 01c8 8261     		str	r2, [r0, #24]
+ 1051 01ca B4E7     		b	.L127
+ 1052              	.L125:
+ 1053 01cc 1868     		ldr	r0, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 19
+
+
+ 1054 01ce C269     		ldr	r2, [r0, #28]
+ 1055 01d0 6FF30B02 		bfc	r2, #0, #12
+ 1056 01d4 C261     		str	r2, [r0, #28]
+ 1057 01d6 1868     		ldr	r0, [r3]
+ 1058 01d8 C269     		ldr	r2, [r0, #28]
+ 1059 01da CC68     		ldr	r4, [r1, #12]
+ 1060 01dc 2243     		orrs	r2, r2, r4
+ 1061 01de C261     		str	r2, [r0, #28]
+ 1062 01e0 A9E7     		b	.L127
+ 1063              	.L126:
+ 1064 01e2 1868     		ldr	r0, [r3]
+ 1065 01e4 026A     		ldr	r2, [r0, #32]
+ 1066 01e6 6FF30B02 		bfc	r2, #0, #12
+ 1067 01ea 0262     		str	r2, [r0, #32]
+ 1068 01ec 1868     		ldr	r0, [r3]
+ 1069 01ee 026A     		ldr	r2, [r0, #32]
+ 1070 01f0 CC68     		ldr	r4, [r1, #12]
+ 1071 01f2 2243     		orrs	r2, r2, r4
+ 1072 01f4 0262     		str	r2, [r0, #32]
+ 1073 01f6 9EE7     		b	.L127
+ 1074              	.L135:
+ 1075 01f8 0A68     		ldr	r2, [r1]
+ 1076 01fa 122A     		cmp	r2, #18
+ 1077 01fc 9FD1     		bne	.L128
+ 1078 01fe 0B48     		ldr	r0, .L137+8
+ 1079 0200 4268     		ldr	r2, [r0, #4]
+ 1080 0202 42F48002 		orr	r2, r2, #4194304
+ 1081 0206 4260     		str	r2, [r0, #4]
+ 1082 0208 99E7     		b	.L128
+ 1083              	.L136:
+ 1084 020a 0A68     		ldr	r2, [r1]
+ 1085 020c 103A     		subs	r2, r2, #16
+ 1086 020e 012A     		cmp	r2, #1
+ 1087 0210 99D8     		bhi	.L129
+ 1088 0212 0649     		ldr	r1, .L137+8
+ 1089 0214 4A68     		ldr	r2, [r1, #4]
+ 1090 0216 42F40002 		orr	r2, r2, #8388608
+ 1091 021a 4A60     		str	r2, [r1, #4]
+ 1092 021c 93E7     		b	.L129
+ 1093              	.L130:
+ 1094 021e 0220     		movs	r0, #2
+ 1095 0220 7047     		bx	lr
+ 1096              	.L138:
+ 1097 0222 00BF     		.align	2
+ 1098              	.L137:
+ 1099 0224 01000F00 		.word	983041
+ 1100 0228 00200140 		.word	1073815552
+ 1101 022c 00230140 		.word	1073816320
+ 1103              		.section	.text.HAL_ADCEx_MultiModeConfigChannel,"ax",%progbits
+ 1104              		.align	1
+ 1105              		.global	HAL_ADCEx_MultiModeConfigChannel
+ 1106              		.syntax unified
+ 1107              		.thumb
+ 1108              		.thumb_func
+ 1110              	HAL_ADCEx_MultiModeConfigChannel:
+ 1111              		@ args = 0, pretend = 0, frame = 0
+ 1112              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 20
+
+
+ 1113              		@ link register save eliminated.
+ 1114 0000 90F83C30 		ldrb	r3, [r0, #60]	@ zero_extendqisi2
+ 1115 0004 012B     		cmp	r3, #1
+ 1116 0006 22D0     		beq	.L141
+ 1117 0008 10B4     		push	{r4}
+ 1118 000a 0246     		mov	r2, r0
+ 1119 000c 0123     		movs	r3, #1
+ 1120 000e 80F83C30 		strb	r3, [r0, #60]
+ 1121 0012 104B     		ldr	r3, .L146
+ 1122 0014 5868     		ldr	r0, [r3, #4]
+ 1123 0016 20F01F00 		bic	r0, r0, #31
+ 1124 001a 5860     		str	r0, [r3, #4]
+ 1125 001c 5868     		ldr	r0, [r3, #4]
+ 1126 001e 0C68     		ldr	r4, [r1]
+ 1127 0020 2043     		orrs	r0, r0, r4
+ 1128 0022 5860     		str	r0, [r3, #4]
+ 1129 0024 5868     		ldr	r0, [r3, #4]
+ 1130 0026 20F44040 		bic	r0, r0, #49152
+ 1131 002a 5860     		str	r0, [r3, #4]
+ 1132 002c 5868     		ldr	r0, [r3, #4]
+ 1133 002e 4C68     		ldr	r4, [r1, #4]
+ 1134 0030 2043     		orrs	r0, r0, r4
+ 1135 0032 5860     		str	r0, [r3, #4]
+ 1136 0034 5868     		ldr	r0, [r3, #4]
+ 1137 0036 20F47060 		bic	r0, r0, #3840
+ 1138 003a 5860     		str	r0, [r3, #4]
+ 1139 003c 5868     		ldr	r0, [r3, #4]
+ 1140 003e 8968     		ldr	r1, [r1, #8]
+ 1141 0040 0143     		orrs	r1, r1, r0
+ 1142 0042 5960     		str	r1, [r3, #4]
+ 1143 0044 0020     		movs	r0, #0
+ 1144 0046 82F83C00 		strb	r0, [r2, #60]
+ 1145 004a 10BC     		pop	{r4}
+ 1146 004c 7047     		bx	lr
+ 1147              	.L141:
+ 1148 004e 0220     		movs	r0, #2
+ 1149 0050 7047     		bx	lr
+ 1150              	.L147:
+ 1151 0052 00BF     		.align	2
+ 1152              	.L146:
+ 1153 0054 00230140 		.word	1073816320
+ 1155              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s 			page 21
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f4xx_hal_adc_ex.c
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:18     .text.ADC_MultiModeDMAError:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:23     .text.ADC_MultiModeDMAError:00000000 ADC_MultiModeDMAError
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:37     .text.ADC_MultiModeDMAHalfConvCplt:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:42     .text.ADC_MultiModeDMAHalfConvCplt:00000000 ADC_MultiModeDMAHalfConvCplt
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:51     .text.ADC_MultiModeDMAConvCplt:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:56     .text.ADC_MultiModeDMAConvCplt:00000000 ADC_MultiModeDMAConvCplt
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:104    .text.HAL_ADCEx_InjectedStart:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:110    .text.HAL_ADCEx_InjectedStart:00000000 HAL_ADCEx_InjectedStart
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:230    .text.HAL_ADCEx_InjectedStart:000000f4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:236    .text.HAL_ADCEx_InjectedStart_IT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:242    .text.HAL_ADCEx_InjectedStart_IT:00000000 HAL_ADCEx_InjectedStart_IT
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:366    .text.HAL_ADCEx_InjectedStart_IT:000000fc $d
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:372    .text.HAL_ADCEx_InjectedStop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:378    .text.HAL_ADCEx_InjectedStop:00000000 HAL_ADCEx_InjectedStop
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:426    .text.HAL_ADCEx_InjectedPollForConversion:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:432    .text.HAL_ADCEx_InjectedPollForConversion:00000000 HAL_ADCEx_InjectedPollForConversion
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:518    .text.HAL_ADCEx_InjectedStop_IT:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:524    .text.HAL_ADCEx_InjectedStop_IT:00000000 HAL_ADCEx_InjectedStop_IT
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:575    .text.HAL_ADCEx_InjectedGetValue:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:581    .text.HAL_ADCEx_InjectedGetValue:00000000 HAL_ADCEx_InjectedGetValue
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:625    .text.HAL_ADCEx_MultiModeStart_DMA:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:631    .text.HAL_ADCEx_MultiModeStart_DMA:00000000 HAL_ADCEx_MultiModeStart_DMA
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:762    .text.HAL_ADCEx_MultiModeStart_DMA:00000114 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:771    .text.HAL_ADCEx_MultiModeStop_DMA:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:777    .text.HAL_ADCEx_MultiModeStop_DMA:00000000 HAL_ADCEx_MultiModeStop_DMA
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:823    .text.HAL_ADCEx_MultiModeStop_DMA:00000060 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:826    .text.HAL_ADCEx_MultiModeGetValue:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:832    .text.HAL_ADCEx_MultiModeGetValue:00000000 HAL_ADCEx_MultiModeGetValue
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:842    .text.HAL_ADCEx_MultiModeGetValue:00000008 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:845    .text.HAL_ADCEx_InjectedConvCpltCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:851    .text.HAL_ADCEx_InjectedConvCpltCallback:00000000 HAL_ADCEx_InjectedConvCpltCallback
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:858    .text.HAL_ADCEx_InjectedConfigChannel:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:864    .text.HAL_ADCEx_InjectedConfigChannel:00000000 HAL_ADCEx_InjectedConfigChannel
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:1099   .text.HAL_ADCEx_InjectedConfigChannel:00000224 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:1104   .text.HAL_ADCEx_MultiModeConfigChannel:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:1110   .text.HAL_ADCEx_MultiModeConfigChannel:00000000 HAL_ADCEx_MultiModeConfigChannel
+C:\Users\Administrator\AppData\Local\Temp\ccpkm8T0.s:1153   .text.HAL_ADCEx_MultiModeConfigChannel:00000054 $d
+
+UNDEFINED SYMBOLS
+HAL_ADC_ErrorCallback
+HAL_ADC_ConvHalfCpltCallback
+HAL_ADC_ConvCpltCallback
+SystemCoreClock
+HAL_GetTick
+HAL_DMA_Start_IT
+HAL_DMA_Abort

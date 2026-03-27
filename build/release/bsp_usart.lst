@@ -1,0 +1,299 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_usart.c"
+  16              		.text
+  17              		.section	.text.USARTServiceInit,"ax",%progbits
+  18              		.align	1
+  19              		.global	USARTServiceInit
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	USARTServiceInit:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 10B5     		push	{r4, lr}
+  28 0002 0446     		mov	r4, r0
+  29 0004 90F80021 		ldrb	r2, [r0, #256]	@ zero_extendqisi2
+  30 0008 0146     		mov	r1, r0
+  31 000a D0F80401 		ldr	r0, [r0, #260]
+  32 000e FFF7FEFF 		bl	HAL_UARTEx_ReceiveToIdle_DMA
+  33 0012 D4F80431 		ldr	r3, [r4, #260]
+  34 0016 9B6B     		ldr	r3, [r3, #56]
+  35 0018 1A68     		ldr	r2, [r3]
+  36 001a 1368     		ldr	r3, [r2]
+  37 001c 23F00803 		bic	r3, r3, #8
+  38 0020 1360     		str	r3, [r2]
+  39 0022 10BD     		pop	{r4, pc}
+  41              		.section	.text.USARTRegister,"ax",%progbits
+  42              		.align	1
+  43              		.global	USARTRegister
+  44              		.syntax unified
+  45              		.thumb
+  46              		.thumb_func
+  48              	USARTRegister:
+  49              		@ args = 0, pretend = 0, frame = 0
+  50              		@ frame_needed = 0, uses_anonymous_args = 0
+  51 0000 70B5     		push	{r4, r5, r6, lr}
+  52 0002 194B     		ldr	r3, .L12
+  53 0004 1D78     		ldrb	r5, [r3]	@ zero_extendqisi2
+  54 0006 022D     		cmp	r5, #2
+  55 0008 0DD9     		bls	.L9
+  56              	.L5:
+  57 000a FEE7     		b	.L5
+  58              	.L6:
+  59 000c 0133     		adds	r3, r3, #1
+  60 000e DBB2     		uxtb	r3, r3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s 			page 2
+
+
+  61              	.L4:
+  62 0010 9D42     		cmp	r5, r3
+  63 0012 0BD9     		bls	.L11
+  64 0014 154A     		ldr	r2, .L12+4
+  65 0016 52F82320 		ldr	r2, [r2, r3, lsl #2]
+  66 001a D2F80411 		ldr	r1, [r2, #260]
+  67 001e 6268     		ldr	r2, [r4, #4]
+  68 0020 9142     		cmp	r1, r2
+  69 0022 F3D1     		bne	.L6
+  70              	.L7:
+  71 0024 FEE7     		b	.L7
+  72              	.L9:
+  73 0026 0446     		mov	r4, r0
+  74 0028 0023     		movs	r3, #0
+  75 002a F1E7     		b	.L4
+  76              	.L11:
+  77 002c 4FF48670 		mov	r0, #268
+  78 0030 FFF7FEFF 		bl	malloc
+  79 0034 0646     		mov	r6, r0
+  80 0036 4FF48672 		mov	r2, #268
+  81 003a 0021     		movs	r1, #0
+  82 003c FFF7FEFF 		bl	memset
+  83 0040 6368     		ldr	r3, [r4, #4]
+  84 0042 C6F80431 		str	r3, [r6, #260]
+  85 0046 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+  86 0048 86F80031 		strb	r3, [r6, #256]
+  87 004c A368     		ldr	r3, [r4, #8]
+  88 004e C6F80831 		str	r3, [r6, #264]
+  89 0052 6A1C     		adds	r2, r5, #1
+  90 0054 044B     		ldr	r3, .L12
+  91 0056 1A70     		strb	r2, [r3]
+  92 0058 044B     		ldr	r3, .L12+4
+  93 005a 43F82560 		str	r6, [r3, r5, lsl #2]
+  94 005e 3046     		mov	r0, r6
+  95 0060 FFF7FEFF 		bl	USARTServiceInit
+  96 0064 3046     		mov	r0, r6
+  97 0066 70BD     		pop	{r4, r5, r6, pc}
+  98              	.L13:
+  99              		.align	2
+ 100              	.L12:
+ 101 0068 00000000 		.word	idx
+ 102 006c 00000000 		.word	usart_instance
+ 104              		.section	.text.USARTSend,"ax",%progbits
+ 105              		.align	1
+ 106              		.global	USARTSend
+ 107              		.syntax unified
+ 108              		.thumb
+ 109              		.thumb_func
+ 111              	USARTSend:
+ 112              		@ args = 0, pretend = 0, frame = 0
+ 113              		@ frame_needed = 0, uses_anonymous_args = 0
+ 114 0000 08B5     		push	{r3, lr}
+ 115 0002 022B     		cmp	r3, #2
+ 116 0004 09D0     		beq	.L15
+ 117 0006 032B     		cmp	r3, #3
+ 118 0008 0CD0     		beq	.L16
+ 119 000a 012B     		cmp	r3, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s 			page 3
+
+
+ 120 000c 0FD1     		bne	.L17
+ 121 000e 6423     		movs	r3, #100
+ 122 0010 D0F80401 		ldr	r0, [r0, #260]
+ 123 0014 FFF7FEFF 		bl	HAL_UART_Transmit
+ 124              	.L14:
+ 125 0018 08BD     		pop	{r3, pc}
+ 126              	.L15:
+ 127 001a D0F80401 		ldr	r0, [r0, #260]
+ 128 001e FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 129 0022 F9E7     		b	.L14
+ 130              	.L16:
+ 131 0024 D0F80401 		ldr	r0, [r0, #260]
+ 132 0028 FFF7FEFF 		bl	HAL_UART_Transmit_DMA
+ 133 002c F4E7     		b	.L14
+ 134              	.L17:
+ 135 002e FEE7     		b	.L17
+ 137              		.section	.text.USARTIsReady,"ax",%progbits
+ 138              		.align	1
+ 139              		.global	USARTIsReady
+ 140              		.syntax unified
+ 141              		.thumb
+ 142              		.thumb_func
+ 144              	USARTIsReady:
+ 145              		@ args = 0, pretend = 0, frame = 0
+ 146              		@ frame_needed = 0, uses_anonymous_args = 0
+ 147              		@ link register save eliminated.
+ 148 0000 D0F80431 		ldr	r3, [r0, #260]
+ 149 0004 93F83D30 		ldrb	r3, [r3, #61]	@ zero_extendqisi2
+ 150 0008 0020     		movs	r0, #0
+ 151 000a 7047     		bx	lr
+ 153              		.section	.text.HAL_UARTEx_RxEventCallback,"ax",%progbits
+ 154              		.align	1
+ 155              		.global	HAL_UARTEx_RxEventCallback
+ 156              		.syntax unified
+ 157              		.thumb
+ 158              		.thumb_func
+ 160              	HAL_UARTEx_RxEventCallback:
+ 161              		@ args = 0, pretend = 0, frame = 0
+ 162              		@ frame_needed = 0, uses_anonymous_args = 0
+ 163 0000 38B5     		push	{r3, r4, r5, lr}
+ 164 0002 0D46     		mov	r5, r1
+ 165 0004 0023     		movs	r3, #0
+ 166 0006 01E0     		b	.L22
+ 167              	.L23:
+ 168 0008 0133     		adds	r3, r3, #1
+ 169 000a DBB2     		uxtb	r3, r3
+ 170              	.L22:
+ 171 000c 154A     		ldr	r2, .L28
+ 172 000e 92F800C0 		ldrb	ip, [r2]	@ zero_extendqisi2
+ 173 0012 9C45     		cmp	ip, r3
+ 174 0014 25D9     		bls	.L21
+ 175 0016 1C46     		mov	r4, r3
+ 176 0018 134A     		ldr	r2, .L28+4
+ 177 001a 52F82320 		ldr	r2, [r2, r3, lsl #2]
+ 178 001e D2F80411 		ldr	r1, [r2, #260]
+ 179 0022 8142     		cmp	r1, r0
+ 180 0024 F0D1     		bne	.L23
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s 			page 4
+
+
+ 181 0026 D2F80831 		ldr	r3, [r2, #264]
+ 182 002a 3BB1     		cbz	r3, .L24
+ 183 002c 9847     		blx	r3
+ 184 002e 2A46     		mov	r2, r5
+ 185 0030 0021     		movs	r1, #0
+ 186 0032 0D4B     		ldr	r3, .L28+4
+ 187 0034 53F82400 		ldr	r0, [r3, r4, lsl #2]
+ 188 0038 FFF7FEFF 		bl	memset
+ 189              	.L24:
+ 190 003c 0A4D     		ldr	r5, .L28+4
+ 191 003e 55F82410 		ldr	r1, [r5, r4, lsl #2]
+ 192 0042 91F80021 		ldrb	r2, [r1, #256]	@ zero_extendqisi2
+ 193 0046 D1F80401 		ldr	r0, [r1, #260]
+ 194 004a FFF7FEFF 		bl	HAL_UARTEx_ReceiveToIdle_DMA
+ 195 004e 55F82430 		ldr	r3, [r5, r4, lsl #2]
+ 196 0052 D3F80431 		ldr	r3, [r3, #260]
+ 197 0056 9B6B     		ldr	r3, [r3, #56]
+ 198 0058 1A68     		ldr	r2, [r3]
+ 199 005a 1368     		ldr	r3, [r2]
+ 200 005c 23F00803 		bic	r3, r3, #8
+ 201 0060 1360     		str	r3, [r2]
+ 202              	.L21:
+ 203 0062 38BD     		pop	{r3, r4, r5, pc}
+ 204              	.L29:
+ 205              		.align	2
+ 206              	.L28:
+ 207 0064 00000000 		.word	idx
+ 208 0068 00000000 		.word	usart_instance
+ 210              		.section	.text.HAL_UART_ErrorCallback,"ax",%progbits
+ 211              		.align	1
+ 212              		.global	HAL_UART_ErrorCallback
+ 213              		.syntax unified
+ 214              		.thumb
+ 215              		.thumb_func
+ 217              	HAL_UART_ErrorCallback:
+ 218              		@ args = 0, pretend = 0, frame = 0
+ 219              		@ frame_needed = 0, uses_anonymous_args = 0
+ 220 0000 10B5     		push	{r4, lr}
+ 221 0002 0246     		mov	r2, r0
+ 222 0004 0024     		movs	r4, #0
+ 223 0006 01E0     		b	.L31
+ 224              	.L32:
+ 225 0008 0134     		adds	r4, r4, #1
+ 226 000a E4B2     		uxtb	r4, r4
+ 227              	.L31:
+ 228 000c 0D4B     		ldr	r3, .L36
+ 229 000e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 230 0010 A342     		cmp	r3, r4
+ 231 0012 15D9     		bls	.L30
+ 232 0014 0C4B     		ldr	r3, .L36+4
+ 233 0016 53F82410 		ldr	r1, [r3, r4, lsl #2]
+ 234 001a D1F80401 		ldr	r0, [r1, #260]
+ 235 001e 9042     		cmp	r0, r2
+ 236 0020 F2D1     		bne	.L32
+ 237 0022 91F80021 		ldrb	r2, [r1, #256]	@ zero_extendqisi2
+ 238 0026 FFF7FEFF 		bl	HAL_UARTEx_ReceiveToIdle_DMA
+ 239 002a 074B     		ldr	r3, .L36+4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s 			page 5
+
+
+ 240 002c 53F82430 		ldr	r3, [r3, r4, lsl #2]
+ 241 0030 D3F80431 		ldr	r3, [r3, #260]
+ 242 0034 9B6B     		ldr	r3, [r3, #56]
+ 243 0036 1A68     		ldr	r2, [r3]
+ 244 0038 1368     		ldr	r3, [r2]
+ 245 003a 23F00803 		bic	r3, r3, #8
+ 246 003e 1360     		str	r3, [r2]
+ 247              	.L30:
+ 248 0040 10BD     		pop	{r4, pc}
+ 249              	.L37:
+ 250 0042 00BF     		.align	2
+ 251              	.L36:
+ 252 0044 00000000 		.word	idx
+ 253 0048 00000000 		.word	usart_instance
+ 255              		.section	.bss.usart_instance,"aw",%nobits
+ 256              		.align	2
+ 259              	usart_instance:
+ 260 0000 00000000 		.space	12
+ 260      00000000 
+ 260      00000000 
+ 261              		.section	.bss.idx,"aw",%nobits
+ 264              	idx:
+ 265 0000 00       		.space	1
+ 266              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_usart.c
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:18     .text.USARTServiceInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:24     .text.USARTServiceInit:00000000 USARTServiceInit
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:42     .text.USARTRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:48     .text.USARTRegister:00000000 USARTRegister
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:101    .text.USARTRegister:00000068 $d
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:264    .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:259    .bss.usart_instance:00000000 usart_instance
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:105    .text.USARTSend:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:111    .text.USARTSend:00000000 USARTSend
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:138    .text.USARTIsReady:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:144    .text.USARTIsReady:00000000 USARTIsReady
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:154    .text.HAL_UARTEx_RxEventCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:160    .text.HAL_UARTEx_RxEventCallback:00000000 HAL_UARTEx_RxEventCallback
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:207    .text.HAL_UARTEx_RxEventCallback:00000064 $d
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:211    .text.HAL_UART_ErrorCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:217    .text.HAL_UART_ErrorCallback:00000000 HAL_UART_ErrorCallback
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:252    .text.HAL_UART_ErrorCallback:00000044 $d
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:256    .bss.usart_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccyecUtJ.s:265    .bss.idx:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_UARTEx_ReceiveToIdle_DMA
+malloc
+memset
+HAL_UART_Transmit
+HAL_UART_Transmit_IT
+HAL_UART_Transmit_DMA

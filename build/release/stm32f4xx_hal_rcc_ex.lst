@@ -1,0 +1,559 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"stm32f4xx_hal_rcc_ex.c"
+  16              		.text
+  17              		.section	.text.HAL_RCCEx_PeriphCLKConfig,"ax",%progbits
+  18              		.align	1
+  19              		.global	HAL_RCCEx_PeriphCLKConfig
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	HAL_RCCEx_PeriphCLKConfig:
+  25              		@ args = 0, pretend = 0, frame = 8
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 30B5     		push	{r4, r5, lr}
+  28 0002 83B0     		sub	sp, sp, #12
+  29 0004 0546     		mov	r5, r0
+  30 0006 0368     		ldr	r3, [r0]
+  31 0008 13F0010F 		tst	r3, #1
+  32 000c 02D1     		bne	.L2
+  33 000e 13F0040F 		tst	r3, #4
+  34 0012 2BD0     		beq	.L3
+  35              	.L2:
+  36 0014 4E4B     		ldr	r3, .L27
+  37 0016 0022     		movs	r2, #0
+  38 0018 9A66     		str	r2, [r3, #104]
+  39 001a FFF7FEFF 		bl	HAL_GetTick
+  40 001e 0446     		mov	r4, r0
+  41              	.L4:
+  42 0020 4C4B     		ldr	r3, .L27+4
+  43 0022 1B68     		ldr	r3, [r3]
+  44 0024 13F0006F 		tst	r3, #134217728
+  45 0028 06D0     		beq	.L22
+  46 002a FFF7FEFF 		bl	HAL_GetTick
+  47 002e 031B     		subs	r3, r0, r4
+  48 0030 022B     		cmp	r3, #2
+  49 0032 F5D9     		bls	.L4
+  50 0034 0320     		movs	r0, #3
+  51 0036 1EE0     		b	.L5
+  52              	.L22:
+  53 0038 6A68     		ldr	r2, [r5, #4]
+  54 003a AB68     		ldr	r3, [r5, #8]
+  55 003c 1B07     		lsls	r3, r3, #28
+  56 003e 43EA8213 		orr	r3, r3, r2, lsl #6
+  57 0042 444A     		ldr	r2, .L27+4
+  58 0044 C2F88430 		str	r3, [r2, #132]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s 			page 2
+
+
+  59 0048 414B     		ldr	r3, .L27
+  60 004a 0122     		movs	r2, #1
+  61 004c 9A66     		str	r2, [r3, #104]
+  62 004e FFF7FEFF 		bl	HAL_GetTick
+  63 0052 0446     		mov	r4, r0
+  64              	.L7:
+  65 0054 3F4B     		ldr	r3, .L27+4
+  66 0056 1B68     		ldr	r3, [r3]
+  67 0058 13F0006F 		tst	r3, #134217728
+  68 005c 06D1     		bne	.L3
+  69 005e FFF7FEFF 		bl	HAL_GetTick
+  70 0062 031B     		subs	r3, r0, r4
+  71 0064 022B     		cmp	r3, #2
+  72 0066 F5D9     		bls	.L7
+  73 0068 0320     		movs	r0, #3
+  74 006a 04E0     		b	.L5
+  75              	.L3:
+  76 006c 2B68     		ldr	r3, [r5]
+  77 006e 13F0020F 		tst	r3, #2
+  78 0072 02D1     		bne	.L23
+  79 0074 0020     		movs	r0, #0
+  80              	.L5:
+  81 0076 03B0     		add	sp, sp, #12
+  82              		@ sp needed
+  83 0078 30BD     		pop	{r4, r5, pc}
+  84              	.L23:
+  85 007a 0023     		movs	r3, #0
+  86 007c 0193     		str	r3, [sp, #4]
+  87 007e 354B     		ldr	r3, .L27+4
+  88 0080 1A6C     		ldr	r2, [r3, #64]
+  89 0082 42F08052 		orr	r2, r2, #268435456
+  90 0086 1A64     		str	r2, [r3, #64]
+  91 0088 1B6C     		ldr	r3, [r3, #64]
+  92 008a 03F08053 		and	r3, r3, #268435456
+  93 008e 0193     		str	r3, [sp, #4]
+  94 0090 019B     		ldr	r3, [sp, #4]
+  95 0092 314A     		ldr	r2, .L27+8
+  96 0094 1368     		ldr	r3, [r2]
+  97 0096 43F48073 		orr	r3, r3, #256
+  98 009a 1360     		str	r3, [r2]
+  99 009c FFF7FEFF 		bl	HAL_GetTick
+ 100 00a0 0446     		mov	r4, r0
+ 101              	.L9:
+ 102 00a2 2D4B     		ldr	r3, .L27+8
+ 103 00a4 1B68     		ldr	r3, [r3]
+ 104 00a6 13F4807F 		tst	r3, #256
+ 105 00aa 06D1     		bne	.L24
+ 106 00ac FFF7FEFF 		bl	HAL_GetTick
+ 107 00b0 001B     		subs	r0, r0, r4
+ 108 00b2 0228     		cmp	r0, #2
+ 109 00b4 F5D9     		bls	.L9
+ 110 00b6 0320     		movs	r0, #3
+ 111 00b8 DDE7     		b	.L5
+ 112              	.L24:
+ 113 00ba 264B     		ldr	r3, .L27+4
+ 114 00bc 1B6F     		ldr	r3, [r3, #112]
+ 115 00be 13F44073 		ands	r3, r3, #768
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s 			page 3
+
+
+ 116 00c2 14D0     		beq	.L11
+ 117 00c4 EA68     		ldr	r2, [r5, #12]
+ 118 00c6 02F44072 		and	r2, r2, #768
+ 119 00ca 9A42     		cmp	r2, r3
+ 120 00cc 0FD0     		beq	.L11
+ 121 00ce 214B     		ldr	r3, .L27+4
+ 122 00d0 1A6F     		ldr	r2, [r3, #112]
+ 123 00d2 22F44072 		bic	r2, r2, #768
+ 124 00d6 1E49     		ldr	r1, .L27
+ 125 00d8 0120     		movs	r0, #1
+ 126 00da C1F8400E 		str	r0, [r1, #3648]
+ 127 00de 0020     		movs	r0, #0
+ 128 00e0 C1F8400E 		str	r0, [r1, #3648]
+ 129 00e4 1A67     		str	r2, [r3, #112]
+ 130 00e6 1B6F     		ldr	r3, [r3, #112]
+ 131 00e8 13F0010F 		tst	r3, #1
+ 132 00ec 13D1     		bne	.L25
+ 133              	.L11:
+ 134 00ee EB68     		ldr	r3, [r5, #12]
+ 135 00f0 03F44072 		and	r2, r3, #768
+ 136 00f4 B2F5407F 		cmp	r2, #768
+ 137 00f8 1ED0     		beq	.L26
+ 138 00fa 164A     		ldr	r2, .L27+4
+ 139 00fc 9368     		ldr	r3, [r2, #8]
+ 140 00fe 23F4F813 		bic	r3, r3, #2031616
+ 141 0102 9360     		str	r3, [r2, #8]
+ 142              	.L15:
+ 143 0104 1349     		ldr	r1, .L27+4
+ 144 0106 0B6F     		ldr	r3, [r1, #112]
+ 145 0108 EA68     		ldr	r2, [r5, #12]
+ 146 010a C2F30B02 		ubfx	r2, r2, #0, #12
+ 147 010e 1343     		orrs	r3, r3, r2
+ 148 0110 0B67     		str	r3, [r1, #112]
+ 149 0112 0020     		movs	r0, #0
+ 150 0114 AFE7     		b	.L5
+ 151              	.L25:
+ 152 0116 FFF7FEFF 		bl	HAL_GetTick
+ 153 011a 0446     		mov	r4, r0
+ 154              	.L12:
+ 155 011c 0D4B     		ldr	r3, .L27+4
+ 156 011e 1B6F     		ldr	r3, [r3, #112]
+ 157 0120 13F0020F 		tst	r3, #2
+ 158 0124 E3D1     		bne	.L11
+ 159 0126 FFF7FEFF 		bl	HAL_GetTick
+ 160 012a 031B     		subs	r3, r0, r4
+ 161 012c 41F28832 		movw	r2, #5000
+ 162 0130 9342     		cmp	r3, r2
+ 163 0132 F3D9     		bls	.L12
+ 164 0134 0320     		movs	r0, #3
+ 165 0136 9EE7     		b	.L5
+ 166              	.L26:
+ 167 0138 0649     		ldr	r1, .L27+4
+ 168 013a 8A68     		ldr	r2, [r1, #8]
+ 169 013c 22F4F812 		bic	r2, r2, #2031616
+ 170 0140 23F07043 		bic	r3, r3, #-268435456
+ 171 0144 23F44073 		bic	r3, r3, #768
+ 172 0148 1343     		orrs	r3, r3, r2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s 			page 4
+
+
+ 173 014a 8B60     		str	r3, [r1, #8]
+ 174 014c DAE7     		b	.L15
+ 175              	.L28:
+ 176 014e 00BF     		.align	2
+ 177              	.L27:
+ 178 0150 00004742 		.word	1111949312
+ 179 0154 00380240 		.word	1073887232
+ 180 0158 00700040 		.word	1073770496
+ 182              		.section	.text.HAL_RCCEx_GetPeriphCLKConfig,"ax",%progbits
+ 183              		.align	1
+ 184              		.global	HAL_RCCEx_GetPeriphCLKConfig
+ 185              		.syntax unified
+ 186              		.thumb
+ 187              		.thumb_func
+ 189              	HAL_RCCEx_GetPeriphCLKConfig:
+ 190              		@ args = 0, pretend = 0, frame = 0
+ 191              		@ frame_needed = 0, uses_anonymous_args = 0
+ 192              		@ link register save eliminated.
+ 193 0000 0323     		movs	r3, #3
+ 194 0002 0360     		str	r3, [r0]
+ 195 0004 094B     		ldr	r3, .L30
+ 196 0006 D3F88420 		ldr	r2, [r3, #132]
+ 197 000a C2F38812 		ubfx	r2, r2, #6, #9
+ 198 000e 4260     		str	r2, [r0, #4]
+ 199 0010 D3F88420 		ldr	r2, [r3, #132]
+ 200 0014 C2F30272 		ubfx	r2, r2, #28, #3
+ 201 0018 8260     		str	r2, [r0, #8]
+ 202 001a 9A68     		ldr	r2, [r3, #8]
+ 203 001c 02F4F812 		and	r2, r2, #2031616
+ 204 0020 1B6F     		ldr	r3, [r3, #112]
+ 205 0022 03F44073 		and	r3, r3, #768
+ 206 0026 1343     		orrs	r3, r3, r2
+ 207 0028 C360     		str	r3, [r0, #12]
+ 208 002a 7047     		bx	lr
+ 209              	.L31:
+ 210              		.align	2
+ 211              	.L30:
+ 212 002c 00380240 		.word	1073887232
+ 214              		.section	.text.HAL_RCCEx_GetPeriphCLKFreq,"ax",%progbits
+ 215              		.align	1
+ 216              		.global	HAL_RCCEx_GetPeriphCLKFreq
+ 217              		.syntax unified
+ 218              		.thumb
+ 219              		.thumb_func
+ 221              	HAL_RCCEx_GetPeriphCLKFreq:
+ 222              		@ args = 0, pretend = 0, frame = 0
+ 223              		@ frame_needed = 0, uses_anonymous_args = 0
+ 224              		@ link register save eliminated.
+ 225 0000 0128     		cmp	r0, #1
+ 226 0002 01D0     		beq	.L38
+ 227 0004 0020     		movs	r0, #0
+ 228 0006 7047     		bx	lr
+ 229              	.L38:
+ 230 0008 144B     		ldr	r3, .L40
+ 231 000a 9B68     		ldr	r3, [r3, #8]
+ 232 000c 13F4000F 		tst	r3, #8388608
+ 233 0010 01D0     		beq	.L39
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s 			page 5
+
+
+ 234 0012 0020     		movs	r0, #0
+ 235 0014 7047     		bx	lr
+ 236              	.L39:
+ 237 0016 114B     		ldr	r3, .L40
+ 238 0018 5B68     		ldr	r3, [r3, #4]
+ 239 001a 13F4800F 		tst	r3, #4194304
+ 240 001e 14D0     		beq	.L34
+ 241 0020 0E4B     		ldr	r3, .L40
+ 242 0022 5A68     		ldr	r2, [r3, #4]
+ 243 0024 02F03F02 		and	r2, r2, #63
+ 244 0028 0D4B     		ldr	r3, .L40+4
+ 245 002a B3FBF2F3 		udiv	r3, r3, r2
+ 246              	.L35:
+ 247 002e 0B4A     		ldr	r2, .L40
+ 248 0030 D2F88400 		ldr	r0, [r2, #132]
+ 249 0034 C0F38810 		ubfx	r0, r0, #6, #9
+ 250 0038 03FB00F0 		mul	r0, r3, r0
+ 251 003c D2F88430 		ldr	r3, [r2, #132]
+ 252 0040 C3F30273 		ubfx	r3, r3, #28, #3
+ 253 0044 B0FBF3F0 		udiv	r0, r0, r3
+ 254 0048 7047     		bx	lr
+ 255              	.L34:
+ 256 004a 044B     		ldr	r3, .L40
+ 257 004c 5A68     		ldr	r2, [r3, #4]
+ 258 004e 02F03F02 		and	r2, r2, #63
+ 259 0052 044B     		ldr	r3, .L40+8
+ 260 0054 B3FBF2F3 		udiv	r3, r3, r2
+ 261 0058 E9E7     		b	.L35
+ 262              	.L41:
+ 263 005a 00BF     		.align	2
+ 264              	.L40:
+ 265 005c 00380240 		.word	1073887232
+ 266 0060 001BB700 		.word	12000000
+ 267 0064 0024F400 		.word	16000000
+ 269              		.section	.text.HAL_RCCEx_EnablePLLI2S,"ax",%progbits
+ 270              		.align	1
+ 271              		.global	HAL_RCCEx_EnablePLLI2S
+ 272              		.syntax unified
+ 273              		.thumb
+ 274              		.thumb_func
+ 276              	HAL_RCCEx_EnablePLLI2S:
+ 277              		@ args = 0, pretend = 0, frame = 0
+ 278              		@ frame_needed = 0, uses_anonymous_args = 0
+ 279 0000 38B5     		push	{r3, r4, r5, lr}
+ 280 0002 0546     		mov	r5, r0
+ 281 0004 164B     		ldr	r3, .L53
+ 282 0006 0022     		movs	r2, #0
+ 283 0008 9A66     		str	r2, [r3, #104]
+ 284 000a FFF7FEFF 		bl	HAL_GetTick
+ 285 000e 0446     		mov	r4, r0
+ 286              	.L43:
+ 287 0010 144B     		ldr	r3, .L53+4
+ 288 0012 1B68     		ldr	r3, [r3]
+ 289 0014 13F0006F 		tst	r3, #134217728
+ 290 0018 06D0     		beq	.L51
+ 291 001a FFF7FEFF 		bl	HAL_GetTick
+ 292 001e 001B     		subs	r0, r0, r4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s 			page 6
+
+
+ 293 0020 0228     		cmp	r0, #2
+ 294 0022 F5D9     		bls	.L43
+ 295 0024 0320     		movs	r0, #3
+ 296              	.L44:
+ 297 0026 38BD     		pop	{r3, r4, r5, pc}
+ 298              	.L51:
+ 299 0028 2A68     		ldr	r2, [r5]
+ 300 002a 6B68     		ldr	r3, [r5, #4]
+ 301 002c 1B07     		lsls	r3, r3, #28
+ 302 002e 43EA8213 		orr	r3, r3, r2, lsl #6
+ 303 0032 0C4A     		ldr	r2, .L53+4
+ 304 0034 C2F88430 		str	r3, [r2, #132]
+ 305 0038 094B     		ldr	r3, .L53
+ 306 003a 0122     		movs	r2, #1
+ 307 003c 9A66     		str	r2, [r3, #104]
+ 308 003e FFF7FEFF 		bl	HAL_GetTick
+ 309 0042 0446     		mov	r4, r0
+ 310              	.L46:
+ 311 0044 074B     		ldr	r3, .L53+4
+ 312 0046 1B68     		ldr	r3, [r3]
+ 313 0048 13F0006F 		tst	r3, #134217728
+ 314 004c 06D1     		bne	.L52
+ 315 004e FFF7FEFF 		bl	HAL_GetTick
+ 316 0052 001B     		subs	r0, r0, r4
+ 317 0054 0228     		cmp	r0, #2
+ 318 0056 F5D9     		bls	.L46
+ 319 0058 0320     		movs	r0, #3
+ 320 005a E4E7     		b	.L44
+ 321              	.L52:
+ 322 005c 0020     		movs	r0, #0
+ 323 005e E2E7     		b	.L44
+ 324              	.L54:
+ 325              		.align	2
+ 326              	.L53:
+ 327 0060 00004742 		.word	1111949312
+ 328 0064 00380240 		.word	1073887232
+ 330              		.section	.text.HAL_RCCEx_DisablePLLI2S,"ax",%progbits
+ 331              		.align	1
+ 332              		.global	HAL_RCCEx_DisablePLLI2S
+ 333              		.syntax unified
+ 334              		.thumb
+ 335              		.thumb_func
+ 337              	HAL_RCCEx_DisablePLLI2S:
+ 338              		@ args = 0, pretend = 0, frame = 0
+ 339              		@ frame_needed = 0, uses_anonymous_args = 0
+ 340 0000 10B5     		push	{r4, lr}
+ 341 0002 0A4B     		ldr	r3, .L62
+ 342 0004 0022     		movs	r2, #0
+ 343 0006 9A66     		str	r2, [r3, #104]
+ 344 0008 FFF7FEFF 		bl	HAL_GetTick
+ 345 000c 0446     		mov	r4, r0
+ 346              	.L56:
+ 347 000e 084B     		ldr	r3, .L62+4
+ 348 0010 1B68     		ldr	r3, [r3]
+ 349 0012 13F0006F 		tst	r3, #134217728
+ 350 0016 06D0     		beq	.L61
+ 351 0018 FFF7FEFF 		bl	HAL_GetTick
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s 			page 7
+
+
+ 352 001c 001B     		subs	r0, r0, r4
+ 353 001e 0228     		cmp	r0, #2
+ 354 0020 F5D9     		bls	.L56
+ 355 0022 0320     		movs	r0, #3
+ 356 0024 00E0     		b	.L57
+ 357              	.L61:
+ 358 0026 0020     		movs	r0, #0
+ 359              	.L57:
+ 360 0028 10BD     		pop	{r4, pc}
+ 361              	.L63:
+ 362 002a 00BF     		.align	2
+ 363              	.L62:
+ 364 002c 00004742 		.word	1111949312
+ 365 0030 00380240 		.word	1073887232
+ 367              		.section	.text.HAL_RCC_DeInit,"ax",%progbits
+ 368              		.align	1
+ 369              		.global	HAL_RCC_DeInit
+ 370              		.syntax unified
+ 371              		.thumb
+ 372              		.thumb_func
+ 374              	HAL_RCC_DeInit:
+ 375              		@ args = 0, pretend = 0, frame = 0
+ 376              		@ frame_needed = 0, uses_anonymous_args = 0
+ 377 0000 38B5     		push	{r3, r4, r5, lr}
+ 378 0002 FFF7FEFF 		bl	HAL_GetTick
+ 379 0006 0446     		mov	r4, r0
+ 380 0008 464A     		ldr	r2, .L87
+ 381 000a 1368     		ldr	r3, [r2]
+ 382 000c 43F00103 		orr	r3, r3, #1
+ 383 0010 1360     		str	r3, [r2]
+ 384              	.L65:
+ 385 0012 444B     		ldr	r3, .L87
+ 386 0014 1B68     		ldr	r3, [r3]
+ 387 0016 13F0020F 		tst	r3, #2
+ 388 001a 06D1     		bne	.L82
+ 389 001c FFF7FEFF 		bl	HAL_GetTick
+ 390 0020 001B     		subs	r0, r0, r4
+ 391 0022 0228     		cmp	r0, #2
+ 392 0024 F5D9     		bls	.L65
+ 393 0026 0320     		movs	r0, #3
+ 394              	.L66:
+ 395 0028 38BD     		pop	{r3, r4, r5, pc}
+ 396              	.L82:
+ 397 002a 3E4D     		ldr	r5, .L87
+ 398 002c 2B68     		ldr	r3, [r5]
+ 399 002e 43F08003 		orr	r3, r3, #128
+ 400 0032 2B60     		str	r3, [r5]
+ 401 0034 FFF7FEFF 		bl	HAL_GetTick
+ 402 0038 0446     		mov	r4, r0
+ 403 003a 0023     		movs	r3, #0
+ 404 003c AB60     		str	r3, [r5, #8]
+ 405              	.L68:
+ 406 003e 394B     		ldr	r3, .L87
+ 407 0040 9B68     		ldr	r3, [r3, #8]
+ 408 0042 13F00C0F 		tst	r3, #12
+ 409 0046 08D0     		beq	.L83
+ 410 0048 FFF7FEFF 		bl	HAL_GetTick
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s 			page 8
+
+
+ 411 004c 001B     		subs	r0, r0, r4
+ 412 004e 41F28833 		movw	r3, #5000
+ 413 0052 9842     		cmp	r0, r3
+ 414 0054 F3D9     		bls	.L68
+ 415 0056 0320     		movs	r0, #3
+ 416 0058 E6E7     		b	.L66
+ 417              	.L83:
+ 418 005a FFF7FEFF 		bl	HAL_GetTick
+ 419 005e 0446     		mov	r4, r0
+ 420 0060 304A     		ldr	r2, .L87
+ 421 0062 1368     		ldr	r3, [r2]
+ 422 0064 23F45023 		bic	r3, r3, #851968
+ 423 0068 1360     		str	r3, [r2]
+ 424              	.L70:
+ 425 006a 2E4B     		ldr	r3, .L87
+ 426 006c 1B68     		ldr	r3, [r3]
+ 427 006e 13F4003F 		tst	r3, #131072
+ 428 0072 06D0     		beq	.L84
+ 429 0074 FFF7FEFF 		bl	HAL_GetTick
+ 430 0078 001B     		subs	r0, r0, r4
+ 431 007a 6428     		cmp	r0, #100
+ 432 007c F5D9     		bls	.L70
+ 433 007e 0320     		movs	r0, #3
+ 434 0080 D2E7     		b	.L66
+ 435              	.L84:
+ 436 0082 FFF7FEFF 		bl	HAL_GetTick
+ 437 0086 0446     		mov	r4, r0
+ 438 0088 264A     		ldr	r2, .L87
+ 439 008a 1368     		ldr	r3, [r2]
+ 440 008c 23F08073 		bic	r3, r3, #16777216
+ 441 0090 1360     		str	r3, [r2]
+ 442              	.L72:
+ 443 0092 244B     		ldr	r3, .L87
+ 444 0094 1B68     		ldr	r3, [r3]
+ 445 0096 13F0007F 		tst	r3, #33554432
+ 446 009a 06D0     		beq	.L85
+ 447 009c FFF7FEFF 		bl	HAL_GetTick
+ 448 00a0 001B     		subs	r0, r0, r4
+ 449 00a2 0228     		cmp	r0, #2
+ 450 00a4 F5D9     		bls	.L72
+ 451 00a6 0320     		movs	r0, #3
+ 452 00a8 BEE7     		b	.L66
+ 453              	.L85:
+ 454 00aa FFF7FEFF 		bl	HAL_GetTick
+ 455 00ae 0446     		mov	r4, r0
+ 456 00b0 1C4A     		ldr	r2, .L87
+ 457 00b2 1368     		ldr	r3, [r2]
+ 458 00b4 23F08063 		bic	r3, r3, #67108864
+ 459 00b8 1360     		str	r3, [r2]
+ 460              	.L74:
+ 461 00ba 1A4B     		ldr	r3, .L87
+ 462 00bc 1B68     		ldr	r3, [r3]
+ 463 00be 13F0006F 		tst	r3, #134217728
+ 464 00c2 06D0     		beq	.L86
+ 465 00c4 FFF7FEFF 		bl	HAL_GetTick
+ 466 00c8 001B     		subs	r0, r0, r4
+ 467 00ca 0228     		cmp	r0, #2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s 			page 9
+
+
+ 468 00cc F5D9     		bls	.L74
+ 469 00ce 0320     		movs	r0, #3
+ 470 00d0 AAE7     		b	.L66
+ 471              	.L86:
+ 472 00d2 144B     		ldr	r3, .L87
+ 473 00d4 144A     		ldr	r2, .L87+4
+ 474 00d6 5A60     		str	r2, [r3, #4]
+ 475 00d8 144A     		ldr	r2, .L87+8
+ 476 00da C3F88420 		str	r2, [r3, #132]
+ 477 00de DA68     		ldr	r2, [r3, #12]
+ 478 00e0 22F4F852 		bic	r2, r2, #7936
+ 479 00e4 DA60     		str	r2, [r3, #12]
+ 480 00e6 DA68     		ldr	r2, [r3, #12]
+ 481 00e8 22F40052 		bic	r2, r2, #8192
+ 482 00ec DA60     		str	r2, [r3, #12]
+ 483 00ee DA68     		ldr	r2, [r3, #12]
+ 484 00f0 42F41F02 		orr	r2, r2, #10420224
+ 485 00f4 DA60     		str	r2, [r3, #12]
+ 486 00f6 DA68     		ldr	r2, [r3, #12]
+ 487 00f8 42F40012 		orr	r2, r2, #2097152
+ 488 00fc DA60     		str	r2, [r3, #12]
+ 489 00fe 5A6F     		ldr	r2, [r3, #116]
+ 490 0100 22F00102 		bic	r2, r2, #1
+ 491 0104 5A67     		str	r2, [r3, #116]
+ 492 0106 5A6F     		ldr	r2, [r3, #116]
+ 493 0108 42F08072 		orr	r2, r2, #16777216
+ 494 010c 5A67     		str	r2, [r3, #116]
+ 495 010e 084B     		ldr	r3, .L87+12
+ 496 0110 084A     		ldr	r2, .L87+16
+ 497 0112 1A60     		str	r2, [r3]
+ 498 0114 084B     		ldr	r3, .L87+20
+ 499 0116 1868     		ldr	r0, [r3]
+ 500 0118 FFF7FEFF 		bl	HAL_InitTick
+ 501 011c 0028     		cmp	r0, #0
+ 502 011e 83D0     		beq	.L66
+ 503 0120 0120     		movs	r0, #1
+ 504 0122 81E7     		b	.L66
+ 505              	.L88:
+ 506              		.align	2
+ 507              	.L87:
+ 508 0124 00380240 		.word	1073887232
+ 509 0128 10300004 		.word	67121168
+ 510 012c 00300020 		.word	536883200
+ 511 0130 00000000 		.word	SystemCoreClock
+ 512 0134 0024F400 		.word	16000000
+ 513 0138 00000000 		.word	uwTickPrio
+ 515              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f4xx_hal_rcc_ex.c
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:18     .text.HAL_RCCEx_PeriphCLKConfig:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:24     .text.HAL_RCCEx_PeriphCLKConfig:00000000 HAL_RCCEx_PeriphCLKConfig
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:178    .text.HAL_RCCEx_PeriphCLKConfig:00000150 $d
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:183    .text.HAL_RCCEx_GetPeriphCLKConfig:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:189    .text.HAL_RCCEx_GetPeriphCLKConfig:00000000 HAL_RCCEx_GetPeriphCLKConfig
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:212    .text.HAL_RCCEx_GetPeriphCLKConfig:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:215    .text.HAL_RCCEx_GetPeriphCLKFreq:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:221    .text.HAL_RCCEx_GetPeriphCLKFreq:00000000 HAL_RCCEx_GetPeriphCLKFreq
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:265    .text.HAL_RCCEx_GetPeriphCLKFreq:0000005c $d
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:270    .text.HAL_RCCEx_EnablePLLI2S:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:276    .text.HAL_RCCEx_EnablePLLI2S:00000000 HAL_RCCEx_EnablePLLI2S
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:327    .text.HAL_RCCEx_EnablePLLI2S:00000060 $d
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:331    .text.HAL_RCCEx_DisablePLLI2S:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:337    .text.HAL_RCCEx_DisablePLLI2S:00000000 HAL_RCCEx_DisablePLLI2S
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:364    .text.HAL_RCCEx_DisablePLLI2S:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:368    .text.HAL_RCC_DeInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:374    .text.HAL_RCC_DeInit:00000000 HAL_RCC_DeInit
+C:\Users\Administrator\AppData\Local\Temp\ccigXp0f.s:508    .text.HAL_RCC_DeInit:00000124 $d
+
+UNDEFINED SYMBOLS
+HAL_GetTick
+HAL_InitTick
+SystemCoreClock
+uwTickPrio

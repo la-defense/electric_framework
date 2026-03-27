@@ -1,0 +1,290 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"message_center.c"
+  16              		.text
+  17              		.section	.text.CheckLen,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	CheckLen:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 8842     		cmp	r0, r1
+  28 0002 00D0     		beq	.L1
+  29              	.L3:
+  30 0004 FEE7     		b	.L3
+  31              	.L1:
+  32 0006 7047     		bx	lr
+  34              		.section	.text.CheckName,"ax",%progbits
+  35              		.align	1
+  36              		.syntax unified
+  37              		.thumb
+  38              		.thumb_func
+  40              	CheckName:
+  41              		@ args = 0, pretend = 0, frame = 0
+  42              		@ frame_needed = 0, uses_anonymous_args = 0
+  43 0000 08B5     		push	{r3, lr}
+  44 0002 2121     		movs	r1, #33
+  45 0004 FFF7FEFF 		bl	strnlen
+  46 0008 1F28     		cmp	r0, #31
+  47 000a 00D9     		bls	.L4
+  48              	.L6:
+  49 000c FEE7     		b	.L6
+  50              	.L4:
+  51 000e 08BD     		pop	{r3, pc}
+  53              		.section	.text.PubRegister,"ax",%progbits
+  54              		.align	1
+  55              		.global	PubRegister
+  56              		.syntax unified
+  57              		.thumb
+  58              		.thumb_func
+  60              	PubRegister:
+  61              		@ args = 0, pretend = 0, frame = 0
+  62              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s 			page 2
+
+
+  63 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+  64 0002 0546     		mov	r5, r0
+  65 0004 0F46     		mov	r7, r1
+  66 0006 FFF7FEFF 		bl	CheckName
+  67 000a 144C     		ldr	r4, .L14
+  68              	.L9:
+  69 000c 2646     		mov	r6, r4
+  70 000e A46A     		ldr	r4, [r4, #40]
+  71 0010 74B1     		cbz	r4, .L13
+  72 0012 2946     		mov	r1, r5
+  73 0014 2046     		mov	r0, r4
+  74 0016 FFF7FEFF 		bl	strcmp
+  75 001a 0028     		cmp	r0, #0
+  76 001c F6D1     		bne	.L9
+  77 001e 94F82110 		ldrb	r1, [r4, #33]	@ zero_extendqisi2
+  78 0022 3846     		mov	r0, r7
+  79 0024 FFF7FEFF 		bl	CheckLen
+  80 0028 0123     		movs	r3, #1
+  81 002a 84F82C30 		strb	r3, [r4, #44]
+  82 002e 12E0     		b	.L8
+  83              	.L13:
+  84 0030 3020     		movs	r0, #48
+  85 0032 FFF7FEFF 		bl	malloc
+  86 0036 B062     		str	r0, [r6, #40]
+  87 0038 3022     		movs	r2, #48
+  88 003a 2146     		mov	r1, r4
+  89 003c FFF7FEFF 		bl	memset
+  90 0040 B36A     		ldr	r3, [r6, #40]
+  91 0042 83F82170 		strb	r7, [r3, #33]
+  92 0046 2946     		mov	r1, r5
+  93 0048 B06A     		ldr	r0, [r6, #40]
+  94 004a FFF7FEFF 		bl	strcpy
+  95 004e 0123     		movs	r3, #1
+  96 0050 86F82C30 		strb	r3, [r6, #44]
+  97 0054 B46A     		ldr	r4, [r6, #40]
+  98              	.L8:
+  99 0056 2046     		mov	r0, r4
+ 100 0058 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 101              	.L15:
+ 102 005a 00BF     		.align	2
+ 103              	.L14:
+ 104 005c 00000000 		.word	message_center
+ 106              		.section	.text.SubRegister,"ax",%progbits
+ 107              		.align	1
+ 108              		.global	SubRegister
+ 109              		.syntax unified
+ 110              		.thumb
+ 111              		.thumb_func
+ 113              	SubRegister:
+ 114              		@ args = 0, pretend = 0, frame = 0
+ 115              		@ frame_needed = 0, uses_anonymous_args = 0
+ 116 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 117 0002 0E46     		mov	r6, r1
+ 118 0004 FFF7FEFF 		bl	PubRegister
+ 119 0008 0746     		mov	r7, r0
+ 120 000a 0C20     		movs	r0, #12
+ 121 000c FFF7FEFF 		bl	malloc
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s 			page 3
+
+
+ 122 0010 0546     		mov	r5, r0
+ 123 0012 0024     		movs	r4, #0
+ 124 0014 0460     		str	r4, [r0]	@ unaligned
+ 125 0016 4460     		str	r4, [r0, #4]	@ unaligned
+ 126 0018 8460     		str	r4, [r0, #8]	@ unaligned
+ 127 001a 0671     		strb	r6, [r0, #4]
+ 128              	.L17:
+ 129 001c 44B1     		cbz	r4, .L18
+ 130 001e 7B6A     		ldr	r3, [r7, #36]
+ 131 0020 6BB1     		cbz	r3, .L22
+ 132              	.L19:
+ 133 0022 1A46     		mov	r2, r3
+ 134 0024 9B68     		ldr	r3, [r3, #8]
+ 135 0026 002B     		cmp	r3, #0
+ 136 0028 FBD1     		bne	.L19
+ 137 002a 9560     		str	r5, [r2, #8]
+ 138              	.L16:
+ 139 002c 2846     		mov	r0, r5
+ 140 002e F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 141              	.L18:
+ 142 0030 3046     		mov	r0, r6
+ 143 0032 FFF7FEFF 		bl	malloc
+ 144 0036 45F82400 		str	r0, [r5, r4, lsl #2]
+ 145 003a 0134     		adds	r4, r4, #1
+ 146 003c EEE7     		b	.L17
+ 147              	.L22:
+ 148 003e 7D62     		str	r5, [r7, #36]
+ 149 0040 F4E7     		b	.L16
+ 151              		.section	.text.SubGetMessage,"ax",%progbits
+ 152              		.align	1
+ 153              		.global	SubGetMessage
+ 154              		.syntax unified
+ 155              		.thumb
+ 156              		.thumb_func
+ 158              	SubGetMessage:
+ 159              		@ args = 0, pretend = 0, frame = 0
+ 160              		@ frame_needed = 0, uses_anonymous_args = 0
+ 161 0000 10B5     		push	{r4, lr}
+ 162 0002 0446     		mov	r4, r0
+ 163 0004 C079     		ldrb	r0, [r0, #7]	@ zero_extendqisi2
+ 164 0006 00B9     		cbnz	r0, .L26
+ 165              	.L24:
+ 166 0008 10BD     		pop	{r4, pc}
+ 167              	.L26:
+ 168 000a 0B46     		mov	r3, r1
+ 169 000c 6179     		ldrb	r1, [r4, #5]	@ zero_extendqisi2
+ 170 000e 2279     		ldrb	r2, [r4, #4]	@ zero_extendqisi2
+ 171 0010 54F82110 		ldr	r1, [r4, r1, lsl #2]
+ 172 0014 1846     		mov	r0, r3
+ 173 0016 FFF7FEFF 		bl	memcpy
+ 174 001a 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 175 001c 0133     		adds	r3, r3, #1
+ 176 001e 6371     		strb	r3, [r4, #5]
+ 177 0020 0023     		movs	r3, #0
+ 178 0022 6371     		strb	r3, [r4, #5]
+ 179 0024 E379     		ldrb	r3, [r4, #7]	@ zero_extendqisi2
+ 180 0026 013B     		subs	r3, r3, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s 			page 4
+
+
+ 181 0028 E371     		strb	r3, [r4, #7]
+ 182 002a 0120     		movs	r0, #1
+ 183 002c ECE7     		b	.L24
+ 185              		.section	.text.PubPushMessage,"ax",%progbits
+ 186              		.align	1
+ 187              		.global	PubPushMessage
+ 188              		.syntax unified
+ 189              		.thumb
+ 190              		.thumb_func
+ 192              	PubPushMessage:
+ 193              		@ args = 0, pretend = 0, frame = 0
+ 194              		@ frame_needed = 0, uses_anonymous_args = 0
+ 195 0000 70B5     		push	{r4, r5, r6, lr}
+ 196 0002 0546     		mov	r5, r0
+ 197 0004 0E46     		mov	r6, r1
+ 198 0006 426A     		ldr	r2, [r0, #36]
+ 199 0008 0F4B     		ldr	r3, .L33
+ 200 000a 1A60     		str	r2, [r3]
+ 201 000c 0FE0     		b	.L28
+ 202              	.L29:
+ 203 000e A379     		ldrb	r3, [r4, #6]	@ zero_extendqisi2
+ 204 0010 95F82120 		ldrb	r2, [r5, #33]	@ zero_extendqisi2
+ 205 0014 3146     		mov	r1, r6
+ 206 0016 54F82300 		ldr	r0, [r4, r3, lsl #2]
+ 207 001a FFF7FEFF 		bl	memcpy
+ 208 001e 0023     		movs	r3, #0
+ 209 0020 A371     		strb	r3, [r4, #6]
+ 210 0022 E379     		ldrb	r3, [r4, #7]	@ zero_extendqisi2
+ 211 0024 0133     		adds	r3, r3, #1
+ 212 0026 E371     		strb	r3, [r4, #7]
+ 213 0028 A268     		ldr	r2, [r4, #8]
+ 214 002a 074B     		ldr	r3, .L33
+ 215 002c 1A60     		str	r2, [r3]
+ 216              	.L28:
+ 217 002e 064B     		ldr	r3, .L33
+ 218 0030 1C68     		ldr	r4, [r3]
+ 219 0032 3CB1     		cbz	r4, .L32
+ 220 0034 E379     		ldrb	r3, [r4, #7]	@ zero_extendqisi2
+ 221 0036 012B     		cmp	r3, #1
+ 222 0038 E9D1     		bne	.L29
+ 223 003a 0022     		movs	r2, #0
+ 224 003c 6271     		strb	r2, [r4, #5]
+ 225 003e 013B     		subs	r3, r3, #1
+ 226 0040 E371     		strb	r3, [r4, #7]
+ 227 0042 E4E7     		b	.L29
+ 228              	.L32:
+ 229 0044 0120     		movs	r0, #1
+ 230 0046 70BD     		pop	{r4, r5, r6, pc}
+ 231              	.L34:
+ 232              		.align	2
+ 233              	.L33:
+ 234 0048 00000000 		.word	iter.0
+ 236              		.section	.bss.iter.0,"aw",%nobits
+ 237              		.align	2
+ 240              	iter.0:
+ 241 0000 00000000 		.space	4
+ 242              		.section	.data.message_center,"aw"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s 			page 5
+
+
+ 243              		.align	2
+ 246              	message_center:
+ 247 0000 4D657373 		.ascii	"Message_Manager\000"
+ 247      6167655F 
+ 247      4D616E61 
+ 247      67657200 
+ 248 0010 00000000 		.space	17
+ 248      00000000 
+ 248      00000000 
+ 248      00000000 
+ 248      00
+ 249 0021 000000   		.space	3
+ 250 0024 00000000 		.word	0
+ 251 0028 00000000 		.word	0
+ 252 002c 00000000 		.space	4
+ 253              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 message_center.c
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:18     .text.CheckLen:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:23     .text.CheckLen:00000000 CheckLen
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:35     .text.CheckName:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:40     .text.CheckName:00000000 CheckName
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:54     .text.PubRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:60     .text.PubRegister:00000000 PubRegister
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:104    .text.PubRegister:0000005c $d
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:246    .data.message_center:00000000 message_center
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:107    .text.SubRegister:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:113    .text.SubRegister:00000000 SubRegister
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:152    .text.SubGetMessage:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:158    .text.SubGetMessage:00000000 SubGetMessage
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:186    .text.PubPushMessage:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:192    .text.PubPushMessage:00000000 PubPushMessage
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:234    .text.PubPushMessage:00000048 $d
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:240    .bss.iter.0:00000000 iter.0
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:237    .bss.iter.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccQcM1OG.s:243    .data.message_center:00000000 $d
+
+UNDEFINED SYMBOLS
+strnlen
+strcmp
+malloc
+memset
+strcpy
+memcpy

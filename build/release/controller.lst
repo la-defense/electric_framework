@@ -1,0 +1,525 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"controller.c"
+  16              		.text
+  17              		.section	.text.f_Trapezoid_Intergral,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	f_Trapezoid_Intergral:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 D0ED017A 		vldr.32	s15, [r0, #4]
+  28 0004 90ED0D7A 		vldr.32	s14, [r0, #52]
+  29 0008 D0ED0E6A 		vldr.32	s13, [r0, #56]
+  30 000c 37EE267A 		vadd.f32	s14, s14, s13
+  31 0010 F6EE006A 		vmov.f32	s13, #5.0e-1
+  32 0014 27EE267A 		vmul.f32	s14, s14, s13
+  33 0018 67EE877A 		vmul.f32	s15, s15, s14
+  34 001c 90ED197A 		vldr.32	s14, [r0, #100]
+  35 0020 67EE877A 		vmul.f32	s15, s15, s14
+  36 0024 C0ED137A 		vstr.32	s15, [r0, #76]
+  37 0028 7047     		bx	lr
+  39              		.section	.text.f_Changing_Integration_Rate,"ax",%progbits
+  40              		.align	1
+  41              		.syntax unified
+  42              		.thumb
+  43              		.thumb_func
+  45              	f_Changing_Integration_Rate:
+  46              		@ args = 0, pretend = 0, frame = 0
+  47              		@ frame_needed = 0, uses_anonymous_args = 0
+  48              		@ link register save eliminated.
+  49 0000 D0ED0D7A 		vldr.32	s15, [r0, #52]
+  50 0004 90ED117A 		vldr.32	s14, [r0, #68]
+  51 0008 27EE877A 		vmul.f32	s14, s15, s14
+  52 000c B5EEC07A 		vcmpe.f32	s14, #0
+  53 0010 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  54 0014 26DD     		ble	.L2
+  55 0016 F5EEC07A 		vcmpe.f32	s15, #0
+  56 001a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  57 001e 1CDD     		ble	.L11
+  58              	.L5:
+  59 0020 90ED087A 		vldr.32	s14, [r0, #32]
+  60 0024 B4EEE77A 		vcmpe.f32	s14, s15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s 			page 2
+
+
+  61 0028 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  62 002c 1ADA     		bge	.L2
+  63 002e D0ED076A 		vldr.32	s13, [r0, #28]
+  64 0032 37EE266A 		vadd.f32	s12, s14, s13
+  65 0036 B4EEE76A 		vcmpe.f32	s12, s15
+  66 003a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  67 003e 0FDB     		blt	.L10
+  68 0040 90ED136A 		vldr.32	s12, [r0, #76]
+  69 0044 76EEE77A 		vsub.f32	s15, s13, s15
+  70 0048 37EE277A 		vadd.f32	s14, s14, s15
+  71 004c C7EE267A 		vdiv.f32	s15, s14, s13
+  72 0050 66EE277A 		vmul.f32	s15, s12, s15
+  73 0054 C0ED137A 		vstr.32	s15, [r0, #76]
+  74 0058 7047     		bx	lr
+  75              	.L11:
+  76 005a F1EE677A 		vneg.f32	s15, s15
+  77 005e DFE7     		b	.L5
+  78              	.L10:
+  79 0060 0023     		movs	r3, #0
+  80 0062 C364     		str	r3, [r0, #76]	@ float
+  81              	.L2:
+  82 0064 7047     		bx	lr
+  84              		.section	.text.f_Integral_Limit,"ax",%progbits
+  85              		.align	1
+  86              		.syntax unified
+  87              		.thumb
+  88              		.thumb_func
+  90              	f_Integral_Limit:
+  91              		@ args = 0, pretend = 0, frame = 0
+  92              		@ frame_needed = 0, uses_anonymous_args = 0
+  93              		@ link register save eliminated.
+  94 0000 D0ED116A 		vldr.32	s13, [r0, #68]
+  95 0004 90ED137A 		vldr.32	s14, [r0, #76]
+  96 0008 36EE877A 		vadd.f32	s14, s13, s14
+  97 000c 1F4B     		ldr	r3, .L26
+  98 000e 83ED007A 		vstr.32	s14, [r3]
+  99 0012 D0ED107A 		vldr.32	s15, [r0, #64]
+ 100 0016 76EEA77A 		vadd.f32	s15, s13, s15
+ 101 001a 90ED126A 		vldr.32	s12, [r0, #72]
+ 102 001e 77EE867A 		vadd.f32	s15, s15, s12
+ 103 0022 1B4B     		ldr	r3, .L26+4
+ 104 0024 C3ED007A 		vstr.32	s15, [r3]
+ 105 0028 F5EEC07A 		vcmpe.f32	s15, #0
+ 106 002c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 107 0030 28DD     		ble	.L25
+ 108              	.L13:
+ 109 0032 90ED036A 		vldr.32	s12, [r0, #12]
+ 110 0036 B4EEE76A 		vcmpe.f32	s12, s15
+ 111 003a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 112 003e 0AD5     		bpl	.L14
+ 113 0040 D0ED0D7A 		vldr.32	s15, [r0, #52]
+ 114 0044 66EEA76A 		vmul.f32	s13, s13, s15
+ 115 0048 F5EEC06A 		vcmpe.f32	s13, #0
+ 116 004c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 117 0050 01DD     		ble	.L14
+ 118 0052 0023     		movs	r3, #0
+ 119 0054 C364     		str	r3, [r0, #76]	@ float
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s 			page 3
+
+
+ 120              	.L14:
+ 121 0056 D0ED067A 		vldr.32	s15, [r0, #24]
+ 122 005a B4EEE77A 		vcmpe.f32	s14, s15
+ 123 005e F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 124 0062 03DD     		ble	.L17
+ 125 0064 0023     		movs	r3, #0
+ 126 0066 C364     		str	r3, [r0, #76]	@ float
+ 127 0068 C0ED117A 		vstr.32	s15, [r0, #68]
+ 128              	.L17:
+ 129 006c F1EE677A 		vneg.f32	s15, s15
+ 130 0070 B4EEE77A 		vcmpe.f32	s14, s15
+ 131 0074 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 132 0078 03D5     		bpl	.L12
+ 133 007a 0023     		movs	r3, #0
+ 134 007c C364     		str	r3, [r0, #76]	@ float
+ 135 007e C0ED117A 		vstr.32	s15, [r0, #68]
+ 136              	.L12:
+ 137 0082 7047     		bx	lr
+ 138              	.L25:
+ 139 0084 F1EE677A 		vneg.f32	s15, s15
+ 140 0088 D3E7     		b	.L13
+ 141              	.L27:
+ 142 008a 00BF     		.align	2
+ 143              	.L26:
+ 144 008c 00000000 		.word	temp_Iout.1
+ 145 0090 00000000 		.word	temp_Output.0
+ 147              		.section	.text.f_Derivative_On_Measurement,"ax",%progbits
+ 148              		.align	1
+ 149              		.syntax unified
+ 150              		.thumb
+ 151              		.thumb_func
+ 153              	f_Derivative_On_Measurement:
+ 154              		@ args = 0, pretend = 0, frame = 0
+ 155              		@ frame_needed = 0, uses_anonymous_args = 0
+ 156              		@ link register save eliminated.
+ 157 0000 D0ED027A 		vldr.32	s15, [r0, #8]
+ 158 0004 90ED0C7A 		vldr.32	s14, [r0, #48]
+ 159 0008 D0ED0B6A 		vldr.32	s13, [r0, #44]
+ 160 000c 37EE667A 		vsub.f32	s14, s14, s13
+ 161 0010 67EE877A 		vmul.f32	s15, s15, s14
+ 162 0014 D0ED196A 		vldr.32	s13, [r0, #100]
+ 163 0018 87EEA67A 		vdiv.f32	s14, s15, s13
+ 164 001c 80ED127A 		vstr.32	s14, [r0, #72]
+ 165 0020 7047     		bx	lr
+ 167              		.section	.text.f_Derivative_Filter,"ax",%progbits
+ 168              		.align	1
+ 169              		.syntax unified
+ 170              		.thumb
+ 171              		.thumb_func
+ 173              	f_Derivative_Filter:
+ 174              		@ args = 0, pretend = 0, frame = 0
+ 175              		@ frame_needed = 0, uses_anonymous_args = 0
+ 176              		@ link register save eliminated.
+ 177 0000 90ED126A 		vldr.32	s12, [r0, #72]
+ 178 0004 D0ED197A 		vldr.32	s15, [r0, #100]
+ 179 0008 26EE276A 		vmul.f32	s12, s12, s15
+ 180 000c 90ED0A7A 		vldr.32	s14, [r0, #40]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s 			page 4
+
+
+ 181 0010 77EE877A 		vadd.f32	s15, s15, s14
+ 182 0014 C6EE276A 		vdiv.f32	s13, s12, s15
+ 183 0018 90ED166A 		vldr.32	s12, [r0, #88]
+ 184 001c 27EE067A 		vmul.f32	s14, s14, s12
+ 185 0020 87EE276A 		vdiv.f32	s12, s14, s15
+ 186 0024 76EE867A 		vadd.f32	s15, s13, s12
+ 187 0028 C0ED127A 		vstr.32	s15, [r0, #72]
+ 188 002c 7047     		bx	lr
+ 190              		.section	.text.f_Output_Filter,"ax",%progbits
+ 191              		.align	1
+ 192              		.syntax unified
+ 193              		.thumb
+ 194              		.thumb_func
+ 196              	f_Output_Filter:
+ 197              		@ args = 0, pretend = 0, frame = 0
+ 198              		@ frame_needed = 0, uses_anonymous_args = 0
+ 199              		@ link register save eliminated.
+ 200 0000 90ED146A 		vldr.32	s12, [r0, #80]
+ 201 0004 D0ED197A 		vldr.32	s15, [r0, #100]
+ 202 0008 26EE276A 		vmul.f32	s12, s12, s15
+ 203 000c 90ED097A 		vldr.32	s14, [r0, #36]
+ 204 0010 77EE877A 		vadd.f32	s15, s15, s14
+ 205 0014 C6EE276A 		vdiv.f32	s13, s12, s15
+ 206 0018 90ED156A 		vldr.32	s12, [r0, #84]
+ 207 001c 27EE067A 		vmul.f32	s14, s14, s12
+ 208 0020 87EE276A 		vdiv.f32	s12, s14, s15
+ 209 0024 76EE867A 		vadd.f32	s15, s13, s12
+ 210 0028 C0ED147A 		vstr.32	s15, [r0, #80]
+ 211 002c 7047     		bx	lr
+ 213              		.section	.text.f_Output_Limit,"ax",%progbits
+ 214              		.align	1
+ 215              		.syntax unified
+ 216              		.thumb
+ 217              		.thumb_func
+ 219              	f_Output_Limit:
+ 220              		@ args = 0, pretend = 0, frame = 0
+ 221              		@ frame_needed = 0, uses_anonymous_args = 0
+ 222              		@ link register save eliminated.
+ 223 0000 90ED147A 		vldr.32	s14, [r0, #80]
+ 224 0004 D0ED037A 		vldr.32	s15, [r0, #12]
+ 225 0008 B4EEE77A 		vcmpe.f32	s14, s15
+ 226 000c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 227 0010 01DD     		ble	.L32
+ 228 0012 C0ED147A 		vstr.32	s15, [r0, #80]
+ 229              	.L32:
+ 230 0016 90ED147A 		vldr.32	s14, [r0, #80]
+ 231 001a F1EE677A 		vneg.f32	s15, s15
+ 232 001e B4EEE77A 		vcmpe.f32	s14, s15
+ 233 0022 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 234 0026 01D5     		bpl	.L31
+ 235 0028 C0ED147A 		vstr.32	s15, [r0, #80]
+ 236              	.L31:
+ 237 002c 7047     		bx	lr
+ 239              		.section	.text.f_PID_ErrorHandle,"ax",%progbits
+ 240              		.align	1
+ 241              		.syntax unified
+ 242              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s 			page 5
+
+
+ 243              		.thumb_func
+ 245              	f_PID_ErrorHandle:
+ 246              		@ args = 0, pretend = 0, frame = 0
+ 247              		@ frame_needed = 0, uses_anonymous_args = 0
+ 248              		@ link register save eliminated.
+ 249 0000 90ED147A 		vldr.32	s14, [r0, #80]
+ 250 0004 B0EEC77A 		vabs.f32	s14, s14
+ 251 0008 D0ED037A 		vldr.32	s15, [r0, #12]
+ 252 000c DFED1D6A 		vldr.32	s13, .L45
+ 253 0010 67EEA67A 		vmul.f32	s15, s15, s13
+ 254 0014 B4EEE77A 		vcmpe.f32	s14, s15
+ 255 0018 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 256 001c 2BD4     		bmi	.L38
+ 257 001e D0ED177A 		vldr.32	s15, [r0, #92]
+ 258 0022 B0EEE77A 		vabs.f32	s14, s15
+ 259 0026 DFED186A 		vldr.32	s13, .L45+4
+ 260 002a B4EEE67A 		vcmpe.f32	s14, s13
+ 261 002e F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 262 0032 20D4     		bmi	.L38
+ 263 0034 D0ED0B6A 		vldr.32	s13, [r0, #44]
+ 264 0038 77EEE67A 		vsub.f32	s15, s15, s13
+ 265 003c F0EEE77A 		vabs.f32	s15, s15
+ 266 0040 C7EE876A 		vdiv.f32	s13, s15, s14
+ 267 0044 DFED117A 		vldr.32	s15, .L45+8
+ 268 0048 F4EEE76A 		vcmpe.f32	s13, s15
+ 269 004c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 270 0050 12DD     		ble	.L44
+ 271 0052 836E     		ldr	r3, [r0, #104]
+ 272 0054 C26E     		ldr	r2, [r0, #108]
+ 273 0056 0133     		adds	r3, r3, #1
+ 274 0058 42F10002 		adc	r2, r2, #0
+ 275 005c 8366     		str	r3, [r0, #104]
+ 276 005e C266     		str	r2, [r0, #108]
+ 277              	.L42:
+ 278 0060 816E     		ldr	r1, [r0, #104]
+ 279 0062 C36E     		ldr	r3, [r0, #108]
+ 280 0064 40F2F512 		movw	r2, #501
+ 281 0068 9142     		cmp	r1, r2
+ 282 006a 73F10003 		sbcs	r3, r3, #0
+ 283 006e 02D3     		bcc	.L38
+ 284 0070 0123     		movs	r3, #1
+ 285 0072 80F87030 		strb	r3, [r0, #112]
+ 286              	.L38:
+ 287 0076 7047     		bx	lr
+ 288              	.L44:
+ 289 0078 0022     		movs	r2, #0
+ 290 007a 0023     		movs	r3, #0
+ 291 007c C0E91A23 		strd	r2, [r0, #104]
+ 292 0080 EEE7     		b	.L42
+ 293              	.L46:
+ 294 0082 00BF     		.align	2
+ 295              	.L45:
+ 296 0084 6F12833A 		.word	981668463
+ 297 0088 17B7D138 		.word	953267991
+ 298 008c 3333733F 		.word	1064514355
+ 300              		.section	.text.PIDInit,"ax",%progbits
+ 301              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s 			page 6
+
+
+ 302              		.global	PIDInit
+ 303              		.syntax unified
+ 304              		.thumb
+ 305              		.thumb_func
+ 307              	PIDInit:
+ 308              		@ args = 0, pretend = 0, frame = 0
+ 309              		@ frame_needed = 0, uses_anonymous_args = 0
+ 310 0000 38B5     		push	{r3, r4, r5, lr}
+ 311 0002 0546     		mov	r5, r0
+ 312 0004 0C46     		mov	r4, r1
+ 313 0006 7822     		movs	r2, #120
+ 314 0008 0021     		movs	r1, #0
+ 315 000a FFF7FEFF 		bl	memset
+ 316 000e 2346     		mov	r3, r4
+ 317 0010 2A46     		mov	r2, r5
+ 318 0012 04F12001 		add	r1, r4, #32
+ 319              	.L48:
+ 320 0016 1C68     		ldr	r4, [r3]	@ unaligned
+ 321 0018 D3F804E0 		ldr	lr, [r3, #4]	@ unaligned
+ 322 001c D3F808C0 		ldr	ip, [r3, #8]	@ unaligned
+ 323 0020 D868     		ldr	r0, [r3, #12]	@ unaligned
+ 324 0022 1460     		str	r4, [r2]	@ unaligned
+ 325 0024 C2F804E0 		str	lr, [r2, #4]	@ unaligned
+ 326 0028 C2F808C0 		str	ip, [r2, #8]	@ unaligned
+ 327 002c D060     		str	r0, [r2, #12]	@ unaligned
+ 328 002e 1033     		adds	r3, r3, #16
+ 329 0030 1032     		adds	r2, r2, #16
+ 330 0032 8B42     		cmp	r3, r1
+ 331 0034 EFD1     		bne	.L48
+ 332 0036 1868     		ldr	r0, [r3]	@ unaligned
+ 333 0038 5968     		ldr	r1, [r3, #4]	@ unaligned
+ 334 003a 9B68     		ldr	r3, [r3, #8]	@ unaligned
+ 335 003c 1060     		str	r0, [r2]	@ unaligned
+ 336 003e 5160     		str	r1, [r2, #4]	@ unaligned
+ 337 0040 9360     		str	r3, [r2, #8]	@ unaligned
+ 338 0042 2846     		mov	r0, r5
+ 339 0044 6030     		adds	r0, r0, #96
+ 340 0046 FFF7FEFF 		bl	DWT_GetDeltaT
+ 341 004a 38BD     		pop	{r3, r4, r5, pc}
+ 343              		.section	.text.PIDCalculate,"ax",%progbits
+ 344              		.align	1
+ 345              		.global	PIDCalculate
+ 346              		.syntax unified
+ 347              		.thumb
+ 348              		.thumb_func
+ 350              	PIDCalculate:
+ 351              		@ args = 0, pretend = 0, frame = 0
+ 352              		@ frame_needed = 0, uses_anonymous_args = 0
+ 353 0000 10B5     		push	{r4, lr}
+ 354 0002 2DED028B 		vpush.64	{d8}
+ 355 0006 0446     		mov	r4, r0
+ 356 0008 F0EE408A 		vmov.f32	s17, s0
+ 357 000c B0EE608A 		vmov.f32	s16, s1
+ 358 0010 90F91430 		ldrsb	r3, [r0, #20]
+ 359 0014 002B     		cmp	r3, #0
+ 360 0016 71DB     		blt	.L66
+ 361              	.L51:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s 			page 7
+
+
+ 362 0018 04F16000 		add	r0, r4, #96
+ 363 001c FFF7FEFF 		bl	DWT_GetDeltaT
+ 364 0020 84ED190A 		vstr.32	s0, [r4, #100]
+ 365 0024 C4ED0B8A 		vstr.32	s17, [r4, #44]
+ 366 0028 84ED178A 		vstr.32	s16, [r4, #92]
+ 367 002c 78EE680A 		vsub.f32	s1, s16, s17
+ 368 0030 C4ED0D0A 		vstr.32	s1, [r4, #52]
+ 369 0034 F5EEC00A 		vcmpe.f32	s1, #0
+ 370 0038 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 371 003c 61DD     		ble	.L67
+ 372 003e F0EE607A 		vmov.f32	s15, s1
+ 373              	.L52:
+ 374 0042 94ED047A 		vldr.32	s14, [r4, #16]
+ 375 0046 B4EEE77A 		vcmpe.f32	s14, s15
+ 376 004a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 377 004e 73D5     		bpl	.L64
+ 378 0050 D4ED007A 		vldr.32	s15, [r4]
+ 379 0054 60EEA77A 		vmul.f32	s15, s1, s15
+ 380 0058 C4ED107A 		vstr.32	s15, [r4, #64]
+ 381 005c D4ED017A 		vldr.32	s15, [r4, #4]
+ 382 0060 60EEA77A 		vmul.f32	s15, s1, s15
+ 383 0064 60EE277A 		vmul.f32	s15, s0, s15
+ 384 0068 C4ED137A 		vstr.32	s15, [r4, #76]
+ 385 006c D4ED027A 		vldr.32	s15, [r4, #8]
+ 386 0070 94ED0E7A 		vldr.32	s14, [r4, #56]
+ 387 0074 70EEC70A 		vsub.f32	s1, s1, s14
+ 388 0078 67EEA07A 		vmul.f32	s15, s15, s1
+ 389 007c 87EE807A 		vdiv.f32	s14, s15, s0
+ 390 0080 84ED127A 		vstr.32	s14, [r4, #72]
+ 391 0084 237D     		ldrb	r3, [r4, #20]	@ zero_extendqisi2
+ 392 0086 13F0040F 		tst	r3, #4
+ 393 008a 3DD1     		bne	.L68
+ 394              	.L55:
+ 395 008c 237D     		ldrb	r3, [r4, #20]	@ zero_extendqisi2
+ 396 008e 13F0200F 		tst	r3, #32
+ 397 0092 3DD1     		bne	.L69
+ 398              	.L56:
+ 399 0094 237D     		ldrb	r3, [r4, #20]	@ zero_extendqisi2
+ 400 0096 13F0020F 		tst	r3, #2
+ 401 009a 3DD1     		bne	.L70
+ 402              	.L57:
+ 403 009c 237D     		ldrb	r3, [r4, #20]	@ zero_extendqisi2
+ 404 009e 13F0400F 		tst	r3, #64
+ 405 00a2 3DD1     		bne	.L71
+ 406              	.L58:
+ 407 00a4 237D     		ldrb	r3, [r4, #20]	@ zero_extendqisi2
+ 408 00a6 13F0010F 		tst	r3, #1
+ 409 00aa 3DD1     		bne	.L72
+ 410              	.L59:
+ 411 00ac D4ED117A 		vldr.32	s15, [r4, #68]
+ 412 00b0 94ED137A 		vldr.32	s14, [r4, #76]
+ 413 00b4 77EE877A 		vadd.f32	s15, s15, s14
+ 414 00b8 C4ED117A 		vstr.32	s15, [r4, #68]
+ 415 00bc 94ED107A 		vldr.32	s14, [r4, #64]
+ 416 00c0 77EE877A 		vadd.f32	s15, s15, s14
+ 417 00c4 94ED127A 		vldr.32	s14, [r4, #72]
+ 418 00c8 77EE877A 		vadd.f32	s15, s15, s14
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s 			page 8
+
+
+ 419 00cc C4ED147A 		vstr.32	s15, [r4, #80]
+ 420 00d0 237D     		ldrb	r3, [r4, #20]	@ zero_extendqisi2
+ 421 00d2 13F0100F 		tst	r3, #16
+ 422 00d6 2BD1     		bne	.L73
+ 423              	.L60:
+ 424 00d8 2046     		mov	r0, r4
+ 425 00da FFF7FEFF 		bl	f_Output_Limit
+ 426              	.L61:
+ 427 00de E36A     		ldr	r3, [r4, #44]	@ float
+ 428 00e0 2363     		str	r3, [r4, #48]	@ float
+ 429 00e2 94ED140A 		vldr.32	s0, [r4, #80]
+ 430 00e6 84ED150A 		vstr.32	s0, [r4, #84]
+ 431 00ea A36C     		ldr	r3, [r4, #72]	@ float
+ 432 00ec A365     		str	r3, [r4, #88]	@ float
+ 433 00ee 636B     		ldr	r3, [r4, #52]	@ float
+ 434 00f0 A363     		str	r3, [r4, #56]	@ float
+ 435 00f2 E36C     		ldr	r3, [r4, #76]	@ float
+ 436 00f4 E363     		str	r3, [r4, #60]	@ float
+ 437 00f6 BDEC028B 		vldm	sp!, {d8}
+ 438 00fa 10BD     		pop	{r4, pc}
+ 439              	.L66:
+ 440 00fc FFF7FEFF 		bl	f_PID_ErrorHandle
+ 441 0100 8AE7     		b	.L51
+ 442              	.L67:
+ 443 0102 F1EE607A 		vneg.f32	s15, s1
+ 444 0106 9CE7     		b	.L52
+ 445              	.L68:
+ 446 0108 2046     		mov	r0, r4
+ 447 010a FFF7FEFF 		bl	f_Trapezoid_Intergral
+ 448 010e BDE7     		b	.L55
+ 449              	.L69:
+ 450 0110 2046     		mov	r0, r4
+ 451 0112 FFF7FEFF 		bl	f_Changing_Integration_Rate
+ 452 0116 BDE7     		b	.L56
+ 453              	.L70:
+ 454 0118 2046     		mov	r0, r4
+ 455 011a FFF7FEFF 		bl	f_Derivative_On_Measurement
+ 456 011e BDE7     		b	.L57
+ 457              	.L71:
+ 458 0120 2046     		mov	r0, r4
+ 459 0122 FFF7FEFF 		bl	f_Derivative_Filter
+ 460 0126 BDE7     		b	.L58
+ 461              	.L72:
+ 462 0128 2046     		mov	r0, r4
+ 463 012a FFF7FEFF 		bl	f_Integral_Limit
+ 464 012e BDE7     		b	.L59
+ 465              	.L73:
+ 466 0130 2046     		mov	r0, r4
+ 467 0132 FFF7FEFF 		bl	f_Output_Filter
+ 468 0136 CFE7     		b	.L60
+ 469              	.L64:
+ 470 0138 0023     		movs	r3, #0
+ 471 013a 2365     		str	r3, [r4, #80]	@ float
+ 472 013c E364     		str	r3, [r4, #76]	@ float
+ 473 013e CEE7     		b	.L61
+ 475              		.section	.bss.temp_Output.0,"aw",%nobits
+ 476              		.align	2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s 			page 9
+
+
+ 479              	temp_Output.0:
+ 480 0000 00000000 		.space	4
+ 481              		.section	.bss.temp_Iout.1,"aw",%nobits
+ 482              		.align	2
+ 485              	temp_Iout.1:
+ 486 0000 00000000 		.space	4
+ 487              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 controller.c
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:18     .text.f_Trapezoid_Intergral:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:23     .text.f_Trapezoid_Intergral:00000000 f_Trapezoid_Intergral
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:40     .text.f_Changing_Integration_Rate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:45     .text.f_Changing_Integration_Rate:00000000 f_Changing_Integration_Rate
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:85     .text.f_Integral_Limit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:90     .text.f_Integral_Limit:00000000 f_Integral_Limit
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:144    .text.f_Integral_Limit:0000008c $d
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:485    .bss.temp_Iout.1:00000000 temp_Iout.1
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:479    .bss.temp_Output.0:00000000 temp_Output.0
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:148    .text.f_Derivative_On_Measurement:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:153    .text.f_Derivative_On_Measurement:00000000 f_Derivative_On_Measurement
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:168    .text.f_Derivative_Filter:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:173    .text.f_Derivative_Filter:00000000 f_Derivative_Filter
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:191    .text.f_Output_Filter:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:196    .text.f_Output_Filter:00000000 f_Output_Filter
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:214    .text.f_Output_Limit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:219    .text.f_Output_Limit:00000000 f_Output_Limit
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:240    .text.f_PID_ErrorHandle:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:245    .text.f_PID_ErrorHandle:00000000 f_PID_ErrorHandle
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:296    .text.f_PID_ErrorHandle:00000084 $d
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:301    .text.PIDInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:307    .text.PIDInit:00000000 PIDInit
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:344    .text.PIDCalculate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:350    .text.PIDCalculate:00000000 PIDCalculate
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:476    .bss.temp_Output.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cca0v7Ac.s:482    .bss.temp_Iout.1:00000000 $d
+
+UNDEFINED SYMBOLS
+memset
+DWT_GetDeltaT

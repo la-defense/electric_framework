@@ -1,0 +1,1048 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"led.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/alarm/led/led.c"
+  20              		.section	.text.LEDShowFlash,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	LEDShowFlash:
+  27              	.LVL0:
+  28              	.LFB243:
+   1:modules/alarm/led/led.c **** #include "bsp_pwm.h"
+   2:modules/alarm/led/led.c **** #include "bsp_dwt.h"
+   3:modules/alarm/led/led.c **** #include "led.h"
+   4:modules/alarm/led/led.c **** #include "string.h"
+   5:modules/alarm/led/led.c **** 
+   6:modules/alarm/led/led.c **** static PWMInstance *led_r, *led_g, *led_b;
+   7:modules/alarm/led/led.c **** 
+   8:modules/alarm/led/led.c **** static LEDInstance *led;
+   9:modules/alarm/led/led.c **** 
+  10:modules/alarm/led/led.c **** /**
+  11:modules/alarm/led/led.c ****  * @brief LED灯初始化
+  12:modules/alarm/led/led.c ****  *
+  13:modules/alarm/led/led.c ****  */
+  14:modules/alarm/led/led.c **** void LEDInit()
+  15:modules/alarm/led/led.c **** {
+  16:modules/alarm/led/led.c ****     PWM_Init_Config_s led_config = {
+  17:modules/alarm/led/led.c ****         .htim = &htim5,
+  18:modules/alarm/led/led.c ****         .dutyratio = 0,
+  19:modules/alarm/led/led.c ****         .period = 0.001,
+  20:modules/alarm/led/led.c ****     };
+  21:modules/alarm/led/led.c **** 
+  22:modules/alarm/led/led.c ****     led_config.channel = TIM_CHANNEL_3;
+  23:modules/alarm/led/led.c ****     led_r = PWMRegister(&led_config);
+  24:modules/alarm/led/led.c **** 
+  25:modules/alarm/led/led.c ****     led_config.channel = TIM_CHANNEL_2;
+  26:modules/alarm/led/led.c ****     led_g = PWMRegister(&led_config);
+  27:modules/alarm/led/led.c **** 
+  28:modules/alarm/led/led.c ****     led_config.channel = TIM_CHANNEL_1;
+  29:modules/alarm/led/led.c ****     led_b = PWMRegister(&led_config);
+  30:modules/alarm/led/led.c **** }
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 2
+
+
+  31:modules/alarm/led/led.c **** 
+  32:modules/alarm/led/led.c **** LEDInstance *LEDRegister(LED_config_s *config)
+  33:modules/alarm/led/led.c **** {
+  34:modules/alarm/led/led.c ****     LEDInstance *led_temp = (LEDInstance *)malloc(sizeof(LEDInstance));
+  35:modules/alarm/led/led.c ****     memset(led_temp, 0, sizeof(LEDInstance));
+  36:modules/alarm/led/led.c **** 
+  37:modules/alarm/led/led.c ****     led_temp->color = config->color;
+  38:modules/alarm/led/led.c ****     led_temp->flash = config->flash;
+  39:modules/alarm/led/led.c ****     led->flash_count = config->flash_count;
+  40:modules/alarm/led/led.c ****     led_temp->alarm_state = ALARM_OFF;
+  41:modules/alarm/led/led.c **** 
+  42:modules/alarm/led/led.c ****     led = led_temp;
+  43:modules/alarm/led/led.c ****     return led_temp;
+  44:modules/alarm/led/led.c **** }
+  45:modules/alarm/led/led.c **** 
+  46:modules/alarm/led/led.c **** void LEDSetStatus(LEDInstance *led, AlarmState_e state)
+  47:modules/alarm/led/led.c **** {
+  48:modules/alarm/led/led.c ****     led->alarm_state = state;
+  49:modules/alarm/led/led.c **** }
+  50:modules/alarm/led/led.c **** 
+  51:modules/alarm/led/led.c **** void LEDSetFlash(LEDInstance *led, color_e color, flash_e flash)
+  52:modules/alarm/led/led.c **** {
+  53:modules/alarm/led/led.c ****     led->color = color;
+  54:modules/alarm/led/led.c ****     led->flash = flash;
+  55:modules/alarm/led/led.c **** }
+  56:modules/alarm/led/led.c **** 
+  57:modules/alarm/led/led.c **** void LEDSetFlashTime(LEDInstance *led, uint8_t flash_count)
+  58:modules/alarm/led/led.c **** {
+  59:modules/alarm/led/led.c ****     led->flash_count = flash_count;
+  60:modules/alarm/led/led.c **** }
+  61:modules/alarm/led/led.c **** 
+  62:modules/alarm/led/led.c **** /**
+  63:modules/alarm/led/led.c ****  * @brief          设置LED灯颜色和频率
+  64:modules/alarm/led/led.c ****  * @param[in]      color: 红色/黄色/蓝色/绿色/粉色，[RED/YELLOW/BLUE/GREEN/PINK]
+  65:modules/alarm/led/led.c ****  * @param[in]      flash: 快闪/慢闪/常亮，[FLASH_HIGH/FLASH_LOW/ALWAYS_ON]
+  66:modules/alarm/led/led.c ****  * @note           粉色为呼吸灯变化
+  67:modules/alarm/led/led.c ****  * @retval         none 
+  68:modules/alarm/led/led.c ****  */
+  69:modules/alarm/led/led.c **** 
+  70:modules/alarm/led/led.c **** static void LEDShowFlash(color_e color, flash_e flash)
+  71:modules/alarm/led/led.c **** {
+  29              		.loc 1 71 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		.loc 1 71 1 is_stmt 0 view .LVU1
+  34 0000 38B5     		push	{r3, r4, r5, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 16
+  37              		.cfi_offset 3, -16
+  38              		.cfi_offset 4, -12
+  39              		.cfi_offset 5, -8
+  40              		.cfi_offset 14, -4
+  41 0002 2DED028B 		vpush.64	{d8}
+  42              	.LCFI1:
+  43              		.cfi_def_cfa_offset 24
+  44              		.cfi_offset 80, -24
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 3
+
+
+  45              		.cfi_offset 81, -20
+  72:modules/alarm/led/led.c ****     static uint16_t time_temp;
+  46              		.loc 1 72 5 is_stmt 1 view .LVU2
+  73:modules/alarm/led/led.c ****     static uint32_t color_temp;
+  47              		.loc 1 73 5 view .LVU3
+  74:modules/alarm/led/led.c ****     static uint16_t n, count;
+  48              		.loc 1 74 5 view .LVU4
+  75:modules/alarm/led/led.c ****     static int8_t temp, alpha;
+  49              		.loc 1 75 5 view .LVU5
+  76:modules/alarm/led/led.c **** 
+  77:modules/alarm/led/led.c ****     if (flash == FLASH_HIGH)
+  50              		.loc 1 77 5 view .LVU6
+  51              		.loc 1 77 8 is_stmt 0 view .LVU7
+  52 0006 0C46     		mov	r4, r1
+  53 0008 0029     		cmp	r1, #0
+  54 000a 38D1     		bne	.L2
+  78:modules/alarm/led/led.c ****         time_temp = HightTime;
+  55              		.loc 1 78 9 is_stmt 1 view .LVU8
+  56              		.loc 1 78 19 is_stmt 0 view .LVU9
+  57 000c 724B     		ldr	r3, .L21
+  58 000e 1422     		movs	r2, #20
+  59 0010 1A80     		strh	r2, [r3]	@ movhi
+  60              	.L3:
+  79:modules/alarm/led/led.c ****     else if (flash == FLASH_LOW)
+  80:modules/alarm/led/led.c ****         time_temp = LowTime;
+  81:modules/alarm/led/led.c **** 
+  82:modules/alarm/led/led.c ****     n++;
+  61              		.loc 1 82 5 is_stmt 1 view .LVU10
+  62              		.loc 1 82 6 is_stmt 0 view .LVU11
+  63 0012 724A     		ldr	r2, .L21+4
+  64 0014 1388     		ldrh	r3, [r2]
+  65 0016 0133     		adds	r3, r3, #1
+  66 0018 9BB2     		uxth	r3, r3
+  67 001a 1380     		strh	r3, [r2]	@ movhi
+  83:modules/alarm/led/led.c ****     if (n >= time_temp || flash == ALWAYS_ON)
+  68              		.loc 1 83 5 is_stmt 1 view .LVU12
+  69              		.loc 1 83 11 is_stmt 0 view .LVU13
+  70 001c 6E4A     		ldr	r2, .L21
+  71 001e 1288     		ldrh	r2, [r2]
+  72              		.loc 1 83 8 view .LVU14
+  73 0020 9342     		cmp	r3, r2
+  74 0022 32D2     		bcs	.L4
+  75              		.loc 1 83 24 discriminator 1 view .LVU15
+  76 0024 022C     		cmp	r4, #2
+  77 0026 30D0     		beq	.L4
+  78              	.LVL1:
+  79              	.L5:
+  84:modules/alarm/led/led.c ****     {
+  85:modules/alarm/led/led.c ****         switch (color)
+  86:modules/alarm/led/led.c ****         {
+  87:modules/alarm/led/led.c ****         case RED:
+  88:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_r, 1.0f);
+  89:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+  90:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 0.0f);
+  91:modules/alarm/led/led.c ****             break;
+  92:modules/alarm/led/led.c ****         case YELLOW:
+  93:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_r, 1.0f);
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 4
+
+
+  94:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 1.0f);
+  95:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 0.0f);   
+  96:modules/alarm/led/led.c ****             break; 
+  97:modules/alarm/led/led.c ****         case BLUE:
+  98:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_r, 0.0f);
+  99:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 100:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 1.0f);
+ 101:modules/alarm/led/led.c ****             break;
+ 102:modules/alarm/led/led.c ****         case GREEN:
+ 103:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_r, 0.0f);
+ 104:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 1.0f);
+ 105:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 0.0f);   
+ 106:modules/alarm/led/led.c ****             break;  
+ 107:modules/alarm/led/led.c ****         case PINK: 
+ 108:modules/alarm/led/led.c ****             temp++;
+ 109:modules/alarm/led/led.c ****             if (temp > 1)
+ 110:modules/alarm/led/led.c ****             {
+ 111:modules/alarm/led/led.c ****                 temp = 0;
+ 112:modules/alarm/led/led.c ****                 alpha += 2;
+ 113:modules/alarm/led/led.c ****             }
+ 114:modules/alarm/led/led.c **** 
+ 115:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_r, (1.0f / (255.0f - 100.0f)) * (float)abs(alpha));
+ 116:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 117:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, (1.0f / (255.0f - 100.0f)) * (float)abs(alpha));   
+ 118:modules/alarm/led/led.c ****             break;           
+ 119:modules/alarm/led/led.c ****         default:
+ 120:modules/alarm/led/led.c ****             break;
+ 121:modules/alarm/led/led.c ****         }
+ 122:modules/alarm/led/led.c ****     }
+ 123:modules/alarm/led/led.c ****     
+ 124:modules/alarm/led/led.c ****     if (n < time_temp && flash != ALWAYS_ON)
+  80              		.loc 1 124 5 is_stmt 1 view .LVU16
+  81              		.loc 1 124 11 is_stmt 0 view .LVU17
+  82 0028 6C4B     		ldr	r3, .L21+4
+  83 002a 1A88     		ldrh	r2, [r3]
+  84 002c 6A4B     		ldr	r3, .L21
+  85 002e 1B88     		ldrh	r3, [r3]
+  86              		.loc 1 124 8 view .LVU18
+  87 0030 9A42     		cmp	r2, r3
+  88 0032 02D2     		bcs	.L13
+  89              		.loc 1 124 23 discriminator 1 view .LVU19
+  90 0034 022C     		cmp	r4, #2
+  91 0036 40F0B980 		bne	.L20
+  92              	.L13:
+ 125:modules/alarm/led/led.c ****     {
+ 126:modules/alarm/led/led.c ****         PWMSetDutyRatio(led_r, 0);
+ 127:modules/alarm/led/led.c ****         PWMSetDutyRatio(led_g, 0);
+ 128:modules/alarm/led/led.c ****         PWMSetDutyRatio(led_b, 0);           
+ 129:modules/alarm/led/led.c ****     }
+ 130:modules/alarm/led/led.c **** 
+ 131:modules/alarm/led/led.c ****     if ((count >= led->flash_count && flash == FLASH_HIGH) || n >= 2 * time_temp)
+  93              		.loc 1 131 5 is_stmt 1 view .LVU20
+  94              		.loc 1 131 22 is_stmt 0 view .LVU21
+  95 003a 694B     		ldr	r3, .L21+8
+  96 003c 1B68     		ldr	r3, [r3]
+  97 003e 9A78     		ldrb	r2, [r3, #2]	@ zero_extendqisi2
+  98              		.loc 1 131 16 view .LVU22
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 5
+
+
+  99 0040 684B     		ldr	r3, .L21+12
+ 100 0042 1B88     		ldrh	r3, [r3]
+ 101              		.loc 1 131 8 view .LVU23
+ 102 0044 9A42     		cmp	r2, r3
+ 103 0046 00D8     		bhi	.L14
+ 104              		.loc 1 131 36 discriminator 1 view .LVU24
+ 105 0048 34B1     		cbz	r4, .L15
+ 106              	.L14:
+ 107              		.loc 1 131 65 discriminator 3 view .LVU25
+ 108 004a 644A     		ldr	r2, .L21+4
+ 109 004c 1288     		ldrh	r2, [r2]
+ 110              		.loc 1 131 70 discriminator 3 view .LVU26
+ 111 004e 6249     		ldr	r1, .L21
+ 112 0050 0988     		ldrh	r1, [r1]
+ 113              		.loc 1 131 60 discriminator 3 view .LVU27
+ 114 0052 B2EB410F 		cmp	r2, r1, lsl #1
+ 115 0056 05DB     		blt	.L16
+ 116              	.L15:
+ 132:modules/alarm/led/led.c ****     {
+ 133:modules/alarm/led/led.c ****         n = 0;
+ 117              		.loc 1 133 9 is_stmt 1 view .LVU28
+ 118              		.loc 1 133 11 is_stmt 0 view .LVU29
+ 119 0058 604A     		ldr	r2, .L21+4
+ 120 005a 0021     		movs	r1, #0
+ 121 005c 1180     		strh	r1, [r2]	@ movhi
+ 134:modules/alarm/led/led.c ****         count++;
+ 122              		.loc 1 134 9 is_stmt 1 view .LVU30
+ 123              		.loc 1 134 14 is_stmt 0 view .LVU31
+ 124 005e 0133     		adds	r3, r3, #1
+ 125 0060 604A     		ldr	r2, .L21+12
+ 126 0062 1380     		strh	r3, [r2]	@ movhi
+ 127              	.L16:
+ 135:modules/alarm/led/led.c ****     }
+ 136:modules/alarm/led/led.c **** 
+ 137:modules/alarm/led/led.c ****     if (count >= 4 * time_temp)
+ 128              		.loc 1 137 5 is_stmt 1 view .LVU32
+ 129              		.loc 1 137 15 is_stmt 0 view .LVU33
+ 130 0064 5F4B     		ldr	r3, .L21+12
+ 131 0066 1B88     		ldrh	r3, [r3]
+ 132              		.loc 1 137 20 view .LVU34
+ 133 0068 5B4A     		ldr	r2, .L21
+ 134 006a 1288     		ldrh	r2, [r2]
+ 135              		.loc 1 137 8 view .LVU35
+ 136 006c B3EB820F 		cmp	r3, r2, lsl #2
+ 137 0070 02DB     		blt	.L1
+ 138:modules/alarm/led/led.c ****     {
+ 139:modules/alarm/led/led.c ****         count = 0;
+ 138              		.loc 1 139 9 is_stmt 1 view .LVU36
+ 139              		.loc 1 139 15 is_stmt 0 view .LVU37
+ 140 0072 5C4B     		ldr	r3, .L21+12
+ 141 0074 0022     		movs	r2, #0
+ 142 0076 1A80     		strh	r2, [r3]	@ movhi
+ 143              	.L1:
+ 140:modules/alarm/led/led.c ****     }            
+ 141:modules/alarm/led/led.c **** }
+ 144              		.loc 1 141 1 view .LVU38
+ 145 0078 BDEC028B 		vldm	sp!, {d8}
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 6
+
+
+ 146              	.LCFI2:
+ 147              		.cfi_remember_state
+ 148              		.cfi_restore 80
+ 149              		.cfi_restore 81
+ 150              		.cfi_def_cfa_offset 16
+ 151 007c 38BD     		pop	{r3, r4, r5, pc}
+ 152              	.LVL2:
+ 153              	.L2:
+ 154              	.LCFI3:
+ 155              		.cfi_restore_state
+  79:modules/alarm/led/led.c ****         time_temp = LowTime;
+ 156              		.loc 1 79 10 is_stmt 1 view .LVU39
+  79:modules/alarm/led/led.c ****         time_temp = LowTime;
+ 157              		.loc 1 79 13 is_stmt 0 view .LVU40
+ 158 007e 0129     		cmp	r1, #1
+ 159 0080 C7D1     		bne	.L3
+  80:modules/alarm/led/led.c **** 
+ 160              		.loc 1 80 9 is_stmt 1 view .LVU41
+  80:modules/alarm/led/led.c **** 
+ 161              		.loc 1 80 19 is_stmt 0 view .LVU42
+ 162 0082 554B     		ldr	r3, .L21
+ 163 0084 1E22     		movs	r2, #30
+ 164 0086 1A80     		strh	r2, [r3]	@ movhi
+ 165 0088 C3E7     		b	.L3
+ 166              	.L4:
+  85:modules/alarm/led/led.c ****         {
+ 167              		.loc 1 85 9 is_stmt 1 view .LVU43
+ 168 008a 0428     		cmp	r0, #4
+ 169 008c CCD8     		bhi	.L5
+ 170 008e DFE800F0 		tbb	[pc, r0]
+ 171              	.L7:
+ 172 0092 03       		.byte	(.L11-.L7)/2
+ 173 0093 18       		.byte	(.L10-.L7)/2
+ 174 0094 2B       		.byte	(.L9-.L7)/2
+ 175 0095 40       		.byte	(.L8-.L7)/2
+ 176 0096 55       		.byte	(.L6-.L7)/2
+ 177 0097 00       		.p2align 1
+ 178              	.L11:
+  88:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 179              		.loc 1 88 13 view .LVU44
+ 180 0098 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 181 009c 524B     		ldr	r3, .L21+16
+ 182 009e 1868     		ldr	r0, [r3]
+ 183              	.LVL3:
+  88:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 184              		.loc 1 88 13 is_stmt 0 view .LVU45
+ 185 00a0 FFF7FEFF 		bl	PWMSetDutyRatio
+ 186              	.LVL4:
+  89:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 0.0f);
+ 187              		.loc 1 89 13 is_stmt 1 view .LVU46
+ 188 00a4 9FED518A 		vldr.32	s16, .L21+20
+ 189 00a8 B0EE480A 		vmov.f32	s0, s16
+ 190 00ac 504B     		ldr	r3, .L21+24
+ 191 00ae 1868     		ldr	r0, [r3]
+ 192 00b0 FFF7FEFF 		bl	PWMSetDutyRatio
+ 193              	.LVL5:
+  90:modules/alarm/led/led.c ****             break;
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 7
+
+
+ 194              		.loc 1 90 13 view .LVU47
+ 195 00b4 B0EE480A 		vmov.f32	s0, s16
+ 196 00b8 4E4B     		ldr	r3, .L21+28
+ 197 00ba 1868     		ldr	r0, [r3]
+ 198 00bc FFF7FEFF 		bl	PWMSetDutyRatio
+ 199              	.LVL6:
+  91:modules/alarm/led/led.c ****         case YELLOW:
+ 200              		.loc 1 91 13 view .LVU48
+ 201 00c0 B2E7     		b	.L5
+ 202              	.LVL7:
+ 203              	.L10:
+  93:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 1.0f);
+ 204              		.loc 1 93 13 view .LVU49
+ 205 00c2 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 206 00c6 484B     		ldr	r3, .L21+16
+ 207 00c8 1868     		ldr	r0, [r3]
+ 208              	.LVL8:
+  93:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 1.0f);
+ 209              		.loc 1 93 13 is_stmt 0 view .LVU50
+ 210 00ca FFF7FEFF 		bl	PWMSetDutyRatio
+ 211              	.LVL9:
+  94:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 0.0f);   
+ 212              		.loc 1 94 13 is_stmt 1 view .LVU51
+ 213 00ce B7EE000A 		vmov.f32	s0, #1.0e+0
+ 214 00d2 474B     		ldr	r3, .L21+24
+ 215 00d4 1868     		ldr	r0, [r3]
+ 216 00d6 FFF7FEFF 		bl	PWMSetDutyRatio
+ 217              	.LVL10:
+  95:modules/alarm/led/led.c ****             break; 
+ 218              		.loc 1 95 13 view .LVU52
+ 219 00da 9FED440A 		vldr.32	s0, .L21+20
+ 220 00de 454B     		ldr	r3, .L21+28
+ 221 00e0 1868     		ldr	r0, [r3]
+ 222 00e2 FFF7FEFF 		bl	PWMSetDutyRatio
+ 223              	.LVL11:
+  96:modules/alarm/led/led.c ****         case BLUE:
+ 224              		.loc 1 96 13 view .LVU53
+ 225 00e6 9FE7     		b	.L5
+ 226              	.LVL12:
+ 227              	.L9:
+  98:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 228              		.loc 1 98 13 view .LVU54
+ 229 00e8 9FED408A 		vldr.32	s16, .L21+20
+ 230 00ec B0EE480A 		vmov.f32	s0, s16
+ 231 00f0 3D4B     		ldr	r3, .L21+16
+ 232 00f2 1868     		ldr	r0, [r3]
+ 233              	.LVL13:
+  98:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 234              		.loc 1 98 13 is_stmt 0 view .LVU55
+ 235 00f4 FFF7FEFF 		bl	PWMSetDutyRatio
+ 236              	.LVL14:
+  99:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 1.0f);
+ 237              		.loc 1 99 13 is_stmt 1 view .LVU56
+ 238 00f8 B0EE480A 		vmov.f32	s0, s16
+ 239 00fc 3C4B     		ldr	r3, .L21+24
+ 240 00fe 1868     		ldr	r0, [r3]
+ 241 0100 FFF7FEFF 		bl	PWMSetDutyRatio
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 8
+
+
+ 242              	.LVL15:
+ 100:modules/alarm/led/led.c ****             break;
+ 243              		.loc 1 100 13 view .LVU57
+ 244 0104 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 245 0108 3A4B     		ldr	r3, .L21+28
+ 246 010a 1868     		ldr	r0, [r3]
+ 247 010c FFF7FEFF 		bl	PWMSetDutyRatio
+ 248              	.LVL16:
+ 101:modules/alarm/led/led.c ****         case GREEN:
+ 249              		.loc 1 101 13 view .LVU58
+ 250 0110 8AE7     		b	.L5
+ 251              	.LVL17:
+ 252              	.L8:
+ 103:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 1.0f);
+ 253              		.loc 1 103 13 view .LVU59
+ 254 0112 9FED368A 		vldr.32	s16, .L21+20
+ 255 0116 B0EE480A 		vmov.f32	s0, s16
+ 256 011a 334B     		ldr	r3, .L21+16
+ 257 011c 1868     		ldr	r0, [r3]
+ 258              	.LVL18:
+ 103:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 1.0f);
+ 259              		.loc 1 103 13 is_stmt 0 view .LVU60
+ 260 011e FFF7FEFF 		bl	PWMSetDutyRatio
+ 261              	.LVL19:
+ 104:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, 0.0f);   
+ 262              		.loc 1 104 13 is_stmt 1 view .LVU61
+ 263 0122 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 264 0126 324B     		ldr	r3, .L21+24
+ 265 0128 1868     		ldr	r0, [r3]
+ 266 012a FFF7FEFF 		bl	PWMSetDutyRatio
+ 267              	.LVL20:
+ 105:modules/alarm/led/led.c ****             break;  
+ 268              		.loc 1 105 13 view .LVU62
+ 269 012e B0EE480A 		vmov.f32	s0, s16
+ 270 0132 304B     		ldr	r3, .L21+28
+ 271 0134 1868     		ldr	r0, [r3]
+ 272 0136 FFF7FEFF 		bl	PWMSetDutyRatio
+ 273              	.LVL21:
+ 106:modules/alarm/led/led.c ****         case PINK: 
+ 274              		.loc 1 106 13 view .LVU63
+ 275 013a 75E7     		b	.L5
+ 276              	.LVL22:
+ 277              	.L6:
+ 108:modules/alarm/led/led.c ****             if (temp > 1)
+ 278              		.loc 1 108 13 view .LVU64
+ 108:modules/alarm/led/led.c ****             if (temp > 1)
+ 279              		.loc 1 108 17 is_stmt 0 view .LVU65
+ 280 013c 2E4A     		ldr	r2, .L21+32
+ 281 013e 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 282 0140 0133     		adds	r3, r3, #1
+ 283 0142 5BB2     		sxtb	r3, r3
+ 284 0144 1370     		strb	r3, [r2]
+ 109:modules/alarm/led/led.c ****             {
+ 285              		.loc 1 109 13 is_stmt 1 view .LVU66
+ 109:modules/alarm/led/led.c ****             {
+ 286              		.loc 1 109 16 is_stmt 0 view .LVU67
+ 287 0146 012B     		cmp	r3, #1
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 9
+
+
+ 288 0148 06DD     		ble	.L12
+ 111:modules/alarm/led/led.c ****                 alpha += 2;
+ 289              		.loc 1 111 17 is_stmt 1 view .LVU68
+ 111:modules/alarm/led/led.c ****                 alpha += 2;
+ 290              		.loc 1 111 22 is_stmt 0 view .LVU69
+ 291 014a 1346     		mov	r3, r2
+ 292 014c 0022     		movs	r2, #0
+ 293 014e 1A70     		strb	r2, [r3]
+ 112:modules/alarm/led/led.c ****             }
+ 294              		.loc 1 112 17 is_stmt 1 view .LVU70
+ 112:modules/alarm/led/led.c ****             }
+ 295              		.loc 1 112 23 is_stmt 0 view .LVU71
+ 296 0150 2A4A     		ldr	r2, .L21+36
+ 297 0152 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 298 0154 0233     		adds	r3, r3, #2
+ 299 0156 1370     		strb	r3, [r2]
+ 300              	.L12:
+ 115:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 301              		.loc 1 115 13 is_stmt 1 view .LVU72
+ 115:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 302              		.loc 1 115 72 is_stmt 0 view .LVU73
+ 303 0158 284D     		ldr	r5, .L21+36
+ 304 015a 95F90030 		ldrsb	r3, [r5]
+ 305 015e 002B     		cmp	r3, #0
+ 306 0160 B8BF     		it	lt
+ 307 0162 5B42     		rsblt	r3, r3, #0
+ 308 0164 DBB2     		uxtb	r3, r3
+ 309 0166 00EE103A 		vmov	s0, r3	@ int
+ 115:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 310              		.loc 1 115 65 view .LVU74
+ 311 016a B8EEC00A 		vcvt.f32.s32	s0, s0
+ 115:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 312              		.loc 1 115 13 view .LVU75
+ 313 016e 9FED248A 		vldr.32	s16, .L21+40
+ 314 0172 20EE080A 		vmul.f32	s0, s0, s16
+ 315 0176 1C4B     		ldr	r3, .L21+16
+ 316 0178 1868     		ldr	r0, [r3]
+ 317              	.LVL23:
+ 115:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_g, 0.0f);
+ 318              		.loc 1 115 13 view .LVU76
+ 319 017a FFF7FEFF 		bl	PWMSetDutyRatio
+ 320              	.LVL24:
+ 116:modules/alarm/led/led.c ****             PWMSetDutyRatio(led_b, (1.0f / (255.0f - 100.0f)) * (float)abs(alpha));   
+ 321              		.loc 1 116 13 is_stmt 1 view .LVU77
+ 322 017e 9FED1B0A 		vldr.32	s0, .L21+20
+ 323 0182 1B4B     		ldr	r3, .L21+24
+ 324 0184 1868     		ldr	r0, [r3]
+ 325 0186 FFF7FEFF 		bl	PWMSetDutyRatio
+ 326              	.LVL25:
+ 117:modules/alarm/led/led.c ****             break;           
+ 327              		.loc 1 117 13 view .LVU78
+ 117:modules/alarm/led/led.c ****             break;           
+ 328              		.loc 1 117 72 is_stmt 0 view .LVU79
+ 329 018a 95F90030 		ldrsb	r3, [r5]
+ 330 018e 002B     		cmp	r3, #0
+ 331 0190 B8BF     		it	lt
+ 332 0192 5B42     		rsblt	r3, r3, #0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 10
+
+
+ 333 0194 DBB2     		uxtb	r3, r3
+ 334 0196 00EE103A 		vmov	s0, r3	@ int
+ 117:modules/alarm/led/led.c ****             break;           
+ 335              		.loc 1 117 65 view .LVU80
+ 336 019a B8EEC00A 		vcvt.f32.s32	s0, s0
+ 117:modules/alarm/led/led.c ****             break;           
+ 337              		.loc 1 117 13 view .LVU81
+ 338 019e 20EE080A 		vmul.f32	s0, s0, s16
+ 339 01a2 144B     		ldr	r3, .L21+28
+ 340 01a4 1868     		ldr	r0, [r3]
+ 341 01a6 FFF7FEFF 		bl	PWMSetDutyRatio
+ 342              	.LVL26:
+ 118:modules/alarm/led/led.c ****         default:
+ 343              		.loc 1 118 13 is_stmt 1 view .LVU82
+ 344 01aa 3DE7     		b	.L5
+ 345              	.L20:
+ 126:modules/alarm/led/led.c ****         PWMSetDutyRatio(led_g, 0);
+ 346              		.loc 1 126 9 view .LVU83
+ 347 01ac 9FED0F8A 		vldr.32	s16, .L21+20
+ 348 01b0 B0EE480A 		vmov.f32	s0, s16
+ 349 01b4 0C4B     		ldr	r3, .L21+16
+ 350 01b6 1868     		ldr	r0, [r3]
+ 351 01b8 FFF7FEFF 		bl	PWMSetDutyRatio
+ 352              	.LVL27:
+ 127:modules/alarm/led/led.c ****         PWMSetDutyRatio(led_b, 0);           
+ 353              		.loc 1 127 9 view .LVU84
+ 354 01bc B0EE480A 		vmov.f32	s0, s16
+ 355 01c0 0B4B     		ldr	r3, .L21+24
+ 356 01c2 1868     		ldr	r0, [r3]
+ 357 01c4 FFF7FEFF 		bl	PWMSetDutyRatio
+ 358              	.LVL28:
+ 128:modules/alarm/led/led.c ****     }
+ 359              		.loc 1 128 9 view .LVU85
+ 360 01c8 B0EE480A 		vmov.f32	s0, s16
+ 361 01cc 094B     		ldr	r3, .L21+28
+ 362 01ce 1868     		ldr	r0, [r3]
+ 363 01d0 FFF7FEFF 		bl	PWMSetDutyRatio
+ 364              	.LVL29:
+ 365 01d4 31E7     		b	.L13
+ 366              	.L22:
+ 367 01d6 00BF     		.align	2
+ 368              	.L21:
+ 369 01d8 00000000 		.word	time_temp.4
+ 370 01dc 00000000 		.word	n.3
+ 371 01e0 00000000 		.word	led
+ 372 01e4 00000000 		.word	count.0
+ 373 01e8 00000000 		.word	led_r
+ 374 01ec 00000000 		.word	0
+ 375 01f0 00000000 		.word	led_g
+ 376 01f4 00000000 		.word	led_b
+ 377 01f8 00000000 		.word	temp.2
+ 378 01fc 00000000 		.word	alpha.1
+ 379 0200 0D68D33B 		.word	1003710477
+ 380              		.cfi_endproc
+ 381              	.LFE243:
+ 383              		.section	.text.LEDInit,"ax",%progbits
+ 384              		.align	1
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 11
+
+
+ 385              		.global	LEDInit
+ 386              		.syntax unified
+ 387              		.thumb
+ 388              		.thumb_func
+ 390              	LEDInit:
+ 391              	.LFB238:
+  15:modules/alarm/led/led.c ****     PWM_Init_Config_s led_config = {
+ 392              		.loc 1 15 1 view -0
+ 393              		.cfi_startproc
+ 394              		@ args = 0, pretend = 0, frame = 24
+ 395              		@ frame_needed = 0, uses_anonymous_args = 0
+ 396 0000 10B5     		push	{r4, lr}
+ 397              	.LCFI4:
+ 398              		.cfi_def_cfa_offset 8
+ 399              		.cfi_offset 4, -8
+ 400              		.cfi_offset 14, -4
+ 401 0002 86B0     		sub	sp, sp, #24
+ 402              	.LCFI5:
+ 403              		.cfi_def_cfa_offset 32
+  16:modules/alarm/led/led.c ****         .htim = &htim5,
+ 404              		.loc 1 16 5 view .LVU87
+  16:modules/alarm/led/led.c ****         .htim = &htim5,
+ 405              		.loc 1 16 23 is_stmt 0 view .LVU88
+ 406 0004 0024     		movs	r4, #0
+ 407 0006 0094     		str	r4, [sp]
+ 408 0008 0194     		str	r4, [sp, #4]
+ 409 000a 0294     		str	r4, [sp, #8]
+ 410 000c 0394     		str	r4, [sp, #12]
+ 411 000e 0494     		str	r4, [sp, #16]
+ 412 0010 0594     		str	r4, [sp, #20]
+ 413 0012 0D4B     		ldr	r3, .L25
+ 414 0014 0093     		str	r3, [sp]
+ 415 0016 0D4B     		ldr	r3, .L25+4
+ 416 0018 0293     		str	r3, [sp, #8]	@ float
+  22:modules/alarm/led/led.c ****     led_r = PWMRegister(&led_config);
+ 417              		.loc 1 22 5 is_stmt 1 view .LVU89
+  22:modules/alarm/led/led.c ****     led_r = PWMRegister(&led_config);
+ 418              		.loc 1 22 24 is_stmt 0 view .LVU90
+ 419 001a 0823     		movs	r3, #8
+ 420 001c 0193     		str	r3, [sp, #4]
+  23:modules/alarm/led/led.c **** 
+ 421              		.loc 1 23 5 is_stmt 1 view .LVU91
+  23:modules/alarm/led/led.c **** 
+ 422              		.loc 1 23 13 is_stmt 0 view .LVU92
+ 423 001e 6846     		mov	r0, sp
+ 424 0020 FFF7FEFF 		bl	PWMRegister
+ 425              	.LVL30:
+  23:modules/alarm/led/led.c **** 
+ 426              		.loc 1 23 11 discriminator 1 view .LVU93
+ 427 0024 0A4B     		ldr	r3, .L25+8
+ 428 0026 1860     		str	r0, [r3]
+  25:modules/alarm/led/led.c ****     led_g = PWMRegister(&led_config);
+ 429              		.loc 1 25 5 is_stmt 1 view .LVU94
+  25:modules/alarm/led/led.c ****     led_g = PWMRegister(&led_config);
+ 430              		.loc 1 25 24 is_stmt 0 view .LVU95
+ 431 0028 0423     		movs	r3, #4
+ 432 002a 0193     		str	r3, [sp, #4]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 12
+
+
+  26:modules/alarm/led/led.c **** 
+ 433              		.loc 1 26 5 is_stmt 1 view .LVU96
+  26:modules/alarm/led/led.c **** 
+ 434              		.loc 1 26 13 is_stmt 0 view .LVU97
+ 435 002c 6846     		mov	r0, sp
+ 436 002e FFF7FEFF 		bl	PWMRegister
+ 437              	.LVL31:
+  26:modules/alarm/led/led.c **** 
+ 438              		.loc 1 26 11 discriminator 1 view .LVU98
+ 439 0032 084B     		ldr	r3, .L25+12
+ 440 0034 1860     		str	r0, [r3]
+  28:modules/alarm/led/led.c ****     led_b = PWMRegister(&led_config);
+ 441              		.loc 1 28 5 is_stmt 1 view .LVU99
+  28:modules/alarm/led/led.c ****     led_b = PWMRegister(&led_config);
+ 442              		.loc 1 28 24 is_stmt 0 view .LVU100
+ 443 0036 0194     		str	r4, [sp, #4]
+  29:modules/alarm/led/led.c **** }
+ 444              		.loc 1 29 5 is_stmt 1 view .LVU101
+  29:modules/alarm/led/led.c **** }
+ 445              		.loc 1 29 13 is_stmt 0 view .LVU102
+ 446 0038 6846     		mov	r0, sp
+ 447 003a FFF7FEFF 		bl	PWMRegister
+ 448              	.LVL32:
+  29:modules/alarm/led/led.c **** }
+ 449              		.loc 1 29 11 discriminator 1 view .LVU103
+ 450 003e 064B     		ldr	r3, .L25+16
+ 451 0040 1860     		str	r0, [r3]
+  30:modules/alarm/led/led.c **** 
+ 452              		.loc 1 30 1 view .LVU104
+ 453 0042 06B0     		add	sp, sp, #24
+ 454              	.LCFI6:
+ 455              		.cfi_def_cfa_offset 8
+ 456              		@ sp needed
+ 457 0044 10BD     		pop	{r4, pc}
+ 458              	.L26:
+ 459 0046 00BF     		.align	2
+ 460              	.L25:
+ 461 0048 00000000 		.word	htim5
+ 462 004c 6F12833A 		.word	981668463
+ 463 0050 00000000 		.word	led_r
+ 464 0054 00000000 		.word	led_g
+ 465 0058 00000000 		.word	led_b
+ 466              		.cfi_endproc
+ 467              	.LFE238:
+ 469              		.section	.text.LEDRegister,"ax",%progbits
+ 470              		.align	1
+ 471              		.global	LEDRegister
+ 472              		.syntax unified
+ 473              		.thumb
+ 474              		.thumb_func
+ 476              	LEDRegister:
+ 477              	.LVL33:
+ 478              	.LFB239:
+  33:modules/alarm/led/led.c ****     LEDInstance *led_temp = (LEDInstance *)malloc(sizeof(LEDInstance));
+ 479              		.loc 1 33 1 is_stmt 1 view -0
+ 480              		.cfi_startproc
+ 481              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 13
+
+
+ 482              		@ frame_needed = 0, uses_anonymous_args = 0
+  33:modules/alarm/led/led.c ****     LEDInstance *led_temp = (LEDInstance *)malloc(sizeof(LEDInstance));
+ 483              		.loc 1 33 1 is_stmt 0 view .LVU106
+ 484 0000 38B5     		push	{r3, r4, r5, lr}
+ 485              	.LCFI7:
+ 486              		.cfi_def_cfa_offset 16
+ 487              		.cfi_offset 3, -16
+ 488              		.cfi_offset 4, -12
+ 489              		.cfi_offset 5, -8
+ 490              		.cfi_offset 14, -4
+ 491 0002 0446     		mov	r4, r0
+  34:modules/alarm/led/led.c ****     memset(led_temp, 0, sizeof(LEDInstance));
+ 492              		.loc 1 34 5 is_stmt 1 view .LVU107
+  34:modules/alarm/led/led.c ****     memset(led_temp, 0, sizeof(LEDInstance));
+ 493              		.loc 1 34 44 is_stmt 0 view .LVU108
+ 494 0004 0420     		movs	r0, #4
+ 495              	.LVL34:
+  34:modules/alarm/led/led.c ****     memset(led_temp, 0, sizeof(LEDInstance));
+ 496              		.loc 1 34 44 view .LVU109
+ 497 0006 FFF7FEFF 		bl	malloc
+ 498              	.LVL35:
+  35:modules/alarm/led/led.c **** 
+ 499              		.loc 1 35 5 is_stmt 1 view .LVU110
+ 500 000a 0021     		movs	r1, #0
+ 501 000c 0160     		str	r1, [r0]	@ unaligned
+  37:modules/alarm/led/led.c ****     led_temp->flash = config->flash;
+ 502              		.loc 1 37 5 view .LVU111
+  37:modules/alarm/led/led.c ****     led_temp->flash = config->flash;
+ 503              		.loc 1 37 29 is_stmt 0 view .LVU112
+ 504 000e 6278     		ldrb	r2, [r4, #1]	@ zero_extendqisi2
+  37:modules/alarm/led/led.c ****     led_temp->flash = config->flash;
+ 505              		.loc 1 37 21 view .LVU113
+ 506 0010 0270     		strb	r2, [r0]
+  38:modules/alarm/led/led.c ****     led->flash_count = config->flash_count;
+ 507              		.loc 1 38 5 is_stmt 1 view .LVU114
+  38:modules/alarm/led/led.c ****     led->flash_count = config->flash_count;
+ 508              		.loc 1 38 29 is_stmt 0 view .LVU115
+ 509 0012 2278     		ldrb	r2, [r4]	@ zero_extendqisi2
+  38:modules/alarm/led/led.c ****     led->flash_count = config->flash_count;
+ 510              		.loc 1 38 21 view .LVU116
+ 511 0014 4270     		strb	r2, [r0, #1]
+  39:modules/alarm/led/led.c ****     led_temp->alarm_state = ALARM_OFF;
+ 512              		.loc 1 39 5 is_stmt 1 view .LVU117
+  39:modules/alarm/led/led.c ****     led_temp->alarm_state = ALARM_OFF;
+ 513              		.loc 1 39 8 is_stmt 0 view .LVU118
+ 514 0016 034A     		ldr	r2, .L29
+  39:modules/alarm/led/led.c ****     led_temp->alarm_state = ALARM_OFF;
+ 515              		.loc 1 39 30 view .LVU119
+ 516 0018 A478     		ldrb	r4, [r4, #2]	@ zero_extendqisi2
+ 517              	.LVL36:
+  39:modules/alarm/led/led.c ****     led_temp->alarm_state = ALARM_OFF;
+ 518              		.loc 1 39 22 view .LVU120
+ 519 001a 1568     		ldr	r5, [r2]
+ 520 001c AC70     		strb	r4, [r5, #2]
+  40:modules/alarm/led/led.c **** 
+ 521              		.loc 1 40 5 is_stmt 1 view .LVU121
+  40:modules/alarm/led/led.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 14
+
+
+ 522              		.loc 1 40 27 is_stmt 0 view .LVU122
+ 523 001e C170     		strb	r1, [r0, #3]
+  42:modules/alarm/led/led.c ****     return led_temp;
+ 524              		.loc 1 42 5 is_stmt 1 view .LVU123
+  42:modules/alarm/led/led.c ****     return led_temp;
+ 525              		.loc 1 42 9 is_stmt 0 view .LVU124
+ 526 0020 1060     		str	r0, [r2]
+  43:modules/alarm/led/led.c **** }
+ 527              		.loc 1 43 5 is_stmt 1 view .LVU125
+  44:modules/alarm/led/led.c **** 
+ 528              		.loc 1 44 1 is_stmt 0 view .LVU126
+ 529 0022 38BD     		pop	{r3, r4, r5, pc}
+ 530              	.L30:
+ 531              		.align	2
+ 532              	.L29:
+ 533 0024 00000000 		.word	led
+ 534              		.cfi_endproc
+ 535              	.LFE239:
+ 537              		.section	.text.LEDSetStatus,"ax",%progbits
+ 538              		.align	1
+ 539              		.global	LEDSetStatus
+ 540              		.syntax unified
+ 541              		.thumb
+ 542              		.thumb_func
+ 544              	LEDSetStatus:
+ 545              	.LVL37:
+ 546              	.LFB240:
+  47:modules/alarm/led/led.c ****     led->alarm_state = state;
+ 547              		.loc 1 47 1 is_stmt 1 view -0
+ 548              		.cfi_startproc
+ 549              		@ args = 0, pretend = 0, frame = 0
+ 550              		@ frame_needed = 0, uses_anonymous_args = 0
+ 551              		@ link register save eliminated.
+  48:modules/alarm/led/led.c **** }
+ 552              		.loc 1 48 5 view .LVU128
+  48:modules/alarm/led/led.c **** }
+ 553              		.loc 1 48 22 is_stmt 0 view .LVU129
+ 554 0000 C170     		strb	r1, [r0, #3]
+  49:modules/alarm/led/led.c **** 
+ 555              		.loc 1 49 1 view .LVU130
+ 556 0002 7047     		bx	lr
+ 557              		.cfi_endproc
+ 558              	.LFE240:
+ 560              		.section	.text.LEDSetFlash,"ax",%progbits
+ 561              		.align	1
+ 562              		.global	LEDSetFlash
+ 563              		.syntax unified
+ 564              		.thumb
+ 565              		.thumb_func
+ 567              	LEDSetFlash:
+ 568              	.LVL38:
+ 569              	.LFB241:
+  52:modules/alarm/led/led.c ****     led->color = color;
+ 570              		.loc 1 52 1 is_stmt 1 view -0
+ 571              		.cfi_startproc
+ 572              		@ args = 0, pretend = 0, frame = 0
+ 573              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 15
+
+
+ 574              		@ link register save eliminated.
+  53:modules/alarm/led/led.c ****     led->flash = flash;
+ 575              		.loc 1 53 5 view .LVU132
+  53:modules/alarm/led/led.c ****     led->flash = flash;
+ 576              		.loc 1 53 16 is_stmt 0 view .LVU133
+ 577 0000 0170     		strb	r1, [r0]
+  54:modules/alarm/led/led.c **** }
+ 578              		.loc 1 54 5 is_stmt 1 view .LVU134
+  54:modules/alarm/led/led.c **** }
+ 579              		.loc 1 54 16 is_stmt 0 view .LVU135
+ 580 0002 4270     		strb	r2, [r0, #1]
+  55:modules/alarm/led/led.c **** 
+ 581              		.loc 1 55 1 view .LVU136
+ 582 0004 7047     		bx	lr
+ 583              		.cfi_endproc
+ 584              	.LFE241:
+ 586              		.section	.text.LEDSetFlashTime,"ax",%progbits
+ 587              		.align	1
+ 588              		.global	LEDSetFlashTime
+ 589              		.syntax unified
+ 590              		.thumb
+ 591              		.thumb_func
+ 593              	LEDSetFlashTime:
+ 594              	.LVL39:
+ 595              	.LFB242:
+  58:modules/alarm/led/led.c ****     led->flash_count = flash_count;
+ 596              		.loc 1 58 1 is_stmt 1 view -0
+ 597              		.cfi_startproc
+ 598              		@ args = 0, pretend = 0, frame = 0
+ 599              		@ frame_needed = 0, uses_anonymous_args = 0
+ 600              		@ link register save eliminated.
+  59:modules/alarm/led/led.c **** }
+ 601              		.loc 1 59 5 view .LVU138
+  59:modules/alarm/led/led.c **** }
+ 602              		.loc 1 59 22 is_stmt 0 view .LVU139
+ 603 0000 8170     		strb	r1, [r0, #2]
+  60:modules/alarm/led/led.c **** 
+ 604              		.loc 1 60 1 view .LVU140
+ 605 0002 7047     		bx	lr
+ 606              		.cfi_endproc
+ 607              	.LFE242:
+ 609              		.section	.text.LEDTask,"ax",%progbits
+ 610              		.align	1
+ 611              		.global	LEDTask
+ 612              		.syntax unified
+ 613              		.thumb
+ 614              		.thumb_func
+ 616              	LEDTask:
+ 617              	.LFB244:
+ 142:modules/alarm/led/led.c **** 
+ 143:modules/alarm/led/led.c **** void LEDTask()
+ 144:modules/alarm/led/led.c **** {
+ 618              		.loc 1 144 1 is_stmt 1 view -0
+ 619              		.cfi_startproc
+ 620              		@ args = 0, pretend = 0, frame = 0
+ 621              		@ frame_needed = 0, uses_anonymous_args = 0
+ 622 0000 08B5     		push	{r3, lr}
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 16
+
+
+ 623              	.LCFI8:
+ 624              		.cfi_def_cfa_offset 8
+ 625              		.cfi_offset 3, -8
+ 626              		.cfi_offset 14, -4
+ 145:modules/alarm/led/led.c ****     if (led->alarm_state == ALARM_OFF)
+ 627              		.loc 1 145 5 view .LVU142
+ 628              		.loc 1 145 12 is_stmt 0 view .LVU143
+ 629 0002 074B     		ldr	r3, .L38
+ 630 0004 1B68     		ldr	r3, [r3]
+ 631 0006 DA78     		ldrb	r2, [r3, #3]	@ zero_extendqisi2
+ 632              		.loc 1 145 8 view .LVU144
+ 633 0008 22B9     		cbnz	r2, .L35
+ 146:modules/alarm/led/led.c ****     {
+ 147:modules/alarm/led/led.c ****         LEDShowFlash(PINK, ALWAYS_ON);
+ 634              		.loc 1 147 9 is_stmt 1 view .LVU145
+ 635 000a 0221     		movs	r1, #2
+ 636 000c 0420     		movs	r0, #4
+ 637 000e FFF7FEFF 		bl	LEDShowFlash
+ 638              	.LVL40:
+ 639              	.L34:
+ 148:modules/alarm/led/led.c ****     }
+ 149:modules/alarm/led/led.c ****     else
+ 150:modules/alarm/led/led.c ****     {
+ 151:modules/alarm/led/led.c ****         LEDShowFlash(led->color, led->flash);
+ 152:modules/alarm/led/led.c ****     }
+ 153:modules/alarm/led/led.c **** }
+ 640              		.loc 1 153 1 is_stmt 0 view .LVU146
+ 641 0012 08BD     		pop	{r3, pc}
+ 642              	.L35:
+ 151:modules/alarm/led/led.c ****     }
+ 643              		.loc 1 151 9 is_stmt 1 view .LVU147
+ 644 0014 5978     		ldrb	r1, [r3, #1]	@ zero_extendqisi2
+ 645 0016 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 646 0018 FFF7FEFF 		bl	LEDShowFlash
+ 647              	.LVL41:
+ 648              		.loc 1 153 1 is_stmt 0 view .LVU148
+ 649 001c F9E7     		b	.L34
+ 650              	.L39:
+ 651 001e 00BF     		.align	2
+ 652              	.L38:
+ 653 0020 00000000 		.word	led
+ 654              		.cfi_endproc
+ 655              	.LFE244:
+ 657              		.section	.bss.count.0,"aw",%nobits
+ 658              		.align	1
+ 661              	count.0:
+ 662 0000 0000     		.space	2
+ 663              		.section	.bss.alpha.1,"aw",%nobits
+ 666              	alpha.1:
+ 667 0000 00       		.space	1
+ 668              		.section	.bss.temp.2,"aw",%nobits
+ 671              	temp.2:
+ 672 0000 00       		.space	1
+ 673              		.section	.bss.n.3,"aw",%nobits
+ 674              		.align	1
+ 677              	n.3:
+ 678 0000 0000     		.space	2
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 17
+
+
+ 679              		.section	.bss.time_temp.4,"aw",%nobits
+ 680              		.align	1
+ 683              	time_temp.4:
+ 684 0000 0000     		.space	2
+ 685              		.section	.bss.led,"aw",%nobits
+ 686              		.align	2
+ 689              	led:
+ 690 0000 00000000 		.space	4
+ 691              		.section	.bss.led_b,"aw",%nobits
+ 692              		.align	2
+ 695              	led_b:
+ 696 0000 00000000 		.space	4
+ 697              		.section	.bss.led_g,"aw",%nobits
+ 698              		.align	2
+ 701              	led_g:
+ 702 0000 00000000 		.space	4
+ 703              		.section	.bss.led_r,"aw",%nobits
+ 704              		.align	2
+ 707              	led_r:
+ 708 0000 00000000 		.space	4
+ 709              		.text
+ 710              	.Letext0:
+ 711              		.file 2 "D:/msys2/mingw64/arm-none-eabi/include/machine/_default_types.h"
+ 712              		.file 3 "D:/msys2/mingw64/arm-none-eabi/include/sys/_stdint.h"
+ 713              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 714              		.file 5 "D:/msys2/mingw64/lib/gcc/arm-none-eabi/13.3.0/include/stddef.h"
+ 715              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 716              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 717              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h"
+ 718              		.file 9 "bsp/pwm/bsp_pwm.h"
+ 719              		.file 10 "modules/alarm/alarm_def.h"
+ 720              		.file 11 "modules/alarm/led/led.h"
+ 721              		.file 12 "D:/msys2/mingw64/arm-none-eabi/include/string.h"
+ 722              		.file 13 "D:/msys2/mingw64/arm-none-eabi/include/stdlib.h"
+ 723              		.file 14 "Inc/tim.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s 			page 18
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 led.c
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:21     .text.LEDShowFlash:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:26     .text.LEDShowFlash:00000000 LEDShowFlash
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:172    .text.LEDShowFlash:00000092 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:369    .text.LEDShowFlash:000001d8 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:683    .bss.time_temp.4:00000000 time_temp.4
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:677    .bss.n.3:00000000 n.3
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:689    .bss.led:00000000 led
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:661    .bss.count.0:00000000 count.0
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:707    .bss.led_r:00000000 led_r
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:701    .bss.led_g:00000000 led_g
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:695    .bss.led_b:00000000 led_b
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:671    .bss.temp.2:00000000 temp.2
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:666    .bss.alpha.1:00000000 alpha.1
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:384    .text.LEDInit:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:390    .text.LEDInit:00000000 LEDInit
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:461    .text.LEDInit:00000048 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:470    .text.LEDRegister:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:476    .text.LEDRegister:00000000 LEDRegister
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:533    .text.LEDRegister:00000024 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:538    .text.LEDSetStatus:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:544    .text.LEDSetStatus:00000000 LEDSetStatus
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:561    .text.LEDSetFlash:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:567    .text.LEDSetFlash:00000000 LEDSetFlash
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:587    .text.LEDSetFlashTime:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:593    .text.LEDSetFlashTime:00000000 LEDSetFlashTime
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:610    .text.LEDTask:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:616    .text.LEDTask:00000000 LEDTask
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:653    .text.LEDTask:00000020 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:658    .bss.count.0:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:667    .bss.alpha.1:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:672    .bss.temp.2:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:674    .bss.n.3:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:680    .bss.time_temp.4:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:686    .bss.led:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:692    .bss.led_b:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:698    .bss.led_g:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:704    .bss.led_r:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:177    .text.LEDShowFlash:00000097 $d
+C:\Users\lenovo\AppData\Local\Temp\ccbKLbcl.s:177    .text.LEDShowFlash:00000098 $t
+
+UNDEFINED SYMBOLS
+PWMSetDutyRatio
+PWMRegister
+htim5
+malloc

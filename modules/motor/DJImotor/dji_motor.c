@@ -6,7 +6,6 @@
 static uint8_t idx = 0; // register idx,是该文件的全局电机索引,在注册时使用
 /* DJI电机的实例,此处仅保存指针,内存的分配将通过电机实例初始化时通过malloc()进行 */
 static DJIMotorInstance *dji_motor_instance[DJI_MOTOR_CNT] = {NULL}; // 会在control任务中遍历该指针数组进行pid计算
-
 /**
  * @brief 由于DJI电机发送以四个一组的形式进行,故对其进行特殊处理,用6个(2can*3group)can_instance专门负责发送
  *        该变量将在 DJIMotorControl() 中使用,分组在 MotorSenderGrouping()中进行
@@ -217,10 +216,24 @@ void DJIMotorEnable(DJIMotorInstance *motor)
     motor->stop_flag = MOTOR_ENALBED;
 }
 
-/* 修改电机的实际闭环对象 */
+void DJIMotorIsOnline(DJIMotorInstance *motor)
+{
+    if (DaemonIsOnline(motor->daemon) > 0)
+        motor->online_flag = MOTOR_ONLINE;
+    else
+        motor->online_flag = MOTOR_OFFLINE;
+}
+
+/* 修改电机的实际外环对象 */
 void DJIMotorOuterLoop(DJIMotorInstance *motor, Closeloop_Type_e outer_loop)
 {
     motor->motor_settings.outer_loop_type = outer_loop;
+}
+
+/* 修改电机的实际外环对象 */
+void DJIMotorCloseLoop(DJIMotorInstance *motor, Closeloop_Type_e outer_loop)
+{
+    motor->motor_settings.close_loop_type = outer_loop;
 }
 
 // 设置参考值
@@ -249,7 +262,7 @@ void DJIMotorControl()
         motor_controller = &motor->motor_controller;
         measure = &motor->measure;
         pid_ref = motor_controller->pid_ref; // 保存设定值,防止motor_controller->pid_ref在计算过程中被修改
-        if (motor_setting->motor_reverse_flag == MOTOR_DIRECTION_REVERSE)
+        if (motor_setting->motor_reverse_flag == MOTOR_DIRECTION_REVERSE && (motor_setting->outer_loop_type & (ANGLE_LOOP | SPEED_LOOP)))
             pid_ref *= -1; // 设置反转
 
         // pid_ref会顺次通过被启用的闭环充当数据的载体
@@ -286,12 +299,12 @@ void DJIMotorControl()
             pid_ref = PIDCalculate(&motor_controller->current_PID, measure->real_current, pid_ref);
         }
 
-        if (motor_setting->feedback_reverse_flag == FEEDBACK_DIRECTION_REVERSE)
+        if (motor_setting->feedback_reverse_flag == FEEDBACK_DIRECTION_REVERSE && (motor_setting->outer_loop_type & (ANGLE_LOOP | SPEED_LOOP)))
             pid_ref *= -1;
 
-        // 获取最终输出
+        // 获取最终输出,功率限制时直接输出电流值
         set = (int16_t)pid_ref;
-
+        
         // 分组填入发送数据
         group = motor->sender_group;
         num = motor->message_num;

@@ -1,0 +1,1268 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"robot.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "application/robot.c"
+  20              		.section	.text.StartINSTASK,"ax",%progbits
+  21              		.align	1
+  22              		.global	StartINSTASK
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	StartINSTASK:
+  28              	.LVL0:
+  29              	.LFB279:
+  30              		.file 2 "application/robot_task.h"
+   1:application/robot_task.h **** /* 注意该文件应只用于任务初始化,只能被robot.c包含*/
+   2:application/robot_task.h **** #pragma once
+   3:application/robot_task.h **** 
+   4:application/robot_task.h **** #include "FreeRTOS.h"
+   5:application/robot_task.h **** #include "task.h"
+   6:application/robot_task.h **** #include "main.h"
+   7:application/robot_task.h **** #include "cmsis_os.h"
+   8:application/robot_task.h **** 
+   9:application/robot_task.h **** #include "robot.h"
+  10:application/robot_task.h **** #include "ins_task.h"
+  11:application/robot_task.h **** #include "motor_task.h"
+  12:application/robot_task.h **** #include "referee_task.h"
+  13:application/robot_task.h **** #include "master_process.h"
+  14:application/robot_task.h **** #include "daemon.h"
+  15:application/robot_task.h **** 
+  16:application/robot_task.h **** #include "HT04.h"
+  17:application/robot_task.h **** #include "drmotor.h"
+  18:application/robot_task.h **** #include "xmmotor.h"
+  19:application/robot_task.h **** 
+  20:application/robot_task.h **** #include "buzzer.h"
+  21:application/robot_task.h **** #include "led.h"
+  22:application/robot_task.h **** 
+  23:application/robot_task.h **** #include "bsp_log.h"
+  24:application/robot_task.h **** 
+  25:application/robot_task.h **** osThreadId insTaskHandle;
+  26:application/robot_task.h **** osThreadId robotTaskHandle;
+  27:application/robot_task.h **** osThreadId motorTaskHandle;
+  28:application/robot_task.h **** osThreadId daemonTaskHandle;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 2
+
+
+  29:application/robot_task.h **** osThreadId uiTaskHandle;
+  30:application/robot_task.h **** 
+  31:application/robot_task.h **** void StartINSTASK(void const *argument);
+  32:application/robot_task.h **** void StartMOTORTASK(void const *argument);
+  33:application/robot_task.h **** void StartDAEMONTASK(void const *argument);
+  34:application/robot_task.h **** void StartROBOTTASK(void const *argument);
+  35:application/robot_task.h **** void StartUITASK(void const *argument);
+  36:application/robot_task.h **** 
+  37:application/robot_task.h **** /**
+  38:application/robot_task.h ****  * @brief 初始化机器人任务,所有持续运行的任务都在这里初始化
+  39:application/robot_task.h ****  *
+  40:application/robot_task.h ****  */
+  41:application/robot_task.h **** void OSTaskInit()
+  42:application/robot_task.h **** {
+  43:application/robot_task.h ****     osThreadDef(instask, StartINSTASK, osPriorityAboveNormal, 0, 1024);
+  44:application/robot_task.h ****     insTaskHandle = osThreadCreate(osThread(instask), NULL); // 由于是阻塞读取传感器,为�
+  45:application/robot_task.h ****     // // 后续修改为读取传感器数据准备好的中断处理,
+  46:application/robot_task.h **** 
+  47:application/robot_task.h ****     osThreadDef(motortask, StartMOTORTASK, osPriorityNormal, 0, 256);
+  48:application/robot_task.h ****     motorTaskHandle = osThreadCreate(osThread(motortask), NULL);
+  49:application/robot_task.h **** 
+  50:application/robot_task.h ****     osThreadDef(daemontask, StartDAEMONTASK, osPriorityNormal, 0, 128);
+  51:application/robot_task.h ****     daemonTaskHandle = osThreadCreate(osThread(daemontask), NULL);
+  52:application/robot_task.h **** 
+  53:application/robot_task.h ****     osThreadDef(robottask, StartROBOTTASK, osPriorityNormal, 0, 1024);
+  54:application/robot_task.h ****     robotTaskHandle = osThreadCreate(osThread(robottask), NULL);
+  55:application/robot_task.h **** 
+  56:application/robot_task.h ****     osThreadDef(uitask, StartUITASK, osPriorityNormal, 0, 512);
+  57:application/robot_task.h ****     uiTaskHandle = osThreadCreate(osThread(uitask), NULL);
+  58:application/robot_task.h **** 
+  59:application/robot_task.h ****     // HTMotorControlInit(); // 没有注册HT电机则不会执行
+  60:application/robot_task.h **** 
+  61:application/robot_task.h ****     // DRMotorControlInit();   // 只能注册一个电机任务
+  62:application/robot_task.h **** 
+  63:application/robot_task.h ****     XMMotorControlInit();
+  64:application/robot_task.h **** }
+  65:application/robot_task.h **** 
+  66:application/robot_task.h **** __attribute__((noreturn)) void StartINSTASK(void const *argument)
+  67:application/robot_task.h **** {
+  31              		.loc 2 67 1 view -0
+  32              		.cfi_startproc
+  33              		@ Volatile: function does not return.
+  34              		@ args = 0, pretend = 0, frame = 0
+  35              		@ frame_needed = 0, uses_anonymous_args = 0
+  36              		.loc 2 67 1 is_stmt 0 view .LVU1
+  37 0000 08B5     		push	{r3, lr}
+  38              		.cfi_def_cfa_offset 8
+  39              		.cfi_offset 3, -8
+  40              		.cfi_offset 14, -4
+  68:application/robot_task.h ****     static float ins_start;
+  41              		.loc 2 68 5 is_stmt 1 view .LVU2
+  69:application/robot_task.h ****     static float ins_dt;
+  42              		.loc 2 69 5 view .LVU3
+  70:application/robot_task.h ****     INS_Init(); // 确保BMI088被正确初始化.
+  43              		.loc 2 70 5 view .LVU4
+  44 0002 FFF7FEFF 		bl	INS_Init
+  45              	.LVL1:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 3
+
+
+  46              	.L2:
+  71:application/robot_task.h ****     LOGINFO("[freeRTOS] INS Task Start");
+  47              		.loc 2 71 41 view .LVU5
+  72:application/robot_task.h ****     for (;;)
+  48              		.loc 2 72 5 view .LVU6
+  73:application/robot_task.h ****     {
+  74:application/robot_task.h ****         // 1kHz
+  75:application/robot_task.h ****         ins_start = DWT_GetTimeline_ms();
+  49              		.loc 2 75 9 view .LVU7
+  50              		.loc 2 75 21 is_stmt 0 view .LVU8
+  51 0006 FFF7FEFF 		bl	DWT_GetTimeline_ms
+  52              	.LVL2:
+  53              		.loc 2 75 19 discriminator 1 view .LVU9
+  54 000a 0A4C     		ldr	r4, .L4
+  55 000c 84ED000A 		vstr.32	s0, [r4]
+  76:application/robot_task.h ****         INS_Task();
+  56              		.loc 2 76 9 is_stmt 1 view .LVU10
+  57 0010 FFF7FEFF 		bl	INS_Task
+  58              	.LVL3:
+  77:application/robot_task.h ****         ins_dt = DWT_GetTimeline_ms() - ins_start;
+  59              		.loc 2 77 9 view .LVU11
+  60              		.loc 2 77 18 is_stmt 0 view .LVU12
+  61 0014 FFF7FEFF 		bl	DWT_GetTimeline_ms
+  62              	.LVL4:
+  63              		.loc 2 77 39 discriminator 1 view .LVU13
+  64 0018 D4ED007A 		vldr.32	s15, [r4]
+  65 001c 30EE670A 		vsub.f32	s0, s0, s15
+  66              		.loc 2 77 16 discriminator 1 view .LVU14
+  67 0020 054B     		ldr	r3, .L4+4
+  68 0022 83ED000A 		vstr.32	s0, [r3]
+  78:application/robot_task.h ****         if (ins_dt > 1)
+  69              		.loc 2 78 9 is_stmt 1 view .LVU15
+  79:application/robot_task.h ****             LOGERROR("[freeRTOS] INS Task is being DELAY! dt = [%f]", &ins_dt);
+  80:application/robot_task.h ****         VisionSend(); // 解算完成后发送视觉数据,但是当前的实现不太优雅,后续
+  70              		.loc 2 80 9 view .LVU16
+  71 0026 FFF7FEFF 		bl	VisionSend
+  72              	.LVL5:
+  81:application/robot_task.h ****         osDelay(1);
+  73              		.loc 2 81 9 view .LVU17
+  74 002a 0120     		movs	r0, #1
+  75 002c FFF7FEFF 		bl	osDelay
+  76              	.LVL6:
+  72:application/robot_task.h ****     {
+  77              		.loc 2 72 5 view .LVU18
+  78 0030 E9E7     		b	.L2
+  79              	.L5:
+  80 0032 00BF     		.align	2
+  81              	.L4:
+  82 0034 00000000 		.word	ins_start.7
+  83 0038 00000000 		.word	ins_dt.6
+  84              		.cfi_endproc
+  85              	.LFE279:
+  87              		.section	.text.StartMOTORTASK,"ax",%progbits
+  88              		.align	1
+  89              		.global	StartMOTORTASK
+  90              		.syntax unified
+  91              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 4
+
+
+  92              		.thumb_func
+  94              	StartMOTORTASK:
+  95              	.LFB280:
+  82:application/robot_task.h ****     }
+  83:application/robot_task.h **** }
+  84:application/robot_task.h **** 
+  85:application/robot_task.h **** __attribute__((noreturn)) void StartMOTORTASK(void const *argument)
+  86:application/robot_task.h **** {
+  96              		.loc 2 86 1 view -0
+  97              		.cfi_startproc
+  98              		@ Volatile: function does not return.
+  99              		@ args = 0, pretend = 0, frame = 0
+ 100              		@ frame_needed = 0, uses_anonymous_args = 0
+ 101              	.LVL7:
+ 102              		.loc 2 86 1 is_stmt 0 view .LVU20
+ 103 0000 08B5     		push	{r3, lr}
+ 104              		.cfi_def_cfa_offset 8
+ 105              		.cfi_offset 3, -8
+ 106              		.cfi_offset 14, -4
+ 107              	.LVL8:
+ 108              	.L7:
+  87:application/robot_task.h ****     static float motor_dt;
+ 109              		.loc 2 87 5 is_stmt 1 view .LVU21
+  88:application/robot_task.h ****     static float motor_start;
+ 110              		.loc 2 88 5 view .LVU22
+  89:application/robot_task.h ****     LOGINFO("[freeRTOS] MOTOR Task Start");
+ 111              		.loc 2 89 43 view .LVU23
+  90:application/robot_task.h ****     for (;;)
+ 112              		.loc 2 90 5 view .LVU24
+  91:application/robot_task.h ****     {
+  92:application/robot_task.h ****         motor_start = DWT_GetTimeline_ms();
+ 113              		.loc 2 92 9 view .LVU25
+ 114              		.loc 2 92 23 is_stmt 0 view .LVU26
+ 115 0002 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 116              	.LVL9:
+ 117              		.loc 2 92 21 discriminator 1 view .LVU27
+ 118 0006 094C     		ldr	r4, .L9
+ 119 0008 84ED000A 		vstr.32	s0, [r4]
+  93:application/robot_task.h ****         MotorControlTask();
+ 120              		.loc 2 93 9 is_stmt 1 view .LVU28
+ 121 000c FFF7FEFF 		bl	MotorControlTask
+ 122              	.LVL10:
+  94:application/robot_task.h ****         motor_dt = DWT_GetTimeline_ms() - motor_start;
+ 123              		.loc 2 94 9 view .LVU29
+ 124              		.loc 2 94 20 is_stmt 0 view .LVU30
+ 125 0010 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 126              	.LVL11:
+ 127              		.loc 2 94 41 discriminator 1 view .LVU31
+ 128 0014 D4ED007A 		vldr.32	s15, [r4]
+ 129 0018 30EE670A 		vsub.f32	s0, s0, s15
+ 130              		.loc 2 94 18 discriminator 1 view .LVU32
+ 131 001c 044B     		ldr	r3, .L9+4
+ 132 001e 83ED000A 		vstr.32	s0, [r3]
+  95:application/robot_task.h ****         if (motor_dt > 1)
+ 133              		.loc 2 95 9 is_stmt 1 view .LVU33
+  96:application/robot_task.h ****             LOGERROR("[freeRTOS] MOTOR Task is being DELAY! dt = [%f]", &motor_dt);
+  97:application/robot_task.h ****         osDelay(1);
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 5
+
+
+ 134              		.loc 2 97 9 view .LVU34
+ 135 0022 0120     		movs	r0, #1
+ 136 0024 FFF7FEFF 		bl	osDelay
+ 137              	.LVL12:
+  90:application/robot_task.h ****     {
+ 138              		.loc 2 90 5 view .LVU35
+ 139 0028 EBE7     		b	.L7
+ 140              	.L10:
+ 141 002a 00BF     		.align	2
+ 142              	.L9:
+ 143 002c 00000000 		.word	motor_start.5
+ 144 0030 00000000 		.word	motor_dt.4
+ 145              		.cfi_endproc
+ 146              	.LFE280:
+ 148              		.section	.text.StartDAEMONTASK,"ax",%progbits
+ 149              		.align	1
+ 150              		.global	StartDAEMONTASK
+ 151              		.syntax unified
+ 152              		.thumb
+ 153              		.thumb_func
+ 155              	StartDAEMONTASK:
+ 156              	.LVL13:
+ 157              	.LFB281:
+  98:application/robot_task.h ****     }
+  99:application/robot_task.h **** }
+ 100:application/robot_task.h **** 
+ 101:application/robot_task.h **** __attribute__((noreturn)) void StartDAEMONTASK(void const *argument)
+ 102:application/robot_task.h **** {
+ 158              		.loc 2 102 1 view -0
+ 159              		.cfi_startproc
+ 160              		@ Volatile: function does not return.
+ 161              		@ args = 0, pretend = 0, frame = 0
+ 162              		@ frame_needed = 0, uses_anonymous_args = 0
+ 163              		.loc 2 102 1 is_stmt 0 view .LVU37
+ 164 0000 08B5     		push	{r3, lr}
+ 165              		.cfi_def_cfa_offset 8
+ 166              		.cfi_offset 3, -8
+ 167              		.cfi_offset 14, -4
+ 103:application/robot_task.h ****     static float daemon_dt;
+ 168              		.loc 2 103 5 is_stmt 1 view .LVU38
+ 104:application/robot_task.h ****     static float daemon_start;
+ 169              		.loc 2 104 5 view .LVU39
+ 105:application/robot_task.h ****     BuzzerInit();
+ 170              		.loc 2 105 5 view .LVU40
+ 171 0002 FFF7FEFF 		bl	BuzzerInit
+ 172              	.LVL14:
+ 106:application/robot_task.h ****     LEDInit();
+ 173              		.loc 2 106 5 view .LVU41
+ 174 0006 FFF7FEFF 		bl	LEDInit
+ 175              	.LVL15:
+ 176              	.L12:
+ 107:application/robot_task.h ****     LOGINFO("[freeRTOS] Daemon Task Start");
+ 177              		.loc 2 107 44 view .LVU42
+ 108:application/robot_task.h ****     for (;;)
+ 178              		.loc 2 108 5 view .LVU43
+ 109:application/robot_task.h ****     {
+ 110:application/robot_task.h ****         // 100Hz
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 6
+
+
+ 111:application/robot_task.h ****         daemon_start = DWT_GetTimeline_ms();
+ 179              		.loc 2 111 9 view .LVU44
+ 180              		.loc 2 111 24 is_stmt 0 view .LVU45
+ 181 000a FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 182              	.LVL16:
+ 183              		.loc 2 111 22 discriminator 1 view .LVU46
+ 184 000e 0B4C     		ldr	r4, .L14
+ 185 0010 84ED000A 		vstr.32	s0, [r4]
+ 112:application/robot_task.h ****         DaemonTask();
+ 186              		.loc 2 112 9 is_stmt 1 view .LVU47
+ 187 0014 FFF7FEFF 		bl	DaemonTask
+ 188              	.LVL17:
+ 113:application/robot_task.h ****         BuzzerTask();
+ 189              		.loc 2 113 9 view .LVU48
+ 190 0018 FFF7FEFF 		bl	BuzzerTask
+ 191              	.LVL18:
+ 114:application/robot_task.h ****         LEDTask();
+ 192              		.loc 2 114 9 view .LVU49
+ 193 001c FFF7FEFF 		bl	LEDTask
+ 194              	.LVL19:
+ 115:application/robot_task.h ****         daemon_dt = DWT_GetTimeline_ms() - daemon_start;
+ 195              		.loc 2 115 9 view .LVU50
+ 196              		.loc 2 115 21 is_stmt 0 view .LVU51
+ 197 0020 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 198              	.LVL20:
+ 199              		.loc 2 115 42 discriminator 1 view .LVU52
+ 200 0024 D4ED007A 		vldr.32	s15, [r4]
+ 201 0028 30EE670A 		vsub.f32	s0, s0, s15
+ 202              		.loc 2 115 19 discriminator 1 view .LVU53
+ 203 002c 044B     		ldr	r3, .L14+4
+ 204 002e 83ED000A 		vstr.32	s0, [r3]
+ 116:application/robot_task.h ****         if (daemon_dt > 10)
+ 205              		.loc 2 116 9 is_stmt 1 view .LVU54
+ 117:application/robot_task.h ****             LOGERROR("[freeRTOS] Daemon Task is being DELAY! dt = [%f]", &daemon_dt);
+ 118:application/robot_task.h ****         osDelay(10);
+ 206              		.loc 2 118 9 view .LVU55
+ 207 0032 0A20     		movs	r0, #10
+ 208 0034 FFF7FEFF 		bl	osDelay
+ 209              	.LVL21:
+ 108:application/robot_task.h ****     {
+ 210              		.loc 2 108 5 view .LVU56
+ 211 0038 E7E7     		b	.L12
+ 212              	.L15:
+ 213 003a 00BF     		.align	2
+ 214              	.L14:
+ 215 003c 00000000 		.word	daemon_start.3
+ 216 0040 00000000 		.word	daemon_dt.2
+ 217              		.cfi_endproc
+ 218              	.LFE281:
+ 220              		.section	.text.StartUITASK,"ax",%progbits
+ 221              		.align	1
+ 222              		.global	StartUITASK
+ 223              		.syntax unified
+ 224              		.thumb
+ 225              		.thumb_func
+ 227              	StartUITASK:
+ 228              	.LVL22:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 7
+
+
+ 229              	.LFB283:
+ 119:application/robot_task.h ****     }
+ 120:application/robot_task.h **** }
+ 121:application/robot_task.h **** 
+ 122:application/robot_task.h **** __attribute__((noreturn)) void StartROBOTTASK(void const *argument)
+ 123:application/robot_task.h **** {
+ 124:application/robot_task.h ****     static float robot_dt;
+ 125:application/robot_task.h ****     static float robot_start;
+ 126:application/robot_task.h ****     LOGINFO("[freeRTOS] ROBOT core Task Start");
+ 127:application/robot_task.h ****     // 200Hz-500Hz,若有额外的控制任务如平衡步兵可能需要提升至1kHz
+ 128:application/robot_task.h ****     for (;;)
+ 129:application/robot_task.h ****     {
+ 130:application/robot_task.h ****         robot_start = DWT_GetTimeline_ms();
+ 131:application/robot_task.h ****         RobotTask();
+ 132:application/robot_task.h ****         robot_dt = DWT_GetTimeline_ms() - robot_start;
+ 133:application/robot_task.h ****         if (robot_dt > 5)
+ 134:application/robot_task.h ****             LOGERROR("[freeRTOS] ROBOT core Task is being DELAY! dt = [%f]", &robot_dt);
+ 135:application/robot_task.h ****         osDelay(5);
+ 136:application/robot_task.h ****     }
+ 137:application/robot_task.h **** }
+ 138:application/robot_task.h **** 
+ 139:application/robot_task.h **** __attribute__((noreturn)) void StartUITASK(void const *argument)
+ 140:application/robot_task.h **** {
+ 230              		.loc 2 140 1 view -0
+ 231              		.cfi_startproc
+ 232              		@ Volatile: function does not return.
+ 233              		@ args = 0, pretend = 0, frame = 0
+ 234              		@ frame_needed = 0, uses_anonymous_args = 0
+ 235              		.loc 2 140 1 is_stmt 0 view .LVU58
+ 236 0000 08B5     		push	{r3, lr}
+ 237              		.cfi_def_cfa_offset 8
+ 238              		.cfi_offset 3, -8
+ 239              		.cfi_offset 14, -4
+ 141:application/robot_task.h ****     LOGINFO("[freeRTOS] UI Task Start");
+ 240              		.loc 2 141 40 is_stmt 1 view .LVU59
+ 142:application/robot_task.h ****     MyUIInit();
+ 241              		.loc 2 142 5 view .LVU60
+ 242 0002 FFF7FEFF 		bl	MyUIInit
+ 243              	.LVL23:
+ 244              	.L17:
+ 143:application/robot_task.h ****     LOGINFO("[freeRTOS] UI Init Done, communication with ref has established");
+ 245              		.loc 2 143 79 view .LVU61
+ 144:application/robot_task.h ****     for (;;)
+ 246              		.loc 2 144 5 view .LVU62
+ 145:application/robot_task.h ****     {
+ 146:application/robot_task.h ****         // 每给裁判系统发送一包数据会挂起一次,详见UITask函数的refereeSend()
+ 147:application/robot_task.h ****         UITask();
+ 247              		.loc 2 147 9 view .LVU63
+ 248 0006 FFF7FEFF 		bl	UITask
+ 249              	.LVL24:
+ 148:application/robot_task.h ****         osDelay(1); // 即使没有任何UI需要刷新,也挂起一次,防止卡在UITask中无法
+ 250              		.loc 2 148 9 discriminator 2 view .LVU64
+ 251 000a 0120     		movs	r0, #1
+ 252 000c FFF7FEFF 		bl	osDelay
+ 253              	.LVL25:
+ 144:application/robot_task.h ****     for (;;)
+ 254              		.loc 2 144 5 view .LVU65
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 8
+
+
+ 255 0010 F9E7     		b	.L17
+ 256              		.cfi_endproc
+ 257              	.LFE283:
+ 259              		.section	.text.BSPInit,"ax",%progbits
+ 260              		.align	1
+ 261              		.global	BSPInit
+ 262              		.syntax unified
+ 263              		.thumb
+ 264              		.thumb_func
+ 266              	BSPInit:
+ 267              	.LFB239:
+ 268              		.file 3 "bsp/bsp_init.h"
+   1:bsp/bsp_init.h **** #ifndef BSP_INIT_h
+   2:bsp/bsp_init.h **** #define BSP_INIT_h
+   3:bsp/bsp_init.h **** 
+   4:bsp/bsp_init.h **** #include "bsp_init.h"
+   5:bsp/bsp_init.h **** #include "bsp_log.h"
+   6:bsp/bsp_init.h **** #include "bsp_dwt.h"
+   7:bsp/bsp_init.h **** #include "bsp_usb.h"
+   8:bsp/bsp_init.h **** 
+   9:bsp/bsp_init.h **** /**
+  10:bsp/bsp_init.h ****  * @brief bsp层初始化统一入口,这里仅初始化必须的bsp组件,其他组件的初始化
+  11:bsp/bsp_init.h ****  *        需在实时系统启动前调用,目前由RobotoInit()调用
+  12:bsp/bsp_init.h ****  * 
+  13:bsp/bsp_init.h ****  * @note 其他实例型的外设如CAN和串口会在注册实例的时候自动初始化,不注�
+  14:bsp/bsp_init.h ****   */
+  15:bsp/bsp_init.h **** // 
+  16:bsp/bsp_init.h **** void BSPInit()
+  17:bsp/bsp_init.h **** {
+ 269              		.loc 3 17 1 view -0
+ 270              		.cfi_startproc
+ 271              		@ args = 0, pretend = 0, frame = 0
+ 272              		@ frame_needed = 0, uses_anonymous_args = 0
+ 273 0000 08B5     		push	{r3, lr}
+ 274              		.cfi_def_cfa_offset 8
+ 275              		.cfi_offset 3, -8
+ 276              		.cfi_offset 14, -4
+  18:bsp/bsp_init.h ****     DWT_Init(168);
+ 277              		.loc 3 18 5 view .LVU67
+ 278 0002 A820     		movs	r0, #168
+ 279 0004 FFF7FEFF 		bl	DWT_Init
+ 280              	.LVL26:
+  19:bsp/bsp_init.h ****     BSPLogInit();
+ 281              		.loc 3 19 5 view .LVU68
+ 282 0008 FFF7FEFF 		bl	BSPLogInit
+ 283              	.LVL27:
+  20:bsp/bsp_init.h **** }
+ 284              		.loc 3 20 1 is_stmt 0 view .LVU69
+ 285 000c 08BD     		pop	{r3, pc}
+ 286              		.cfi_endproc
+ 287              	.LFE239:
+ 289              		.section	.text.OSTaskInit,"ax",%progbits
+ 290              		.align	1
+ 291              		.global	OSTaskInit
+ 292              		.syntax unified
+ 293              		.thumb
+ 294              		.thumb_func
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 9
+
+
+ 296              	OSTaskInit:
+ 297              	.LFB278:
+  42:application/robot_task.h ****     osThreadDef(instask, StartINSTASK, osPriorityAboveNormal, 0, 1024);
+ 298              		.loc 2 42 1 is_stmt 1 view -0
+ 299              		.cfi_startproc
+ 300              		@ args = 0, pretend = 0, frame = 144
+ 301              		@ frame_needed = 0, uses_anonymous_args = 0
+ 302 0000 10B5     		push	{r4, lr}
+ 303              		.cfi_def_cfa_offset 8
+ 304              		.cfi_offset 4, -8
+ 305              		.cfi_offset 14, -4
+ 306 0002 A4B0     		sub	sp, sp, #144
+ 307              		.cfi_def_cfa_offset 152
+  43:application/robot_task.h ****     insTaskHandle = osThreadCreate(osThread(instask), NULL); // 由于是阻塞读取传感器,为�
+ 308              		.loc 2 43 5 view .LVU71
+ 309 0004 2E4C     		ldr	r4, .L23
+ 310 0006 0DF1740C 		add	ip, sp, #116
+ 311 000a A646     		mov	lr, r4
+ 312 000c BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 313 0010 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 314 0014 9EE80700 		ldm	lr, {r0, r1, r2}
+ 315 0018 8CE80700 		stm	ip, {r0, r1, r2}
+  44:application/robot_task.h ****     // // 后续修改为读取传感器数据准备好的中断处理,
+ 316              		.loc 2 44 5 view .LVU72
+  44:application/robot_task.h ****     // // 后续修改为读取传感器数据准备好的中断处理,
+ 317              		.loc 2 44 21 is_stmt 0 view .LVU73
+ 318 001c 0021     		movs	r1, #0
+ 319 001e 1DA8     		add	r0, sp, #116
+ 320 0020 FFF7FEFF 		bl	osThreadCreate
+ 321              	.LVL28:
+  44:application/robot_task.h ****     // // 后续修改为读取传感器数据准备好的中断处理,
+ 322              		.loc 2 44 19 discriminator 1 view .LVU74
+ 323 0024 274B     		ldr	r3, .L23+4
+ 324 0026 1860     		str	r0, [r3]
+  47:application/robot_task.h ****     motorTaskHandle = osThreadCreate(osThread(motortask), NULL);
+ 325              		.loc 2 47 5 is_stmt 1 view .LVU75
+ 326 0028 0DF1580C 		add	ip, sp, #88
+ 327 002c 04F11C0E 		add	lr, r4, #28
+ 328 0030 BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 329 0034 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 330 0038 9EE80700 		ldm	lr, {r0, r1, r2}
+ 331 003c 8CE80700 		stm	ip, {r0, r1, r2}
+  48:application/robot_task.h **** 
+ 332              		.loc 2 48 5 view .LVU76
+  48:application/robot_task.h **** 
+ 333              		.loc 2 48 23 is_stmt 0 view .LVU77
+ 334 0040 0021     		movs	r1, #0
+ 335 0042 16A8     		add	r0, sp, #88
+ 336 0044 FFF7FEFF 		bl	osThreadCreate
+ 337              	.LVL29:
+  48:application/robot_task.h **** 
+ 338              		.loc 2 48 21 discriminator 1 view .LVU78
+ 339 0048 1F4B     		ldr	r3, .L23+8
+ 340 004a 1860     		str	r0, [r3]
+  50:application/robot_task.h ****     daemonTaskHandle = osThreadCreate(osThread(daemontask), NULL);
+ 341              		.loc 2 50 5 is_stmt 1 view .LVU79
+ 342 004c 0DF13C0C 		add	ip, sp, #60
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 10
+
+
+ 343 0050 04F1380E 		add	lr, r4, #56
+ 344 0054 BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 345 0058 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 346 005c 9EE80700 		ldm	lr, {r0, r1, r2}
+ 347 0060 8CE80700 		stm	ip, {r0, r1, r2}
+  51:application/robot_task.h **** 
+ 348              		.loc 2 51 5 view .LVU80
+  51:application/robot_task.h **** 
+ 349              		.loc 2 51 24 is_stmt 0 view .LVU81
+ 350 0064 0021     		movs	r1, #0
+ 351 0066 0FA8     		add	r0, sp, #60
+ 352 0068 FFF7FEFF 		bl	osThreadCreate
+ 353              	.LVL30:
+  51:application/robot_task.h **** 
+ 354              		.loc 2 51 22 discriminator 1 view .LVU82
+ 355 006c 174B     		ldr	r3, .L23+12
+ 356 006e 1860     		str	r0, [r3]
+  53:application/robot_task.h ****     robotTaskHandle = osThreadCreate(osThread(robottask), NULL);
+ 357              		.loc 2 53 5 is_stmt 1 view .LVU83
+ 358 0070 0DF1200C 		add	ip, sp, #32
+ 359 0074 04F1540E 		add	lr, r4, #84
+ 360 0078 BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 361 007c ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 362 0080 9EE80700 		ldm	lr, {r0, r1, r2}
+ 363 0084 8CE80700 		stm	ip, {r0, r1, r2}
+  54:application/robot_task.h **** 
+ 364              		.loc 2 54 5 view .LVU84
+  54:application/robot_task.h **** 
+ 365              		.loc 2 54 23 is_stmt 0 view .LVU85
+ 366 0088 0021     		movs	r1, #0
+ 367 008a 08A8     		add	r0, sp, #32
+ 368 008c FFF7FEFF 		bl	osThreadCreate
+ 369              	.LVL31:
+  54:application/robot_task.h **** 
+ 370              		.loc 2 54 21 discriminator 1 view .LVU86
+ 371 0090 0F4B     		ldr	r3, .L23+16
+ 372 0092 1860     		str	r0, [r3]
+  56:application/robot_task.h ****     uiTaskHandle = osThreadCreate(osThread(uitask), NULL);
+ 373              		.loc 2 56 5 is_stmt 1 view .LVU87
+ 374 0094 0DF1040E 		add	lr, sp, #4
+ 375 0098 04F1700C 		add	ip, r4, #112
+ 376 009c BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 377 00a0 AEE80F00 		stmia	lr!, {r0, r1, r2, r3}
+ 378 00a4 9CE80700 		ldm	ip, {r0, r1, r2}
+ 379 00a8 8EE80700 		stm	lr, {r0, r1, r2}
+  57:application/robot_task.h **** 
+ 380              		.loc 2 57 5 view .LVU88
+  57:application/robot_task.h **** 
+ 381              		.loc 2 57 20 is_stmt 0 view .LVU89
+ 382 00ac 0021     		movs	r1, #0
+ 383 00ae 01A8     		add	r0, sp, #4
+ 384 00b0 FFF7FEFF 		bl	osThreadCreate
+ 385              	.LVL32:
+  57:application/robot_task.h **** 
+ 386              		.loc 2 57 18 discriminator 1 view .LVU90
+ 387 00b4 074B     		ldr	r3, .L23+20
+ 388 00b6 1860     		str	r0, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 11
+
+
+  63:application/robot_task.h **** }
+ 389              		.loc 2 63 5 is_stmt 1 view .LVU91
+ 390 00b8 FFF7FEFF 		bl	XMMotorControlInit
+ 391              	.LVL33:
+  64:application/robot_task.h **** 
+ 392              		.loc 2 64 1 is_stmt 0 view .LVU92
+ 393 00bc 24B0     		add	sp, sp, #144
+ 394              		.cfi_def_cfa_offset 8
+ 395              		@ sp needed
+ 396 00be 10BD     		pop	{r4, pc}
+ 397              	.L24:
+ 398              		.align	2
+ 399              	.L23:
+ 400 00c0 00000000 		.word	.LANCHOR0
+ 401 00c4 00000000 		.word	insTaskHandle
+ 402 00c8 00000000 		.word	motorTaskHandle
+ 403 00cc 00000000 		.word	daemonTaskHandle
+ 404 00d0 00000000 		.word	robotTaskHandle
+ 405 00d4 00000000 		.word	uiTaskHandle
+ 406              		.cfi_endproc
+ 407              	.LFE278:
+ 409              		.section	.text.RobotInit,"ax",%progbits
+ 410              		.align	1
+ 411              		.global	RobotInit
+ 412              		.syntax unified
+ 413              		.thumb
+ 414              		.thumb_func
+ 416              	RobotInit:
+ 417              	.LFB284:
+   1:application/robot.c **** #include "bsp_init.h"
+   2:application/robot.c **** #include "robot.h"
+   3:application/robot.c **** #include "robot_def.h"
+   4:application/robot.c **** #include "robot_task.h"
+   5:application/robot.c **** 
+   6:application/robot.c **** // 编译warning,提醒开发者修改机器人参数
+   7:application/robot.c **** #ifndef ROBOT_DEF_PARAM_WARNING
+   8:application/robot.c **** #define ROBOT_DEF_PARAM_WARNING
+   9:application/robot.c **** #pragma message "check if you have configured the parameters in robot_def.h, IF NOT, please refer t
+  10:application/robot.c **** #endif // !ROBOT_DEF_PARAM_WARNING
+  11:application/robot.c **** 
+  12:application/robot.c **** #if defined(ONE_BOARD) || defined(CHASSIS_BOARD)
+  13:application/robot.c **** #include "chassis.h"
+  14:application/robot.c **** #endif
+  15:application/robot.c **** 
+  16:application/robot.c **** #if defined(ONE_BOARD) || defined(GIMBAL_BOARD)
+  17:application/robot.c **** #include "gimbal.h"
+  18:application/robot.c **** #include "shoot.h"
+  19:application/robot.c **** #include "robot_cmd.h"
+  20:application/robot.c **** #endif
+  21:application/robot.c **** 
+  22:application/robot.c **** 
+  23:application/robot.c **** void RobotInit()
+  24:application/robot.c **** {  
+ 418              		.loc 1 24 1 is_stmt 1 view -0
+ 419              		.cfi_startproc
+ 420              		@ args = 0, pretend = 0, frame = 0
+ 421              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 12
+
+
+ 422 0000 08B5     		push	{r3, lr}
+ 423              		.cfi_def_cfa_offset 8
+ 424              		.cfi_offset 3, -8
+ 425              		.cfi_offset 14, -4
+  25:application/robot.c ****     // 关闭中断,防止在初始化过程中发生中断
+  26:application/robot.c ****     // 请不要在初始化过程中使用中断和延时函数！
+  27:application/robot.c ****     // 若必须,则只允许使用DWT_Delay()
+  28:application/robot.c ****     __disable_irq();
+ 426              		.loc 1 28 5 view .LVU94
+ 427              	.LBB6:
+ 428              	.LBI6:
+ 429              		.file 4 "Drivers/CMSIS/Include/cmsis_gcc.h"
+   1:Drivers/CMSIS/Include/cmsis_gcc.h **** /**************************************************************************//**
+   2:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @file     cmsis_gcc.h
+   3:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @brief    CMSIS compiler GCC header file
+   4:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @version  V5.0.4
+   5:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @date     09. April 2018
+   6:Drivers/CMSIS/Include/cmsis_gcc.h ****  ******************************************************************************/
+   7:Drivers/CMSIS/Include/cmsis_gcc.h **** /*
+   8:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
+   9:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  10:Drivers/CMSIS/Include/cmsis_gcc.h ****  * SPDX-License-Identifier: Apache-2.0
+  11:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  12:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  13:Drivers/CMSIS/Include/cmsis_gcc.h ****  * not use this file except in compliance with the License.
+  14:Drivers/CMSIS/Include/cmsis_gcc.h ****  * You may obtain a copy of the License at
+  15:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  16:Drivers/CMSIS/Include/cmsis_gcc.h ****  * www.apache.org/licenses/LICENSE-2.0
+  17:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  18:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Unless required by applicable law or agreed to in writing, software
+  19:Drivers/CMSIS/Include/cmsis_gcc.h ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  20:Drivers/CMSIS/Include/cmsis_gcc.h ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  21:Drivers/CMSIS/Include/cmsis_gcc.h ****  * See the License for the specific language governing permissions and
+  22:Drivers/CMSIS/Include/cmsis_gcc.h ****  * limitations under the License.
+  23:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+  24:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  25:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __CMSIS_GCC_H
+  26:Drivers/CMSIS/Include/cmsis_gcc.h **** #define __CMSIS_GCC_H
+  27:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  28:Drivers/CMSIS/Include/cmsis_gcc.h **** /* ignore some GCC warnings */
+  29:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic push
+  30:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wsign-conversion"
+  31:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wconversion"
+  32:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wunused-parameter"
+  33:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  34:Drivers/CMSIS/Include/cmsis_gcc.h **** /* Fallback for __has_builtin */
+  35:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __has_builtin
+  36:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __has_builtin(x) (0)
+  37:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  38:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  39:Drivers/CMSIS/Include/cmsis_gcc.h **** /* CMSIS compiler specific defines */
+  40:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __ASM
+  41:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __ASM                                  __asm
+  42:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  43:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __INLINE
+  44:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __INLINE                               inline
+  45:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 13
+
+
+  46:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __STATIC_INLINE
+  47:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __STATIC_INLINE                        static inline
+  48:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  49:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __STATIC_FORCEINLINE                 
+  50:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __STATIC_FORCEINLINE                   __attribute__((always_inline)) static inline
+  51:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif                                           
+  52:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __NO_RETURN
+  53:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __NO_RETURN                            __attribute__((__noreturn__))
+  54:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  55:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __USED
+  56:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __USED                                 __attribute__((used))
+  57:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  58:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __WEAK
+  59:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __WEAK                                 __attribute__((weak))
+  60:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  61:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __PACKED
+  62:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __PACKED                               __attribute__((packed, aligned(1)))
+  63:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  64:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __PACKED_STRUCT
+  65:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __PACKED_STRUCT                        struct __attribute__((packed, aligned(1)))
+  66:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  67:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __PACKED_UNION
+  68:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __PACKED_UNION                         union __attribute__((packed, aligned(1)))
+  69:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  70:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32        /* deprecated */
+  71:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  72:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  73:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  74:Drivers/CMSIS/Include/cmsis_gcc.h ****   struct __attribute__((packed)) T_UINT32 { uint32_t v; };
+  75:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  76:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32(x)                  (((struct T_UINT32 *)(x))->v)
+  77:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  78:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT16_WRITE
+  79:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  80:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  81:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  82:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT16_WRITE { uint16_t v; };
+  83:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  84:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT16_WRITE(addr, val)    (void)((((struct T_UINT16_WRITE *)(void *)(addr))-
+  85:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  86:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT16_READ
+  87:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  88:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  89:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  90:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT16_READ { uint16_t v; };
+  91:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  92:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT16_READ(addr)          (((const struct T_UINT16_READ *)(const void *)(add
+  93:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  94:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32_WRITE
+  95:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  96:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  97:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  98:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT32_WRITE { uint32_t v; };
+  99:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+ 100:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32_WRITE(addr, val)    (void)((((struct T_UINT32_WRITE *)(void *)(addr))-
+ 101:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 102:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32_READ
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 14
+
+
+ 103:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+ 104:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+ 105:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+ 106:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT32_READ { uint32_t v; };
+ 107:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+ 108:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32_READ(addr)          (((const struct T_UINT32_READ *)(const void *)(add
+ 109:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 110:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __ALIGNED
+ 111:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __ALIGNED(x)                           __attribute__((aligned(x)))
+ 112:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 113:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __RESTRICT
+ 114:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __RESTRICT                             __restrict
+ 115:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 116:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 117:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 118:Drivers/CMSIS/Include/cmsis_gcc.h **** /* ###########################  Core Function Access  ########################### */
+ 119:Drivers/CMSIS/Include/cmsis_gcc.h **** /** \ingroup  CMSIS_Core_FunctionInterface
+ 120:Drivers/CMSIS/Include/cmsis_gcc.h ****     \defgroup CMSIS_Core_RegAccFunctions CMSIS Core Register Access Functions
+ 121:Drivers/CMSIS/Include/cmsis_gcc.h ****   @{
+ 122:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 123:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 124:Drivers/CMSIS/Include/cmsis_gcc.h **** /**
+ 125:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   Enable IRQ Interrupts
+ 126:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Enables IRQ interrupts by clearing the I-bit in the CPSR.
+ 127:Drivers/CMSIS/Include/cmsis_gcc.h ****            Can only be executed in Privileged modes.
+ 128:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 129:Drivers/CMSIS/Include/cmsis_gcc.h **** __STATIC_FORCEINLINE void __enable_irq(void)
+ 130:Drivers/CMSIS/Include/cmsis_gcc.h **** {
+ 131:Drivers/CMSIS/Include/cmsis_gcc.h ****   __ASM volatile ("cpsie i" : : : "memory");
+ 132:Drivers/CMSIS/Include/cmsis_gcc.h **** }
+ 133:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 134:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 135:Drivers/CMSIS/Include/cmsis_gcc.h **** /**
+ 136:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   Disable IRQ Interrupts
+ 137:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Disables IRQ interrupts by setting the I-bit in the CPSR.
+ 138:Drivers/CMSIS/Include/cmsis_gcc.h ****            Can only be executed in Privileged modes.
+ 139:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 140:Drivers/CMSIS/Include/cmsis_gcc.h **** __STATIC_FORCEINLINE void __disable_irq(void)
+ 430              		.loc 4 140 27 view .LVU95
+ 431              	.LBB7:
+ 141:Drivers/CMSIS/Include/cmsis_gcc.h **** {
+ 142:Drivers/CMSIS/Include/cmsis_gcc.h ****   __ASM volatile ("cpsid i" : : : "memory");
+ 432              		.loc 4 142 3 view .LVU96
+ 433              		.syntax unified
+ 434              	@ 142 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 435 0002 72B6     		cpsid i
+ 436              	@ 0 "" 2
+ 437              		.thumb
+ 438              		.syntax unified
+ 439              	.LBE7:
+ 440              	.LBE6:
+  29:application/robot.c ****     
+  30:application/robot.c ****     BSPInit();
+ 441              		.loc 1 30 5 view .LVU97
+ 442 0004 FFF7FEFF 		bl	BSPInit
+ 443              	.LVL34:
+  31:application/robot.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 15
+
+
+  32:application/robot.c **** #if defined(ONE_BOARD) || defined(GIMBAL_BOARD)
+  33:application/robot.c ****     RobotCMDInit();
+ 444              		.loc 1 33 5 view .LVU98
+ 445 0008 FFF7FEFF 		bl	RobotCMDInit
+ 446              	.LVL35:
+  34:application/robot.c ****      GimbalInit();
+ 447              		.loc 1 34 6 view .LVU99
+ 448 000c FFF7FEFF 		bl	GimbalInit
+ 449              	.LVL36:
+  35:application/robot.c ****      ShootInit();
+ 450              		.loc 1 35 6 view .LVU100
+ 451 0010 FFF7FEFF 		bl	ShootInit
+ 452              	.LVL37:
+  36:application/robot.c **** #endif
+  37:application/robot.c **** 
+  38:application/robot.c **** #if defined(ONE_BOARD) || defined(CHASSIS_BOARD)
+  39:application/robot.c ****     ChassisInit();
+ 453              		.loc 1 39 5 view .LVU101
+ 454 0014 FFF7FEFF 		bl	ChassisInit
+ 455              	.LVL38:
+  40:application/robot.c **** #endif
+  41:application/robot.c **** 
+  42:application/robot.c ****     OSTaskInit(); // 创建基础任务
+ 456              		.loc 1 42 5 view .LVU102
+ 457 0018 FFF7FEFF 		bl	OSTaskInit
+ 458              	.LVL39:
+  43:application/robot.c **** 
+  44:application/robot.c ****     // 初始化完成,开启中断
+  45:application/robot.c ****     __enable_irq();
+ 459              		.loc 1 45 5 view .LVU103
+ 460              	.LBB8:
+ 461              	.LBI8:
+ 129:Drivers/CMSIS/Include/cmsis_gcc.h **** {
+ 462              		.loc 4 129 27 view .LVU104
+ 463              	.LBB9:
+ 131:Drivers/CMSIS/Include/cmsis_gcc.h **** }
+ 464              		.loc 4 131 3 view .LVU105
+ 465              		.syntax unified
+ 466              	@ 131 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 467 001c 62B6     		cpsie i
+ 468              	@ 0 "" 2
+ 469              		.thumb
+ 470              		.syntax unified
+ 471              	.LBE9:
+ 472              	.LBE8:
+  46:application/robot.c **** }
+ 473              		.loc 1 46 1 is_stmt 0 view .LVU106
+ 474 001e 08BD     		pop	{r3, pc}
+ 475              		.cfi_endproc
+ 476              	.LFE284:
+ 478              		.section	.text.RobotTask,"ax",%progbits
+ 479              		.align	1
+ 480              		.global	RobotTask
+ 481              		.syntax unified
+ 482              		.thumb
+ 483              		.thumb_func
+ 485              	RobotTask:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 16
+
+
+ 486              	.LFB285:
+  47:application/robot.c **** 
+  48:application/robot.c **** 
+  49:application/robot.c **** void RobotTask()
+  50:application/robot.c **** {
+ 487              		.loc 1 50 1 is_stmt 1 view -0
+ 488              		.cfi_startproc
+ 489              		@ args = 0, pretend = 0, frame = 0
+ 490              		@ frame_needed = 0, uses_anonymous_args = 0
+ 491 0000 08B5     		push	{r3, lr}
+ 492              		.cfi_def_cfa_offset 8
+ 493              		.cfi_offset 3, -8
+ 494              		.cfi_offset 14, -4
+  51:application/robot.c **** #if defined(ONE_BOARD) || defined(GIMBAL_BOARD)
+  52:application/robot.c ****     RobotCMDTask();
+ 495              		.loc 1 52 5 view .LVU108
+ 496 0002 FFF7FEFF 		bl	RobotCMDTask
+ 497              	.LVL40:
+  53:application/robot.c ****     GimbalTask();
+ 498              		.loc 1 53 5 view .LVU109
+ 499 0006 FFF7FEFF 		bl	GimbalTask
+ 500              	.LVL41:
+  54:application/robot.c ****     ShootTask();
+ 501              		.loc 1 54 5 view .LVU110
+ 502 000a FFF7FEFF 		bl	ShootTask
+ 503              	.LVL42:
+  55:application/robot.c **** #endif
+  56:application/robot.c **** 
+  57:application/robot.c **** #if defined(ONE_BOARD) || defined(CHASSIS_BOARD)
+  58:application/robot.c ****     ChassisTask();
+ 504              		.loc 1 58 5 view .LVU111
+ 505 000e FFF7FEFF 		bl	ChassisTask
+ 506              	.LVL43:
+  59:application/robot.c **** #endif
+  60:application/robot.c **** 
+  61:application/robot.c **** }...
+ 507              		.loc 1 61 1 is_stmt 0 view .LVU112
+ 508 0012 08BD     		pop	{r3, pc}
+ 509              		.cfi_endproc
+ 510              	.LFE285:
+ 512              		.section	.text.StartROBOTTASK,"ax",%progbits
+ 513              		.align	1
+ 514              		.global	StartROBOTTASK
+ 515              		.syntax unified
+ 516              		.thumb
+ 517              		.thumb_func
+ 519              	StartROBOTTASK:
+ 520              	.LFB282:
+ 123:application/robot_task.h ****     static float robot_dt;
+ 521              		.loc 2 123 1 is_stmt 1 view -0
+ 522              		.cfi_startproc
+ 523              		@ Volatile: function does not return.
+ 524              		@ args = 0, pretend = 0, frame = 0
+ 525              		@ frame_needed = 0, uses_anonymous_args = 0
+ 526              	.LVL44:
+ 123:application/robot_task.h ****     static float robot_dt;
+ 527              		.loc 2 123 1 is_stmt 0 view .LVU114
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 17
+
+
+ 528 0000 08B5     		push	{r3, lr}
+ 529              		.cfi_def_cfa_offset 8
+ 530              		.cfi_offset 3, -8
+ 531              		.cfi_offset 14, -4
+ 532              	.LVL45:
+ 533              	.L30:
+ 124:application/robot_task.h ****     static float robot_start;
+ 534              		.loc 2 124 5 is_stmt 1 view .LVU115
+ 125:application/robot_task.h ****     LOGINFO("[freeRTOS] ROBOT core Task Start");
+ 535              		.loc 2 125 5 view .LVU116
+ 126:application/robot_task.h ****     // 200Hz-500Hz,若有额外的控制任务如平衡步兵可能需要提升至1kHz
+ 536              		.loc 2 126 48 view .LVU117
+ 128:application/robot_task.h ****     {
+ 537              		.loc 2 128 5 view .LVU118
+ 130:application/robot_task.h ****         RobotTask();
+ 538              		.loc 2 130 9 view .LVU119
+ 130:application/robot_task.h ****         RobotTask();
+ 539              		.loc 2 130 23 is_stmt 0 view .LVU120
+ 540 0002 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 541              	.LVL46:
+ 130:application/robot_task.h ****         RobotTask();
+ 542              		.loc 2 130 21 discriminator 1 view .LVU121
+ 543 0006 094C     		ldr	r4, .L32
+ 544 0008 84ED000A 		vstr.32	s0, [r4]
+ 131:application/robot_task.h ****         robot_dt = DWT_GetTimeline_ms() - robot_start;
+ 545              		.loc 2 131 9 is_stmt 1 view .LVU122
+ 546 000c FFF7FEFF 		bl	RobotTask
+ 547              	.LVL47:
+ 132:application/robot_task.h ****         if (robot_dt > 5)
+ 548              		.loc 2 132 9 view .LVU123
+ 132:application/robot_task.h ****         if (robot_dt > 5)
+ 549              		.loc 2 132 20 is_stmt 0 view .LVU124
+ 550 0010 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 551              	.LVL48:
+ 132:application/robot_task.h ****         if (robot_dt > 5)
+ 552              		.loc 2 132 41 discriminator 1 view .LVU125
+ 553 0014 D4ED007A 		vldr.32	s15, [r4]
+ 554 0018 30EE670A 		vsub.f32	s0, s0, s15
+ 132:application/robot_task.h ****         if (robot_dt > 5)
+ 555              		.loc 2 132 18 discriminator 1 view .LVU126
+ 556 001c 044B     		ldr	r3, .L32+4
+ 557 001e 83ED000A 		vstr.32	s0, [r3]
+ 133:application/robot_task.h ****             LOGERROR("[freeRTOS] ROBOT core Task is being DELAY! dt = [%f]", &robot_dt);
+ 558              		.loc 2 133 9 is_stmt 1 view .LVU127
+ 135:application/robot_task.h ****     }
+ 559              		.loc 2 135 9 view .LVU128
+ 560 0022 0520     		movs	r0, #5
+ 561 0024 FFF7FEFF 		bl	osDelay
+ 562              	.LVL49:
+ 128:application/robot_task.h ****     {
+ 563              		.loc 2 128 5 view .LVU129
+ 564 0028 EBE7     		b	.L30
+ 565              	.L33:
+ 566 002a 00BF     		.align	2
+ 567              	.L32:
+ 568 002c 00000000 		.word	robot_start.1
+ 569 0030 00000000 		.word	robot_dt.0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 18
+
+
+ 570              		.cfi_endproc
+ 571              	.LFE282:
+ 573              		.section	.bss.robot_dt.0,"aw",%nobits
+ 574              		.align	2
+ 577              	robot_dt.0:
+ 578 0000 00000000 		.space	4
+ 579              		.section	.bss.robot_start.1,"aw",%nobits
+ 580              		.align	2
+ 583              	robot_start.1:
+ 584 0000 00000000 		.space	4
+ 585              		.section	.bss.daemon_dt.2,"aw",%nobits
+ 586              		.align	2
+ 589              	daemon_dt.2:
+ 590 0000 00000000 		.space	4
+ 591              		.section	.bss.daemon_start.3,"aw",%nobits
+ 592              		.align	2
+ 595              	daemon_start.3:
+ 596 0000 00000000 		.space	4
+ 597              		.section	.bss.motor_dt.4,"aw",%nobits
+ 598              		.align	2
+ 601              	motor_dt.4:
+ 602 0000 00000000 		.space	4
+ 603              		.section	.bss.motor_start.5,"aw",%nobits
+ 604              		.align	2
+ 607              	motor_start.5:
+ 608 0000 00000000 		.space	4
+ 609              		.section	.bss.ins_dt.6,"aw",%nobits
+ 610              		.align	2
+ 613              	ins_dt.6:
+ 614 0000 00000000 		.space	4
+ 615              		.section	.bss.ins_start.7,"aw",%nobits
+ 616              		.align	2
+ 619              	ins_start.7:
+ 620 0000 00000000 		.space	4
+ 621              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 622              		.align	2
+ 623              	.LC8:
+ 624 0000 75697461 		.ascii	"uitask\000"
+ 624      736B00
+ 625 0007 00       		.align	2
+ 626              	.LC6:
+ 627 0008 726F626F 		.ascii	"robottask\000"
+ 627      74746173 
+ 627      6B00
+ 628 0012 0000     		.align	2
+ 629              	.LC4:
+ 630 0014 6461656D 		.ascii	"daemontask\000"
+ 630      6F6E7461 
+ 630      736B00
+ 631 001f 00       		.align	2
+ 632              	.LC2:
+ 633 0020 6D6F746F 		.ascii	"motortask\000"
+ 633      72746173 
+ 633      6B00
+ 634 002a 0000     		.align	2
+ 635              	.LC0:
+ 636 002c 696E7374 		.ascii	"instask\000"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 19
+
+
+ 636      61736B00 
+ 637              		.global	uiTaskHandle
+ 638              		.section	.bss.uiTaskHandle,"aw",%nobits
+ 639              		.align	2
+ 642              	uiTaskHandle:
+ 643 0000 00000000 		.space	4
+ 644              		.global	daemonTaskHandle
+ 645              		.section	.bss.daemonTaskHandle,"aw",%nobits
+ 646              		.align	2
+ 649              	daemonTaskHandle:
+ 650 0000 00000000 		.space	4
+ 651              		.global	motorTaskHandle
+ 652              		.section	.bss.motorTaskHandle,"aw",%nobits
+ 653              		.align	2
+ 656              	motorTaskHandle:
+ 657 0000 00000000 		.space	4
+ 658              		.global	robotTaskHandle
+ 659              		.section	.bss.robotTaskHandle,"aw",%nobits
+ 660              		.align	2
+ 663              	robotTaskHandle:
+ 664 0000 00000000 		.space	4
+ 665              		.global	insTaskHandle
+ 666              		.section	.bss.insTaskHandle,"aw",%nobits
+ 667              		.align	2
+ 670              	insTaskHandle:
+ 671 0000 00000000 		.space	4
+ 672              		.section	.rodata
+ 673              		.align	2
+ 674              		.set	.LANCHOR0,. + 0
+ 675              	.LC10:
+ 676 0000 2C000000 		.word	.LC0
+ 677 0004 00000000 		.word	StartINSTASK
+ 678 0008 0100     		.short	1
+ 679 000a 0000     		.space	2
+ 680 000c 00000000 		.word	0
+ 681 0010 00040000 		.word	1024
+ 682 0014 00000000 		.word	0
+ 683 0018 00000000 		.word	0
+ 684              	.LC11:
+ 685 001c 20000000 		.word	.LC2
+ 686 0020 00000000 		.word	StartMOTORTASK
+ 687 0024 0000     		.short	0
+ 688 0026 0000     		.space	2
+ 689 0028 00000000 		.word	0
+ 690 002c 00010000 		.word	256
+ 691 0030 00000000 		.word	0
+ 692 0034 00000000 		.word	0
+ 693              	.LC12:
+ 694 0038 14000000 		.word	.LC4
+ 695 003c 00000000 		.word	StartDAEMONTASK
+ 696 0040 0000     		.short	0
+ 697 0042 0000     		.space	2
+ 698 0044 00000000 		.word	0
+ 699 0048 80000000 		.word	128
+ 700 004c 00000000 		.word	0
+ 701 0050 00000000 		.word	0
+ 702              	.LC13:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 20
+
+
+ 703 0054 08000000 		.word	.LC6
+ 704 0058 00000000 		.word	StartROBOTTASK
+ 705 005c 0000     		.short	0
+ 706 005e 0000     		.space	2
+ 707 0060 00000000 		.word	0
+ 708 0064 00040000 		.word	1024
+ 709 0068 00000000 		.word	0
+ 710 006c 00000000 		.word	0
+ 711              	.LC14:
+ 712 0070 00000000 		.word	.LC8
+ 713 0074 00000000 		.word	StartUITASK
+ 714 0078 0000     		.short	0
+ 715 007a 0000     		.space	2
+ 716 007c 00000000 		.word	0
+ 717 0080 00020000 		.word	512
+ 718 0084 00000000 		.word	0
+ 719 0088 00000000 		.word	0
+ 720              		.text
+ 721              	.Letext0:
+ 722              		.file 5 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 723              		.file 6 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 724              		.file 7 "modules/imu/ins_task.h"
+ 725              		.file 8 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h"
+ 726              		.file 9 "Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h"
+ 727              		.file 10 "Middlewares/Third_Party/FreeRTOS/Source/include/task.h"
+ 728              		.file 11 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h"
+ 729              		.file 12 "application/chassis/chassis.h"
+ 730              		.file 13 "application/shoot/shoot.h"
+ 731              		.file 14 "application/gimbal/gimbal.h"
+ 732              		.file 15 "application/cmd/robot_cmd.h"
+ 733              		.file 16 "modules/referee/referee_task.h"
+ 734              		.file 17 "modules/alarm/led/led.h"
+ 735              		.file 18 "modules/alarm/buzzer/buzzer.h"
+ 736              		.file 19 "modules/daemon/daemon.h"
+ 737              		.file 20 "modules/motor/motor_task.h"
+ 738              		.file 21 "modules/master_machine/master_process.h"
+ 739              		.file 22 "bsp/dwt/bsp_dwt.h"
+ 740              		.file 23 "modules/motor/XMmotor/xmmotor.h"
+ 741              		.file 24 "bsp/log/bsp_log.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 21
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 robot.c
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:21     .text.StartINSTASK:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:27     .text.StartINSTASK:00000000 StartINSTASK
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:82     .text.StartINSTASK:00000034 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:619    .bss.ins_start.7:00000000 ins_start.7
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:613    .bss.ins_dt.6:00000000 ins_dt.6
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:88     .text.StartMOTORTASK:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:94     .text.StartMOTORTASK:00000000 StartMOTORTASK
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:143    .text.StartMOTORTASK:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:607    .bss.motor_start.5:00000000 motor_start.5
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:601    .bss.motor_dt.4:00000000 motor_dt.4
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:149    .text.StartDAEMONTASK:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:155    .text.StartDAEMONTASK:00000000 StartDAEMONTASK
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:215    .text.StartDAEMONTASK:0000003c $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:595    .bss.daemon_start.3:00000000 daemon_start.3
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:589    .bss.daemon_dt.2:00000000 daemon_dt.2
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:221    .text.StartUITASK:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:227    .text.StartUITASK:00000000 StartUITASK
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:260    .text.BSPInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:266    .text.BSPInit:00000000 BSPInit
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:290    .text.OSTaskInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:296    .text.OSTaskInit:00000000 OSTaskInit
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:400    .text.OSTaskInit:000000c0 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:670    .bss.insTaskHandle:00000000 insTaskHandle
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:656    .bss.motorTaskHandle:00000000 motorTaskHandle
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:649    .bss.daemonTaskHandle:00000000 daemonTaskHandle
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:663    .bss.robotTaskHandle:00000000 robotTaskHandle
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:642    .bss.uiTaskHandle:00000000 uiTaskHandle
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:410    .text.RobotInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:416    .text.RobotInit:00000000 RobotInit
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:479    .text.RobotTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:485    .text.RobotTask:00000000 RobotTask
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:513    .text.StartROBOTTASK:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:519    .text.StartROBOTTASK:00000000 StartROBOTTASK
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:568    .text.StartROBOTTASK:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:583    .bss.robot_start.1:00000000 robot_start.1
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:577    .bss.robot_dt.0:00000000 robot_dt.0
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:574    .bss.robot_dt.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:580    .bss.robot_start.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:586    .bss.daemon_dt.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:592    .bss.daemon_start.3:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:598    .bss.motor_dt.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:604    .bss.motor_start.5:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:610    .bss.ins_dt.6:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:616    .bss.ins_start.7:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:622    .rodata.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:639    .bss.uiTaskHandle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:646    .bss.daemonTaskHandle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:653    .bss.motorTaskHandle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:660    .bss.robotTaskHandle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:667    .bss.insTaskHandle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s:673    .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+INS_Init
+DWT_GetTimeline_ms
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cc3PYDZw.s 			page 22
+
+
+INS_Task
+VisionSend
+osDelay
+MotorControlTask
+BuzzerInit
+LEDInit
+DaemonTask
+BuzzerTask
+LEDTask
+MyUIInit
+UITask
+DWT_Init
+BSPLogInit
+osThreadCreate
+XMMotorControlInit
+RobotCMDInit
+GimbalInit
+ShootInit
+ChassisInit
+RobotCMDTask
+GimbalTask
+ShootTask
+ChassisTask

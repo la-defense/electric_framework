@@ -1,0 +1,864 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"remote_control.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/remote/remote_control.c"
+  20              		.section	.text.RectifyRCjoystick,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	RectifyRCjoystick:
+  27              	.LFB238:
+   1:modules/remote/remote_control.c **** #include "remote_control.h"
+   2:modules/remote/remote_control.c **** #include "string.h"
+   3:modules/remote/remote_control.c **** #include "bsp_usart.h"
+   4:modules/remote/remote_control.c **** #include "memory.h"
+   5:modules/remote/remote_control.c **** #include "stdlib.h"
+   6:modules/remote/remote_control.c **** #include "daemon.h"
+   7:modules/remote/remote_control.c **** #include "bsp_log.h"
+   8:modules/remote/remote_control.c **** 
+   9:modules/remote/remote_control.c **** #define REMOTE_CONTROL_FRAME_SIZE 18u // 遥控器接收的buffer大小
+  10:modules/remote/remote_control.c **** 
+  11:modules/remote/remote_control.c **** // 遥控器数据
+  12:modules/remote/remote_control.c **** static RC_ctrl_t rc_ctrl[2];     //[0]:当前数据TEMP,[1]:上一次的数据LAST.用于按键持�
+  13:modules/remote/remote_control.c **** static uint8_t rc_init_flag = 0; // 遥控器初始化标志位
+  14:modules/remote/remote_control.c **** 
+  15:modules/remote/remote_control.c **** // 遥控器拥有的串口实例,因为遥控器是单例,所以这里只有一个,就不封装了
+  16:modules/remote/remote_control.c **** static USARTInstance *rc_usart_instance;
+  17:modules/remote/remote_control.c **** static DaemonInstance *rc_daemon_instance;
+  18:modules/remote/remote_control.c **** 
+  19:modules/remote/remote_control.c **** /**
+  20:modules/remote/remote_control.c ****  * @brief 矫正遥控器摇杆的值,超过660或者小于-660的值都认为是无效值,置0
+  21:modules/remote/remote_control.c ****  *
+  22:modules/remote/remote_control.c ****  */
+  23:modules/remote/remote_control.c **** static void RectifyRCjoystick()
+  24:modules/remote/remote_control.c **** {
+  28              		.loc 1 24 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  25:modules/remote/remote_control.c ****     for (uint8_t i = 0; i < 5; ++i)
+  33              		.loc 1 25 5 view .LVU1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 2
+
+
+  34              	.LBB2:
+  35              		.loc 1 25 10 view .LVU2
+  36              	.LVL0:
+  37              		.loc 1 25 18 is_stmt 0 view .LVU3
+  38 0000 0023     		movs	r3, #0
+  39              		.loc 1 25 5 view .LVU4
+  40 0002 01E0     		b	.L2
+  41              	.LVL1:
+  42              	.L3:
+  43              		.loc 1 25 32 is_stmt 1 discriminator 2 view .LVU5
+  44 0004 0133     		adds	r3, r3, #1
+  45              	.LVL2:
+  46              		.loc 1 25 32 is_stmt 0 discriminator 2 view .LVU6
+  47 0006 DBB2     		uxtb	r3, r3
+  48              	.LVL3:
+  49              	.L2:
+  50              		.loc 1 25 27 is_stmt 1 discriminator 1 view .LVU7
+  51 0008 042B     		cmp	r3, #4
+  52 000a 0DD8     		bhi	.L5
+  26:modules/remote/remote_control.c ****         if (abs(*(&rc_ctrl[TEMP].rc.rocker_l_ + i)) > 660)
+  53              		.loc 1 26 9 view .LVU8
+  54              		.loc 1 26 47 is_stmt 0 view .LVU9
+  55 000c 0749     		ldr	r1, .L6
+  56              		.loc 1 26 17 view .LVU10
+  57 000e 31F91320 		ldrsh	r2, [r1, r3, lsl #1]
+  58              		.loc 1 26 13 view .LVU11
+  59 0012 002A     		cmp	r2, #0
+  60 0014 B8BF     		it	lt
+  61 0016 5242     		rsblt	r2, r2, #0
+  62 0018 92B2     		uxth	r2, r2
+  63              		.loc 1 26 12 view .LVU12
+  64 001a B2F5257F 		cmp	r2, #660
+  65 001e F1D9     		bls	.L3
+  27:modules/remote/remote_control.c ****             *(&rc_ctrl[TEMP].rc.rocker_l_ + i) = 0;
+  66              		.loc 1 27 13 is_stmt 1 view .LVU13
+  67              		.loc 1 27 48 is_stmt 0 view .LVU14
+  68 0020 0022     		movs	r2, #0
+  69 0022 21F81320 		strh	r2, [r1, r3, lsl #1]	@ movhi
+  70 0026 EDE7     		b	.L3
+  71              	.L5:
+  72              	.LBE2:
+  28:modules/remote/remote_control.c **** }
+  73              		.loc 1 28 1 view .LVU15
+  74 0028 7047     		bx	lr
+  75              	.L7:
+  76 002a 00BF     		.align	2
+  77              	.L6:
+  78 002c 00000000 		.word	rc_ctrl
+  79              		.cfi_endproc
+  80              	.LFE238:
+  82              		.section	.text.sbus_to_rc,"ax",%progbits
+  83              		.align	1
+  84              		.syntax unified
+  85              		.thumb
+  86              		.thumb_func
+  88              	sbus_to_rc:
+  89              	.LVL4:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 3
+
+
+  90              	.LFB239:
+  29:modules/remote/remote_control.c **** 
+  30:modules/remote/remote_control.c **** /**
+  31:modules/remote/remote_control.c ****  * @brief 遥控器数据解析
+  32:modules/remote/remote_control.c ****  *
+  33:modules/remote/remote_control.c ****  * @param sbus_buf 接收buffer
+  34:modules/remote/remote_control.c ****  */
+  35:modules/remote/remote_control.c **** static void sbus_to_rc(const uint8_t *sbus_buf)
+  36:modules/remote/remote_control.c **** {
+  91              		.loc 1 36 1 is_stmt 1 view -0
+  92              		.cfi_startproc
+  93              		@ args = 0, pretend = 0, frame = 0
+  94              		@ frame_needed = 0, uses_anonymous_args = 0
+  95              		.loc 1 36 1 is_stmt 0 view .LVU17
+  96 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+  97              		.cfi_def_cfa_offset 24
+  98              		.cfi_offset 3, -24
+  99              		.cfi_offset 4, -20
+ 100              		.cfi_offset 5, -16
+ 101              		.cfi_offset 6, -12
+ 102              		.cfi_offset 7, -8
+ 103              		.cfi_offset 14, -4
+ 104 0002 0446     		mov	r4, r0
+  37:modules/remote/remote_control.c ****     // 摇杆,直接解算时减去偏置
+  38:modules/remote/remote_control.c ****     rc_ctrl[TEMP].rc.rocker_r_ = ((sbus_buf[0] | (sbus_buf[1] << 8)) & 0x07ff) - RC_CH_VALUE_OFFSET
+ 105              		.loc 1 38 5 is_stmt 1 view .LVU18
+ 106              		.loc 1 38 44 is_stmt 0 view .LVU19
+ 107 0004 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 108              		.loc 1 38 59 view .LVU20
+ 109 0006 4278     		ldrb	r2, [r0, #1]	@ zero_extendqisi2
+ 110              		.loc 1 38 48 view .LVU21
+ 111 0008 43EA0223 		orr	r3, r3, r2, lsl #8
+ 112              		.loc 1 38 70 view .LVU22
+ 113 000c C3F30A03 		ubfx	r3, r3, #0, #11
+ 114              		.loc 1 38 80 view .LVU23
+ 115 0010 A3F58063 		sub	r3, r3, #1024
+ 116              		.loc 1 38 32 view .LVU24
+ 117 0014 4F4D     		ldr	r5, .L20
+ 118 0016 AB80     		strh	r3, [r5, #4]	@ movhi
+  39:modules/remote/remote_control.c ****     rc_ctrl[TEMP].rc.rocker_r1 = (((sbus_buf[1] >> 3) | (sbus_buf[2] << 5)) & 0x07ff) - RC_CH_VALUE
+ 119              		.loc 1 39 5 is_stmt 1 view .LVU25
+ 120              		.loc 1 39 45 is_stmt 0 view .LVU26
+ 121 0018 4278     		ldrb	r2, [r0, #1]	@ zero_extendqisi2
+ 122              		.loc 1 39 66 view .LVU27
+ 123 001a 8378     		ldrb	r3, [r0, #2]	@ zero_extendqisi2
+ 124              		.loc 1 39 55 view .LVU28
+ 125 001c 5B01     		lsls	r3, r3, #5
+ 126 001e 43EAD203 		orr	r3, r3, r2, lsr #3
+ 127              		.loc 1 39 77 view .LVU29
+ 128 0022 C3F30A03 		ubfx	r3, r3, #0, #11
+ 129              		.loc 1 39 87 view .LVU30
+ 130 0026 A3F58063 		sub	r3, r3, #1024
+ 131              		.loc 1 39 32 view .LVU31
+ 132 002a EB80     		strh	r3, [r5, #6]	@ movhi
+  40:modules/remote/remote_control.c ****     rc_ctrl[TEMP].rc.rocker_l_ = (((sbus_buf[2] >> 6) | (sbus_buf[3] << 2) | (sbus_buf[4] << 10)) &
+ 133              		.loc 1 40 5 is_stmt 1 view .LVU32
+ 134              		.loc 1 40 45 is_stmt 0 view .LVU33
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 4
+
+
+ 135 002c 8278     		ldrb	r2, [r0, #2]	@ zero_extendqisi2
+ 136              		.loc 1 40 66 view .LVU34
+ 137 002e C378     		ldrb	r3, [r0, #3]	@ zero_extendqisi2
+ 138              		.loc 1 40 55 view .LVU35
+ 139 0030 9B00     		lsls	r3, r3, #2
+ 140 0032 43EA9213 		orr	r3, r3, r2, lsr #6
+ 141              		.loc 1 40 87 view .LVU36
+ 142 0036 0279     		ldrb	r2, [r0, #4]	@ zero_extendqisi2
+ 143              		.loc 1 40 76 view .LVU37
+ 144 0038 43EA8223 		orr	r3, r3, r2, lsl #10
+ 145              		.loc 1 40 99 view .LVU38
+ 146 003c C3F30A03 		ubfx	r3, r3, #0, #11
+ 147              		.loc 1 40 109 view .LVU39
+ 148 0040 A3F58063 		sub	r3, r3, #1024
+ 149              		.loc 1 40 32 view .LVU40
+ 150 0044 2B80     		strh	r3, [r5]	@ movhi
+  41:modules/remote/remote_control.c ****     rc_ctrl[TEMP].rc.rocker_l1 = (((sbus_buf[4] >> 1) | (sbus_buf[5] << 7)) & 0x07ff) - RC_CH_VALUE
+ 151              		.loc 1 41 5 is_stmt 1 view .LVU41
+ 152              		.loc 1 41 66 is_stmt 0 view .LVU42
+ 153 0046 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 154              		.loc 1 41 55 view .LVU43
+ 155 0048 DB01     		lsls	r3, r3, #7
+ 156 004a 43EA5203 		orr	r3, r3, r2, lsr #1
+ 157              		.loc 1 41 77 view .LVU44
+ 158 004e C3F30A03 		ubfx	r3, r3, #0, #11
+ 159              		.loc 1 41 87 view .LVU45
+ 160 0052 A3F58063 		sub	r3, r3, #1024
+ 161              		.loc 1 41 32 view .LVU46
+ 162 0056 6B80     		strh	r3, [r5, #2]	@ movhi
+  42:modules/remote/remote_control.c ****     rc_ctrl[TEMP].rc.dial = ((sbus_buf[16] | (sbus_buf[17] << 8)) & 0x07FF) - RC_CH_VALUE_OFFSET;  
+ 163              		.loc 1 42 5 is_stmt 1 view .LVU47
+ 164              		.loc 1 42 39 is_stmt 0 view .LVU48
+ 165 0058 037C     		ldrb	r3, [r0, #16]	@ zero_extendqisi2
+ 166              		.loc 1 42 55 view .LVU49
+ 167 005a 427C     		ldrb	r2, [r0, #17]	@ zero_extendqisi2
+ 168              		.loc 1 42 44 view .LVU50
+ 169 005c 43EA0223 		orr	r3, r3, r2, lsl #8
+ 170              		.loc 1 42 67 view .LVU51
+ 171 0060 C3F30A03 		ubfx	r3, r3, #0, #11
+ 172              		.loc 1 42 77 view .LVU52
+ 173 0064 A3F58063 		sub	r3, r3, #1024
+ 174              		.loc 1 42 27 view .LVU53
+ 175 0068 2B81     		strh	r3, [r5, #8]	@ movhi
+  43:modules/remote/remote_control.c ****     RectifyRCjoystick();
+ 176              		.loc 1 43 5 is_stmt 1 view .LVU54
+ 177 006a FFF7FEFF 		bl	RectifyRCjoystick
+ 178              	.LVL5:
+  44:modules/remote/remote_control.c ****     // 开关,0左1右
+  45:modules/remote/remote_control.c ****     rc_ctrl[TEMP].rc.switch_right = ((sbus_buf[5] >> 4) & 0x0003);     //!< Switch right
+ 179              		.loc 1 45 5 view .LVU55
+ 180              		.loc 1 45 47 is_stmt 0 view .LVU56
+ 181 006e 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 182              		.loc 1 45 57 view .LVU57
+ 183 0070 C3F30113 		ubfx	r3, r3, #4, #2
+ 184              		.loc 1 45 35 view .LVU58
+ 185 0074 EB72     		strb	r3, [r5, #11]
+  46:modules/remote/remote_control.c ****     rc_ctrl[TEMP].rc.switch_left = ((sbus_buf[5] >> 4) & 0x000C) >> 2; //!< Switch left
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 5
+
+
+ 186              		.loc 1 46 5 is_stmt 1 view .LVU59
+ 187              		.loc 1 46 46 is_stmt 0 view .LVU60
+ 188 0076 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 189              		.loc 1 46 66 view .LVU61
+ 190 0078 9B09     		lsrs	r3, r3, #6
+ 191              		.loc 1 46 34 view .LVU62
+ 192 007a AB72     		strb	r3, [r5, #10]
+  47:modules/remote/remote_control.c **** 
+  48:modules/remote/remote_control.c ****     // 鼠标解析
+  49:modules/remote/remote_control.c ****     rc_ctrl[TEMP].mouse.x = (sbus_buf[6] | (sbus_buf[7] << 8)); //!< Mouse X axis
+ 193              		.loc 1 49 5 is_stmt 1 view .LVU63
+ 194              		.loc 1 49 38 is_stmt 0 view .LVU64
+ 195 007c A379     		ldrb	r3, [r4, #6]	@ zero_extendqisi2
+ 196              		.loc 1 49 53 view .LVU65
+ 197 007e E279     		ldrb	r2, [r4, #7]	@ zero_extendqisi2
+ 198              		.loc 1 49 42 view .LVU66
+ 199 0080 43EA0223 		orr	r3, r3, r2, lsl #8
+ 200              		.loc 1 49 27 view .LVU67
+ 201 0084 AB81     		strh	r3, [r5, #12]	@ movhi
+  50:modules/remote/remote_control.c ****     rc_ctrl[TEMP].mouse.y = (sbus_buf[8] | (sbus_buf[9] << 8)); //!< Mouse Y axis
+ 202              		.loc 1 50 5 is_stmt 1 view .LVU68
+ 203              		.loc 1 50 38 is_stmt 0 view .LVU69
+ 204 0086 237A     		ldrb	r3, [r4, #8]	@ zero_extendqisi2
+ 205              		.loc 1 50 53 view .LVU70
+ 206 0088 627A     		ldrb	r2, [r4, #9]	@ zero_extendqisi2
+ 207              		.loc 1 50 42 view .LVU71
+ 208 008a 43EA0223 		orr	r3, r3, r2, lsl #8
+ 209              		.loc 1 50 27 view .LVU72
+ 210 008e EB81     		strh	r3, [r5, #14]	@ movhi
+  51:modules/remote/remote_control.c ****     rc_ctrl[TEMP].mouse.press_l = sbus_buf[12];                 //!< Mouse Left Is Press ?
+ 211              		.loc 1 51 5 is_stmt 1 view .LVU73
+ 212              		.loc 1 51 43 is_stmt 0 view .LVU74
+ 213 0090 237B     		ldrb	r3, [r4, #12]	@ zero_extendqisi2
+ 214              		.loc 1 51 33 view .LVU75
+ 215 0092 2B74     		strb	r3, [r5, #16]
+  52:modules/remote/remote_control.c ****     rc_ctrl[TEMP].mouse.press_r = sbus_buf[13];                 //!< Mouse Right Is Press ?
+ 216              		.loc 1 52 5 is_stmt 1 view .LVU76
+ 217              		.loc 1 52 43 is_stmt 0 view .LVU77
+ 218 0094 637B     		ldrb	r3, [r4, #13]	@ zero_extendqisi2
+ 219              		.loc 1 52 33 view .LVU78
+ 220 0096 6B74     		strb	r3, [r5, #17]
+  53:modules/remote/remote_control.c **** 
+  54:modules/remote/remote_control.c ****     //  位域的按键值解算,直接memcpy即可,注意小端低字节在前,即lsb在第一位,
+  55:modules/remote/remote_control.c ****     *(uint16_t *)&rc_ctrl[TEMP].key[KEY_PRESS] = (uint16_t)(sbus_buf[14] | (sbus_buf[15] << 8));
+ 221              		.loc 1 55 5 is_stmt 1 view .LVU79
+ 222              		.loc 1 55 69 is_stmt 0 view .LVU80
+ 223 0098 A07B     		ldrb	r0, [r4, #14]	@ zero_extendqisi2
+ 224              		.loc 1 55 85 view .LVU81
+ 225 009a E37B     		ldrb	r3, [r4, #15]	@ zero_extendqisi2
+ 226              		.loc 1 55 50 view .LVU82
+ 227 009c 40EA0320 		orr	r0, r0, r3, lsl #8
+ 228              		.loc 1 55 48 view .LVU83
+ 229 00a0 6882     		strh	r0, [r5, #18]	@ movhi
+  56:modules/remote/remote_control.c ****     if (rc_ctrl[TEMP].key[KEY_PRESS].ctrl) // ctrl键按下
+ 230              		.loc 1 56 5 is_stmt 1 view .LVU84
+ 231 00a2 C2B2     		uxtb	r2, r0
+ 232              		.loc 1 56 8 is_stmt 0 view .LVU85
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 6
+
+
+ 233 00a4 10F0200F 		tst	r0, #32
+ 234 00a8 14D0     		beq	.L9
+  57:modules/remote/remote_control.c ****         rc_ctrl[TEMP].key[KEY_PRESS_WITH_CTRL] = rc_ctrl[TEMP].key[KEY_PRESS];
+ 235              		.loc 1 57 9 is_stmt 1 view .LVU86
+ 236              		.loc 1 57 48 is_stmt 0 view .LVU87
+ 237 00aa 81B2     		uxth	r1, r0
+ 238 00ac A982     		strh	r1, [r5, #20]	@ movhi
+ 239              	.L10:
+  58:modules/remote/remote_control.c ****     else
+  59:modules/remote/remote_control.c ****         memset(&rc_ctrl[TEMP].key[KEY_PRESS_WITH_CTRL], 0, sizeof(Key_t));
+  60:modules/remote/remote_control.c ****     if (rc_ctrl[TEMP].key[KEY_PRESS].shift) // shift键按下
+ 240              		.loc 1 60 5 is_stmt 1 view .LVU88
+ 241              		.loc 1 60 8 is_stmt 0 view .LVU89
+ 242 00ae 12F0100F 		tst	r2, #16
+ 243 00b2 13D0     		beq	.L11
+  61:modules/remote/remote_control.c ****         rc_ctrl[TEMP].key[KEY_PRESS_WITH_SHIFT] = rc_ctrl[TEMP].key[KEY_PRESS];
+ 244              		.loc 1 61 9 is_stmt 1 view .LVU90
+ 245              		.loc 1 61 49 is_stmt 0 view .LVU91
+ 246 00b4 274B     		ldr	r3, .L20
+ 247 00b6 5A8A     		ldrh	r2, [r3, #18]
+ 248 00b8 DA82     		strh	r2, [r3, #22]	@ movhi
+ 249              	.L12:
+  62:modules/remote/remote_control.c ****     else
+  63:modules/remote/remote_control.c ****         memset(&rc_ctrl[TEMP].key[KEY_PRESS_WITH_SHIFT], 0, sizeof(Key_t));
+  64:modules/remote/remote_control.c **** 
+  65:modules/remote/remote_control.c ****     uint16_t key_now = rc_ctrl[TEMP].key[KEY_PRESS].keys,                   // 当前按键是否�
+ 250              		.loc 1 65 5 is_stmt 1 view .LVU92
+ 251              	.LVL6:
+  66:modules/remote/remote_control.c ****         key_last = rc_ctrl[LAST].key[KEY_PRESS].keys,                       // 上一次按键是�
+ 252              		.loc 1 66 9 is_stmt 0 view .LVU93
+ 253 00ba 264B     		ldr	r3, .L20
+ 254 00bc B3F85A60 		ldrh	r6, [r3, #90]
+ 255              	.LVL7:
+  67:modules/remote/remote_control.c ****         key_with_ctrl = rc_ctrl[TEMP].key[KEY_PRESS_WITH_CTRL].keys,        // 当前ctrl组合键�
+ 256              		.loc 1 67 9 view .LVU94
+ 257 00c0 9C8A     		ldrh	r4, [r3, #20]
+ 258              	.LVL8:
+  68:modules/remote/remote_control.c ****         key_with_shift = rc_ctrl[TEMP].key[KEY_PRESS_WITH_SHIFT].keys,      //  当前shift组合�
+ 259              		.loc 1 68 9 view .LVU95
+ 260 00c2 B3F816C0 		ldrh	ip, [r3, #22]
+ 261              	.LVL9:
+  69:modules/remote/remote_control.c ****         key_last_with_ctrl = rc_ctrl[LAST].key[KEY_PRESS_WITH_CTRL].keys,   // 上一次ctrl组合�
+ 262              		.loc 1 69 9 view .LVU96
+ 263 00c6 B3F85C50 		ldrh	r5, [r3, #92]
+ 264              	.LVL10:
+  70:modules/remote/remote_control.c ****         key_last_with_shift = rc_ctrl[LAST].key[KEY_PRESS_WITH_SHIFT].keys; // 上一次shift组合
+ 265              		.loc 1 70 9 view .LVU97
+ 266 00ca B3F85EE0 		ldrh	lr, [r3, #94]
+ 267              	.LVL11:
+  71:modules/remote/remote_control.c **** 
+  72:modules/remote/remote_control.c ****     for (uint16_t i = 0, j = 0x1; i < 16; j <<= 1, i++)
+ 268              		.loc 1 72 5 is_stmt 1 view .LVU98
+ 269              	.LBB3:
+ 270              		.loc 1 72 10 view .LVU99
+ 271              		.loc 1 72 26 is_stmt 0 view .LVU100
+ 272 00ce 0123     		movs	r3, #1
+ 273              		.loc 1 72 19 view .LVU101
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 7
+
+
+ 274 00d0 0022     		movs	r2, #0
+ 275              		.loc 1 72 5 view .LVU102
+ 276 00d2 23E0     		b	.L13
+ 277              	.LVL12:
+ 278              	.L9:
+ 279              		.loc 1 72 5 view .LVU103
+ 280              	.LBE3:
+  59:modules/remote/remote_control.c ****     if (rc_ctrl[TEMP].key[KEY_PRESS].shift) // shift键按下
+ 281              		.loc 1 59 9 is_stmt 1 view .LVU104
+ 282 00d4 204B     		ldr	r3, .L20+4
+ 283 00d6 0021     		movs	r1, #0
+ 284 00d8 1980     		strh	r1, [r3]	@ movhi
+ 285 00da E8E7     		b	.L10
+ 286              	.L11:
+  63:modules/remote/remote_control.c **** 
+ 287              		.loc 1 63 9 view .LVU105
+ 288 00dc 1F4B     		ldr	r3, .L20+8
+ 289 00de 0022     		movs	r2, #0
+ 290 00e0 1A80     		strh	r2, [r3]	@ movhi
+ 291 00e2 EAE7     		b	.L12
+ 292              	.LVL13:
+ 293              	.L15:
+ 294              	.LBB4:
+  73:modules/remote/remote_control.c ****     {
+  74:modules/remote/remote_control.c ****         if (i == 4 || i == 5) // 4,5位为ctrl和shift,直接跳过
+  75:modules/remote/remote_control.c ****             continue;
+  76:modules/remote/remote_control.c ****         // 如果当前按键按下,上一次按键没有按下,且ctrl和shift组合键没有按�
+  77:modules/remote/remote_control.c ****         if ((key_now & j) && !(key_last & j) && !(key_with_ctrl & j) && !(key_with_shift & j))
+  78:modules/remote/remote_control.c ****             rc_ctrl[TEMP].key_count[KEY_PRESS][i]++;
+  79:modules/remote/remote_control.c ****         // 当前ctrl组合键按下,上一次ctrl组合键没有按下,则ctrl组合键按下计�
+  80:modules/remote/remote_control.c ****         if ((key_with_ctrl & j) && !(key_last_with_ctrl & j))
+ 295              		.loc 1 80 9 view .LVU106
+ 296              		.loc 1 80 12 is_stmt 0 view .LVU107
+ 297 00e4 2342     		tst	r3, r4
+ 298 00e6 08D0     		beq	.L16
+ 299              		.loc 1 80 33 discriminator 1 view .LVU108
+ 300 00e8 2B42     		tst	r3, r5
+ 301 00ea 06D1     		bne	.L16
+  81:modules/remote/remote_control.c ****             rc_ctrl[TEMP].key_count[KEY_PRESS_WITH_CTRL][i]++;
+ 302              		.loc 1 81 13 is_stmt 1 view .LVU109
+ 303              		.loc 1 81 57 is_stmt 0 view .LVU110
+ 304 00ec 1949     		ldr	r1, .L20
+ 305 00ee 1144     		add	r1, r1, r2
+ 306 00f0 91F82870 		ldrb	r7, [r1, #40]	@ zero_extendqisi2
+ 307              		.loc 1 81 60 view .LVU111
+ 308 00f4 0137     		adds	r7, r7, #1
+ 309 00f6 81F82870 		strb	r7, [r1, #40]
+ 310              	.L16:
+  82:modules/remote/remote_control.c ****         // 当前shift组合键按下,上一次shift组合键没有按下,则shift组合键按下�
+  83:modules/remote/remote_control.c ****         if ((key_with_shift & j) && !(key_last_with_shift & j))
+ 311              		.loc 1 83 9 is_stmt 1 view .LVU112
+ 312              		.loc 1 83 12 is_stmt 0 view .LVU113
+ 313 00fa 13EA0C0F 		tst	r3, ip
+ 314 00fe 09D0     		beq	.L14
+ 315              		.loc 1 83 34 discriminator 1 view .LVU114
+ 316 0100 13EA0E0F 		tst	r3, lr
+ 317 0104 06D1     		bne	.L14
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 8
+
+
+  84:modules/remote/remote_control.c ****             rc_ctrl[TEMP].key_count[KEY_PRESS_WITH_SHIFT][i]++;
+ 318              		.loc 1 84 13 is_stmt 1 view .LVU115
+ 319              		.loc 1 84 58 is_stmt 0 view .LVU116
+ 320 0106 1349     		ldr	r1, .L20
+ 321 0108 1144     		add	r1, r1, r2
+ 322 010a 91F83870 		ldrb	r7, [r1, #56]	@ zero_extendqisi2
+ 323              		.loc 1 84 61 view .LVU117
+ 324 010e 0137     		adds	r7, r7, #1
+ 325 0110 81F83870 		strb	r7, [r1, #56]
+ 326              	.L14:
+  72:modules/remote/remote_control.c ****     {
+ 327              		.loc 1 72 50 is_stmt 1 discriminator 2 view .LVU118
+  72:modules/remote/remote_control.c ****     {
+ 328              		.loc 1 72 45 is_stmt 0 discriminator 2 view .LVU119
+ 329 0114 5B00     		lsls	r3, r3, #1
+ 330              	.LVL14:
+  72:modules/remote/remote_control.c ****     {
+ 331              		.loc 1 72 45 discriminator 2 view .LVU120
+ 332 0116 9BB2     		uxth	r3, r3
+ 333              	.LVL15:
+  72:modules/remote/remote_control.c ****     {
+ 334              		.loc 1 72 53 discriminator 2 view .LVU121
+ 335 0118 0132     		adds	r2, r2, #1
+ 336              	.LVL16:
+  72:modules/remote/remote_control.c ****     {
+ 337              		.loc 1 72 53 discriminator 2 view .LVU122
+ 338 011a 92B2     		uxth	r2, r2
+ 339              	.LVL17:
+ 340              	.L13:
+  72:modules/remote/remote_control.c ****     {
+ 341              		.loc 1 72 37 is_stmt 1 discriminator 1 view .LVU123
+ 342 011c 0F2A     		cmp	r2, #15
+ 343 011e 12D8     		bhi	.L19
+  74:modules/remote/remote_control.c ****             continue;
+ 344              		.loc 1 74 9 view .LVU124
+  74:modules/remote/remote_control.c ****             continue;
+ 345              		.loc 1 74 20 is_stmt 0 view .LVU125
+ 346 0120 111F     		subs	r1, r2, #4
+ 347 0122 89B2     		uxth	r1, r1
+  74:modules/remote/remote_control.c ****             continue;
+ 348              		.loc 1 74 12 view .LVU126
+ 349 0124 0129     		cmp	r1, #1
+ 350 0126 F5D9     		bls	.L14
+  77:modules/remote/remote_control.c ****             rc_ctrl[TEMP].key_count[KEY_PRESS][i]++;
+ 351              		.loc 1 77 9 is_stmt 1 view .LVU127
+  77:modules/remote/remote_control.c ****             rc_ctrl[TEMP].key_count[KEY_PRESS][i]++;
+ 352              		.loc 1 77 12 is_stmt 0 view .LVU128
+ 353 0128 1842     		tst	r0, r3
+ 354 012a DBD0     		beq	.L15
+  77:modules/remote/remote_control.c ****             rc_ctrl[TEMP].key_count[KEY_PRESS][i]++;
+ 355              		.loc 1 77 27 discriminator 1 view .LVU129
+ 356 012c 3342     		tst	r3, r6
+ 357 012e D9D1     		bne	.L15
+  77:modules/remote/remote_control.c ****             rc_ctrl[TEMP].key_count[KEY_PRESS][i]++;
+ 358              		.loc 1 77 46 discriminator 2 view .LVU130
+ 359 0130 2342     		tst	r3, r4
+ 360 0132 D7D1     		bne	.L15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 9
+
+
+  77:modules/remote/remote_control.c ****             rc_ctrl[TEMP].key_count[KEY_PRESS][i]++;
+ 361              		.loc 1 77 70 discriminator 3 view .LVU131
+ 362 0134 13EA0C0F 		tst	r3, ip
+ 363 0138 D4D1     		bne	.L15
+  78:modules/remote/remote_control.c ****         // 当前ctrl组合键按下,上一次ctrl组合键没有按下,则ctrl组合键按下计�
+ 364              		.loc 1 78 13 is_stmt 1 view .LVU132
+  78:modules/remote/remote_control.c ****         // 当前ctrl组合键按下,上一次ctrl组合键没有按下,则ctrl组合键按下计�
+ 365              		.loc 1 78 47 is_stmt 0 view .LVU133
+ 366 013a 0649     		ldr	r1, .L20
+ 367 013c 1144     		add	r1, r1, r2
+ 368 013e 0F7E     		ldrb	r7, [r1, #24]	@ zero_extendqisi2
+  78:modules/remote/remote_control.c ****         // 当前ctrl组合键按下,上一次ctrl组合键没有按下,则ctrl组合键按下计�
+ 369              		.loc 1 78 50 view .LVU134
+ 370 0140 0137     		adds	r7, r7, #1
+ 371 0142 0F76     		strb	r7, [r1, #24]
+ 372 0144 CEE7     		b	.L15
+ 373              	.L19:
+ 374              	.LBE4:
+  85:modules/remote/remote_control.c ****     }
+  86:modules/remote/remote_control.c **** 
+  87:modules/remote/remote_control.c ****     memcpy(&rc_ctrl[LAST], &rc_ctrl[TEMP], sizeof(RC_ctrl_t)); // 保存上一次的数据,用于�
+ 375              		.loc 1 87 5 is_stmt 1 view .LVU135
+ 376 0146 0349     		ldr	r1, .L20
+ 377 0148 4822     		movs	r2, #72
+ 378              	.LVL18:
+ 379              		.loc 1 87 5 is_stmt 0 view .LVU136
+ 380 014a 8818     		adds	r0, r1, r2
+ 381              	.LVL19:
+ 382              		.loc 1 87 5 view .LVU137
+ 383 014c FFF7FEFF 		bl	memcpy
+ 384              	.LVL20:
+  88:modules/remote/remote_control.c **** }
+ 385              		.loc 1 88 1 view .LVU138
+ 386 0150 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 387              	.LVL21:
+ 388              	.L21:
+ 389              		.loc 1 88 1 view .LVU139
+ 390 0152 00BF     		.align	2
+ 391              	.L20:
+ 392 0154 00000000 		.word	rc_ctrl
+ 393 0158 14000000 		.word	rc_ctrl+20
+ 394 015c 16000000 		.word	rc_ctrl+22
+ 395              		.cfi_endproc
+ 396              	.LFE239:
+ 398              		.section	.text.RCLostCallback,"ax",%progbits
+ 399              		.align	1
+ 400              		.syntax unified
+ 401              		.thumb
+ 402              		.thumb_func
+ 404              	RCLostCallback:
+ 405              	.LVL22:
+ 406              	.LFB241:
+  89:modules/remote/remote_control.c **** 
+  90:modules/remote/remote_control.c **** /**
+  91:modules/remote/remote_control.c ****  * @brief 对sbus_to_rc的简单封装,用于注册到bsp_usart的回调函数中
+  92:modules/remote/remote_control.c ****  *
+  93:modules/remote/remote_control.c ****  */
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 10
+
+
+  94:modules/remote/remote_control.c **** static void RemoteControlRxCallback()
+  95:modules/remote/remote_control.c **** {
+  96:modules/remote/remote_control.c ****     DaemonReload(rc_daemon_instance);         // 先喂狗
+  97:modules/remote/remote_control.c ****     sbus_to_rc(rc_usart_instance->recv_buff); // 进行协议解析
+  98:modules/remote/remote_control.c **** }
+  99:modules/remote/remote_control.c **** 
+ 100:modules/remote/remote_control.c **** /**
+ 101:modules/remote/remote_control.c ****  * @brief 遥控器离线的回调函数,注册到守护进程中,串口掉线时调用
+ 102:modules/remote/remote_control.c ****  *
+ 103:modules/remote/remote_control.c ****  */
+ 104:modules/remote/remote_control.c **** static void RCLostCallback(void *id)
+ 105:modules/remote/remote_control.c **** {
+ 407              		.loc 1 105 1 is_stmt 1 view -0
+ 408              		.cfi_startproc
+ 409              		@ args = 0, pretend = 0, frame = 0
+ 410              		@ frame_needed = 0, uses_anonymous_args = 0
+ 411              		.loc 1 105 1 is_stmt 0 view .LVU141
+ 412 0000 08B5     		push	{r3, lr}
+ 413              		.cfi_def_cfa_offset 8
+ 414              		.cfi_offset 3, -8
+ 415              		.cfi_offset 14, -4
+ 106:modules/remote/remote_control.c ****     memset(rc_ctrl, 0, sizeof(rc_ctrl)); // 清空遥控器数据
+ 416              		.loc 1 106 5 is_stmt 1 view .LVU142
+ 417 0002 9022     		movs	r2, #144
+ 418 0004 0021     		movs	r1, #0
+ 419 0006 0448     		ldr	r0, .L24
+ 420              	.LVL23:
+ 421              		.loc 1 106 5 is_stmt 0 view .LVU143
+ 422 0008 FFF7FEFF 		bl	memset
+ 423              	.LVL24:
+ 107:modules/remote/remote_control.c ****     USARTServiceInit(rc_usart_instance); // 尝试重新启动接收
+ 424              		.loc 1 107 5 is_stmt 1 view .LVU144
+ 425 000c 034B     		ldr	r3, .L24+4
+ 426 000e 1868     		ldr	r0, [r3]
+ 427 0010 FFF7FEFF 		bl	USARTServiceInit
+ 428              	.LVL25:
+ 108:modules/remote/remote_control.c ****     LOGWARNING("[rc] remote control lost");
+ 429              		.loc 1 108 43 view .LVU145
+ 109:modules/remote/remote_control.c **** }
+ 430              		.loc 1 109 1 is_stmt 0 view .LVU146
+ 431 0014 08BD     		pop	{r3, pc}
+ 432              	.L25:
+ 433 0016 00BF     		.align	2
+ 434              	.L24:
+ 435 0018 00000000 		.word	rc_ctrl
+ 436 001c 00000000 		.word	rc_usart_instance
+ 437              		.cfi_endproc
+ 438              	.LFE241:
+ 440              		.section	.text.RemoteControlRxCallback,"ax",%progbits
+ 441              		.align	1
+ 442              		.syntax unified
+ 443              		.thumb
+ 444              		.thumb_func
+ 446              	RemoteControlRxCallback:
+ 447              	.LFB240:
+  95:modules/remote/remote_control.c ****     DaemonReload(rc_daemon_instance);         // 先喂狗
+ 448              		.loc 1 95 1 is_stmt 1 view -0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 11
+
+
+ 449              		.cfi_startproc
+ 450              		@ args = 0, pretend = 0, frame = 0
+ 451              		@ frame_needed = 0, uses_anonymous_args = 0
+ 452 0000 08B5     		push	{r3, lr}
+ 453              		.cfi_def_cfa_offset 8
+ 454              		.cfi_offset 3, -8
+ 455              		.cfi_offset 14, -4
+  96:modules/remote/remote_control.c ****     sbus_to_rc(rc_usart_instance->recv_buff); // 进行协议解析
+ 456              		.loc 1 96 5 view .LVU148
+ 457 0002 044B     		ldr	r3, .L28
+ 458 0004 1868     		ldr	r0, [r3]
+ 459 0006 FFF7FEFF 		bl	DaemonReload
+ 460              	.LVL26:
+  97:modules/remote/remote_control.c **** }
+ 461              		.loc 1 97 5 view .LVU149
+ 462 000a 034B     		ldr	r3, .L28+4
+ 463 000c 1868     		ldr	r0, [r3]
+ 464 000e FFF7FEFF 		bl	sbus_to_rc
+ 465              	.LVL27:
+  98:modules/remote/remote_control.c **** 
+ 466              		.loc 1 98 1 is_stmt 0 view .LVU150
+ 467 0012 08BD     		pop	{r3, pc}
+ 468              	.L29:
+ 469              		.align	2
+ 470              	.L28:
+ 471 0014 00000000 		.word	rc_daemon_instance
+ 472 0018 00000000 		.word	rc_usart_instance
+ 473              		.cfi_endproc
+ 474              	.LFE240:
+ 476              		.section	.text.RemoteControlInit,"ax",%progbits
+ 477              		.align	1
+ 478              		.global	RemoteControlInit
+ 479              		.syntax unified
+ 480              		.thumb
+ 481              		.thumb_func
+ 483              	RemoteControlInit:
+ 484              	.LVL28:
+ 485              	.LFB242:
+ 110:modules/remote/remote_control.c **** 
+ 111:modules/remote/remote_control.c **** RC_ctrl_t *RemoteControlInit(UART_HandleTypeDef *rc_usart_handle)
+ 112:modules/remote/remote_control.c **** {
+ 486              		.loc 1 112 1 is_stmt 1 view -0
+ 487              		.cfi_startproc
+ 488              		@ args = 0, pretend = 0, frame = 24
+ 489              		@ frame_needed = 0, uses_anonymous_args = 0
+ 490              		.loc 1 112 1 is_stmt 0 view .LVU152
+ 491 0000 00B5     		push	{lr}
+ 492              		.cfi_def_cfa_offset 4
+ 493              		.cfi_offset 14, -4
+ 494 0002 87B0     		sub	sp, sp, #28
+ 495              		.cfi_def_cfa_offset 32
+ 113:modules/remote/remote_control.c ****     USART_Init_Config_s conf;
+ 496              		.loc 1 113 5 is_stmt 1 view .LVU153
+ 114:modules/remote/remote_control.c ****     conf.module_callback = RemoteControlRxCallback;
+ 497              		.loc 1 114 5 view .LVU154
+ 498              		.loc 1 114 26 is_stmt 0 view .LVU155
+ 499 0004 0F4B     		ldr	r3, .L32
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 12
+
+
+ 500 0006 0593     		str	r3, [sp, #20]
+ 115:modules/remote/remote_control.c ****     conf.usart_handle = rc_usart_handle;
+ 501              		.loc 1 115 5 is_stmt 1 view .LVU156
+ 502              		.loc 1 115 23 is_stmt 0 view .LVU157
+ 503 0008 0490     		str	r0, [sp, #16]
+ 116:modules/remote/remote_control.c ****     conf.recv_buff_size = REMOTE_CONTROL_FRAME_SIZE;
+ 504              		.loc 1 116 5 is_stmt 1 view .LVU158
+ 505              		.loc 1 116 25 is_stmt 0 view .LVU159
+ 506 000a 1223     		movs	r3, #18
+ 507 000c 8DF80C30 		strb	r3, [sp, #12]
+ 117:modules/remote/remote_control.c ****     rc_usart_instance = USARTRegister(&conf);
+ 508              		.loc 1 117 5 is_stmt 1 view .LVU160
+ 509              		.loc 1 117 25 is_stmt 0 view .LVU161
+ 510 0010 03A8     		add	r0, sp, #12
+ 511              	.LVL29:
+ 512              		.loc 1 117 25 view .LVU162
+ 513 0012 FFF7FEFF 		bl	USARTRegister
+ 514              	.LVL30:
+ 515              		.loc 1 117 23 discriminator 1 view .LVU163
+ 516 0016 0C4B     		ldr	r3, .L32+4
+ 517 0018 1860     		str	r0, [r3]
+ 118:modules/remote/remote_control.c **** 
+ 119:modules/remote/remote_control.c ****     // 进行守护进程的注册,用于定时检查遥控器是否正常工作
+ 120:modules/remote/remote_control.c ****     Daemon_Init_Config_s daemon_conf = {
+ 518              		.loc 1 120 5 is_stmt 1 view .LVU164
+ 519              		.loc 1 120 26 is_stmt 0 view .LVU165
+ 520 001a 6846     		mov	r0, sp
+ 521 001c 0023     		movs	r3, #0
+ 522 001e 0093     		str	r3, [sp]
+ 523 0020 0193     		str	r3, [sp, #4]
+ 524 0022 0293     		str	r3, [sp, #8]
+ 525 0024 0A23     		movs	r3, #10
+ 526 0026 ADF80030 		strh	r3, [sp]	@ movhi
+ 527 002a 084B     		ldr	r3, .L32+8
+ 528 002c 0193     		str	r3, [sp, #4]
+ 121:modules/remote/remote_control.c ****         .reload_count = 10, // 100ms未收到数据视为离线,遥控器的接收频率实际上�
+ 122:modules/remote/remote_control.c ****         .callback = RCLostCallback,
+ 123:modules/remote/remote_control.c ****         .owner_id = NULL, // 只有1个遥控器,不需要owner_id
+ 124:modules/remote/remote_control.c ****     };
+ 125:modules/remote/remote_control.c ****     rc_daemon_instance = DaemonRegister(&daemon_conf);
+ 529              		.loc 1 125 5 is_stmt 1 view .LVU166
+ 530              		.loc 1 125 26 is_stmt 0 view .LVU167
+ 531 002e FFF7FEFF 		bl	DaemonRegister
+ 532              	.LVL31:
+ 533              		.loc 1 125 24 discriminator 1 view .LVU168
+ 534 0032 074B     		ldr	r3, .L32+12
+ 535 0034 1860     		str	r0, [r3]
+ 126:modules/remote/remote_control.c **** 
+ 127:modules/remote/remote_control.c ****     rc_init_flag = 1;
+ 536              		.loc 1 127 5 is_stmt 1 view .LVU169
+ 537              		.loc 1 127 18 is_stmt 0 view .LVU170
+ 538 0036 074B     		ldr	r3, .L32+16
+ 539 0038 0122     		movs	r2, #1
+ 540 003a 1A70     		strb	r2, [r3]
+ 128:modules/remote/remote_control.c ****     return rc_ctrl;
+ 541              		.loc 1 128 5 is_stmt 1 view .LVU171
+ 129:modules/remote/remote_control.c **** }
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 13
+
+
+ 542              		.loc 1 129 1 is_stmt 0 view .LVU172
+ 543 003c 0648     		ldr	r0, .L32+20
+ 544 003e 07B0     		add	sp, sp, #28
+ 545              		.cfi_def_cfa_offset 4
+ 546              		@ sp needed
+ 547 0040 00BD     		pop	{pc}
+ 548              	.L33:
+ 549 0042 00BF     		.align	2
+ 550              	.L32:
+ 551 0044 00000000 		.word	RemoteControlRxCallback
+ 552 0048 00000000 		.word	rc_usart_instance
+ 553 004c 00000000 		.word	RCLostCallback
+ 554 0050 00000000 		.word	rc_daemon_instance
+ 555 0054 00000000 		.word	rc_init_flag
+ 556 0058 00000000 		.word	rc_ctrl
+ 557              		.cfi_endproc
+ 558              	.LFE242:
+ 560              		.section	.text.RemoteControlIsOnline,"ax",%progbits
+ 561              		.align	1
+ 562              		.global	RemoteControlIsOnline
+ 563              		.syntax unified
+ 564              		.thumb
+ 565              		.thumb_func
+ 567              	RemoteControlIsOnline:
+ 568              	.LFB243:
+ 130:modules/remote/remote_control.c **** 
+ 131:modules/remote/remote_control.c **** uint8_t RemoteControlIsOnline()
+ 132:modules/remote/remote_control.c **** {
+ 569              		.loc 1 132 1 is_stmt 1 view -0
+ 570              		.cfi_startproc
+ 571              		@ args = 0, pretend = 0, frame = 0
+ 572              		@ frame_needed = 0, uses_anonymous_args = 0
+ 573 0000 08B5     		push	{r3, lr}
+ 574              		.cfi_def_cfa_offset 8
+ 575              		.cfi_offset 3, -8
+ 576              		.cfi_offset 14, -4
+ 133:modules/remote/remote_control.c ****     if (rc_init_flag)
+ 577              		.loc 1 133 5 view .LVU174
+ 578              		.loc 1 133 9 is_stmt 0 view .LVU175
+ 579 0002 044B     		ldr	r3, .L38
+ 580 0004 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 581              		.loc 1 133 8 view .LVU176
+ 582 0006 00B9     		cbnz	r0, .L37
+ 583              	.L35:
+ 134:modules/remote/remote_control.c ****         return DaemonIsOnline(rc_daemon_instance);
+ 135:modules/remote/remote_control.c ****     return 0;
+ 136:modules/remote/remote_control.c **** }...
+ 584              		.loc 1 136 1 view .LVU177
+ 585 0008 08BD     		pop	{r3, pc}
+ 586              	.L37:
+ 134:modules/remote/remote_control.c ****         return DaemonIsOnline(rc_daemon_instance);
+ 587              		.loc 1 134 9 is_stmt 1 view .LVU178
+ 134:modules/remote/remote_control.c ****         return DaemonIsOnline(rc_daemon_instance);
+ 588              		.loc 1 134 16 is_stmt 0 view .LVU179
+ 589 000a 034B     		ldr	r3, .L38+4
+ 590 000c 1868     		ldr	r0, [r3]
+ 591 000e FFF7FEFF 		bl	DaemonIsOnline
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 14
+
+
+ 592              	.LVL32:
+ 593 0012 F9E7     		b	.L35
+ 594              	.L39:
+ 595              		.align	2
+ 596              	.L38:
+ 597 0014 00000000 		.word	rc_init_flag
+ 598 0018 00000000 		.word	rc_daemon_instance
+ 599              		.cfi_endproc
+ 600              	.LFE243:
+ 602              		.section	.bss.rc_daemon_instance,"aw",%nobits
+ 603              		.align	2
+ 606              	rc_daemon_instance:
+ 607 0000 00000000 		.space	4
+ 608              		.section	.bss.rc_usart_instance,"aw",%nobits
+ 609              		.align	2
+ 612              	rc_usart_instance:
+ 613 0000 00000000 		.space	4
+ 614              		.section	.bss.rc_init_flag,"aw",%nobits
+ 617              	rc_init_flag:
+ 618 0000 00       		.space	1
+ 619              		.section	.bss.rc_ctrl,"aw",%nobits
+ 620              		.align	2
+ 623              	rc_ctrl:
+ 624 0000 00000000 		.space	144
+ 624      00000000 
+ 624      00000000 
+ 624      00000000 
+ 624      00000000 
+ 625              		.text
+ 626              	.Letext0:
+ 627              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 628              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 629              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 630              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 631              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 632              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 633              		.file 8 "modules/remote/remote_control.h"
+ 634              		.file 9 "bsp/usart/bsp_usart.h"
+ 635              		.file 10 "modules/daemon/daemon.h"
+ 636              		.file 11 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 637              		.file 12 "<built-in>"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s 			page 15
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 remote_control.c
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:21     .text.RectifyRCjoystick:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:26     .text.RectifyRCjoystick:00000000 RectifyRCjoystick
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:78     .text.RectifyRCjoystick:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:623    .bss.rc_ctrl:00000000 rc_ctrl
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:83     .text.sbus_to_rc:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:88     .text.sbus_to_rc:00000000 sbus_to_rc
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:392    .text.sbus_to_rc:00000154 $d
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:399    .text.RCLostCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:404    .text.RCLostCallback:00000000 RCLostCallback
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:435    .text.RCLostCallback:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:612    .bss.rc_usart_instance:00000000 rc_usart_instance
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:441    .text.RemoteControlRxCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:446    .text.RemoteControlRxCallback:00000000 RemoteControlRxCallback
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:471    .text.RemoteControlRxCallback:00000014 $d
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:606    .bss.rc_daemon_instance:00000000 rc_daemon_instance
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:477    .text.RemoteControlInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:483    .text.RemoteControlInit:00000000 RemoteControlInit
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:551    .text.RemoteControlInit:00000044 $d
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:617    .bss.rc_init_flag:00000000 rc_init_flag
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:561    .text.RemoteControlIsOnline:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:567    .text.RemoteControlIsOnline:00000000 RemoteControlIsOnline
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:597    .text.RemoteControlIsOnline:00000014 $d
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:603    .bss.rc_daemon_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:609    .bss.rc_usart_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:618    .bss.rc_init_flag:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccFb8vLk.s:620    .bss.rc_ctrl:00000000 $d
+
+UNDEFINED SYMBOLS
+memcpy
+memset
+USARTServiceInit
+DaemonReload
+USARTRegister
+DaemonRegister
+DaemonIsOnline

@@ -1,0 +1,237 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"crc16.c"
+  16              		.text
+  17              		.section	.text.init_crc16_tab,"ax",%progbits
+  18              		.align	1
+  19              		.global	init_crc16_tab
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	init_crc16_tab:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27              		@ link register save eliminated.
+  28 0000 4FF0000C 		mov	ip, #0
+  29 0004 17E0     		b	.L2
+  30              	.L3:
+  31 0006 5208     		lsrs	r2, r2, #1
+  32              	.L4:
+  33 0008 C1F34F01 		ubfx	r1, r1, #1, #16
+  34 000c 0133     		adds	r3, r3, #1
+  35 000e 9BB2     		uxth	r3, r3
+  36              	.L6:
+  37 0010 072B     		cmp	r3, #7
+  38 0012 09D8     		bhi	.L8
+  39 0014 82EA0100 		eor	r0, r2, r1
+  40 0018 10F0010F 		tst	r0, #1
+  41 001c F3D0     		beq	.L3
+  42 001e 4AF20100 		movw	r0, #40961
+  43 0022 80EA5202 		eor	r2, r0, r2, lsr #1
+  44 0026 EFE7     		b	.L4
+  45              	.L8:
+  46 0028 084B     		ldr	r3, .L10
+  47 002a 23F81C20 		strh	r2, [r3, ip, lsl #1]	@ movhi
+  48 002e 0CF1010C 		add	ip, ip, #1
+  49 0032 1FFA8CFC 		uxth	ip, ip
+  50              	.L2:
+  51 0036 BCF1FF0F 		cmp	ip, #255
+  52 003a 03D8     		bhi	.L9
+  53 003c 6146     		mov	r1, ip
+  54 003e 0022     		movs	r2, #0
+  55 0040 1346     		mov	r3, r2
+  56 0042 E5E7     		b	.L6
+  57              	.L9:
+  58 0044 024B     		ldr	r3, .L10+4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s 			page 2
+
+
+  59 0046 0122     		movs	r2, #1
+  60 0048 1A70     		strb	r2, [r3]
+  61 004a 7047     		bx	lr
+  62              	.L11:
+  63              		.align	2
+  64              	.L10:
+  65 004c 00000000 		.word	crc_tab16
+  66 0050 00000000 		.word	crc_tab16_init
+  68              		.section	.text.crc_16,"ax",%progbits
+  69              		.align	1
+  70              		.global	crc_16
+  71              		.syntax unified
+  72              		.thumb
+  73              		.thumb_func
+  75              	crc_16:
+  76              		@ args = 0, pretend = 0, frame = 0
+  77              		@ frame_needed = 0, uses_anonymous_args = 0
+  78 0000 38B5     		push	{r3, r4, r5, lr}
+  79 0002 0446     		mov	r4, r0
+  80 0004 0D46     		mov	r5, r1
+  81 0006 104B     		ldr	r3, .L21
+  82 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  83 000a 2BB1     		cbz	r3, .L19
+  84              	.L13:
+  85 000c 3CB1     		cbz	r4, .L20
+  86 000e 4FF0000C 		mov	ip, #0
+  87 0012 4FF6FF70 		movw	r0, #65535
+  88 0016 14E0     		b	.L14
+  89              	.L19:
+  90 0018 FFF7FEFF 		bl	init_crc16_tab
+  91 001c F6E7     		b	.L13
+  92              	.L20:
+  93 001e 4FF6FF70 		movw	r0, #65535
+  94 0022 10E0     		b	.L15
+  95              	.L16:
+  96 0024 2346     		mov	r3, r4
+  97 0026 13F8012B 		ldrb	r2, [r3], #1	@ zero_extendqisi2
+  98 002a 4240     		eors	r2, r2, r0
+  99 002c D2B2     		uxtb	r2, r2
+ 100 002e 0749     		ldr	r1, .L21+4
+ 101 0030 31F81220 		ldrh	r2, [r1, r2, lsl #1]
+ 102 0034 82EA1020 		eor	r0, r2, r0, lsr #8
+ 103 0038 0CF1010C 		add	ip, ip, #1
+ 104 003c 1FFA8CFC 		uxth	ip, ip
+ 105 0040 1C46     		mov	r4, r3
+ 106              	.L14:
+ 107 0042 AC45     		cmp	ip, r5
+ 108 0044 EED3     		bcc	.L16
+ 109              	.L15:
+ 110 0046 38BD     		pop	{r3, r4, r5, pc}
+ 111              	.L22:
+ 112              		.align	2
+ 113              	.L21:
+ 114 0048 00000000 		.word	crc_tab16_init
+ 115 004c 00000000 		.word	crc_tab16
+ 117              		.section	.text.crc_modbus,"ax",%progbits
+ 118              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s 			page 3
+
+
+ 119              		.global	crc_modbus
+ 120              		.syntax unified
+ 121              		.thumb
+ 122              		.thumb_func
+ 124              	crc_modbus:
+ 125              		@ args = 0, pretend = 0, frame = 0
+ 126              		@ frame_needed = 0, uses_anonymous_args = 0
+ 127 0000 38B5     		push	{r3, r4, r5, lr}
+ 128 0002 0446     		mov	r4, r0
+ 129 0004 0D46     		mov	r5, r1
+ 130 0006 104B     		ldr	r3, .L32
+ 131 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 132 000a 2BB1     		cbz	r3, .L30
+ 133              	.L24:
+ 134 000c 3CB1     		cbz	r4, .L31
+ 135 000e 4FF0000C 		mov	ip, #0
+ 136 0012 4FF6FF70 		movw	r0, #65535
+ 137 0016 14E0     		b	.L25
+ 138              	.L30:
+ 139 0018 FFF7FEFF 		bl	init_crc16_tab
+ 140 001c F6E7     		b	.L24
+ 141              	.L31:
+ 142 001e 4FF6FF70 		movw	r0, #65535
+ 143 0022 10E0     		b	.L26
+ 144              	.L27:
+ 145 0024 2346     		mov	r3, r4
+ 146 0026 13F8012B 		ldrb	r2, [r3], #1	@ zero_extendqisi2
+ 147 002a 4240     		eors	r2, r2, r0
+ 148 002c D2B2     		uxtb	r2, r2
+ 149 002e 0749     		ldr	r1, .L32+4
+ 150 0030 31F81220 		ldrh	r2, [r1, r2, lsl #1]
+ 151 0034 82EA1020 		eor	r0, r2, r0, lsr #8
+ 152 0038 0CF1010C 		add	ip, ip, #1
+ 153 003c 1FFA8CFC 		uxth	ip, ip
+ 154 0040 1C46     		mov	r4, r3
+ 155              	.L25:
+ 156 0042 AC45     		cmp	ip, r5
+ 157 0044 EED3     		bcc	.L27
+ 158              	.L26:
+ 159 0046 38BD     		pop	{r3, r4, r5, pc}
+ 160              	.L33:
+ 161              		.align	2
+ 162              	.L32:
+ 163 0048 00000000 		.word	crc_tab16_init
+ 164 004c 00000000 		.word	crc_tab16
+ 166              		.section	.text.update_crc_16,"ax",%progbits
+ 167              		.align	1
+ 168              		.global	update_crc_16
+ 169              		.syntax unified
+ 170              		.thumb
+ 171              		.thumb_func
+ 173              	update_crc_16:
+ 174              		@ args = 0, pretend = 0, frame = 0
+ 175              		@ frame_needed = 0, uses_anonymous_args = 0
+ 176 0000 38B5     		push	{r3, r4, r5, lr}
+ 177 0002 0446     		mov	r4, r0
+ 178 0004 0D46     		mov	r5, r1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s 			page 4
+
+
+ 179 0006 074B     		ldr	r3, .L38
+ 180 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 181 000a 43B1     		cbz	r3, .L37
+ 182              	.L35:
+ 183 000c 2946     		mov	r1, r5
+ 184 000e 6140     		eors	r1, r1, r4
+ 185 0010 C9B2     		uxtb	r1, r1
+ 186 0012 054B     		ldr	r3, .L38+4
+ 187 0014 33F81100 		ldrh	r0, [r3, r1, lsl #1]
+ 188 0018 80EA1420 		eor	r0, r0, r4, lsr #8
+ 189 001c 38BD     		pop	{r3, r4, r5, pc}
+ 190              	.L37:
+ 191 001e FFF7FEFF 		bl	init_crc16_tab
+ 192 0022 F3E7     		b	.L35
+ 193              	.L39:
+ 194              		.align	2
+ 195              	.L38:
+ 196 0024 00000000 		.word	crc_tab16_init
+ 197 0028 00000000 		.word	crc_tab16
+ 199              		.section	.bss.crc_tab16,"aw",%nobits
+ 200              		.align	2
+ 203              	crc_tab16:
+ 204 0000 00000000 		.space	512
+ 204      00000000 
+ 204      00000000 
+ 204      00000000 
+ 204      00000000 
+ 205              		.section	.bss.crc_tab16_init,"aw",%nobits
+ 208              	crc_tab16_init:
+ 209 0000 00       		.space	1
+ 210              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 crc16.c
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:18     .text.init_crc16_tab:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:24     .text.init_crc16_tab:00000000 init_crc16_tab
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:65     .text.init_crc16_tab:0000004c $d
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:203    .bss.crc_tab16:00000000 crc_tab16
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:208    .bss.crc_tab16_init:00000000 crc_tab16_init
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:69     .text.crc_16:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:75     .text.crc_16:00000000 crc_16
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:114    .text.crc_16:00000048 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:118    .text.crc_modbus:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:124    .text.crc_modbus:00000000 crc_modbus
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:163    .text.crc_modbus:00000048 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:167    .text.update_crc_16:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:173    .text.update_crc_16:00000000 update_crc_16
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:196    .text.update_crc_16:00000024 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:200    .bss.crc_tab16:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccXwdEZa.s:209    .bss.crc_tab16_init:00000000 $d
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,809 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"master_process.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/master_machine/master_process.c"
+  20              		.section	.text.VisionCRC16,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	VisionCRC16:
+  27              	.LVL0:
+  28              	.LFB239:
+   1:modules/master_machine/master_process.c **** #include "master_process.h"
+   2:modules/master_machine/master_process.c **** 
+   3:modules/master_machine/master_process.c **** #include "daemon.h"
+   4:modules/master_machine/master_process.c **** #include "bsp_log.h"
+   5:modules/master_machine/master_process.c **** #include "bsp_usb.h"
+   6:modules/master_machine/master_process.c **** 
+   7:modules/master_machine/master_process.c **** #include <string.h>
+   8:modules/master_machine/master_process.c **** 
+   9:modules/master_machine/master_process.c **** static Vision_Recv_s recv_data;
+  10:modules/master_machine/master_process.c **** static Vision_Send_s send_data;
+  11:modules/master_machine/master_process.c **** static DaemonInstance *vision_daemon_instance;
+  12:modules/master_machine/master_process.c **** static uint8_t *vis_recv_buff;
+  13:modules/master_machine/master_process.c **** 
+  14:modules/master_machine/master_process.c **** /* 和 sp_vision_25 一致的 CRC16/X25 */
+  15:modules/master_machine/master_process.c **** static uint16_t VisionCRC16(const uint8_t *data, uint32_t len)
+  16:modules/master_machine/master_process.c **** {
+  29              		.loc 1 16 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+  34              		.loc 1 16 1 is_stmt 0 view .LVU1
+  35 0000 8446     		mov	ip, r0
+  17:modules/master_machine/master_process.c ****     uint16_t crc = 0xFFFF;
+  36              		.loc 1 17 5 is_stmt 1 view .LVU2
+  37              	.LVL1:
+  18:modules/master_machine/master_process.c **** 
+  19:modules/master_machine/master_process.c ****     while (len--)
+  38              		.loc 1 19 5 view .LVU3
+  17:modules/master_machine/master_process.c ****     uint16_t crc = 0xFFFF;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 2
+
+
+  39              		.loc 1 17 14 is_stmt 0 view .LVU4
+  40 0002 4FF6FF70 		movw	r0, #65535
+  41              	.LVL2:
+  42              	.L2:
+  43              		.loc 1 19 12 is_stmt 1 view .LVU5
+  44              		.loc 1 19 15 is_stmt 0 view .LVU6
+  45 0006 0139     		subs	r1, r1, #1
+  46              	.LVL3:
+  47              		.loc 1 19 12 view .LVU7
+  48 0008 B1F1FF3F 		cmp	r1, #-1
+  49 000c 11D0     		beq	.L8
+  20:modules/master_machine/master_process.c ****     {
+  21:modules/master_machine/master_process.c ****         crc ^= *data++;
+  50              		.loc 1 21 9 is_stmt 1 view .LVU8
+  51              	.LVL4:
+  52              		.loc 1 21 16 is_stmt 0 view .LVU9
+  53 000e 1CF8013B 		ldrb	r3, [ip], #1	@ zero_extendqisi2
+  54              	.LVL5:
+  55              		.loc 1 21 13 view .LVU10
+  56 0012 5840     		eors	r0, r0, r3
+  57              	.LVL6:
+  22:modules/master_machine/master_process.c ****         for (uint8_t i = 0; i < 8; i++)
+  58              		.loc 1 22 9 is_stmt 1 view .LVU11
+  59              	.LBB2:
+  60              		.loc 1 22 14 view .LVU12
+  61              		.loc 1 22 22 is_stmt 0 view .LVU13
+  62 0014 0023     		movs	r3, #0
+  63              		.loc 1 22 9 view .LVU14
+  64 0016 02E0     		b	.L3
+  65              	.LVL7:
+  66              	.L4:
+  23:modules/master_machine/master_process.c ****         {
+  24:modules/master_machine/master_process.c ****             if (crc & 0x0001)
+  25:modules/master_machine/master_process.c ****                 crc = (crc >> 1) ^ 0x8408;
+  26:modules/master_machine/master_process.c ****             else
+  27:modules/master_machine/master_process.c ****                 crc >>= 1;
+  67              		.loc 1 27 17 is_stmt 1 view .LVU15
+  68              		.loc 1 27 21 is_stmt 0 view .LVU16
+  69 0018 4008     		lsrs	r0, r0, #1
+  70              	.LVL8:
+  71              	.L5:
+  22:modules/master_machine/master_process.c ****         for (uint8_t i = 0; i < 8; i++)
+  72              		.loc 1 22 37 is_stmt 1 discriminator 2 view .LVU17
+  73 001a 0133     		adds	r3, r3, #1
+  74              	.LVL9:
+  22:modules/master_machine/master_process.c ****         for (uint8_t i = 0; i < 8; i++)
+  75              		.loc 1 22 37 is_stmt 0 discriminator 2 view .LVU18
+  76 001c DBB2     		uxtb	r3, r3
+  77              	.LVL10:
+  78              	.L3:
+  22:modules/master_machine/master_process.c ****         for (uint8_t i = 0; i < 8; i++)
+  79              		.loc 1 22 31 is_stmt 1 discriminator 1 view .LVU19
+  80 001e 072B     		cmp	r3, #7
+  81 0020 F1D8     		bhi	.L2
+  24:modules/master_machine/master_process.c ****                 crc = (crc >> 1) ^ 0x8408;
+  82              		.loc 1 24 13 view .LVU20
+  24:modules/master_machine/master_process.c ****                 crc = (crc >> 1) ^ 0x8408;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 3
+
+
+  83              		.loc 1 24 16 is_stmt 0 view .LVU21
+  84 0022 10F0010F 		tst	r0, #1
+  85 0026 F7D0     		beq	.L4
+  25:modules/master_machine/master_process.c ****             else
+  86              		.loc 1 25 17 is_stmt 1 view .LVU22
+  25:modules/master_machine/master_process.c ****             else
+  87              		.loc 1 25 21 is_stmt 0 view .LVU23
+  88 0028 48F20842 		movw	r2, #33800
+  89 002c 82EA5000 		eor	r0, r2, r0, lsr #1
+  90              	.LVL11:
+  25:modules/master_machine/master_process.c ****             else
+  91              		.loc 1 25 21 view .LVU24
+  92 0030 F3E7     		b	.L5
+  93              	.LVL12:
+  94              	.L8:
+  25:modules/master_machine/master_process.c ****             else
+  95              		.loc 1 25 21 view .LVU25
+  96              	.LBE2:
+  28:modules/master_machine/master_process.c ****         }
+  29:modules/master_machine/master_process.c ****     }
+  30:modules/master_machine/master_process.c **** 
+  31:modules/master_machine/master_process.c ****     return crc;
+  97              		.loc 1 31 5 is_stmt 1 view .LVU26
+  32:modules/master_machine/master_process.c **** }
+  98              		.loc 1 32 1 is_stmt 0 view .LVU27
+  99 0032 7047     		bx	lr
+ 100              		.cfi_endproc
+ 101              	.LFE239:
+ 103              		.section	.text.VisionCheckCRC16,"ax",%progbits
+ 104              		.align	1
+ 105              		.syntax unified
+ 106              		.thumb
+ 107              		.thumb_func
+ 109              	VisionCheckCRC16:
+ 110              	.LVL13:
+ 111              	.LFB240:
+  33:modules/master_machine/master_process.c **** 
+  34:modules/master_machine/master_process.c **** static uint8_t VisionCheckCRC16(const uint8_t *data, uint32_t len)
+  35:modules/master_machine/master_process.c **** {
+ 112              		.loc 1 35 1 is_stmt 1 view -0
+ 113              		.cfi_startproc
+ 114              		@ args = 0, pretend = 0, frame = 0
+ 115              		@ frame_needed = 0, uses_anonymous_args = 0
+ 116              		.loc 1 35 1 is_stmt 0 view .LVU29
+ 117 0000 10B5     		push	{r4, lr}
+ 118              	.LCFI0:
+ 119              		.cfi_def_cfa_offset 8
+ 120              		.cfi_offset 4, -8
+ 121              		.cfi_offset 14, -4
+ 122 0002 0B46     		mov	r3, r1
+  36:modules/master_machine/master_process.c ****     uint16_t rx_crc = (uint16_t)data[len - 2] | ((uint16_t)data[len - 1] << 8);
+ 123              		.loc 1 36 5 is_stmt 1 view .LVU30
+ 124              		.loc 1 36 42 is_stmt 0 view .LVU31
+ 125 0004 0239     		subs	r1, r1, #2
+ 126              	.LVL14:
+ 127              		.loc 1 36 37 view .LVU32
+ 128 0006 445C     		ldrb	r4, [r0, r1]	@ zero_extendqisi2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 4
+
+
+ 129              		.loc 1 36 69 view .LVU33
+ 130 0008 013B     		subs	r3, r3, #1
+ 131              	.LVL15:
+ 132              		.loc 1 36 64 view .LVU34
+ 133 000a C35C     		ldrb	r3, [r0, r3]	@ zero_extendqisi2
+ 134              	.LVL16:
+ 135              		.loc 1 36 14 view .LVU35
+ 136 000c 44EA0324 		orr	r4, r4, r3, lsl #8
+ 137              	.LVL17:
+  37:modules/master_machine/master_process.c ****     uint16_t calc_crc = VisionCRC16(data, len - 2);
+ 138              		.loc 1 37 5 is_stmt 1 view .LVU36
+ 139              		.loc 1 37 25 is_stmt 0 view .LVU37
+ 140 0010 FFF7FEFF 		bl	VisionCRC16
+ 141              	.LVL18:
+  38:modules/master_machine/master_process.c ****     return (rx_crc == calc_crc);
+ 142              		.loc 1 38 5 is_stmt 1 view .LVU38
+  39:modules/master_machine/master_process.c **** }
+ 143              		.loc 1 39 1 is_stmt 0 view .LVU39
+ 144 0014 8442     		cmp	r4, r0
+ 145 0016 14BF     		ite	ne
+ 146 0018 0020     		movne	r0, #0
+ 147              	.LVL19:
+ 148              		.loc 1 39 1 view .LVU40
+ 149 001a 0120     		moveq	r0, #1
+ 150 001c 10BD     		pop	{r4, pc}
+ 151              		.loc 1 39 1 view .LVU41
+ 152              		.cfi_endproc
+ 153              	.LFE240:
+ 155              		.section	.text.VisionOfflineCallback,"ax",%progbits
+ 156              		.align	1
+ 157              		.syntax unified
+ 158              		.thumb
+ 159              		.thumb_func
+ 161              	VisionOfflineCallback:
+ 162              	.LVL20:
+ 163              	.LFB241:
+  40:modules/master_machine/master_process.c **** 
+  41:modules/master_machine/master_process.c **** static void VisionOfflineCallback(void *id)
+  42:modules/master_machine/master_process.c **** {
+ 164              		.loc 1 42 1 is_stmt 1 view -0
+ 165              		.cfi_startproc
+ 166              		@ args = 0, pretend = 0, frame = 0
+ 167              		@ frame_needed = 0, uses_anonymous_args = 0
+ 168              		@ link register save eliminated.
+  43:modules/master_machine/master_process.c ****     (void)id;
+ 169              		.loc 1 43 5 view .LVU43
+  44:modules/master_machine/master_process.c ****     LOGWARNING("[vision] vision offline.");
+ 170              		.loc 1 44 43 view .LVU44
+  45:modules/master_machine/master_process.c **** }
+ 171              		.loc 1 45 1 is_stmt 0 view .LVU45
+ 172 0000 7047     		bx	lr
+ 173              		.cfi_endproc
+ 174              	.LFE241:
+ 176              		.section	.text.DecodeVision,"ax",%progbits
+ 177              		.align	1
+ 178              		.syntax unified
+ 179              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 5
+
+
+ 180              		.thumb_func
+ 182              	DecodeVision:
+ 183              	.LVL21:
+ 184              	.LFB243:
+  46:modules/master_machine/master_process.c **** 
+  47:modules/master_machine/master_process.c **** void VisionUpdateTx(uint8_t mode,
+  48:modules/master_machine/master_process.c ****                     float q0, float q1, float q2, float q3,
+  49:modules/master_machine/master_process.c ****                     float yaw, float yaw_vel,
+  50:modules/master_machine/master_process.c ****                     float pitch, float pitch_vel,
+  51:modules/master_machine/master_process.c ****                     float bullet_speed, uint16_t bullet_count)
+  52:modules/master_machine/master_process.c **** {
+  53:modules/master_machine/master_process.c ****     send_data.head[0] = 'S';
+  54:modules/master_machine/master_process.c ****     send_data.head[1] = 'P';
+  55:modules/master_machine/master_process.c ****     send_data.mode = mode;
+  56:modules/master_machine/master_process.c **** 
+  57:modules/master_machine/master_process.c ****     send_data.q[0] = q0;
+  58:modules/master_machine/master_process.c ****     send_data.q[1] = q1;
+  59:modules/master_machine/master_process.c ****     send_data.q[2] = q2;
+  60:modules/master_machine/master_process.c ****     send_data.q[3] = q3;
+  61:modules/master_machine/master_process.c **** 
+  62:modules/master_machine/master_process.c ****     send_data.yaw = yaw;
+  63:modules/master_machine/master_process.c ****     send_data.yaw_vel = yaw_vel;
+  64:modules/master_machine/master_process.c ****     send_data.pitch = pitch;
+  65:modules/master_machine/master_process.c ****     send_data.pitch_vel = pitch_vel;
+  66:modules/master_machine/master_process.c ****     send_data.bullet_speed = bullet_speed;
+  67:modules/master_machine/master_process.c ****     send_data.bullet_count = bullet_count;
+  68:modules/master_machine/master_process.c **** }
+  69:modules/master_machine/master_process.c **** 
+  70:modules/master_machine/master_process.c **** static void DecodeVision(uint16_t recv_len)
+  71:modules/master_machine/master_process.c **** {
+ 185              		.loc 1 71 1 is_stmt 1 view -0
+ 186              		.cfi_startproc
+ 187              		@ args = 0, pretend = 0, frame = 32
+ 188              		@ frame_needed = 0, uses_anonymous_args = 0
+  72:modules/master_machine/master_process.c ****     if (recv_len < sizeof(Vision_Recv_s))
+ 189              		.loc 1 72 5 view .LVU47
+ 190              		.loc 1 72 8 is_stmt 0 view .LVU48
+ 191 0000 1C28     		cmp	r0, #28
+ 192 0002 40D9     		bls	.L18
+  71:modules/master_machine/master_process.c ****     if (recv_len < sizeof(Vision_Recv_s))
+ 193              		.loc 1 71 1 view .LVU49
+ 194 0004 30B5     		push	{r4, r5, lr}
+ 195              	.LCFI1:
+ 196              		.cfi_def_cfa_offset 12
+ 197              		.cfi_offset 4, -12
+ 198              		.cfi_offset 5, -8
+ 199              		.cfi_offset 14, -4
+ 200 0006 89B0     		sub	sp, sp, #36
+ 201              	.LCFI2:
+ 202              		.cfi_def_cfa_offset 48
+ 203 0008 0546     		mov	r5, r0
+ 204              	.LBB3:
+  73:modules/master_machine/master_process.c ****         return;
+  74:modules/master_machine/master_process.c **** 
+  75:modules/master_machine/master_process.c ****     for (uint16_t i = 0; i + sizeof(Vision_Recv_s) <= recv_len; i++)
+ 205              		.loc 1 75 19 view .LVU50
+ 206 000a 0024     		movs	r4, #0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 6
+
+
+ 207 000c 01E0     		b	.L14
+ 208              	.LVL22:
+ 209              	.L15:
+ 210              		.loc 1 75 66 is_stmt 1 discriminator 2 view .LVU51
+ 211 000e 0134     		adds	r4, r4, #1
+ 212              	.LVL23:
+ 213              		.loc 1 75 66 is_stmt 0 discriminator 2 view .LVU52
+ 214 0010 A4B2     		uxth	r4, r4
+ 215              	.LVL24:
+ 216              	.L14:
+ 217              		.loc 1 75 52 is_stmt 1 discriminator 1 view .LVU53
+ 218              		.loc 1 75 28 is_stmt 0 discriminator 1 view .LVU54
+ 219 0012 04F11D03 		add	r3, r4, #29
+ 220              		.loc 1 75 52 discriminator 1 view .LVU55
+ 221 0016 AB42     		cmp	r3, r5
+ 222 0018 33D8     		bhi	.L12
+ 223              	.LBB4:
+  76:modules/master_machine/master_process.c ****     {
+  77:modules/master_machine/master_process.c ****         Vision_Recv_s pkt;
+ 224              		.loc 1 77 9 is_stmt 1 view .LVU56
+  78:modules/master_machine/master_process.c ****         memcpy(&pkt, vis_recv_buff + i, sizeof(Vision_Recv_s));
+ 225              		.loc 1 78 9 view .LVU57
+ 226 001a 1B4B     		ldr	r3, .L21
+ 227 001c 1B68     		ldr	r3, [r3]
+ 228              		.loc 1 78 36 is_stmt 0 view .LVU58
+ 229 001e 03EB040E 		add	lr, r3, r4
+ 230              		.loc 1 78 9 view .LVU59
+ 231 0022 EC46     		mov	ip, sp
+ 232 0024 1859     		ldr	r0, [r3, r4]	@ unaligned
+ 233 0026 DEF80410 		ldr	r1, [lr, #4]	@ unaligned
+ 234 002a DEF80820 		ldr	r2, [lr, #8]	@ unaligned
+ 235 002e DEF80C30 		ldr	r3, [lr, #12]	@ unaligned
+ 236 0032 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 237 0036 DEF81000 		ldr	r0, [lr, #16]	@ unaligned
+ 238 003a DEF81410 		ldr	r1, [lr, #20]	@ unaligned
+ 239 003e DEF81820 		ldr	r2, [lr, #24]	@ unaligned
+ 240 0042 ACE80700 		stmia	ip!, {r0, r1, r2}
+ 241 0046 9EF81C30 		ldrb	r3, [lr, #28]	@ zero_extendqisi2
+ 242 004a 8CF80030 		strb	r3, [ip]
+  79:modules/master_machine/master_process.c **** 
+  80:modules/master_machine/master_process.c ****         if (pkt.head[0] != 'S' || pkt.head[1] != 'P')
+ 243              		.loc 1 80 9 is_stmt 1 view .LVU60
+ 244              		.loc 1 80 21 is_stmt 0 view .LVU61
+ 245 004e 9DF80030 		ldrb	r3, [sp]	@ zero_extendqisi2
+ 246              		.loc 1 80 12 view .LVU62
+ 247 0052 532B     		cmp	r3, #83
+ 248 0054 DBD1     		bne	.L15
+ 249              		.loc 1 80 43 discriminator 2 view .LVU63
+ 250 0056 9DF80130 		ldrb	r3, [sp, #1]	@ zero_extendqisi2
+ 251              		.loc 1 80 32 discriminator 2 view .LVU64
+ 252 005a 502B     		cmp	r3, #80
+ 253 005c D7D1     		bne	.L15
+  81:modules/master_machine/master_process.c ****             continue;
+  82:modules/master_machine/master_process.c **** 
+  83:modules/master_machine/master_process.c ****         if (!VisionCheckCRC16((const uint8_t *)&pkt, sizeof(Vision_Recv_s)))
+ 254              		.loc 1 83 9 is_stmt 1 view .LVU65
+ 255              		.loc 1 83 14 is_stmt 0 view .LVU66
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 7
+
+
+ 256 005e 1D21     		movs	r1, #29
+ 257 0060 6846     		mov	r0, sp
+ 258 0062 FFF7FEFF 		bl	VisionCheckCRC16
+ 259              	.LVL25:
+ 260              		.loc 1 83 12 discriminator 1 view .LVU67
+ 261 0066 0028     		cmp	r0, #0
+ 262 0068 D1D0     		beq	.L15
+  84:modules/master_machine/master_process.c ****             continue;
+  85:modules/master_machine/master_process.c **** 
+  86:modules/master_machine/master_process.c ****         recv_data = pkt;
+ 263              		.loc 1 86 9 is_stmt 1 view .LVU68
+ 264              		.loc 1 86 19 is_stmt 0 view .LVU69
+ 265 006a 084C     		ldr	r4, .L21+4
+ 266              	.LVL26:
+ 267              		.loc 1 86 19 view .LVU70
+ 268 006c 6D46     		mov	r5, sp
+ 269              	.LVL27:
+ 270              		.loc 1 86 19 view .LVU71
+ 271 006e 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 272 0070 0FC4     		stmia	r4!, {r0, r1, r2, r3}
+ 273 0072 95E80F00 		ldm	r5, {r0, r1, r2, r3}
+ 274 0076 07C4     		stmia	r4!, {r0, r1, r2}
+ 275 0078 2370     		strb	r3, [r4]
+  87:modules/master_machine/master_process.c ****         DaemonReload(vision_daemon_instance);
+ 276              		.loc 1 87 9 is_stmt 1 view .LVU72
+ 277 007a 054B     		ldr	r3, .L21+8
+ 278 007c 1868     		ldr	r0, [r3]
+ 279 007e FFF7FEFF 		bl	DaemonReload
+ 280              	.LVL28:
+  88:modules/master_machine/master_process.c ****         return;
+ 281              		.loc 1 88 9 view .LVU73
+ 282              	.L12:
+ 283              	.LBE4:
+ 284              	.LBE3:
+  89:modules/master_machine/master_process.c ****     }
+  90:modules/master_machine/master_process.c **** }
+ 285              		.loc 1 90 1 is_stmt 0 view .LVU74
+ 286 0082 09B0     		add	sp, sp, #36
+ 287              	.LCFI3:
+ 288              		.cfi_def_cfa_offset 12
+ 289              		@ sp needed
+ 290 0084 30BD     		pop	{r4, r5, pc}
+ 291              	.LVL29:
+ 292              	.L18:
+ 293              	.LCFI4:
+ 294              		.cfi_def_cfa_offset 0
+ 295              		.cfi_restore 4
+ 296              		.cfi_restore 5
+ 297              		.cfi_restore 14
+ 298              		.loc 1 90 1 view .LVU75
+ 299 0086 7047     		bx	lr
+ 300              	.L22:
+ 301              		.align	2
+ 302              	.L21:
+ 303 0088 00000000 		.word	vis_recv_buff
+ 304 008c 00000000 		.word	recv_data
+ 305 0090 00000000 		.word	vision_daemon_instance
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 8
+
+
+ 306              		.cfi_endproc
+ 307              	.LFE243:
+ 309              		.section	.text.VisionUpdateTx,"ax",%progbits
+ 310              		.align	1
+ 311              		.global	VisionUpdateTx
+ 312              		.syntax unified
+ 313              		.thumb
+ 314              		.thumb_func
+ 316              	VisionUpdateTx:
+ 317              	.LVL30:
+ 318              	.LFB242:
+  52:modules/master_machine/master_process.c ****     send_data.head[0] = 'S';
+ 319              		.loc 1 52 1 is_stmt 1 view -0
+ 320              		.cfi_startproc
+ 321              		@ args = 0, pretend = 0, frame = 0
+ 322              		@ frame_needed = 0, uses_anonymous_args = 0
+ 323              		@ link register save eliminated.
+  53:modules/master_machine/master_process.c ****     send_data.head[1] = 'P';
+ 324              		.loc 1 53 5 view .LVU77
+  53:modules/master_machine/master_process.c ****     send_data.head[1] = 'P';
+ 325              		.loc 1 53 23 is_stmt 0 view .LVU78
+ 326 0000 164B     		ldr	r3, .L24
+ 327 0002 5322     		movs	r2, #83
+ 328 0004 1A70     		strb	r2, [r3]
+  54:modules/master_machine/master_process.c ****     send_data.mode = mode;
+ 329              		.loc 1 54 5 is_stmt 1 view .LVU79
+  54:modules/master_machine/master_process.c ****     send_data.mode = mode;
+ 330              		.loc 1 54 23 is_stmt 0 view .LVU80
+ 331 0006 5022     		movs	r2, #80
+ 332 0008 5A70     		strb	r2, [r3, #1]
+  55:modules/master_machine/master_process.c **** 
+ 333              		.loc 1 55 5 is_stmt 1 view .LVU81
+  55:modules/master_machine/master_process.c **** 
+ 334              		.loc 1 55 20 is_stmt 0 view .LVU82
+ 335 000a 9870     		strb	r0, [r3, #2]
+  57:modules/master_machine/master_process.c ****     send_data.q[1] = q1;
+ 336              		.loc 1 57 5 is_stmt 1 view .LVU83
+  57:modules/master_machine/master_process.c ****     send_data.q[1] = q1;
+ 337              		.loc 1 57 20 is_stmt 0 view .LVU84
+ 338 000c 10EE102A 		vmov	r2, s0
+ 339 0010 C3F80320 		str	r2, [r3, #3]	@ unaligned
+  58:modules/master_machine/master_process.c ****     send_data.q[2] = q2;
+ 340              		.loc 1 58 5 is_stmt 1 view .LVU85
+  58:modules/master_machine/master_process.c ****     send_data.q[2] = q2;
+ 341              		.loc 1 58 20 is_stmt 0 view .LVU86
+ 342 0014 10EE902A 		vmov	r2, s1
+ 343 0018 C3F80720 		str	r2, [r3, #7]	@ unaligned
+  59:modules/master_machine/master_process.c ****     send_data.q[3] = q3;
+ 344              		.loc 1 59 5 is_stmt 1 view .LVU87
+  59:modules/master_machine/master_process.c ****     send_data.q[3] = q3;
+ 345              		.loc 1 59 20 is_stmt 0 view .LVU88
+ 346 001c 11EE102A 		vmov	r2, s2
+ 347 0020 C3F80B20 		str	r2, [r3, #11]	@ unaligned
+  60:modules/master_machine/master_process.c **** 
+ 348              		.loc 1 60 5 is_stmt 1 view .LVU89
+  60:modules/master_machine/master_process.c **** 
+ 349              		.loc 1 60 20 is_stmt 0 view .LVU90
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 9
+
+
+ 350 0024 11EE902A 		vmov	r2, s3
+ 351 0028 C3F80F20 		str	r2, [r3, #15]	@ unaligned
+  62:modules/master_machine/master_process.c ****     send_data.yaw_vel = yaw_vel;
+ 352              		.loc 1 62 5 is_stmt 1 view .LVU91
+  62:modules/master_machine/master_process.c ****     send_data.yaw_vel = yaw_vel;
+ 353              		.loc 1 62 19 is_stmt 0 view .LVU92
+ 354 002c 12EE102A 		vmov	r2, s4
+ 355 0030 C3F81320 		str	r2, [r3, #19]	@ unaligned
+  63:modules/master_machine/master_process.c ****     send_data.pitch = pitch;
+ 356              		.loc 1 63 5 is_stmt 1 view .LVU93
+  63:modules/master_machine/master_process.c ****     send_data.pitch = pitch;
+ 357              		.loc 1 63 23 is_stmt 0 view .LVU94
+ 358 0034 12EE902A 		vmov	r2, s5
+ 359 0038 C3F81720 		str	r2, [r3, #23]	@ unaligned
+  64:modules/master_machine/master_process.c ****     send_data.pitch_vel = pitch_vel;
+ 360              		.loc 1 64 5 is_stmt 1 view .LVU95
+  64:modules/master_machine/master_process.c ****     send_data.pitch_vel = pitch_vel;
+ 361              		.loc 1 64 21 is_stmt 0 view .LVU96
+ 362 003c 13EE102A 		vmov	r2, s6
+ 363 0040 C3F81B20 		str	r2, [r3, #27]	@ unaligned
+  65:modules/master_machine/master_process.c ****     send_data.bullet_speed = bullet_speed;
+ 364              		.loc 1 65 5 is_stmt 1 view .LVU97
+  65:modules/master_machine/master_process.c ****     send_data.bullet_speed = bullet_speed;
+ 365              		.loc 1 65 25 is_stmt 0 view .LVU98
+ 366 0044 13EE902A 		vmov	r2, s7
+ 367 0048 C3F81F20 		str	r2, [r3, #31]	@ unaligned
+  66:modules/master_machine/master_process.c ****     send_data.bullet_count = bullet_count;
+ 368              		.loc 1 66 5 is_stmt 1 view .LVU99
+  66:modules/master_machine/master_process.c ****     send_data.bullet_count = bullet_count;
+ 369              		.loc 1 66 28 is_stmt 0 view .LVU100
+ 370 004c 14EE102A 		vmov	r2, s8
+ 371 0050 C3F82320 		str	r2, [r3, #35]	@ unaligned
+  67:modules/master_machine/master_process.c **** }
+ 372              		.loc 1 67 5 is_stmt 1 view .LVU101
+  67:modules/master_machine/master_process.c **** }
+ 373              		.loc 1 67 28 is_stmt 0 view .LVU102
+ 374 0054 A3F82710 		strh	r1, [r3, #39]	@ unaligned
+  68:modules/master_machine/master_process.c **** 
+ 375              		.loc 1 68 1 view .LVU103
+ 376 0058 7047     		bx	lr
+ 377              	.L25:
+ 378 005a 00BF     		.align	2
+ 379              	.L24:
+ 380 005c 00000000 		.word	send_data
+ 381              		.cfi_endproc
+ 382              	.LFE242:
+ 384              		.section	.text.VisionInit,"ax",%progbits
+ 385              		.align	1
+ 386              		.global	VisionInit
+ 387              		.syntax unified
+ 388              		.thumb
+ 389              		.thumb_func
+ 391              	VisionInit:
+ 392              	.LVL31:
+ 393              	.LFB244:
+  91:modules/master_machine/master_process.c **** 
+  92:modules/master_machine/master_process.c **** Vision_Recv_s *VisionInit(UART_HandleTypeDef *_handle)
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 10
+
+
+  93:modules/master_machine/master_process.c **** {
+ 394              		.loc 1 93 1 is_stmt 1 view -0
+ 395              		.cfi_startproc
+ 396              		@ args = 0, pretend = 0, frame = 24
+ 397              		@ frame_needed = 0, uses_anonymous_args = 0
+ 398              		.loc 1 93 1 is_stmt 0 view .LVU105
+ 399 0000 30B5     		push	{r4, r5, lr}
+ 400              	.LCFI5:
+ 401              		.cfi_def_cfa_offset 12
+ 402              		.cfi_offset 4, -12
+ 403              		.cfi_offset 5, -8
+ 404              		.cfi_offset 14, -4
+ 405 0002 87B0     		sub	sp, sp, #28
+ 406              	.LCFI6:
+ 407              		.cfi_def_cfa_offset 40
+  94:modules/master_machine/master_process.c ****     (void)_handle;
+ 408              		.loc 1 94 5 is_stmt 1 view .LVU106
+  95:modules/master_machine/master_process.c **** 
+  96:modules/master_machine/master_process.c ****     memset(&recv_data, 0, sizeof(recv_data));
+ 409              		.loc 1 96 5 view .LVU107
+ 410 0004 134D     		ldr	r5, .L28
+ 411 0006 1D22     		movs	r2, #29
+ 412 0008 0021     		movs	r1, #0
+ 413 000a 2846     		mov	r0, r5
+ 414              	.LVL32:
+ 415              		.loc 1 96 5 is_stmt 0 view .LVU108
+ 416 000c FFF7FEFF 		bl	memset
+ 417              	.LVL33:
+  97:modules/master_machine/master_process.c ****     memset(&send_data, 0, sizeof(send_data));
+ 418              		.loc 1 97 5 is_stmt 1 view .LVU109
+ 419 0010 2B22     		movs	r2, #43
+ 420 0012 0021     		movs	r1, #0
+ 421 0014 1048     		ldr	r0, .L28+4
+ 422 0016 FFF7FEFF 		bl	memset
+ 423              	.LVL34:
+  98:modules/master_machine/master_process.c **** 
+  99:modules/master_machine/master_process.c ****     USB_Init_Config_s conf = {
+ 424              		.loc 1 99 5 view .LVU110
+ 425              		.loc 1 99 23 is_stmt 0 view .LVU111
+ 426 001a 04AB     		add	r3, sp, #16
+ 427 001c 0024     		movs	r4, #0
+ 428 001e 0494     		str	r4, [sp, #16]
+ 429 0020 0594     		str	r4, [sp, #20]
+ 430 0022 0E4A     		ldr	r2, .L28+8
+ 431 0024 0592     		str	r2, [sp, #20]
+ 100:modules/master_machine/master_process.c ****         .rx_cbk = DecodeVision
+ 101:modules/master_machine/master_process.c ****     };
+ 102:modules/master_machine/master_process.c **** 
+ 103:modules/master_machine/master_process.c ****     vis_recv_buff = USBInit(conf);
+ 432              		.loc 1 103 5 is_stmt 1 view .LVU112
+ 433              		.loc 1 103 21 is_stmt 0 view .LVU113
+ 434 0026 93E80300 		ldm	r3, {r0, r1}
+ 435 002a FFF7FEFF 		bl	USBInit
+ 436              	.LVL35:
+ 437              		.loc 1 103 19 discriminator 1 view .LVU114
+ 438 002e 0C4B     		ldr	r3, .L28+12
+ 439 0030 1860     		str	r0, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 11
+
+
+ 104:modules/master_machine/master_process.c **** 
+ 105:modules/master_machine/master_process.c ****     Daemon_Init_Config_s daemon_conf = {
+ 440              		.loc 1 105 5 is_stmt 1 view .LVU115
+ 441              		.loc 1 105 26 is_stmt 0 view .LVU116
+ 442 0032 01A8     		add	r0, sp, #4
+ 443 0034 0194     		str	r4, [sp, #4]
+ 444 0036 4460     		str	r4, [r0, #4]
+ 445 0038 8460     		str	r4, [r0, #8]
+ 446 003a 0523     		movs	r3, #5
+ 447 003c ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 448 0040 084B     		ldr	r3, .L28+16
+ 449 0042 0293     		str	r3, [sp, #8]
+ 106:modules/master_machine/master_process.c ****         .callback = VisionOfflineCallback,
+ 107:modules/master_machine/master_process.c ****         .owner_id = NULL,
+ 108:modules/master_machine/master_process.c ****         .reload_count = 5,
+ 109:modules/master_machine/master_process.c ****     };
+ 110:modules/master_machine/master_process.c **** 
+ 111:modules/master_machine/master_process.c ****     vision_daemon_instance = DaemonRegister(&daemon_conf);
+ 450              		.loc 1 111 5 is_stmt 1 view .LVU117
+ 451              		.loc 1 111 30 is_stmt 0 view .LVU118
+ 452 0044 FFF7FEFF 		bl	DaemonRegister
+ 453              	.LVL36:
+ 454              		.loc 1 111 28 discriminator 1 view .LVU119
+ 455 0048 074B     		ldr	r3, .L28+20
+ 456 004a 1860     		str	r0, [r3]
+ 112:modules/master_machine/master_process.c ****     return &recv_data;
+ 457              		.loc 1 112 5 is_stmt 1 view .LVU120
+ 113:modules/master_machine/master_process.c **** }
+ 458              		.loc 1 113 1 is_stmt 0 view .LVU121
+ 459 004c 2846     		mov	r0, r5
+ 460 004e 07B0     		add	sp, sp, #28
+ 461              	.LCFI7:
+ 462              		.cfi_def_cfa_offset 12
+ 463              		@ sp needed
+ 464 0050 30BD     		pop	{r4, r5, pc}
+ 465              	.L29:
+ 466 0052 00BF     		.align	2
+ 467              	.L28:
+ 468 0054 00000000 		.word	recv_data
+ 469 0058 00000000 		.word	send_data
+ 470 005c 00000000 		.word	DecodeVision
+ 471 0060 00000000 		.word	vis_recv_buff
+ 472 0064 00000000 		.word	VisionOfflineCallback
+ 473 0068 00000000 		.word	vision_daemon_instance
+ 474              		.cfi_endproc
+ 475              	.LFE244:
+ 477              		.section	.text.VisionSend,"ax",%progbits
+ 478              		.align	1
+ 479              		.global	VisionSend
+ 480              		.syntax unified
+ 481              		.thumb
+ 482              		.thumb_func
+ 484              	VisionSend:
+ 485              	.LFB245:
+ 114:modules/master_machine/master_process.c **** 
+ 115:modules/master_machine/master_process.c **** void VisionSend(void)
+ 116:modules/master_machine/master_process.c **** {
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 12
+
+
+ 486              		.loc 1 116 1 is_stmt 1 view -0
+ 487              		.cfi_startproc
+ 488              		@ args = 0, pretend = 0, frame = 48
+ 489              		@ frame_needed = 0, uses_anonymous_args = 0
+ 490 0000 10B5     		push	{r4, lr}
+ 491              	.LCFI8:
+ 492              		.cfi_def_cfa_offset 8
+ 493              		.cfi_offset 4, -8
+ 494              		.cfi_offset 14, -4
+ 495 0002 8CB0     		sub	sp, sp, #48
+ 496              	.LCFI9:
+ 497              		.cfi_def_cfa_offset 56
+ 117:modules/master_machine/master_process.c ****     Vision_Send_s tx_pkt = send_data;
+ 498              		.loc 1 117 5 view .LVU123
+ 499              		.loc 1 117 19 is_stmt 0 view .LVU124
+ 500 0004 0DF1040C 		add	ip, sp, #4
+ 501 0008 114C     		ldr	r4, .L32
+ 502 000a 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 503 000c ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 504 0010 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 505 0012 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 506 0016 94E80700 		ldm	r4, {r0, r1, r2}
+ 507 001a ACE80300 		stmia	ip!, {r0, r1}
+ 508 001e 2CF8022B 		strh	r2, [ip], #2	@ movhi
+ 509 0022 120C     		lsrs	r2, r2, #16
+ 510 0024 8CF80020 		strb	r2, [ip]
+ 118:modules/master_machine/master_process.c **** 
+ 119:modules/master_machine/master_process.c ****     tx_pkt.head[0] = 'S';
+ 511              		.loc 1 119 5 is_stmt 1 view .LVU125
+ 512              		.loc 1 119 20 is_stmt 0 view .LVU126
+ 513 0028 5323     		movs	r3, #83
+ 514 002a 8DF80430 		strb	r3, [sp, #4]
+ 120:modules/master_machine/master_process.c ****     tx_pkt.head[1] = 'P';
+ 515              		.loc 1 120 5 is_stmt 1 view .LVU127
+ 516              		.loc 1 120 20 is_stmt 0 view .LVU128
+ 517 002e 5023     		movs	r3, #80
+ 518 0030 8DF80530 		strb	r3, [sp, #5]
+ 121:modules/master_machine/master_process.c ****     tx_pkt.crc16 = VisionCRC16((const uint8_t *)&tx_pkt, sizeof(Vision_Send_s) - 2);
+ 519              		.loc 1 121 5 is_stmt 1 view .LVU129
+ 520              		.loc 1 121 20 is_stmt 0 view .LVU130
+ 521 0034 01AC     		add	r4, sp, #4
+ 522 0036 2921     		movs	r1, #41
+ 523 0038 2046     		mov	r0, r4
+ 524 003a FFF7FEFF 		bl	VisionCRC16
+ 525              	.LVL37:
+ 526              		.loc 1 121 18 discriminator 1 view .LVU131
+ 527 003e ADF82D00 		strh	r0, [sp, #45]	@ unaligned
+ 122:modules/master_machine/master_process.c **** 
+ 123:modules/master_machine/master_process.c ****     USBTransmit((uint8_t *)&tx_pkt, sizeof(Vision_Send_s));
+ 528              		.loc 1 123 5 is_stmt 1 view .LVU132
+ 529 0042 2B21     		movs	r1, #43
+ 530 0044 2046     		mov	r0, r4
+ 531 0046 FFF7FEFF 		bl	USBTransmit
+ 532              	.LVL38:
+ 124:modules/master_machine/master_process.c **** }...
+ 533              		.loc 1 124 1 is_stmt 0 view .LVU133
+ 534 004a 0CB0     		add	sp, sp, #48
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 13
+
+
+ 535              	.LCFI10:
+ 536              		.cfi_def_cfa_offset 8
+ 537              		@ sp needed
+ 538 004c 10BD     		pop	{r4, pc}
+ 539              	.L33:
+ 540 004e 00BF     		.align	2
+ 541              	.L32:
+ 542 0050 00000000 		.word	send_data
+ 543              		.cfi_endproc
+ 544              	.LFE245:
+ 546              		.section	.bss.vis_recv_buff,"aw",%nobits
+ 547              		.align	2
+ 550              	vis_recv_buff:
+ 551 0000 00000000 		.space	4
+ 552              		.section	.bss.vision_daemon_instance,"aw",%nobits
+ 553              		.align	2
+ 556              	vision_daemon_instance:
+ 557 0000 00000000 		.space	4
+ 558              		.section	.bss.send_data,"aw",%nobits
+ 559              		.align	2
+ 562              	send_data:
+ 563 0000 00000000 		.space	43
+ 563      00000000 
+ 563      00000000 
+ 563      00000000 
+ 563      00000000 
+ 564              		.section	.bss.recv_data,"aw",%nobits
+ 565              		.align	2
+ 568              	recv_data:
+ 569 0000 00000000 		.space	29
+ 569      00000000 
+ 569      00000000 
+ 569      00000000 
+ 569      00000000 
+ 570              		.text
+ 571              	.Letext0:
+ 572              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 573              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 574              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 575              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 576              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 577              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 578              		.file 8 "modules/master_machine/master_process.h"
+ 579              		.file 9 "modules/daemon/daemon.h"
+ 580              		.file 10 "Inc/usbd_cdc_if.h"
+ 581              		.file 11 "bsp/usb/bsp_usb.h"
+ 582              		.file 12 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 583              		.file 13 "<built-in>"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s 			page 14
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 master_process.c
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:21     .text.VisionCRC16:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:26     .text.VisionCRC16:00000000 VisionCRC16
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:104    .text.VisionCheckCRC16:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:109    .text.VisionCheckCRC16:00000000 VisionCheckCRC16
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:156    .text.VisionOfflineCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:161    .text.VisionOfflineCallback:00000000 VisionOfflineCallback
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:177    .text.DecodeVision:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:182    .text.DecodeVision:00000000 DecodeVision
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:303    .text.DecodeVision:00000088 $d
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:550    .bss.vis_recv_buff:00000000 vis_recv_buff
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:568    .bss.recv_data:00000000 recv_data
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:556    .bss.vision_daemon_instance:00000000 vision_daemon_instance
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:310    .text.VisionUpdateTx:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:316    .text.VisionUpdateTx:00000000 VisionUpdateTx
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:380    .text.VisionUpdateTx:0000005c $d
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:562    .bss.send_data:00000000 send_data
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:385    .text.VisionInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:391    .text.VisionInit:00000000 VisionInit
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:468    .text.VisionInit:00000054 $d
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:478    .text.VisionSend:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:484    .text.VisionSend:00000000 VisionSend
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:542    .text.VisionSend:00000050 $d
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:547    .bss.vis_recv_buff:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:553    .bss.vision_daemon_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:559    .bss.send_data:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccajg7tP.s:565    .bss.recv_data:00000000 $d
+
+UNDEFINED SYMBOLS
+DaemonReload
+memset
+USBInit
+DaemonRegister
+USBTransmit

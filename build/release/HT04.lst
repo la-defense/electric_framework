@@ -1,0 +1,743 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"HT04.c"
+  16              		.text
+  17              		.section	.text.float_to_uint,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	float_to_uint:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 31EE601A 		vsub.f32	s2, s2, s1
+  28 0004 30EE600A 		vsub.f32	s0, s0, s1
+  29 0008 0123     		movs	r3, #1
+  30 000a 8340     		lsls	r3, r3, r0
+  31 000c 013B     		subs	r3, r3, #1
+  32 000e 07EE903A 		vmov	s15, r3	@ int
+  33 0012 F8EEE77A 		vcvt.f32.s32	s15, s15
+  34 0016 20EE270A 		vmul.f32	s0, s0, s15
+  35 001a C0EE017A 		vdiv.f32	s15, s0, s2
+  36 001e FCEEE77A 		vcvt.u32.f32	s15, s15
+  37 0022 17EE903A 		vmov	r3, s15	@ int
+  38 0026 98B2     		uxth	r0, r3
+  39 0028 7047     		bx	lr
+  41              		.section	.text.uint_to_float,"ax",%progbits
+  42              		.align	1
+  43              		.syntax unified
+  44              		.thumb
+  45              		.thumb_func
+  47              	uint_to_float:
+  48              		@ args = 0, pretend = 0, frame = 0
+  49              		@ frame_needed = 0, uses_anonymous_args = 0
+  50              		@ link register save eliminated.
+  51 0000 07EE900A 		vmov	s15, r0	@ int
+  52 0004 70EEC00A 		vsub.f32	s1, s1, s0
+  53 0008 F8EEE77A 		vcvt.f32.s32	s15, s15
+  54 000c 27EEA07A 		vmul.f32	s14, s15, s1
+  55 0010 0123     		movs	r3, #1
+  56 0012 8B40     		lsls	r3, r3, r1
+  57 0014 013B     		subs	r3, r3, #1
+  58 0016 07EE903A 		vmov	s15, r3	@ int
+  59 001a F8EEE77A 		vcvt.f32.s32	s15, s15
+  60 001e C7EE276A 		vdiv.f32	s13, s14, s15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 2
+
+
+  61 0022 36EE800A 		vadd.f32	s0, s13, s0
+  62 0026 7047     		bx	lr
+  64              		.section	.text.HTMotorSetMode,"ax",%progbits
+  65              		.align	1
+  66              		.syntax unified
+  67              		.thumb
+  68              		.thumb_func
+  70              	HTMotorSetMode:
+  71              		@ args = 0, pretend = 0, frame = 0
+  72              		@ frame_needed = 0, uses_anonymous_args = 0
+  73 0000 10B5     		push	{r4, lr}
+  74 0002 0C46     		mov	r4, r1
+  75 0004 D1F8B831 		ldr	r3, [r1, #440]
+  76 0008 4FF0FF32 		mov	r2, #-1
+  77 000c 5A62     		str	r2, [r3, #36]	@ unaligned
+  78 000e C3F82720 		str	r2, [r3, #39]	@ unaligned
+  79 0012 D1F8B831 		ldr	r3, [r1, #440]
+  80 0016 83F82B00 		strb	r0, [r3, #43]
+  81 001a B7EE000A 		vmov.f32	s0, #1.0e+0
+  82 001e D1F8B801 		ldr	r0, [r1, #440]
+  83 0022 FFF7FEFF 		bl	CANTransmit
+  84 0026 D4F8B831 		ldr	r3, [r4, #440]
+  85 002a 034A     		ldr	r2, .L5
+  86 002c 1068     		ldr	r0, [r2]
+  87 002e 5862     		str	r0, [r3, #36]	@ unaligned
+  88 0030 9288     		ldrh	r2, [r2, #4]	@ unaligned
+  89 0032 1A85     		strh	r2, [r3, #40]	@ unaligned
+  90 0034 10BD     		pop	{r4, pc}
+  91              	.L6:
+  92 0036 00BF     		.align	2
+  93              	.L5:
+  94 0038 00000000 		.word	zero_buff
+  96              		.section	.text.HTMotorLostCallback,"ax",%progbits
+  97              		.align	1
+  98              		.syntax unified
+  99              		.thumb
+ 100              		.thumb_func
+ 102              	HTMotorLostCallback:
+ 103              		@ args = 0, pretend = 0, frame = 0
+ 104              		@ frame_needed = 0, uses_anonymous_args = 0
+ 105 0000 08B5     		push	{r3, lr}
+ 106 0002 0146     		mov	r1, r0
+ 107 0004 D0F8C021 		ldr	r2, [r0, #448]
+ 108 0008 0132     		adds	r2, r2, #1
+ 109 000a C0F8C021 		str	r2, [r0, #448]
+ 110 000e 074B     		ldr	r3, .L11
+ 111 0010 A3FB0203 		umull	r0, r3, r3, r2
+ 112 0014 DB08     		lsrs	r3, r3, #3
+ 113 0016 03EB8303 		add	r3, r3, r3, lsl #2
+ 114 001a B2EB430F 		cmp	r2, r3, lsl #1
+ 115 001e 00D1     		bne	.L10
+ 116              	.L7:
+ 117 0020 08BD     		pop	{r3, pc}
+ 118              	.L10:
+ 119 0022 FC20     		movs	r0, #252
+ 120 0024 FFF7FEFF 		bl	HTMotorSetMode
+ 121 0028 FAE7     		b	.L7
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 3
+
+
+ 122              	.L12:
+ 123 002a 00BF     		.align	2
+ 124              	.L11:
+ 125 002c CDCCCCCC 		.word	-858993459
+ 127              		.section	.text.HTMotorDecode,"ax",%progbits
+ 128              		.align	1
+ 129              		.syntax unified
+ 130              		.thumb
+ 131              		.thumb_func
+ 133              	HTMotorDecode:
+ 134              		@ args = 0, pretend = 0, frame = 0
+ 135              		@ frame_needed = 0, uses_anonymous_args = 0
+ 136 0000 70B5     		push	{r4, r5, r6, lr}
+ 137 0002 0546     		mov	r5, r0
+ 138 0004 D0F84140 		ldr	r4, [r0, #65]	@ unaligned
+ 139 0008 D4F8BC01 		ldr	r0, [r4, #444]
+ 140 000c FFF7FEFF 		bl	DaemonReload
+ 141 0010 04F12800 		add	r0, r4, #40
+ 142 0014 FFF7FEFF 		bl	DWT_GetDeltaT
+ 143 0018 84ED090A 		vstr.32	s0, [r4, #36]
+ 144 001c 2368     		ldr	r3, [r4]	@ float
+ 145 001e 6360     		str	r3, [r4, #4]	@ float
+ 146 0020 95F82D00 		ldrb	r0, [r5, #45]	@ zero_extendqisi2
+ 147 0024 95F82E30 		ldrb	r3, [r5, #46]	@ zero_extendqisi2
+ 148 0028 1021     		movs	r1, #16
+ 149 002a DFED210A 		vldr.32	s1, .L15
+ 150 002e 9FED210A 		vldr.32	s0, .L15+4
+ 151 0032 43EA0020 		orr	r0, r3, r0, lsl #8
+ 152 0036 FFF7FEFF 		bl	uint_to_float
+ 153 003a 2646     		mov	r6, r4
+ 154 003c 0C36     		adds	r6, r6, #12
+ 155 003e 84ED000A 		vstr.32	s0, [r4]
+ 156 0042 95F82F00 		ldrb	r0, [r5, #47]	@ zero_extendqisi2
+ 157 0046 95F83030 		ldrb	r3, [r5, #48]	@ zero_extendqisi2
+ 158 004a 1B09     		lsrs	r3, r3, #4
+ 159 004c 0C21     		movs	r1, #12
+ 160 004e DFED1A0A 		vldr.32	s1, .L15+8
+ 161 0052 9FED1A0A 		vldr.32	s0, .L15+12
+ 162 0056 43EA0010 		orr	r0, r3, r0, lsl #4
+ 163 005a FFF7FEFF 		bl	uint_to_float
+ 164 005e 0521     		movs	r1, #5
+ 165 0060 3046     		mov	r0, r6
+ 166 0062 DFED177A 		vldr.32	s15, .L15+16
+ 167 0066 30EE270A 		vadd.f32	s0, s0, s15
+ 168 006a FFF7FEFF 		bl	AverageFilter
+ 169 006e 84ED020A 		vstr.32	s0, [r4, #8]
+ 170 0072 95F83030 		ldrb	r3, [r5, #48]	@ zero_extendqisi2
+ 171 0076 95F83100 		ldrb	r0, [r5, #49]	@ zero_extendqisi2
+ 172 007a 1B02     		lsls	r3, r3, #8
+ 173 007c 03F47063 		and	r3, r3, #3840
+ 174 0080 0C21     		movs	r1, #12
+ 175 0082 F3EE020A 		vmov.f32	s1, #1.8e+1
+ 176 0086 BBEE020A 		vmov.f32	s0, #-1.8e+1
+ 177 008a 1843     		orrs	r0, r0, r3
+ 178 008c FFF7FEFF 		bl	uint_to_float
+ 179 0090 DFED0C7A 		vldr.32	s15, .L15+20
+ 180 0094 20EE270A 		vmul.f32	s0, s0, s15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 4
+
+
+ 181 0098 D4ED087A 		vldr.32	s15, [r4, #32]
+ 182 009c 9FED0A7A 		vldr.32	s14, .L15+24
+ 183 00a0 67EE877A 		vmul.f32	s15, s15, s14
+ 184 00a4 30EE270A 		vadd.f32	s0, s0, s15
+ 185 00a8 84ED080A 		vstr.32	s0, [r4, #32]
+ 186 00ac 70BD     		pop	{r4, r5, r6, pc}
+ 187              	.L16:
+ 188 00ae 00BF     		.align	2
+ 189              	.L15:
+ 190 00b0 0000BF42 		.word	1119813632
+ 191 00b4 0000BFC2 		.word	-1027670016
+ 192 00b8 00003442 		.word	1110704128
+ 193 00bc 000034C2 		.word	-1036779520
+ 194 00c0 0010343C 		.word	1010044928
+ 195 00c4 6666663F 		.word	1063675494
+ 196 00c8 D0CCCC3D 		.word	1036831952
+ 198              		.section	.text.HTMotorTask,"ax",%progbits
+ 199              		.align	1
+ 200              		.global	HTMotorTask
+ 201              		.syntax unified
+ 202              		.thumb
+ 203              		.thumb_func
+ 205              	HTMotorTask:
+ 206              		@ Volatile: function does not return.
+ 207              		@ args = 0, pretend = 0, frame = 0
+ 208              		@ frame_needed = 0, uses_anonymous_args = 0
+ 209 0000 08B5     		push	{r3, lr}
+ 210 0002 0446     		mov	r4, r0
+ 211 0004 D0F8B851 		ldr	r5, [r0, #440]
+ 212 0008 48E0     		b	.L31
+ 213              	.L36:
+ 214 000a B1EE400A 		vneg.f32	s0, s0
+ 215 000e 4BE0     		b	.L18
+ 216              	.L37:
+ 217 0010 94F83030 		ldrb	r3, [r4, #48]	@ zero_extendqisi2
+ 218 0014 012B     		cmp	r3, #1
+ 219 0016 0CD0     		beq	.L35
+ 220 0018 94ED007A 		vldr.32	s14, [r4]
+ 221              	.L21:
+ 222 001c F0EE400A 		vmov.f32	s1, s0
+ 223 0020 9FED490A 		vldr.32	s0, .L40
+ 224 0024 27EE000A 		vmul.f32	s0, s14, s0
+ 225 0028 04F59470 		add	r0, r4, #296
+ 226 002c FFF7FEFF 		bl	PIDCalculate
+ 227 0030 43E0     		b	.L19
+ 228              	.L35:
+ 229 0032 D4F8A031 		ldr	r3, [r4, #416]
+ 230 0036 93ED007A 		vldr.32	s14, [r3]
+ 231 003a EFE7     		b	.L21
+ 232              	.L38:
+ 233 003c D4F8A431 		ldr	r3, [r4, #420]
+ 234 0040 93ED007A 		vldr.32	s14, [r3]
+ 235 0044 54E0     		b	.L25
+ 236              	.L39:
+ 237 0046 F0EE400A 		vmov.f32	s1, s0
+ 238 004a 94ED080A 		vldr.32	s0, [r4, #32]
+ 239 004e 04F13800 		add	r0, r4, #56
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 5
+
+
+ 240 0052 FFF7FEFF 		bl	PIDCalculate
+ 241 0056 65E0     		b	.L27
+ 242              	.L32:
+ 243 0058 BBEE020A 		vmov.f32	s0, #-1.8e+1
+ 244              	.L28:
+ 245 005c 0C20     		movs	r0, #12
+ 246 005e B3EE021A 		vmov.f32	s2, #1.8e+1
+ 247 0062 FBEE020A 		vmov.f32	s1, #-1.8e+1
+ 248 0066 FFF7FEFF 		bl	float_to_uint
+ 249 006a 94F8B431 		ldrb	r3, [r4, #436]	@ zero_extendqisi2
+ 250 006e 43B9     		cbnz	r3, .L30
+ 251 0070 0C20     		movs	r0, #12
+ 252 0072 B3EE021A 		vmov.f32	s2, #1.8e+1
+ 253 0076 FBEE020A 		vmov.f32	s1, #-1.8e+1
+ 254 007a 9FED340A 		vldr.32	s0, .L40+4
+ 255 007e FFF7FEFF 		bl	float_to_uint
+ 256              	.L30:
+ 257 0082 030A     		lsrs	r3, r0, #8
+ 258 0084 85F82A30 		strb	r3, [r5, #42]
+ 259 0088 85F82B00 		strb	r0, [r5, #43]
+ 260 008c B6EE000A 		vmov.f32	s0, #5.0e-1
+ 261 0090 2846     		mov	r0, r5
+ 262 0092 FFF7FEFF 		bl	CANTransmit
+ 263 0096 0120     		movs	r0, #1
+ 264 0098 FFF7FEFF 		bl	osDelay
+ 265              	.L31:
+ 266 009c 94ED6C0A 		vldr.32	s0, [r4, #432]
+ 267 00a0 94F82E30 		ldrb	r3, [r4, #46]	@ zero_extendqisi2
+ 268 00a4 012B     		cmp	r3, #1
+ 269 00a6 B0D0     		beq	.L36
+ 270              	.L18:
+ 271 00a8 94F82D30 		ldrb	r3, [r4, #45]	@ zero_extendqisi2
+ 272 00ac 13F0040F 		tst	r3, #4
+ 273 00b0 03D0     		beq	.L19
+ 274 00b2 94F82C30 		ldrb	r3, [r4, #44]	@ zero_extendqisi2
+ 275 00b6 042B     		cmp	r3, #4
+ 276 00b8 AAD0     		beq	.L37
+ 277              	.L19:
+ 278 00ba 94F82D30 		ldrb	r3, [r4, #45]	@ zero_extendqisi2
+ 279 00be 13F0020F 		tst	r3, #2
+ 280 00c2 1FD0     		beq	.L22
+ 281 00c4 94F82C30 		ldrb	r3, [r4, #44]	@ zero_extendqisi2
+ 282 00c8 13F0060F 		tst	r3, #6
+ 283 00cc 1AD0     		beq	.L22
+ 284 00ce 94F83230 		ldrb	r3, [r4, #50]	@ zero_extendqisi2
+ 285 00d2 13F0020F 		tst	r3, #2
+ 286 00d6 05D0     		beq	.L23
+ 287 00d8 D4F8A831 		ldr	r3, [r4, #424]
+ 288 00dc D3ED007A 		vldr.32	s15, [r3]
+ 289 00e0 30EE270A 		vadd.f32	s0, s0, s15
+ 290              	.L23:
+ 291 00e4 94F83030 		ldrb	r3, [r4, #48]	@ zero_extendqisi2
+ 292 00e8 012B     		cmp	r3, #1
+ 293 00ea A7D0     		beq	.L38
+ 294 00ec 94ED027A 		vldr.32	s14, [r4, #8]
+ 295              	.L25:
+ 296 00f0 F0EE400A 		vmov.f32	s1, s0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 6
+
+
+ 297 00f4 9FED140A 		vldr.32	s0, .L40
+ 298 00f8 27EE000A 		vmul.f32	s0, s14, s0
+ 299 00fc 04F1B000 		add	r0, r4, #176
+ 300 0100 FFF7FEFF 		bl	PIDCalculate
+ 301              	.L22:
+ 302 0104 94F83230 		ldrb	r3, [r4, #50]	@ zero_extendqisi2
+ 303 0108 13F0010F 		tst	r3, #1
+ 304 010c 05D0     		beq	.L26
+ 305 010e D4F8AC31 		ldr	r3, [r4, #428]
+ 306 0112 D3ED007A 		vldr.32	s15, [r3]
+ 307 0116 30EE270A 		vadd.f32	s0, s0, s15
+ 308              	.L26:
+ 309 011a 94F82D30 		ldrb	r3, [r4, #45]	@ zero_extendqisi2
+ 310 011e 13F0010F 		tst	r3, #1
+ 311 0122 90D1     		bne	.L39
+ 312              	.L27:
+ 313 0124 FBEE027A 		vmov.f32	s15, #-1.8e+1
+ 314 0128 B4EEE70A 		vcmpe.f32	s0, s15
+ 315 012c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 316 0130 92D9     		bls	.L32
+ 317 0132 F3EE027A 		vmov.f32	s15, #1.8e+1
+ 318 0136 B4EEE70A 		vcmpe.f32	s0, s15
+ 319 013a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 320 013e 8DDB     		blt	.L28
+ 321 0140 B0EE670A 		vmov.f32	s0, s15
+ 322 0144 8AE7     		b	.L28
+ 323              	.L41:
+ 324 0146 00BF     		.align	2
+ 325              	.L40:
+ 326 0148 E12E6542 		.word	1113927393
+ 327 014c 00000000 		.word	0
+ 329              		.section	.text.HTMotorCalibEncoder,"ax",%progbits
+ 330              		.align	1
+ 331              		.global	HTMotorCalibEncoder
+ 332              		.syntax unified
+ 333              		.thumb
+ 334              		.thumb_func
+ 336              	HTMotorCalibEncoder:
+ 337              		@ args = 0, pretend = 0, frame = 0
+ 338              		@ frame_needed = 0, uses_anonymous_args = 0
+ 339 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 340 0004 2DED028B 		vpush.64	{d8}
+ 341 0008 0446     		mov	r4, r0
+ 342 000a 9FED368A 		vldr.32	s16, .L44
+ 343 000e 1020     		movs	r0, #16
+ 344 0010 9FED351A 		vldr.32	s2, .L44+4
+ 345 0014 DFED350A 		vldr.32	s1, .L44+8
+ 346 0018 B0EE480A 		vmov.f32	s0, s16
+ 347 001c FFF7FEFF 		bl	float_to_uint
+ 348 0020 8046     		mov	r8, r0
+ 349 0022 0C20     		movs	r0, #12
+ 350 0024 9FED321A 		vldr.32	s2, .L44+12
+ 351 0028 DFED320A 		vldr.32	s1, .L44+16
+ 352 002c B0EE480A 		vmov.f32	s0, s16
+ 353 0030 FFF7FEFF 		bl	float_to_uint
+ 354 0034 0746     		mov	r7, r0
+ 355 0036 0C20     		movs	r0, #12
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 7
+
+
+ 356 0038 9FED2F1A 		vldr.32	s2, .L44+20
+ 357 003c F0EE480A 		vmov.f32	s1, s16
+ 358 0040 B0EE480A 		vmov.f32	s0, s16
+ 359 0044 FFF7FEFF 		bl	float_to_uint
+ 360 0048 0646     		mov	r6, r0
+ 361 004a 0C20     		movs	r0, #12
+ 362 004c B1EE041A 		vmov.f32	s2, #5.0e+0
+ 363 0050 F0EE480A 		vmov.f32	s1, s16
+ 364 0054 B0EE480A 		vmov.f32	s0, s16
+ 365 0058 FFF7FEFF 		bl	float_to_uint
+ 366 005c 0546     		mov	r5, r0
+ 367 005e 0C20     		movs	r0, #12
+ 368 0060 B3EE021A 		vmov.f32	s2, #1.8e+1
+ 369 0064 FBEE020A 		vmov.f32	s1, #-1.8e+1
+ 370 0068 B0EE480A 		vmov.f32	s0, s16
+ 371 006c FFF7FEFF 		bl	float_to_uint
+ 372 0070 D4F8B831 		ldr	r3, [r4, #440]
+ 373 0074 4FEA1821 		lsr	r1, r8, #8
+ 374 0078 83F82410 		strb	r1, [r3, #36]
+ 375 007c 83F82580 		strb	r8, [r3, #37]
+ 376 0080 3909     		lsrs	r1, r7, #4
+ 377 0082 83F82610 		strb	r1, [r3, #38]
+ 378 0086 310A     		lsrs	r1, r6, #8
+ 379 0088 41EA0711 		orr	r1, r1, r7, lsl #4
+ 380 008c 83F82710 		strb	r1, [r3, #39]
+ 381 0090 83F82860 		strb	r6, [r3, #40]
+ 382 0094 2909     		lsrs	r1, r5, #4
+ 383 0096 83F82910 		strb	r1, [r3, #41]
+ 384 009a 010A     		lsrs	r1, r0, #8
+ 385 009c 41EA0511 		orr	r1, r1, r5, lsl #4
+ 386 00a0 83F82A10 		strb	r1, [r3, #42]
+ 387 00a4 83F82B00 		strb	r0, [r3, #43]
+ 388 00a8 144A     		ldr	r2, .L44+24
+ 389 00aa 586A     		ldr	r0, [r3, #36]	@ unaligned
+ 390 00ac 1060     		str	r0, [r2]
+ 391 00ae 1B8D     		ldrh	r3, [r3, #40]	@ unaligned
+ 392 00b0 9380     		strh	r3, [r2, #4]	@ unaligned
+ 393 00b2 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 394 00b6 D4F8B801 		ldr	r0, [r4, #440]
+ 395 00ba FFF7FEFF 		bl	CANTransmit
+ 396 00be 9FED108A 		vldr.32	s16, .L44+28
+ 397 00c2 B0EE480A 		vmov.f32	s0, s16
+ 398 00c6 FFF7FEFF 		bl	DWT_Delay
+ 399 00ca 2146     		mov	r1, r4
+ 400 00cc FE20     		movs	r0, #254
+ 401 00ce FFF7FEFF 		bl	HTMotorSetMode
+ 402 00d2 B0EE480A 		vmov.f32	s0, s16
+ 403 00d6 FFF7FEFF 		bl	DWT_Delay
+ 404 00da BDEC028B 		vldm	sp!, {d8}
+ 405 00de BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 406              	.L45:
+ 407 00e2 00BF     		.align	2
+ 408              	.L44:
+ 409 00e4 00000000 		.word	0
+ 410 00e8 0000BF42 		.word	1119813632
+ 411 00ec 0000BFC2 		.word	-1027670016
+ 412 00f0 00003442 		.word	1110704128
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 8
+
+
+ 413 00f4 000034C2 		.word	-1036779520
+ 414 00f8 0000FA43 		.word	1140457472
+ 415 00fc 00000000 		.word	zero_buff
+ 416 0100 0AD7A33B 		.word	1000593162
+ 418              		.section	.text.HTMotorSetRef,"ax",%progbits
+ 419              		.align	1
+ 420              		.global	HTMotorSetRef
+ 421              		.syntax unified
+ 422              		.thumb
+ 423              		.thumb_func
+ 425              	HTMotorSetRef:
+ 426              		@ args = 0, pretend = 0, frame = 0
+ 427              		@ frame_needed = 0, uses_anonymous_args = 0
+ 428              		@ link register save eliminated.
+ 429 0000 80ED6C0A 		vstr.32	s0, [r0, #432]
+ 430 0004 7047     		bx	lr
+ 432              		.section	.text.HTMotorControlInit,"ax",%progbits
+ 433              		.align	1
+ 434              		.global	HTMotorControlInit
+ 435              		.syntax unified
+ 436              		.thumb
+ 437              		.thumb_func
+ 439              	HTMotorControlInit:
+ 440              		@ args = 0, pretend = 0, frame = 40
+ 441              		@ frame_needed = 0, uses_anonymous_args = 0
+ 442 0000 30B5     		push	{r4, r5, lr}
+ 443 0002 8BB0     		sub	sp, sp, #44
+ 444 0004 47F26843 		movw	r3, #29800
+ 445 0008 0893     		str	r3, [sp, #32]
+ 446 000a 0023     		movs	r3, #0
+ 447 000c 8DF82430 		strb	r3, [sp, #36]
+ 448 0010 154B     		ldr	r3, .L53
+ 449 0012 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 450 0014 2BB3     		cbz	r3, .L47
+ 451 0016 0024     		movs	r4, #0
+ 452 0018 1FE0     		b	.L48
+ 453              	.L50:
+ 454 001a 0023     		movs	r3, #0
+ 455 001c ADF80030 		strh	r3, [sp]	@ movhi
+ 456 0020 0A22     		movs	r2, #10
+ 457 0022 6946     		mov	r1, sp
+ 458 0024 2046     		mov	r0, r4
+ 459 0026 FFF7FEFF 		bl	__itoa
+ 460 002a 6946     		mov	r1, sp
+ 461 002c 08A8     		add	r0, sp, #32
+ 462 002e FFF7FEFF 		bl	strcat
+ 463 0032 0DF1040C 		add	ip, sp, #4
+ 464 0036 0D4D     		ldr	r5, .L53+4
+ 465 0038 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 466 003a ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 467 003e 95E80700 		ldm	r5, {r0, r1, r2}
+ 468 0042 8CE80700 		stm	ip, {r0, r1, r2}
+ 469 0046 0A4B     		ldr	r3, .L53+8
+ 470 0048 53F82410 		ldr	r1, [r3, r4, lsl #2]
+ 471 004c 01A8     		add	r0, sp, #4
+ 472 004e FFF7FEFF 		bl	osThreadCreate
+ 473 0052 084B     		ldr	r3, .L53+12
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 9
+
+
+ 474 0054 43F82400 		str	r0, [r3, r4, lsl #2]
+ 475 0058 0134     		adds	r4, r4, #1
+ 476              	.L48:
+ 477 005a 034B     		ldr	r3, .L53
+ 478 005c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 479 005e A342     		cmp	r3, r4
+ 480 0060 DBD8     		bhi	.L50
+ 481              	.L47:
+ 482 0062 0BB0     		add	sp, sp, #44
+ 483              		@ sp needed
+ 484 0064 30BD     		pop	{r4, r5, pc}
+ 485              	.L54:
+ 486 0066 00BF     		.align	2
+ 487              	.L53:
+ 488 0068 00000000 		.word	idx
+ 489 006c 00000000 		.word	.LANCHOR0
+ 490 0070 00000000 		.word	ht_motor_instance
+ 491 0074 00000000 		.word	ht_task_handle
+ 493              		.section	.text.HTMotorStop,"ax",%progbits
+ 494              		.align	1
+ 495              		.global	HTMotorStop
+ 496              		.syntax unified
+ 497              		.thumb
+ 498              		.thumb_func
+ 500              	HTMotorStop:
+ 501              		@ args = 0, pretend = 0, frame = 0
+ 502              		@ frame_needed = 0, uses_anonymous_args = 0
+ 503              		@ link register save eliminated.
+ 504 0000 0023     		movs	r3, #0
+ 505 0002 80F8B431 		strb	r3, [r0, #436]
+ 506 0006 7047     		bx	lr
+ 508              		.section	.text.HTMotorEnable,"ax",%progbits
+ 509              		.align	1
+ 510              		.global	HTMotorEnable
+ 511              		.syntax unified
+ 512              		.thumb
+ 513              		.thumb_func
+ 515              	HTMotorEnable:
+ 516              		@ args = 0, pretend = 0, frame = 0
+ 517              		@ frame_needed = 0, uses_anonymous_args = 0
+ 518              		@ link register save eliminated.
+ 519 0000 0123     		movs	r3, #1
+ 520 0002 80F8B431 		strb	r3, [r0, #436]
+ 521 0006 7047     		bx	lr
+ 523              		.section	.text.HTMotorInit,"ax",%progbits
+ 524              		.align	1
+ 525              		.global	HTMotorInit
+ 526              		.syntax unified
+ 527              		.thumb
+ 528              		.thumb_func
+ 530              	HTMotorInit:
+ 531              		@ args = 0, pretend = 0, frame = 16
+ 532              		@ frame_needed = 0, uses_anonymous_args = 0
+ 533 0000 30B5     		push	{r4, r5, lr}
+ 534 0002 2DED028B 		vpush.64	{d8}
+ 535 0006 85B0     		sub	sp, sp, #20
+ 536 0008 0546     		mov	r5, r0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 10
+
+
+ 537 000a 4FF4E470 		mov	r0, #456
+ 538 000e FFF7FEFF 		bl	malloc
+ 539 0012 0446     		mov	r4, r0
+ 540 0014 4FF4E472 		mov	r2, #456
+ 541 0018 0021     		movs	r1, #0
+ 542 001a FFF7FEFF 		bl	memset
+ 543 001e 04F12C03 		add	r3, r4, #44
+ 544 0022 05F19402 		add	r2, r5, #148
+ 545 0026 92E80300 		ldm	r2, {r0, r1}
+ 546 002a 83E80300 		stm	r3, {r0, r1}
+ 547 002e 05F11001 		add	r1, r5, #16
+ 548 0032 04F13800 		add	r0, r4, #56
+ 549 0036 FFF7FEFF 		bl	PIDInit
+ 550 003a 05F13C01 		add	r1, r5, #60
+ 551 003e 04F1B000 		add	r0, r4, #176
+ 552 0042 FFF7FEFF 		bl	PIDInit
+ 553 0046 05F16801 		add	r1, r5, #104
+ 554 004a 04F59470 		add	r0, r4, #296
+ 555 004e FFF7FEFF 		bl	PIDInit
+ 556 0052 2B68     		ldr	r3, [r5]
+ 557 0054 C4F8A031 		str	r3, [r4, #416]
+ 558 0058 6B68     		ldr	r3, [r5, #4]
+ 559 005a C4F8A431 		str	r3, [r4, #420]
+ 560 005e 1D4B     		ldr	r3, .L59
+ 561 0060 C5F8B430 		str	r3, [r5, #180]
+ 562 0064 C5F8B840 		str	r4, [r5, #184]
+ 563 0068 05F1A000 		add	r0, r5, #160
+ 564 006c FFF7FEFF 		bl	CANRegister
+ 565 0070 C4F8B801 		str	r0, [r4, #440]
+ 566 0074 01A8     		add	r0, sp, #4
+ 567 0076 0023     		movs	r3, #0
+ 568 0078 0193     		str	r3, [sp, #4]
+ 569 007a 4360     		str	r3, [r0, #4]
+ 570 007c 8360     		str	r3, [r0, #8]
+ 571 007e 0523     		movs	r3, #5
+ 572 0080 ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 573 0084 144B     		ldr	r3, .L59+4
+ 574 0086 0293     		str	r3, [sp, #8]
+ 575 0088 0394     		str	r4, [sp, #12]
+ 576 008a FFF7FEFF 		bl	DaemonRegister
+ 577 008e C4F8BC01 		str	r0, [r4, #444]
+ 578 0092 2046     		mov	r0, r4
+ 579 0094 FFF7FEFF 		bl	HTMotorEnable
+ 580 0098 2146     		mov	r1, r4
+ 581 009a FC20     		movs	r0, #252
+ 582 009c FFF7FEFF 		bl	HTMotorSetMode
+ 583 00a0 9FED0E8A 		vldr.32	s16, .L59+8
+ 584 00a4 B0EE480A 		vmov.f32	s0, s16
+ 585 00a8 FFF7FEFF 		bl	DWT_Delay
+ 586 00ac 2046     		mov	r0, r4
+ 587 00ae FFF7FEFF 		bl	HTMotorCalibEncoder
+ 588 00b2 B0EE480A 		vmov.f32	s0, s16
+ 589 00b6 FFF7FEFF 		bl	DWT_Delay
+ 590 00ba 094A     		ldr	r2, .L59+12
+ 591 00bc 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 592 00be 591C     		adds	r1, r3, #1
+ 593 00c0 1170     		strb	r1, [r2]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 11
+
+
+ 594 00c2 084A     		ldr	r2, .L59+16
+ 595 00c4 42F82340 		str	r4, [r2, r3, lsl #2]
+ 596 00c8 2046     		mov	r0, r4
+ 597 00ca 05B0     		add	sp, sp, #20
+ 598              		@ sp needed
+ 599 00cc BDEC028B 		vldm	sp!, {d8}
+ 600 00d0 30BD     		pop	{r4, r5, pc}
+ 601              	.L60:
+ 602 00d2 00BF     		.align	2
+ 603              	.L59:
+ 604 00d4 00000000 		.word	HTMotorDecode
+ 605 00d8 00000000 		.word	HTMotorLostCallback
+ 606 00dc CDCC4C3D 		.word	1028443341
+ 607 00e0 00000000 		.word	idx
+ 608 00e4 00000000 		.word	ht_motor_instance
+ 610              		.section	.text.HTMotorOuterLoop,"ax",%progbits
+ 611              		.align	1
+ 612              		.global	HTMotorOuterLoop
+ 613              		.syntax unified
+ 614              		.thumb
+ 615              		.thumb_func
+ 617              	HTMotorOuterLoop:
+ 618              		@ args = 0, pretend = 0, frame = 0
+ 619              		@ frame_needed = 0, uses_anonymous_args = 0
+ 620              		@ link register save eliminated.
+ 621 0000 80F82C10 		strb	r1, [r0, #44]
+ 622 0004 7047     		bx	lr
+ 624              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 625              		.align	2
+ 626              	.LC0:
+ 627 0000 68745F74 		.ascii	"ht_task_name\000"
+ 627      61736B5F 
+ 627      6E616D65 
+ 627      00
+ 628              		.section	.bss.zero_buff,"aw",%nobits
+ 629              		.align	2
+ 632              	zero_buff:
+ 633 0000 00000000 		.space	6
+ 633      0000
+ 634              		.section	.bss.ht_task_handle,"aw",%nobits
+ 635              		.align	2
+ 638              	ht_task_handle:
+ 639 0000 00000000 		.space	16
+ 639      00000000 
+ 639      00000000 
+ 639      00000000 
+ 640              		.section	.bss.ht_motor_instance,"aw",%nobits
+ 641              		.align	2
+ 644              	ht_motor_instance:
+ 645 0000 00000000 		.space	16
+ 645      00000000 
+ 645      00000000 
+ 645      00000000 
+ 646              		.section	.bss.idx,"aw",%nobits
+ 649              	idx:
+ 650 0000 00       		.space	1
+ 651              		.section	.rodata
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 12
+
+
+ 652              		.align	2
+ 653              		.set	.LANCHOR0,. + 0
+ 654              	.LC2:
+ 655 0000 00000000 		.word	.LC0
+ 656 0004 00000000 		.word	HTMotorTask
+ 657 0008 0000     		.short	0
+ 658 000a 0000     		.space	2
+ 659 000c 00000000 		.word	0
+ 660 0010 80000000 		.word	128
+ 661 0014 00000000 		.word	0
+ 662 0018 00000000 		.word	0
+ 663              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 HT04.c
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:18     .text.float_to_uint:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:23     .text.float_to_uint:00000000 float_to_uint
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:42     .text.uint_to_float:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:47     .text.uint_to_float:00000000 uint_to_float
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:65     .text.HTMotorSetMode:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:70     .text.HTMotorSetMode:00000000 HTMotorSetMode
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:94     .text.HTMotorSetMode:00000038 $d
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:632    .bss.zero_buff:00000000 zero_buff
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:97     .text.HTMotorLostCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:102    .text.HTMotorLostCallback:00000000 HTMotorLostCallback
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:125    .text.HTMotorLostCallback:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:128    .text.HTMotorDecode:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:133    .text.HTMotorDecode:00000000 HTMotorDecode
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:190    .text.HTMotorDecode:000000b0 $d
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:199    .text.HTMotorTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:205    .text.HTMotorTask:00000000 HTMotorTask
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:326    .text.HTMotorTask:00000148 $d
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:330    .text.HTMotorCalibEncoder:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:336    .text.HTMotorCalibEncoder:00000000 HTMotorCalibEncoder
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:409    .text.HTMotorCalibEncoder:000000e4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:419    .text.HTMotorSetRef:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:425    .text.HTMotorSetRef:00000000 HTMotorSetRef
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:433    .text.HTMotorControlInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:439    .text.HTMotorControlInit:00000000 HTMotorControlInit
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:488    .text.HTMotorControlInit:00000068 $d
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:649    .bss.idx:00000000 idx
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:644    .bss.ht_motor_instance:00000000 ht_motor_instance
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:638    .bss.ht_task_handle:00000000 ht_task_handle
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:494    .text.HTMotorStop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:500    .text.HTMotorStop:00000000 HTMotorStop
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:509    .text.HTMotorEnable:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:515    .text.HTMotorEnable:00000000 HTMotorEnable
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:524    .text.HTMotorInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:530    .text.HTMotorInit:00000000 HTMotorInit
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:604    .text.HTMotorInit:000000d4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:611    .text.HTMotorOuterLoop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:617    .text.HTMotorOuterLoop:00000000 HTMotorOuterLoop
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:625    .rodata.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:629    .bss.zero_buff:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:635    .bss.ht_task_handle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:641    .bss.ht_motor_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:650    .bss.idx:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s:652    .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+CANTransmit
+DaemonReload
+DWT_GetDeltaT
+AverageFilter
+PIDCalculate
+osDelay
+DWT_Delay
+__itoa
+strcat
+osThreadCreate
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccDp0z0O.s 			page 14
+
+
+malloc
+memset
+PIDInit
+CANRegister
+DaemonRegister

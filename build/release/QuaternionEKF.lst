@@ -1,0 +1,1374 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"QuaternionEKF.c"
+  16              		.text
+  17              		.section	.text.invSqrt,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	invSqrt:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 F6EE007A 		vmov.f32	s15, #5.0e-1
+  28 0004 60EE277A 		vmul.f32	s15, s0, s15
+  29 0008 10EE103A 		vmov	r3, s0	@ int
+  30 000c 074A     		ldr	r2, .L2
+  31 000e A2EB6303 		sub	r3, r2, r3, asr #1
+  32 0012 07EE103A 		vmov	s14, r3	@ int
+  33 0016 67EE277A 		vmul.f32	s15, s14, s15
+  34 001a 67EE277A 		vmul.f32	s15, s14, s15
+  35 001e B7EE080A 		vmov.f32	s0, #1.5e+0
+  36 0022 30EE670A 		vsub.f32	s0, s0, s15
+  37 0026 27EE000A 		vmul.f32	s0, s14, s0
+  38 002a 7047     		bx	lr
+  39              	.L3:
+  40              		.align	2
+  41              	.L2:
+  42 002c 865A375F 		.word	1597463174
+  44              		.section	.text.IMU_QuaternionEKF_F_Linearization_P_Fading,"ax",%progbits
+  45              		.align	1
+  46              		.syntax unified
+  47              		.thumb
+  48              		.thumb_func
+  50              	IMU_QuaternionEKF_F_Linearization_P_Fading:
+  51              		@ args = 0, pretend = 0, frame = 0
+  52              		@ frame_needed = 0, uses_anonymous_args = 0
+  53 0000 10B5     		push	{r4, lr}
+  54 0002 2DED048B 		vpush.64	{d8, d9}
+  55 0006 0446     		mov	r4, r0
+  56 0008 D0F8EC30 		ldr	r3, [r0, #236]
+  57 000c 93ED009A 		vldr.32	s18, [r3]
+  58 0010 5C4A     		ldr	r2, .L14
+  59 0012 82ED009A 		vstr.32	s18, [r2]
+  60 0016 93ED018A 		vldr.32	s16, [r3, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 2
+
+
+  61 001a 5B4A     		ldr	r2, .L14+4
+  62 001c 82ED008A 		vstr.32	s16, [r2]
+  63 0020 D3ED028A 		vldr.32	s17, [r3, #8]
+  64 0024 594A     		ldr	r2, .L14+8
+  65 0026 C2ED008A 		vstr.32	s17, [r2]
+  66 002a D3ED039A 		vldr.32	s19, [r3, #12]
+  67 002e 584B     		ldr	r3, .L14+12
+  68 0030 C3ED009A 		vstr.32	s19, [r3]
+  69 0034 69EE097A 		vmul.f32	s15, s18, s18
+  70 0038 28EE087A 		vmul.f32	s14, s16, s16
+  71 003c 77EE877A 		vadd.f32	s15, s15, s14
+  72 0040 28EEA87A 		vmul.f32	s14, s17, s17
+  73 0044 77EE877A 		vadd.f32	s15, s15, s14
+  74 0048 29EEA90A 		vmul.f32	s0, s19, s19
+  75 004c 37EE800A 		vadd.f32	s0, s15, s0
+  76 0050 FFF7FEFF 		bl	invSqrt
+  77 0054 4F4B     		ldr	r3, .L14+16
+  78 0056 83ED000A 		vstr.32	s0, [r3]
+  79 005a 0023     		movs	r3, #0
+  80 005c 0BE0     		b	.L5
+  81              	.L6:
+  82 005e D4F8EC20 		ldr	r2, [r4, #236]
+  83 0062 02EB8302 		add	r2, r2, r3, lsl #2
+  84 0066 D2ED007A 		vldr.32	s15, [r2]
+  85 006a 60EE277A 		vmul.f32	s15, s0, s15
+  86 006e C2ED007A 		vstr.32	s15, [r2]
+  87 0072 0133     		adds	r3, r3, #1
+  88 0074 DBB2     		uxtb	r3, r3
+  89              	.L5:
+  90 0076 032B     		cmp	r3, #3
+  91 0078 F1D9     		bls	.L6
+  92 007a 474B     		ldr	r3, .L14+20
+  93 007c 93ED6F7A 		vldr.32	s14, [r3, #444]
+  94 0080 28EE077A 		vmul.f32	s14, s16, s14
+  95 0084 D4F80021 		ldr	r2, [r4, #256]
+  96 0088 F6EE007A 		vmov.f32	s15, #5.0e-1
+  97 008c 27EE277A 		vmul.f32	s14, s14, s15
+  98 0090 82ED047A 		vstr.32	s14, [r2, #16]
+  99 0094 93ED6F7A 		vldr.32	s14, [r3, #444]
+ 100 0098 28EE877A 		vmul.f32	s14, s17, s14
+ 101 009c D4F80021 		ldr	r2, [r4, #256]
+ 102 00a0 27EE277A 		vmul.f32	s14, s14, s15
+ 103 00a4 82ED057A 		vstr.32	s14, [r2, #20]
+ 104 00a8 93ED6F7A 		vldr.32	s14, [r3, #444]
+ 105 00ac 29EE477A 		vnmul.f32	s14, s18, s14
+ 106 00b0 D4F80021 		ldr	r2, [r4, #256]
+ 107 00b4 27EE277A 		vmul.f32	s14, s14, s15
+ 108 00b8 82ED0A7A 		vstr.32	s14, [r2, #40]
+ 109 00bc 93ED6F7A 		vldr.32	s14, [r3, #444]
+ 110 00c0 29EE877A 		vmul.f32	s14, s19, s14
+ 111 00c4 D4F80021 		ldr	r2, [r4, #256]
+ 112 00c8 27EE277A 		vmul.f32	s14, s14, s15
+ 113 00cc 82ED0B7A 		vstr.32	s14, [r2, #44]
+ 114 00d0 93ED6F7A 		vldr.32	s14, [r3, #444]
+ 115 00d4 69EEC79A 		vnmul.f32	s19, s19, s14
+ 116 00d8 D4F80021 		ldr	r2, [r4, #256]
+ 117 00dc 69EEA79A 		vmul.f32	s19, s19, s15
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 3
+
+
+ 118 00e0 C2ED109A 		vstr.32	s19, [r2, #64]
+ 119 00e4 93ED6F7A 		vldr.32	s14, [r3, #444]
+ 120 00e8 29EE479A 		vnmul.f32	s18, s18, s14
+ 121 00ec D4F80021 		ldr	r2, [r4, #256]
+ 122 00f0 29EE279A 		vmul.f32	s18, s18, s15
+ 123 00f4 82ED119A 		vstr.32	s18, [r2, #68]
+ 124 00f8 93ED6F7A 		vldr.32	s14, [r3, #444]
+ 125 00fc 68EE878A 		vmul.f32	s17, s17, s14
+ 126 0100 D4F80021 		ldr	r2, [r4, #256]
+ 127 0104 68EEA78A 		vmul.f32	s17, s17, s15
+ 128 0108 C2ED168A 		vstr.32	s17, [r2, #88]
+ 129 010c 93ED6F7A 		vldr.32	s14, [r3, #444]
+ 130 0110 28EE478A 		vnmul.f32	s16, s16, s14
+ 131 0114 D4F80021 		ldr	r2, [r4, #256]
+ 132 0118 28EE278A 		vmul.f32	s16, s16, s15
+ 133 011c 82ED178A 		vstr.32	s16, [r2, #92]
+ 134 0120 D4F8F820 		ldr	r2, [r4, #248]
+ 135 0124 D2ED1C6A 		vldr.32	s13, [r2, #112]
+ 136 0128 93ED747A 		vldr.32	s14, [r3, #464]
+ 137 012c C6EE877A 		vdiv.f32	s15, s13, s14
+ 138 0130 C2ED1C7A 		vstr.32	s15, [r2, #112]
+ 139 0134 D4F8F820 		ldr	r2, [r4, #248]
+ 140 0138 D2ED236A 		vldr.32	s13, [r2, #140]
+ 141 013c 93ED747A 		vldr.32	s14, [r3, #464]
+ 142 0140 C6EE877A 		vdiv.f32	s15, s13, s14
+ 143 0144 C2ED237A 		vstr.32	s15, [r2, #140]
+ 144 0148 D4F8F830 		ldr	r3, [r4, #248]
+ 145 014c 93ED1C7A 		vldr.32	s14, [r3, #112]
+ 146 0150 DFED127A 		vldr.32	s15, .L14+24
+ 147 0154 B4EEE77A 		vcmpe.f32	s14, s15
+ 148 0158 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 149 015c 01DD     		ble	.L7
+ 150 015e C3ED1C7A 		vstr.32	s15, [r3, #112]
+ 151              	.L7:
+ 152 0162 D4F8F830 		ldr	r3, [r4, #248]
+ 153 0166 93ED237A 		vldr.32	s14, [r3, #140]
+ 154 016a DFED0C7A 		vldr.32	s15, .L14+24
+ 155 016e B4EEE77A 		vcmpe.f32	s14, s15
+ 156 0172 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 157 0176 01DD     		ble	.L4
+ 158 0178 C3ED237A 		vstr.32	s15, [r3, #140]
+ 159              	.L4:
+ 160 017c BDEC048B 		vldm	sp!, {d8-d9}
+ 161 0180 10BD     		pop	{r4, pc}
+ 162              	.L15:
+ 163 0182 00BF     		.align	2
+ 164              	.L14:
+ 165 0184 00000000 		.word	q0.8
+ 166 0188 00000000 		.word	q1.7
+ 167 018c 00000000 		.word	q2.6
+ 168 0190 00000000 		.word	q3.5
+ 169 0194 00000000 		.word	qInvNorm.4
+ 170 0198 00000000 		.word	QEKF_INS
+ 171 019c 00401C46 		.word	1176256512
+ 173              		.section	.text.IMU_QuaternionEKF_Observe,"ax",%progbits
+ 174              		.align	1
+ 175              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 4
+
+
+ 176              		.thumb
+ 177              		.thumb_func
+ 179              	IMU_QuaternionEKF_Observe:
+ 180              		@ args = 0, pretend = 0, frame = 0
+ 181              		@ frame_needed = 0, uses_anonymous_args = 0
+ 182 0000 38B5     		push	{r3, r4, r5, lr}
+ 183 0002 0446     		mov	r4, r0
+ 184 0004 9022     		movs	r2, #144
+ 185 0006 D0F8F810 		ldr	r1, [r0, #248]
+ 186 000a 0848     		ldr	r0, .L18
+ 187 000c FFF7FEFF 		bl	memcpy
+ 188 0010 4825     		movs	r5, #72
+ 189 0012 2A46     		mov	r2, r5
+ 190 0014 D4F81C11 		ldr	r1, [r4, #284]
+ 191 0018 0548     		ldr	r0, .L18+4
+ 192 001a FFF7FEFF 		bl	memcpy
+ 193 001e 2A46     		mov	r2, r5
+ 194 0020 D4F80C11 		ldr	r1, [r4, #268]
+ 195 0024 0348     		ldr	r0, .L18+8
+ 196 0026 FFF7FEFF 		bl	memcpy
+ 197 002a 38BD     		pop	{r3, r4, r5, pc}
+ 198              	.L19:
+ 199              		.align	2
+ 200              	.L18:
+ 201 002c 00000000 		.word	IMU_QuaternionEKF_P
+ 202 0030 00000000 		.word	IMU_QuaternionEKF_K
+ 203 0034 00000000 		.word	IMU_QuaternionEKF_H
+ 205              		.section	.text.IMU_QuaternionEKF_xhatUpdate,"ax",%progbits
+ 206              		.align	1
+ 207              		.syntax unified
+ 208              		.thumb
+ 209              		.thumb_func
+ 211              	IMU_QuaternionEKF_xhatUpdate:
+ 212              		@ args = 0, pretend = 0, frame = 0
+ 213              		@ frame_needed = 0, uses_anonymous_args = 0
+ 214 0000 2DE9F84F 		push	{r3, r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 215 0004 0446     		mov	r4, r0
+ 216 0006 00F17805 		add	r5, r0, #120
+ 217 000a 00F18007 		add	r7, r0, #128
+ 218 000e 3946     		mov	r1, r7
+ 219 0010 2846     		mov	r0, r5
+ 220 0012 FFF7FEFF 		bl	arm_mat_trans_f32
+ 221 0016 84F8C800 		strb	r0, [r4, #200]
+ 222 001a B4F87830 		ldrh	r3, [r4, #120]
+ 223 001e A4F8A830 		strh	r3, [r4, #168]	@ movhi
+ 224 0022 B4F85A30 		ldrh	r3, [r4, #90]
+ 225 0026 A4F8AA30 		strh	r3, [r4, #170]	@ movhi
+ 226 002a 04F1580A 		add	r10, r4, #88
+ 227 002e 04F1A808 		add	r8, r4, #168
+ 228 0032 4246     		mov	r2, r8
+ 229 0034 5146     		mov	r1, r10
+ 230 0036 2846     		mov	r0, r5
+ 231 0038 FFF7FEFF 		bl	arm_mat_mult_f32
+ 232 003c 84F8C800 		strb	r0, [r4, #200]
+ 233 0040 B4F8A830 		ldrh	r3, [r4, #168]
+ 234 0044 A4F8B030 		strh	r3, [r4, #176]	@ movhi
+ 235 0048 B4F88230 		ldrh	r3, [r4, #130]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 5
+
+
+ 236 004c A4F8B230 		strh	r3, [r4, #178]	@ movhi
+ 237 0050 04F1B009 		add	r9, r4, #176
+ 238 0054 4A46     		mov	r2, r9
+ 239 0056 3946     		mov	r1, r7
+ 240 0058 4046     		mov	r0, r8
+ 241 005a FFF7FEFF 		bl	arm_mat_mult_f32
+ 242 005e 84F8C800 		strb	r0, [r4, #200]
+ 243 0062 B4F89030 		ldrh	r3, [r4, #144]
+ 244 0066 A4F8A030 		strh	r3, [r4, #160]	@ movhi
+ 245 006a B4F89230 		ldrh	r3, [r4, #146]
+ 246 006e A4F8A230 		strh	r3, [r4, #162]	@ movhi
+ 247 0072 04F1A005 		add	r5, r4, #160
+ 248 0076 2A46     		mov	r2, r5
+ 249 0078 04F19001 		add	r1, r4, #144
+ 250 007c 4846     		mov	r0, r9
+ 251 007e FFF7FEFF 		bl	arm_mat_add_f32
+ 252 0082 84F8C800 		strb	r0, [r4, #200]
+ 253 0086 4946     		mov	r1, r9
+ 254 0088 2846     		mov	r0, r5
+ 255 008a FFF7FEFF 		bl	arm_mat_inverse_f32
+ 256 008e 84F8C800 		strb	r0, [r4, #200]
+ 257 0092 D4F8EC30 		ldr	r3, [r4, #236]
+ 258 0096 D3ED007A 		vldr.32	s15, [r3]
+ 259 009a C54A     		ldr	r2, .L57
+ 260 009c C2ED007A 		vstr.32	s15, [r2]
+ 261 00a0 93ED016A 		vldr.32	s12, [r3, #4]
+ 262 00a4 C34A     		ldr	r2, .L57+4
+ 263 00a6 82ED006A 		vstr.32	s12, [r2]
+ 264 00aa D3ED026A 		vldr.32	s13, [r3, #8]
+ 265 00ae C24A     		ldr	r2, .L57+8
+ 266 00b0 C2ED006A 		vstr.32	s13, [r2]
+ 267 00b4 93ED037A 		vldr.32	s14, [r3, #12]
+ 268 00b8 C04B     		ldr	r3, .L57+12
+ 269 00ba 83ED007A 		vstr.32	s14, [r3]
+ 270 00be B4F87830 		ldrh	r3, [r4, #120]
+ 271 00c2 A4F8B830 		strh	r3, [r4, #184]	@ movhi
+ 272 00c6 0123     		movs	r3, #1
+ 273 00c8 A4F8BA30 		strh	r3, [r4, #186]	@ movhi
+ 274 00cc 66EE075A 		vmul.f32	s11, s12, s14
+ 275 00d0 27EEA65A 		vmul.f32	s10, s15, s13
+ 276 00d4 75EEC55A 		vsub.f32	s11, s11, s10
+ 277 00d8 D4F82C31 		ldr	r3, [r4, #300]
+ 278 00dc 75EEA55A 		vadd.f32	s11, s11, s11
+ 279 00e0 C3ED005A 		vstr.32	s11, [r3]
+ 280 00e4 67EE865A 		vmul.f32	s11, s15, s12
+ 281 00e8 26EE875A 		vmul.f32	s10, s13, s14
+ 282 00ec 75EE855A 		vadd.f32	s11, s11, s10
+ 283 00f0 D4F82C31 		ldr	r3, [r4, #300]
+ 284 00f4 75EEA55A 		vadd.f32	s11, s11, s11
+ 285 00f8 C3ED015A 		vstr.32	s11, [r3, #4]
+ 286 00fc 67EEA77A 		vmul.f32	s15, s15, s15
+ 287 0100 26EE066A 		vmul.f32	s12, s12, s12
+ 288 0104 77EEC67A 		vsub.f32	s15, s15, s12
+ 289 0108 66EEA66A 		vmul.f32	s13, s13, s13
+ 290 010c 77EEE67A 		vsub.f32	s15, s15, s13
+ 291 0110 27EE077A 		vmul.f32	s14, s14, s14
+ 292 0114 D4F82C31 		ldr	r3, [r4, #300]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 6
+
+
+ 293 0118 77EE877A 		vadd.f32	s15, s15, s14
+ 294 011c C3ED027A 		vstr.32	s15, [r3, #8]
+ 295 0120 0025     		movs	r5, #0
+ 296 0122 12E0     		b	.L21
+ 297              	.L22:
+ 298 0124 D4F82C31 		ldr	r3, [r4, #300]
+ 299 0128 03EB8503 		add	r3, r3, r5, lsl #2
+ 300 012c 93ED000A 		vldr.32	s0, [r3]
+ 301 0130 B0EEC00A 		vabs.f32	s0, s0
+ 302 0134 FFF7FEFF 		bl	acosf
+ 303 0138 05F16002 		add	r2, r5, #96
+ 304 013c A04B     		ldr	r3, .L57+16
+ 305 013e 03EB8203 		add	r3, r3, r2, lsl #2
+ 306 0142 83ED010A 		vstr.32	s0, [r3, #4]
+ 307 0146 0135     		adds	r5, r5, #1
+ 308 0148 EDB2     		uxtb	r5, r5
+ 309              	.L21:
+ 310 014a 022D     		cmp	r5, #2
+ 311 014c EAD9     		bls	.L22
+ 312 014e B4F84830 		ldrh	r3, [r4, #72]
+ 313 0152 A4F8C030 		strh	r3, [r4, #192]	@ movhi
+ 314 0156 4FF0010B 		mov	fp, #1
+ 315 015a A4F8C2B0 		strh	fp, [r4, #194]	@ movhi
+ 316 015e 04F1B805 		add	r5, r4, #184
+ 317 0162 04F1C006 		add	r6, r4, #192
+ 318 0166 3246     		mov	r2, r6
+ 319 0168 2946     		mov	r1, r5
+ 320 016a 04F14800 		add	r0, r4, #72
+ 321 016e FFF7FEFF 		bl	arm_mat_sub_f32
+ 322 0172 84F8C800 		strb	r0, [r4, #200]
+ 323 0176 B4F8C030 		ldrh	r3, [r4, #192]
+ 324 017a A4F8A830 		strh	r3, [r4, #168]	@ movhi
+ 325 017e A4F8AAB0 		strh	fp, [r4, #170]	@ movhi
+ 326 0182 4246     		mov	r2, r8
+ 327 0184 3146     		mov	r1, r6
+ 328 0186 4846     		mov	r0, r9
+ 329 0188 FFF7FEFF 		bl	arm_mat_mult_f32
+ 330 018c 84F8C800 		strb	r0, [r4, #200]
+ 331 0190 A4F8B8B0 		strh	fp, [r4, #184]	@ movhi
+ 332 0194 B4F8C030 		ldrh	r3, [r4, #192]
+ 333 0198 A4F8BA30 		strh	r3, [r4, #186]	@ movhi
+ 334 019c 2946     		mov	r1, r5
+ 335 019e 3046     		mov	r0, r6
+ 336 01a0 FFF7FEFF 		bl	arm_mat_trans_f32
+ 337 01a4 84F8C800 		strb	r0, [r4, #200]
+ 338 01a8 DFF828B2 		ldr	fp, .L57+36
+ 339 01ac 5A46     		mov	r2, fp
+ 340 01ae 4146     		mov	r1, r8
+ 341 01b0 2846     		mov	r0, r5
+ 342 01b2 FFF7FEFF 		bl	arm_mat_mult_f32
+ 343 01b6 84F8C800 		strb	r0, [r4, #200]
+ 344 01ba 9BED027A 		vldr.32	s14, [fp, #8]
+ 345 01be DBED037A 		vldr.32	s15, [fp, #12]
+ 346 01c2 ABF5E07B 		sub	fp, fp, #448
+ 347 01c6 F6EE006A 		vmov.f32	s13, #5.0e-1
+ 348 01ca 67EEA66A 		vmul.f32	s13, s15, s13
+ 349 01ce B4EEE67A 		vcmpe.f32	s14, s13
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 7
+
+
+ 350 01d2 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 351 01d6 02D5     		bpl	.L23
+ 352 01d8 0122     		movs	r2, #1
+ 353 01da 8BF83821 		strb	r2, [fp, #312]
+ 354              	.L23:
+ 355 01de B4EEE77A 		vcmpe.f32	s14, s15
+ 356 01e2 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 357 01e6 45DD     		ble	.L25
+ 358 01e8 754B     		ldr	r3, .L57+16
+ 359 01ea 93F83831 		ldrb	r3, [r3, #312]	@ zero_extendqisi2
+ 360 01ee 002B     		cmp	r3, #0
+ 361 01f0 40D0     		beq	.L25
+ 362 01f2 734B     		ldr	r3, .L57+16
+ 363 01f4 93F83931 		ldrb	r3, [r3, #313]	@ zero_extendqisi2
+ 364 01f8 DBB1     		cbz	r3, .L27
+ 365 01fa 714A     		ldr	r2, .L57+16
+ 366 01fc D2F84031 		ldr	r3, [r2, #320]
+ 367 0200 D2F84411 		ldr	r1, [r2, #324]
+ 368 0204 0133     		adds	r3, r3, #1
+ 369 0206 41F10001 		adc	r1, r1, #0
+ 370 020a C2F84031 		str	r3, [r2, #320]
+ 371 020e C2F84411 		str	r1, [r2, #324]
+ 372              	.L28:
+ 373 0212 6B4B     		ldr	r3, .L57+16
+ 374 0214 D3F84021 		ldr	r2, [r3, #320]
+ 375 0218 D3F84431 		ldr	r3, [r3, #324]
+ 376 021c 332A     		cmp	r2, #51
+ 377 021e 73F10003 		sbcs	r3, r3, #0
+ 378 0222 0CD3     		bcc	.L29
+ 379 0224 0023     		movs	r3, #0
+ 380 0226 664A     		ldr	r2, .L57+16
+ 381 0228 82F83831 		strb	r3, [r2, #312]
+ 382 022c 84F82C30 		strb	r3, [r4, #44]
+ 383 0230 46E0     		b	.L30
+ 384              	.L27:
+ 385 0232 634B     		ldr	r3, .L57+16
+ 386 0234 0020     		movs	r0, #0
+ 387 0236 0021     		movs	r1, #0
+ 388 0238 C3E95001 		strd	r0, [r3, #320]
+ 389 023c E9E7     		b	.L28
+ 390              	.L29:
+ 391 023e 227B     		ldrb	r2, [r4, #12]	@ zero_extendqisi2
+ 392 0240 604D     		ldr	r5, .L57+20
+ 393 0242 2B88     		ldrh	r3, [r5]
+ 394 0244 03FB02F2 		mul	r2, r3, r2
+ 395 0248 D4F8EC10 		ldr	r1, [r4, #236]
+ 396 024c D4F8E800 		ldr	r0, [r4, #232]
+ 397 0250 FFF7FEFF 		bl	memcpy
+ 398 0254 227B     		ldrb	r2, [r4, #12]	@ zero_extendqisi2
+ 399 0256 2B88     		ldrh	r3, [r5]
+ 400 0258 02FB03F3 		mul	r3, r2, r3
+ 401 025c 03FB02F2 		mul	r2, r3, r2
+ 402 0260 D4F8FC10 		ldr	r1, [r4, #252]
+ 403 0264 D4F8F800 		ldr	r0, [r4, #248]
+ 404 0268 FFF7FEFF 		bl	memcpy
+ 405 026c 0123     		movs	r3, #1
+ 406 026e 84F82C30 		strb	r3, [r4, #44]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 8
+
+
+ 407 0272 9AE0     		b	.L20
+ 408              	.L25:
+ 409 0274 DFED546A 		vldr.32	s13, .L57+24
+ 410 0278 67EEA66A 		vmul.f32	s13, s15, s13
+ 411 027c B4EEE67A 		vcmpe.f32	s14, s13
+ 412 0280 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 413 0284 0FDD     		ble	.L32
+ 414 0286 4E4B     		ldr	r3, .L57+16
+ 415 0288 93F83831 		ldrb	r3, [r3, #312]	@ zero_extendqisi2
+ 416 028c 5BB1     		cbz	r3, .L32
+ 417 028e 37EEC77A 		vsub.f32	s14, s15, s14
+ 418 0292 DFED4E6A 		vldr.32	s13, .L57+28
+ 419 0296 67EEA67A 		vmul.f32	s15, s15, s13
+ 420 029a C7EE276A 		vdiv.f32	s13, s14, s15
+ 421 029e 484B     		ldr	r3, .L57+16
+ 422 02a0 C3ED676A 		vstr.32	s13, [r3, #412]
+ 423 02a4 04E0     		b	.L34
+ 424              	.L32:
+ 425 02a6 464B     		ldr	r3, .L57+16
+ 426 02a8 4FF07E52 		mov	r2, #1065353216
+ 427 02ac C3F89C21 		str	r2, [r3, #412]	@ float
+ 428              	.L34:
+ 429 02b0 434B     		ldr	r3, .L57+16
+ 430 02b2 0020     		movs	r0, #0
+ 431 02b4 0021     		movs	r1, #0
+ 432 02b6 C3E95001 		strd	r0, [r3, #320]
+ 433 02ba 0023     		movs	r3, #0
+ 434 02bc 84F82C30 		strb	r3, [r4, #44]
+ 435              	.L30:
+ 436 02c0 B4F85830 		ldrh	r3, [r4, #88]
+ 437 02c4 A4F8A830 		strh	r3, [r4, #168]	@ movhi
+ 438 02c8 B4F88230 		ldrh	r3, [r4, #130]
+ 439 02cc A4F8AA30 		strh	r3, [r4, #170]	@ movhi
+ 440 02d0 4246     		mov	r2, r8
+ 441 02d2 3946     		mov	r1, r7
+ 442 02d4 5046     		mov	r0, r10
+ 443 02d6 FFF7FEFF 		bl	arm_mat_mult_f32
+ 444 02da 84F8C800 		strb	r0, [r4, #200]
+ 445 02de 04F19807 		add	r7, r4, #152
+ 446 02e2 3A46     		mov	r2, r7
+ 447 02e4 4946     		mov	r1, r9
+ 448 02e6 4046     		mov	r0, r8
+ 449 02e8 FFF7FEFF 		bl	arm_mat_mult_f32
+ 450 02ec 84F8C800 		strb	r0, [r4, #200]
+ 451 02f0 0023     		movs	r3, #0
+ 452 02f2 0EE0     		b	.L35
+ 453              	.L36:
+ 454 02f4 D4F81C21 		ldr	r2, [r4, #284]
+ 455 02f8 02EB8302 		add	r2, r2, r3, lsl #2
+ 456 02fc D2ED007A 		vldr.32	s15, [r2]
+ 457 0300 2F49     		ldr	r1, .L57+16
+ 458 0302 91ED677A 		vldr.32	s14, [r1, #412]
+ 459 0306 67EE877A 		vmul.f32	s15, s15, s14
+ 460 030a C2ED007A 		vstr.32	s15, [r2]
+ 461 030e 0133     		adds	r3, r3, #1
+ 462 0310 DBB2     		uxtb	r3, r3
+ 463              	.L35:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 9
+
+
+ 464 0312 B4F89820 		ldrh	r2, [r4, #152]
+ 465 0316 B4F89A10 		ldrh	r1, [r4, #154]
+ 466 031a 01FB02F2 		mul	r2, r1, r2
+ 467 031e 9342     		cmp	r3, r2
+ 468 0320 E8DB     		blt	.L36
+ 469 0322 0422     		movs	r2, #4
+ 470 0324 01E0     		b	.L37
+ 471              	.L56:
+ 472 0326 0132     		adds	r2, r2, #1
+ 473 0328 D2B2     		uxtb	r2, r2
+ 474              	.L37:
+ 475 032a 052A     		cmp	r2, #5
+ 476 032c 1DD8     		bhi	.L55
+ 477 032e 0023     		movs	r3, #0
+ 478              	.L39:
+ 479 0330 022B     		cmp	r3, #2
+ 480 0332 F8D8     		bhi	.L56
+ 481 0334 D4F81C11 		ldr	r1, [r4, #284]
+ 482 0338 02EB4200 		add	r0, r2, r2, lsl #1
+ 483 033c 1844     		add	r0, r0, r3
+ 484 033e 01EB8001 		add	r1, r1, r0, lsl #2
+ 485 0342 D1ED007A 		vldr.32	s15, [r1]
+ 486 0346 02F15C0C 		add	ip, r2, #92
+ 487 034a 1D48     		ldr	r0, .L57+16
+ 488 034c 00EB8C00 		add	r0, r0, ip, lsl #2
+ 489 0350 90ED016A 		vldr.32	s12, [r0, #4]
+ 490 0354 DFED1E6A 		vldr.32	s13, .L57+32
+ 491 0358 86EE267A 		vdiv.f32	s14, s12, s13
+ 492 035c 67EE877A 		vmul.f32	s15, s15, s14
+ 493 0360 C1ED007A 		vstr.32	s15, [r1]
+ 494 0364 0133     		adds	r3, r3, #1
+ 495 0366 DBB2     		uxtb	r3, r3
+ 496 0368 E2E7     		b	.L39
+ 497              	.L55:
+ 498 036a B4F89830 		ldrh	r3, [r4, #152]
+ 499 036e A4F8B830 		strh	r3, [r4, #184]	@ movhi
+ 500 0372 0123     		movs	r3, #1
+ 501 0374 A4F8BA30 		strh	r3, [r4, #186]	@ movhi
+ 502 0378 2A46     		mov	r2, r5
+ 503 037a 3146     		mov	r1, r6
+ 504 037c 3846     		mov	r0, r7
+ 505 037e FFF7FEFF 		bl	arm_mat_mult_f32
+ 506 0382 84F8C800 		strb	r0, [r4, #200]
+ 507 0386 0E4B     		ldr	r3, .L57+16
+ 508 0388 93F83831 		ldrb	r3, [r3, #312]	@ zero_extendqisi2
+ 509 038c 002B     		cmp	r3, #0
+ 510 038e 50D1     		bne	.L48
+ 511              	.L41:
+ 512 0390 D4F8BC30 		ldr	r3, [r4, #188]
+ 513 0394 0022     		movs	r2, #0
+ 514 0396 DA60     		str	r2, [r3, #12]	@ float
+ 515 0398 04F13002 		add	r2, r4, #48
+ 516 039c 2946     		mov	r1, r5
+ 517 039e 04F13800 		add	r0, r4, #56
+ 518 03a2 FFF7FEFF 		bl	arm_mat_add_f32
+ 519 03a6 84F8C800 		strb	r0, [r4, #200]
+ 520              	.L20:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 10
+
+
+ 521 03aa BDE8F88F 		pop	{r3, r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 522              	.L58:
+ 523 03ae 00BF     		.align	2
+ 524              	.L57:
+ 525 03b0 00000000 		.word	q0.16
+ 526 03b4 00000000 		.word	q1.15
+ 527 03b8 00000000 		.word	q2.14
+ 528 03bc 00000000 		.word	q3.13
+ 529 03c0 00000000 		.word	QEKF_INS
+ 530 03c4 00000000 		.word	sizeof_float
+ 531 03c8 CDCCCC3D 		.word	1036831949
+ 532 03cc 6666663F 		.word	1063675494
+ 533 03d0 DA0FC93F 		.word	1070141402
+ 534 03d4 C0010000 		.word	QEKF_INS+448
+ 535              	.L44:
+ 536 03d8 0133     		adds	r3, r3, #1
+ 537 03da DBB2     		uxtb	r3, r3
+ 538              	.L40:
+ 539 03dc 052B     		cmp	r3, #5
+ 540 03de D7D8     		bhi	.L41
+ 541 03e0 D4F8BC20 		ldr	r2, [r4, #188]
+ 542 03e4 9900     		lsls	r1, r3, #2
+ 543 03e6 02EB8302 		add	r2, r2, r3, lsl #2
+ 544 03ea 92ED007A 		vldr.32	s14, [r2]
+ 545 03ee 1248     		ldr	r0, .L59
+ 546 03f0 D0ED6F7A 		vldr.32	s15, [r0, #444]
+ 547 03f4 DFED116A 		vldr.32	s13, .L59+4
+ 548 03f8 67EEA67A 		vmul.f32	s15, s15, s13
+ 549 03fc B4EEE77A 		vcmpe.f32	s14, s15
+ 550 0400 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 551 0404 01DD     		ble	.L42
+ 552 0406 C2ED007A 		vstr.32	s15, [r2]
+ 553              	.L42:
+ 554 040a D4F8BC20 		ldr	r2, [r4, #188]
+ 555 040e 0A44     		add	r2, r2, r1
+ 556 0410 92ED007A 		vldr.32	s14, [r2]
+ 557 0414 0849     		ldr	r1, .L59
+ 558 0416 D1ED6F7A 		vldr.32	s15, [r1, #444]
+ 559 041a DFED096A 		vldr.32	s13, .L59+8
+ 560 041e 67EEA67A 		vmul.f32	s15, s15, s13
+ 561 0422 B4EEE77A 		vcmpe.f32	s14, s15
+ 562 0426 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 563 042a D5D5     		bpl	.L44
+ 564 042c C2ED007A 		vstr.32	s15, [r2]
+ 565 0430 D2E7     		b	.L44
+ 566              	.L48:
+ 567 0432 0423     		movs	r3, #4
+ 568 0434 D2E7     		b	.L40
+ 569              	.L60:
+ 570 0436 00BF     		.align	2
+ 571              	.L59:
+ 572 0438 00000000 		.word	QEKF_INS
+ 573 043c 0AD7233C 		.word	1008981770
+ 574 0440 0AD723BC 		.word	-1138501878
+ 576              		.section	.text.IMU_QuaternionEKF_SetH,"ax",%progbits
+ 577              		.align	1
+ 578              		.syntax unified
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 11
+
+
+ 579              		.thumb
+ 580              		.thumb_func
+ 582              	IMU_QuaternionEKF_SetH:
+ 583              		@ args = 0, pretend = 0, frame = 0
+ 584              		@ frame_needed = 0, uses_anonymous_args = 0
+ 585 0000 10B5     		push	{r4, lr}
+ 586 0002 2DED048B 		vpush.64	{d8, d9}
+ 587 0006 0446     		mov	r4, r0
+ 588 0008 D0F8EC30 		ldr	r3, [r0, #236]
+ 589 000c 93ED009A 		vldr.32	s18, [r3]
+ 590 0010 39EE099A 		vadd.f32	s18, s18, s18
+ 591 0014 2E4A     		ldr	r2, .L63
+ 592 0016 82ED009A 		vstr.32	s18, [r2]
+ 593 001a 93ED018A 		vldr.32	s16, [r3, #4]
+ 594 001e 38EE088A 		vadd.f32	s16, s16, s16
+ 595 0022 2C4A     		ldr	r2, .L63+4
+ 596 0024 82ED008A 		vstr.32	s16, [r2]
+ 597 0028 D3ED029A 		vldr.32	s19, [r3, #8]
+ 598 002c 79EEA99A 		vadd.f32	s19, s19, s19
+ 599 0030 294A     		ldr	r2, .L63+8
+ 600 0032 C2ED009A 		vstr.32	s19, [r2]
+ 601 0036 D3ED038A 		vldr.32	s17, [r3, #12]
+ 602 003a 78EEA88A 		vadd.f32	s17, s17, s17
+ 603 003e 274B     		ldr	r3, .L63+12
+ 604 0040 C3ED008A 		vstr.32	s17, [r3]
+ 605 0044 827B     		ldrb	r2, [r0, #14]	@ zero_extendqisi2
+ 606 0046 264B     		ldr	r3, .L63+16
+ 607 0048 1B88     		ldrh	r3, [r3]
+ 608 004a 02FB03F3 		mul	r3, r2, r3
+ 609 004e 027B     		ldrb	r2, [r0, #12]	@ zero_extendqisi2
+ 610 0050 03FB02F2 		mul	r2, r3, r2
+ 611 0054 0021     		movs	r1, #0
+ 612 0056 D0F80C01 		ldr	r0, [r0, #268]
+ 613 005a FFF7FEFF 		bl	memset
+ 614 005e D4F80C31 		ldr	r3, [r4, #268]
+ 615 0062 F1EE697A 		vneg.f32	s15, s19
+ 616 0066 C3ED007A 		vstr.32	s15, [r3]
+ 617 006a D4F80C31 		ldr	r3, [r4, #268]
+ 618 006e C3ED018A 		vstr.32	s17, [r3, #4]
+ 619 0072 D4F80C31 		ldr	r3, [r4, #268]
+ 620 0076 B1EE497A 		vneg.f32	s14, s18
+ 621 007a 83ED027A 		vstr.32	s14, [r3, #8]
+ 622 007e D4F80C31 		ldr	r3, [r4, #268]
+ 623 0082 83ED038A 		vstr.32	s16, [r3, #12]
+ 624 0086 D4F80C31 		ldr	r3, [r4, #268]
+ 625 008a 83ED068A 		vstr.32	s16, [r3, #24]
+ 626 008e D4F80C31 		ldr	r3, [r4, #268]
+ 627 0092 83ED079A 		vstr.32	s18, [r3, #28]
+ 628 0096 D4F80C31 		ldr	r3, [r4, #268]
+ 629 009a C3ED088A 		vstr.32	s17, [r3, #32]
+ 630 009e D4F80C31 		ldr	r3, [r4, #268]
+ 631 00a2 C3ED099A 		vstr.32	s19, [r3, #36]
+ 632 00a6 D4F80C31 		ldr	r3, [r4, #268]
+ 633 00aa 83ED0C9A 		vstr.32	s18, [r3, #48]
+ 634 00ae D4F80C31 		ldr	r3, [r4, #268]
+ 635 00b2 B1EE488A 		vneg.f32	s16, s16
+ 636 00b6 83ED0D8A 		vstr.32	s16, [r3, #52]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 12
+
+
+ 637 00ba D4F80C31 		ldr	r3, [r4, #268]
+ 638 00be C3ED0E7A 		vstr.32	s15, [r3, #56]
+ 639 00c2 D4F80C31 		ldr	r3, [r4, #268]
+ 640 00c6 C3ED0F8A 		vstr.32	s17, [r3, #60]
+ 641 00ca BDEC048B 		vldm	sp!, {d8-d9}
+ 642 00ce 10BD     		pop	{r4, pc}
+ 643              	.L64:
+ 644              		.align	2
+ 645              	.L63:
+ 646 00d0 00000000 		.word	doubleq0.12
+ 647 00d4 00000000 		.word	doubleq1.11
+ 648 00d8 00000000 		.word	doubleq2.10
+ 649 00dc 00000000 		.word	doubleq3.9
+ 650 00e0 00000000 		.word	sizeof_float
+ 652              		.section	.text.IMU_QuaternionEKF_Init,"ax",%progbits
+ 653              		.align	1
+ 654              		.global	IMU_QuaternionEKF_Init
+ 655              		.syntax unified
+ 656              		.thumb
+ 657              		.thumb_func
+ 659              	IMU_QuaternionEKF_Init:
+ 660              		@ args = 0, pretend = 0, frame = 0
+ 661              		@ frame_needed = 0, uses_anonymous_args = 0
+ 662 0000 38B5     		push	{r3, r4, r5, lr}
+ 663 0002 0446     		mov	r4, r0
+ 664 0004 2F4B     		ldr	r3, .L71
+ 665 0006 0122     		movs	r2, #1
+ 666 0008 1A70     		strb	r2, [r3]
+ 667 000a 83ED6C0A 		vstr.32	s0, [r3, #432]
+ 668 000e C3ED6D0A 		vstr.32	s1, [r3, #436]
+ 669 0012 83ED6E1A 		vstr.32	s2, [r3, #440]
+ 670 0016 2C4A     		ldr	r2, .L71+4
+ 671 0018 C3F8CC21 		str	r2, [r3, #460]	@ float
+ 672 001c 0022     		movs	r2, #0
+ 673 001e 83F83821 		strb	r2, [r3, #312]
+ 674 0022 0020     		movs	r0, #0
+ 675 0024 0021     		movs	r1, #0
+ 676 0026 C3E95001 		strd	r0, [r3, #320]
+ 677 002a C3E95201 		strd	r0, [r3, #328]
+ 678 002e F7EE007A 		vmov.f32	s15, #1.0e+0
+ 679 0032 F4EEE71A 		vcmpe.f32	s3, s15
+ 680 0036 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 681 003a 01DD     		ble	.L66
+ 682 003c F0EE671A 		vmov.f32	s3, s15
+ 683              	.L66:
+ 684 0040 204D     		ldr	r5, .L71
+ 685 0042 C5ED741A 		vstr.32	s3, [r5, #464]
+ 686 0046 85ED642A 		vstr.32	s4, [r5, #400]
+ 687 004a 0323     		movs	r3, #3
+ 688 004c 0022     		movs	r2, #0
+ 689 004e 0621     		movs	r1, #6
+ 690 0050 281D     		adds	r0, r5, #4
+ 691 0052 FFF7FEFF 		bl	Kalman_Filter_Init
+ 692 0056 05F5E473 		add	r3, r5, #456
+ 693 005a 0122     		movs	r2, #1
+ 694 005c 1146     		mov	r1, r2
+ 695 005e 05F5E070 		add	r0, r5, #448
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 13
+
+
+ 696 0062 FFF7FEFF 		bl	arm_mat_init_f32
+ 697 0066 0023     		movs	r3, #0
+ 698 0068 09E0     		b	.L67
+ 699              	.L68:
+ 700 006a 164A     		ldr	r2, .L71
+ 701 006c D2F8EC20 		ldr	r2, [r2, #236]
+ 702 0070 02EB8302 		add	r2, r2, r3, lsl #2
+ 703 0074 04EB8301 		add	r1, r4, r3, lsl #2
+ 704 0078 0968     		ldr	r1, [r1]	@ float
+ 705 007a 1160     		str	r1, [r2]	@ float
+ 706 007c 0133     		adds	r3, r3, #1
+ 707              	.L67:
+ 708 007e 032B     		cmp	r3, #3
+ 709 0080 F3DD     		ble	.L68
+ 710 0082 104C     		ldr	r4, .L71
+ 711 0084 114B     		ldr	r3, .L71+8
+ 712 0086 C4F8D030 		str	r3, [r4, #208]
+ 713 008a 114B     		ldr	r3, .L71+12
+ 714 008c C4F8D430 		str	r3, [r4, #212]
+ 715 0090 104B     		ldr	r3, .L71+16
+ 716 0092 C4F8D830 		str	r3, [r4, #216]
+ 717 0096 104B     		ldr	r3, .L71+20
+ 718 0098 C4F8DC30 		str	r3, [r4, #220]
+ 719 009c 0123     		movs	r3, #1
+ 720 009e 84F82E30 		strb	r3, [r4, #46]
+ 721 00a2 84F82F30 		strb	r3, [r4, #47]
+ 722 00a6 9025     		movs	r5, #144
+ 723 00a8 2A46     		mov	r2, r5
+ 724 00aa 0C49     		ldr	r1, .L71+24
+ 725 00ac D4F80401 		ldr	r0, [r4, #260]
+ 726 00b0 FFF7FEFF 		bl	memcpy
+ 727 00b4 2A46     		mov	r2, r5
+ 728 00b6 0A49     		ldr	r1, .L71+28
+ 729 00b8 D4F8FC00 		ldr	r0, [r4, #252]
+ 730 00bc FFF7FEFF 		bl	memcpy
+ 731 00c0 38BD     		pop	{r3, r4, r5, pc}
+ 732              	.L72:
+ 733 00c2 00BF     		.align	2
+ 734              	.L71:
+ 735 00c4 00000000 		.word	QEKF_INS
+ 736 00c8 77CC2B32 		.word	841731191
+ 737 00cc 00000000 		.word	IMU_QuaternionEKF_Observe
+ 738 00d0 00000000 		.word	IMU_QuaternionEKF_F_Linearization_P_Fading
+ 739 00d4 00000000 		.word	IMU_QuaternionEKF_SetH
+ 740 00d8 00000000 		.word	IMU_QuaternionEKF_xhatUpdate
+ 741 00dc 00000000 		.word	IMU_QuaternionEKF_F
+ 742 00e0 00000000 		.word	IMU_QuaternionEKF_P
+ 744              		.section	.text.IMU_QuaternionEKF_Update,"ax",%progbits
+ 745              		.align	1
+ 746              		.global	IMU_QuaternionEKF_Update
+ 747              		.syntax unified
+ 748              		.thumb
+ 749              		.thumb_func
+ 751              	IMU_QuaternionEKF_Update:
+ 752              		@ args = 0, pretend = 0, frame = 0
+ 753              		@ frame_needed = 0, uses_anonymous_args = 0
+ 754 0000 10B5     		push	{r4, lr}
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 14
+
+
+ 755 0002 2DED088B 		vpush.64	{d8, d9, d10, d11}
+ 756 0006 F0EE619A 		vmov.f32	s19, s3
+ 757 000a F0EE42AA 		vmov.f32	s21, s4
+ 758 000e B0EE62AA 		vmov.f32	s20, s5
+ 759 0012 804C     		ldr	r4, .L93
+ 760 0014 84ED6F3A 		vstr.32	s6, [r4, #444]
+ 761 0018 D4ED587A 		vldr.32	s15, [r4, #352]
+ 762 001c 30EE670A 		vsub.f32	s0, s0, s15
+ 763 0020 84ED5B0A 		vstr.32	s0, [r4, #364]
+ 764 0024 D4ED597A 		vldr.32	s15, [r4, #356]
+ 765 0028 70EEE70A 		vsub.f32	s1, s1, s15
+ 766 002c C4ED5C0A 		vstr.32	s1, [r4, #368]
+ 767 0030 D4ED5A7A 		vldr.32	s15, [r4, #360]
+ 768 0034 31EE671A 		vsub.f32	s2, s2, s15
+ 769 0038 84ED5D1A 		vstr.32	s2, [r4, #372]
+ 770 003c F6EE007A 		vmov.f32	s15, #5.0e-1
+ 771 0040 20EE270A 		vmul.f32	s0, s0, s15
+ 772 0044 20EE039A 		vmul.f32	s18, s0, s6
+ 773 0048 734B     		ldr	r3, .L93+4
+ 774 004a 83ED009A 		vstr.32	s18, [r3]
+ 775 004e 60EEA70A 		vmul.f32	s1, s1, s15
+ 776 0052 20EE838A 		vmul.f32	s16, s1, s6
+ 777 0056 714B     		ldr	r3, .L93+8
+ 778 0058 83ED008A 		vstr.32	s16, [r3]
+ 779 005c 21EE271A 		vmul.f32	s2, s2, s15
+ 780 0060 61EE038A 		vmul.f32	s17, s2, s6
+ 781 0064 6E4B     		ldr	r3, .L93+12
+ 782 0066 C3ED008A 		vstr.32	s17, [r3]
+ 783 006a 9022     		movs	r2, #144
+ 784 006c 6D49     		ldr	r1, .L93+16
+ 785 006e D4F80401 		ldr	r0, [r4, #260]
+ 786 0072 FFF7FEFF 		bl	memcpy
+ 787 0076 D4F80431 		ldr	r3, [r4, #260]
+ 788 007a F1EE497A 		vneg.f32	s15, s18
+ 789 007e C3ED017A 		vstr.32	s15, [r3, #4]
+ 790 0082 D4F80431 		ldr	r3, [r4, #260]
+ 791 0086 F1EE486A 		vneg.f32	s13, s16
+ 792 008a C3ED026A 		vstr.32	s13, [r3, #8]
+ 793 008e D4F80431 		ldr	r3, [r4, #260]
+ 794 0092 B1EE687A 		vneg.f32	s14, s17
+ 795 0096 83ED037A 		vstr.32	s14, [r3, #12]
+ 796 009a D4F80431 		ldr	r3, [r4, #260]
+ 797 009e 83ED069A 		vstr.32	s18, [r3, #24]
+ 798 00a2 D4F80431 		ldr	r3, [r4, #260]
+ 799 00a6 C3ED088A 		vstr.32	s17, [r3, #32]
+ 800 00aa D4F80431 		ldr	r3, [r4, #260]
+ 801 00ae C3ED096A 		vstr.32	s13, [r3, #36]
+ 802 00b2 D4F80431 		ldr	r3, [r4, #260]
+ 803 00b6 83ED0C8A 		vstr.32	s16, [r3, #48]
+ 804 00ba D4F80431 		ldr	r3, [r4, #260]
+ 805 00be 83ED0D7A 		vstr.32	s14, [r3, #52]
+ 806 00c2 D4F80431 		ldr	r3, [r4, #260]
+ 807 00c6 83ED0F9A 		vstr.32	s18, [r3, #60]
+ 808 00ca D4F80431 		ldr	r3, [r4, #260]
+ 809 00ce C3ED128A 		vstr.32	s17, [r3, #72]
+ 810 00d2 D4F80431 		ldr	r3, [r4, #260]
+ 811 00d6 83ED138A 		vstr.32	s16, [r3, #76]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 15
+
+
+ 812 00da D4F80431 		ldr	r3, [r4, #260]
+ 813 00de C3ED147A 		vstr.32	s15, [r3, #80]
+ 814 00e2 D4F84831 		ldr	r3, [r4, #328]
+ 815 00e6 D4F84C21 		ldr	r2, [r4, #332]
+ 816 00ea 1343     		orrs	r3, r3, r2
+ 817 00ec 05D1     		bne	.L74
+ 818 00ee C4ED5E9A 		vstr.32	s19, [r4, #376]
+ 819 00f2 C4ED5FAA 		vstr.32	s21, [r4, #380]
+ 820 00f6 84ED60AA 		vstr.32	s20, [r4, #384]
+ 821              	.L74:
+ 822 00fa 464B     		ldr	r3, .L93
+ 823 00fc 93ED5E7A 		vldr.32	s14, [r3, #376]
+ 824 0100 D3ED645A 		vldr.32	s11, [r3, #400]
+ 825 0104 27EE257A 		vmul.f32	s14, s14, s11
+ 826 0108 93ED6F6A 		vldr.32	s12, [r3, #444]
+ 827 010c 75EE866A 		vadd.f32	s13, s11, s12
+ 828 0110 C7EE267A 		vdiv.f32	s15, s14, s13
+ 829 0114 66EE299A 		vmul.f32	s19, s12, s19
+ 830 0118 89EEA67A 		vdiv.f32	s14, s19, s13
+ 831 011c 77EE877A 		vadd.f32	s15, s15, s14
+ 832 0120 C3ED5E7A 		vstr.32	s15, [r3, #376]
+ 833 0124 93ED5F5A 		vldr.32	s10, [r3, #380]
+ 834 0128 25EE855A 		vmul.f32	s10, s11, s10
+ 835 012c 85EE267A 		vdiv.f32	s14, s10, s13
+ 836 0130 26EE2A5A 		vmul.f32	s10, s12, s21
+ 837 0134 C5EE264A 		vdiv.f32	s9, s10, s13
+ 838 0138 37EE247A 		vadd.f32	s14, s14, s9
+ 839 013c 83ED5F7A 		vstr.32	s14, [r3, #380]
+ 840 0140 93ED605A 		vldr.32	s10, [r3, #384]
+ 841 0144 65EE855A 		vmul.f32	s11, s11, s10
+ 842 0148 85EEA60A 		vdiv.f32	s0, s11, s13
+ 843 014c 26EE0A6A 		vmul.f32	s12, s12, s20
+ 844 0150 C6EE265A 		vdiv.f32	s11, s12, s13
+ 845 0154 30EE250A 		vadd.f32	s0, s0, s11
+ 846 0158 83ED600A 		vstr.32	s0, [r3, #384]
+ 847 015c 67EEA77A 		vmul.f32	s15, s15, s15
+ 848 0160 27EE077A 		vmul.f32	s14, s14, s14
+ 849 0164 77EE877A 		vadd.f32	s15, s15, s14
+ 850 0168 20EE000A 		vmul.f32	s0, s0, s0
+ 851 016c 37EE800A 		vadd.f32	s0, s15, s0
+ 852 0170 FFF7FEFF 		bl	invSqrt
+ 853 0174 B0EE408A 		vmov.f32	s16, s0
+ 854 0178 2B4B     		ldr	r3, .L93+20
+ 855 017a 83ED000A 		vstr.32	s0, [r3]
+ 856 017e 0023     		movs	r3, #0
+ 857 0180 0FE0     		b	.L75
+ 858              	.L76:
+ 859 0182 2449     		ldr	r1, .L93
+ 860 0184 03F15E02 		add	r2, r3, #94
+ 861 0188 01EB8202 		add	r2, r1, r2, lsl #2
+ 862 018c D2ED007A 		vldr.32	s15, [r2]
+ 863 0190 8A68     		ldr	r2, [r1, #8]
+ 864 0192 02EB8302 		add	r2, r2, r3, lsl #2
+ 865 0196 68EE277A 		vmul.f32	s15, s16, s15
+ 866 019a C2ED007A 		vstr.32	s15, [r2]
+ 867 019e 0133     		adds	r3, r3, #1
+ 868 01a0 DBB2     		uxtb	r3, r3
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 16
+
+
+ 869              	.L75:
+ 870 01a2 022B     		cmp	r3, #2
+ 871 01a4 EDD9     		bls	.L76
+ 872 01a6 1B4C     		ldr	r4, .L93
+ 873 01a8 94ED5B0A 		vldr.32	s0, [r4, #364]
+ 874 01ac 20EE000A 		vmul.f32	s0, s0, s0
+ 875 01b0 D4ED5C7A 		vldr.32	s15, [r4, #368]
+ 876 01b4 67EEA77A 		vmul.f32	s15, s15, s15
+ 877 01b8 70EE277A 		vadd.f32	s15, s0, s15
+ 878 01bc 94ED5D0A 		vldr.32	s0, [r4, #372]
+ 879 01c0 20EE000A 		vmul.f32	s0, s0, s0
+ 880 01c4 37EE800A 		vadd.f32	s0, s15, s0
+ 881 01c8 FFF7FEFF 		bl	invSqrt
+ 882 01cc B7EE007A 		vmov.f32	s14, #1.0e+0
+ 883 01d0 C7EE007A 		vdiv.f32	s15, s14, s0
+ 884 01d4 C4ED657A 		vstr.32	s15, [r4, #404]
+ 885 01d8 C7EE086A 		vdiv.f32	s13, s14, s16
+ 886 01dc C4ED666A 		vstr.32	s13, [r4, #408]
+ 887 01e0 9FED127A 		vldr.32	s14, .L93+24
+ 888 01e4 F4EEC77A 		vcmpe.f32	s15, s14
+ 889 01e8 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 890 01ec 24D5     		bpl	.L77
+ 891 01ee DFED107A 		vldr.32	s15, .L93+28
+ 892 01f2 F4EEE76A 		vcmpe.f32	s13, s15
+ 893 01f6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 894 01fa 1DDD     		ble	.L77
+ 895 01fc DFED0D7A 		vldr.32	s15, .L93+32
+ 896 0200 F4EEE76A 		vcmpe.f32	s13, s15
+ 897 0204 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 898 0208 16D5     		bpl	.L77
+ 899 020a 0122     		movs	r2, #1
+ 900 020c 84F83921 		strb	r2, [r4, #313]
+ 901 0210 16E0     		b	.L81
+ 902              	.L94:
+ 903 0212 00BF     		.align	2
+ 904              	.L93:
+ 905 0214 00000000 		.word	QEKF_INS
+ 906 0218 00000000 		.word	halfgxdt.3
+ 907 021c 00000000 		.word	halfgydt.2
+ 908 0220 00000000 		.word	halfgzdt.1
+ 909 0224 00000000 		.word	IMU_QuaternionEKF_F
+ 910 0228 00000000 		.word	accelInvNorm.0
+ 911 022c 9A99993E 		.word	1050253722
+ 912 0230 CDCC1441 		.word	1091882189
+ 913 0234 CDCC2441 		.word	1092930765
+ 914              	.L77:
+ 915 0238 744B     		ldr	r3, .L95
+ 916 023a 0022     		movs	r2, #0
+ 917 023c 83F83921 		strb	r2, [r3, #313]
+ 918              	.L81:
+ 919 0240 724C     		ldr	r4, .L95
+ 920 0242 D4ED6C7A 		vldr.32	s15, [r4, #432]
+ 921 0246 94ED6F7A 		vldr.32	s14, [r4, #444]
+ 922 024a D4F81831 		ldr	r3, [r4, #280]
+ 923 024e 67EE877A 		vmul.f32	s15, s15, s14
+ 924 0252 C3ED007A 		vstr.32	s15, [r3]
+ 925 0256 D4ED6C7A 		vldr.32	s15, [r4, #432]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 17
+
+
+ 926 025a 94ED6F7A 		vldr.32	s14, [r4, #444]
+ 927 025e D4F81831 		ldr	r3, [r4, #280]
+ 928 0262 67EE877A 		vmul.f32	s15, s15, s14
+ 929 0266 C3ED077A 		vstr.32	s15, [r3, #28]
+ 930 026a D4ED6C7A 		vldr.32	s15, [r4, #432]
+ 931 026e 94ED6F7A 		vldr.32	s14, [r4, #444]
+ 932 0272 D4F81831 		ldr	r3, [r4, #280]
+ 933 0276 67EE877A 		vmul.f32	s15, s15, s14
+ 934 027a C3ED0E7A 		vstr.32	s15, [r3, #56]
+ 935 027e D4ED6C7A 		vldr.32	s15, [r4, #432]
+ 936 0282 94ED6F7A 		vldr.32	s14, [r4, #444]
+ 937 0286 D4F81831 		ldr	r3, [r4, #280]
+ 938 028a 67EE877A 		vmul.f32	s15, s15, s14
+ 939 028e C3ED157A 		vstr.32	s15, [r3, #84]
+ 940 0292 D4ED6D7A 		vldr.32	s15, [r4, #436]
+ 941 0296 94ED6F7A 		vldr.32	s14, [r4, #444]
+ 942 029a D4F81831 		ldr	r3, [r4, #280]
+ 943 029e 67EE877A 		vmul.f32	s15, s15, s14
+ 944 02a2 C3ED1C7A 		vstr.32	s15, [r3, #112]
+ 945 02a6 D4ED6D7A 		vldr.32	s15, [r4, #436]
+ 946 02aa 94ED6F7A 		vldr.32	s14, [r4, #444]
+ 947 02ae D4F81831 		ldr	r3, [r4, #280]
+ 948 02b2 67EE877A 		vmul.f32	s15, s15, s14
+ 949 02b6 C3ED237A 		vstr.32	s15, [r3, #140]
+ 950 02ba D4F81C21 		ldr	r2, [r4, #284]
+ 951 02be D4F8B831 		ldr	r3, [r4, #440]	@ float
+ 952 02c2 1360     		str	r3, [r2]	@ float
+ 953 02c4 D4F81C21 		ldr	r2, [r4, #284]
+ 954 02c8 1361     		str	r3, [r2, #16]	@ float
+ 955 02ca D4F81C31 		ldr	r3, [r4, #284]
+ 956 02ce D4F8B821 		ldr	r2, [r4, #440]	@ float
+ 957 02d2 1A62     		str	r2, [r3, #32]	@ float
+ 958 02d4 201D     		adds	r0, r4, #4
+ 959 02d6 FFF7FEFF 		bl	Kalman_Filter_Update
+ 960 02da 6368     		ldr	r3, [r4, #4]
+ 961 02dc D3ED008A 		vldr.32	s17, [r3]
+ 962 02e0 C4ED548A 		vstr.32	s17, [r4, #336]
+ 963 02e4 93ED018A 		vldr.32	s16, [r3, #4]
+ 964 02e8 84ED558A 		vstr.32	s16, [r4, #340]
+ 965 02ec D3ED02AA 		vldr.32	s21, [r3, #8]
+ 966 02f0 C4ED56AA 		vstr.32	s21, [r4, #344]
+ 967 02f4 93ED03AA 		vldr.32	s20, [r3, #12]
+ 968 02f8 84ED57AA 		vstr.32	s20, [r4, #348]
+ 969 02fc 1A69     		ldr	r2, [r3, #16]	@ float
+ 970 02fe C4F86021 		str	r2, [r4, #352]	@ float
+ 971 0302 5B69     		ldr	r3, [r3, #20]	@ float
+ 972 0304 C4F86431 		str	r3, [r4, #356]	@ float
+ 973 0308 0023     		movs	r3, #0
+ 974 030a C4F86831 		str	r3, [r4, #360]	@ float
+ 975 030e 28EE8A0A 		vmul.f32	s0, s17, s20
+ 976 0312 68EE2A7A 		vmul.f32	s15, s16, s21
+ 977 0316 30EE270A 		vadd.f32	s0, s0, s15
+ 978 031a 28EEA89A 		vmul.f32	s18, s17, s17
+ 979 031e 68EE080A 		vmul.f32	s1, s16, s16
+ 980 0322 79EE200A 		vadd.f32	s1, s18, s1
+ 981 0326 70EEA00A 		vadd.f32	s1, s1, s1
+ 982 032a F7EE00BA 		vmov.f32	s23, #1.0e+0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 18
+
+
+ 983 032e 70EEEB0A 		vsub.f32	s1, s1, s23
+ 984 0332 30EE000A 		vadd.f32	s0, s0, s0
+ 985 0336 FFF7FEFF 		bl	atan2f
+ 986 033a 9FED35BA 		vldr.32	s22, .L95+4
+ 987 033e 60EE0B9A 		vmul.f32	s19, s0, s22
+ 988 0342 C4ED6A9A 		vstr.32	s19, [r4, #424]
+ 989 0346 28EE880A 		vmul.f32	s0, s17, s16
+ 990 034a 6AEE8A7A 		vmul.f32	s15, s21, s20
+ 991 034e 30EE270A 		vadd.f32	s0, s0, s15
+ 992 0352 6AEE0A7A 		vmul.f32	s15, s20, s20
+ 993 0356 39EE279A 		vadd.f32	s18, s18, s15
+ 994 035a 39EE099A 		vadd.f32	s18, s18, s18
+ 995 035e 79EE6B0A 		vsub.f32	s1, s18, s23
+ 996 0362 30EE000A 		vadd.f32	s0, s0, s0
+ 997 0366 FFF7FEFF 		bl	atan2f
+ 998 036a 20EE0B0A 		vmul.f32	s0, s0, s22
+ 999 036e 84ED690A 		vstr.32	s0, [r4, #420]
+ 1000 0372 28EE0A8A 		vmul.f32	s16, s16, s20
+ 1001 0376 68EEAA8A 		vmul.f32	s17, s17, s21
+ 1002 037a 38EE688A 		vsub.f32	s16, s16, s17
+ 1003 037e B8EE000A 		vmov.f32	s0, #-2.0e+0
+ 1004 0382 28EE000A 		vmul.f32	s0, s16, s0
+ 1005 0386 FFF7FEFF 		bl	asinf
+ 1006 038a 20EE0B0A 		vmul.f32	s0, s0, s22
+ 1007 038e 84ED680A 		vstr.32	s0, [r4, #416]
+ 1008 0392 D4ED767A 		vldr.32	s15, [r4, #472]
+ 1009 0396 79EEE77A 		vsub.f32	s15, s19, s15
+ 1010 039a 9FED1E7A 		vldr.32	s14, .L95+8
+ 1011 039e F4EEC77A 		vcmpe.f32	s15, s14
+ 1012 03a2 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1013 03a6 23DD     		ble	.L91
+ 1014 03a8 B4F9D431 		ldrsh	r3, [r4, #468]
+ 1015 03ac 013B     		subs	r3, r3, #1
+ 1016 03ae A4F8D431 		strh	r3, [r4, #468]	@ movhi
+ 1017              	.L84:
+ 1018 03b2 164B     		ldr	r3, .L95
+ 1019 03b4 B3F9D421 		ldrsh	r2, [r3, #468]
+ 1020 03b8 07EE902A 		vmov	s15, r2	@ int
+ 1021 03bc F8EEE77A 		vcvt.f32.s32	s15, s15
+ 1022 03c0 9FED157A 		vldr.32	s14, .L95+12
+ 1023 03c4 67EE877A 		vmul.f32	s15, s15, s14
+ 1024 03c8 79EEA77A 		vadd.f32	s15, s19, s15
+ 1025 03cc C3ED6B7A 		vstr.32	s15, [r3, #428]
+ 1026 03d0 C3ED769A 		vstr.32	s19, [r3, #472]
+ 1027 03d4 D3F84821 		ldr	r2, [r3, #328]
+ 1028 03d8 D3F84C11 		ldr	r1, [r3, #332]
+ 1029 03dc 0132     		adds	r2, r2, #1
+ 1030 03de 41F10001 		adc	r1, r1, #0
+ 1031 03e2 C3F84821 		str	r2, [r3, #328]
+ 1032 03e6 C3F84C11 		str	r1, [r3, #332]
+ 1033 03ea BDEC088B 		vldm	sp!, {d8-d11}
+ 1034 03ee 10BD     		pop	{r4, pc}
+ 1035              	.L91:
+ 1036 03f0 9FED0A7A 		vldr.32	s14, .L95+16
+ 1037 03f4 F4EEC77A 		vcmpe.f32	s15, s14
+ 1038 03f8 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1039 03fc D9D5     		bpl	.L84
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 19
+
+
+ 1040 03fe 034A     		ldr	r2, .L95
+ 1041 0400 B2F9D431 		ldrsh	r3, [r2, #468]
+ 1042 0404 0133     		adds	r3, r3, #1
+ 1043 0406 A2F8D431 		strh	r3, [r2, #468]	@ movhi
+ 1044 040a D2E7     		b	.L84
+ 1045              	.L96:
+ 1046              		.align	2
+ 1047              	.L95:
+ 1048 040c 00000000 		.word	QEKF_INS
+ 1049 0410 E12E6542 		.word	1113927393
+ 1050 0414 00003443 		.word	1127481344
+ 1051 0418 0000B443 		.word	1135869952
+ 1052 041c 000034C3 		.word	-1020002304
+ 1054              		.section	.bss.accelInvNorm.0,"aw",%nobits
+ 1055              		.align	2
+ 1058              	accelInvNorm.0:
+ 1059 0000 00000000 		.space	4
+ 1060              		.section	.bss.halfgzdt.1,"aw",%nobits
+ 1061              		.align	2
+ 1064              	halfgzdt.1:
+ 1065 0000 00000000 		.space	4
+ 1066              		.section	.bss.halfgydt.2,"aw",%nobits
+ 1067              		.align	2
+ 1070              	halfgydt.2:
+ 1071 0000 00000000 		.space	4
+ 1072              		.section	.bss.halfgxdt.3,"aw",%nobits
+ 1073              		.align	2
+ 1076              	halfgxdt.3:
+ 1077 0000 00000000 		.space	4
+ 1078              		.section	.bss.qInvNorm.4,"aw",%nobits
+ 1079              		.align	2
+ 1082              	qInvNorm.4:
+ 1083 0000 00000000 		.space	4
+ 1084              		.section	.bss.q3.5,"aw",%nobits
+ 1085              		.align	2
+ 1088              	q3.5:
+ 1089 0000 00000000 		.space	4
+ 1090              		.section	.bss.q2.6,"aw",%nobits
+ 1091              		.align	2
+ 1094              	q2.6:
+ 1095 0000 00000000 		.space	4
+ 1096              		.section	.bss.q1.7,"aw",%nobits
+ 1097              		.align	2
+ 1100              	q1.7:
+ 1101 0000 00000000 		.space	4
+ 1102              		.section	.bss.q0.8,"aw",%nobits
+ 1103              		.align	2
+ 1106              	q0.8:
+ 1107 0000 00000000 		.space	4
+ 1108              		.section	.bss.doubleq3.9,"aw",%nobits
+ 1109              		.align	2
+ 1112              	doubleq3.9:
+ 1113 0000 00000000 		.space	4
+ 1114              		.section	.bss.doubleq2.10,"aw",%nobits
+ 1115              		.align	2
+ 1118              	doubleq2.10:
+ 1119 0000 00000000 		.space	4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 20
+
+
+ 1120              		.section	.bss.doubleq1.11,"aw",%nobits
+ 1121              		.align	2
+ 1124              	doubleq1.11:
+ 1125 0000 00000000 		.space	4
+ 1126              		.section	.bss.doubleq0.12,"aw",%nobits
+ 1127              		.align	2
+ 1130              	doubleq0.12:
+ 1131 0000 00000000 		.space	4
+ 1132              		.section	.bss.q3.13,"aw",%nobits
+ 1133              		.align	2
+ 1136              	q3.13:
+ 1137 0000 00000000 		.space	4
+ 1138              		.section	.bss.q2.14,"aw",%nobits
+ 1139              		.align	2
+ 1142              	q2.14:
+ 1143 0000 00000000 		.space	4
+ 1144              		.section	.bss.q1.15,"aw",%nobits
+ 1145              		.align	2
+ 1148              	q1.15:
+ 1149 0000 00000000 		.space	4
+ 1150              		.section	.bss.q0.16,"aw",%nobits
+ 1151              		.align	2
+ 1154              	q0.16:
+ 1155 0000 00000000 		.space	4
+ 1156              		.global	IMU_QuaternionEKF_H
+ 1157              		.section	.bss.IMU_QuaternionEKF_H,"aw",%nobits
+ 1158              		.align	2
+ 1161              	IMU_QuaternionEKF_H:
+ 1162 0000 00000000 		.space	72
+ 1162      00000000 
+ 1162      00000000 
+ 1162      00000000 
+ 1162      00000000 
+ 1163              		.global	IMU_QuaternionEKF_K
+ 1164              		.section	.bss.IMU_QuaternionEKF_K,"aw",%nobits
+ 1165              		.align	2
+ 1168              	IMU_QuaternionEKF_K:
+ 1169 0000 00000000 		.space	72
+ 1169      00000000 
+ 1169      00000000 
+ 1169      00000000 
+ 1169      00000000 
+ 1170              		.global	IMU_QuaternionEKF_P
+ 1171              		.section	.data.IMU_QuaternionEKF_P,"aw"
+ 1172              		.align	2
+ 1175              	IMU_QuaternionEKF_P:
+ 1176 0000 0050C347 		.word	1203982336
+ 1177 0004 CDCCCC3D 		.word	1036831949
+ 1178 0008 CDCCCC3D 		.word	1036831949
+ 1179 000c CDCCCC3D 		.word	1036831949
+ 1180 0010 CDCCCC3D 		.word	1036831949
+ 1181 0014 CDCCCC3D 		.word	1036831949
+ 1182 0018 CDCCCC3D 		.word	1036831949
+ 1183 001c 0050C347 		.word	1203982336
+ 1184 0020 CDCCCC3D 		.word	1036831949
+ 1185 0024 CDCCCC3D 		.word	1036831949
+ 1186 0028 CDCCCC3D 		.word	1036831949
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 21
+
+
+ 1187 002c CDCCCC3D 		.word	1036831949
+ 1188 0030 CDCCCC3D 		.word	1036831949
+ 1189 0034 CDCCCC3D 		.word	1036831949
+ 1190 0038 0050C347 		.word	1203982336
+ 1191 003c CDCCCC3D 		.word	1036831949
+ 1192 0040 CDCCCC3D 		.word	1036831949
+ 1193 0044 CDCCCC3D 		.word	1036831949
+ 1194 0048 CDCCCC3D 		.word	1036831949
+ 1195 004c CDCCCC3D 		.word	1036831949
+ 1196 0050 CDCCCC3D 		.word	1036831949
+ 1197 0054 0050C347 		.word	1203982336
+ 1198 0058 CDCCCC3D 		.word	1036831949
+ 1199 005c CDCCCC3D 		.word	1036831949
+ 1200 0060 CDCCCC3D 		.word	1036831949
+ 1201 0064 CDCCCC3D 		.word	1036831949
+ 1202 0068 CDCCCC3D 		.word	1036831949
+ 1203 006c CDCCCC3D 		.word	1036831949
+ 1204 0070 0000C842 		.word	1120403456
+ 1205 0074 CDCCCC3D 		.word	1036831949
+ 1206 0078 CDCCCC3D 		.word	1036831949
+ 1207 007c CDCCCC3D 		.word	1036831949
+ 1208 0080 CDCCCC3D 		.word	1036831949
+ 1209 0084 CDCCCC3D 		.word	1036831949
+ 1210 0088 CDCCCC3D 		.word	1036831949
+ 1211 008c 0000C842 		.word	1120403456
+ 1212              		.global	IMU_QuaternionEKF_F
+ 1213              		.section	.rodata.IMU_QuaternionEKF_F,"a"
+ 1214              		.align	2
+ 1217              	IMU_QuaternionEKF_F:
+ 1218 0000 0000803F 		.word	1065353216
+ 1219 0004 00000000 		.word	0
+ 1220 0008 00000000 		.word	0
+ 1221 000c 00000000 		.word	0
+ 1222 0010 00000000 		.word	0
+ 1223 0014 00000000 		.word	0
+ 1224 0018 00000000 		.word	0
+ 1225 001c 0000803F 		.word	1065353216
+ 1226 0020 00000000 		.word	0
+ 1227 0024 00000000 		.word	0
+ 1228 0028 00000000 		.word	0
+ 1229 002c 00000000 		.word	0
+ 1230 0030 00000000 		.word	0
+ 1231 0034 00000000 		.word	0
+ 1232 0038 0000803F 		.word	1065353216
+ 1233 003c 00000000 		.word	0
+ 1234 0040 00000000 		.word	0
+ 1235 0044 00000000 		.word	0
+ 1236 0048 00000000 		.word	0
+ 1237 004c 00000000 		.word	0
+ 1238 0050 00000000 		.word	0
+ 1239 0054 0000803F 		.word	1065353216
+ 1240 0058 00000000 		.word	0
+ 1241 005c 00000000 		.word	0
+ 1242 0060 00000000 		.word	0
+ 1243 0064 00000000 		.word	0
+ 1244 0068 00000000 		.word	0
+ 1245 006c 00000000 		.word	0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 22
+
+
+ 1246 0070 0000803F 		.word	1065353216
+ 1247 0074 00000000 		.word	0
+ 1248 0078 00000000 		.word	0
+ 1249 007c 00000000 		.word	0
+ 1250 0080 00000000 		.word	0
+ 1251 0084 00000000 		.word	0
+ 1252 0088 00000000 		.word	0
+ 1253 008c 0000803F 		.word	1065353216
+ 1254              		.global	QEKF_INS
+ 1255              		.section	.bss.QEKF_INS,"aw",%nobits
+ 1256              		.align	3
+ 1259              	QEKF_INS:
+ 1260 0000 00000000 		.space	480
+ 1260      00000000 
+ 1260      00000000 
+ 1260      00000000 
+ 1260      00000000 
+ 1261              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 23
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 QuaternionEKF.c
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:18     .text.invSqrt:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:23     .text.invSqrt:00000000 invSqrt
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:42     .text.invSqrt:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:45     .text.IMU_QuaternionEKF_F_Linearization_P_Fading:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:50     .text.IMU_QuaternionEKF_F_Linearization_P_Fading:00000000 IMU_QuaternionEKF_F_Linearization_P_Fading
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:165    .text.IMU_QuaternionEKF_F_Linearization_P_Fading:00000184 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1106   .bss.q0.8:00000000 q0.8
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1100   .bss.q1.7:00000000 q1.7
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1094   .bss.q2.6:00000000 q2.6
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1088   .bss.q3.5:00000000 q3.5
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1082   .bss.qInvNorm.4:00000000 qInvNorm.4
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1259   .bss.QEKF_INS:00000000 QEKF_INS
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:174    .text.IMU_QuaternionEKF_Observe:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:179    .text.IMU_QuaternionEKF_Observe:00000000 IMU_QuaternionEKF_Observe
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:201    .text.IMU_QuaternionEKF_Observe:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1175   .data.IMU_QuaternionEKF_P:00000000 IMU_QuaternionEKF_P
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1168   .bss.IMU_QuaternionEKF_K:00000000 IMU_QuaternionEKF_K
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1161   .bss.IMU_QuaternionEKF_H:00000000 IMU_QuaternionEKF_H
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:206    .text.IMU_QuaternionEKF_xhatUpdate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:211    .text.IMU_QuaternionEKF_xhatUpdate:00000000 IMU_QuaternionEKF_xhatUpdate
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:525    .text.IMU_QuaternionEKF_xhatUpdate:000003b0 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1154   .bss.q0.16:00000000 q0.16
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1148   .bss.q1.15:00000000 q1.15
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1142   .bss.q2.14:00000000 q2.14
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1136   .bss.q3.13:00000000 q3.13
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:536    .text.IMU_QuaternionEKF_xhatUpdate:000003d8 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:572    .text.IMU_QuaternionEKF_xhatUpdate:00000438 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:577    .text.IMU_QuaternionEKF_SetH:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:582    .text.IMU_QuaternionEKF_SetH:00000000 IMU_QuaternionEKF_SetH
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:646    .text.IMU_QuaternionEKF_SetH:000000d0 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1130   .bss.doubleq0.12:00000000 doubleq0.12
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1124   .bss.doubleq1.11:00000000 doubleq1.11
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1118   .bss.doubleq2.10:00000000 doubleq2.10
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1112   .bss.doubleq3.9:00000000 doubleq3.9
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:653    .text.IMU_QuaternionEKF_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:659    .text.IMU_QuaternionEKF_Init:00000000 IMU_QuaternionEKF_Init
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:735    .text.IMU_QuaternionEKF_Init:000000c4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1217   .rodata.IMU_QuaternionEKF_F:00000000 IMU_QuaternionEKF_F
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:745    .text.IMU_QuaternionEKF_Update:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:751    .text.IMU_QuaternionEKF_Update:00000000 IMU_QuaternionEKF_Update
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:905    .text.IMU_QuaternionEKF_Update:00000214 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1076   .bss.halfgxdt.3:00000000 halfgxdt.3
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1070   .bss.halfgydt.2:00000000 halfgydt.2
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1064   .bss.halfgzdt.1:00000000 halfgzdt.1
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1058   .bss.accelInvNorm.0:00000000 accelInvNorm.0
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:915    .text.IMU_QuaternionEKF_Update:00000238 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1048   .text.IMU_QuaternionEKF_Update:0000040c $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1055   .bss.accelInvNorm.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1061   .bss.halfgzdt.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1067   .bss.halfgydt.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1073   .bss.halfgxdt.3:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1079   .bss.qInvNorm.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1085   .bss.q3.5:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1091   .bss.q2.6:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1097   .bss.q1.7:00000000 $d
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s 			page 24
+
+
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1103   .bss.q0.8:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1109   .bss.doubleq3.9:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1115   .bss.doubleq2.10:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1121   .bss.doubleq1.11:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1127   .bss.doubleq0.12:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1133   .bss.q3.13:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1139   .bss.q2.14:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1145   .bss.q1.15:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1151   .bss.q0.16:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1158   .bss.IMU_QuaternionEKF_H:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1165   .bss.IMU_QuaternionEKF_K:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1172   .data.IMU_QuaternionEKF_P:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1214   .rodata.IMU_QuaternionEKF_F:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccpgthHZ.s:1256   .bss.QEKF_INS:00000000 $d
+
+UNDEFINED SYMBOLS
+memcpy
+arm_mat_trans_f32
+arm_mat_mult_f32
+arm_mat_add_f32
+arm_mat_inverse_f32
+acosf
+arm_mat_sub_f32
+sizeof_float
+memset
+Kalman_Filter_Init
+arm_mat_init_f32
+Kalman_Filter_Update
+atan2f
+asinf

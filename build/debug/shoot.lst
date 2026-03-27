@@ -1,0 +1,1305 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"shoot.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "application/shoot/shoot.c"
+  20              		.section	.rodata.ShootInit.str1.4,"aMS",%progbits,1
+  21              		.align	2
+  22              	.LC0:
+  23 0000 73686F6F 		.ascii	"shoot_feed\000"
+  23      745F6665 
+  23      656400
+  24 000b 00       		.align	2
+  25              	.LC1:
+  26 000c 73686F6F 		.ascii	"shoot_cmd\000"
+  26      745F636D 
+  26      6400
+  27              		.section	.text.ShootInit,"ax",%progbits
+  28              		.align	1
+  29              		.global	ShootInit
+  30              		.syntax unified
+  31              		.thumb
+  32              		.thumb_func
+  34              	ShootInit:
+  35              	.LFB271:
+   1:application/shoot/shoot.c **** #include "shoot.h"
+   2:application/shoot/shoot.c **** #include "robot_def.h"
+   3:application/shoot/shoot.c **** 
+   4:application/shoot/shoot.c **** #include "dji_motor.h"
+   5:application/shoot/shoot.c **** #include "message_center.h"
+   6:application/shoot/shoot.c **** #include "bsp_dwt.h"
+   7:application/shoot/shoot.c **** #include "general_def.h"
+   8:application/shoot/shoot.c **** 
+   9:application/shoot/shoot.c **** static Shoot_Config_s *shoot_config;
+  10:application/shoot/shoot.c **** 
+  11:application/shoot/shoot.c **** /* 对于双发射机构的机器人,将下面的数据封装成结构体即可,生成两份shoot�
+  12:application/shoot/shoot.c **** static DJIMotorInstance *friction_lf, *friction_rf, *loader; // 拨盘电机
+  13:application/shoot/shoot.c **** static DJIMotorInstance *friction_lb, *friction_rb;
+  14:application/shoot/shoot.c **** // static servo_instance *lid; 需要增加弹舱盖
+  15:application/shoot/shoot.c **** 
+  16:application/shoot/shoot.c **** static Publisher_t *shoot_pub;
+  17:application/shoot/shoot.c **** static Shoot_Ctrl_Cmd_s shoot_cmd_recv; // 来自cmd的发射控制信息
+  18:application/shoot/shoot.c **** static Subscriber_t *shoot_sub;
+  19:application/shoot/shoot.c **** static Shoot_Upload_Data_s shoot_feedback_data; // 来自cmd的发射控制信息
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 2
+
+
+  20:application/shoot/shoot.c **** 
+  21:application/shoot/shoot.c **** // dwt定时,计算冷却用
+  22:application/shoot/shoot.c **** static float hibernate_time = 0, dead_time = 0;
+  23:application/shoot/shoot.c **** // 卡弹时间
+  24:application/shoot/shoot.c **** static float lock_time = 0;
+  25:application/shoot/shoot.c **** 
+  26:application/shoot/shoot.c **** #define ONE_BULLET_DELTA_ANGLE 15.0f    // 发射一发弹丸拨盘转动的距离,由机械设计�
+  27:application/shoot/shoot.c **** #define REDUCTION_RATIO_LOADER 36.0f // 2006拨盘电机的减速比,英雄需要修改为3508的19
+  28:application/shoot/shoot.c **** #define REVERSE_TIME 400
+  29:application/shoot/shoot.c **** 
+  30:application/shoot/shoot.c **** void ShootInit() 
+  31:application/shoot/shoot.c **** {
+  36              		.loc 1 31 1 view -0
+  37              		.cfi_startproc
+  38              		@ args = 0, pretend = 0, frame = 0
+  39              		@ frame_needed = 0, uses_anonymous_args = 0
+  40 0000 10B5     		push	{r4, lr}
+  41              		.cfi_def_cfa_offset 8
+  42              		.cfi_offset 4, -8
+  43              		.cfi_offset 14, -4
+  32:application/shoot/shoot.c ****     shoot_config = ShootConfigFeed();
+  44              		.loc 1 32 5 view .LVU1
+  45              		.loc 1 32 20 is_stmt 0 view .LVU2
+  46 0002 FFF7FEFF 		bl	ShootConfigFeed
+  47              	.LVL0:
+  48              		.loc 1 32 18 discriminator 1 view .LVU3
+  49 0006 284C     		ldr	r4, .L5
+  50 0008 2060     		str	r0, [r4]
+  33:application/shoot/shoot.c **** 
+  34:application/shoot/shoot.c ****     // 左前摩擦轮
+  35:application/shoot/shoot.c ****     shoot_config->friction_motor_config.can_init_config.tx_id = shoot_config->friction_motor_id[MOT
+  51              		.loc 1 35 5 is_stmt 1 view .LVU4
+  52              		.loc 1 35 96 is_stmt 0 view .LVU5
+  53 000a 90F87C31 		ldrb	r3, [r0, #380]	@ zero_extendqisi2
+  54              		.loc 1 35 63 view .LVU6
+  55 000e C0F8A830 		str	r3, [r0, #168]
+  36:application/shoot/shoot.c ****     shoot_config->friction_motor_config.controller_setting_init_config.motor_reverse_flag = shoot_c
+  56              		.loc 1 36 5 is_stmt 1 view .LVU7
+  57              		.loc 1 36 134 is_stmt 0 view .LVU8
+  58 0012 90F88031 		ldrb	r3, [r0, #384]	@ zero_extendqisi2
+  59              		.loc 1 36 91 view .LVU9
+  60 0016 80F89A30 		strb	r3, [r0, #154]
+  37:application/shoot/shoot.c ****     friction_lf = DJIMotorInit(&shoot_config->friction_motor_config);
+  61              		.loc 1 37 5 is_stmt 1 view .LVU10
+  62              		.loc 1 37 19 is_stmt 0 view .LVU11
+  63 001a 0430     		adds	r0, r0, #4
+  64 001c FFF7FEFF 		bl	DJIMotorInit
+  65              	.LVL1:
+  66              		.loc 1 37 17 discriminator 1 view .LVU12
+  67 0020 224B     		ldr	r3, .L5+4
+  68 0022 1860     		str	r0, [r3]
+  38:application/shoot/shoot.c **** 
+  39:application/shoot/shoot.c ****     // 右前摩擦轮
+  40:application/shoot/shoot.c ****     shoot_config->friction_motor_config.can_init_config.tx_id = shoot_config->friction_motor_id[MOT
+  69              		.loc 1 40 5 is_stmt 1 view .LVU13
+  70              		.loc 1 40 77 is_stmt 0 view .LVU14
+  71 0024 2068     		ldr	r0, [r4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 3
+
+
+  72              		.loc 1 40 96 view .LVU15
+  73 0026 90F87D31 		ldrb	r3, [r0, #381]	@ zero_extendqisi2
+  74              		.loc 1 40 63 view .LVU16
+  75 002a C0F8A830 		str	r3, [r0, #168]
+  41:application/shoot/shoot.c ****     shoot_config->friction_motor_config.controller_setting_init_config.motor_reverse_flag = shoot_c
+  76              		.loc 1 41 5 is_stmt 1 view .LVU17
+  77              		.loc 1 41 134 is_stmt 0 view .LVU18
+  78 002e 90F88131 		ldrb	r3, [r0, #385]	@ zero_extendqisi2
+  79              		.loc 1 41 91 view .LVU19
+  80 0032 80F89A30 		strb	r3, [r0, #154]
+  42:application/shoot/shoot.c ****     friction_rf = DJIMotorInit(&shoot_config->friction_motor_config);
+  81              		.loc 1 42 5 is_stmt 1 view .LVU20
+  82              		.loc 1 42 19 is_stmt 0 view .LVU21
+  83 0036 0430     		adds	r0, r0, #4
+  84 0038 FFF7FEFF 		bl	DJIMotorInit
+  85              	.LVL2:
+  86              		.loc 1 42 17 discriminator 1 view .LVU22
+  87 003c 1C4B     		ldr	r3, .L5+8
+  88 003e 1860     		str	r0, [r3]
+  43:application/shoot/shoot.c **** 
+  44:application/shoot/shoot.c ****     switch (shoot_config->shoot_type)
+  89              		.loc 1 44 5 is_stmt 1 view .LVU23
+  90              		.loc 1 44 25 is_stmt 0 view .LVU24
+  91 0040 2068     		ldr	r0, [r4]
+  92 0042 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+  93              		.loc 1 44 5 view .LVU25
+  94 0044 022B     		cmp	r3, #2
+  95 0046 13D0     		beq	.L4
+  96              	.L2:
+  45:application/shoot/shoot.c ****     {
+  46:application/shoot/shoot.c ****     case THREE_SHOOT:
+  47:application/shoot/shoot.c ****         break;
+  48:application/shoot/shoot.c ****     case FOUR_SHOOT:
+  49:application/shoot/shoot.c ****         // 左后摩擦轮
+  50:application/shoot/shoot.c ****         shoot_config->friction_motor_config.can_init_config.tx_id = shoot_config->friction_motor_id
+  51:application/shoot/shoot.c ****         shoot_config->friction_motor_config.controller_setting_init_config.motor_reverse_flag = sho
+  52:application/shoot/shoot.c ****         friction_lb = DJIMotorInit(&shoot_config->friction_motor_config);
+  53:application/shoot/shoot.c ****         // 右后摩擦轮
+  54:application/shoot/shoot.c ****         shoot_config->friction_motor_config.can_init_config.tx_id = shoot_config->friction_motor_id
+  55:application/shoot/shoot.c ****         shoot_config->friction_motor_config.controller_setting_init_config.motor_reverse_flag = sho
+  56:application/shoot/shoot.c ****         friction_rb = DJIMotorInit(&shoot_config->friction_motor_config);        
+  57:application/shoot/shoot.c ****         break;
+  58:application/shoot/shoot.c ****     default:
+  59:application/shoot/shoot.c ****         break;
+  60:application/shoot/shoot.c ****     }
+  61:application/shoot/shoot.c **** 
+  62:application/shoot/shoot.c ****     // 拨盘电机
+  63:application/shoot/shoot.c ****     loader = DJIMotorInit(&shoot_config->loader_motor_config);
+  97              		.loc 1 63 5 is_stmt 1 view .LVU26
+  98              		.loc 1 63 40 is_stmt 0 view .LVU27
+  99 0048 174B     		ldr	r3, .L5
+ 100 004a 1868     		ldr	r0, [r3]
+ 101              		.loc 1 63 14 view .LVU28
+ 102 004c C030     		adds	r0, r0, #192
+ 103 004e FFF7FEFF 		bl	DJIMotorInit
+ 104              	.LVL3:
+ 105              		.loc 1 63 12 discriminator 1 view .LVU29
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 4
+
+
+ 106 0052 184B     		ldr	r3, .L5+12
+ 107 0054 1860     		str	r0, [r3]
+  64:application/shoot/shoot.c **** 
+  65:application/shoot/shoot.c ****     shoot_pub = PubRegister("shoot_feed", sizeof(Shoot_Upload_Data_s));
+ 108              		.loc 1 65 5 is_stmt 1 view .LVU30
+ 109              		.loc 1 65 17 is_stmt 0 view .LVU31
+ 110 0056 0021     		movs	r1, #0
+ 111 0058 1748     		ldr	r0, .L5+16
+ 112 005a FFF7FEFF 		bl	PubRegister
+ 113              	.LVL4:
+ 114              		.loc 1 65 15 discriminator 1 view .LVU32
+ 115 005e 174B     		ldr	r3, .L5+20
+ 116 0060 1860     		str	r0, [r3]
+  66:application/shoot/shoot.c ****     shoot_sub = SubRegister("shoot_cmd", sizeof(Shoot_Ctrl_Cmd_s));
+ 117              		.loc 1 66 5 is_stmt 1 view .LVU33
+ 118              		.loc 1 66 17 is_stmt 0 view .LVU34
+ 119 0062 0A21     		movs	r1, #10
+ 120 0064 1648     		ldr	r0, .L5+24
+ 121 0066 FFF7FEFF 		bl	SubRegister
+ 122              	.LVL5:
+ 123              		.loc 1 66 15 discriminator 1 view .LVU35
+ 124 006a 164B     		ldr	r3, .L5+28
+ 125 006c 1860     		str	r0, [r3]
+  67:application/shoot/shoot.c **** }
+ 126              		.loc 1 67 1 view .LVU36
+ 127 006e 10BD     		pop	{r4, pc}
+ 128              	.L4:
+  50:application/shoot/shoot.c ****         shoot_config->friction_motor_config.controller_setting_init_config.motor_reverse_flag = sho
+ 129              		.loc 1 50 9 is_stmt 1 view .LVU37
+  50:application/shoot/shoot.c ****         shoot_config->friction_motor_config.controller_setting_init_config.motor_reverse_flag = sho
+ 130              		.loc 1 50 100 is_stmt 0 view .LVU38
+ 131 0070 90F87E31 		ldrb	r3, [r0, #382]	@ zero_extendqisi2
+  50:application/shoot/shoot.c ****         shoot_config->friction_motor_config.controller_setting_init_config.motor_reverse_flag = sho
+ 132              		.loc 1 50 67 view .LVU39
+ 133 0074 C0F8A830 		str	r3, [r0, #168]
+  51:application/shoot/shoot.c ****         friction_lb = DJIMotorInit(&shoot_config->friction_motor_config);
+ 134              		.loc 1 51 9 is_stmt 1 view .LVU40
+  51:application/shoot/shoot.c ****         friction_lb = DJIMotorInit(&shoot_config->friction_motor_config);
+ 135              		.loc 1 51 138 is_stmt 0 view .LVU41
+ 136 0078 90F88231 		ldrb	r3, [r0, #386]	@ zero_extendqisi2
+  51:application/shoot/shoot.c ****         friction_lb = DJIMotorInit(&shoot_config->friction_motor_config);
+ 137              		.loc 1 51 95 view .LVU42
+ 138 007c 80F89A30 		strb	r3, [r0, #154]
+  52:application/shoot/shoot.c ****         // 右后摩擦轮
+ 139              		.loc 1 52 9 is_stmt 1 view .LVU43
+  52:application/shoot/shoot.c ****         // 右后摩擦轮
+ 140              		.loc 1 52 23 is_stmt 0 view .LVU44
+ 141 0080 0430     		adds	r0, r0, #4
+ 142 0082 FFF7FEFF 		bl	DJIMotorInit
+ 143              	.LVL6:
+  52:application/shoot/shoot.c ****         // 右后摩擦轮
+ 144              		.loc 1 52 21 discriminator 1 view .LVU45
+ 145 0086 104B     		ldr	r3, .L5+32
+ 146 0088 1860     		str	r0, [r3]
+  54:application/shoot/shoot.c ****         shoot_config->friction_motor_config.controller_setting_init_config.motor_reverse_flag = sho
+ 147              		.loc 1 54 9 is_stmt 1 view .LVU46
+  54:application/shoot/shoot.c ****         shoot_config->friction_motor_config.controller_setting_init_config.motor_reverse_flag = sho
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 5
+
+
+ 148              		.loc 1 54 81 is_stmt 0 view .LVU47
+ 149 008a 2068     		ldr	r0, [r4]
+  54:application/shoot/shoot.c ****         shoot_config->friction_motor_config.controller_setting_init_config.motor_reverse_flag = sho
+ 150              		.loc 1 54 100 view .LVU48
+ 151 008c 90F87F31 		ldrb	r3, [r0, #383]	@ zero_extendqisi2
+  54:application/shoot/shoot.c ****         shoot_config->friction_motor_config.controller_setting_init_config.motor_reverse_flag = sho
+ 152              		.loc 1 54 67 view .LVU49
+ 153 0090 C0F8A830 		str	r3, [r0, #168]
+  55:application/shoot/shoot.c ****         friction_rb = DJIMotorInit(&shoot_config->friction_motor_config);        
+ 154              		.loc 1 55 9 is_stmt 1 view .LVU50
+  55:application/shoot/shoot.c ****         friction_rb = DJIMotorInit(&shoot_config->friction_motor_config);        
+ 155              		.loc 1 55 138 is_stmt 0 view .LVU51
+ 156 0094 90F88331 		ldrb	r3, [r0, #387]	@ zero_extendqisi2
+  55:application/shoot/shoot.c ****         friction_rb = DJIMotorInit(&shoot_config->friction_motor_config);        
+ 157              		.loc 1 55 95 view .LVU52
+ 158 0098 80F89A30 		strb	r3, [r0, #154]
+  56:application/shoot/shoot.c ****         break;
+ 159              		.loc 1 56 9 is_stmt 1 view .LVU53
+  56:application/shoot/shoot.c ****         break;
+ 160              		.loc 1 56 23 is_stmt 0 view .LVU54
+ 161 009c 0430     		adds	r0, r0, #4
+ 162 009e FFF7FEFF 		bl	DJIMotorInit
+ 163              	.LVL7:
+  56:application/shoot/shoot.c ****         break;
+ 164              		.loc 1 56 21 discriminator 1 view .LVU55
+ 165 00a2 0A4B     		ldr	r3, .L5+36
+ 166 00a4 1860     		str	r0, [r3]
+  57:application/shoot/shoot.c ****     default:
+ 167              		.loc 1 57 9 is_stmt 1 view .LVU56
+ 168 00a6 CFE7     		b	.L2
+ 169              	.L6:
+ 170              		.align	2
+ 171              	.L5:
+ 172 00a8 00000000 		.word	shoot_config
+ 173 00ac 00000000 		.word	friction_lf
+ 174 00b0 00000000 		.word	friction_rf
+ 175 00b4 00000000 		.word	loader
+ 176 00b8 00000000 		.word	.LC0
+ 177 00bc 00000000 		.word	shoot_pub
+ 178 00c0 0C000000 		.word	.LC1
+ 179 00c4 00000000 		.word	shoot_sub
+ 180 00c8 00000000 		.word	friction_lb
+ 181 00cc 00000000 		.word	friction_rb
+ 182              		.cfi_endproc
+ 183              	.LFE271:
+ 185              		.section	.text.ShootTask,"ax",%progbits
+ 186              		.align	1
+ 187              		.global	ShootTask
+ 188              		.syntax unified
+ 189              		.thumb
+ 190              		.thumb_func
+ 192              	ShootTask:
+ 193              	.LFB272:
+  68:application/shoot/shoot.c **** 
+  69:application/shoot/shoot.c **** /* 机器人发射机构控制核心任务 */
+  70:application/shoot/shoot.c **** void ShootTask()
+  71:application/shoot/shoot.c **** {
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 6
+
+
+ 194              		.loc 1 71 1 view -0
+ 195              		.cfi_startproc
+ 196              		@ args = 0, pretend = 0, frame = 0
+ 197              		@ frame_needed = 0, uses_anonymous_args = 0
+ 198 0000 10B5     		push	{r4, lr}
+ 199              		.cfi_def_cfa_offset 8
+ 200              		.cfi_offset 4, -8
+ 201              		.cfi_offset 14, -4
+ 202 0002 2DED028B 		vpush.64	{d8}
+ 203              		.cfi_def_cfa_offset 16
+ 204              		.cfi_offset 80, -16
+ 205              		.cfi_offset 81, -12
+  72:application/shoot/shoot.c ****     // 从cmd获取控制数据
+  73:application/shoot/shoot.c ****     SubGetMessage(shoot_sub, &shoot_cmd_recv);
+ 206              		.loc 1 73 5 view .LVU58
+ 207 0006 AA4C     		ldr	r4, .L40+8
+ 208 0008 2146     		mov	r1, r4
+ 209 000a AA4B     		ldr	r3, .L40+12
+ 210 000c 1868     		ldr	r0, [r3]
+ 211 000e FFF7FEFF 		bl	SubGetMessage
+ 212              	.LVL8:
+  74:application/shoot/shoot.c **** 
+  75:application/shoot/shoot.c ****     // 对shoot mode等于SHOOT_STOP的情况特殊处理,直接停止所有电机(紧急停止)
+  76:application/shoot/shoot.c ****     if (shoot_cmd_recv.shoot_mode == SHOOT_OFF || shoot_cmd_recv.shoot_mode == SHOOT_ZERO_FORCE)
+ 213              		.loc 1 76 5 view .LVU59
+ 214              		.loc 1 76 23 is_stmt 0 view .LVU60
+ 215 0012 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 216              		.loc 1 76 8 view .LVU61
+ 217 0014 012B     		cmp	r3, #1
+ 218 0016 77D9     		bls	.L35
+  77:application/shoot/shoot.c ****     {
+  78:application/shoot/shoot.c ****         DJIMotorStop(friction_lf);
+  79:application/shoot/shoot.c ****         DJIMotorStop(friction_rf);
+  80:application/shoot/shoot.c ****         switch (shoot_config->shoot_type)
+  81:application/shoot/shoot.c ****         {
+  82:application/shoot/shoot.c ****         case THREE_SHOOT:
+  83:application/shoot/shoot.c ****             break;
+  84:application/shoot/shoot.c ****         case FOUR_SHOOT:
+  85:application/shoot/shoot.c ****             // 左后摩擦轮
+  86:application/shoot/shoot.c ****             DJIMotorStop(friction_lb);
+  87:application/shoot/shoot.c ****             // 右后摩擦轮
+  88:application/shoot/shoot.c ****             DJIMotorStop(friction_rb);      
+  89:application/shoot/shoot.c ****             break;
+  90:application/shoot/shoot.c ****         default:
+  91:application/shoot/shoot.c ****             break;
+  92:application/shoot/shoot.c ****         }
+  93:application/shoot/shoot.c **** 
+  94:application/shoot/shoot.c ****         DJIMotorStop(loader);
+  95:application/shoot/shoot.c ****     }
+  96:application/shoot/shoot.c ****     else // 恢复运行
+  97:application/shoot/shoot.c ****     {
+  98:application/shoot/shoot.c ****         DJIMotorEnable(friction_lf);
+ 219              		.loc 1 98 9 is_stmt 1 view .LVU62
+ 220 0018 A74B     		ldr	r3, .L40+16
+ 221 001a 1868     		ldr	r0, [r3]
+ 222 001c FFF7FEFF 		bl	DJIMotorEnable
+ 223              	.LVL9:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 7
+
+
+  99:application/shoot/shoot.c ****         DJIMotorEnable(friction_rf);
+ 224              		.loc 1 99 9 view .LVU63
+ 225 0020 A64B     		ldr	r3, .L40+20
+ 226 0022 1868     		ldr	r0, [r3]
+ 227 0024 FFF7FEFF 		bl	DJIMotorEnable
+ 228              	.LVL10:
+ 100:application/shoot/shoot.c ****         switch (shoot_config->shoot_type)
+ 229              		.loc 1 100 9 view .LVU64
+ 230              		.loc 1 100 29 is_stmt 0 view .LVU65
+ 231 0028 A54B     		ldr	r3, .L40+24
+ 232 002a 1B68     		ldr	r3, [r3]
+ 233 002c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 234              		.loc 1 100 9 view .LVU66
+ 235 002e 022B     		cmp	r3, #2
+ 236 0030 00F08580 		beq	.L36
+ 237              	.L11:
+ 101:application/shoot/shoot.c ****         {
+ 102:application/shoot/shoot.c ****         case THREE_SHOOT:
+ 103:application/shoot/shoot.c ****             break;
+ 104:application/shoot/shoot.c ****         case FOUR_SHOOT:
+ 105:application/shoot/shoot.c ****             // 左后摩擦轮
+ 106:application/shoot/shoot.c ****             DJIMotorEnable(friction_lb);
+ 107:application/shoot/shoot.c ****             // 右后摩擦轮
+ 108:application/shoot/shoot.c ****             DJIMotorEnable(friction_rb);      
+ 109:application/shoot/shoot.c ****             break;
+ 110:application/shoot/shoot.c ****         default:
+ 111:application/shoot/shoot.c ****             break;
+ 112:application/shoot/shoot.c ****         }
+ 113:application/shoot/shoot.c **** 
+ 114:application/shoot/shoot.c ****         DJIMotorEnable(loader);
+ 238              		.loc 1 114 9 is_stmt 1 view .LVU67
+ 239 0034 A34B     		ldr	r3, .L40+28
+ 240 0036 1868     		ldr	r0, [r3]
+ 241 0038 FFF7FEFF 		bl	DJIMotorEnable
+ 242              	.LVL11:
+ 243              	.L10:
+ 115:application/shoot/shoot.c ****     }
+ 116:application/shoot/shoot.c **** 
+ 117:application/shoot/shoot.c ****     // 如果速度误差较大,进行回退判断
+ 118:application/shoot/shoot.c ****     if (fabs(loader->measure.real_current) > 5000)
+ 244              		.loc 1 118 5 view .LVU68
+ 245              		.loc 1 118 20 is_stmt 0 view .LVU69
+ 246 003c A14B     		ldr	r3, .L40+28
+ 247 003e 1B68     		ldr	r3, [r3]
+ 248              		.loc 1 118 9 view .LVU70
+ 249 0040 B3F90C00 		ldrsh	r0, [r3, #12]
+ 250 0044 FFF7FEFF 		bl	__aeabi_i2d
+ 251              	.LVL12:
+ 252 0048 21F00041 		bic	r1, r1, #-2147483648
+ 253              		.loc 1 118 8 view .LVU71
+ 254 004c 96A3     		adr	r3, .L40
+ 255 004e D3E90023 		ldrd	r2, [r3]
+ 256 0052 FFF7FEFF 		bl	__aeabi_dcmpgt
+ 257              	.LVL13:
+ 258 0056 40B1     		cbz	r0, .L12
+ 119:application/shoot/shoot.c ****         lock_time++;
+ 259              		.loc 1 119 9 is_stmt 1 view .LVU72
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 8
+
+
+ 260              		.loc 1 119 18 is_stmt 0 view .LVU73
+ 261 0058 9B4B     		ldr	r3, .L40+32
+ 262 005a D3ED007A 		vldr.32	s15, [r3]
+ 263 005e B7EE007A 		vmov.f32	s14, #1.0e+0
+ 264 0062 77EE877A 		vadd.f32	s15, s15, s14
+ 265 0066 C3ED007A 		vstr.32	s15, [r3]
+ 266              	.L12:
+ 120:application/shoot/shoot.c **** 
+ 121:application/shoot/shoot.c ****     // 卡弹时间过长进行回退
+ 122:application/shoot/shoot.c ****     if (lock_time > REVERSE_TIME)
+ 267              		.loc 1 122 5 is_stmt 1 view .LVU74
+ 268              		.loc 1 122 19 is_stmt 0 view .LVU75
+ 269 006a 974B     		ldr	r3, .L40+32
+ 270 006c D3ED007A 		vldr.32	s15, [r3]
+ 271              		.loc 1 122 8 view .LVU76
+ 272 0070 9FED967A 		vldr.32	s14, .L40+36
+ 273 0074 F4EEC77A 		vcmpe.f32	s15, s14
+ 274 0078 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 275 007c 05DD     		ble	.L14
+ 123:application/shoot/shoot.c ****     {
+ 124:application/shoot/shoot.c ****         shoot_cmd_recv.load_mode = LOAD_REVERSE;
+ 276              		.loc 1 124 9 is_stmt 1 view .LVU77
+ 277              		.loc 1 124 34 is_stmt 0 view .LVU78
+ 278 007e 8C4B     		ldr	r3, .L40+8
+ 279 0080 0122     		movs	r2, #1
+ 280 0082 5A70     		strb	r2, [r3, #1]
+ 125:application/shoot/shoot.c ****         dead_time = 0;
+ 281              		.loc 1 125 9 is_stmt 1 view .LVU79
+ 282              		.loc 1 125 19 is_stmt 0 view .LVU80
+ 283 0084 924B     		ldr	r3, .L40+40
+ 284 0086 0022     		movs	r2, #0
+ 285 0088 1A60     		str	r2, [r3]	@ float
+ 286              	.L14:
+ 126:application/shoot/shoot.c ****     }
+ 127:application/shoot/shoot.c ****         
+ 128:application/shoot/shoot.c ****     // 回退时间过长停止回退(完全卡死情况)
+ 129:application/shoot/shoot.c ****     if (lock_time > REVERSE_TIME + 5)
+ 287              		.loc 1 129 5 is_stmt 1 view .LVU81
+ 288              		.loc 1 129 8 is_stmt 0 view .LVU82
+ 289 008a 9FED927A 		vldr.32	s14, .L40+44
+ 290 008e F4EEC77A 		vcmpe.f32	s15, s14
+ 291 0092 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 292 0096 02DD     		ble	.L16
+ 130:application/shoot/shoot.c ****         shoot_cmd_recv.load_mode = LOAD_STOP;
+ 293              		.loc 1 130 9 is_stmt 1 view .LVU83
+ 294              		.loc 1 130 34 is_stmt 0 view .LVU84
+ 295 0098 854B     		ldr	r3, .L40+8
+ 296 009a 0022     		movs	r2, #0
+ 297 009c 5A70     		strb	r2, [r3, #1]
+ 298              	.L16:
+ 131:application/shoot/shoot.c **** 
+ 132:application/shoot/shoot.c ****     // 如果上一次触发单发或3发指令的时间加上不应期仍然大于当前时间(尚
+ 133:application/shoot/shoot.c ****     // 单发模式主要提供给能量机关激活使用(以及英雄的射击大部分处于单�
+ 134:application/shoot/shoot.c ****     if (hibernate_time + dead_time > DWT_GetTimeline_ms())
+ 299              		.loc 1 134 5 is_stmt 1 view .LVU85
+ 300              		.loc 1 134 24 is_stmt 0 view .LVU86
+ 301 009e 8E4B     		ldr	r3, .L40+48
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 9
+
+
+ 302 00a0 93ED008A 		vldr.32	s16, [r3]
+ 303 00a4 8A4B     		ldr	r3, .L40+40
+ 304 00a6 D3ED007A 		vldr.32	s15, [r3]
+ 305 00aa 38EE278A 		vadd.f32	s16, s16, s15
+ 306              		.loc 1 134 38 view .LVU87
+ 307 00ae FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 308              	.LVL14:
+ 309              		.loc 1 134 8 discriminator 1 view .LVU88
+ 310 00b2 B4EEC08A 		vcmpe.f32	s16, s0
+ 311 00b6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 312 00ba 00F38181 		bgt	.L7
+ 135:application/shoot/shoot.c ****         return;
+ 136:application/shoot/shoot.c **** 
+ 137:application/shoot/shoot.c ****     // 若不在休眠状态,根据robotCMD传来的控制模式进行拨盘电机参考值设定�
+ 138:application/shoot/shoot.c ****     switch (shoot_cmd_recv.load_mode)
+ 313              		.loc 1 138 5 is_stmt 1 view .LVU89
+ 314              		.loc 1 138 27 is_stmt 0 view .LVU90
+ 315 00be 7C4B     		ldr	r3, .L40+8
+ 316 00c0 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 317              		.loc 1 138 5 view .LVU91
+ 318 00c2 022B     		cmp	r3, #2
+ 319 00c4 00F0A080 		beq	.L19
+ 320 00c8 42D9     		bls	.L37
+ 321 00ca 032B     		cmp	r3, #3
+ 322 00cc 00F0B380 		beq	.L24
+ 323 00d0 042B     		cmp	r3, #4
+ 324 00d2 69D1     		bne	.L23
+ 139:application/shoot/shoot.c ****     {
+ 140:application/shoot/shoot.c ****     // 停止拨盘
+ 141:application/shoot/shoot.c ****     case LOAD_STOP:
+ 142:application/shoot/shoot.c ****         DJIMotorOuterLoop(loader, SPEED_LOOP); // 切换到速度环
+ 143:application/shoot/shoot.c ****         DJIMotorSetRef(loader, 0);             // 同时设定参考值为0,这样停止的速度�
+ 144:application/shoot/shoot.c ****         lock_time = 0;
+ 145:application/shoot/shoot.c ****         break;
+ 146:application/shoot/shoot.c ****     // 单发模式,根据鼠标按下的时间,触发一次之后需要进入不响应输入的状
+ 147:application/shoot/shoot.c ****     case LOAD_1_BULLET:                                                                     // 激�
+ 148:application/shoot/shoot.c ****         // 切换到角度环
+ 149:application/shoot/shoot.c ****         DJIMotorOuterLoop(loader, ANGLE_LOOP);                                              
+ 150:application/shoot/shoot.c ****         // 控制量增加一发弹丸的角度
+ 151:application/shoot/shoot.c ****         DJIMotorSetRef(loader, loader->measure.total_angle  + ONE_BULLET_DELTA_ANGLE * REDUCTION_RA
+ 152:application/shoot/shoot.c ****         hibernate_time = DWT_GetTimeline_ms();                                              // 记�
+ 153:application/shoot/shoot.c ****         dead_time = 300;                                                                    // 完�
+ 154:application/shoot/shoot.c ****         break;
+ 155:application/shoot/shoot.c ****     // 三连发
+ 156:application/shoot/shoot.c ****     case LOAD_3_BULLET:
+ 157:application/shoot/shoot.c ****         DJIMotorOuterLoop(loader, ANGLE_LOOP);                         
+ 158:application/shoot/shoot.c ****         DJIMotorSetRef(loader, loader->measure.total_angle + 5.0f * ONE_BULLET_DELTA_ANGLE * REDUCT
+ 159:application/shoot/shoot.c ****         hibernate_time = DWT_GetTimeline_ms();                                                 // �
+ 160:application/shoot/shoot.c ****         dead_time = 1200;                                                                       // 
+ 161:application/shoot/shoot.c ****         break;
+ 162:application/shoot/shoot.c ****     // 连发模式,对速度闭环,射频后续修改为可变,目前固定为1Hz
+ 163:application/shoot/shoot.c ****     case LOAD_BURSTFIRE:
+ 164:application/shoot/shoot.c ****         DJIMotorOuterLoop(loader, SPEED_LOOP);
+ 325              		.loc 1 164 9 is_stmt 1 view .LVU92
+ 326 00d4 7B4C     		ldr	r4, .L40+28
+ 327 00d6 0221     		movs	r1, #2
+ 328 00d8 2068     		ldr	r0, [r4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 10
+
+
+ 329 00da FFF7FEFF 		bl	DJIMotorOuterLoop
+ 330              	.LVL15:
+ 165:application/shoot/shoot.c ****         DJIMotorSetRef(loader, shoot_cmd_recv.shoot_rate * 360 * REDUCTION_RATIO_LOADER / 8);
+ 331              		.loc 1 165 9 view .LVU93
+ 332              		.loc 1 165 46 is_stmt 0 view .LVU94
+ 333 00de 744B     		ldr	r3, .L40+8
+ 334 00e0 D3F80630 		ldr	r3, [r3, #6]	@ unaligned
+ 335 00e4 07EE903A 		vmov	s15, r3	@ int
+ 336              		.loc 1 165 58 view .LVU95
+ 337 00e8 9FED7C7A 		vldr.32	s14, .L40+52
+ 338 00ec 67EE877A 		vmul.f32	s15, s15, s14
+ 339              		.loc 1 165 64 view .LVU96
+ 340 00f0 9FED7B7A 		vldr.32	s14, .L40+56
+ 341 00f4 67EE877A 		vmul.f32	s15, s15, s14
+ 342              		.loc 1 165 9 view .LVU97
+ 343 00f8 B4EE000A 		vmov.f32	s0, #1.25e-1
+ 344 00fc 27EE800A 		vmul.f32	s0, s15, s0
+ 345 0100 2068     		ldr	r0, [r4]
+ 346 0102 FFF7FEFF 		bl	DJIMotorSetRef
+ 347              	.LVL16:
+ 166:application/shoot/shoot.c ****         // x颗/秒换算成速度: 已知一圈的载弹量,由此计算出1s需要转的角度,�
+ 167:application/shoot/shoot.c ****         break;
+ 348              		.loc 1 167 9 is_stmt 1 view .LVU98
+ 349 0106 4FE0     		b	.L23
+ 350              	.L35:
+  78:application/shoot/shoot.c ****         DJIMotorStop(friction_rf);
+ 351              		.loc 1 78 9 view .LVU99
+ 352 0108 6B4B     		ldr	r3, .L40+16
+ 353 010a 1868     		ldr	r0, [r3]
+ 354 010c FFF7FEFF 		bl	DJIMotorStop
+ 355              	.LVL17:
+  79:application/shoot/shoot.c ****         switch (shoot_config->shoot_type)
+ 356              		.loc 1 79 9 view .LVU100
+ 357 0110 6A4B     		ldr	r3, .L40+20
+ 358 0112 1868     		ldr	r0, [r3]
+ 359 0114 FFF7FEFF 		bl	DJIMotorStop
+ 360              	.LVL18:
+  80:application/shoot/shoot.c ****         {
+ 361              		.loc 1 80 9 view .LVU101
+  80:application/shoot/shoot.c ****         {
+ 362              		.loc 1 80 29 is_stmt 0 view .LVU102
+ 363 0118 694B     		ldr	r3, .L40+24
+ 364 011a 1B68     		ldr	r3, [r3]
+ 365 011c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  80:application/shoot/shoot.c ****         {
+ 366              		.loc 1 80 9 view .LVU103
+ 367 011e 022B     		cmp	r3, #2
+ 368 0120 04D0     		beq	.L38
+ 369              	.L9:
+  94:application/shoot/shoot.c ****     }
+ 370              		.loc 1 94 9 is_stmt 1 view .LVU104
+ 371 0122 684B     		ldr	r3, .L40+28
+ 372 0124 1868     		ldr	r0, [r3]
+ 373 0126 FFF7FEFF 		bl	DJIMotorStop
+ 374              	.LVL19:
+ 375 012a 87E7     		b	.L10
+ 376              	.L38:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 11
+
+
+  86:application/shoot/shoot.c ****             // 右后摩擦轮
+ 377              		.loc 1 86 13 view .LVU105
+ 378 012c 6D4B     		ldr	r3, .L40+60
+ 379 012e 1868     		ldr	r0, [r3]
+ 380 0130 FFF7FEFF 		bl	DJIMotorStop
+ 381              	.LVL20:
+  88:application/shoot/shoot.c ****             break;
+ 382              		.loc 1 88 13 view .LVU106
+ 383 0134 6C4B     		ldr	r3, .L40+64
+ 384 0136 1868     		ldr	r0, [r3]
+ 385 0138 FFF7FEFF 		bl	DJIMotorStop
+ 386              	.LVL21:
+  89:application/shoot/shoot.c ****         default:
+ 387              		.loc 1 89 13 view .LVU107
+ 388 013c F1E7     		b	.L9
+ 389              	.L36:
+ 106:application/shoot/shoot.c ****             // 右后摩擦轮
+ 390              		.loc 1 106 13 view .LVU108
+ 391 013e 694B     		ldr	r3, .L40+60
+ 392 0140 1868     		ldr	r0, [r3]
+ 393 0142 FFF7FEFF 		bl	DJIMotorEnable
+ 394              	.LVL22:
+ 108:application/shoot/shoot.c ****             break;
+ 395              		.loc 1 108 13 view .LVU109
+ 396 0146 684B     		ldr	r3, .L40+64
+ 397 0148 1868     		ldr	r0, [r3]
+ 398 014a FFF7FEFF 		bl	DJIMotorEnable
+ 399              	.LVL23:
+ 109:application/shoot/shoot.c ****         default:
+ 400              		.loc 1 109 13 view .LVU110
+ 401 014e 71E7     		b	.L11
+ 402              	.L37:
+ 138:application/shoot/shoot.c ****     {
+ 403              		.loc 1 138 5 is_stmt 0 view .LVU111
+ 404 0150 DBB1     		cbz	r3, .L21
+ 405 0152 012B     		cmp	r3, #1
+ 406 0154 28D1     		bne	.L23
+ 168:application/shoot/shoot.c ****     // 拨盘反转,对速度闭环
+ 169:application/shoot/shoot.c ****     case LOAD_REVERSE:
+ 170:application/shoot/shoot.c ****         DJIMotorOuterLoop(loader, SPEED_LOOP);
+ 407              		.loc 1 170 9 is_stmt 1 view .LVU112
+ 408 0156 5B4C     		ldr	r4, .L40+28
+ 409 0158 0221     		movs	r1, #2
+ 410 015a 2068     		ldr	r0, [r4]
+ 411 015c FFF7FEFF 		bl	DJIMotorOuterLoop
+ 412              	.LVL24:
+ 171:application/shoot/shoot.c ****         DJIMotorSetRef(loader, -shoot_cmd_recv.shoot_rate * 360 * 12 / 8);
+ 413              		.loc 1 171 9 view .LVU113
+ 414              		.loc 1 171 47 is_stmt 0 view .LVU114
+ 415 0160 534B     		ldr	r3, .L40+8
+ 416 0162 D3F80630 		ldr	r3, [r3, #6]	@ unaligned
+ 417 0166 07EE903A 		vmov	s15, r3	@ int
+ 418              		.loc 1 171 59 view .LVU115
+ 419 016a 9FED5C7A 		vldr.32	s14, .L40+52
+ 420 016e 67EEC77A 		vnmul.f32	s15, s15, s14
+ 421              		.loc 1 171 65 view .LVU116
+ 422 0172 B2EE087A 		vmov.f32	s14, #1.2e+1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 12
+
+
+ 423 0176 67EE877A 		vmul.f32	s15, s15, s14
+ 424              		.loc 1 171 9 view .LVU117
+ 425 017a B4EE000A 		vmov.f32	s0, #1.25e-1
+ 426 017e 27EE800A 		vmul.f32	s0, s15, s0
+ 427 0182 2068     		ldr	r0, [r4]
+ 428 0184 FFF7FEFF 		bl	DJIMotorSetRef
+ 429              	.LVL25:
+ 172:application/shoot/shoot.c ****         break;
+ 430              		.loc 1 172 9 is_stmt 1 view .LVU118
+ 431 0188 0EE0     		b	.L23
+ 432              	.L21:
+ 142:application/shoot/shoot.c ****         DJIMotorSetRef(loader, 0);             // 同时设定参考值为0,这样停止的速度�
+ 433              		.loc 1 142 9 view .LVU119
+ 434 018a 4E4C     		ldr	r4, .L40+28
+ 435 018c 0221     		movs	r1, #2
+ 436 018e 2068     		ldr	r0, [r4]
+ 437 0190 FFF7FEFF 		bl	DJIMotorOuterLoop
+ 438              	.LVL26:
+ 143:application/shoot/shoot.c ****         lock_time = 0;
+ 439              		.loc 1 143 9 view .LVU120
+ 440 0194 9FED558A 		vldr.32	s16, .L40+68
+ 441 0198 B0EE480A 		vmov.f32	s0, s16
+ 442 019c 2068     		ldr	r0, [r4]
+ 443 019e FFF7FEFF 		bl	DJIMotorSetRef
+ 444              	.LVL27:
+ 144:application/shoot/shoot.c ****         break;
+ 445              		.loc 1 144 9 view .LVU121
+ 144:application/shoot/shoot.c ****         break;
+ 446              		.loc 1 144 19 is_stmt 0 view .LVU122
+ 447 01a2 494B     		ldr	r3, .L40+32
+ 448 01a4 83ED008A 		vstr.32	s16, [r3]
+ 145:application/shoot/shoot.c ****     // 单发模式,根据鼠标按下的时间,触发一次之后需要进入不响应输入的状
+ 449              		.loc 1 145 9 is_stmt 1 view .LVU123
+ 450              	.L23:
+ 173:application/shoot/shoot.c ****     default:
+ 174:application/shoot/shoot.c ****         break;
+ 175:application/shoot/shoot.c ****         // while (1)
+ 176:application/shoot/shoot.c ****         //     ; // 未知模式,停止运行,检查指针越界,内存溢出等问题
+ 177:application/shoot/shoot.c ****     }
+ 178:application/shoot/shoot.c **** 
+ 179:application/shoot/shoot.c ****     // 确定是否开启摩擦轮
+ 180:application/shoot/shoot.c ****     if (shoot_cmd_recv.friction_mode == FRICTION_ON)
+ 451              		.loc 1 180 5 view .LVU124
+ 452              		.loc 1 180 23 is_stmt 0 view .LVU125
+ 453 01a8 414B     		ldr	r3, .L40+8
+ 454 01aa DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 455              		.loc 1 180 8 view .LVU126
+ 456 01ac 012B     		cmp	r3, #1
+ 457 01ae 40F0EF80 		bne	.L26
+ 181:application/shoot/shoot.c ****     {
+ 182:application/shoot/shoot.c ****         // 根据收到的弹速设置设定摩擦轮电机参考值,需实测后填入
+ 183:application/shoot/shoot.c ****         switch (shoot_cmd_recv.bullet_speed)
+ 458              		.loc 1 183 9 is_stmt 1 view .LVU127
+ 459              		.loc 1 183 31 is_stmt 0 view .LVU128
+ 460 01b2 3F4B     		ldr	r3, .L40+8
+ 461 01b4 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 462              		.loc 1 183 9 view .LVU129
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 13
+
+
+ 463 01b6 122B     		cmp	r3, #18
+ 464 01b8 54D0     		beq	.L27
+ 465 01ba 1E2B     		cmp	r3, #30
+ 466 01bc 00F0A680 		beq	.L28
+ 467 01c0 0F2B     		cmp	r3, #15
+ 468 01c2 40F0C580 		bne	.L29
+ 184:application/shoot/shoot.c ****         {
+ 185:application/shoot/shoot.c ****         case SMALL_AMU_15:
+ 186:application/shoot/shoot.c ****             DJIMotorSetRef(friction_lf, 30000);
+ 469              		.loc 1 186 13 is_stmt 1 view .LVU130
+ 470 01c6 9FED4A8A 		vldr.32	s16, .L40+72
+ 471 01ca B0EE480A 		vmov.f32	s0, s16
+ 472 01ce 3A4B     		ldr	r3, .L40+16
+ 473 01d0 1868     		ldr	r0, [r3]
+ 474 01d2 FFF7FEFF 		bl	DJIMotorSetRef
+ 475              	.LVL28:
+ 187:application/shoot/shoot.c ****             DJIMotorSetRef(friction_rf, 30000);
+ 476              		.loc 1 187 13 view .LVU131
+ 477 01d6 B0EE480A 		vmov.f32	s0, s16
+ 478 01da 384B     		ldr	r3, .L40+20
+ 479 01dc 1868     		ldr	r0, [r3]
+ 480 01de FFF7FEFF 		bl	DJIMotorSetRef
+ 481              	.LVL29:
+ 188:application/shoot/shoot.c ****             switch (shoot_config->shoot_type)
+ 482              		.loc 1 188 13 view .LVU132
+ 483              		.loc 1 188 33 is_stmt 0 view .LVU133
+ 484 01e2 374B     		ldr	r3, .L40+24
+ 485 01e4 1B68     		ldr	r3, [r3]
+ 486 01e6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 487              		.loc 1 188 13 view .LVU134
+ 488 01e8 022B     		cmp	r3, #2
+ 489 01ea 40F0E480 		bne	.L30
+ 189:application/shoot/shoot.c ****             {
+ 190:application/shoot/shoot.c ****             case THREE_SHOOT:
+ 191:application/shoot/shoot.c ****                 break;
+ 192:application/shoot/shoot.c ****             case FOUR_SHOOT:
+ 193:application/shoot/shoot.c ****                 // 左后摩擦轮
+ 194:application/shoot/shoot.c ****                 DJIMotorSetRef(friction_lb, 30000);
+ 490              		.loc 1 194 17 is_stmt 1 view .LVU135
+ 491 01ee B0EE480A 		vmov.f32	s0, s16
+ 492 01f2 3C4B     		ldr	r3, .L40+60
+ 493 01f4 1868     		ldr	r0, [r3]
+ 494 01f6 FFF7FEFF 		bl	DJIMotorSetRef
+ 495              	.LVL30:
+ 195:application/shoot/shoot.c ****                 // 右后摩擦轮
+ 196:application/shoot/shoot.c ****                 DJIMotorSetRef(friction_rb, 30000);  
+ 496              		.loc 1 196 17 view .LVU136
+ 497 01fa B0EE480A 		vmov.f32	s0, s16
+ 498 01fe 3A4B     		ldr	r3, .L40+64
+ 499 0200 1868     		ldr	r0, [r3]
+ 500 0202 FFF7FEFF 		bl	DJIMotorSetRef
+ 501              	.LVL31:
+ 197:application/shoot/shoot.c ****                 break;
+ 502              		.loc 1 197 17 view .LVU137
+ 503 0206 D6E0     		b	.L30
+ 504              	.L19:
+ 149:application/shoot/shoot.c ****         // 控制量增加一发弹丸的角度
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 14
+
+
+ 505              		.loc 1 149 9 view .LVU138
+ 506 0208 2E4C     		ldr	r4, .L40+28
+ 507 020a 0421     		movs	r1, #4
+ 508 020c 2068     		ldr	r0, [r4]
+ 509 020e FFF7FEFF 		bl	DJIMotorOuterLoop
+ 510              	.LVL32:
+ 151:application/shoot/shoot.c ****         hibernate_time = DWT_GetTimeline_ms();                                              // 记�
+ 511              		.loc 1 151 9 view .LVU139
+ 512 0212 2068     		ldr	r0, [r4]
+ 151:application/shoot/shoot.c ****         hibernate_time = DWT_GetTimeline_ms();                                              // 记�
+ 513              		.loc 1 151 47 is_stmt 0 view .LVU140
+ 514 0214 90ED040A 		vldr.32	s0, [r0, #16]
+ 151:application/shoot/shoot.c ****         hibernate_time = DWT_GetTimeline_ms();                                              // 记�
+ 515              		.loc 1 151 9 view .LVU141
+ 516 0218 DFED367A 		vldr.32	s15, .L40+76
+ 517 021c 30EE270A 		vadd.f32	s0, s0, s15
+ 518 0220 FFF7FEFF 		bl	DJIMotorSetRef
+ 519              	.LVL33:
+ 152:application/shoot/shoot.c ****         dead_time = 300;                                                                    // 完�
+ 520              		.loc 1 152 9 is_stmt 1 view .LVU142
+ 152:application/shoot/shoot.c ****         dead_time = 300;                                                                    // 完�
+ 521              		.loc 1 152 26 is_stmt 0 view .LVU143
+ 522 0224 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 523              	.LVL34:
+ 152:application/shoot/shoot.c ****         dead_time = 300;                                                                    // 完�
+ 524              		.loc 1 152 24 discriminator 1 view .LVU144
+ 525 0228 2B4B     		ldr	r3, .L40+48
+ 526 022a 83ED000A 		vstr.32	s0, [r3]
+ 153:application/shoot/shoot.c ****         break;
+ 527              		.loc 1 153 9 is_stmt 1 view .LVU145
+ 153:application/shoot/shoot.c ****         break;
+ 528              		.loc 1 153 19 is_stmt 0 view .LVU146
+ 529 022e 284B     		ldr	r3, .L40+40
+ 530 0230 314A     		ldr	r2, .L40+80
+ 531 0232 1A60     		str	r2, [r3]	@ float
+ 154:application/shoot/shoot.c ****     // 三连发
+ 532              		.loc 1 154 9 is_stmt 1 view .LVU147
+ 533 0234 B8E7     		b	.L23
+ 534              	.L24:
+ 157:application/shoot/shoot.c ****         DJIMotorSetRef(loader, loader->measure.total_angle + 5.0f * ONE_BULLET_DELTA_ANGLE * REDUCT
+ 535              		.loc 1 157 9 view .LVU148
+ 536 0236 234C     		ldr	r4, .L40+28
+ 537 0238 0421     		movs	r1, #4
+ 538 023a 2068     		ldr	r0, [r4]
+ 539 023c FFF7FEFF 		bl	DJIMotorOuterLoop
+ 540              	.LVL35:
+ 158:application/shoot/shoot.c ****         hibernate_time = DWT_GetTimeline_ms();                                                 // �
+ 541              		.loc 1 158 9 view .LVU149
+ 542 0240 2068     		ldr	r0, [r4]
+ 158:application/shoot/shoot.c ****         hibernate_time = DWT_GetTimeline_ms();                                                 // �
+ 543              		.loc 1 158 47 is_stmt 0 view .LVU150
+ 544 0242 90ED040A 		vldr.32	s0, [r0, #16]
+ 158:application/shoot/shoot.c ****         hibernate_time = DWT_GetTimeline_ms();                                                 // �
+ 545              		.loc 1 158 9 view .LVU151
+ 546 0246 DFED2D7A 		vldr.32	s15, .L40+84
+ 547 024a 30EE270A 		vadd.f32	s0, s0, s15
+ 548 024e FFF7FEFF 		bl	DJIMotorSetRef
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 15
+
+
+ 549              	.LVL36:
+ 159:application/shoot/shoot.c ****         dead_time = 1200;                                                                       // 
+ 550              		.loc 1 159 9 is_stmt 1 view .LVU152
+ 159:application/shoot/shoot.c ****         dead_time = 1200;                                                                       // 
+ 551              		.loc 1 159 26 is_stmt 0 view .LVU153
+ 552 0252 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 553              	.LVL37:
+ 159:application/shoot/shoot.c ****         dead_time = 1200;                                                                       // 
+ 554              		.loc 1 159 24 discriminator 1 view .LVU154
+ 555 0256 204B     		ldr	r3, .L40+48
+ 556 0258 83ED000A 		vstr.32	s0, [r3]
+ 160:application/shoot/shoot.c ****         break;
+ 557              		.loc 1 160 9 is_stmt 1 view .LVU155
+ 160:application/shoot/shoot.c ****         break;
+ 558              		.loc 1 160 19 is_stmt 0 view .LVU156
+ 559 025c 1C4B     		ldr	r3, .L40+40
+ 560 025e 284A     		ldr	r2, .L40+88
+ 561 0260 1A60     		str	r2, [r3]	@ float
+ 161:application/shoot/shoot.c ****     // 连发模式,对速度闭环,射频后续修改为可变,目前固定为1Hz
+ 562              		.loc 1 161 9 is_stmt 1 view .LVU157
+ 563 0262 A1E7     		b	.L23
+ 564              	.L27:
+ 198:application/shoot/shoot.c ****             default:
+ 199:application/shoot/shoot.c ****                 break;
+ 200:application/shoot/shoot.c ****             }
+ 201:application/shoot/shoot.c ****             break;
+ 202:application/shoot/shoot.c ****         case SMALL_AMU_18:
+ 203:application/shoot/shoot.c ****             DJIMotorSetRef(friction_lf, 35000);
+ 565              		.loc 1 203 13 view .LVU158
+ 566 0264 9FED278A 		vldr.32	s16, .L40+92
+ 567 0268 B0EE480A 		vmov.f32	s0, s16
+ 568 026c 124B     		ldr	r3, .L40+16
+ 569 026e 1868     		ldr	r0, [r3]
+ 570 0270 FFF7FEFF 		bl	DJIMotorSetRef
+ 571              	.LVL38:
+ 204:application/shoot/shoot.c ****             DJIMotorSetRef(friction_rf, 35000);
+ 572              		.loc 1 204 13 view .LVU159
+ 573 0274 B0EE480A 		vmov.f32	s0, s16
+ 574 0278 104B     		ldr	r3, .L40+20
+ 575 027a 1868     		ldr	r0, [r3]
+ 576 027c FFF7FEFF 		bl	DJIMotorSetRef
+ 577              	.LVL39:
+ 205:application/shoot/shoot.c ****             switch (shoot_config->shoot_type)
+ 578              		.loc 1 205 13 view .LVU160
+ 579              		.loc 1 205 33 is_stmt 0 view .LVU161
+ 580 0280 0F4B     		ldr	r3, .L40+24
+ 581 0282 1B68     		ldr	r3, [r3]
+ 582 0284 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 583              		.loc 1 205 13 view .LVU162
+ 584 0286 022B     		cmp	r3, #2
+ 585 0288 40F09580 		bne	.L30
+ 206:application/shoot/shoot.c ****             {
+ 207:application/shoot/shoot.c ****             case THREE_SHOOT:
+ 208:application/shoot/shoot.c ****                 break;
+ 209:application/shoot/shoot.c ****             case FOUR_SHOOT:
+ 210:application/shoot/shoot.c ****                 // 左后摩擦轮
+ 211:application/shoot/shoot.c ****                 DJIMotorSetRef(friction_lb, 35000);
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 16
+
+
+ 586              		.loc 1 211 17 is_stmt 1 view .LVU163
+ 587 028c B0EE480A 		vmov.f32	s0, s16
+ 588 0290 144B     		ldr	r3, .L40+60
+ 589 0292 1868     		ldr	r0, [r3]
+ 590 0294 FFF7FEFF 		bl	DJIMotorSetRef
+ 591              	.LVL40:
+ 212:application/shoot/shoot.c ****                 // 右后摩擦轮
+ 213:application/shoot/shoot.c ****                 DJIMotorSetRef(friction_rb, 35000);  
+ 592              		.loc 1 213 17 view .LVU164
+ 593 0298 B0EE480A 		vmov.f32	s0, s16
+ 594 029c 124B     		ldr	r3, .L40+64
+ 595 029e 1868     		ldr	r0, [r3]
+ 596 02a0 FFF7FEFF 		bl	DJIMotorSetRef
+ 597              	.LVL41:
+ 214:application/shoot/shoot.c ****                 break;
+ 598              		.loc 1 214 17 view .LVU165
+ 599 02a4 87E0     		b	.L30
+ 600              	.L41:
+ 601 02a6 00BF     		.align	3
+ 602              	.L40:
+ 603 02a8 00000000 		.word	0
+ 604 02ac 0088B340 		.word	1085507584
+ 605 02b0 00000000 		.word	shoot_cmd_recv
+ 606 02b4 00000000 		.word	shoot_sub
+ 607 02b8 00000000 		.word	friction_lf
+ 608 02bc 00000000 		.word	friction_rf
+ 609 02c0 00000000 		.word	shoot_config
+ 610 02c4 00000000 		.word	loader
+ 611 02c8 00000000 		.word	lock_time
+ 612 02cc 0000C843 		.word	1137180672
+ 613 02d0 00000000 		.word	dead_time
+ 614 02d4 0080CA43 		.word	1137344512
+ 615 02d8 00000000 		.word	hibernate_time
+ 616 02dc 0000B443 		.word	1135869952
+ 617 02e0 00001042 		.word	1108344832
+ 618 02e4 00000000 		.word	friction_lb
+ 619 02e8 00000000 		.word	friction_rb
+ 620 02ec 00000000 		.word	0
+ 621 02f0 0060EA46 		.word	1189765120
+ 622 02f4 00000744 		.word	1141309440
+ 623 02f8 00009643 		.word	1133903872
+ 624 02fc 00C02845 		.word	1160298496
+ 625 0300 00009644 		.word	1150681088
+ 626 0304 00B80847 		.word	1191753728
+ 627 0308 00504347 		.word	1195593728
+ 628              	.L28:
+ 215:application/shoot/shoot.c ****             default:
+ 216:application/shoot/shoot.c ****                 break;
+ 217:application/shoot/shoot.c ****             }
+ 218:application/shoot/shoot.c ****             break;
+ 219:application/shoot/shoot.c ****         case SMALL_AMU_30:
+ 220:application/shoot/shoot.c ****             DJIMotorSetRef(friction_lf, 50000);
+ 629              		.loc 1 220 13 view .LVU166
+ 630 030c 1FED028A 		vldr.32	s16, .L40+96
+ 631 0310 B0EE480A 		vmov.f32	s0, s16
+ 632 0314 324B     		ldr	r3, .L42
+ 633 0316 1868     		ldr	r0, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 17
+
+
+ 634 0318 FFF7FEFF 		bl	DJIMotorSetRef
+ 635              	.LVL42:
+ 221:application/shoot/shoot.c ****             DJIMotorSetRef(friction_rf, 50000);
+ 636              		.loc 1 221 13 view .LVU167
+ 637 031c B0EE480A 		vmov.f32	s0, s16
+ 638 0320 304B     		ldr	r3, .L42+4
+ 639 0322 1868     		ldr	r0, [r3]
+ 640 0324 FFF7FEFF 		bl	DJIMotorSetRef
+ 641              	.LVL43:
+ 222:application/shoot/shoot.c ****             switch (shoot_config->shoot_type)
+ 642              		.loc 1 222 13 view .LVU168
+ 643              		.loc 1 222 33 is_stmt 0 view .LVU169
+ 644 0328 2F4B     		ldr	r3, .L42+8
+ 645 032a 1B68     		ldr	r3, [r3]
+ 646 032c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 647              		.loc 1 222 13 view .LVU170
+ 648 032e 022B     		cmp	r3, #2
+ 649 0330 41D1     		bne	.L30
+ 223:application/shoot/shoot.c ****             {
+ 224:application/shoot/shoot.c ****             case THREE_SHOOT:
+ 225:application/shoot/shoot.c ****                 break;
+ 226:application/shoot/shoot.c ****             case FOUR_SHOOT:
+ 227:application/shoot/shoot.c ****                 // 左后摩擦轮
+ 228:application/shoot/shoot.c ****                 DJIMotorSetRef(friction_lb, 80000);
+ 650              		.loc 1 228 17 is_stmt 1 view .LVU171
+ 651 0332 9FED2E8A 		vldr.32	s16, .L42+12
+ 652 0336 B0EE480A 		vmov.f32	s0, s16
+ 653 033a 2D4B     		ldr	r3, .L42+16
+ 654 033c 1868     		ldr	r0, [r3]
+ 655 033e FFF7FEFF 		bl	DJIMotorSetRef
+ 656              	.LVL44:
+ 229:application/shoot/shoot.c ****                 // 右后摩擦轮
+ 230:application/shoot/shoot.c ****                 DJIMotorSetRef(friction_rb, 80000);  
+ 657              		.loc 1 230 17 view .LVU172
+ 658 0342 B0EE480A 		vmov.f32	s0, s16
+ 659 0346 2B4B     		ldr	r3, .L42+20
+ 660 0348 1868     		ldr	r0, [r3]
+ 661 034a FFF7FEFF 		bl	DJIMotorSetRef
+ 662              	.LVL45:
+ 231:application/shoot/shoot.c ****                 break;
+ 663              		.loc 1 231 17 view .LVU173
+ 664 034e 32E0     		b	.L30
+ 665              	.L29:
+ 232:application/shoot/shoot.c ****             default:
+ 233:application/shoot/shoot.c ****                 break;
+ 234:application/shoot/shoot.c ****             }
+ 235:application/shoot/shoot.c ****             break;
+ 236:application/shoot/shoot.c ****         default: // 当前为了调试设定的默认值4000,因为还没有加入裁判系统无�
+ 237:application/shoot/shoot.c ****             DJIMotorSetRef(friction_lf, 80000);
+ 666              		.loc 1 237 13 view .LVU174
+ 667 0350 9FED268A 		vldr.32	s16, .L42+12
+ 668 0354 B0EE480A 		vmov.f32	s0, s16
+ 669 0358 214B     		ldr	r3, .L42
+ 670 035a 1868     		ldr	r0, [r3]
+ 671 035c FFF7FEFF 		bl	DJIMotorSetRef
+ 672              	.LVL46:
+ 238:application/shoot/shoot.c ****             DJIMotorSetRef(friction_rf, 80000);
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 18
+
+
+ 673              		.loc 1 238 13 view .LVU175
+ 674 0360 B0EE480A 		vmov.f32	s0, s16
+ 675 0364 1F4B     		ldr	r3, .L42+4
+ 676 0366 1868     		ldr	r0, [r3]
+ 677 0368 FFF7FEFF 		bl	DJIMotorSetRef
+ 678              	.LVL47:
+ 239:application/shoot/shoot.c ****             switch (shoot_config->shoot_type)
+ 679              		.loc 1 239 13 view .LVU176
+ 680              		.loc 1 239 33 is_stmt 0 view .LVU177
+ 681 036c 1E4B     		ldr	r3, .L42+8
+ 682 036e 1B68     		ldr	r3, [r3]
+ 683 0370 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 684              		.loc 1 239 13 view .LVU178
+ 685 0372 022B     		cmp	r3, #2
+ 686 0374 1FD1     		bne	.L30
+ 240:application/shoot/shoot.c ****             {
+ 241:application/shoot/shoot.c ****             case THREE_SHOOT:
+ 242:application/shoot/shoot.c ****                 break;
+ 243:application/shoot/shoot.c ****             case FOUR_SHOOT:
+ 244:application/shoot/shoot.c ****                 // 左后摩擦轮
+ 245:application/shoot/shoot.c ****                 DJIMotorSetRef(friction_lb, 80000);
+ 687              		.loc 1 245 17 is_stmt 1 view .LVU179
+ 688 0376 B0EE480A 		vmov.f32	s0, s16
+ 689 037a 1D4B     		ldr	r3, .L42+16
+ 690 037c 1868     		ldr	r0, [r3]
+ 691 037e FFF7FEFF 		bl	DJIMotorSetRef
+ 692              	.LVL48:
+ 246:application/shoot/shoot.c ****                 // 右后摩擦轮
+ 247:application/shoot/shoot.c ****                 DJIMotorSetRef(friction_rb, 80000);  
+ 693              		.loc 1 247 17 view .LVU180
+ 694 0382 B0EE480A 		vmov.f32	s0, s16
+ 695 0386 1B4B     		ldr	r3, .L42+20
+ 696 0388 1868     		ldr	r0, [r3]
+ 697 038a FFF7FEFF 		bl	DJIMotorSetRef
+ 698              	.LVL49:
+ 248:application/shoot/shoot.c ****                 break;
+ 699              		.loc 1 248 17 view .LVU181
+ 700 038e 12E0     		b	.L30
+ 701              	.L26:
+ 249:application/shoot/shoot.c ****             default:
+ 250:application/shoot/shoot.c ****                 break;
+ 251:application/shoot/shoot.c ****             }            
+ 252:application/shoot/shoot.c ****             break;
+ 253:application/shoot/shoot.c ****         }
+ 254:application/shoot/shoot.c ****     }
+ 255:application/shoot/shoot.c ****     else // 关闭摩擦轮
+ 256:application/shoot/shoot.c ****     {
+ 257:application/shoot/shoot.c ****         DJIMotorSetRef(friction_lf, 0);
+ 702              		.loc 1 257 9 view .LVU182
+ 703 0390 9FED198A 		vldr.32	s16, .L42+24
+ 704 0394 B0EE480A 		vmov.f32	s0, s16
+ 705 0398 114B     		ldr	r3, .L42
+ 706 039a 1868     		ldr	r0, [r3]
+ 707 039c FFF7FEFF 		bl	DJIMotorSetRef
+ 708              	.LVL50:
+ 258:application/shoot/shoot.c ****         DJIMotorSetRef(friction_rf, 0);
+ 709              		.loc 1 258 9 view .LVU183
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 19
+
+
+ 710 03a0 B0EE480A 		vmov.f32	s0, s16
+ 711 03a4 0F4B     		ldr	r3, .L42+4
+ 712 03a6 1868     		ldr	r0, [r3]
+ 713 03a8 FFF7FEFF 		bl	DJIMotorSetRef
+ 714              	.LVL51:
+ 259:application/shoot/shoot.c ****         switch (shoot_config->shoot_type)
+ 715              		.loc 1 259 9 view .LVU184
+ 716              		.loc 1 259 29 is_stmt 0 view .LVU185
+ 717 03ac 0E4B     		ldr	r3, .L42+8
+ 718 03ae 1B68     		ldr	r3, [r3]
+ 719 03b0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 720              		.loc 1 259 9 view .LVU186
+ 721 03b2 022B     		cmp	r3, #2
+ 722 03b4 07D0     		beq	.L39
+ 723              	.L30:
+ 260:application/shoot/shoot.c ****         {
+ 261:application/shoot/shoot.c ****         case THREE_SHOOT:
+ 262:application/shoot/shoot.c ****             break;
+ 263:application/shoot/shoot.c ****         case FOUR_SHOOT:
+ 264:application/shoot/shoot.c ****             // 左后摩擦轮
+ 265:application/shoot/shoot.c ****             DJIMotorSetRef(friction_lb, 0);
+ 266:application/shoot/shoot.c ****             // 右后摩擦轮
+ 267:application/shoot/shoot.c ****             DJIMotorSetRef(friction_rb, 0);  
+ 268:application/shoot/shoot.c ****             break;
+ 269:application/shoot/shoot.c ****         default:
+ 270:application/shoot/shoot.c ****             break;
+ 271:application/shoot/shoot.c ****         }            
+ 272:application/shoot/shoot.c ****     }
+ 273:application/shoot/shoot.c **** 
+ 274:application/shoot/shoot.c ****     // 开关弹舱盖
+ 275:application/shoot/shoot.c ****     if (shoot_cmd_recv.lid_mode == LID_CLOSE)
+ 724              		.loc 1 275 5 is_stmt 1 view .LVU187
+ 276:application/shoot/shoot.c ****     {
+ 277:application/shoot/shoot.c ****         //...
+ 278:application/shoot/shoot.c ****     }
+ 279:application/shoot/shoot.c ****     else if (shoot_cmd_recv.lid_mode == LID_OPEN)
+ 725              		.loc 1 279 10 view .LVU188
+ 280:application/shoot/shoot.c ****     {
+ 281:application/shoot/shoot.c ****         //...
+ 282:application/shoot/shoot.c ****     }
+ 726              		.loc 1 282 5 view .LVU189
+ 283:application/shoot/shoot.c **** 
+ 284:application/shoot/shoot.c ****     // 反馈数据,目前暂时没有要设定的反馈数据,后续可能增加应用离线监测
+ 285:application/shoot/shoot.c ****     PubPushMessage(shoot_pub, (void *)&shoot_feedback_data);
+ 727              		.loc 1 285 5 view .LVU190
+ 728 03b6 1149     		ldr	r1, .L42+28
+ 729 03b8 114B     		ldr	r3, .L42+32
+ 730 03ba 1868     		ldr	r0, [r3]
+ 731 03bc FFF7FEFF 		bl	PubPushMessage
+ 732              	.LVL52:
+ 733              	.L7:
+ 286:application/shoot/shoot.c **** }...
+ 734              		.loc 1 286 1 is_stmt 0 view .LVU191
+ 735 03c0 BDEC028B 		vldm	sp!, {d8}
+ 736              		.cfi_remember_state
+ 737              		.cfi_restore 80
+ 738              		.cfi_restore 81
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 20
+
+
+ 739              		.cfi_def_cfa_offset 8
+ 740 03c4 10BD     		pop	{r4, pc}
+ 741              	.L39:
+ 742              		.cfi_restore_state
+ 265:application/shoot/shoot.c ****             DJIMotorSetRef(friction_lb, 0);
+ 743              		.loc 1 265 13 is_stmt 1 view .LVU192
+ 744 03c6 B0EE480A 		vmov.f32	s0, s16
+ 745 03ca 094B     		ldr	r3, .L42+16
+ 746 03cc 1868     		ldr	r0, [r3]
+ 747 03ce FFF7FEFF 		bl	DJIMotorSetRef
+ 748              	.LVL53:
+ 267:application/shoot/shoot.c ****             DJIMotorSetRef(friction_rb, 0);  
+ 749              		.loc 1 267 13 view .LVU193
+ 750 03d2 B0EE480A 		vmov.f32	s0, s16
+ 751 03d6 074B     		ldr	r3, .L42+20
+ 752 03d8 1868     		ldr	r0, [r3]
+ 753 03da FFF7FEFF 		bl	DJIMotorSetRef
+ 754              	.LVL54:
+ 268:application/shoot/shoot.c ****             break;
+ 755              		.loc 1 268 13 view .LVU194
+ 756 03de EAE7     		b	.L30
+ 757              	.L43:
+ 758              		.align	2
+ 759              	.L42:
+ 760 03e0 00000000 		.word	friction_lf
+ 761 03e4 00000000 		.word	friction_rf
+ 762 03e8 00000000 		.word	shoot_config
+ 763 03ec 00409C47 		.word	1201422336
+ 764 03f0 00000000 		.word	friction_lb
+ 765 03f4 00000000 		.word	friction_rb
+ 766 03f8 00000000 		.word	0
+ 767 03fc 00000000 		.word	shoot_feedback_data
+ 768 0400 00000000 		.word	shoot_pub
+ 769              		.cfi_endproc
+ 770              	.LFE272:
+ 772              		.section	.bss.lock_time,"aw",%nobits
+ 773              		.align	2
+ 776              	lock_time:
+ 777 0000 00000000 		.space	4
+ 778              		.section	.bss.dead_time,"aw",%nobits
+ 779              		.align	2
+ 782              	dead_time:
+ 783 0000 00000000 		.space	4
+ 784              		.section	.bss.hibernate_time,"aw",%nobits
+ 785              		.align	2
+ 788              	hibernate_time:
+ 789 0000 00000000 		.space	4
+ 790              		.section	.bss.shoot_feedback_data,"aw",%nobits
+ 791              		.align	2
+ 794              	shoot_feedback_data:
+ 795              		.section	.bss.shoot_sub,"aw",%nobits
+ 796              		.align	2
+ 799              	shoot_sub:
+ 800 0000 00000000 		.space	4
+ 801              		.section	.bss.shoot_cmd_recv,"aw",%nobits
+ 802              		.align	2
+ 805              	shoot_cmd_recv:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 21
+
+
+ 806 0000 00000000 		.space	10
+ 806      00000000 
+ 806      0000
+ 807              		.section	.bss.shoot_pub,"aw",%nobits
+ 808              		.align	2
+ 811              	shoot_pub:
+ 812 0000 00000000 		.space	4
+ 813              		.section	.bss.friction_rb,"aw",%nobits
+ 814              		.align	2
+ 817              	friction_rb:
+ 818 0000 00000000 		.space	4
+ 819              		.section	.bss.friction_lb,"aw",%nobits
+ 820              		.align	2
+ 823              	friction_lb:
+ 824 0000 00000000 		.space	4
+ 825              		.section	.bss.loader,"aw",%nobits
+ 826              		.align	2
+ 829              	loader:
+ 830 0000 00000000 		.space	4
+ 831              		.section	.bss.friction_rf,"aw",%nobits
+ 832              		.align	2
+ 835              	friction_rf:
+ 836 0000 00000000 		.space	4
+ 837              		.section	.bss.friction_lf,"aw",%nobits
+ 838              		.align	2
+ 841              	friction_lf:
+ 842 0000 00000000 		.space	4
+ 843              		.section	.bss.shoot_config,"aw",%nobits
+ 844              		.align	2
+ 847              	shoot_config:
+ 848 0000 00000000 		.space	4
+ 849              		.text
+ 850              	.Letext0:
+ 851              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 852              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 853              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 854              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 855              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h"
+ 856              		.file 7 "modules/master_machine/master_process.h"
+ 857              		.file 8 "bsp/can/bsp_can.h"
+ 858              		.file 9 "modules/algorithm/controller.h"
+ 859              		.file 10 "modules/motor/motor_def.h"
+ 860              		.file 11 "application/config/config.h"
+ 861              		.file 12 "application/robot_def.h"
+ 862              		.file 13 "modules/daemon/daemon.h"
+ 863              		.file 14 "modules/motor/DJImotor/dji_motor.h"
+ 864              		.file 15 "modules/message_center/message_center.h"
+ 865              		.file 16 "bsp/dwt/bsp_dwt.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s 			page 22
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 shoot.c
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:21     .rodata.ShootInit.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:28     .text.ShootInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:34     .text.ShootInit:00000000 ShootInit
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:172    .text.ShootInit:000000a8 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:847    .bss.shoot_config:00000000 shoot_config
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:841    .bss.friction_lf:00000000 friction_lf
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:835    .bss.friction_rf:00000000 friction_rf
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:829    .bss.loader:00000000 loader
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:811    .bss.shoot_pub:00000000 shoot_pub
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:799    .bss.shoot_sub:00000000 shoot_sub
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:823    .bss.friction_lb:00000000 friction_lb
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:817    .bss.friction_rb:00000000 friction_rb
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:186    .text.ShootTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:192    .text.ShootTask:00000000 ShootTask
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:603    .text.ShootTask:000002a8 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:805    .bss.shoot_cmd_recv:00000000 shoot_cmd_recv
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:776    .bss.lock_time:00000000 lock_time
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:782    .bss.dead_time:00000000 dead_time
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:788    .bss.hibernate_time:00000000 hibernate_time
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:630    .text.ShootTask:0000030c $t
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:760    .text.ShootTask:000003e0 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:794    .bss.shoot_feedback_data:00000000 shoot_feedback_data
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:773    .bss.lock_time:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:779    .bss.dead_time:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:785    .bss.hibernate_time:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:796    .bss.shoot_sub:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:802    .bss.shoot_cmd_recv:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:808    .bss.shoot_pub:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:814    .bss.friction_rb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:820    .bss.friction_lb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:826    .bss.loader:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:832    .bss.friction_rf:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:838    .bss.friction_lf:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cctr8UbZ.s:844    .bss.shoot_config:00000000 $d
+
+UNDEFINED SYMBOLS
+ShootConfigFeed
+DJIMotorInit
+PubRegister
+SubRegister
+SubGetMessage
+DJIMotorEnable
+__aeabi_i2d
+__aeabi_dcmpgt
+DWT_GetTimeline_ms
+DJIMotorOuterLoop
+DJIMotorSetRef
+DJIMotorStop
+PubPushMessage

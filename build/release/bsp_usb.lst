@@ -1,0 +1,75 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccshrOBO.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_usb.c"
+  16              		.text
+  17              		.section	.text.USBInit,"ax",%progbits
+  18              		.align	1
+  19              		.global	USBInit
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	USBInit:
+  25              		@ args = 0, pretend = 0, frame = 8
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 00B5     		push	{lr}
+  28 0002 83B0     		sub	sp, sp, #12
+  29 0004 02AB     		add	r3, sp, #8
+  30 0006 03E90300 		stmdb	r3, {r0, r1}
+  31 000a FFF7FEFF 		bl	CDCInitRxbufferNcallback
+  32 000e 024B     		ldr	r3, .L3
+  33 0010 1860     		str	r0, [r3]
+  34 0012 03B0     		add	sp, sp, #12
+  35              		@ sp needed
+  36 0014 00BD     		pop	{pc}
+  37              	.L4:
+  38 0016 00BF     		.align	2
+  39              	.L3:
+  40 0018 00000000 		.word	bsp_usb_rx_buffer
+  42              		.section	.text.USBTransmit,"ax",%progbits
+  43              		.align	1
+  44              		.global	USBTransmit
+  45              		.syntax unified
+  46              		.thumb
+  47              		.thumb_func
+  49              	USBTransmit:
+  50              		@ args = 0, pretend = 0, frame = 0
+  51              		@ frame_needed = 0, uses_anonymous_args = 0
+  52 0000 08B5     		push	{r3, lr}
+  53 0002 FFF7FEFF 		bl	CDC_Transmit_FS
+  54 0006 08BD     		pop	{r3, pc}
+  56              		.section	.bss.bsp_usb_rx_buffer,"aw",%nobits
+  57              		.align	2
+  60              	bsp_usb_rx_buffer:
+  61 0000 00000000 		.space	4
+  62              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccshrOBO.s 			page 2
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_usb.c
+C:\Users\Administrator\AppData\Local\Temp\ccshrOBO.s:18     .text.USBInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccshrOBO.s:24     .text.USBInit:00000000 USBInit
+C:\Users\Administrator\AppData\Local\Temp\ccshrOBO.s:40     .text.USBInit:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\ccshrOBO.s:60     .bss.bsp_usb_rx_buffer:00000000 bsp_usb_rx_buffer
+C:\Users\Administrator\AppData\Local\Temp\ccshrOBO.s:43     .text.USBTransmit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccshrOBO.s:49     .text.USBTransmit:00000000 USBTransmit
+C:\Users\Administrator\AppData\Local\Temp\ccshrOBO.s:57     .bss.bsp_usb_rx_buffer:00000000 $d
+
+UNDEFINED SYMBOLS
+CDCInitRxbufferNcallback
+CDC_Transmit_FS

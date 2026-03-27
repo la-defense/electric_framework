@@ -1,0 +1,239 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"main.c"
+  16              		.text
+  17              		.section	.text.HAL_TIM_PeriodElapsedCallback,"ax",%progbits
+  18              		.align	1
+  19              		.global	HAL_TIM_PeriodElapsedCallback
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	HAL_TIM_PeriodElapsedCallback:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 08B5     		push	{r3, lr}
+  28 0002 0268     		ldr	r2, [r0]
+  29 0004 034B     		ldr	r3, .L5
+  30 0006 9A42     		cmp	r2, r3
+  31 0008 00D0     		beq	.L4
+  32              	.L1:
+  33 000a 08BD     		pop	{r3, pc}
+  34              	.L4:
+  35 000c FFF7FEFF 		bl	HAL_IncTick
+  36 0010 FBE7     		b	.L1
+  37              	.L6:
+  38 0012 00BF     		.align	2
+  39              	.L5:
+  40 0014 00200040 		.word	1073750016
+  42              		.section	.text.Error_Handler,"ax",%progbits
+  43              		.align	1
+  44              		.global	Error_Handler
+  45              		.syntax unified
+  46              		.thumb
+  47              		.thumb_func
+  49              	Error_Handler:
+  50              		@ Volatile: function does not return.
+  51              		@ args = 0, pretend = 0, frame = 0
+  52              		@ frame_needed = 0, uses_anonymous_args = 0
+  53              		@ link register save eliminated.
+  54              		.syntax unified
+  55              	@ 142 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+  56 0000 72B6     		cpsid i
+  57              	@ 0 "" 2
+  58              		.thumb
+  59              		.syntax unified
+  60              	.L8:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s 			page 2
+
+
+  61 0002 FEE7     		b	.L8
+  63              		.section	.text.SystemClock_Config,"ax",%progbits
+  64              		.align	1
+  65              		.global	SystemClock_Config
+  66              		.syntax unified
+  67              		.thumb
+  68              		.thumb_func
+  70              	SystemClock_Config:
+  71              		@ args = 0, pretend = 0, frame = 80
+  72              		@ frame_needed = 0, uses_anonymous_args = 0
+  73 0000 10B5     		push	{r4, lr}
+  74 0002 94B0     		sub	sp, sp, #80
+  75 0004 08AC     		add	r4, sp, #32
+  76 0006 3022     		movs	r2, #48
+  77 0008 0021     		movs	r1, #0
+  78 000a 2046     		mov	r0, r4
+  79 000c FFF7FEFF 		bl	memset
+  80 0010 0023     		movs	r3, #0
+  81 0012 0393     		str	r3, [sp, #12]
+  82 0014 0493     		str	r3, [sp, #16]
+  83 0016 0593     		str	r3, [sp, #20]
+  84 0018 0693     		str	r3, [sp, #24]
+  85 001a 0793     		str	r3, [sp, #28]
+  86 001c 0193     		str	r3, [sp, #4]
+  87 001e 204A     		ldr	r2, .L15
+  88 0020 116C     		ldr	r1, [r2, #64]
+  89 0022 41F08051 		orr	r1, r1, #268435456
+  90 0026 1164     		str	r1, [r2, #64]
+  91 0028 126C     		ldr	r2, [r2, #64]
+  92 002a 02F08052 		and	r2, r2, #268435456
+  93 002e 0192     		str	r2, [sp, #4]
+  94 0030 019A     		ldr	r2, [sp, #4]
+  95 0032 0293     		str	r3, [sp, #8]
+  96 0034 1B4B     		ldr	r3, .L15+4
+  97 0036 1A68     		ldr	r2, [r3]
+  98 0038 42F48042 		orr	r2, r2, #16384
+  99 003c 1A60     		str	r2, [r3]
+ 100 003e 1B68     		ldr	r3, [r3]
+ 101 0040 03F48043 		and	r3, r3, #16384
+ 102 0044 0293     		str	r3, [sp, #8]
+ 103 0046 029B     		ldr	r3, [sp, #8]
+ 104 0048 0123     		movs	r3, #1
+ 105 004a 0893     		str	r3, [sp, #32]
+ 106 004c 4FF48033 		mov	r3, #65536
+ 107 0050 0993     		str	r3, [sp, #36]
+ 108 0052 0223     		movs	r3, #2
+ 109 0054 0E93     		str	r3, [sp, #56]
+ 110 0056 4FF48002 		mov	r2, #4194304
+ 111 005a 0F92     		str	r2, [sp, #60]
+ 112 005c 0622     		movs	r2, #6
+ 113 005e 1092     		str	r2, [sp, #64]
+ 114 0060 A822     		movs	r2, #168
+ 115 0062 1192     		str	r2, [sp, #68]
+ 116 0064 1293     		str	r3, [sp, #72]
+ 117 0066 0723     		movs	r3, #7
+ 118 0068 1393     		str	r3, [sp, #76]
+ 119 006a 2046     		mov	r0, r4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s 			page 3
+
+
+ 120 006c FFF7FEFF 		bl	HAL_RCC_OscConfig
+ 121 0070 88B9     		cbnz	r0, .L13
+ 122 0072 0F23     		movs	r3, #15
+ 123 0074 0393     		str	r3, [sp, #12]
+ 124 0076 0223     		movs	r3, #2
+ 125 0078 0493     		str	r3, [sp, #16]
+ 126 007a 0590     		str	r0, [sp, #20]
+ 127 007c 4FF4A053 		mov	r3, #5120
+ 128 0080 0693     		str	r3, [sp, #24]
+ 129 0082 4FF48053 		mov	r3, #4096
+ 130 0086 0793     		str	r3, [sp, #28]
+ 131 0088 0521     		movs	r1, #5
+ 132 008a 03A8     		add	r0, sp, #12
+ 133 008c FFF7FEFF 		bl	HAL_RCC_ClockConfig
+ 134 0090 18B9     		cbnz	r0, .L14
+ 135 0092 14B0     		add	sp, sp, #80
+ 136              		@ sp needed
+ 137 0094 10BD     		pop	{r4, pc}
+ 138              	.L13:
+ 139 0096 FFF7FEFF 		bl	Error_Handler
+ 140              	.L14:
+ 141 009a FFF7FEFF 		bl	Error_Handler
+ 142              	.L16:
+ 143 009e 00BF     		.align	2
+ 144              	.L15:
+ 145 00a0 00380240 		.word	1073887232
+ 146 00a4 00700040 		.word	1073770496
+ 148              		.section	.text.main,"ax",%progbits
+ 149              		.align	1
+ 150              		.global	main
+ 151              		.syntax unified
+ 152              		.thumb
+ 153              		.thumb_func
+ 155              	main:
+ 156              		@ Volatile: function does not return.
+ 157              		@ args = 0, pretend = 0, frame = 0
+ 158              		@ frame_needed = 0, uses_anonymous_args = 0
+ 159 0000 08B5     		push	{r3, lr}
+ 160 0002 FFF7FEFF 		bl	HAL_Init
+ 161 0006 FFF7FEFF 		bl	SystemClock_Config
+ 162 000a FFF7FEFF 		bl	MX_GPIO_Init
+ 163 000e FFF7FEFF 		bl	MX_DMA_Init
+ 164 0012 FFF7FEFF 		bl	MX_ADC1_Init
+ 165 0016 FFF7FEFF 		bl	MX_CAN1_Init
+ 166 001a FFF7FEFF 		bl	MX_CAN2_Init
+ 167 001e FFF7FEFF 		bl	MX_SPI1_Init
+ 168 0022 FFF7FEFF 		bl	MX_TIM4_Init
+ 169 0026 FFF7FEFF 		bl	MX_TIM5_Init
+ 170 002a FFF7FEFF 		bl	MX_USART3_UART_Init
+ 171 002e FFF7FEFF 		bl	MX_RNG_Init
+ 172 0032 FFF7FEFF 		bl	MX_RTC_Init
+ 173 0036 FFF7FEFF 		bl	MX_TIM1_Init
+ 174 003a FFF7FEFF 		bl	MX_TIM10_Init
+ 175 003e FFF7FEFF 		bl	MX_USART1_UART_Init
+ 176 0042 FFF7FEFF 		bl	MX_USART6_UART_Init
+ 177 0046 FFF7FEFF 		bl	MX_TIM8_Init
+ 178 004a FFF7FEFF 		bl	MX_I2C2_Init
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s 			page 4
+
+
+ 179 004e FFF7FEFF 		bl	MX_I2C3_Init
+ 180 0052 FFF7FEFF 		bl	MX_SPI2_Init
+ 181 0056 FFF7FEFF 		bl	MX_CRC_Init
+ 182 005a FFF7FEFF 		bl	MX_DAC_Init
+ 183 005e FFF7FEFF 		bl	RobotInit
+ 184 0062 FFF7FEFF 		bl	MX_FREERTOS_Init
+ 185 0066 FFF7FEFF 		bl	osKernelStart
+ 186              	.L18:
+ 187 006a FEE7     		b	.L18
+ 189              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s:18     .text.HAL_TIM_PeriodElapsedCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s:24     .text.HAL_TIM_PeriodElapsedCallback:00000000 HAL_TIM_PeriodElapsedCallback
+C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s:40     .text.HAL_TIM_PeriodElapsedCallback:00000014 $d
+C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s:43     .text.Error_Handler:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s:49     .text.Error_Handler:00000000 Error_Handler
+C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s:64     .text.SystemClock_Config:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s:70     .text.SystemClock_Config:00000000 SystemClock_Config
+C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s:145    .text.SystemClock_Config:000000a0 $d
+C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s:149    .text.main:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccu3ggRv.s:155    .text.main:00000000 main
+
+UNDEFINED SYMBOLS
+HAL_IncTick
+memset
+HAL_RCC_OscConfig
+HAL_RCC_ClockConfig
+HAL_Init
+MX_GPIO_Init
+MX_DMA_Init
+MX_ADC1_Init
+MX_CAN1_Init
+MX_CAN2_Init
+MX_SPI1_Init
+MX_TIM4_Init
+MX_TIM5_Init
+MX_USART3_UART_Init
+MX_RNG_Init
+MX_RTC_Init
+MX_TIM1_Init
+MX_TIM10_Init
+MX_USART1_UART_Init
+MX_USART6_UART_Init
+MX_TIM8_Init
+MX_I2C2_Init
+MX_I2C3_Init
+MX_SPI2_Init
+MX_CRC_Init
+MX_DAC_Init
+RobotInit
+MX_FREERTOS_Init
+osKernelStart

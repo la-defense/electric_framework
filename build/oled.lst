@@ -1,0 +1,2631 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"oled.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/oled/oled.c"
+  20              		.section	.text.oled_write_byte,"ax",%progbits
+  21              		.align	1
+  22              		.global	oled_write_byte
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	oled_write_byte:
+  28              	.LVL0:
+  29              	.LFB238:
+   1:modules/oled/oled.c **** #include "oled.h" 
+   2:modules/oled/oled.c **** #include "oledfont.h"
+   3:modules/oled/oled.c **** #include "main.h"
+   4:modules/oled/oled.c **** #include <stdio.h>
+   5:modules/oled/oled.c **** #include <stdarg.h>
+   6:modules/oled/oled.c **** 
+   7:modules/oled/oled.c **** extern I2C_HandleTypeDef hi2c2;
+   8:modules/oled/oled.c **** static uint8_t OLED_GRAM[128][8];
+   9:modules/oled/oled.c **** 
+  10:modules/oled/oled.c **** /**
+  11:modules/oled/oled.c ****   * @brief          写数据或者指令到OLED， 如果使用的是SPI，请重写这个函数
+  12:modules/oled/oled.c ****   * @param[in]      dat: 要写入的字节
+  13:modules/oled/oled.c ****   * @param[in]      cmd: OLED_CMD 代表写入的字节是指令; OLED_DATA 代表写入的字节�
+  14:modules/oled/oled.c ****   * @retval         none
+  15:modules/oled/oled.c ****   */
+  16:modules/oled/oled.c **** void oled_write_byte(uint8_t dat, uint8_t cmd)
+  17:modules/oled/oled.c **** {
+  30              		.loc 1 17 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 17 1 is_stmt 0 view .LVU1
+  35 0000 00B5     		push	{lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 4
+  38              		.cfi_offset 14, -4
+  39 0002 83B0     		sub	sp, sp, #12
+  40              	.LCFI1:
+  41              		.cfi_def_cfa_offset 16
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 2
+
+
+  18:modules/oled/oled.c ****     static uint8_t cmd_data[2];
+  42              		.loc 1 18 5 is_stmt 1 view .LVU2
+  19:modules/oled/oled.c ****     if(cmd == OLED_CMD)
+  43              		.loc 1 19 5 view .LVU3
+  44              		.loc 1 19 7 is_stmt 0 view .LVU4
+  45 0004 71B9     		cbnz	r1, .L2
+  20:modules/oled/oled.c ****     {
+  21:modules/oled/oled.c ****         cmd_data[0] = 0x00;
+  46              		.loc 1 21 9 is_stmt 1 view .LVU5
+  47              		.loc 1 21 21 is_stmt 0 view .LVU6
+  48 0006 094B     		ldr	r3, .L5
+  49 0008 0022     		movs	r2, #0
+  50 000a 1A70     		strb	r2, [r3]
+  51              	.L3:
+  22:modules/oled/oled.c ****     }
+  23:modules/oled/oled.c ****     else
+  24:modules/oled/oled.c ****     {
+  25:modules/oled/oled.c ****         cmd_data[0] = 0x40;
+  26:modules/oled/oled.c ****     }
+  27:modules/oled/oled.c ****     cmd_data[1] = dat;
+  52              		.loc 1 27 5 is_stmt 1 view .LVU7
+  53              		.loc 1 27 17 is_stmt 0 view .LVU8
+  54 000c 074A     		ldr	r2, .L5
+  55 000e 5070     		strb	r0, [r2, #1]
+  28:modules/oled/oled.c ****     HAL_I2C_Master_Transmit(&hi2c2, OLED_I2C_ADDRESS, cmd_data, 2, 10);
+  56              		.loc 1 28 5 is_stmt 1 view .LVU9
+  57 0010 0A23     		movs	r3, #10
+  58 0012 0093     		str	r3, [sp]
+  59 0014 0223     		movs	r3, #2
+  60 0016 7821     		movs	r1, #120
+  61              	.LVL1:
+  62              		.loc 1 28 5 is_stmt 0 view .LVU10
+  63 0018 0548     		ldr	r0, .L5+4
+  64              	.LVL2:
+  65              		.loc 1 28 5 view .LVU11
+  66 001a FFF7FEFF 		bl	HAL_I2C_Master_Transmit
+  67              	.LVL3:
+  29:modules/oled/oled.c **** }
+  68              		.loc 1 29 1 view .LVU12
+  69 001e 03B0     		add	sp, sp, #12
+  70              	.LCFI2:
+  71              		.cfi_remember_state
+  72              		.cfi_def_cfa_offset 4
+  73              		@ sp needed
+  74 0020 5DF804FB 		ldr	pc, [sp], #4
+  75              	.LVL4:
+  76              	.L2:
+  77              	.LCFI3:
+  78              		.cfi_restore_state
+  25:modules/oled/oled.c ****     }
+  79              		.loc 1 25 9 is_stmt 1 view .LVU13
+  25:modules/oled/oled.c ****     }
+  80              		.loc 1 25 21 is_stmt 0 view .LVU14
+  81 0024 014B     		ldr	r3, .L5
+  82 0026 4022     		movs	r2, #64
+  83 0028 1A70     		strb	r2, [r3]
+  84 002a EFE7     		b	.L3
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 3
+
+
+  85              	.L6:
+  86              		.align	2
+  87              	.L5:
+  88 002c 00000000 		.word	cmd_data.2
+  89 0030 00000000 		.word	hi2c2
+  90              		.cfi_endproc
+  91              	.LFE238:
+  93              		.section	.text.OLED_init,"ax",%progbits
+  94              		.align	1
+  95              		.global	OLED_init
+  96              		.syntax unified
+  97              		.thumb
+  98              		.thumb_func
+ 100              	OLED_init:
+ 101              	.LFB239:
+  30:modules/oled/oled.c **** 
+  31:modules/oled/oled.c **** 
+  32:modules/oled/oled.c **** /**
+  33:modules/oled/oled.c ****   * @brief          初始化OLED模块，
+  34:modules/oled/oled.c ****   * @param[in]      none
+  35:modules/oled/oled.c ****   * @retval         none
+  36:modules/oled/oled.c ****   */
+  37:modules/oled/oled.c **** void OLED_init(void)
+  38:modules/oled/oled.c **** {
+ 102              		.loc 1 38 1 is_stmt 1 view -0
+ 103              		.cfi_startproc
+ 104              		@ args = 0, pretend = 0, frame = 0
+ 105              		@ frame_needed = 0, uses_anonymous_args = 0
+ 106 0000 08B5     		push	{r3, lr}
+ 107              	.LCFI4:
+ 108              		.cfi_def_cfa_offset 8
+ 109              		.cfi_offset 3, -8
+ 110              		.cfi_offset 14, -4
+  39:modules/oled/oled.c ****     oled_write_byte(0xAE, OLED_CMD);    //display off
+ 111              		.loc 1 39 5 view .LVU16
+ 112 0002 0021     		movs	r1, #0
+ 113 0004 AE20     		movs	r0, #174
+ 114 0006 FFF7FEFF 		bl	oled_write_byte
+ 115              	.LVL5:
+  40:modules/oled/oled.c ****     oled_write_byte(0x20, OLED_CMD);    //Set Memory Addressing Mode	
+ 116              		.loc 1 40 5 view .LVU17
+ 117 000a 0021     		movs	r1, #0
+ 118 000c 2020     		movs	r0, #32
+ 119 000e FFF7FEFF 		bl	oled_write_byte
+ 120              	.LVL6:
+  41:modules/oled/oled.c ****     oled_write_byte(0x10, OLED_CMD);    //00,Horizontal Addressing Mode;01,Vertical Addressing Mode
+ 121              		.loc 1 41 5 view .LVU18
+ 122 0012 0021     		movs	r1, #0
+ 123 0014 1020     		movs	r0, #16
+ 124 0016 FFF7FEFF 		bl	oled_write_byte
+ 125              	.LVL7:
+  42:modules/oled/oled.c ****     oled_write_byte(0xb0, OLED_CMD);    //Set Page Start Address for Page Addressing Mode,0-7
+ 126              		.loc 1 42 5 view .LVU19
+ 127 001a 0021     		movs	r1, #0
+ 128 001c B020     		movs	r0, #176
+ 129 001e FFF7FEFF 		bl	oled_write_byte
+ 130              	.LVL8:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 4
+
+
+  43:modules/oled/oled.c ****     oled_write_byte(0xc8, OLED_CMD);    //Set COM Output Scan Direction
+ 131              		.loc 1 43 5 view .LVU20
+ 132 0022 0021     		movs	r1, #0
+ 133 0024 C820     		movs	r0, #200
+ 134 0026 FFF7FEFF 		bl	oled_write_byte
+ 135              	.LVL9:
+  44:modules/oled/oled.c ****     oled_write_byte(0x00, OLED_CMD);    //---set low column address
+ 136              		.loc 1 44 5 view .LVU21
+ 137 002a 0021     		movs	r1, #0
+ 138 002c 0846     		mov	r0, r1
+ 139 002e FFF7FEFF 		bl	oled_write_byte
+ 140              	.LVL10:
+  45:modules/oled/oled.c ****     oled_write_byte(0x10, OLED_CMD);    //---set high column address
+ 141              		.loc 1 45 5 view .LVU22
+ 142 0032 0021     		movs	r1, #0
+ 143 0034 1020     		movs	r0, #16
+ 144 0036 FFF7FEFF 		bl	oled_write_byte
+ 145              	.LVL11:
+  46:modules/oled/oled.c ****     oled_write_byte(0x40, OLED_CMD);    //--set start line address
+ 146              		.loc 1 46 5 view .LVU23
+ 147 003a 0021     		movs	r1, #0
+ 148 003c 4020     		movs	r0, #64
+ 149 003e FFF7FEFF 		bl	oled_write_byte
+ 150              	.LVL12:
+  47:modules/oled/oled.c ****     oled_write_byte(0x81, OLED_CMD);    //--set contrast control register
+ 151              		.loc 1 47 5 view .LVU24
+ 152 0042 0021     		movs	r1, #0
+ 153 0044 8120     		movs	r0, #129
+ 154 0046 FFF7FEFF 		bl	oled_write_byte
+ 155              	.LVL13:
+  48:modules/oled/oled.c ****     oled_write_byte(0xff, OLED_CMD);    //brightness 0x00~0xff
+ 156              		.loc 1 48 5 view .LVU25
+ 157 004a 0021     		movs	r1, #0
+ 158 004c FF20     		movs	r0, #255
+ 159 004e FFF7FEFF 		bl	oled_write_byte
+ 160              	.LVL14:
+  49:modules/oled/oled.c ****     oled_write_byte(0xa1, OLED_CMD);    //--set segment re-map 0 to 127
+ 161              		.loc 1 49 5 view .LVU26
+ 162 0052 0021     		movs	r1, #0
+ 163 0054 A120     		movs	r0, #161
+ 164 0056 FFF7FEFF 		bl	oled_write_byte
+ 165              	.LVL15:
+  50:modules/oled/oled.c ****     oled_write_byte(0xa6, OLED_CMD);    //--set normal display
+ 166              		.loc 1 50 5 view .LVU27
+ 167 005a 0021     		movs	r1, #0
+ 168 005c A620     		movs	r0, #166
+ 169 005e FFF7FEFF 		bl	oled_write_byte
+ 170              	.LVL16:
+  51:modules/oled/oled.c ****     oled_write_byte(0xa8, OLED_CMD);    //--set multiplex ratio(1 to 64)
+ 171              		.loc 1 51 5 view .LVU28
+ 172 0062 0021     		movs	r1, #0
+ 173 0064 A820     		movs	r0, #168
+ 174 0066 FFF7FEFF 		bl	oled_write_byte
+ 175              	.LVL17:
+  52:modules/oled/oled.c ****     oled_write_byte(0x3F, OLED_CMD);    //
+ 176              		.loc 1 52 5 view .LVU29
+ 177 006a 0021     		movs	r1, #0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 5
+
+
+ 178 006c 3F20     		movs	r0, #63
+ 179 006e FFF7FEFF 		bl	oled_write_byte
+ 180              	.LVL18:
+  53:modules/oled/oled.c ****     oled_write_byte(0xa4, OLED_CMD);    //0xa4,Output follows RAM content;0xa5,Output ignores RAM c
+ 181              		.loc 1 53 5 view .LVU30
+ 182 0072 0021     		movs	r1, #0
+ 183 0074 A420     		movs	r0, #164
+ 184 0076 FFF7FEFF 		bl	oled_write_byte
+ 185              	.LVL19:
+  54:modules/oled/oled.c ****     oled_write_byte(0xd3, OLED_CMD);    //-set display offset
+ 186              		.loc 1 54 5 view .LVU31
+ 187 007a 0021     		movs	r1, #0
+ 188 007c D320     		movs	r0, #211
+ 189 007e FFF7FEFF 		bl	oled_write_byte
+ 190              	.LVL20:
+  55:modules/oled/oled.c ****     oled_write_byte(0x00, OLED_CMD);    //-not offset
+ 191              		.loc 1 55 5 view .LVU32
+ 192 0082 0021     		movs	r1, #0
+ 193 0084 0846     		mov	r0, r1
+ 194 0086 FFF7FEFF 		bl	oled_write_byte
+ 195              	.LVL21:
+  56:modules/oled/oled.c ****     oled_write_byte(0xd5, OLED_CMD);    //--set display clock divide ratio/oscillator frequency
+ 196              		.loc 1 56 5 view .LVU33
+ 197 008a 0021     		movs	r1, #0
+ 198 008c D520     		movs	r0, #213
+ 199 008e FFF7FEFF 		bl	oled_write_byte
+ 200              	.LVL22:
+  57:modules/oled/oled.c ****     oled_write_byte(0xf0, OLED_CMD);    //--set divide ratio
+ 201              		.loc 1 57 5 view .LVU34
+ 202 0092 0021     		movs	r1, #0
+ 203 0094 F020     		movs	r0, #240
+ 204 0096 FFF7FEFF 		bl	oled_write_byte
+ 205              	.LVL23:
+  58:modules/oled/oled.c ****     oled_write_byte(0xd9, OLED_CMD);    //--set pre-charge period
+ 206              		.loc 1 58 5 view .LVU35
+ 207 009a 0021     		movs	r1, #0
+ 208 009c D920     		movs	r0, #217
+ 209 009e FFF7FEFF 		bl	oled_write_byte
+ 210              	.LVL24:
+  59:modules/oled/oled.c ****     oled_write_byte(0x22, OLED_CMD);    //
+ 211              		.loc 1 59 5 view .LVU36
+ 212 00a2 0021     		movs	r1, #0
+ 213 00a4 2220     		movs	r0, #34
+ 214 00a6 FFF7FEFF 		bl	oled_write_byte
+ 215              	.LVL25:
+  60:modules/oled/oled.c ****     oled_write_byte(0xda, OLED_CMD);    //--set com pins hardware configuration
+ 216              		.loc 1 60 5 view .LVU37
+ 217 00aa 0021     		movs	r1, #0
+ 218 00ac DA20     		movs	r0, #218
+ 219 00ae FFF7FEFF 		bl	oled_write_byte
+ 220              	.LVL26:
+  61:modules/oled/oled.c ****     oled_write_byte(0x12, OLED_CMD);
+ 221              		.loc 1 61 5 view .LVU38
+ 222 00b2 0021     		movs	r1, #0
+ 223 00b4 1220     		movs	r0, #18
+ 224 00b6 FFF7FEFF 		bl	oled_write_byte
+ 225              	.LVL27:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 6
+
+
+  62:modules/oled/oled.c ****     oled_write_byte(0xdb, OLED_CMD);    //--set vcomh
+ 226              		.loc 1 62 5 view .LVU39
+ 227 00ba 0021     		movs	r1, #0
+ 228 00bc DB20     		movs	r0, #219
+ 229 00be FFF7FEFF 		bl	oled_write_byte
+ 230              	.LVL28:
+  63:modules/oled/oled.c ****     oled_write_byte(0x20, OLED_CMD);    //0x20,0.77xVcc
+ 231              		.loc 1 63 5 view .LVU40
+ 232 00c2 0021     		movs	r1, #0
+ 233 00c4 2020     		movs	r0, #32
+ 234 00c6 FFF7FEFF 		bl	oled_write_byte
+ 235              	.LVL29:
+  64:modules/oled/oled.c ****     oled_write_byte(0x8d, OLED_CMD);    //--set DC-DC enable
+ 236              		.loc 1 64 5 view .LVU41
+ 237 00ca 0021     		movs	r1, #0
+ 238 00cc 8D20     		movs	r0, #141
+ 239 00ce FFF7FEFF 		bl	oled_write_byte
+ 240              	.LVL30:
+  65:modules/oled/oled.c ****     oled_write_byte(0x14, OLED_CMD);    //
+ 241              		.loc 1 65 5 view .LVU42
+ 242 00d2 0021     		movs	r1, #0
+ 243 00d4 1420     		movs	r0, #20
+ 244 00d6 FFF7FEFF 		bl	oled_write_byte
+ 245              	.LVL31:
+  66:modules/oled/oled.c ****     oled_write_byte(0xaf, OLED_CMD);    //--turn on oled panel
+ 246              		.loc 1 66 5 view .LVU43
+ 247 00da 0021     		movs	r1, #0
+ 248 00dc AF20     		movs	r0, #175
+ 249 00de FFF7FEFF 		bl	oled_write_byte
+ 250              	.LVL32:
+  67:modules/oled/oled.c **** }
+ 251              		.loc 1 67 1 is_stmt 0 view .LVU44
+ 252 00e2 08BD     		pop	{r3, pc}
+ 253              		.cfi_endproc
+ 254              	.LFE239:
+ 256              		.section	.text.OLED_display_on,"ax",%progbits
+ 257              		.align	1
+ 258              		.global	OLED_display_on
+ 259              		.syntax unified
+ 260              		.thumb
+ 261              		.thumb_func
+ 263              	OLED_display_on:
+ 264              	.LFB240:
+  68:modules/oled/oled.c **** 
+  69:modules/oled/oled.c **** 
+  70:modules/oled/oled.c **** /**
+  71:modules/oled/oled.c ****   * @brief          打开OLED显示
+  72:modules/oled/oled.c ****   * @param[in]      none
+  73:modules/oled/oled.c ****   * @retval         none
+  74:modules/oled/oled.c ****   */
+  75:modules/oled/oled.c **** void OLED_display_on(void)
+  76:modules/oled/oled.c **** {
+ 265              		.loc 1 76 1 is_stmt 1 view -0
+ 266              		.cfi_startproc
+ 267              		@ args = 0, pretend = 0, frame = 0
+ 268              		@ frame_needed = 0, uses_anonymous_args = 0
+ 269 0000 08B5     		push	{r3, lr}
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 7
+
+
+ 270              	.LCFI5:
+ 271              		.cfi_def_cfa_offset 8
+ 272              		.cfi_offset 3, -8
+ 273              		.cfi_offset 14, -4
+  77:modules/oled/oled.c ****     oled_write_byte(0x8d, OLED_CMD);
+ 274              		.loc 1 77 5 view .LVU46
+ 275 0002 0021     		movs	r1, #0
+ 276 0004 8D20     		movs	r0, #141
+ 277 0006 FFF7FEFF 		bl	oled_write_byte
+ 278              	.LVL33:
+  78:modules/oled/oled.c ****     oled_write_byte(0x14, OLED_CMD);
+ 279              		.loc 1 78 5 view .LVU47
+ 280 000a 0021     		movs	r1, #0
+ 281 000c 1420     		movs	r0, #20
+ 282 000e FFF7FEFF 		bl	oled_write_byte
+ 283              	.LVL34:
+  79:modules/oled/oled.c ****     oled_write_byte(0xaf, OLED_CMD);
+ 284              		.loc 1 79 5 view .LVU48
+ 285 0012 0021     		movs	r1, #0
+ 286 0014 AF20     		movs	r0, #175
+ 287 0016 FFF7FEFF 		bl	oled_write_byte
+ 288              	.LVL35:
+  80:modules/oled/oled.c **** }
+ 289              		.loc 1 80 1 is_stmt 0 view .LVU49
+ 290 001a 08BD     		pop	{r3, pc}
+ 291              		.cfi_endproc
+ 292              	.LFE240:
+ 294              		.section	.text.OLED_display_off,"ax",%progbits
+ 295              		.align	1
+ 296              		.global	OLED_display_off
+ 297              		.syntax unified
+ 298              		.thumb
+ 299              		.thumb_func
+ 301              	OLED_display_off:
+ 302              	.LFB241:
+  81:modules/oled/oled.c **** 
+  82:modules/oled/oled.c **** 
+  83:modules/oled/oled.c **** /**
+  84:modules/oled/oled.c ****   * @brief          关闭OLED显示
+  85:modules/oled/oled.c ****   * @param[in]      none
+  86:modules/oled/oled.c ****   * @retval         none
+  87:modules/oled/oled.c ****   */
+  88:modules/oled/oled.c **** void OLED_display_off(void)
+  89:modules/oled/oled.c **** {
+ 303              		.loc 1 89 1 is_stmt 1 view -0
+ 304              		.cfi_startproc
+ 305              		@ args = 0, pretend = 0, frame = 0
+ 306              		@ frame_needed = 0, uses_anonymous_args = 0
+ 307 0000 08B5     		push	{r3, lr}
+ 308              	.LCFI6:
+ 309              		.cfi_def_cfa_offset 8
+ 310              		.cfi_offset 3, -8
+ 311              		.cfi_offset 14, -4
+  90:modules/oled/oled.c ****     oled_write_byte(0x8d, OLED_CMD);
+ 312              		.loc 1 90 5 view .LVU51
+ 313 0002 0021     		movs	r1, #0
+ 314 0004 8D20     		movs	r0, #141
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 8
+
+
+ 315 0006 FFF7FEFF 		bl	oled_write_byte
+ 316              	.LVL36:
+  91:modules/oled/oled.c ****     oled_write_byte(0x10, OLED_CMD);
+ 317              		.loc 1 91 5 view .LVU52
+ 318 000a 0021     		movs	r1, #0
+ 319 000c 1020     		movs	r0, #16
+ 320 000e FFF7FEFF 		bl	oled_write_byte
+ 321              	.LVL37:
+  92:modules/oled/oled.c ****     oled_write_byte(0xae, OLED_CMD);
+ 322              		.loc 1 92 5 view .LVU53
+ 323 0012 0021     		movs	r1, #0
+ 324 0014 AE20     		movs	r0, #174
+ 325 0016 FFF7FEFF 		bl	oled_write_byte
+ 326              	.LVL38:
+  93:modules/oled/oled.c **** }
+ 327              		.loc 1 93 1 is_stmt 0 view .LVU54
+ 328 001a 08BD     		pop	{r3, pc}
+ 329              		.cfi_endproc
+ 330              	.LFE241:
+ 332              		.section	.text.OLED_operate_gram,"ax",%progbits
+ 333              		.align	1
+ 334              		.global	OLED_operate_gram
+ 335              		.syntax unified
+ 336              		.thumb
+ 337              		.thumb_func
+ 339              	OLED_operate_gram:
+ 340              	.LVL39:
+ 341              	.LFB242:
+  94:modules/oled/oled.c **** 
+  95:modules/oled/oled.c **** 
+  96:modules/oled/oled.c **** /**
+  97:modules/oled/oled.c ****   * @brief          操作GRAM内存(128*8char数组)
+  98:modules/oled/oled.c ****   * @param[in]      pen: 操作类型.
+  99:modules/oled/oled.c ****                     PEN_CLEAR: 设置为0x00
+ 100:modules/oled/oled.c ****                     PEN_WRITE: 设置为0xff
+ 101:modules/oled/oled.c ****                     PEN_INVERSION: 按位取反
+ 102:modules/oled/oled.c ****   * @retval         none
+ 103:modules/oled/oled.c ****   */
+ 104:modules/oled/oled.c **** void OLED_operate_gram(pen_typedef pen)
+ 105:modules/oled/oled.c **** {
+ 342              		.loc 1 105 1 is_stmt 1 view -0
+ 343              		.cfi_startproc
+ 344              		@ args = 0, pretend = 0, frame = 0
+ 345              		@ frame_needed = 0, uses_anonymous_args = 0
+ 346              		@ link register save eliminated.
+ 347              		.loc 1 105 1 is_stmt 0 view .LVU56
+ 348 0000 0246     		mov	r2, r0
+ 106:modules/oled/oled.c ****     uint8_t i, n;
+ 349              		.loc 1 106 5 is_stmt 1 view .LVU57
+ 107:modules/oled/oled.c **** 
+ 108:modules/oled/oled.c ****     for (i = 0; i < 8; i++)
+ 350              		.loc 1 108 5 view .LVU58
+ 351              	.LVL40:
+ 352              		.loc 1 108 12 is_stmt 0 view .LVU59
+ 353 0002 0020     		movs	r0, #0
+ 354              	.LVL41:
+ 355              		.loc 1 108 5 view .LVU60
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 9
+
+
+ 356 0004 22E0     		b	.L14
+ 357              	.LVL42:
+ 358              	.L22:
+ 109:modules/oled/oled.c ****     {
+ 110:modules/oled/oled.c ****         for (n = 0; n < 128; n++)
+ 111:modules/oled/oled.c ****         {
+ 112:modules/oled/oled.c ****             if (pen == PEN_WRITE)
+ 113:modules/oled/oled.c ****             {
+ 114:modules/oled/oled.c ****                 OLED_GRAM[n][i] = 0xff;
+ 359              		.loc 1 114 17 is_stmt 1 view .LVU61
+ 360              		.loc 1 114 33 is_stmt 0 view .LVU62
+ 361 0006 1449     		ldr	r1, .L24
+ 362 0008 01EBC301 		add	r1, r1, r3, lsl #3
+ 363 000c 4FF0FF0C 		mov	ip, #255
+ 364 0010 01F800C0 		strb	ip, [r1, r0]
+ 365              	.L16:
+ 110:modules/oled/oled.c ****         {
+ 366              		.loc 1 110 31 is_stmt 1 discriminator 2 view .LVU63
+ 367 0014 0133     		adds	r3, r3, #1
+ 368              	.LVL43:
+ 110:modules/oled/oled.c ****         {
+ 369              		.loc 1 110 31 is_stmt 0 discriminator 2 view .LVU64
+ 370 0016 DBB2     		uxtb	r3, r3
+ 371              	.LVL44:
+ 372              	.L19:
+ 110:modules/oled/oled.c ****         {
+ 373              		.loc 1 110 23 is_stmt 1 discriminator 1 view .LVU65
+ 374 0018 13F0800F 		tst	r3, #128
+ 375 001c 14D1     		bne	.L21
+ 112:modules/oled/oled.c ****             {
+ 376              		.loc 1 112 13 view .LVU66
+ 112:modules/oled/oled.c ****             {
+ 377              		.loc 1 112 16 is_stmt 0 view .LVU67
+ 378 001e 012A     		cmp	r2, #1
+ 379 0020 F1D0     		beq	.L22
+ 115:modules/oled/oled.c ****             }
+ 116:modules/oled/oled.c ****             else if (pen == PEN_CLEAR)
+ 380              		.loc 1 116 18 is_stmt 1 view .LVU68
+ 381              		.loc 1 116 21 is_stmt 0 view .LVU69
+ 382 0022 3AB9     		cbnz	r2, .L17
+ 117:modules/oled/oled.c ****             {
+ 118:modules/oled/oled.c ****                 OLED_GRAM[n][i] = 0x00;
+ 383              		.loc 1 118 17 is_stmt 1 view .LVU70
+ 384              		.loc 1 118 33 is_stmt 0 view .LVU71
+ 385 0024 0C49     		ldr	r1, .L24
+ 386 0026 01EBC301 		add	r1, r1, r3, lsl #3
+ 387 002a 4FF0000C 		mov	ip, #0
+ 388 002e 01F800C0 		strb	ip, [r1, r0]
+ 389 0032 EFE7     		b	.L16
+ 390              	.L17:
+ 119:modules/oled/oled.c ****             }
+ 120:modules/oled/oled.c ****             else
+ 121:modules/oled/oled.c ****             {
+ 122:modules/oled/oled.c ****                 OLED_GRAM[n][i] = 0xff - OLED_GRAM[n][i];
+ 391              		.loc 1 122 17 is_stmt 1 view .LVU72
+ 392              		.loc 1 122 54 is_stmt 0 view .LVU73
+ 393 0034 0849     		ldr	r1, .L24
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 10
+
+
+ 394 0036 01EBC301 		add	r1, r1, r3, lsl #3
+ 395 003a 11F800C0 		ldrb	ip, [r1, r0]	@ zero_extendqisi2
+ 396              		.loc 1 122 40 view .LVU74
+ 397 003e 6FEA0C0C 		mvn	ip, ip
+ 398              		.loc 1 122 33 view .LVU75
+ 399 0042 01F800C0 		strb	ip, [r1, r0]
+ 400 0046 E5E7     		b	.L16
+ 401              	.L21:
+ 108:modules/oled/oled.c ****     {
+ 402              		.loc 1 108 25 is_stmt 1 discriminator 2 view .LVU76
+ 403 0048 0130     		adds	r0, r0, #1
+ 404              	.LVL45:
+ 108:modules/oled/oled.c ****     {
+ 405              		.loc 1 108 25 is_stmt 0 discriminator 2 view .LVU77
+ 406 004a C0B2     		uxtb	r0, r0
+ 407              	.LVL46:
+ 408              	.L14:
+ 108:modules/oled/oled.c ****     {
+ 409              		.loc 1 108 19 is_stmt 1 discriminator 1 view .LVU78
+ 410 004c 0728     		cmp	r0, #7
+ 411 004e 01D8     		bhi	.L23
+ 110:modules/oled/oled.c ****         {
+ 412              		.loc 1 110 16 is_stmt 0 view .LVU79
+ 413 0050 0023     		movs	r3, #0
+ 414 0052 E1E7     		b	.L19
+ 415              	.L23:
+ 123:modules/oled/oled.c ****             }
+ 124:modules/oled/oled.c ****         }
+ 125:modules/oled/oled.c ****     }
+ 126:modules/oled/oled.c **** }
+ 416              		.loc 1 126 1 view .LVU80
+ 417 0054 7047     		bx	lr
+ 418              	.L25:
+ 419 0056 00BF     		.align	2
+ 420              	.L24:
+ 421 0058 00000000 		.word	OLED_GRAM
+ 422              		.cfi_endproc
+ 423              	.LFE242:
+ 425              		.section	.text.OLED_set_pos,"ax",%progbits
+ 426              		.align	1
+ 427              		.global	OLED_set_pos
+ 428              		.syntax unified
+ 429              		.thumb
+ 430              		.thumb_func
+ 432              	OLED_set_pos:
+ 433              	.LVL47:
+ 434              	.LFB243:
+ 127:modules/oled/oled.c **** 
+ 128:modules/oled/oled.c **** /**
+ 129:modules/oled/oled.c ****   * @brief          设置光标起点(x,y)
+ 130:modules/oled/oled.c ****   * @param[in]      x:x轴, 从 0 到 127
+ 131:modules/oled/oled.c ****   * @param[in]      y:y轴, 从 0 到 7
+ 132:modules/oled/oled.c ****   * @retval         none
+ 133:modules/oled/oled.c ****   */
+ 134:modules/oled/oled.c **** void OLED_set_pos(uint8_t x, uint8_t y)
+ 135:modules/oled/oled.c **** {
+ 435              		.loc 1 135 1 is_stmt 1 view -0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 11
+
+
+ 436              		.cfi_startproc
+ 437              		@ args = 0, pretend = 0, frame = 0
+ 438              		@ frame_needed = 0, uses_anonymous_args = 0
+ 439              		.loc 1 135 1 is_stmt 0 view .LVU82
+ 440 0000 10B5     		push	{r4, lr}
+ 441              	.LCFI7:
+ 442              		.cfi_def_cfa_offset 8
+ 443              		.cfi_offset 4, -8
+ 444              		.cfi_offset 14, -4
+ 445 0002 0446     		mov	r4, r0
+ 136:modules/oled/oled.c ****     oled_write_byte((0xb0 + y), OLED_CMD);              //set page address y
+ 446              		.loc 1 136 5 is_stmt 1 view .LVU83
+ 447 0004 A1F15000 		sub	r0, r1, #80
+ 448              	.LVL48:
+ 449              		.loc 1 136 5 is_stmt 0 view .LVU84
+ 450 0008 0021     		movs	r1, #0
+ 451              	.LVL49:
+ 452              		.loc 1 136 5 view .LVU85
+ 453 000a C0B2     		uxtb	r0, r0
+ 454              	.LVL50:
+ 455              		.loc 1 136 5 view .LVU86
+ 456 000c FFF7FEFF 		bl	oled_write_byte
+ 457              	.LVL51:
+ 137:modules/oled/oled.c ****     oled_write_byte(((x&0xf0)>>4)|0x10, OLED_CMD);      //set column high address
+ 458              		.loc 1 137 5 is_stmt 1 view .LVU87
+ 459              		.loc 1 137 30 is_stmt 0 view .LVU88
+ 460 0010 2009     		lsrs	r0, r4, #4
+ 461              		.loc 1 137 5 view .LVU89
+ 462 0012 0021     		movs	r1, #0
+ 463 0014 40F01000 		orr	r0, r0, #16
+ 464 0018 FFF7FEFF 		bl	oled_write_byte
+ 465              	.LVL52:
+ 138:modules/oled/oled.c ****     oled_write_byte((x&0x0f), OLED_CMD);                //set column low address
+ 466              		.loc 1 138 5 is_stmt 1 view .LVU90
+ 467 001c 0021     		movs	r1, #0
+ 468 001e 04F00F00 		and	r0, r4, #15
+ 469 0022 FFF7FEFF 		bl	oled_write_byte
+ 470              	.LVL53:
+ 139:modules/oled/oled.c **** }
+ 471              		.loc 1 139 1 is_stmt 0 view .LVU91
+ 472 0026 10BD     		pop	{r4, pc}
+ 473              		.loc 1 139 1 view .LVU92
+ 474              		.cfi_endproc
+ 475              	.LFE243:
+ 477              		.section	.text.OLED_draw_point,"ax",%progbits
+ 478              		.align	1
+ 479              		.global	OLED_draw_point
+ 480              		.syntax unified
+ 481              		.thumb
+ 482              		.thumb_func
+ 484              	OLED_draw_point:
+ 485              	.LVL54:
+ 486              	.LFB244:
+ 140:modules/oled/oled.c **** 
+ 141:modules/oled/oled.c **** /**
+ 142:modules/oled/oled.c ****   * @brief          操作GRAM中的一个位，相当于操作屏幕的一个点
+ 143:modules/oled/oled.c ****   * @param[in]      x:x轴,  [0,X_WIDTH-1]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 12
+
+
+ 144:modules/oled/oled.c ****   * @param[in]      y:y轴,  [0,Y_WIDTH-1]
+ 145:modules/oled/oled.c ****   * @param[in]      pen: 操作类型,
+ 146:modules/oled/oled.c ****                         PEN_CLEAR: 设置 (x,y) 点为 0
+ 147:modules/oled/oled.c ****                         PEN_WRITE: 设置 (x,y) 点为 1
+ 148:modules/oled/oled.c ****                         PEN_INVERSION: (x,y) 值反转
+ 149:modules/oled/oled.c ****   * @retval         none
+ 150:modules/oled/oled.c ****   */
+ 151:modules/oled/oled.c **** void OLED_draw_point(int8_t x, int8_t y, pen_typedef pen)
+ 152:modules/oled/oled.c **** {
+ 487              		.loc 1 152 1 is_stmt 1 view -0
+ 488              		.cfi_startproc
+ 489              		@ args = 0, pretend = 0, frame = 0
+ 490              		@ frame_needed = 0, uses_anonymous_args = 0
+ 491              		@ link register save eliminated.
+ 153:modules/oled/oled.c ****     uint8_t page = 0, row = 0;
+ 492              		.loc 1 153 5 view .LVU94
+ 154:modules/oled/oled.c **** 
+ 155:modules/oled/oled.c ****     /* check the corrdinate */
+ 156:modules/oled/oled.c ****     if ((x < 0) || (x > (X_WIDTH - 1)) || (y < 0) || (y > (Y_WIDTH - 1)))
+ 493              		.loc 1 156 5 view .LVU95
+ 494              		.loc 1 156 8 is_stmt 0 view .LVU96
+ 495 0000 0028     		cmp	r0, #0
+ 496              		.loc 1 156 8 view .LVU97
+ 497 0002 22DB     		blt	.L28
+ 498              		.loc 1 156 40 discriminator 1 view .LVU98
+ 499 0004 0029     		cmp	r1, #0
+ 500 0006 20DB     		blt	.L28
+ 501              		.loc 1 156 51 discriminator 2 view .LVU99
+ 502 0008 3F29     		cmp	r1, #63
+ 503 000a 1EDC     		bgt	.L28
+ 157:modules/oled/oled.c ****     {
+ 158:modules/oled/oled.c ****         return;
+ 159:modules/oled/oled.c ****     }
+ 160:modules/oled/oled.c ****     page = y / 8;
+ 504              		.loc 1 160 5 is_stmt 1 view .LVU100
+ 505              		.loc 1 160 10 is_stmt 0 view .LVU101
+ 506 000c 0B46     		mov	r3, r1
+ 507 000e 0029     		cmp	r1, #0
+ 508 0010 1CDB     		blt	.L33
+ 509              	.L30:
+ 510 0012 C3F3C703 		ubfx	r3, r3, #3, #8
+ 511              	.LVL55:
+ 161:modules/oled/oled.c ****     row = y % 8;
+ 512              		.loc 1 161 5 is_stmt 1 view .LVU102
+ 513              		.loc 1 161 9 is_stmt 0 view .LVU103
+ 514 0016 D1F1000C 		rsbs	ip, r1, #0
+ 515 001a 01F00701 		and	r1, r1, #7
+ 516              	.LVL56:
+ 517              		.loc 1 161 9 view .LVU104
+ 518 001e 0CF0070C 		and	ip, ip, #7
+ 519 0022 58BF     		it	pl
+ 520 0024 CCF10001 		rsbpl	r1, ip, #0
+ 521 0028 C9B2     		uxtb	r1, r1
+ 522              	.LVL57:
+ 162:modules/oled/oled.c **** 
+ 163:modules/oled/oled.c ****     if (pen == PEN_WRITE)
+ 523              		.loc 1 163 5 is_stmt 1 view .LVU105
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 13
+
+
+ 524              		.loc 1 163 8 is_stmt 0 view .LVU106
+ 525 002a 012A     		cmp	r2, #1
+ 526 002c 10D0     		beq	.L34
+ 164:modules/oled/oled.c ****     {
+ 165:modules/oled/oled.c ****         OLED_GRAM[x][page] |= 1 << row;
+ 166:modules/oled/oled.c ****     }
+ 167:modules/oled/oled.c ****     else if (pen == PEN_INVERSION)
+ 527              		.loc 1 167 10 is_stmt 1 view .LVU107
+ 528              		.loc 1 167 13 is_stmt 0 view .LVU108
+ 529 002e 022A     		cmp	r2, #2
+ 530 0030 19D0     		beq	.L35
+ 168:modules/oled/oled.c ****     {
+ 169:modules/oled/oled.c ****         OLED_GRAM[x][page] ^= 1 << row;
+ 170:modules/oled/oled.c ****     }
+ 171:modules/oled/oled.c ****     else
+ 172:modules/oled/oled.c ****     {
+ 173:modules/oled/oled.c ****         OLED_GRAM[x][page] &= ~(1 << row);
+ 531              		.loc 1 173 9 is_stmt 1 view .LVU109
+ 532              		.loc 1 173 21 is_stmt 0 view .LVU110
+ 533 0032 124A     		ldr	r2, .L36
+ 534              	.LVL58:
+ 535              		.loc 1 173 21 view .LVU111
+ 536 0034 02EBC000 		add	r0, r2, r0, lsl #3
+ 537              	.LVL59:
+ 538              		.loc 1 173 21 view .LVU112
+ 539 0038 10F803C0 		ldrb	ip, [r0, r3]	@ zero_extendqisi2
+ 540              		.loc 1 173 35 view .LVU113
+ 541 003c 0122     		movs	r2, #1
+ 542 003e 8A40     		lsls	r2, r2, r1
+ 543              		.loc 1 173 28 view .LVU114
+ 544 0040 D243     		mvns	r2, r2
+ 545 0042 52B2     		sxtb	r2, r2
+ 546 0044 0CEA0202 		and	r2, ip, r2
+ 547 0048 C254     		strb	r2, [r0, r3]
+ 548              	.LVL60:
+ 549              	.L28:
+ 174:modules/oled/oled.c ****     }
+ 175:modules/oled/oled.c **** }
+ 550              		.loc 1 175 1 view .LVU115
+ 551 004a 7047     		bx	lr
+ 552              	.LVL61:
+ 553              	.L33:
+ 160:modules/oled/oled.c ****     row = y % 8;
+ 554              		.loc 1 160 10 view .LVU116
+ 555 004c CB1D     		adds	r3, r1, #7
+ 556 004e E0E7     		b	.L30
+ 557              	.LVL62:
+ 558              	.L34:
+ 165:modules/oled/oled.c ****     }
+ 559              		.loc 1 165 9 is_stmt 1 view .LVU117
+ 165:modules/oled/oled.c ****     }
+ 560              		.loc 1 165 21 is_stmt 0 view .LVU118
+ 561 0050 0A4A     		ldr	r2, .L36
+ 562              	.LVL63:
+ 165:modules/oled/oled.c ****     }
+ 563              		.loc 1 165 21 view .LVU119
+ 564 0052 02EBC002 		add	r2, r2, r0, lsl #3
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 14
+
+
+ 565 0056 D05C     		ldrb	r0, [r2, r3]	@ zero_extendqisi2
+ 165:modules/oled/oled.c ****     }
+ 566              		.loc 1 165 33 view .LVU120
+ 567 0058 4FF0010C 		mov	ip, #1
+ 568 005c 0CFA01F1 		lsl	r1, ip, r1
+ 569              	.LVL64:
+ 165:modules/oled/oled.c ****     }
+ 570              		.loc 1 165 28 view .LVU121
+ 571 0060 0143     		orrs	r1, r1, r0
+ 572 0062 D154     		strb	r1, [r2, r3]
+ 573 0064 7047     		bx	lr
+ 574              	.LVL65:
+ 575              	.L35:
+ 169:modules/oled/oled.c ****     }
+ 576              		.loc 1 169 9 is_stmt 1 view .LVU122
+ 169:modules/oled/oled.c ****     }
+ 577              		.loc 1 169 21 is_stmt 0 view .LVU123
+ 578 0066 054A     		ldr	r2, .L36
+ 579              	.LVL66:
+ 169:modules/oled/oled.c ****     }
+ 580              		.loc 1 169 21 view .LVU124
+ 581 0068 02EBC002 		add	r2, r2, r0, lsl #3
+ 582 006c D05C     		ldrb	r0, [r2, r3]	@ zero_extendqisi2
+ 169:modules/oled/oled.c ****     }
+ 583              		.loc 1 169 33 view .LVU125
+ 584 006e 4FF0010C 		mov	ip, #1
+ 585 0072 0CFA01F1 		lsl	r1, ip, r1
+ 586              	.LVL67:
+ 169:modules/oled/oled.c ****     }
+ 587              		.loc 1 169 28 view .LVU126
+ 588 0076 4140     		eors	r1, r1, r0
+ 589 0078 D154     		strb	r1, [r2, r3]
+ 590 007a 7047     		bx	lr
+ 591              	.L37:
+ 592              		.align	2
+ 593              	.L36:
+ 594 007c 00000000 		.word	OLED_GRAM
+ 595              		.cfi_endproc
+ 596              	.LFE244:
+ 598              		.section	.text.OLED_draw_line,"ax",%progbits
+ 599              		.align	1
+ 600              		.global	OLED_draw_line
+ 601              		.syntax unified
+ 602              		.thumb
+ 603              		.thumb_func
+ 605              	OLED_draw_line:
+ 606              	.LVL68:
+ 607              	.LFB245:
+ 176:modules/oled/oled.c **** 
+ 177:modules/oled/oled.c **** 
+ 178:modules/oled/oled.c **** /**
+ 179:modules/oled/oled.c ****   * @brief          画一条直线，从(x1,y1)到(x2,y2)
+ 180:modules/oled/oled.c ****   * @param[in]      x1: 起点
+ 181:modules/oled/oled.c ****   * @param[in]      y1: 起点
+ 182:modules/oled/oled.c ****   * @param[in]      x2: 终点
+ 183:modules/oled/oled.c ****   * @param[in]      y2: 终点
+ 184:modules/oled/oled.c ****   * @param[in]      pen: 操作类型,PEN_CLEAR,PEN_WRITE,PEN_INVERSION.
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 15
+
+
+ 185:modules/oled/oled.c ****   * @retval         none
+ 186:modules/oled/oled.c ****   */
+ 187:modules/oled/oled.c ****   
+ 188:modules/oled/oled.c **** void OLED_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, pen_typedef pen)
+ 189:modules/oled/oled.c **** {
+ 608              		.loc 1 189 1 is_stmt 1 view -0
+ 609              		.cfi_startproc
+ 610              		@ args = 4, pretend = 0, frame = 8
+ 611              		@ frame_needed = 0, uses_anonymous_args = 0
+ 612              		.loc 1 189 1 is_stmt 0 view .LVU128
+ 613 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 614              	.LCFI8:
+ 615              		.cfi_def_cfa_offset 24
+ 616              		.cfi_offset 4, -24
+ 617              		.cfi_offset 5, -20
+ 618              		.cfi_offset 6, -16
+ 619              		.cfi_offset 7, -12
+ 620              		.cfi_offset 8, -8
+ 621              		.cfi_offset 14, -4
+ 622 0004 2DED028B 		vpush.64	{d8}
+ 623              	.LCFI9:
+ 624              		.cfi_def_cfa_offset 32
+ 625              		.cfi_offset 80, -32
+ 626              		.cfi_offset 81, -28
+ 627 0008 82B0     		sub	sp, sp, #8
+ 628              	.LCFI10:
+ 629              		.cfi_def_cfa_offset 40
+ 630 000a 0446     		mov	r4, r0
+ 631 000c 8846     		mov	r8, r1
+ 632 000e 1646     		mov	r6, r2
+ 633 0010 9DF82870 		ldrb	r7, [sp, #40]	@ zero_extendqisi2
+ 190:modules/oled/oled.c ****     uint8_t col = 0, row = 0;
+ 634              		.loc 1 190 5 is_stmt 1 view .LVU129
+ 635              	.LVL69:
+ 191:modules/oled/oled.c ****     uint8_t x_st = 0, x_ed = 0, y_st = 0, y_ed = 0;
+ 636              		.loc 1 191 5 view .LVU130
+ 192:modules/oled/oled.c ****     float k = 0.0f, b = 0.0f;
+ 637              		.loc 1 192 5 view .LVU131
+ 193:modules/oled/oled.c **** 
+ 194:modules/oled/oled.c ****     if (y1 == y2)
+ 638              		.loc 1 194 5 view .LVU132
+ 639              		.loc 1 194 8 is_stmt 0 view .LVU133
+ 640 0014 9942     		cmp	r1, r3
+ 641 0016 1DD0     		beq	.L57
+ 195:modules/oled/oled.c ****     {
+ 196:modules/oled/oled.c ****         (x1 <= x2) ? (x_st = x1):(x_st = x2);
+ 197:modules/oled/oled.c ****         (x1 <= x2) ? (x_ed = x2):(x_ed = x1);
+ 198:modules/oled/oled.c **** 
+ 199:modules/oled/oled.c ****         for (col = x_st; col <= x_ed; col++)
+ 200:modules/oled/oled.c ****         {
+ 201:modules/oled/oled.c ****             OLED_draw_point(col, y1, pen);
+ 202:modules/oled/oled.c ****         }
+ 203:modules/oled/oled.c ****     }
+ 204:modules/oled/oled.c ****     else if (x1 == x2)
+ 642              		.loc 1 204 10 is_stmt 1 view .LVU134
+ 643              		.loc 1 204 13 is_stmt 0 view .LVU135
+ 644 0018 9042     		cmp	r0, r2
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 16
+
+
+ 645 001a 2FD0     		beq	.L58
+ 205:modules/oled/oled.c ****     {
+ 206:modules/oled/oled.c ****         (y1 <= y2) ? (y_st = y1):(y_st = y2);
+ 207:modules/oled/oled.c ****         (y1 <= y2) ? (y_ed = y2):(y_ed = y1);
+ 208:modules/oled/oled.c **** 
+ 209:modules/oled/oled.c ****         for (row = y_st; row <= y_ed; row++)
+ 210:modules/oled/oled.c ****         {
+ 211:modules/oled/oled.c ****             OLED_draw_point(x1, row, pen);
+ 212:modules/oled/oled.c ****         }
+ 213:modules/oled/oled.c ****     }
+ 214:modules/oled/oled.c ****     else
+ 215:modules/oled/oled.c ****     {
+ 216:modules/oled/oled.c ****         k = ((float)(y2 - y1)) / (x2 - x1);
+ 646              		.loc 1 216 9 is_stmt 1 view .LVU136
+ 647              		.loc 1 216 25 is_stmt 0 view .LVU137
+ 648 001c 5B1A     		subs	r3, r3, r1
+ 649              	.LVL70:
+ 650              		.loc 1 216 14 view .LVU138
+ 651 001e 07EE903A 		vmov	s15, r3	@ int
+ 652 0022 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 653              		.loc 1 216 38 view .LVU139
+ 654 0026 131A     		subs	r3, r2, r0
+ 655 0028 07EE103A 		vmov	s14, r3	@ int
+ 656              		.loc 1 216 32 view .LVU140
+ 657 002c B8EEC77A 		vcvt.f32.s32	s14, s14
+ 658              		.loc 1 216 11 view .LVU141
+ 659 0030 C7EE878A 		vdiv.f32	s17, s15, s14
+ 660              	.LVL71:
+ 217:modules/oled/oled.c ****         b = (float)y1 - k * x1;
+ 661              		.loc 1 217 9 is_stmt 1 view .LVU142
+ 662              		.loc 1 217 13 is_stmt 0 view .LVU143
+ 663 0034 07EE901A 		vmov	s15, r1	@ int
+ 664 0038 B8EE678A 		vcvt.f32.u32	s16, s15
+ 665              		.loc 1 217 27 view .LVU144
+ 666 003c 07EE900A 		vmov	s15, r0	@ int
+ 667 0040 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 668 0044 67EEA87A 		vmul.f32	s15, s15, s17
+ 669              		.loc 1 217 11 view .LVU145
+ 670 0048 38EE678A 		vsub.f32	s16, s16, s15
+ 671              	.LVL72:
+ 218:modules/oled/oled.c **** 
+ 219:modules/oled/oled.c ****         (x1 <= x2) ? (x_st = x1):(x_st = x2);
+ 672              		.loc 1 219 9 is_stmt 1 view .LVU146
+ 673              		.loc 1 219 33 is_stmt 0 view .LVU147
+ 674 004c 9042     		cmp	r0, r2
+ 675 004e 3CD9     		bls	.L52
+ 676              		.loc 1 219 40 discriminator 2 view .LVU148
+ 677 0050 1446     		mov	r4, r2
+ 678              	.LVL73:
+ 679              		.loc 1 219 40 discriminator 2 view .LVU149
+ 680 0052 3AE0     		b	.L52
+ 681              	.LVL74:
+ 682              	.L57:
+ 196:modules/oled/oled.c ****         (x1 <= x2) ? (x_ed = x2):(x_ed = x1);
+ 683              		.loc 1 196 9 is_stmt 1 view .LVU150
+ 196:modules/oled/oled.c ****         (x1 <= x2) ? (x_ed = x2):(x_ed = x1);
+ 684              		.loc 1 196 33 is_stmt 0 view .LVU151
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 17
+
+
+ 685 0054 9042     		cmp	r0, r2
+ 686 0056 04D8     		bhi	.L54
+ 196:modules/oled/oled.c ****         (x1 <= x2) ? (x_ed = x2):(x_ed = x1);
+ 687              		.loc 1 196 28 discriminator 1 view .LVU152
+ 688 0058 0546     		mov	r5, r0
+ 689              	.L40:
+ 690              	.LVL75:
+ 197:modules/oled/oled.c **** 
+ 691              		.loc 1 197 9 is_stmt 1 view .LVU153
+ 197:modules/oled/oled.c **** 
+ 692              		.loc 1 197 33 is_stmt 0 view .LVU154
+ 693 005a B442     		cmp	r4, r6
+ 694 005c 0BD8     		bhi	.L42
+ 197:modules/oled/oled.c **** 
+ 695              		.loc 1 197 28 discriminator 1 view .LVU155
+ 696 005e 3446     		mov	r4, r6
+ 697              	.LVL76:
+ 199:modules/oled/oled.c ****         {
+ 698              		.loc 1 199 9 is_stmt 1 view .LVU156
+ 199:modules/oled/oled.c ****         {
+ 699              		.loc 1 199 9 is_stmt 0 view .LVU157
+ 700 0060 09E0     		b	.L42
+ 701              	.LVL77:
+ 702              	.L54:
+ 196:modules/oled/oled.c ****         (x1 <= x2) ? (x_ed = x2):(x_ed = x1);
+ 703              		.loc 1 196 40 discriminator 2 view .LVU158
+ 704 0062 1546     		mov	r5, r2
+ 705 0064 F9E7     		b	.L40
+ 706              	.LVL78:
+ 707              	.L43:
+ 201:modules/oled/oled.c ****         }
+ 708              		.loc 1 201 13 is_stmt 1 view .LVU159
+ 709 0066 3A46     		mov	r2, r7
+ 710 0068 4FFA88F1 		sxtb	r1, r8
+ 711 006c 68B2     		sxtb	r0, r5
+ 712 006e FFF7FEFF 		bl	OLED_draw_point
+ 713              	.LVL79:
+ 199:modules/oled/oled.c ****         {
+ 714              		.loc 1 199 42 discriminator 3 view .LVU160
+ 715 0072 0135     		adds	r5, r5, #1
+ 716              	.LVL80:
+ 199:modules/oled/oled.c ****         {
+ 717              		.loc 1 199 42 is_stmt 0 discriminator 3 view .LVU161
+ 718 0074 EDB2     		uxtb	r5, r5
+ 719              	.LVL81:
+ 720              	.L42:
+ 199:modules/oled/oled.c ****         {
+ 721              		.loc 1 199 30 is_stmt 1 discriminator 1 view .LVU162
+ 722 0076 A542     		cmp	r5, r4
+ 723 0078 F5D9     		bls	.L43
+ 724 007a 28E0     		b	.L38
+ 725              	.LVL82:
+ 726              	.L58:
+ 206:modules/oled/oled.c ****         (y1 <= y2) ? (y_ed = y2):(y_ed = y1);
+ 727              		.loc 1 206 9 view .LVU163
+ 206:modules/oled/oled.c ****         (y1 <= y2) ? (y_ed = y2):(y_ed = y1);
+ 728              		.loc 1 206 33 is_stmt 0 view .LVU164
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 18
+
+
+ 729 007c 9942     		cmp	r1, r3
+ 730 007e 04D8     		bhi	.L55
+ 206:modules/oled/oled.c ****         (y1 <= y2) ? (y_ed = y2):(y_ed = y1);
+ 731              		.loc 1 206 28 discriminator 1 view .LVU165
+ 732 0080 0D46     		mov	r5, r1
+ 733              	.L46:
+ 734              	.LVL83:
+ 207:modules/oled/oled.c **** 
+ 735              		.loc 1 207 9 is_stmt 1 view .LVU166
+ 207:modules/oled/oled.c **** 
+ 736              		.loc 1 207 33 is_stmt 0 view .LVU167
+ 737 0082 9845     		cmp	r8, r3
+ 738 0084 0AD8     		bhi	.L48
+ 207:modules/oled/oled.c **** 
+ 739              		.loc 1 207 28 discriminator 1 view .LVU168
+ 740 0086 9846     		mov	r8, r3
+ 741              	.LVL84:
+ 209:modules/oled/oled.c ****         {
+ 742              		.loc 1 209 9 is_stmt 1 view .LVU169
+ 209:modules/oled/oled.c ****         {
+ 743              		.loc 1 209 9 is_stmt 0 view .LVU170
+ 744 0088 08E0     		b	.L48
+ 745              	.LVL85:
+ 746              	.L55:
+ 206:modules/oled/oled.c ****         (y1 <= y2) ? (y_ed = y2):(y_ed = y1);
+ 747              		.loc 1 206 40 discriminator 2 view .LVU171
+ 748 008a 1D46     		mov	r5, r3
+ 749 008c F9E7     		b	.L46
+ 750              	.LVL86:
+ 751              	.L49:
+ 211:modules/oled/oled.c ****         }
+ 752              		.loc 1 211 13 is_stmt 1 view .LVU172
+ 753 008e 3A46     		mov	r2, r7
+ 754 0090 69B2     		sxtb	r1, r5
+ 755 0092 60B2     		sxtb	r0, r4
+ 756 0094 FFF7FEFF 		bl	OLED_draw_point
+ 757              	.LVL87:
+ 209:modules/oled/oled.c ****         {
+ 758              		.loc 1 209 42 discriminator 3 view .LVU173
+ 759 0098 0135     		adds	r5, r5, #1
+ 760              	.LVL88:
+ 209:modules/oled/oled.c ****         {
+ 761              		.loc 1 209 42 is_stmt 0 discriminator 3 view .LVU174
+ 762 009a EDB2     		uxtb	r5, r5
+ 763              	.LVL89:
+ 764              	.L48:
+ 209:modules/oled/oled.c ****         {
+ 765              		.loc 1 209 30 is_stmt 1 discriminator 1 view .LVU175
+ 766 009c 4545     		cmp	r5, r8
+ 767 009e F6D9     		bls	.L49
+ 768 00a0 15E0     		b	.L38
+ 769              	.LVL90:
+ 770              	.L53:
+ 220:modules/oled/oled.c ****         (x1 <= x2) ? (x_ed = x2):(x_ed = x2);
+ 221:modules/oled/oled.c **** 
+ 222:modules/oled/oled.c ****         for (col = x_st; col <= x_ed; col++)
+ 223:modules/oled/oled.c ****         {
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 19
+
+
+ 224:modules/oled/oled.c ****             OLED_draw_point(col, (uint8_t)(col * k + b), pen);
+ 771              		.loc 1 224 13 view .LVU176
+ 772              		.loc 1 224 48 is_stmt 0 view .LVU177
+ 773 00a2 07EE904A 		vmov	s15, r4	@ int
+ 774 00a6 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 775 00aa 67EEA87A 		vmul.f32	s15, s15, s17
+ 776              		.loc 1 224 52 view .LVU178
+ 777 00ae 77EE887A 		vadd.f32	s15, s15, s16
+ 778              		.loc 1 224 34 view .LVU179
+ 779 00b2 FCEEE77A 		vcvt.u32.f32	s15, s15
+ 780 00b6 CDED017A 		vstr.32	s15, [sp, #4]	@ int
+ 781              		.loc 1 224 13 view .LVU180
+ 782 00ba 3A46     		mov	r2, r7
+ 783 00bc 9DF90410 		ldrsb	r1, [sp, #4]
+ 784 00c0 60B2     		sxtb	r0, r4
+ 785 00c2 FFF7FEFF 		bl	OLED_draw_point
+ 786              	.LVL91:
+ 222:modules/oled/oled.c ****         {
+ 787              		.loc 1 222 42 is_stmt 1 discriminator 3 view .LVU181
+ 788 00c6 0134     		adds	r4, r4, #1
+ 789              	.LVL92:
+ 222:modules/oled/oled.c ****         {
+ 790              		.loc 1 222 42 is_stmt 0 discriminator 3 view .LVU182
+ 791 00c8 E4B2     		uxtb	r4, r4
+ 792              	.LVL93:
+ 793              	.L52:
+ 222:modules/oled/oled.c ****         {
+ 794              		.loc 1 222 30 is_stmt 1 discriminator 1 view .LVU183
+ 795 00ca B442     		cmp	r4, r6
+ 796 00cc E9D9     		bls	.L53
+ 797              	.LVL94:
+ 798              	.L38:
+ 225:modules/oled/oled.c ****         }
+ 226:modules/oled/oled.c ****     }
+ 227:modules/oled/oled.c **** }
+ 799              		.loc 1 227 1 is_stmt 0 view .LVU184
+ 800 00ce 02B0     		add	sp, sp, #8
+ 801              	.LCFI11:
+ 802              		.cfi_def_cfa_offset 32
+ 803              		@ sp needed
+ 804 00d0 BDEC028B 		vldm	sp!, {d8}
+ 805              	.LCFI12:
+ 806              		.cfi_restore 80
+ 807              		.cfi_restore 81
+ 808              		.cfi_def_cfa_offset 24
+ 809 00d4 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 810              		.loc 1 227 1 view .LVU185
+ 811              		.cfi_endproc
+ 812              	.LFE245:
+ 814              		.section	.text.OLED_show_char,"ax",%progbits
+ 815              		.align	1
+ 816              		.global	OLED_show_char
+ 817              		.syntax unified
+ 818              		.thumb
+ 819              		.thumb_func
+ 821              	OLED_show_char:
+ 822              	.LVL95:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 20
+
+
+ 823              	.LFB246:
+ 228:modules/oled/oled.c **** 
+ 229:modules/oled/oled.c **** /**
+ 230:modules/oled/oled.c ****   * @brief          显示一个字符
+ 231:modules/oled/oled.c ****   * @param[in]      row: 字符的开始行
+ 232:modules/oled/oled.c ****   * @param[in]      col: 字符的开始列
+ 233:modules/oled/oled.c ****   * @param[in]      chr: 字符
+ 234:modules/oled/oled.c ****   * @retval         none
+ 235:modules/oled/oled.c ****   */
+ 236:modules/oled/oled.c **** void OLED_show_char(uint8_t row, uint8_t col, uint8_t chr)
+ 237:modules/oled/oled.c **** {
+ 824              		.loc 1 237 1 is_stmt 1 view -0
+ 825              		.cfi_startproc
+ 826              		@ args = 0, pretend = 0, frame = 0
+ 827              		@ frame_needed = 0, uses_anonymous_args = 0
+ 828              		.loc 1 237 1 is_stmt 0 view .LVU187
+ 829 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 830              	.LCFI13:
+ 831              		.cfi_def_cfa_offset 32
+ 832              		.cfi_offset 4, -32
+ 833              		.cfi_offset 5, -28
+ 834              		.cfi_offset 6, -24
+ 835              		.cfi_offset 7, -20
+ 836              		.cfi_offset 8, -16
+ 837              		.cfi_offset 9, -12
+ 838              		.cfi_offset 10, -8
+ 839              		.cfi_offset 14, -4
+ 238:modules/oled/oled.c ****     uint8_t x = col * 6;
+ 840              		.loc 1 238 5 is_stmt 1 view .LVU188
+ 841              		.loc 1 238 13 is_stmt 0 view .LVU189
+ 842 0004 01EB4101 		add	r1, r1, r1, lsl #1
+ 843              	.LVL96:
+ 844              		.loc 1 238 13 view .LVU190
+ 845 0008 4F00     		lsls	r7, r1, #1
+ 846 000a FFB2     		uxtb	r7, r7
+ 847              	.LVL97:
+ 239:modules/oled/oled.c ****     uint8_t y = row * 12;
+ 848              		.loc 1 239 5 is_stmt 1 view .LVU191
+ 849              		.loc 1 239 13 is_stmt 0 view .LVU192
+ 850 000c 00EB4000 		add	r0, r0, r0, lsl #1
+ 851              	.LVL98:
+ 852              		.loc 1 239 13 view .LVU193
+ 853 0010 4FEA8008 		lsl	r8, r0, #2
+ 854 0014 5FFA88F8 		uxtb	r8, r8
+ 855              	.LVL99:
+ 240:modules/oled/oled.c ****     uint8_t temp, t, t1;
+ 856              		.loc 1 240 5 is_stmt 1 view .LVU194
+ 241:modules/oled/oled.c ****     uint8_t y0 = y;
+ 857              		.loc 1 241 5 view .LVU195
+ 242:modules/oled/oled.c ****     chr = chr - ' ';
+ 858              		.loc 1 242 5 view .LVU196
+ 859              		.loc 1 242 9 is_stmt 0 view .LVU197
+ 860 0018 203A     		subs	r2, r2, #32
+ 861              	.LVL100:
+ 862              		.loc 1 242 9 view .LVU198
+ 863 001a 5FFA82FA 		uxtb	r10, r2
+ 864              	.LVL101:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 21
+
+
+ 243:modules/oled/oled.c **** 
+ 244:modules/oled/oled.c ****     for (t = 0; t < 12; t++)
+ 865              		.loc 1 244 5 is_stmt 1 view .LVU199
+ 239:modules/oled/oled.c ****     uint8_t temp, t, t1;
+ 866              		.loc 1 239 13 is_stmt 0 view .LVU200
+ 867 001e 4446     		mov	r4, r8
+ 868              		.loc 1 244 12 view .LVU201
+ 869 0020 4FF00009 		mov	r9, #0
+ 870              		.loc 1 244 5 view .LVU202
+ 871 0024 20E0     		b	.L60
+ 872              	.LVL102:
+ 873              	.L62:
+ 245:modules/oled/oled.c ****     {
+ 246:modules/oled/oled.c ****         temp = asc2_1206[chr][t];
+ 247:modules/oled/oled.c **** 
+ 248:modules/oled/oled.c ****         for (t1 = 0; t1 < 8; t1++)
+ 249:modules/oled/oled.c ****         {
+ 250:modules/oled/oled.c ****             if (temp&0x80)
+ 251:modules/oled/oled.c ****                 OLED_draw_point(x, y, PEN_WRITE);
+ 252:modules/oled/oled.c ****             else
+ 253:modules/oled/oled.c ****                 OLED_draw_point(x, y, PEN_CLEAR);
+ 874              		.loc 1 253 17 is_stmt 1 view .LVU203
+ 875 0026 0022     		movs	r2, #0
+ 876 0028 61B2     		sxtb	r1, r4
+ 877 002a 78B2     		sxtb	r0, r7
+ 878 002c FFF7FEFF 		bl	OLED_draw_point
+ 879              	.LVL103:
+ 880              	.L63:
+ 254:modules/oled/oled.c **** 
+ 255:modules/oled/oled.c ****             temp <<= 1;
+ 881              		.loc 1 255 13 view .LVU204
+ 882              		.loc 1 255 18 is_stmt 0 view .LVU205
+ 883 0030 6D00     		lsls	r5, r5, #1
+ 884              	.LVL104:
+ 885              		.loc 1 255 18 view .LVU206
+ 886 0032 EDB2     		uxtb	r5, r5
+ 887              	.LVL105:
+ 256:modules/oled/oled.c ****             y++;
+ 888              		.loc 1 256 13 is_stmt 1 view .LVU207
+ 889              		.loc 1 256 14 is_stmt 0 view .LVU208
+ 890 0034 0134     		adds	r4, r4, #1
+ 891              	.LVL106:
+ 892              		.loc 1 256 14 view .LVU209
+ 893 0036 E4B2     		uxtb	r4, r4
+ 894              	.LVL107:
+ 257:modules/oled/oled.c ****             if ((y - y0) == 12)
+ 895              		.loc 1 257 13 is_stmt 1 view .LVU210
+ 896              		.loc 1 257 20 is_stmt 0 view .LVU211
+ 897 0038 A4EB0803 		sub	r3, r4, r8
+ 898              		.loc 1 257 16 view .LVU212
+ 899 003c 0C2B     		cmp	r3, #12
+ 900 003e 0CD0     		beq	.L69
+ 248:modules/oled/oled.c ****         {
+ 901              		.loc 1 248 32 is_stmt 1 discriminator 2 view .LVU213
+ 902 0040 0136     		adds	r6, r6, #1
+ 903              	.LVL108:
+ 248:modules/oled/oled.c ****         {
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 22
+
+
+ 904              		.loc 1 248 32 is_stmt 0 discriminator 2 view .LVU214
+ 905 0042 F6B2     		uxtb	r6, r6
+ 906              	.LVL109:
+ 907              	.L61:
+ 248:modules/oled/oled.c ****         {
+ 908              		.loc 1 248 25 is_stmt 1 discriminator 1 view .LVU215
+ 909 0044 072E     		cmp	r6, #7
+ 910 0046 0BD8     		bhi	.L65
+ 250:modules/oled/oled.c ****                 OLED_draw_point(x, y, PEN_WRITE);
+ 911              		.loc 1 250 13 view .LVU216
+ 250:modules/oled/oled.c ****                 OLED_draw_point(x, y, PEN_WRITE);
+ 912              		.loc 1 250 16 is_stmt 0 view .LVU217
+ 913 0048 15F0800F 		tst	r5, #128
+ 914 004c EBD0     		beq	.L62
+ 251:modules/oled/oled.c ****             else
+ 915              		.loc 1 251 17 is_stmt 1 view .LVU218
+ 916 004e 0122     		movs	r2, #1
+ 917 0050 61B2     		sxtb	r1, r4
+ 918 0052 78B2     		sxtb	r0, r7
+ 919 0054 FFF7FEFF 		bl	OLED_draw_point
+ 920              	.LVL110:
+ 921 0058 EAE7     		b	.L63
+ 922              	.L69:
+ 258:modules/oled/oled.c ****             {
+ 259:modules/oled/oled.c ****                 y = y0;
+ 923              		.loc 1 259 17 view .LVU219
+ 924              	.LVL111:
+ 260:modules/oled/oled.c ****                 x++;
+ 925              		.loc 1 260 17 view .LVU220
+ 926              		.loc 1 260 18 is_stmt 0 view .LVU221
+ 927 005a 0137     		adds	r7, r7, #1
+ 928              	.LVL112:
+ 929              		.loc 1 260 18 view .LVU222
+ 930 005c FFB2     		uxtb	r7, r7
+ 931              	.LVL113:
+ 261:modules/oled/oled.c ****                 break;
+ 932              		.loc 1 261 17 is_stmt 1 view .LVU223
+ 259:modules/oled/oled.c ****                 x++;
+ 933              		.loc 1 259 19 is_stmt 0 view .LVU224
+ 934 005e 4446     		mov	r4, r8
+ 935              	.LVL114:
+ 936              	.L65:
+ 244:modules/oled/oled.c ****     {
+ 937              		.loc 1 244 26 is_stmt 1 discriminator 2 view .LVU225
+ 938 0060 09F10109 		add	r9, r9, #1
+ 939              	.LVL115:
+ 244:modules/oled/oled.c ****     {
+ 940              		.loc 1 244 26 is_stmt 0 discriminator 2 view .LVU226
+ 941 0064 5FFA89F9 		uxtb	r9, r9
+ 942              	.LVL116:
+ 943              	.L60:
+ 244:modules/oled/oled.c ****     {
+ 944              		.loc 1 244 19 is_stmt 1 discriminator 1 view .LVU227
+ 945 0068 B9F10B0F 		cmp	r9, #11
+ 946 006c 08D8     		bhi	.L70
+ 246:modules/oled/oled.c **** 
+ 947              		.loc 1 246 9 view .LVU228
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 23
+
+
+ 246:modules/oled/oled.c **** 
+ 948              		.loc 1 246 14 is_stmt 0 view .LVU229
+ 949 006e 0AEB4A02 		add	r2, r10, r10, lsl #1
+ 950 0072 044B     		ldr	r3, .L71
+ 951 0074 03EB8203 		add	r3, r3, r2, lsl #2
+ 952 0078 13F80950 		ldrb	r5, [r3, r9]	@ zero_extendqisi2
+ 953              	.LVL117:
+ 248:modules/oled/oled.c ****         {
+ 954              		.loc 1 248 9 is_stmt 1 view .LVU230
+ 248:modules/oled/oled.c ****         {
+ 955              		.loc 1 248 17 is_stmt 0 view .LVU231
+ 956 007c 0026     		movs	r6, #0
+ 248:modules/oled/oled.c ****         {
+ 957              		.loc 1 248 9 view .LVU232
+ 958 007e E1E7     		b	.L61
+ 959              	.LVL118:
+ 960              	.L70:
+ 262:modules/oled/oled.c ****             }
+ 263:modules/oled/oled.c ****         }
+ 264:modules/oled/oled.c ****     }
+ 265:modules/oled/oled.c **** }
+ 961              		.loc 1 265 1 view .LVU233
+ 962 0080 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 963              	.LVL119:
+ 964              	.L72:
+ 965              		.loc 1 265 1 view .LVU234
+ 966              		.align	2
+ 967              	.L71:
+ 968 0084 00000000 		.word	asc2_1206
+ 969              		.cfi_endproc
+ 970              	.LFE246:
+ 972              		.section	.text.OLED_show_string,"ax",%progbits
+ 973              		.align	1
+ 974              		.global	OLED_show_string
+ 975              		.syntax unified
+ 976              		.thumb
+ 977              		.thumb_func
+ 979              	OLED_show_string:
+ 980              	.LVL120:
+ 981              	.LFB247:
+ 266:modules/oled/oled.c **** 
+ 267:modules/oled/oled.c **** /**
+ 268:modules/oled/oled.c ****   * @brief          显示一个字符串
+ 269:modules/oled/oled.c ****   * @param[in]      row: 字符串的开始行
+ 270:modules/oled/oled.c ****   * @param[in]      col: 字符串的开始列
+ 271:modules/oled/oled.c ****   * @param[in]      chr: 字符串
+ 272:modules/oled/oled.c ****   * @retval         none
+ 273:modules/oled/oled.c ****   */
+ 274:modules/oled/oled.c **** void OLED_show_string(uint8_t row, uint8_t col, uint8_t *chr)
+ 275:modules/oled/oled.c **** {
+ 982              		.loc 1 275 1 is_stmt 1 view -0
+ 983              		.cfi_startproc
+ 984              		@ args = 0, pretend = 0, frame = 0
+ 985              		@ frame_needed = 0, uses_anonymous_args = 0
+ 986              		.loc 1 275 1 is_stmt 0 view .LVU236
+ 987 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 988              	.LCFI14:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 24
+
+
+ 989              		.cfi_def_cfa_offset 24
+ 990              		.cfi_offset 3, -24
+ 991              		.cfi_offset 4, -20
+ 992              		.cfi_offset 5, -16
+ 993              		.cfi_offset 6, -12
+ 994              		.cfi_offset 7, -8
+ 995              		.cfi_offset 14, -4
+ 996 0002 0646     		mov	r6, r0
+ 997 0004 0C46     		mov	r4, r1
+ 998 0006 1746     		mov	r7, r2
+ 276:modules/oled/oled.c ****     uint8_t n =0;
+ 999              		.loc 1 276 5 is_stmt 1 view .LVU237
+ 1000              	.LVL121:
+ 277:modules/oled/oled.c **** 
+ 278:modules/oled/oled.c ****     while (chr[n] != '\0')
+ 1001              		.loc 1 278 5 view .LVU238
+ 276:modules/oled/oled.c ****     uint8_t n =0;
+ 1002              		.loc 1 276 13 is_stmt 0 view .LVU239
+ 1003 0008 0025     		movs	r5, #0
+ 1004              		.loc 1 278 11 view .LVU240
+ 1005 000a 01E0     		b	.L74
+ 1006              	.LVL122:
+ 1007              	.L75:
+ 279:modules/oled/oled.c ****     {
+ 280:modules/oled/oled.c ****         OLED_show_char(row, col, chr[n]);
+ 281:modules/oled/oled.c ****         col++;
+ 282:modules/oled/oled.c **** 
+ 283:modules/oled/oled.c ****         if (col > 20)
+ 284:modules/oled/oled.c ****         {
+ 285:modules/oled/oled.c ****             col = 0;
+ 286:modules/oled/oled.c ****             row += 1;
+ 287:modules/oled/oled.c ****         }
+ 288:modules/oled/oled.c ****         n++;
+ 1008              		.loc 1 288 9 is_stmt 1 view .LVU241
+ 1009              		.loc 1 288 10 is_stmt 0 view .LVU242
+ 1010 000c 0135     		adds	r5, r5, #1
+ 1011              	.LVL123:
+ 1012              		.loc 1 288 10 view .LVU243
+ 1013 000e EDB2     		uxtb	r5, r5
+ 1014              	.LVL124:
+ 1015              	.L74:
+ 278:modules/oled/oled.c ****     {
+ 1016              		.loc 1 278 19 is_stmt 1 view .LVU244
+ 278:modules/oled/oled.c ****     {
+ 1017              		.loc 1 278 15 is_stmt 0 view .LVU245
+ 1018 0010 7A5D     		ldrb	r2, [r7, r5]	@ zero_extendqisi2
+ 278:modules/oled/oled.c ****     {
+ 1019              		.loc 1 278 19 view .LVU246
+ 1020 0012 5AB1     		cbz	r2, .L78
+ 280:modules/oled/oled.c ****         col++;
+ 1021              		.loc 1 280 9 is_stmt 1 view .LVU247
+ 1022 0014 2146     		mov	r1, r4
+ 1023 0016 3046     		mov	r0, r6
+ 1024 0018 FFF7FEFF 		bl	OLED_show_char
+ 1025              	.LVL125:
+ 281:modules/oled/oled.c **** 
+ 1026              		.loc 1 281 9 view .LVU248
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 25
+
+
+ 281:modules/oled/oled.c **** 
+ 1027              		.loc 1 281 12 is_stmt 0 view .LVU249
+ 1028 001c 0134     		adds	r4, r4, #1
+ 1029              	.LVL126:
+ 281:modules/oled/oled.c **** 
+ 1030              		.loc 1 281 12 view .LVU250
+ 1031 001e E4B2     		uxtb	r4, r4
+ 1032              	.LVL127:
+ 283:modules/oled/oled.c ****         {
+ 1033              		.loc 1 283 9 is_stmt 1 view .LVU251
+ 283:modules/oled/oled.c ****         {
+ 1034              		.loc 1 283 12 is_stmt 0 view .LVU252
+ 1035 0020 142C     		cmp	r4, #20
+ 1036 0022 F3D9     		bls	.L75
+ 285:modules/oled/oled.c ****             row += 1;
+ 1037              		.loc 1 285 13 is_stmt 1 view .LVU253
+ 1038              	.LVL128:
+ 286:modules/oled/oled.c ****         }
+ 1039              		.loc 1 286 13 view .LVU254
+ 286:modules/oled/oled.c ****         }
+ 1040              		.loc 1 286 17 is_stmt 0 view .LVU255
+ 1041 0024 0136     		adds	r6, r6, #1
+ 1042              	.LVL129:
+ 286:modules/oled/oled.c ****         }
+ 1043              		.loc 1 286 17 view .LVU256
+ 1044 0026 F6B2     		uxtb	r6, r6
+ 1045              	.LVL130:
+ 285:modules/oled/oled.c ****             row += 1;
+ 1046              		.loc 1 285 17 view .LVU257
+ 1047 0028 0024     		movs	r4, #0
+ 1048 002a EFE7     		b	.L75
+ 1049              	.LVL131:
+ 1050              	.L78:
+ 289:modules/oled/oled.c ****     }
+ 290:modules/oled/oled.c **** }
+ 1051              		.loc 1 290 1 view .LVU258
+ 1052 002c F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 1053              		.loc 1 290 1 view .LVU259
+ 1054              		.cfi_endproc
+ 1055              	.LFE247:
+ 1057              		.section	.text.OLED_printf,"ax",%progbits
+ 1058              		.align	1
+ 1059              		.global	OLED_printf
+ 1060              		.syntax unified
+ 1061              		.thumb
+ 1062              		.thumb_func
+ 1064              	OLED_printf:
+ 1065              	.LVL132:
+ 1066              	.LFB248:
+ 291:modules/oled/oled.c **** 
+ 292:modules/oled/oled.c **** 
+ 293:modules/oled/oled.c **** /**
+ 294:modules/oled/oled.c ****   * @brief          格式输出
+ 295:modules/oled/oled.c ****   * @param[in]      row: 开始列，0 <= row <= 4;
+ 296:modules/oled/oled.c ****   * @param[in]      col: 开始行， 0 <= col <= 20;
+ 297:modules/oled/oled.c ****   * @param[in]      *fmt:格式化输出字符串
+ 298:modules/oled/oled.c ****   * @note           如果字符串长度大于一行，额外的字符会换行
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 26
+
+
+ 299:modules/oled/oled.c ****   * @retval         none
+ 300:modules/oled/oled.c ****   */
+ 301:modules/oled/oled.c **** void OLED_printf(uint8_t row, uint8_t col, const char *fmt,...)
+ 302:modules/oled/oled.c **** {
+ 1067              		.loc 1 302 1 is_stmt 1 view -0
+ 1068              		.cfi_startproc
+ 1069              		@ args = 4, pretend = 8, frame = 0
+ 1070              		@ frame_needed = 0, uses_anonymous_args = 1
+ 303:modules/oled/oled.c ****     static uint8_t LCD_BUF[128] = {0};
+ 1071              		.loc 1 303 5 view .LVU261
+ 304:modules/oled/oled.c ****     static va_list ap;
+ 1072              		.loc 1 304 5 view .LVU262
+ 305:modules/oled/oled.c ****     uint8_t remain_size = 0;
+ 1073              		.loc 1 305 5 view .LVU263
+ 306:modules/oled/oled.c **** 
+ 307:modules/oled/oled.c ****     if ((row > 4) || (col > 20) )
+ 1074              		.loc 1 307 5 view .LVU264
+ 1075              		.loc 1 307 8 is_stmt 0 view .LVU265
+ 1076 0000 0428     		cmp	r0, #4
+ 1077 0002 1CD8     		bhi	.L82
+ 302:modules/oled/oled.c ****     static uint8_t LCD_BUF[128] = {0};
+ 1078              		.loc 1 302 1 view .LVU266
+ 1079 0004 0CB4     		push	{r2, r3}
+ 1080              	.LCFI15:
+ 1081              		.cfi_def_cfa_offset 8
+ 1082              		.cfi_offset 2, -8
+ 1083              		.cfi_offset 3, -4
+ 1084 0006 70B5     		push	{r4, r5, r6, lr}
+ 1085              	.LCFI16:
+ 1086              		.cfi_def_cfa_offset 24
+ 1087              		.cfi_offset 4, -24
+ 1088              		.cfi_offset 5, -20
+ 1089              		.cfi_offset 6, -16
+ 1090              		.cfi_offset 14, -12
+ 1091 0008 0446     		mov	r4, r0
+ 1092 000a 0D46     		mov	r5, r1
+ 1093              		.loc 1 307 19 discriminator 1 view .LVU267
+ 1094 000c 1429     		cmp	r1, #20
+ 1095 000e 03D9     		bls	.L85
+ 1096              	.LVL133:
+ 1097              	.L79:
+ 308:modules/oled/oled.c ****     {
+ 309:modules/oled/oled.c ****         return;
+ 310:modules/oled/oled.c ****     }
+ 311:modules/oled/oled.c ****     va_start(ap, fmt);
+ 312:modules/oled/oled.c **** 
+ 313:modules/oled/oled.c ****     vsprintf((char *)LCD_BUF, fmt, ap);
+ 314:modules/oled/oled.c **** 
+ 315:modules/oled/oled.c ****     va_end(ap);
+ 316:modules/oled/oled.c **** 
+ 317:modules/oled/oled.c ****     remain_size = 21 - col;
+ 318:modules/oled/oled.c **** 
+ 319:modules/oled/oled.c ****     LCD_BUF[remain_size] = '\0';
+ 320:modules/oled/oled.c **** 
+ 321:modules/oled/oled.c ****     OLED_show_string(row, col, LCD_BUF);
+ 322:modules/oled/oled.c **** }
+ 1098              		.loc 1 322 1 view .LVU268
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 27
+
+
+ 1099 0010 BDE87040 		pop	{r4, r5, r6, lr}
+ 1100              	.LCFI17:
+ 1101              		.cfi_remember_state
+ 1102              		.cfi_restore 14
+ 1103              		.cfi_restore 6
+ 1104              		.cfi_restore 5
+ 1105              		.cfi_restore 4
+ 1106              		.cfi_def_cfa_offset 8
+ 1107              	.LVL134:
+ 1108              		.loc 1 322 1 view .LVU269
+ 1109 0014 02B0     		add	sp, sp, #8
+ 1110              	.LCFI18:
+ 1111              		.cfi_restore 3
+ 1112              		.cfi_restore 2
+ 1113              		.cfi_def_cfa_offset 0
+ 1114 0016 7047     		bx	lr
+ 1115              	.LVL135:
+ 1116              	.L85:
+ 1117              	.LCFI19:
+ 1118              		.cfi_restore_state
+ 311:modules/oled/oled.c **** 
+ 1119              		.loc 1 311 5 is_stmt 1 view .LVU270
+ 1120 0018 05AA     		add	r2, sp, #20
+ 1121 001a 094B     		ldr	r3, .L86
+ 1122 001c 1A60     		str	r2, [r3]
+ 313:modules/oled/oled.c **** 
+ 1123              		.loc 1 313 5 view .LVU271
+ 1124 001e 094E     		ldr	r6, .L86+4
+ 1125 0020 0499     		ldr	r1, [sp, #16]
+ 1126              	.LVL136:
+ 313:modules/oled/oled.c **** 
+ 1127              		.loc 1 313 5 is_stmt 0 view .LVU272
+ 1128 0022 3046     		mov	r0, r6
+ 1129              	.LVL137:
+ 313:modules/oled/oled.c **** 
+ 1130              		.loc 1 313 5 view .LVU273
+ 1131 0024 FFF7FEFF 		bl	vsprintf
+ 1132              	.LVL138:
+ 315:modules/oled/oled.c **** 
+ 1133              		.loc 1 315 5 is_stmt 1 view .LVU274
+ 317:modules/oled/oled.c **** 
+ 1134              		.loc 1 317 5 view .LVU275
+ 317:modules/oled/oled.c **** 
+ 1135              		.loc 1 317 17 is_stmt 0 view .LVU276
+ 1136 0028 C5F11503 		rsb	r3, r5, #21
+ 1137 002c DBB2     		uxtb	r3, r3
+ 1138              	.LVL139:
+ 319:modules/oled/oled.c **** 
+ 1139              		.loc 1 319 5 is_stmt 1 view .LVU277
+ 319:modules/oled/oled.c **** 
+ 1140              		.loc 1 319 26 is_stmt 0 view .LVU278
+ 1141 002e 0022     		movs	r2, #0
+ 1142 0030 F254     		strb	r2, [r6, r3]
+ 321:modules/oled/oled.c **** }
+ 1143              		.loc 1 321 5 is_stmt 1 view .LVU279
+ 1144 0032 3246     		mov	r2, r6
+ 1145 0034 2946     		mov	r1, r5
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 28
+
+
+ 1146 0036 2046     		mov	r0, r4
+ 1147 0038 FFF7FEFF 		bl	OLED_show_string
+ 1148              	.LVL140:
+ 321:modules/oled/oled.c **** }
+ 1149              		.loc 1 321 5 is_stmt 0 view .LVU280
+ 1150 003c E8E7     		b	.L79
+ 1151              	.LVL141:
+ 1152              	.L82:
+ 1153              	.LCFI20:
+ 1154              		.cfi_def_cfa_offset 0
+ 1155              		.cfi_restore 2
+ 1156              		.cfi_restore 3
+ 1157              		.cfi_restore 4
+ 1158              		.cfi_restore 5
+ 1159              		.cfi_restore 6
+ 1160              		.cfi_restore 14
+ 321:modules/oled/oled.c **** }
+ 1161              		.loc 1 321 5 view .LVU281
+ 1162 003e 7047     		bx	lr
+ 1163              	.L87:
+ 1164              		.align	2
+ 1165              	.L86:
+ 1166 0040 00000000 		.word	ap.1
+ 1167 0044 00000000 		.word	LCD_BUF.0
+ 1168              		.cfi_endproc
+ 1169              	.LFE248:
+ 1171              		.section	.text.OLED_refresh_gram,"ax",%progbits
+ 1172              		.align	1
+ 1173              		.global	OLED_refresh_gram
+ 1174              		.syntax unified
+ 1175              		.thumb
+ 1176              		.thumb_func
+ 1178              	OLED_refresh_gram:
+ 1179              	.LFB249:
+ 323:modules/oled/oled.c **** 
+ 324:modules/oled/oled.c **** /**
+ 325:modules/oled/oled.c ****   * @brief          发送数据到OLED的GRAM
+ 326:modules/oled/oled.c ****   * @param[in]      none
+ 327:modules/oled/oled.c ****   * @retval         none
+ 328:modules/oled/oled.c ****   */
+ 329:modules/oled/oled.c **** void OLED_refresh_gram(void)
+ 330:modules/oled/oled.c **** {
+ 1180              		.loc 1 330 1 is_stmt 1 view -0
+ 1181              		.cfi_startproc
+ 1182              		@ args = 0, pretend = 0, frame = 0
+ 1183              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1184 0000 38B5     		push	{r3, r4, r5, lr}
+ 1185              	.LCFI21:
+ 1186              		.cfi_def_cfa_offset 16
+ 1187              		.cfi_offset 3, -16
+ 1188              		.cfi_offset 4, -12
+ 1189              		.cfi_offset 5, -8
+ 1190              		.cfi_offset 14, -4
+ 331:modules/oled/oled.c ****     uint8_t i, n;
+ 1191              		.loc 1 331 5 view .LVU283
+ 332:modules/oled/oled.c **** 
+ 333:modules/oled/oled.c ****     for (i = 0; i < 8; i++)
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 29
+
+
+ 1192              		.loc 1 333 5 view .LVU284
+ 1193              	.LVL142:
+ 1194              		.loc 1 333 12 is_stmt 0 view .LVU285
+ 1195 0002 0025     		movs	r5, #0
+ 1196              		.loc 1 333 5 view .LVU286
+ 1197 0004 0DE0     		b	.L89
+ 1198              	.LVL143:
+ 1199              	.L91:
+ 334:modules/oled/oled.c ****     {
+ 335:modules/oled/oled.c ****         OLED_set_pos(0, i);
+ 336:modules/oled/oled.c ****         for (n = 0; n < 128; n++)
+ 337:modules/oled/oled.c ****         {
+ 338:modules/oled/oled.c ****             oled_write_byte(OLED_GRAM[n][i], OLED_DATA);
+ 1200              		.loc 1 338 13 is_stmt 1 view .LVU287
+ 1201 0006 0B4B     		ldr	r3, .L95
+ 1202 0008 03EBC403 		add	r3, r3, r4, lsl #3
+ 1203 000c 0121     		movs	r1, #1
+ 1204 000e 585D     		ldrb	r0, [r3, r5]	@ zero_extendqisi2
+ 1205 0010 FFF7FEFF 		bl	oled_write_byte
+ 1206              	.LVL144:
+ 336:modules/oled/oled.c ****         {
+ 1207              		.loc 1 336 31 discriminator 3 view .LVU288
+ 1208 0014 0134     		adds	r4, r4, #1
+ 1209              	.LVL145:
+ 336:modules/oled/oled.c ****         {
+ 1210              		.loc 1 336 31 is_stmt 0 discriminator 3 view .LVU289
+ 1211 0016 E4B2     		uxtb	r4, r4
+ 1212              	.LVL146:
+ 1213              	.L90:
+ 336:modules/oled/oled.c ****         {
+ 1214              		.loc 1 336 23 is_stmt 1 discriminator 1 view .LVU290
+ 1215 0018 14F0800F 		tst	r4, #128
+ 1216 001c F3D0     		beq	.L91
+ 333:modules/oled/oled.c ****     {
+ 1217              		.loc 1 333 25 discriminator 2 view .LVU291
+ 1218 001e 0135     		adds	r5, r5, #1
+ 1219              	.LVL147:
+ 333:modules/oled/oled.c ****     {
+ 1220              		.loc 1 333 25 is_stmt 0 discriminator 2 view .LVU292
+ 1221 0020 EDB2     		uxtb	r5, r5
+ 1222              	.LVL148:
+ 1223              	.L89:
+ 333:modules/oled/oled.c ****     {
+ 1224              		.loc 1 333 19 is_stmt 1 discriminator 1 view .LVU293
+ 1225 0022 072D     		cmp	r5, #7
+ 1226 0024 05D8     		bhi	.L94
+ 335:modules/oled/oled.c ****         for (n = 0; n < 128; n++)
+ 1227              		.loc 1 335 9 view .LVU294
+ 1228 0026 2946     		mov	r1, r5
+ 1229 0028 0020     		movs	r0, #0
+ 1230 002a FFF7FEFF 		bl	OLED_set_pos
+ 1231              	.LVL149:
+ 336:modules/oled/oled.c ****         {
+ 1232              		.loc 1 336 9 view .LVU295
+ 336:modules/oled/oled.c ****         {
+ 1233              		.loc 1 336 16 is_stmt 0 view .LVU296
+ 1234 002e 0024     		movs	r4, #0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 30
+
+
+ 336:modules/oled/oled.c ****         {
+ 1235              		.loc 1 336 9 view .LVU297
+ 1236 0030 F2E7     		b	.L90
+ 1237              	.LVL150:
+ 1238              	.L94:
+ 339:modules/oled/oled.c ****         }
+ 340:modules/oled/oled.c ****     }
+ 341:modules/oled/oled.c **** }
+ 1239              		.loc 1 341 1 view .LVU298
+ 1240 0032 38BD     		pop	{r3, r4, r5, pc}
+ 1241              	.LVL151:
+ 1242              	.L96:
+ 1243              		.loc 1 341 1 view .LVU299
+ 1244              		.align	2
+ 1245              	.L95:
+ 1246 0034 00000000 		.word	OLED_GRAM
+ 1247              		.cfi_endproc
+ 1248              	.LFE249:
+ 1250              		.section	.text.OLED_LOGO,"ax",%progbits
+ 1251              		.align	1
+ 1252              		.global	OLED_LOGO
+ 1253              		.syntax unified
+ 1254              		.thumb
+ 1255              		.thumb_func
+ 1257              	OLED_LOGO:
+ 1258              	.LFB250:
+ 342:modules/oled/oled.c **** 
+ 343:modules/oled/oled.c **** 
+ 344:modules/oled/oled.c **** 
+ 345:modules/oled/oled.c **** /**
+ 346:modules/oled/oled.c ****   * @brief          显示RM的LOGO
+ 347:modules/oled/oled.c ****   * @param[in]      none
+ 348:modules/oled/oled.c ****   * @retval         none
+ 349:modules/oled/oled.c ****   */
+ 350:modules/oled/oled.c **** void OLED_LOGO(void)
+ 351:modules/oled/oled.c **** {
+ 1259              		.loc 1 351 1 is_stmt 1 view -0
+ 1260              		.cfi_startproc
+ 1261              		@ args = 0, pretend = 0, frame = 0
+ 1262              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1263 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 1264              	.LCFI22:
+ 1265              		.cfi_def_cfa_offset 24
+ 1266              		.cfi_offset 4, -24
+ 1267              		.cfi_offset 5, -20
+ 1268              		.cfi_offset 6, -16
+ 1269              		.cfi_offset 7, -12
+ 1270              		.cfi_offset 8, -8
+ 1271              		.cfi_offset 14, -4
+ 352:modules/oled/oled.c ****     uint8_t temp_char = 0;
+ 1272              		.loc 1 352 5 view .LVU301
+ 1273              	.LVL152:
+ 353:modules/oled/oled.c ****     uint8_t x = 0, y = 0;
+ 1274              		.loc 1 353 5 view .LVU302
+ 354:modules/oled/oled.c ****     uint8_t i = 0;
+ 1275              		.loc 1 354 5 view .LVU303
+ 355:modules/oled/oled.c ****     OLED_operate_gram(PEN_CLEAR);
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 31
+
+
+ 1276              		.loc 1 355 5 view .LVU304
+ 1277 0004 0020     		movs	r0, #0
+ 1278 0006 FFF7FEFF 		bl	OLED_operate_gram
+ 1279              	.LVL153:
+ 356:modules/oled/oled.c **** 
+ 357:modules/oled/oled.c **** 
+ 358:modules/oled/oled.c ****     for(; y < 64; y += 8)
+ 1280              		.loc 1 358 5 view .LVU305
+ 353:modules/oled/oled.c ****     uint8_t i = 0;
+ 1281              		.loc 1 353 20 is_stmt 0 view .LVU306
+ 1282 000a 0027     		movs	r7, #0
+ 1283              		.loc 1 358 5 view .LVU307
+ 1284 000c 26E0     		b	.L98
+ 1285              	.LVL154:
+ 1286              	.L100:
+ 359:modules/oled/oled.c ****     {
+ 360:modules/oled/oled.c ****         for(x = 0; x < 128; x++)
+ 361:modules/oled/oled.c ****         {
+ 362:modules/oled/oled.c ****             temp_char = LOGO_BMP[x][y/8];
+ 363:modules/oled/oled.c ****             for(i = 0; i < 8; i++)
+ 364:modules/oled/oled.c ****             {
+ 365:modules/oled/oled.c ****                 if(temp_char & 0x80)
+ 366:modules/oled/oled.c ****                 {
+ 367:modules/oled/oled.c ****                     OLED_draw_point(x, y + i,PEN_WRITE);
+ 368:modules/oled/oled.c ****                 }
+ 369:modules/oled/oled.c ****                 else
+ 370:modules/oled/oled.c ****                 {
+ 371:modules/oled/oled.c ****                     OLED_draw_point(x,y + i,PEN_CLEAR);
+ 1287              		.loc 1 371 21 is_stmt 1 view .LVU308
+ 1288              		.loc 1 371 41 is_stmt 0 view .LVU309
+ 1289 000e 3919     		adds	r1, r7, r4
+ 1290              		.loc 1 371 21 view .LVU310
+ 1291 0010 0022     		movs	r2, #0
+ 1292 0012 49B2     		sxtb	r1, r1
+ 1293 0014 3046     		mov	r0, r6
+ 1294 0016 FFF7FEFF 		bl	OLED_draw_point
+ 1295              	.LVL155:
+ 1296              	.L101:
+ 372:modules/oled/oled.c ****                 }
+ 373:modules/oled/oled.c ****                 temp_char <<= 1;
+ 1297              		.loc 1 373 17 is_stmt 1 view .LVU311
+ 1298              		.loc 1 373 27 is_stmt 0 view .LVU312
+ 1299 001a 6D00     		lsls	r5, r5, #1
+ 1300              	.LVL156:
+ 1301              		.loc 1 373 27 view .LVU313
+ 1302 001c EDB2     		uxtb	r5, r5
+ 1303              	.LVL157:
+ 363:modules/oled/oled.c ****             {
+ 1304              		.loc 1 363 32 is_stmt 1 discriminator 2 view .LVU314
+ 1305 001e 0134     		adds	r4, r4, #1
+ 1306              	.LVL158:
+ 363:modules/oled/oled.c ****             {
+ 1307              		.loc 1 363 32 is_stmt 0 discriminator 2 view .LVU315
+ 1308 0020 E4B2     		uxtb	r4, r4
+ 1309              	.LVL159:
+ 1310              	.L99:
+ 363:modules/oled/oled.c ****             {
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 32
+
+
+ 1311              		.loc 1 363 26 is_stmt 1 discriminator 1 view .LVU316
+ 1312 0022 072C     		cmp	r4, #7
+ 1313 0024 09D8     		bhi	.L107
+ 365:modules/oled/oled.c ****                 {
+ 1314              		.loc 1 365 17 view .LVU317
+ 365:modules/oled/oled.c ****                 {
+ 1315              		.loc 1 365 19 is_stmt 0 view .LVU318
+ 1316 0026 15F0800F 		tst	r5, #128
+ 1317 002a F0D0     		beq	.L100
+ 367:modules/oled/oled.c ****                 }
+ 1318              		.loc 1 367 21 is_stmt 1 view .LVU319
+ 367:modules/oled/oled.c ****                 }
+ 1319              		.loc 1 367 42 is_stmt 0 view .LVU320
+ 1320 002c 3919     		adds	r1, r7, r4
+ 367:modules/oled/oled.c ****                 }
+ 1321              		.loc 1 367 21 view .LVU321
+ 1322 002e 0122     		movs	r2, #1
+ 1323 0030 49B2     		sxtb	r1, r1
+ 1324 0032 3046     		mov	r0, r6
+ 1325 0034 FFF7FEFF 		bl	OLED_draw_point
+ 1326              	.LVL160:
+ 1327 0038 EFE7     		b	.L101
+ 1328              	.L107:
+ 360:modules/oled/oled.c ****         {
+ 1329              		.loc 1 360 30 is_stmt 1 discriminator 2 view .LVU322
+ 1330 003a 08F10108 		add	r8, r8, #1
+ 1331              	.LVL161:
+ 360:modules/oled/oled.c ****         {
+ 1332              		.loc 1 360 30 is_stmt 0 discriminator 2 view .LVU323
+ 1333 003e 5FFA88F8 		uxtb	r8, r8
+ 1334              	.LVL162:
+ 1335              	.L104:
+ 360:modules/oled/oled.c ****         {
+ 1336              		.loc 1 360 22 is_stmt 1 discriminator 1 view .LVU324
+ 1337 0042 4FFA88F6 		sxtb	r6, r8
+ 1338 0046 002E     		cmp	r6, #0
+ 1339 0048 06DB     		blt	.L108
+ 362:modules/oled/oled.c ****             for(i = 0; i < 8; i++)
+ 1340              		.loc 1 362 13 view .LVU325
+ 362:modules/oled/oled.c ****             for(i = 0; i < 8; i++)
+ 1341              		.loc 1 362 38 is_stmt 0 view .LVU326
+ 1342 004a FB08     		lsrs	r3, r7, #3
+ 362:modules/oled/oled.c ****             for(i = 0; i < 8; i++)
+ 1343              		.loc 1 362 23 view .LVU327
+ 1344 004c 084A     		ldr	r2, .L110
+ 1345 004e 02EBC802 		add	r2, r2, r8, lsl #3
+ 1346 0052 D55C     		ldrb	r5, [r2, r3]	@ zero_extendqisi2
+ 1347              	.LVL163:
+ 363:modules/oled/oled.c ****             {
+ 1348              		.loc 1 363 13 is_stmt 1 view .LVU328
+ 363:modules/oled/oled.c ****             {
+ 1349              		.loc 1 363 19 is_stmt 0 view .LVU329
+ 1350 0054 0024     		movs	r4, #0
+ 363:modules/oled/oled.c ****             {
+ 1351              		.loc 1 363 13 view .LVU330
+ 1352 0056 E4E7     		b	.L99
+ 1353              	.LVL164:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 33
+
+
+ 1354              	.L108:
+ 358:modules/oled/oled.c ****     {
+ 1355              		.loc 1 358 21 is_stmt 1 view .LVU331
+ 1356 0058 0837     		adds	r7, r7, #8
+ 1357              	.LVL165:
+ 358:modules/oled/oled.c ****     {
+ 1358              		.loc 1 358 21 is_stmt 0 view .LVU332
+ 1359 005a FFB2     		uxtb	r7, r7
+ 1360              	.LVL166:
+ 1361              	.L98:
+ 358:modules/oled/oled.c ****     {
+ 1362              		.loc 1 358 13 is_stmt 1 discriminator 1 view .LVU333
+ 1363 005c 3F2F     		cmp	r7, #63
+ 1364 005e 02D8     		bhi	.L109
+ 360:modules/oled/oled.c ****         {
+ 1365              		.loc 1 360 15 is_stmt 0 view .LVU334
+ 1366 0060 4FF00008 		mov	r8, #0
+ 1367 0064 EDE7     		b	.L104
+ 1368              	.L109:
+ 374:modules/oled/oled.c ****             }
+ 375:modules/oled/oled.c ****         }
+ 376:modules/oled/oled.c ****     }
+ 377:modules/oled/oled.c ****     OLED_refresh_gram();
+ 1369              		.loc 1 377 5 is_stmt 1 view .LVU335
+ 1370 0066 FFF7FEFF 		bl	OLED_refresh_gram
+ 1371              	.LVL167:
+ 378:modules/oled/oled.c **** }...
+ 1372              		.loc 1 378 1 is_stmt 0 view .LVU336
+ 1373 006a BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 1374              	.LVL168:
+ 1375              	.L111:
+ 1376              		.loc 1 378 1 view .LVU337
+ 1377 006e 00BF     		.align	2
+ 1378              	.L110:
+ 1379 0070 00000000 		.word	LOGO_BMP
+ 1380              		.cfi_endproc
+ 1381              	.LFE250:
+ 1383              		.section	.bss.LCD_BUF.0,"aw",%nobits
+ 1384              		.align	2
+ 1387              	LCD_BUF.0:
+ 1388 0000 00000000 		.space	128
+ 1388      00000000 
+ 1388      00000000 
+ 1388      00000000 
+ 1388      00000000 
+ 1389              		.section	.bss.ap.1,"aw",%nobits
+ 1390              		.align	2
+ 1393              	ap.1:
+ 1394 0000 00000000 		.space	4
+ 1395              		.section	.bss.cmd_data.2,"aw",%nobits
+ 1396              		.align	2
+ 1399              	cmd_data.2:
+ 1400 0000 0000     		.space	2
+ 1401              		.section	.bss.OLED_GRAM,"aw",%nobits
+ 1402              		.align	2
+ 1405              	OLED_GRAM:
+ 1406 0000 00000000 		.space	1024
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 34
+
+
+ 1406      00000000 
+ 1406      00000000 
+ 1406      00000000 
+ 1406      00000000 
+ 1407              		.global	LOGO_BMP
+ 1408              		.section	.rodata.LOGO_BMP,"a"
+ 1409              		.align	2
+ 1412              	LOGO_BMP:
+ 1413 0000 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1413      00000000 
+ 1414 0008 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1414      00000000 
+ 1415 0010 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1415      00000000 
+ 1416 0018 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1416      00000000 
+ 1417 0020 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1417      00000000 
+ 1418 0028 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1418      00000000 
+ 1419 0030 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1419      00000000 
+ 1420 0038 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1420      00000000 
+ 1421 0040 00000000 		.ascii	"\000\000\000\000\000\000\000\006"
+ 1421      00000006 
+ 1422 0048 00000000 		.ascii	"\000\000\000\000\000\000\000\036"
+ 1422      0000001E 
+ 1423 0050 00000000 		.ascii	"\000\000\000\000\000\000\000\336"
+ 1423      000000DE 
+ 1424 0058 00000000 		.ascii	"\000\000\000\000\000\000\000\330"
+ 1424      000000D8 
+ 1425 0060 00000000 		.ascii	"\000\000\000\000\000\000\000\330"
+ 1425      000000D8 
+ 1426 0068 00000000 		.ascii	"\000\000\000\000\000\000\000\330"
+ 1426      000000D8 
+ 1427 0070 00000000 		.ascii	"\000\000\000\000\000\000\000\336"
+ 1427      000000DE 
+ 1428 0078 00000000 		.ascii	"\000\000\000\000\000\000\000\376"
+ 1428      000000FE 
+ 1429 0080 00000000 		.ascii	"\000\000\000\000\000\000\000\366"
+ 1429      000000F6 
+ 1430 0088 00000000 		.ascii	"\000\000\000\000\000\000\000r"
+ 1430      00000072 
+ 1431 0090 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1431      00000000 
+ 1432 0098 00000000 		.ascii	"\000\000\000\000\000\000\000|"
+ 1432      0000007C 
+ 1433 00a0 00000000 		.ascii	"\000\000\000\000\000\000\000\376"
+ 1433      000000FE 
+ 1434 00a8 00000000 		.ascii	"\000\000\000\000\000\000\000\306"
+ 1434      000000C6 
+ 1435 00b0 00000000 		.ascii	"\000\000\000\000\000\000\000\306"
+ 1435      000000C6 
+ 1436 00b8 00000000 		.ascii	"\000\000\000\000\000\000\000\306"
+ 1436      000000C6 
+ 1437 00c0 00000000 		.ascii	"\000\000\000\000\000\000\000\376"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 35
+
+
+ 1437      000000FE 
+ 1438 00c8 00000000 		.ascii	"\000\000\000\000\000\000\000|"
+ 1438      0000007C 
+ 1439 00d0 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1439      00000000 
+ 1440 00d8 00000000 		.ascii	"\000\000\000\000\000\000\000\036"
+ 1440      0000001E 
+ 1441 00e0 00000000 		.ascii	"\000\000\000\000\000\000\000\336"
+ 1441      000000DE 
+ 1442 00e8 00000000 		.ascii	"\000\000\000\000\000\000\000\326"
+ 1442      000000D6 
+ 1443 00f0 00000000 		.ascii	"\000\000\000\000\000\000\000\326"
+ 1443      000000D6 
+ 1444 00f8 00000000 		.ascii	"\000\000\000\000\000\000\000\326"
+ 1444      000000D6 
+ 1445 0100 00000000 		.ascii	"\000\000\000\000\000\000\000\326"
+ 1445      000000D6 
+ 1446 0108 00000000 		.ascii	"\000\000\000\000\000\000\000\336"
+ 1446      000000DE 
+ 1447 0110 40000000 		.ascii	"@\000\000\000\000\000\000\376"
+ 1447      000000FE 
+ 1448 0118 60000000 		.ascii	"`\000\000\000\000\020\000l"
+ 1448      0010006C 
+ 1449 0120 70000000 		.ascii	"p\000\000\000\0000\000\000"
+ 1449      00300000 
+ 1450 0128 78000000 		.ascii	"x\000\000\000\000\360\000|"
+ 1450      00F0007C 
+ 1451 0130 7C000000 		.ascii	"|\000\000\000\007\360\000\376"
+ 1451      07F000FE 
+ 1452 0138 7E000000 		.ascii	"~\000\000\000?\360\000\306"
+ 1452      3FF000C6 
+ 1453 0140 7F000001 		.ascii	"\177\000\000\001\377\360\000\306"
+ 1453      FFF000C6 
+ 1454 0148 7F80000F 		.ascii	"\177\200\000\017\377\360\000\306"
+ 1454      FFF000C6 
+ 1455 0150 7FC0007F 		.ascii	"\177\300\000\177\377\360\000\376"
+ 1455      FFF000FE 
+ 1456 0158 7FE003FF 		.ascii	"\177\340\003\377\377\360\000|"
+ 1456      FFF0007C 
+ 1457 0160 7FF03FFF 		.ascii	"\177\360?\377\377\360\000\002"
+ 1457      FFF00002 
+ 1458 0168 7FF83FFF 		.ascii	"\177\370?\377\377\360\000\006"
+ 1458      FFF00006 
+ 1459 0170 7FFC3FFF 		.ascii	"\177\374?\377\377\360\000\036"
+ 1459      FFF0001E 
+ 1460 0178 7FFE3FFF 		.ascii	"\177\376?\377\377\360\000\274"
+ 1460      FFF000BC 
+ 1461 0180 7FFF3FFF 		.ascii	"\177\377?\377\377\360\000\340"
+ 1461      FFF000E0 
+ 1462 0188 7FFFBFFF 		.ascii	"\177\377\277\377\377\200\000\370"
+ 1462      FF8000F8 
+ 1463 0190 7FFFFFFF 		.ascii	"\177\377\377\377\374\000\000>"
+ 1463      FC00003E 
+ 1464 0198 7FFFFFFF 		.ascii	"\177\377\377\377\340\000\000\016"
+ 1464      E000000E 
+ 1465 01a0 7FFFFFFF 		.ascii	"\177\377\377\377\000\000\000\270"
+ 1465      000000B8 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 36
+
+
+ 1466 01a8 7FFFFFF8 		.ascii	"\177\377\377\370\000\000\000\340"
+ 1466      000000E0 
+ 1467 01b0 7FFFFFF0 		.ascii	"\177\377\377\360\000\000\000\376"
+ 1467      000000FE 
+ 1468 01b8 7FFFFFF0 		.ascii	"\177\377\377\360\000\000\000\036"
+ 1468      0000001E 
+ 1469 01c0 7FFFFFF0 		.ascii	"\177\377\377\360\000\000\000\002"
+ 1469      00000002 
+ 1470 01c8 7FFFFFF0 		.ascii	"\177\377\377\360\000\000\000\000"
+ 1470      00000000 
+ 1471 01d0 7FEFFFF0 		.ascii	"\177\357\377\360\002\000\000\006"
+ 1471      02000006 
+ 1472 01d8 7FE7FFF0 		.ascii	"\177\347\377\360\002\000\000\016"
+ 1472      0200000E 
+ 1473 01e0 7FE3FFF0 		.ascii	"\177\343\377\360\002\000\000\034"
+ 1473      0200001C 
+ 1474 01e8 7FE1FFF8 		.ascii	"\177\341\377\370\003\000\000\272"
+ 1474      030000BA 
+ 1475 01f0 7FE0FFFC 		.ascii	"\177\340\377\374\003\000\000\366"
+ 1475      030000F6 
+ 1476 01f8 7FE07FFE 		.ascii	"\177\340\177\376\003\200\000\346"
+ 1476      038000E6 
+ 1477 0200 7FE03FFF 		.ascii	"\177\340?\377\003\200\000\366"
+ 1477      038000F6 
+ 1478 0208 7FE03FFF 		.ascii	"\177\340?\377\203\300\000>"
+ 1478      83C0003E 
+ 1479 0210 7FE03FFF 		.ascii	"\177\340?\377\303\300\000\016"
+ 1479      C3C0000E 
+ 1480 0218 7FE03FFF 		.ascii	"\177\340?\377\343\340\000\002"
+ 1480      E3E00002 
+ 1481 0220 7FE03FFF 		.ascii	"\177\340?\377\363\340\000\000"
+ 1481      F3E00000 
+ 1482 0228 7FE03FFF 		.ascii	"\177\340?\377\373\360\000\002"
+ 1482      FBF00002 
+ 1483 0230 7FE03FFF 		.ascii	"\177\340?\377\377\360\000f"
+ 1483      FFF00066 
+ 1484 0238 7FE03FFF 		.ascii	"\177\340?\377\377\370\000\366"
+ 1484      FFF800F6 
+ 1485 0240 7FE03FFF 		.ascii	"\177\340?\377\377\370\000\326"
+ 1485      FFF800D6 
+ 1486 0248 7FE03FFF 		.ascii	"\177\340?\377\377\374\000\326"
+ 1486      FFFC00D6 
+ 1487 0250 7FF07FFF 		.ascii	"\177\360\177\377\377\374\000\326"
+ 1487      FFFC00D6 
+ 1488 0258 7FF8FFF7 		.ascii	"\177\370\377\367\377\376\000\326"
+ 1488      FFFE00D6 
+ 1489 0260 7FFFFFF3 		.ascii	"\177\377\377\363\377\376\000\336"
+ 1489      FFFE00DE 
+ 1490 0268 3FFFFFE1 		.ascii	"?\377\377\341\377\377\000\214"
+ 1490      FFFF008C 
+ 1491 0270 3FFFFFE0 		.ascii	"?\377\377\340\377\317\000@"
+ 1491      FFCF0040 
+ 1492 0278 1FFFFFC0 		.ascii	"\037\377\377\300\177\307\200\300"
+ 1492      7FC780C0 
+ 1493 0280 1FFFFFC0 		.ascii	"\037\377\377\300?\303\200\300"
+ 1493      3FC380C0 
+ 1494 0288 0FFFFF80 		.ascii	"\017\377\377\200\037\301\300\376"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 37
+
+
+ 1494      1FC1C0FE 
+ 1495 0290 07FFFF00 		.ascii	"\007\377\377\000\017\300\300\376"
+ 1495      0FC0C0FE 
+ 1496 0298 03FFFE00 		.ascii	"\003\377\376\000\007\300`\300"
+ 1496      07C060C0 
+ 1497 02a0 01FFFC00 		.ascii	"\001\377\374\000\003\300 \300"
+ 1497      03C020C0 
+ 1498 02a8 007FF000 		.ascii	"\000\177\360\000\001\300\000\206"
+ 1498      01C00086 
+ 1499 02b0 000F8000 		.ascii	"\000\017\200\000\000\300\000\026"
+ 1499      00C00016 
+ 1500 02b8 00000000 		.ascii	"\000\000\000\000\000@\000\326"
+ 1500      004000D6 
+ 1501 02c0 00000000 		.ascii	"\000\000\000\000\000\000\000\326"
+ 1501      000000D6 
+ 1502 02c8 00000000 		.ascii	"\000\000\000\000\000\000\000\326"
+ 1502      000000D6 
+ 1503 02d0 00000000 		.ascii	"\000\000\000\000\000\000\000\326"
+ 1503      000000D6 
+ 1504 02d8 00000000 		.ascii	"\000\000\000\000\000\000\000\326"
+ 1504      000000D6 
+ 1505 02e0 00000000 		.ascii	"\000\000\000\000\000\000\000\320"
+ 1505      000000D0 
+ 1506 02e8 00000000 		.ascii	"\000\000\000\000\000\000\000\300"
+ 1506      000000C0 
+ 1507 02f0 00000000 		.ascii	"\000\000\000\000\000\000\000\006"
+ 1507      00000006 
+ 1508 02f8 00000000 		.ascii	"\000\000\000\000\000\000\000\036"
+ 1508      0000001E 
+ 1509 0300 00000000 		.ascii	"\000\000\000\000\000\000\000\336"
+ 1509      000000DE 
+ 1510 0308 00000000 		.ascii	"\000\000\000\000\000\000\000\330"
+ 1510      000000D8 
+ 1511 0310 00000000 		.ascii	"\000\000\000\000\000\000\000\330"
+ 1511      000000D8 
+ 1512 0318 00000000 		.ascii	"\000\000\000\000\000\000\000\330"
+ 1512      000000D8 
+ 1513 0320 00000000 		.ascii	"\000\000\000\000\000\000\000\336"
+ 1513      000000DE 
+ 1514 0328 00000000 		.ascii	"\000\000\000\000\000\000\000\336"
+ 1514      000000DE 
+ 1515 0330 00000000 		.ascii	"\000\000\000\000\000\000\000\366"
+ 1515      000000F6 
+ 1516 0338 00000000 		.ascii	"\000\000\000\000\000\000\000r"
+ 1516      00000072 
+ 1517 0340 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1517      00000000 
+ 1518 0348 00000000 		.ascii	"\000\000\000\000\000\000\000b"
+ 1518      00000062 
+ 1519 0350 00000000 		.ascii	"\000\000\000\000\000\000\000\366"
+ 1519      000000F6 
+ 1520 0358 00000000 		.ascii	"\000\000\000\000\000\000\000\366"
+ 1520      000000F6 
+ 1521 0360 00000000 		.ascii	"\000\000\000\000\000\000\000\326"
+ 1521      000000D6 
+ 1522 0368 00000000 		.ascii	"\000\000\000\000\000\000\000\326"
+ 1522      000000D6 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 38
+
+
+ 1523 0370 00000000 		.ascii	"\000\000\000\000\000\000\000\326"
+ 1523      000000D6 
+ 1524 0378 00000000 		.ascii	"\000\000\000\000\000\000\000\336"
+ 1524      000000DE 
+ 1525 0380 00000000 		.ascii	"\000\000\000\000\000\000\000\214"
+ 1525      0000008C 
+ 1526 0388 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1526      00000000 
+ 1527 0390 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1527      00000000 
+ 1528 0398 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1528      00000000 
+ 1529 03a0 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1529      00000000 
+ 1530 03a8 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1530      00000000 
+ 1531 03b0 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1531      00000000 
+ 1532 03b8 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1532      00000000 
+ 1533 03c0 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1533      00000000 
+ 1534 03c8 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1534      00000000 
+ 1535 03d0 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1535      00000000 
+ 1536 03d8 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1536      00000000 
+ 1537 03e0 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1537      00000000 
+ 1538 03e8 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1538      00000000 
+ 1539 03f0 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1539      00000000 
+ 1540 03f8 00000000 		.ascii	"\000\000\000\000\000\000\000\000"
+ 1540      00000000 
+ 1541              		.global	asc2_1206
+ 1542              		.section	.rodata.asc2_1206,"a"
+ 1543              		.align	2
+ 1546              	asc2_1206:
+ 1547 0000 00000000 		.ascii	"\000\000\000\000\000\000\000\000\000\000\000\000"
+ 1547      00000000 
+ 1547      00000000 
+ 1548 000c 00000000 		.ascii	"\000\000\000\000?@\000\000\000\000\000\000"
+ 1548      3F400000 
+ 1548      00000000 
+ 1549 0018 00003000 		.ascii	"\000\0000\000@\0000\000@\000\000\000"
+ 1549      40003000 
+ 1549      40000000 
+ 1550 0024 09000BC0 		.ascii	"\011\000\013\300=\000\013\300=\000\011\000"
+ 1550      3D000BC0 
+ 1550      3D000900 
+ 1551 0030 18C02440 		.ascii	"\030\300$@\177\340\"@1\200\000\000"
+ 1551      7FE02240 
+ 1551      31800000 
+ 1552 003c 180024C0 		.ascii	"\030\000$\300\033\000\015\2002@\001\200"
+ 1552      1B000D80 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 39
+
+
+ 1552      32400180 
+ 1553 0048 03801C40 		.ascii	"\003\200\034@'@\034\200\007@\000@"
+ 1553      27401C80 
+ 1553      07400040 
+ 1554 0054 10006000 		.ascii	"\020\000`\000\000\000\000\000\000\000\000\000"
+ 1554      00000000 
+ 1554      00000000 
+ 1555 0060 00000000 		.ascii	"\000\000\000\000\000\000\037\200 @@ "
+ 1555      00001F80 
+ 1555      20404020 
+ 1556 006c 00004020 		.ascii	"\000\000@  @\037\200\000\000\000\000"
+ 1556      20401F80 
+ 1556      00000000 
+ 1557 0078 09000600 		.ascii	"\011\000\006\000\037\200\006\000\011\000\000\000"
+ 1557      1F800600 
+ 1557      09000000 
+ 1558 0084 04000400 		.ascii	"\004\000\004\000?\200\004\000\004\000\000\000"
+ 1558      3F800400 
+ 1558      04000000 
+ 1559 0090 00100060 		.ascii	"\000\020\000`\000\000\000\000\000\000\000\000"
+ 1559      00000000 
+ 1559      00000000 
+ 1560 009c 04000400 		.ascii	"\004\000\004\000\004\000\004\000\004\000\000\000"
+ 1560      04000400 
+ 1560      04000000 
+ 1561 00a8 00000040 		.ascii	"\000\000\000@\000\000\000\000\000\000\000\000"
+ 1561      00000000 
+ 1561      00000000 
+ 1562 00b4 002001C0 		.ascii	"\000 \001\300\006\0008\000@\000\000\000"
+ 1562      06003800 
+ 1562      40000000 
+ 1563 00c0 1F802040 		.ascii	"\037\200 @ @ @\037\200\000\000"
+ 1563      20402040 
+ 1563      1F800000 
+ 1564 00cc 00001040 		.ascii	"\000\000\020@?\300\000@\000\000\000\000"
+ 1564      3FC00040 
+ 1564      00000000 
+ 1565 00d8 18C02140 		.ascii	"\030\300!@\"@$@\030@\000\000"
+ 1565      22402440 
+ 1565      18400000 
+ 1566 00e4 10802040 		.ascii	"\020\200 @$@$@\033\200\000\000"
+ 1566      24402440 
+ 1566      1B800000 
+ 1567 00f0 02000D00 		.ascii	"\002\000\015\000\021\000?\300\001@\000\000"
+ 1567      11003FC0 
+ 1567      01400000 
+ 1568 00fc 3C802440 		.ascii	"<\200$@$@$@#\200\000\000"
+ 1568      24402440 
+ 1568      23800000 
+ 1569 0108 1F802440 		.ascii	"\037\200$@$@4@\003\200\000\000"
+ 1569      24403440 
+ 1569      03800000 
+ 1570 0114 30002000 		.ascii	"0\000 \000'\3008\000 \000\000\000"
+ 1570      27C03800 
+ 1570      20000000 
+ 1571 0120 1B802440 		.ascii	"\033\200$@$@$@\033\200\000\000"
+ 1571      24402440 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 40
+
+
+ 1571      1B800000 
+ 1572 012c 1C0022C0 		.ascii	"\034\000\"\300\"@\"@\037\200\000\000"
+ 1572      22402240 
+ 1572      1F800000 
+ 1573 0138 00000000 		.ascii	"\000\000\000\000\010@\000\000\000\000\000\000"
+ 1573      08400000 
+ 1573      00000000 
+ 1574 0144 00000000 		.ascii	"\000\000\000\000\004`\000\000\000\000\000\000"
+ 1574      04600000 
+ 1574      00000000 
+ 1575 0150 00000400 		.ascii	"\000\000\004\000\012\000\021\000 \200@@"
+ 1575      0A001100 
+ 1575      20804040 
+ 1576 015c 09000900 		.ascii	"\011\000\011\000\011\000\011\000\011\000\000\000"
+ 1576      09000900 
+ 1576      09000000 
+ 1577 0168 00004040 		.ascii	"\000\000@@ \200\021\000\012\000\004\000"
+ 1577      20801100 
+ 1577      0A000400 
+ 1578 0174 18002000 		.ascii	"\030\000 \000#@$\000\030\000\000\000"
+ 1578      23402400 
+ 1578      18000000 
+ 1579 0180 1F802040 		.ascii	"\037\200 @'@)@\037@\000\000"
+ 1579      27402940 
+ 1579      1F400000 
+ 1580 018c 004007C0 		.ascii	"\000@\007\3009\000\017\000\001\300\000@"
+ 1580      39000F00 
+ 1580      01C00040 
+ 1581 0198 20403FC0 		.ascii	" @?\300$@$@\033\200\000\000"
+ 1581      24402440 
+ 1581      1B800000 
+ 1582 01a4 1F802040 		.ascii	"\037\200 @ @ @0\200\000\000"
+ 1582      20402040 
+ 1582      30800000 
+ 1583 01b0 20403FC0 		.ascii	" @?\300 @ @\037\200\000\000"
+ 1583      20402040 
+ 1583      1F800000 
+ 1584 01bc 20403FC0 		.ascii	" @?\300$@.@0\300\000\000"
+ 1584      24402E40 
+ 1584      30C00000 
+ 1585 01c8 20403FC0 		.ascii	" @?\300$@.\0000\000\000\000"
+ 1585      24402E00 
+ 1585      30000000 
+ 1586 01d4 0F001080 		.ascii	"\017\000\020\200 @\"@3\200\002\000"
+ 1586      20402240 
+ 1586      33800200 
+ 1587 01e0 20403FC0 		.ascii	" @?\300\004\000\004\000?\300 @"
+ 1587      04000400 
+ 1587      3FC02040 
+ 1588 01ec 20402040 		.ascii	" @ @?\300 @ @\000\000"
+ 1588      3FC02040 
+ 1588      20400000 
+ 1589 01f8 00602020 		.ascii	"\000`    ?\300 \000 \000"
+ 1589      20203FC0 
+ 1589      20002000 
+ 1590 0204 20403FC0 		.ascii	" @?\300$@\013\0000\300 @"
+ 1590      24400B00 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 41
+
+
+ 1590      30C02040 
+ 1591 0210 20403FC0 		.ascii	" @?\300 @\000@\000@\000\300"
+ 1591      20400040 
+ 1591      004000C0 
+ 1592 021c 3FC03C00 		.ascii	"?\300<\000\003\300<\000?\300\000\000"
+ 1592      03C03C00 
+ 1592      3FC00000 
+ 1593 0228 20403FC0 		.ascii	" @?\300\014@#\000?\300 \000"
+ 1593      0C402300 
+ 1593      3FC02000 
+ 1594 0234 1F802040 		.ascii	"\037\200 @ @ @\037\200\000\000"
+ 1594      20402040 
+ 1594      1F800000 
+ 1595 0240 20403FC0 		.ascii	" @?\300$@$\000\030\000\000\000"
+ 1595      24402400 
+ 1595      18000000 
+ 1596 024c 1F802140 		.ascii	"\037\200!@!@ \340\037\240\000\000"
+ 1596      214020E0 
+ 1596      1FA00000 
+ 1597 0258 20403FC0 		.ascii	" @?\300$@&\000\031\300\000@"
+ 1597      24402600 
+ 1597      19C00040 
+ 1598 0264 18C02440 		.ascii	"\030\300$@$@\"@1\200\000\000"
+ 1598      24402240 
+ 1598      31800000 
+ 1599 0270 30002040 		.ascii	"0\000 @?\300 @0\000\000\000"
+ 1599      3FC02040 
+ 1599      30000000 
+ 1600 027c 20003F80 		.ascii	" \000?\200\000@\000@?\200 \000"
+ 1600      00400040 
+ 1600      3F802000 
+ 1601 0288 20003E00 		.ascii	" \000>\000\001\300\007\0008\000 \000"
+ 1601      01C00700 
+ 1601      38002000 
+ 1602 0294 380007C0 		.ascii	"8\000\007\300<\000\007\3008\000\000\000"
+ 1602      3C0007C0 
+ 1602      38000000 
+ 1603 02a0 204039C0 		.ascii	" @9\300\006\0009\300 @\000\000"
+ 1603      060039C0 
+ 1603      20400000 
+ 1604 02ac 20003840 		.ascii	" \0008@\007\3008@ \000\000\000"
+ 1604      07C03840 
+ 1604      20000000 
+ 1605 02b8 304021C0 		.ascii	"0@!\300&@8@ \300\000\000"
+ 1605      26403840 
+ 1605      20C00000 
+ 1606 02c4 00000000 		.ascii	"\000\000\000\000\177\340@ @ \000\000"
+ 1606      7FE04020 
+ 1606      40200000 
+ 1607 02d0 00007000 		.ascii	"\000\000p\000\014\000\003\200\000@\000\000"
+ 1607      0C000380 
+ 1607      00400000 
+ 1608 02dc 00004020 		.ascii	"\000\000@ @ \177\340\000\000\000\000"
+ 1608      40207FE0 
+ 1608      00000000 
+ 1609 02e8 00002000 		.ascii	"\000\000 \000@\000 \000\000\000\000\000"
+ 1609      40002000 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 42
+
+
+ 1609      00000000 
+ 1610 02f4 00100010 		.ascii	"\000\020\000\020\000\020\000\020\000\020\000\020"
+ 1610      00100010 
+ 1610      00100010 
+ 1611 0300 00000000 		.ascii	"\000\000\000\000@\000\000\000\000\000\000\000"
+ 1611      40000000 
+ 1611      00000000 
+ 1612 030c 00000280 		.ascii	"\000\000\002\200\005@\005@\003\300\000@"
+ 1612      05400540 
+ 1612      03C00040 
+ 1613 0318 20003FC0 		.ascii	" \000?\300\004@\004@\003\200\000\000"
+ 1613      04400440 
+ 1613      03800000 
+ 1614 0324 00000380 		.ascii	"\000\000\003\200\004@\004@\006@\000\000"
+ 1614      04400440 
+ 1614      06400000 
+ 1615 0330 00000380 		.ascii	"\000\000\003\200\004@$@?\300\000@"
+ 1615      04402440 
+ 1615      3FC00040 
+ 1616 033c 00000380 		.ascii	"\000\000\003\200\005@\005@\003@\000\000"
+ 1616      05400540 
+ 1616      03400000 
+ 1617 0348 00000440 		.ascii	"\000\000\004@\037\300$@$@ \000"
+ 1617      1FC02440 
+ 1617      24402000 
+ 1618 0354 000002E0 		.ascii	"\000\000\002\340\005P\005P\006P\004 "
+ 1618      05500550 
+ 1618      06500420 
+ 1619 0360 20403FC0 		.ascii	" @?\300\004@\004\000\003\300\000@"
+ 1619      04400400 
+ 1619      03C00040 
+ 1620 036c 00000440 		.ascii	"\000\000\004@'\300\000@\000\000\000\000"
+ 1620      27C00040 
+ 1620      00000000 
+ 1621 0378 00100010 		.ascii	"\000\020\000\020\004\020'\340\000\000\000\000"
+ 1621      041027E0 
+ 1621      00000000 
+ 1622 0384 20403FC0 		.ascii	" @?\300\001@\007\000\004\300\004@"
+ 1622      01400700 
+ 1622      04C00440 
+ 1623 0390 20402040 		.ascii	" @ @?\300\000@\000@\000\000"
+ 1623      3FC00040 
+ 1623      00400000 
+ 1624 039c 07C00400 		.ascii	"\007\300\004\000\007\300\004\000\003\300\000\000"
+ 1624      07C00400 
+ 1624      03C00000 
+ 1625 03a8 044007C0 		.ascii	"\004@\007\300\004@\004\000\003\300\000@"
+ 1625      04400400 
+ 1625      03C00040 
+ 1626 03b4 00000380 		.ascii	"\000\000\003\200\004@\004@\003\200\000\000"
+ 1626      04400440 
+ 1626      03800000 
+ 1627 03c0 041007F0 		.ascii	"\004\020\007\360\004P\004@\003\200\000\000"
+ 1627      04500440 
+ 1627      03800000 
+ 1628 03cc 00000380 		.ascii	"\000\000\003\200\004@\004P\007\360\000\020"
+ 1628      04400450 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 43
+
+
+ 1628      07F00010 
+ 1629 03d8 044007C0 		.ascii	"\004@\007\300\002@\004\000\004\000\000\000"
+ 1629      02400400 
+ 1629      04000000 
+ 1630 03e4 00000640 		.ascii	"\000\000\006@\005@\005@\004\300\000\000"
+ 1630      05400540 
+ 1630      04C00000 
+ 1631 03f0 00000400 		.ascii	"\000\000\004\000\037\200\004@\000@\000\000"
+ 1631      1F800440 
+ 1631      00400000 
+ 1632 03fc 04000780 		.ascii	"\004\000\007\200\000@\004@\007\300\000@"
+ 1632      00400440 
+ 1632      07C00040 
+ 1633 0408 04000700 		.ascii	"\004\000\007\000\004\300\001\200\006\000\004\000"
+ 1633      04C00180 
+ 1633      06000400 
+ 1634 0414 060001C0 		.ascii	"\006\000\001\300\007\000\001\300\006\000\000\000"
+ 1634      070001C0 
+ 1634      06000000 
+ 1635 0420 044006C0 		.ascii	"\004@\006\300\001\000\006\300\004@\000\000"
+ 1635      010006C0 
+ 1635      04400000 
+ 1636 042c 04100710 		.ascii	"\004\020\007\020\004\340\001\200\006\000\004\000"
+ 1636      04E00180 
+ 1636      06000400 
+ 1637 0438 00000440 		.ascii	"\000\000\004@\005\300\006@\004@\000\000"
+ 1637      05C00640 
+ 1637      04400000 
+ 1638 0444 00000000 		.ascii	"\000\000\000\000\004\000{\340@ \000\000"
+ 1638      04007BE0 
+ 1638      40200000 
+ 1639 0450 00000000 		.ascii	"\000\000\000\000\000\000\377\360\000\000\000\000"
+ 1639      0000FFF0 
+ 1639      00000000 
+ 1640 045c 00004020 		.ascii	"\000\000@ {\340\004\000\000\000\000\000"
+ 1640      7BE00400 
+ 1640      00000000 
+ 1641 0468 40008000 		.ascii	"@\000\200\000@\000 \000 \000@\000"
+ 1641      40002000 
+ 1641      20004000 
+ 1642              		.text
+ 1643              	.Letext0:
+ 1644              		.file 2 "D:/msys2/mingw64/arm-none-eabi/include/machine/_default_types.h"
+ 1645              		.file 3 "D:/msys2/mingw64/arm-none-eabi/include/sys/_stdint.h"
+ 1646              		.file 4 "modules/oled/oled.h"
+ 1647              		.file 5 "modules/oled/oledfont.h"
+ 1648              		.file 6 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 1649              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 1650              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 1651              		.file 9 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h"
+ 1652              		.file 10 "D:/msys2/mingw64/lib/gcc/arm-none-eabi/13.3.0/include/stdarg.h"
+ 1653              		.file 11 "D:/msys2/mingw64/arm-none-eabi/include/stdio.h"
+ 1654              		.file 12 "<built-in>"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s 			page 44
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 oled.c
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:21     .text.oled_write_byte:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:27     .text.oled_write_byte:00000000 oled_write_byte
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:88     .text.oled_write_byte:0000002c $d
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1399   .bss.cmd_data.2:00000000 cmd_data.2
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:94     .text.OLED_init:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:100    .text.OLED_init:00000000 OLED_init
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:257    .text.OLED_display_on:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:263    .text.OLED_display_on:00000000 OLED_display_on
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:295    .text.OLED_display_off:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:301    .text.OLED_display_off:00000000 OLED_display_off
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:333    .text.OLED_operate_gram:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:339    .text.OLED_operate_gram:00000000 OLED_operate_gram
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:421    .text.OLED_operate_gram:00000058 $d
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1405   .bss.OLED_GRAM:00000000 OLED_GRAM
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:426    .text.OLED_set_pos:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:432    .text.OLED_set_pos:00000000 OLED_set_pos
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:478    .text.OLED_draw_point:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:484    .text.OLED_draw_point:00000000 OLED_draw_point
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:594    .text.OLED_draw_point:0000007c $d
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:599    .text.OLED_draw_line:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:605    .text.OLED_draw_line:00000000 OLED_draw_line
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:815    .text.OLED_show_char:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:821    .text.OLED_show_char:00000000 OLED_show_char
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:968    .text.OLED_show_char:00000084 $d
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1546   .rodata.asc2_1206:00000000 asc2_1206
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:973    .text.OLED_show_string:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:979    .text.OLED_show_string:00000000 OLED_show_string
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1058   .text.OLED_printf:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1064   .text.OLED_printf:00000000 OLED_printf
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1166   .text.OLED_printf:00000040 $d
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1393   .bss.ap.1:00000000 ap.1
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1387   .bss.LCD_BUF.0:00000000 LCD_BUF.0
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1172   .text.OLED_refresh_gram:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1178   .text.OLED_refresh_gram:00000000 OLED_refresh_gram
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1246   .text.OLED_refresh_gram:00000034 $d
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1251   .text.OLED_LOGO:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1257   .text.OLED_LOGO:00000000 OLED_LOGO
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1379   .text.OLED_LOGO:00000070 $d
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1412   .rodata.LOGO_BMP:00000000 LOGO_BMP
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1384   .bss.LCD_BUF.0:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1390   .bss.ap.1:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1396   .bss.cmd_data.2:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1402   .bss.OLED_GRAM:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1409   .rodata.LOGO_BMP:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccQLkVcQ.s:1543   .rodata.asc2_1206:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_I2C_Master_Transmit
+hi2c2
+vsprintf

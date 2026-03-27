@@ -1,0 +1,555 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"master_process.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/master_machine/master_process.c"
+  20              		.section	.text.VisionOfflineCallback,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	VisionOfflineCallback:
+  27              	.LVL0:
+  28              	.LFB273:
+   1:modules/master_machine/master_process.c **** /**
+   2:modules/master_machine/master_process.c ****  * @file master_process.c
+   3:modules/master_machine/master_process.c ****  * @author neozng
+   4:modules/master_machine/master_process.c ****  * @brief  module for recv&send vision data
+   5:modules/master_machine/master_process.c ****  * @version beta
+   6:modules/master_machine/master_process.c ****  * @date 2022-11-03
+   7:modules/master_machine/master_process.c ****  * @todo 增加对串口调试助手协议的支持,包括vofa和serial debug
+   8:modules/master_machine/master_process.c ****  * @copyright Copyright (c) 2022
+   9:modules/master_machine/master_process.c ****  *
+  10:modules/master_machine/master_process.c ****  */
+  11:modules/master_machine/master_process.c **** #include "master_process.h"
+  12:modules/master_machine/master_process.c **** #include "seasky_protocol.h"
+  13:modules/master_machine/master_process.c **** #include "daemon.h"
+  14:modules/master_machine/master_process.c **** #include "bsp_log.h"
+  15:modules/master_machine/master_process.c **** #include "robot_def.h"
+  16:modules/master_machine/master_process.c **** 
+  17:modules/master_machine/master_process.c **** static Vision_Recv_s recv_data;
+  18:modules/master_machine/master_process.c **** static Vision_Send_s send_data;
+  19:modules/master_machine/master_process.c **** static DaemonInstance *vision_daemon_instance;
+  20:modules/master_machine/master_process.c **** 
+  21:modules/master_machine/master_process.c **** void VisionSetFlag(Enemy_Color_e enemy_color)
+  22:modules/master_machine/master_process.c **** {
+  23:modules/master_machine/master_process.c ****     send_data.enemy_color = enemy_color;
+  24:modules/master_machine/master_process.c **** }
+  25:modules/master_machine/master_process.c **** 
+  26:modules/master_machine/master_process.c **** void VisionSetAltitude(float yaw, float pitch, float roll)
+  27:modules/master_machine/master_process.c **** {
+  28:modules/master_machine/master_process.c ****     send_data.yaw = yaw;
+  29:modules/master_machine/master_process.c ****     send_data.pitch = -pitch;
+  30:modules/master_machine/master_process.c ****     send_data.roll =  -roll;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s 			page 2
+
+
+  31:modules/master_machine/master_process.c **** }
+  32:modules/master_machine/master_process.c **** 
+  33:modules/master_machine/master_process.c **** /**
+  34:modules/master_machine/master_process.c ****  * @brief 离线回调函数,将在daemon.c中被daemon task调用
+  35:modules/master_machine/master_process.c ****  * @attention 由于HAL库的设计问题,串口开启DMA接收之后同时发送有概率出现__H
+  36:modules/master_machine/master_process.c ****  *            进入接收中断.通过daemon判断数据更新,重新调用服务启动函数以�
+  37:modules/master_machine/master_process.c ****  *
+  38:modules/master_machine/master_process.c ****  * @param id vision_usart_instance的地址,此处没用.
+  39:modules/master_machine/master_process.c ****  */
+  40:modules/master_machine/master_process.c **** static void VisionOfflineCallback(void *id)
+  41:modules/master_machine/master_process.c **** {
+  29              		.loc 1 41 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+  42:modules/master_machine/master_process.c **** #ifdef VISION_USE_UART
+  43:modules/master_machine/master_process.c ****     USARTServiceInit(vision_usart_instance);
+  44:modules/master_machine/master_process.c **** #endif // !VISION_USE_UART
+  45:modules/master_machine/master_process.c ****     LOGWARNING("[vision] vision offline, restart communication.");
+  34              		.loc 1 45 66 view .LVU1
+  46:modules/master_machine/master_process.c **** }
+  35              		.loc 1 46 1 is_stmt 0 view .LVU2
+  36 0000 7047     		bx	lr
+  37              		.cfi_endproc
+  38              	.LFE273:
+  40              		.section	.text.DecodeVision,"ax",%progbits
+  41              		.align	1
+  42              		.syntax unified
+  43              		.thumb
+  44              		.thumb_func
+  46              	DecodeVision:
+  47              	.LVL1:
+  48              	.LFB275:
+  47:modules/master_machine/master_process.c **** 
+  48:modules/master_machine/master_process.c **** #ifdef VISION_USE_UART
+  49:modules/master_machine/master_process.c **** 
+  50:modules/master_machine/master_process.c **** #include "bsp_usart.h"
+  51:modules/master_machine/master_process.c **** 
+  52:modules/master_machine/master_process.c **** static USARTInstance *vision_usart_instance;
+  53:modules/master_machine/master_process.c **** 
+  54:modules/master_machine/master_process.c **** /**
+  55:modules/master_machine/master_process.c ****  * @brief 接收解包回调函数,将在bsp_usart.c中被usart rx callback调用
+  56:modules/master_machine/master_process.c ****  * @todo  1.提高可读性,将get_protocol_info的第四个参数增加一个float类型buffer
+  57:modules/master_machine/master_process.c ****  *        2.添加标志位解码
+  58:modules/master_machine/master_process.c ****  */
+  59:modules/master_machine/master_process.c **** static void DecodeVision()
+  60:modules/master_machine/master_process.c **** {
+  61:modules/master_machine/master_process.c ****     uint16_t flag_register;
+  62:modules/master_machine/master_process.c ****     DaemonReload(vision_daemon_instance); // 喂狗
+  63:modules/master_machine/master_process.c ****     get_protocol_info(vision_usart_instance->recv_buff, &flag_register, (uint8_t *)&recv_data.pitch
+  64:modules/master_machine/master_process.c ****     // TODO: code to resolve flag_register;
+  65:modules/master_machine/master_process.c **** }
+  66:modules/master_machine/master_process.c **** 
+  67:modules/master_machine/master_process.c **** Vision_Recv_s *VisionInit(UART_HandleTypeDef *_handle)
+  68:modules/master_machine/master_process.c **** {
+  69:modules/master_machine/master_process.c ****     USART_Init_Config_s conf;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s 			page 3
+
+
+  70:modules/master_machine/master_process.c ****     conf.module_callback = DecodeVision;
+  71:modules/master_machine/master_process.c ****     conf.recv_buff_size = VISION_RECV_SIZE;
+  72:modules/master_machine/master_process.c ****     conf.usart_handle = _handle;
+  73:modules/master_machine/master_process.c ****     vision_usart_instance = USARTRegister(&conf);
+  74:modules/master_machine/master_process.c **** 
+  75:modules/master_machine/master_process.c ****     // 为master process注册daemon,用于判断视觉通信是否离线
+  76:modules/master_machine/master_process.c ****     Daemon_Init_Config_s daemon_conf = {
+  77:modules/master_machine/master_process.c ****         .callback = VisionOfflineCallback, // 离线时调用的回调函数,会重启串口接收
+  78:modules/master_machine/master_process.c ****         .owner_id = vision_usart_instance,
+  79:modules/master_machine/master_process.c ****         .reload_count = 10,
+  80:modules/master_machine/master_process.c ****     };
+  81:modules/master_machine/master_process.c ****     vision_daemon_instance = DaemonRegister(&daemon_conf);
+  82:modules/master_machine/master_process.c **** 
+  83:modules/master_machine/master_process.c ****     return &recv_data;
+  84:modules/master_machine/master_process.c **** }
+  85:modules/master_machine/master_process.c **** 
+  86:modules/master_machine/master_process.c **** /**
+  87:modules/master_machine/master_process.c ****  * @brief 发送函数
+  88:modules/master_machine/master_process.c ****  *
+  89:modules/master_machine/master_process.c ****  * @param send 待发送数据
+  90:modules/master_machine/master_process.c ****  *
+  91:modules/master_machine/master_process.c ****  */
+  92:modules/master_machine/master_process.c **** void VisionSend()
+  93:modules/master_machine/master_process.c **** {
+  94:modules/master_machine/master_process.c ****     // buff和txlen必须为static,才能保证在函数退出后不被释放,使得DMA正确完成
+  95:modules/master_machine/master_process.c ****     // 析构后的陷阱需要特别注意!
+  96:modules/master_machine/master_process.c ****     static uint16_t flag_register;
+  97:modules/master_machine/master_process.c ****     static uint8_t send_buff[VISION_SEND_SIZE];
+  98:modules/master_machine/master_process.c ****     static uint16_t tx_len;
+  99:modules/master_machine/master_process.c ****     // TODO: code to set flag_register
+ 100:modules/master_machine/master_process.c ****     flag_register = 30 << 8 | 0b00000001;
+ 101:modules/master_machine/master_process.c ****     // 将数据转化为seasky协议的数据包
+ 102:modules/master_machine/master_process.c ****     get_protocol_send_data(0x02, flag_register, &send_data.yaw, 3, send_buff, &tx_len);
+ 103:modules/master_machine/master_process.c ****     USARTSend(vision_usart_instance, send_buff, tx_len, USART_TRANSFER_DMA); // 和视觉通信使�
+ 104:modules/master_machine/master_process.c ****     // 此处为HAL设计的缺陷,DMASTOP会停止发送和接收,导致再也无法进入接收�
+ 105:modules/master_machine/master_process.c ****     // 也可在发送完成中断中重新启动DMA接收,但较为复杂.因此,此处使用IT发
+ 106:modules/master_machine/master_process.c ****     // 若使用了daemon,则也可以使用DMA发送.
+ 107:modules/master_machine/master_process.c **** }
+ 108:modules/master_machine/master_process.c **** 
+ 109:modules/master_machine/master_process.c **** #endif // VISION_USE_UART
+ 110:modules/master_machine/master_process.c **** 
+ 111:modules/master_machine/master_process.c **** #ifdef VISION_USE_VCP
+ 112:modules/master_machine/master_process.c **** 
+ 113:modules/master_machine/master_process.c **** #include "bsp_usb.h"
+ 114:modules/master_machine/master_process.c **** static uint8_t *vis_recv_buff;
+ 115:modules/master_machine/master_process.c **** 
+ 116:modules/master_machine/master_process.c **** static void DecodeVision(uint16_t recv_len)
+ 117:modules/master_machine/master_process.c **** {
+  49              		.loc 1 117 1 is_stmt 1 view -0
+  50              		.cfi_startproc
+  51              		@ args = 0, pretend = 0, frame = 8
+  52              		@ frame_needed = 0, uses_anonymous_args = 0
+  53              		.loc 1 117 1 is_stmt 0 view .LVU4
+  54 0000 00B5     		push	{lr}
+  55              		.cfi_def_cfa_offset 4
+  56              		.cfi_offset 14, -4
+  57 0002 83B0     		sub	sp, sp, #12
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s 			page 4
+
+
+  58              		.cfi_def_cfa_offset 16
+ 118:modules/master_machine/master_process.c ****     uint16_t flag_register;
+  59              		.loc 1 118 5 is_stmt 1 view .LVU5
+ 119:modules/master_machine/master_process.c ****     get_protocol_info(vis_recv_buff, &flag_register, (uint8_t *)&recv_data.target_state);
+  60              		.loc 1 119 5 view .LVU6
+  61 0004 044A     		ldr	r2, .L4
+  62 0006 0DF10601 		add	r1, sp, #6
+  63 000a 044B     		ldr	r3, .L4+4
+  64 000c 1868     		ldr	r0, [r3]
+  65              	.LVL2:
+  66              		.loc 1 119 5 is_stmt 0 view .LVU7
+  67 000e FFF7FEFF 		bl	get_protocol_info
+  68              	.LVL3:
+ 120:modules/master_machine/master_process.c ****     // TODO: code to resolve flag_register;
+ 121:modules/master_machine/master_process.c **** }
+  69              		.loc 1 121 1 view .LVU8
+  70 0012 03B0     		add	sp, sp, #12
+  71              		.cfi_def_cfa_offset 4
+  72              		@ sp needed
+  73 0014 00BD     		pop	{pc}
+  74              	.L5:
+  75 0016 00BF     		.align	2
+  76              	.L4:
+  77 0018 00000000 		.word	recv_data
+  78 001c 00000000 		.word	vis_recv_buff
+  79              		.cfi_endproc
+  80              	.LFE275:
+  82              		.section	.text.VisionSetFlag,"ax",%progbits
+  83              		.align	1
+  84              		.global	VisionSetFlag
+  85              		.syntax unified
+  86              		.thumb
+  87              		.thumb_func
+  89              	VisionSetFlag:
+  90              	.LVL4:
+  91              	.LFB271:
+  22:modules/master_machine/master_process.c ****     send_data.enemy_color = enemy_color;
+  92              		.loc 1 22 1 is_stmt 1 view -0
+  93              		.cfi_startproc
+  94              		@ args = 0, pretend = 0, frame = 0
+  95              		@ frame_needed = 0, uses_anonymous_args = 0
+  96              		@ link register save eliminated.
+  23:modules/master_machine/master_process.c **** }
+  97              		.loc 1 23 5 view .LVU10
+  23:modules/master_machine/master_process.c **** }
+  98              		.loc 1 23 27 is_stmt 0 view .LVU11
+  99 0000 014B     		ldr	r3, .L7
+ 100 0002 1870     		strb	r0, [r3]
+  24:modules/master_machine/master_process.c **** 
+ 101              		.loc 1 24 1 view .LVU12
+ 102 0004 7047     		bx	lr
+ 103              	.L8:
+ 104 0006 00BF     		.align	2
+ 105              	.L7:
+ 106 0008 00000000 		.word	send_data
+ 107              		.cfi_endproc
+ 108              	.LFE271:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s 			page 5
+
+
+ 110              		.section	.text.VisionSetAltitude,"ax",%progbits
+ 111              		.align	1
+ 112              		.global	VisionSetAltitude
+ 113              		.syntax unified
+ 114              		.thumb
+ 115              		.thumb_func
+ 117              	VisionSetAltitude:
+ 118              	.LVL5:
+ 119              	.LFB272:
+  27:modules/master_machine/master_process.c ****     send_data.yaw = yaw;
+ 120              		.loc 1 27 1 is_stmt 1 view -0
+ 121              		.cfi_startproc
+ 122              		@ args = 0, pretend = 0, frame = 0
+ 123              		@ frame_needed = 0, uses_anonymous_args = 0
+ 124              		@ link register save eliminated.
+  28:modules/master_machine/master_process.c ****     send_data.pitch = -pitch;
+ 125              		.loc 1 28 5 view .LVU14
+  28:modules/master_machine/master_process.c ****     send_data.pitch = -pitch;
+ 126              		.loc 1 28 19 is_stmt 0 view .LVU15
+ 127 0000 084B     		ldr	r3, .L10
+ 128 0002 10EE102A 		vmov	r2, s0
+ 129 0006 C3F80920 		str	r2, [r3, #9]	@ unaligned
+  29:modules/master_machine/master_process.c ****     send_data.roll =  -roll;
+ 130              		.loc 1 29 5 is_stmt 1 view .LVU16
+  29:modules/master_machine/master_process.c ****     send_data.roll =  -roll;
+ 131              		.loc 1 29 21 is_stmt 0 view .LVU17
+ 132 000a F1EE607A 		vneg.f32	s15, s1
+ 133 000e 17EE902A 		vmov	r2, s15
+ 134 0012 C3F80520 		str	r2, [r3, #5]	@ unaligned
+  30:modules/master_machine/master_process.c **** }
+ 135              		.loc 1 30 5 is_stmt 1 view .LVU18
+  30:modules/master_machine/master_process.c **** }
+ 136              		.loc 1 30 20 is_stmt 0 view .LVU19
+ 137 0016 F1EE417A 		vneg.f32	s15, s2
+ 138 001a 17EE902A 		vmov	r2, s15
+ 139 001e C3F80120 		str	r2, [r3, #1]	@ unaligned
+  31:modules/master_machine/master_process.c **** 
+ 140              		.loc 1 31 1 view .LVU20
+ 141 0022 7047     		bx	lr
+ 142              	.L11:
+ 143              		.align	2
+ 144              	.L10:
+ 145 0024 00000000 		.word	send_data
+ 146              		.cfi_endproc
+ 147              	.LFE272:
+ 149              		.section	.text.VisionInit,"ax",%progbits
+ 150              		.align	1
+ 151              		.global	VisionInit
+ 152              		.syntax unified
+ 153              		.thumb
+ 154              		.thumb_func
+ 156              	VisionInit:
+ 157              	.LVL6:
+ 158              	.LFB276:
+ 122:modules/master_machine/master_process.c **** 
+ 123:modules/master_machine/master_process.c **** /* 视觉通信初始化 */
+ 124:modules/master_machine/master_process.c **** Vision_Recv_s *VisionInit(UART_HandleTypeDef *_handle)
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s 			page 6
+
+
+ 125:modules/master_machine/master_process.c **** {
+ 159              		.loc 1 125 1 is_stmt 1 view -0
+ 160              		.cfi_startproc
+ 161              		@ args = 0, pretend = 0, frame = 24
+ 162              		@ frame_needed = 0, uses_anonymous_args = 0
+ 163              		.loc 1 125 1 is_stmt 0 view .LVU22
+ 164 0000 10B5     		push	{r4, lr}
+ 165              		.cfi_def_cfa_offset 8
+ 166              		.cfi_offset 4, -8
+ 167              		.cfi_offset 14, -4
+ 168 0002 86B0     		sub	sp, sp, #24
+ 169              		.cfi_def_cfa_offset 32
+ 126:modules/master_machine/master_process.c ****     UNUSED(_handle); // 仅为了消除警告
+ 170              		.loc 1 126 5 is_stmt 1 view .LVU23
+ 127:modules/master_machine/master_process.c ****     USB_Init_Config_s conf = {.rx_cbk = DecodeVision};
+ 171              		.loc 1 127 5 view .LVU24
+ 172              		.loc 1 127 23 is_stmt 0 view .LVU25
+ 173 0004 04AB     		add	r3, sp, #16
+ 174 0006 0024     		movs	r4, #0
+ 175 0008 0494     		str	r4, [sp, #16]
+ 176 000a 0594     		str	r4, [sp, #20]
+ 177 000c 0B4A     		ldr	r2, .L14
+ 178 000e 0592     		str	r2, [sp, #20]
+ 128:modules/master_machine/master_process.c ****     vis_recv_buff = USBInit(conf);
+ 179              		.loc 1 128 5 is_stmt 1 view .LVU26
+ 180              		.loc 1 128 21 is_stmt 0 view .LVU27
+ 181 0010 93E80300 		ldm	r3, {r0, r1}
+ 182              	.LVL7:
+ 183              		.loc 1 128 21 view .LVU28
+ 184 0014 FFF7FEFF 		bl	USBInit
+ 185              	.LVL8:
+ 186              		.loc 1 128 19 discriminator 1 view .LVU29
+ 187 0018 094B     		ldr	r3, .L14+4
+ 188 001a 1860     		str	r0, [r3]
+ 129:modules/master_machine/master_process.c **** 
+ 130:modules/master_machine/master_process.c ****     // 为master process注册daemon,用于判断视觉通信是否离线
+ 131:modules/master_machine/master_process.c ****     Daemon_Init_Config_s daemon_conf = {
+ 189              		.loc 1 131 5 is_stmt 1 view .LVU30
+ 190              		.loc 1 131 26 is_stmt 0 view .LVU31
+ 191 001c 01A8     		add	r0, sp, #4
+ 192 001e 0194     		str	r4, [sp, #4]
+ 193 0020 4460     		str	r4, [r0, #4]
+ 194 0022 8460     		str	r4, [r0, #8]
+ 195 0024 0523     		movs	r3, #5
+ 196 0026 ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 197 002a 064B     		ldr	r3, .L14+8
+ 198 002c 0293     		str	r3, [sp, #8]
+ 132:modules/master_machine/master_process.c ****         .callback = VisionOfflineCallback, // 离线时调用的回调函数,会重启串口接收
+ 133:modules/master_machine/master_process.c ****         .owner_id = NULL,
+ 134:modules/master_machine/master_process.c ****         .reload_count = 5, // 50ms
+ 135:modules/master_machine/master_process.c ****     };
+ 136:modules/master_machine/master_process.c ****     vision_daemon_instance = DaemonRegister(&daemon_conf);
+ 199              		.loc 1 136 5 is_stmt 1 view .LVU32
+ 200              		.loc 1 136 30 is_stmt 0 view .LVU33
+ 201 002e FFF7FEFF 		bl	DaemonRegister
+ 202              	.LVL9:
+ 203              		.loc 1 136 28 discriminator 1 view .LVU34
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s 			page 7
+
+
+ 204 0032 054B     		ldr	r3, .L14+12
+ 205 0034 1860     		str	r0, [r3]
+ 137:modules/master_machine/master_process.c **** 
+ 138:modules/master_machine/master_process.c ****     return &recv_data;
+ 206              		.loc 1 138 5 is_stmt 1 view .LVU35
+ 139:modules/master_machine/master_process.c **** }
+ 207              		.loc 1 139 1 is_stmt 0 view .LVU36
+ 208 0036 0548     		ldr	r0, .L14+16
+ 209 0038 06B0     		add	sp, sp, #24
+ 210              		.cfi_def_cfa_offset 8
+ 211              		@ sp needed
+ 212 003a 10BD     		pop	{r4, pc}
+ 213              	.L15:
+ 214              		.align	2
+ 215              	.L14:
+ 216 003c 00000000 		.word	DecodeVision
+ 217 0040 00000000 		.word	vis_recv_buff
+ 218 0044 00000000 		.word	VisionOfflineCallback
+ 219 0048 00000000 		.word	vision_daemon_instance
+ 220 004c 00000000 		.word	recv_data
+ 221              		.cfi_endproc
+ 222              	.LFE276:
+ 224              		.section	.text.VisionSend,"ax",%progbits
+ 225              		.align	1
+ 226              		.global	VisionSend
+ 227              		.syntax unified
+ 228              		.thumb
+ 229              		.thumb_func
+ 231              	VisionSend:
+ 232              	.LFB277:
+ 140:modules/master_machine/master_process.c **** 
+ 141:modules/master_machine/master_process.c **** void VisionSend()
+ 142:modules/master_machine/master_process.c **** {
+ 233              		.loc 1 142 1 is_stmt 1 view -0
+ 234              		.cfi_startproc
+ 235              		@ args = 0, pretend = 0, frame = 0
+ 236              		@ frame_needed = 0, uses_anonymous_args = 0
+ 237 0000 30B5     		push	{r4, r5, lr}
+ 238              		.cfi_def_cfa_offset 12
+ 239              		.cfi_offset 4, -12
+ 240              		.cfi_offset 5, -8
+ 241              		.cfi_offset 14, -4
+ 242 0002 83B0     		sub	sp, sp, #12
+ 243              		.cfi_def_cfa_offset 24
+ 143:modules/master_machine/master_process.c ****     static uint16_t flag_register;
+ 244              		.loc 1 143 5 view .LVU38
+ 144:modules/master_machine/master_process.c ****     static uint8_t send_buff[VISION_SEND_SIZE];
+ 245              		.loc 1 144 5 view .LVU39
+ 145:modules/master_machine/master_process.c ****     static uint16_t tx_len;
+ 246              		.loc 1 145 5 view .LVU40
+ 146:modules/master_machine/master_process.c ****     // TODO: code to set flag_register
+ 147:modules/master_machine/master_process.c ****     flag_register = 30 << 8 | 0b00000001;
+ 247              		.loc 1 147 5 view .LVU41
+ 248              		.loc 1 147 19 is_stmt 0 view .LVU42
+ 249 0004 41F60161 		movw	r1, #7681
+ 250 0008 084B     		ldr	r3, .L18
+ 251 000a 1980     		strh	r1, [r3]	@ movhi
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s 			page 8
+
+
+ 148:modules/master_machine/master_process.c ****     // 将数据转化为seasky协议的数据包
+ 149:modules/master_machine/master_process.c ****     get_protocol_send_data(send_data.enemy_color, flag_register, &send_data.roll, 3, send_buff, &tx
+ 252              		.loc 1 149 5 is_stmt 1 view .LVU43
+ 253              		.loc 1 149 37 is_stmt 0 view .LVU44
+ 254 000c 084A     		ldr	r2, .L18+4
+ 255 000e 12F8010B 		ldrb	r0, [r2], #1	@ zero_extendqisi2
+ 256              		.loc 1 149 5 view .LVU45
+ 257 0012 084D     		ldr	r5, .L18+8
+ 258 0014 0195     		str	r5, [sp, #4]
+ 259 0016 084C     		ldr	r4, .L18+12
+ 260 0018 0094     		str	r4, [sp]
+ 261 001a 0323     		movs	r3, #3
+ 262 001c FFF7FEFF 		bl	get_protocol_send_data
+ 263              	.LVL10:
+ 150:modules/master_machine/master_process.c ****     USBTransmit(send_buff, tx_len);
+ 264              		.loc 1 150 5 is_stmt 1 view .LVU46
+ 265 0020 2988     		ldrh	r1, [r5]
+ 266 0022 2046     		mov	r0, r4
+ 267 0024 FFF7FEFF 		bl	USBTransmit
+ 268              	.LVL11:
+ 151:modules/master_machine/master_process.c **** }
+ 269              		.loc 1 151 1 is_stmt 0 view .LVU47
+ 270 0028 03B0     		add	sp, sp, #12
+ 271              		.cfi_def_cfa_offset 12
+ 272              		@ sp needed
+ 273 002a 30BD     		pop	{r4, r5, pc}
+ 274              	.L19:
+ 275              		.align	2
+ 276              	.L18:
+ 277 002c 00000000 		.word	flag_register.2
+ 278 0030 00000000 		.word	send_data
+ 279 0034 00000000 		.word	tx_len.0
+ 280 0038 00000000 		.word	send_buff.1
+ 281              		.cfi_endproc
+ 282              	.LFE277:
+ 284              		.section	.bss.tx_len.0,"aw",%nobits
+ 285              		.align	1
+ 288              	tx_len.0:
+ 289 0000 0000     		.space	2
+ 290              		.section	.bss.send_buff.1,"aw",%nobits
+ 291              		.align	2
+ 294              	send_buff.1:
+ 295 0000 00000000 		.space	24
+ 295      00000000 
+ 295      00000000 
+ 295      00000000 
+ 295      00000000 
+ 296              		.section	.bss.flag_register.2,"aw",%nobits
+ 297              		.align	1
+ 300              	flag_register.2:
+ 301 0000 0000     		.space	2
+ 302              		.section	.bss.vis_recv_buff,"aw",%nobits
+ 303              		.align	2
+ 306              	vis_recv_buff:
+ 307 0000 00000000 		.space	4
+ 308              		.section	.bss.vision_daemon_instance,"aw",%nobits
+ 309              		.align	2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s 			page 9
+
+
+ 312              	vision_daemon_instance:
+ 313 0000 00000000 		.space	4
+ 314              		.section	.bss.send_data,"aw",%nobits
+ 315              		.align	2
+ 318              	send_data:
+ 319 0000 00000000 		.space	13
+ 319      00000000 
+ 319      00000000 
+ 319      00
+ 320              		.section	.bss.recv_data,"aw",%nobits
+ 321              		.align	2
+ 324              	recv_data:
+ 325 0000 00000000 		.space	14
+ 325      00000000 
+ 325      00000000 
+ 325      0000
+ 326              		.text
+ 327              	.Letext0:
+ 328              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 329              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 330              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 331              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 332              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 333              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 334              		.file 8 "modules/master_machine/master_process.h"
+ 335              		.file 9 "modules/daemon/daemon.h"
+ 336              		.file 10 "Inc/usbd_cdc_if.h"
+ 337              		.file 11 "bsp/usb/bsp_usb.h"
+ 338              		.file 12 "modules/master_machine/seasky_protocol.h"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 master_process.c
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:21     .text.VisionOfflineCallback:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:26     .text.VisionOfflineCallback:00000000 VisionOfflineCallback
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:41     .text.DecodeVision:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:46     .text.DecodeVision:00000000 DecodeVision
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:77     .text.DecodeVision:00000018 $d
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:324    .bss.recv_data:00000000 recv_data
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:306    .bss.vis_recv_buff:00000000 vis_recv_buff
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:83     .text.VisionSetFlag:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:89     .text.VisionSetFlag:00000000 VisionSetFlag
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:106    .text.VisionSetFlag:00000008 $d
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:318    .bss.send_data:00000000 send_data
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:111    .text.VisionSetAltitude:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:117    .text.VisionSetAltitude:00000000 VisionSetAltitude
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:145    .text.VisionSetAltitude:00000024 $d
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:150    .text.VisionInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:156    .text.VisionInit:00000000 VisionInit
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:216    .text.VisionInit:0000003c $d
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:312    .bss.vision_daemon_instance:00000000 vision_daemon_instance
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:225    .text.VisionSend:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:231    .text.VisionSend:00000000 VisionSend
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:277    .text.VisionSend:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:300    .bss.flag_register.2:00000000 flag_register.2
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:288    .bss.tx_len.0:00000000 tx_len.0
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:294    .bss.send_buff.1:00000000 send_buff.1
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:285    .bss.tx_len.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:291    .bss.send_buff.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:297    .bss.flag_register.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:303    .bss.vis_recv_buff:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:309    .bss.vision_daemon_instance:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:315    .bss.send_data:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\cca60uBU.s:321    .bss.recv_data:00000000 $d
+
+UNDEFINED SYMBOLS
+get_protocol_info
+USBInit
+DaemonRegister
+get_protocol_send_data
+USBTransmit

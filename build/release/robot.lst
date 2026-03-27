@@ -1,0 +1,533 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"robot.c"
+  16              		.text
+  17              		.section	.text.StartINSTASK,"ax",%progbits
+  18              		.align	1
+  19              		.global	StartINSTASK
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	StartINSTASK:
+  25              		@ Volatile: function does not return.
+  26              		@ args = 0, pretend = 0, frame = 0
+  27              		@ frame_needed = 0, uses_anonymous_args = 0
+  28 0000 08B5     		push	{r3, lr}
+  29 0002 FFF7FEFF 		bl	INS_Init
+  30              	.L2:
+  31 0006 FFF7FEFF 		bl	DWT_GetTimeline_ms
+  32 000a 0A4C     		ldr	r4, .L4
+  33 000c 84ED000A 		vstr.32	s0, [r4]
+  34 0010 FFF7FEFF 		bl	INS_Task
+  35 0014 FFF7FEFF 		bl	DWT_GetTimeline_ms
+  36 0018 D4ED007A 		vldr.32	s15, [r4]
+  37 001c 30EE670A 		vsub.f32	s0, s0, s15
+  38 0020 054B     		ldr	r3, .L4+4
+  39 0022 83ED000A 		vstr.32	s0, [r3]
+  40 0026 FFF7FEFF 		bl	VisionSend
+  41 002a 0120     		movs	r0, #1
+  42 002c FFF7FEFF 		bl	osDelay
+  43 0030 E9E7     		b	.L2
+  44              	.L5:
+  45 0032 00BF     		.align	2
+  46              	.L4:
+  47 0034 00000000 		.word	ins_start.7
+  48 0038 00000000 		.word	ins_dt.6
+  50              		.section	.text.StartMOTORTASK,"ax",%progbits
+  51              		.align	1
+  52              		.global	StartMOTORTASK
+  53              		.syntax unified
+  54              		.thumb
+  55              		.thumb_func
+  57              	StartMOTORTASK:
+  58              		@ Volatile: function does not return.
+  59              		@ args = 0, pretend = 0, frame = 0
+  60              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s 			page 2
+
+
+  61 0000 08B5     		push	{r3, lr}
+  62              	.L7:
+  63 0002 FFF7FEFF 		bl	DWT_GetTimeline_ms
+  64 0006 094C     		ldr	r4, .L9
+  65 0008 84ED000A 		vstr.32	s0, [r4]
+  66 000c FFF7FEFF 		bl	MotorControlTask
+  67 0010 FFF7FEFF 		bl	DWT_GetTimeline_ms
+  68 0014 D4ED007A 		vldr.32	s15, [r4]
+  69 0018 30EE670A 		vsub.f32	s0, s0, s15
+  70 001c 044B     		ldr	r3, .L9+4
+  71 001e 83ED000A 		vstr.32	s0, [r3]
+  72 0022 0120     		movs	r0, #1
+  73 0024 FFF7FEFF 		bl	osDelay
+  74 0028 EBE7     		b	.L7
+  75              	.L10:
+  76 002a 00BF     		.align	2
+  77              	.L9:
+  78 002c 00000000 		.word	motor_start.5
+  79 0030 00000000 		.word	motor_dt.4
+  81              		.section	.text.StartDAEMONTASK,"ax",%progbits
+  82              		.align	1
+  83              		.global	StartDAEMONTASK
+  84              		.syntax unified
+  85              		.thumb
+  86              		.thumb_func
+  88              	StartDAEMONTASK:
+  89              		@ Volatile: function does not return.
+  90              		@ args = 0, pretend = 0, frame = 0
+  91              		@ frame_needed = 0, uses_anonymous_args = 0
+  92 0000 08B5     		push	{r3, lr}
+  93 0002 FFF7FEFF 		bl	BuzzerInit
+  94 0006 FFF7FEFF 		bl	LEDInit
+  95              	.L12:
+  96 000a FFF7FEFF 		bl	DWT_GetTimeline_ms
+  97 000e 0B4C     		ldr	r4, .L14
+  98 0010 84ED000A 		vstr.32	s0, [r4]
+  99 0014 FFF7FEFF 		bl	DaemonTask
+ 100 0018 FFF7FEFF 		bl	BuzzerTask
+ 101 001c FFF7FEFF 		bl	LEDTask
+ 102 0020 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 103 0024 D4ED007A 		vldr.32	s15, [r4]
+ 104 0028 30EE670A 		vsub.f32	s0, s0, s15
+ 105 002c 044B     		ldr	r3, .L14+4
+ 106 002e 83ED000A 		vstr.32	s0, [r3]
+ 107 0032 0A20     		movs	r0, #10
+ 108 0034 FFF7FEFF 		bl	osDelay
+ 109 0038 E7E7     		b	.L12
+ 110              	.L15:
+ 111 003a 00BF     		.align	2
+ 112              	.L14:
+ 113 003c 00000000 		.word	daemon_start.3
+ 114 0040 00000000 		.word	daemon_dt.2
+ 116              		.section	.text.StartUITASK,"ax",%progbits
+ 117              		.align	1
+ 118              		.global	StartUITASK
+ 119              		.syntax unified
+ 120              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s 			page 3
+
+
+ 121              		.thumb_func
+ 123              	StartUITASK:
+ 124              		@ Volatile: function does not return.
+ 125              		@ args = 0, pretend = 0, frame = 0
+ 126              		@ frame_needed = 0, uses_anonymous_args = 0
+ 127 0000 08B5     		push	{r3, lr}
+ 128 0002 FFF7FEFF 		bl	MyUIInit
+ 129              	.L17:
+ 130 0006 FFF7FEFF 		bl	UITask
+ 131 000a 0120     		movs	r0, #1
+ 132 000c FFF7FEFF 		bl	osDelay
+ 133 0010 F9E7     		b	.L17
+ 135              		.section	.text.BSPInit,"ax",%progbits
+ 136              		.align	1
+ 137              		.global	BSPInit
+ 138              		.syntax unified
+ 139              		.thumb
+ 140              		.thumb_func
+ 142              	BSPInit:
+ 143              		@ args = 0, pretend = 0, frame = 0
+ 144              		@ frame_needed = 0, uses_anonymous_args = 0
+ 145 0000 08B5     		push	{r3, lr}
+ 146 0002 A820     		movs	r0, #168
+ 147 0004 FFF7FEFF 		bl	DWT_Init
+ 148 0008 FFF7FEFF 		bl	BSPLogInit
+ 149 000c 08BD     		pop	{r3, pc}
+ 151              		.section	.text.OSTaskInit,"ax",%progbits
+ 152              		.align	1
+ 153              		.global	OSTaskInit
+ 154              		.syntax unified
+ 155              		.thumb
+ 156              		.thumb_func
+ 158              	OSTaskInit:
+ 159              		@ args = 0, pretend = 0, frame = 144
+ 160              		@ frame_needed = 0, uses_anonymous_args = 0
+ 161 0000 10B5     		push	{r4, lr}
+ 162 0002 A4B0     		sub	sp, sp, #144
+ 163 0004 2E4C     		ldr	r4, .L23
+ 164 0006 0DF1740C 		add	ip, sp, #116
+ 165 000a A646     		mov	lr, r4
+ 166 000c BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 167 0010 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 168 0014 9EE80700 		ldm	lr, {r0, r1, r2}
+ 169 0018 8CE80700 		stm	ip, {r0, r1, r2}
+ 170 001c 0021     		movs	r1, #0
+ 171 001e 1DA8     		add	r0, sp, #116
+ 172 0020 FFF7FEFF 		bl	osThreadCreate
+ 173 0024 274B     		ldr	r3, .L23+4
+ 174 0026 1860     		str	r0, [r3]
+ 175 0028 0DF1580C 		add	ip, sp, #88
+ 176 002c 04F11C0E 		add	lr, r4, #28
+ 177 0030 BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 178 0034 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 179 0038 9EE80700 		ldm	lr, {r0, r1, r2}
+ 180 003c 8CE80700 		stm	ip, {r0, r1, r2}
+ 181 0040 0021     		movs	r1, #0
+ 182 0042 16A8     		add	r0, sp, #88
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s 			page 4
+
+
+ 183 0044 FFF7FEFF 		bl	osThreadCreate
+ 184 0048 1F4B     		ldr	r3, .L23+8
+ 185 004a 1860     		str	r0, [r3]
+ 186 004c 0DF13C0C 		add	ip, sp, #60
+ 187 0050 04F1380E 		add	lr, r4, #56
+ 188 0054 BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 189 0058 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 190 005c 9EE80700 		ldm	lr, {r0, r1, r2}
+ 191 0060 8CE80700 		stm	ip, {r0, r1, r2}
+ 192 0064 0021     		movs	r1, #0
+ 193 0066 0FA8     		add	r0, sp, #60
+ 194 0068 FFF7FEFF 		bl	osThreadCreate
+ 195 006c 174B     		ldr	r3, .L23+12
+ 196 006e 1860     		str	r0, [r3]
+ 197 0070 0DF1200C 		add	ip, sp, #32
+ 198 0074 04F1540E 		add	lr, r4, #84
+ 199 0078 BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 200 007c ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 201 0080 9EE80700 		ldm	lr, {r0, r1, r2}
+ 202 0084 8CE80700 		stm	ip, {r0, r1, r2}
+ 203 0088 0021     		movs	r1, #0
+ 204 008a 08A8     		add	r0, sp, #32
+ 205 008c FFF7FEFF 		bl	osThreadCreate
+ 206 0090 0F4B     		ldr	r3, .L23+16
+ 207 0092 1860     		str	r0, [r3]
+ 208 0094 0DF1040E 		add	lr, sp, #4
+ 209 0098 04F1700C 		add	ip, r4, #112
+ 210 009c BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 211 00a0 AEE80F00 		stmia	lr!, {r0, r1, r2, r3}
+ 212 00a4 9CE80700 		ldm	ip, {r0, r1, r2}
+ 213 00a8 8EE80700 		stm	lr, {r0, r1, r2}
+ 214 00ac 0021     		movs	r1, #0
+ 215 00ae 01A8     		add	r0, sp, #4
+ 216 00b0 FFF7FEFF 		bl	osThreadCreate
+ 217 00b4 074B     		ldr	r3, .L23+20
+ 218 00b6 1860     		str	r0, [r3]
+ 219 00b8 FFF7FEFF 		bl	XMMotorControlInit
+ 220 00bc 24B0     		add	sp, sp, #144
+ 221              		@ sp needed
+ 222 00be 10BD     		pop	{r4, pc}
+ 223              	.L24:
+ 224              		.align	2
+ 225              	.L23:
+ 226 00c0 00000000 		.word	.LANCHOR0
+ 227 00c4 00000000 		.word	insTaskHandle
+ 228 00c8 00000000 		.word	motorTaskHandle
+ 229 00cc 00000000 		.word	daemonTaskHandle
+ 230 00d0 00000000 		.word	robotTaskHandle
+ 231 00d4 00000000 		.word	uiTaskHandle
+ 233              		.section	.text.RobotInit,"ax",%progbits
+ 234              		.align	1
+ 235              		.global	RobotInit
+ 236              		.syntax unified
+ 237              		.thumb
+ 238              		.thumb_func
+ 240              	RobotInit:
+ 241              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s 			page 5
+
+
+ 242              		@ frame_needed = 0, uses_anonymous_args = 0
+ 243 0000 08B5     		push	{r3, lr}
+ 244              		.syntax unified
+ 245              	@ 142 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 246 0002 72B6     		cpsid i
+ 247              	@ 0 "" 2
+ 248              		.thumb
+ 249              		.syntax unified
+ 250 0004 FFF7FEFF 		bl	BSPInit
+ 251 0008 FFF7FEFF 		bl	RobotCMDInit
+ 252 000c FFF7FEFF 		bl	GimbalInit
+ 253 0010 FFF7FEFF 		bl	ShootInit
+ 254 0014 FFF7FEFF 		bl	ChassisInit
+ 255 0018 FFF7FEFF 		bl	OSTaskInit
+ 256              		.syntax unified
+ 257              	@ 131 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 258 001c 62B6     		cpsie i
+ 259              	@ 0 "" 2
+ 260              		.thumb
+ 261              		.syntax unified
+ 262 001e 08BD     		pop	{r3, pc}
+ 264              		.section	.text.RobotTask,"ax",%progbits
+ 265              		.align	1
+ 266              		.global	RobotTask
+ 267              		.syntax unified
+ 268              		.thumb
+ 269              		.thumb_func
+ 271              	RobotTask:
+ 272              		@ args = 0, pretend = 0, frame = 0
+ 273              		@ frame_needed = 0, uses_anonymous_args = 0
+ 274 0000 08B5     		push	{r3, lr}
+ 275 0002 FFF7FEFF 		bl	RobotCMDTask
+ 276 0006 FFF7FEFF 		bl	GimbalTask
+ 277 000a FFF7FEFF 		bl	ShootTask
+ 278 000e FFF7FEFF 		bl	ChassisTask
+ 279 0012 08BD     		pop	{r3, pc}
+ 281              		.section	.text.StartROBOTTASK,"ax",%progbits
+ 282              		.align	1
+ 283              		.global	StartROBOTTASK
+ 284              		.syntax unified
+ 285              		.thumb
+ 286              		.thumb_func
+ 288              	StartROBOTTASK:
+ 289              		@ Volatile: function does not return.
+ 290              		@ args = 0, pretend = 0, frame = 0
+ 291              		@ frame_needed = 0, uses_anonymous_args = 0
+ 292 0000 08B5     		push	{r3, lr}
+ 293              	.L30:
+ 294 0002 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 295 0006 094C     		ldr	r4, .L32
+ 296 0008 84ED000A 		vstr.32	s0, [r4]
+ 297 000c FFF7FEFF 		bl	RobotTask
+ 298 0010 FFF7FEFF 		bl	DWT_GetTimeline_ms
+ 299 0014 D4ED007A 		vldr.32	s15, [r4]
+ 300 0018 30EE670A 		vsub.f32	s0, s0, s15
+ 301 001c 044B     		ldr	r3, .L32+4
+ 302 001e 83ED000A 		vstr.32	s0, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s 			page 6
+
+
+ 303 0022 0520     		movs	r0, #5
+ 304 0024 FFF7FEFF 		bl	osDelay
+ 305 0028 EBE7     		b	.L30
+ 306              	.L33:
+ 307 002a 00BF     		.align	2
+ 308              	.L32:
+ 309 002c 00000000 		.word	robot_start.1
+ 310 0030 00000000 		.word	robot_dt.0
+ 312              		.section	.bss.robot_dt.0,"aw",%nobits
+ 313              		.align	2
+ 316              	robot_dt.0:
+ 317 0000 00000000 		.space	4
+ 318              		.section	.bss.robot_start.1,"aw",%nobits
+ 319              		.align	2
+ 322              	robot_start.1:
+ 323 0000 00000000 		.space	4
+ 324              		.section	.bss.daemon_dt.2,"aw",%nobits
+ 325              		.align	2
+ 328              	daemon_dt.2:
+ 329 0000 00000000 		.space	4
+ 330              		.section	.bss.daemon_start.3,"aw",%nobits
+ 331              		.align	2
+ 334              	daemon_start.3:
+ 335 0000 00000000 		.space	4
+ 336              		.section	.bss.motor_dt.4,"aw",%nobits
+ 337              		.align	2
+ 340              	motor_dt.4:
+ 341 0000 00000000 		.space	4
+ 342              		.section	.bss.motor_start.5,"aw",%nobits
+ 343              		.align	2
+ 346              	motor_start.5:
+ 347 0000 00000000 		.space	4
+ 348              		.section	.bss.ins_dt.6,"aw",%nobits
+ 349              		.align	2
+ 352              	ins_dt.6:
+ 353 0000 00000000 		.space	4
+ 354              		.section	.bss.ins_start.7,"aw",%nobits
+ 355              		.align	2
+ 358              	ins_start.7:
+ 359 0000 00000000 		.space	4
+ 360              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 361              		.align	2
+ 362              	.LC8:
+ 363 0000 75697461 		.ascii	"uitask\000"
+ 363      736B00
+ 364 0007 00       		.align	2
+ 365              	.LC6:
+ 366 0008 726F626F 		.ascii	"robottask\000"
+ 366      74746173 
+ 366      6B00
+ 367 0012 0000     		.align	2
+ 368              	.LC4:
+ 369 0014 6461656D 		.ascii	"daemontask\000"
+ 369      6F6E7461 
+ 369      736B00
+ 370 001f 00       		.align	2
+ 371              	.LC2:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s 			page 7
+
+
+ 372 0020 6D6F746F 		.ascii	"motortask\000"
+ 372      72746173 
+ 372      6B00
+ 373 002a 0000     		.align	2
+ 374              	.LC0:
+ 375 002c 696E7374 		.ascii	"instask\000"
+ 375      61736B00 
+ 376              		.global	uiTaskHandle
+ 377              		.section	.bss.uiTaskHandle,"aw",%nobits
+ 378              		.align	2
+ 381              	uiTaskHandle:
+ 382 0000 00000000 		.space	4
+ 383              		.global	daemonTaskHandle
+ 384              		.section	.bss.daemonTaskHandle,"aw",%nobits
+ 385              		.align	2
+ 388              	daemonTaskHandle:
+ 389 0000 00000000 		.space	4
+ 390              		.global	motorTaskHandle
+ 391              		.section	.bss.motorTaskHandle,"aw",%nobits
+ 392              		.align	2
+ 395              	motorTaskHandle:
+ 396 0000 00000000 		.space	4
+ 397              		.global	robotTaskHandle
+ 398              		.section	.bss.robotTaskHandle,"aw",%nobits
+ 399              		.align	2
+ 402              	robotTaskHandle:
+ 403 0000 00000000 		.space	4
+ 404              		.global	insTaskHandle
+ 405              		.section	.bss.insTaskHandle,"aw",%nobits
+ 406              		.align	2
+ 409              	insTaskHandle:
+ 410 0000 00000000 		.space	4
+ 411              		.section	.rodata
+ 412              		.align	2
+ 413              		.set	.LANCHOR0,. + 0
+ 414              	.LC10:
+ 415 0000 2C000000 		.word	.LC0
+ 416 0004 00000000 		.word	StartINSTASK
+ 417 0008 0100     		.short	1
+ 418 000a 0000     		.space	2
+ 419 000c 00000000 		.word	0
+ 420 0010 00040000 		.word	1024
+ 421 0014 00000000 		.word	0
+ 422 0018 00000000 		.word	0
+ 423              	.LC11:
+ 424 001c 20000000 		.word	.LC2
+ 425 0020 00000000 		.word	StartMOTORTASK
+ 426 0024 0000     		.short	0
+ 427 0026 0000     		.space	2
+ 428 0028 00000000 		.word	0
+ 429 002c 00010000 		.word	256
+ 430 0030 00000000 		.word	0
+ 431 0034 00000000 		.word	0
+ 432              	.LC12:
+ 433 0038 14000000 		.word	.LC4
+ 434 003c 00000000 		.word	StartDAEMONTASK
+ 435 0040 0000     		.short	0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s 			page 8
+
+
+ 436 0042 0000     		.space	2
+ 437 0044 00000000 		.word	0
+ 438 0048 80000000 		.word	128
+ 439 004c 00000000 		.word	0
+ 440 0050 00000000 		.word	0
+ 441              	.LC13:
+ 442 0054 08000000 		.word	.LC6
+ 443 0058 00000000 		.word	StartROBOTTASK
+ 444 005c 0000     		.short	0
+ 445 005e 0000     		.space	2
+ 446 0060 00000000 		.word	0
+ 447 0064 00040000 		.word	1024
+ 448 0068 00000000 		.word	0
+ 449 006c 00000000 		.word	0
+ 450              	.LC14:
+ 451 0070 00000000 		.word	.LC8
+ 452 0074 00000000 		.word	StartUITASK
+ 453 0078 0000     		.short	0
+ 454 007a 0000     		.space	2
+ 455 007c 00000000 		.word	0
+ 456 0080 00020000 		.word	512
+ 457 0084 00000000 		.word	0
+ 458 0088 00000000 		.word	0
+ 459              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s 			page 9
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 robot.c
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:18     .text.StartINSTASK:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:24     .text.StartINSTASK:00000000 StartINSTASK
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:47     .text.StartINSTASK:00000034 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:358    .bss.ins_start.7:00000000 ins_start.7
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:352    .bss.ins_dt.6:00000000 ins_dt.6
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:51     .text.StartMOTORTASK:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:57     .text.StartMOTORTASK:00000000 StartMOTORTASK
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:78     .text.StartMOTORTASK:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:346    .bss.motor_start.5:00000000 motor_start.5
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:340    .bss.motor_dt.4:00000000 motor_dt.4
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:82     .text.StartDAEMONTASK:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:88     .text.StartDAEMONTASK:00000000 StartDAEMONTASK
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:113    .text.StartDAEMONTASK:0000003c $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:334    .bss.daemon_start.3:00000000 daemon_start.3
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:328    .bss.daemon_dt.2:00000000 daemon_dt.2
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:117    .text.StartUITASK:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:123    .text.StartUITASK:00000000 StartUITASK
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:136    .text.BSPInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:142    .text.BSPInit:00000000 BSPInit
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:152    .text.OSTaskInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:158    .text.OSTaskInit:00000000 OSTaskInit
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:226    .text.OSTaskInit:000000c0 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:409    .bss.insTaskHandle:00000000 insTaskHandle
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:395    .bss.motorTaskHandle:00000000 motorTaskHandle
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:388    .bss.daemonTaskHandle:00000000 daemonTaskHandle
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:402    .bss.robotTaskHandle:00000000 robotTaskHandle
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:381    .bss.uiTaskHandle:00000000 uiTaskHandle
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:234    .text.RobotInit:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:240    .text.RobotInit:00000000 RobotInit
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:265    .text.RobotTask:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:271    .text.RobotTask:00000000 RobotTask
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:282    .text.StartROBOTTASK:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:288    .text.StartROBOTTASK:00000000 StartROBOTTASK
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:309    .text.StartROBOTTASK:0000002c $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:322    .bss.robot_start.1:00000000 robot_start.1
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:316    .bss.robot_dt.0:00000000 robot_dt.0
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:313    .bss.robot_dt.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:319    .bss.robot_start.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:325    .bss.daemon_dt.2:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:331    .bss.daemon_start.3:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:337    .bss.motor_dt.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:343    .bss.motor_start.5:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:349    .bss.ins_dt.6:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:355    .bss.ins_start.7:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:361    .rodata.str1.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:378    .bss.uiTaskHandle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:385    .bss.daemonTaskHandle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:392    .bss.motorTaskHandle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:399    .bss.robotTaskHandle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:406    .bss.insTaskHandle:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s:412    .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+INS_Init
+DWT_GetTimeline_ms
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccliqIRf.s 			page 10
+
+
+INS_Task
+VisionSend
+osDelay
+MotorControlTask
+BuzzerInit
+LEDInit
+DaemonTask
+BuzzerTask
+LEDTask
+MyUIInit
+UITask
+DWT_Init
+BSPLogInit
+osThreadCreate
+XMMotorControlInit
+RobotCMDInit
+GimbalInit
+ShootInit
+ChassisInit
+RobotCMDTask
+GimbalTask
+ShootTask
+ChassisTask

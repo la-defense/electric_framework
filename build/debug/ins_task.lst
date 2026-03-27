@@ -1,0 +1,2968 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"ins_task.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/imu/ins_task.c"
+  20              		.section	.text.IMUPWMSet,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	IMUPWMSet:
+  27              	.LVL0:
+  28              	.LFB276:
+   1:modules/imu/ins_task.c **** /**
+   2:modules/imu/ins_task.c ****  ******************************************************************************
+   3:modules/imu/ins_task.c ****  * @file    ins_task.c
+   4:modules/imu/ins_task.c ****  * @author  Wang Hongxi
+   5:modules/imu/ins_task.c ****  * @author  annotation and modificaiton by neozng
+   6:modules/imu/ins_task.c ****  * @version V2.0.0
+   7:modules/imu/ins_task.c ****  * @date    2022/2/23
+   8:modules/imu/ins_task.c ****  * @brief
+   9:modules/imu/ins_task.c ****  ******************************************************************************
+  10:modules/imu/ins_task.c ****  * @attention
+  11:modules/imu/ins_task.c ****  *
+  12:modules/imu/ins_task.c ****  ******************************************************************************
+  13:modules/imu/ins_task.c ****  */
+  14:modules/imu/ins_task.c **** #include "ins_task.h"
+  15:modules/imu/ins_task.c **** #include "controller.h"
+  16:modules/imu/ins_task.c **** #include "QuaternionEKF.h"
+  17:modules/imu/ins_task.c **** #include "spi.h"
+  18:modules/imu/ins_task.c **** #include "tim.h"
+  19:modules/imu/ins_task.c **** #include "user_lib.h"
+  20:modules/imu/ins_task.c **** #include "general_def.h"
+  21:modules/imu/ins_task.c **** #include "master_process.h"
+  22:modules/imu/ins_task.c **** 
+  23:modules/imu/ins_task.c **** static INS_t INS;
+  24:modules/imu/ins_task.c **** static IMU_Param_t IMU_Param;
+  25:modules/imu/ins_task.c **** static PIDInstance TempCtrl = {0};
+  26:modules/imu/ins_task.c **** 
+  27:modules/imu/ins_task.c **** const float xb[3] = {1, 0, 0};
+  28:modules/imu/ins_task.c **** const float yb[3] = {0, 1, 0};
+  29:modules/imu/ins_task.c **** const float zb[3] = {0, 0, 1};
+  30:modules/imu/ins_task.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 2
+
+
+  31:modules/imu/ins_task.c **** // 用于获取两次采样之间的时间间隔
+  32:modules/imu/ins_task.c **** static uint32_t INS_DWT_Count = 0;
+  33:modules/imu/ins_task.c **** static float dt = 0, t = 0;
+  34:modules/imu/ins_task.c **** static float RefTemp = 40; // 恒温设定温度
+  35:modules/imu/ins_task.c **** 
+  36:modules/imu/ins_task.c **** static void IMU_Param_Correction(IMU_Param_t *param, float gyro[3], float accel[3]);
+  37:modules/imu/ins_task.c **** 
+  38:modules/imu/ins_task.c **** static void IMUPWMSet(uint16_t pwm)
+  39:modules/imu/ins_task.c **** {
+  29              		.loc 1 39 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+  40:modules/imu/ins_task.c ****     __HAL_TIM_SetCompare(&htim10, TIM_CHANNEL_1, pwm);
+  34              		.loc 1 40 5 view .LVU1
+  35 0000 014B     		ldr	r3, .L2
+  36 0002 1B68     		ldr	r3, [r3]
+  37 0004 5863     		str	r0, [r3, #52]
+  41:modules/imu/ins_task.c **** }
+  38              		.loc 1 41 1 is_stmt 0 view .LVU2
+  39 0006 7047     		bx	lr
+  40              	.L3:
+  41              		.align	2
+  42              	.L2:
+  43 0008 00000000 		.word	htim10
+  44              		.cfi_endproc
+  45              	.LFE276:
+  47              		.section	.text.InitQuaternion,"ax",%progbits
+  48              		.align	1
+  49              		.syntax unified
+  50              		.thumb
+  51              		.thumb_func
+  53              	InitQuaternion:
+  54              	.LVL1:
+  55              	.LFB278:
+  42:modules/imu/ins_task.c **** 
+  43:modules/imu/ins_task.c **** /**
+  44:modules/imu/ins_task.c ****  * @brief 温度控制
+  45:modules/imu/ins_task.c ****  *
+  46:modules/imu/ins_task.c ****  */
+  47:modules/imu/ins_task.c **** static void IMU_Temperature_Ctrl(void)
+  48:modules/imu/ins_task.c **** {
+  49:modules/imu/ins_task.c ****     PIDCalculate(&TempCtrl, BMI088.Temperature, RefTemp);
+  50:modules/imu/ins_task.c ****     IMUPWMSet(float_constrain(float_rounding(TempCtrl.Output), 0, UINT32_MAX));
+  51:modules/imu/ins_task.c **** }
+  52:modules/imu/ins_task.c **** 
+  53:modules/imu/ins_task.c **** // 使用加速度计的数据初始化Roll和Pitch,而Yaw置0,这样可以避免在初始时候的
+  54:modules/imu/ins_task.c **** static void InitQuaternion(float *init_q4)
+  55:modules/imu/ins_task.c **** {
+  56              		.loc 1 55 1 is_stmt 1 view -0
+  57              		.cfi_startproc
+  58              		@ args = 0, pretend = 0, frame = 40
+  59              		@ frame_needed = 0, uses_anonymous_args = 0
+  60              		.loc 1 55 1 is_stmt 0 view .LVU4
+  61 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+  62              		.cfi_def_cfa_offset 20
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 3
+
+
+  63              		.cfi_offset 4, -20
+  64              		.cfi_offset 5, -16
+  65              		.cfi_offset 6, -12
+  66              		.cfi_offset 7, -8
+  67              		.cfi_offset 14, -4
+  68 0002 2DED028B 		vpush.64	{d8}
+  69              		.cfi_def_cfa_offset 28
+  70              		.cfi_offset 80, -28
+  71              		.cfi_offset 81, -24
+  72 0006 8BB0     		sub	sp, sp, #44
+  73              		.cfi_def_cfa_offset 72
+  74 0008 0646     		mov	r6, r0
+  56:modules/imu/ins_task.c ****     float acc_init[3] = {0};
+  75              		.loc 1 56 5 is_stmt 1 view .LVU5
+  76              		.loc 1 56 11 is_stmt 0 view .LVU6
+  77 000a 0024     		movs	r4, #0
+  78 000c 0794     		str	r4, [sp, #28]
+  79 000e 0894     		str	r4, [sp, #32]
+  80 0010 0994     		str	r4, [sp, #36]
+  57:modules/imu/ins_task.c ****     float gravity_norm[3] = {0, 0, 1}; // 导航系重力加速度矢量,归一化后为(0,0,1)
+  81              		.loc 1 57 5 is_stmt 1 view .LVU7
+  82              		.loc 1 57 11 is_stmt 0 view .LVU8
+  83 0012 0023     		movs	r3, #0
+  84 0014 0493     		str	r3, [sp, #16]	@ float
+  85 0016 0593     		str	r3, [sp, #20]	@ float
+  86 0018 4FF07E53 		mov	r3, #1065353216
+  87 001c 0693     		str	r3, [sp, #24]	@ float
+  58:modules/imu/ins_task.c ****     float axis_rot[3] = {0};           // 旋转轴
+  88              		.loc 1 58 5 is_stmt 1 view .LVU9
+  89              		.loc 1 58 11 is_stmt 0 view .LVU10
+  90 001e 0194     		str	r4, [sp, #4]
+  91 0020 0294     		str	r4, [sp, #8]
+  92 0022 0394     		str	r4, [sp, #12]
+  59:modules/imu/ins_task.c ****     // 读取100次加速度计数据,取平均值作为初始值
+  60:modules/imu/ins_task.c ****     for (uint8_t i = 0; i < 100; ++i)
+  93              		.loc 1 60 5 is_stmt 1 view .LVU11
+  94              	.LBB2:
+  95              		.loc 1 60 10 view .LVU12
+  96              	.LVL2:
+  97              		.loc 1 60 5 is_stmt 0 view .LVU13
+  98 0024 21E0     		b	.L5
+  99              	.LVL3:
+ 100              	.L6:
+  61:modules/imu/ins_task.c ****     {
+  62:modules/imu/ins_task.c ****         BMI088_Read(&BMI088);
+ 101              		.loc 1 62 9 is_stmt 1 view .LVU14
+ 102 0026 374D     		ldr	r5, .L12
+ 103 0028 2846     		mov	r0, r5
+ 104 002a FFF7FEFF 		bl	BMI088_Read
+ 105              	.LVL4:
+  63:modules/imu/ins_task.c ****         acc_init[X] += BMI088.Accel[X];
+ 106              		.loc 1 63 9 view .LVU15
+ 107              		.loc 1 63 36 is_stmt 0 view .LVU16
+ 108 002e 95ED007A 		vldr.32	s14, [r5]
+ 109              		.loc 1 63 21 view .LVU17
+ 110 0032 DDED077A 		vldr.32	s15, [sp, #28]
+ 111 0036 77EE877A 		vadd.f32	s15, s15, s14
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 4
+
+
+ 112 003a CDED077A 		vstr.32	s15, [sp, #28]
+  64:modules/imu/ins_task.c ****         acc_init[Y] += BMI088.Accel[Y];
+ 113              		.loc 1 64 9 is_stmt 1 view .LVU18
+ 114              		.loc 1 64 36 is_stmt 0 view .LVU19
+ 115 003e 95ED017A 		vldr.32	s14, [r5, #4]
+ 116              		.loc 1 64 21 view .LVU20
+ 117 0042 DDED087A 		vldr.32	s15, [sp, #32]
+ 118 0046 77EE877A 		vadd.f32	s15, s15, s14
+ 119 004a CDED087A 		vstr.32	s15, [sp, #32]
+  65:modules/imu/ins_task.c ****         acc_init[Z] += BMI088.Accel[Z];
+ 120              		.loc 1 65 9 is_stmt 1 view .LVU21
+ 121              		.loc 1 65 36 is_stmt 0 view .LVU22
+ 122 004e 95ED027A 		vldr.32	s14, [r5, #8]
+ 123              		.loc 1 65 21 view .LVU23
+ 124 0052 DDED097A 		vldr.32	s15, [sp, #36]
+ 125 0056 77EE877A 		vadd.f32	s15, s15, s14
+ 126 005a CDED097A 		vstr.32	s15, [sp, #36]
+  66:modules/imu/ins_task.c ****         DWT_Delay(0.001);
+ 127              		.loc 1 66 9 is_stmt 1 view .LVU24
+ 128 005e 9FED2A0A 		vldr.32	s0, .L12+4
+ 129 0062 FFF7FEFF 		bl	DWT_Delay
+ 130              	.LVL5:
+  60:modules/imu/ins_task.c ****     {
+ 131              		.loc 1 60 34 discriminator 3 view .LVU25
+ 132 0066 0134     		adds	r4, r4, #1
+ 133              	.LVL6:
+  60:modules/imu/ins_task.c ****     {
+ 134              		.loc 1 60 34 is_stmt 0 discriminator 3 view .LVU26
+ 135 0068 E4B2     		uxtb	r4, r4
+ 136              	.LVL7:
+ 137              	.L5:
+  60:modules/imu/ins_task.c ****     {
+ 138              		.loc 1 60 27 is_stmt 1 discriminator 1 view .LVU27
+ 139 006a 632C     		cmp	r4, #99
+ 140 006c DBD9     		bls	.L6
+ 141              	.LBE2:
+ 142              	.LBB3:
+  67:modules/imu/ins_task.c ****     }
+  68:modules/imu/ins_task.c ****     for (uint8_t i = 0; i < 3; ++i)
+ 143              		.loc 1 68 18 is_stmt 0 view .LVU28
+ 144 006e 0023     		movs	r3, #0
+ 145 0070 0CE0     		b	.L7
+ 146              	.LVL8:
+ 147              	.L8:
+  69:modules/imu/ins_task.c ****         acc_init[i] /= 100;
+ 148              		.loc 1 69 9 is_stmt 1 view .LVU29
+ 149              		.loc 1 69 17 is_stmt 0 view .LVU30
+ 150 0072 0AAA     		add	r2, sp, #40
+ 151 0074 02EB8302 		add	r2, r2, r3, lsl #2
+ 152 0078 52ED036A 		vldr.32	s13, [r2, #-12]
+ 153              		.loc 1 69 21 view .LVU31
+ 154 007c 9FED237A 		vldr.32	s14, .L12+8
+ 155 0080 C6EE877A 		vdiv.f32	s15, s13, s14
+ 156 0084 42ED037A 		vstr.32	s15, [r2, #-12]
+  68:modules/imu/ins_task.c ****         acc_init[i] /= 100;
+ 157              		.loc 1 68 32 is_stmt 1 discriminator 3 view .LVU32
+ 158 0088 0133     		adds	r3, r3, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 5
+
+
+ 159              	.LVL9:
+  68:modules/imu/ins_task.c ****         acc_init[i] /= 100;
+ 160              		.loc 1 68 32 is_stmt 0 discriminator 3 view .LVU33
+ 161 008a DBB2     		uxtb	r3, r3
+ 162              	.LVL10:
+ 163              	.L7:
+  68:modules/imu/ins_task.c ****         acc_init[i] /= 100;
+ 164              		.loc 1 68 27 is_stmt 1 discriminator 1 view .LVU34
+ 165 008c 022B     		cmp	r3, #2
+ 166 008e F0D9     		bls	.L8
+ 167              	.LBE3:
+  70:modules/imu/ins_task.c ****     Norm3d(acc_init);
+ 168              		.loc 1 70 5 view .LVU35
+ 169 0090 07AC     		add	r4, sp, #28
+ 170              	.LVL11:
+ 171              		.loc 1 70 5 is_stmt 0 view .LVU36
+ 172 0092 2046     		mov	r0, r4
+ 173 0094 FFF7FEFF 		bl	Norm3d
+ 174              	.LVL12:
+  71:modules/imu/ins_task.c ****     // 计算原始加速度矢量和导航系重力加速度矢量的夹角
+  72:modules/imu/ins_task.c ****     float angle = acosf(Dot3d(acc_init, gravity_norm));
+ 175              		.loc 1 72 5 is_stmt 1 view .LVU37
+ 176              		.loc 1 72 19 is_stmt 0 view .LVU38
+ 177 0098 04AF     		add	r7, sp, #16
+ 178 009a 3946     		mov	r1, r7
+ 179 009c 2046     		mov	r0, r4
+ 180 009e FFF7FEFF 		bl	Dot3d
+ 181              	.LVL13:
+ 182              		.loc 1 72 19 discriminator 1 view .LVU39
+ 183 00a2 FFF7FEFF 		bl	acosf
+ 184              	.LVL14:
+ 185 00a6 B0EE408A 		vmov.f32	s16, s0
+ 186              	.LVL15:
+  73:modules/imu/ins_task.c ****     Cross3d(acc_init, gravity_norm, axis_rot);
+ 187              		.loc 1 73 5 is_stmt 1 view .LVU40
+ 188 00aa 01AD     		add	r5, sp, #4
+ 189 00ac 2A46     		mov	r2, r5
+ 190 00ae 3946     		mov	r1, r7
+ 191 00b0 2046     		mov	r0, r4
+ 192 00b2 FFF7FEFF 		bl	Cross3d
+ 193              	.LVL16:
+  74:modules/imu/ins_task.c ****     Norm3d(axis_rot);
+ 194              		.loc 1 74 5 view .LVU41
+ 195 00b6 2846     		mov	r0, r5
+ 196 00b8 FFF7FEFF 		bl	Norm3d
+ 197              	.LVL17:
+  75:modules/imu/ins_task.c ****     init_q4[0] = cosf(angle / 2.0f);
+ 198              		.loc 1 75 5 view .LVU42
+ 199              		.loc 1 75 18 is_stmt 0 view .LVU43
+ 200 00bc F6EE007A 		vmov.f32	s15, #5.0e-1
+ 201 00c0 28EE278A 		vmul.f32	s16, s16, s15
+ 202              	.LVL18:
+ 203              		.loc 1 75 18 view .LVU44
+ 204 00c4 B0EE480A 		vmov.f32	s0, s16
+ 205 00c8 FFF7FEFF 		bl	cosf
+ 206              	.LVL19:
+ 207              		.loc 1 75 16 discriminator 1 view .LVU45
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 6
+
+
+ 208 00cc 86ED000A 		vstr.32	s0, [r6]
+  76:modules/imu/ins_task.c ****     for (uint8_t i = 0; i < 2; ++i)
+ 209              		.loc 1 76 5 is_stmt 1 view .LVU46
+ 210              	.LBB4:
+ 211              		.loc 1 76 10 view .LVU47
+ 212              	.LVL20:
+ 213              		.loc 1 76 18 is_stmt 0 view .LVU48
+ 214 00d0 0024     		movs	r4, #0
+ 215              		.loc 1 76 5 view .LVU49
+ 216 00d2 10E0     		b	.L9
+ 217              	.LVL21:
+ 218              	.L10:
+  77:modules/imu/ins_task.c ****         init_q4[i + 1] = axis_rot[i] * sinf(angle / 2.0f); // 轴角公式,第三轴为0(没有z轴
+ 219              		.loc 1 77 9 is_stmt 1 view .LVU50
+ 220              		.loc 1 77 34 is_stmt 0 view .LVU51
+ 221 00d4 0AAB     		add	r3, sp, #40
+ 222 00d6 03EB8403 		add	r3, r3, r4, lsl #2
+ 223 00da 53ED098A 		vldr.32	s17, [r3, #-36]
+ 224              		.loc 1 77 40 view .LVU52
+ 225 00de B0EE480A 		vmov.f32	s0, s16
+ 226 00e2 FFF7FEFF 		bl	sinf
+ 227              	.LVL22:
+ 228              		.loc 1 77 19 discriminator 1 view .LVU53
+ 229 00e6 0134     		adds	r4, r4, #1
+ 230              	.LVL23:
+ 231              		.loc 1 77 16 discriminator 1 view .LVU54
+ 232 00e8 06EB8403 		add	r3, r6, r4, lsl #2
+ 233              		.loc 1 77 38 discriminator 1 view .LVU55
+ 234 00ec 68EE808A 		vmul.f32	s17, s17, s0
+ 235              		.loc 1 77 24 discriminator 1 view .LVU56
+ 236 00f0 C3ED008A 		vstr.32	s17, [r3]
+  76:modules/imu/ins_task.c ****     for (uint8_t i = 0; i < 2; ++i)
+ 237              		.loc 1 76 32 is_stmt 1 discriminator 3 view .LVU57
+ 238 00f4 E4B2     		uxtb	r4, r4
+ 239              	.LVL24:
+ 240              	.L9:
+  76:modules/imu/ins_task.c ****     for (uint8_t i = 0; i < 2; ++i)
+ 241              		.loc 1 76 27 discriminator 1 view .LVU58
+ 242 00f6 012C     		cmp	r4, #1
+ 243 00f8 ECD9     		bls	.L10
+ 244              	.LBE4:
+  78:modules/imu/ins_task.c **** }
+ 245              		.loc 1 78 1 is_stmt 0 view .LVU59
+ 246 00fa 0BB0     		add	sp, sp, #44
+ 247              		.cfi_def_cfa_offset 28
+ 248              		@ sp needed
+ 249 00fc BDEC028B 		vldm	sp!, {d8}
+ 250              		.cfi_restore 80
+ 251              		.cfi_restore 81
+ 252              		.cfi_def_cfa_offset 20
+ 253 0100 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 254              	.LVL25:
+ 255              	.L13:
+ 256              		.loc 1 78 1 view .LVU60
+ 257 0102 00BF     		.align	2
+ 258              	.L12:
+ 259 0104 00000000 		.word	BMI088
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 7
+
+
+ 260 0108 6F12833A 		.word	981668463
+ 261 010c 0000C842 		.word	1120403456
+ 262              		.cfi_endproc
+ 263              	.LFE278:
+ 265              		.section	.text.IMU_Param_Correction,"ax",%progbits
+ 266              		.align	1
+ 267              		.syntax unified
+ 268              		.thumb
+ 269              		.thumb_func
+ 271              	IMU_Param_Correction:
+ 272              	.LVL26:
+ 273              	.LFB283:
+  79:modules/imu/ins_task.c **** 
+  80:modules/imu/ins_task.c **** attitude_t *INS_Init(void)
+  81:modules/imu/ins_task.c **** {
+  82:modules/imu/ins_task.c ****     if (!INS.init)
+  83:modules/imu/ins_task.c ****         INS.init = 1;
+  84:modules/imu/ins_task.c ****     else
+  85:modules/imu/ins_task.c ****         return (attitude_t *)&INS.Gyro;
+  86:modules/imu/ins_task.c **** 
+  87:modules/imu/ins_task.c ****     HAL_TIM_PWM_Start(&htim10, TIM_CHANNEL_1);
+  88:modules/imu/ins_task.c **** 
+  89:modules/imu/ins_task.c ****     while (BMI088Init(&hspi1, 1) != BMI088_NO_ERROR)
+  90:modules/imu/ins_task.c ****         ;
+  91:modules/imu/ins_task.c ****     IMU_Param.scale[X] = 1;
+  92:modules/imu/ins_task.c ****     IMU_Param.scale[Y] = 1;
+  93:modules/imu/ins_task.c ****     IMU_Param.scale[Z] = 1;
+  94:modules/imu/ins_task.c ****     IMU_Param.Yaw = 0;
+  95:modules/imu/ins_task.c ****     IMU_Param.Pitch = 0;
+  96:modules/imu/ins_task.c ****     IMU_Param.Roll = 0;
+  97:modules/imu/ins_task.c ****     IMU_Param.flag = 1;
+  98:modules/imu/ins_task.c **** 
+  99:modules/imu/ins_task.c ****     float init_quaternion[4] = {0};
+ 100:modules/imu/ins_task.c ****     InitQuaternion(init_quaternion);
+ 101:modules/imu/ins_task.c ****     IMU_QuaternionEKF_Init(init_quaternion, 10, 0.001, 1000000, 1, 0);
+ 102:modules/imu/ins_task.c ****     // imu heat init
+ 103:modules/imu/ins_task.c ****     PID_Init_Config_s config = {.MaxOut = 2000,
+ 104:modules/imu/ins_task.c ****                                 .IntegralLimit = 300,
+ 105:modules/imu/ins_task.c ****                                 .DeadBand = 0,
+ 106:modules/imu/ins_task.c ****                                 .Kp = 1000,
+ 107:modules/imu/ins_task.c ****                                 .Ki = 20,
+ 108:modules/imu/ins_task.c ****                                 .Kd = 0,
+ 109:modules/imu/ins_task.c ****                                 .Improve = 0x01}; // enable integratiaon limit
+ 110:modules/imu/ins_task.c ****     PIDInit(&TempCtrl, &config);
+ 111:modules/imu/ins_task.c **** 
+ 112:modules/imu/ins_task.c ****     // noise of accel is relatively big and of high freq,thus lpf is used
+ 113:modules/imu/ins_task.c ****     INS.AccelLPF = 0.0085;
+ 114:modules/imu/ins_task.c ****     DWT_GetDeltaT(&INS_DWT_Count);
+ 115:modules/imu/ins_task.c ****     return (attitude_t *)&INS.Gyro; // @todo: 这里偷懒了,不要这样做! 修改INT_t结构体
+ 116:modules/imu/ins_task.c **** }
+ 117:modules/imu/ins_task.c **** 
+ 118:modules/imu/ins_task.c **** /* 注意以1kHz的频率运行此任务 */
+ 119:modules/imu/ins_task.c **** void INS_Task(void)
+ 120:modules/imu/ins_task.c **** {
+ 121:modules/imu/ins_task.c ****     static uint32_t count = 0;
+ 122:modules/imu/ins_task.c ****     const float gravity[3] = {0, 0, 9.81f};
+ 123:modules/imu/ins_task.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 8
+
+
+ 124:modules/imu/ins_task.c ****     dt = DWT_GetDeltaT(&INS_DWT_Count);
+ 125:modules/imu/ins_task.c ****     t += dt;
+ 126:modules/imu/ins_task.c **** 
+ 127:modules/imu/ins_task.c ****     // ins update
+ 128:modules/imu/ins_task.c ****     if ((count % 1) == 0)
+ 129:modules/imu/ins_task.c ****     {
+ 130:modules/imu/ins_task.c ****         BMI088_Read(&BMI088);
+ 131:modules/imu/ins_task.c **** 
+ 132:modules/imu/ins_task.c ****         INS.Accel[X] = BMI088.Accel[X];
+ 133:modules/imu/ins_task.c ****         INS.Accel[Y] = BMI088.Accel[Y];
+ 134:modules/imu/ins_task.c ****         INS.Accel[Z] = BMI088.Accel[Z];
+ 135:modules/imu/ins_task.c ****         INS.Gyro[X] = BMI088.Gyro[X];
+ 136:modules/imu/ins_task.c ****         INS.Gyro[Y] = BMI088.Gyro[Y];
+ 137:modules/imu/ins_task.c ****         INS.Gyro[Z] = BMI088.Gyro[Z];
+ 138:modules/imu/ins_task.c **** 
+ 139:modules/imu/ins_task.c ****         // demo function,用于修正安装误差,可以不管,本demo暂时没用
+ 140:modules/imu/ins_task.c ****         IMU_Param_Correction(&IMU_Param, INS.Gyro, INS.Accel);
+ 141:modules/imu/ins_task.c **** 
+ 142:modules/imu/ins_task.c ****         // 计算重力加速度矢量和b系的XY两轴的夹角,可用作功能扩展,本demo暂�
+ 143:modules/imu/ins_task.c ****         // INS.atanxz = -atan2f(INS.Accel[X], INS.Accel[Z]) * 180 / PI;
+ 144:modules/imu/ins_task.c ****         // INS.atanyz = atan2f(INS.Accel[Y], INS.Accel[Z]) * 180 / PI;
+ 145:modules/imu/ins_task.c **** 
+ 146:modules/imu/ins_task.c ****         // 核心函数,EKF更新四元数
+ 147:modules/imu/ins_task.c ****         IMU_QuaternionEKF_Update(INS.Gyro[X], INS.Gyro[Y], INS.Gyro[Z], INS.Accel[X], INS.Accel[Y],
+ 148:modules/imu/ins_task.c **** 
+ 149:modules/imu/ins_task.c ****         memcpy(INS.q, QEKF_INS.q, sizeof(QEKF_INS.q));
+ 150:modules/imu/ins_task.c **** 
+ 151:modules/imu/ins_task.c ****         // 机体系基向量转换到导航坐标系，本例选取惯性系为导航系
+ 152:modules/imu/ins_task.c ****         BodyFrameToEarthFrame(xb, INS.xn, INS.q);
+ 153:modules/imu/ins_task.c ****         BodyFrameToEarthFrame(yb, INS.yn, INS.q);
+ 154:modules/imu/ins_task.c ****         BodyFrameToEarthFrame(zb, INS.zn, INS.q);
+ 155:modules/imu/ins_task.c **** 
+ 156:modules/imu/ins_task.c ****         // 将重力从导航坐标系n转换到机体系b,随后根据加速度计数据计算运�
+ 157:modules/imu/ins_task.c ****         float gravity_b[3];
+ 158:modules/imu/ins_task.c ****         EarthFrameToBodyFrame(gravity, gravity_b, INS.q);
+ 159:modules/imu/ins_task.c ****         for (uint8_t i = 0; i < 3; ++i) // 同样过一个低通滤波
+ 160:modules/imu/ins_task.c ****         {
+ 161:modules/imu/ins_task.c ****             INS.MotionAccel_b[i] = (INS.Accel[i] - gravity_b[i]) * dt / (INS.AccelLPF + dt) + INS.M
+ 162:modules/imu/ins_task.c ****         }
+ 163:modules/imu/ins_task.c ****         BodyFrameToEarthFrame(INS.MotionAccel_b, INS.MotionAccel_n, INS.q); // 转换回导航系n
+ 164:modules/imu/ins_task.c **** 
+ 165:modules/imu/ins_task.c ****         INS.Yaw = QEKF_INS.Yaw;
+ 166:modules/imu/ins_task.c ****         INS.Pitch = QEKF_INS.Pitch;
+ 167:modules/imu/ins_task.c ****         INS.Roll = QEKF_INS.Roll;
+ 168:modules/imu/ins_task.c ****         INS.YawTotalAngle = QEKF_INS.YawTotalAngle;
+ 169:modules/imu/ins_task.c **** 
+ 170:modules/imu/ins_task.c ****         VisionSetAltitude(INS.Yaw, INS.Pitch, INS.Roll);
+ 171:modules/imu/ins_task.c ****     }
+ 172:modules/imu/ins_task.c **** 
+ 173:modules/imu/ins_task.c ****     // temperature control
+ 174:modules/imu/ins_task.c ****     if ((count % 2) == 0)
+ 175:modules/imu/ins_task.c ****     {
+ 176:modules/imu/ins_task.c ****         // 500hz
+ 177:modules/imu/ins_task.c ****         IMU_Temperature_Ctrl();
+ 178:modules/imu/ins_task.c ****     }
+ 179:modules/imu/ins_task.c **** 
+ 180:modules/imu/ins_task.c ****     if ((count++ % 1000) == 0)
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 9
+
+
+ 181:modules/imu/ins_task.c ****     {
+ 182:modules/imu/ins_task.c ****         // 1Hz 可以加入monitor函数,检查IMU是否正常运行/离线
+ 183:modules/imu/ins_task.c ****     }
+ 184:modules/imu/ins_task.c **** }
+ 185:modules/imu/ins_task.c **** 
+ 186:modules/imu/ins_task.c **** /**
+ 187:modules/imu/ins_task.c ****  * @brief          Transform 3dvector from BodyFrame to EarthFrame
+ 188:modules/imu/ins_task.c ****  * @param[1]       vector in BodyFrame
+ 189:modules/imu/ins_task.c ****  * @param[2]       vector in EarthFrame
+ 190:modules/imu/ins_task.c ****  * @param[3]       quaternion
+ 191:modules/imu/ins_task.c ****  */
+ 192:modules/imu/ins_task.c **** void BodyFrameToEarthFrame(const float *vecBF, float *vecEF, float *q)
+ 193:modules/imu/ins_task.c **** {
+ 194:modules/imu/ins_task.c ****     vecEF[0] = 2.0f * ((0.5f - q[2] * q[2] - q[3] * q[3]) * vecBF[0] +
+ 195:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 196:modules/imu/ins_task.c ****                        (q[1] * q[3] + q[0] * q[2]) * vecBF[2]);
+ 197:modules/imu/ins_task.c **** 
+ 198:modules/imu/ins_task.c ****     vecEF[1] = 2.0f * ((q[1] * q[2] + q[0] * q[3]) * vecBF[0] +
+ 199:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 200:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecBF[2]);
+ 201:modules/imu/ins_task.c **** 
+ 202:modules/imu/ins_task.c ****     vecEF[2] = 2.0f * ((q[1] * q[3] - q[0] * q[2]) * vecBF[0] +
+ 203:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 204:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecBF[2]);
+ 205:modules/imu/ins_task.c **** }
+ 206:modules/imu/ins_task.c **** 
+ 207:modules/imu/ins_task.c **** /**
+ 208:modules/imu/ins_task.c ****  * @brief          Transform 3dvector from EarthFrame to BodyFrame
+ 209:modules/imu/ins_task.c ****  * @param[1]       vector in EarthFrame
+ 210:modules/imu/ins_task.c ****  * @param[2]       vector in BodyFrame
+ 211:modules/imu/ins_task.c ****  * @param[3]       quaternion
+ 212:modules/imu/ins_task.c ****  */
+ 213:modules/imu/ins_task.c **** void EarthFrameToBodyFrame(const float *vecEF, float *vecBF, float *q)
+ 214:modules/imu/ins_task.c **** {
+ 215:modules/imu/ins_task.c ****     vecBF[0] = 2.0f * ((0.5f - q[2] * q[2] - q[3] * q[3]) * vecEF[0] +
+ 216:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 217:modules/imu/ins_task.c ****                        (q[1] * q[3] - q[0] * q[2]) * vecEF[2]);
+ 218:modules/imu/ins_task.c **** 
+ 219:modules/imu/ins_task.c ****     vecBF[1] = 2.0f * ((q[1] * q[2] - q[0] * q[3]) * vecEF[0] +
+ 220:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 221:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecEF[2]);
+ 222:modules/imu/ins_task.c **** 
+ 223:modules/imu/ins_task.c ****     vecBF[2] = 2.0f * ((q[1] * q[3] + q[0] * q[2]) * vecEF[0] +
+ 224:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 225:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecEF[2]);
+ 226:modules/imu/ins_task.c **** }
+ 227:modules/imu/ins_task.c **** 
+ 228:modules/imu/ins_task.c **** /**
+ 229:modules/imu/ins_task.c ****  * @brief reserved.用于修正IMU安装误差与标度因数误差,即陀螺仪轴和云台轴的�
+ 230:modules/imu/ins_task.c ****  *
+ 231:modules/imu/ins_task.c ****  *
+ 232:modules/imu/ins_task.c ****  * @param param IMU参数
+ 233:modules/imu/ins_task.c ****  * @param gyro  角速度
+ 234:modules/imu/ins_task.c ****  * @param accel 加速度
+ 235:modules/imu/ins_task.c ****  */
+ 236:modules/imu/ins_task.c **** static void IMU_Param_Correction(IMU_Param_t *param, float gyro[3], float accel[3])
+ 237:modules/imu/ins_task.c **** {
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 10
+
+
+ 274              		.loc 1 237 1 is_stmt 1 view -0
+ 275              		.cfi_startproc
+ 276              		@ args = 0, pretend = 0, frame = 24
+ 277              		@ frame_needed = 0, uses_anonymous_args = 0
+ 278              		.loc 1 237 1 is_stmt 0 view .LVU62
+ 279 0000 70B5     		push	{r4, r5, r6, lr}
+ 280              		.cfi_def_cfa_offset 16
+ 281              		.cfi_offset 4, -16
+ 282              		.cfi_offset 5, -12
+ 283              		.cfi_offset 6, -8
+ 284              		.cfi_offset 14, -4
+ 285 0002 2DED068B 		vpush.64	{d8, d9, d10}
+ 286              		.cfi_def_cfa_offset 40
+ 287              		.cfi_offset 80, -40
+ 288              		.cfi_offset 81, -36
+ 289              		.cfi_offset 82, -32
+ 290              		.cfi_offset 83, -28
+ 291              		.cfi_offset 84, -24
+ 292              		.cfi_offset 85, -20
+ 293 0006 86B0     		sub	sp, sp, #24
+ 294              		.cfi_def_cfa_offset 64
+ 295 0008 0446     		mov	r4, r0
+ 296 000a 0D46     		mov	r5, r1
+ 297 000c 1646     		mov	r6, r2
+ 238:modules/imu/ins_task.c ****     static float lastYawOffset, lastPitchOffset, lastRollOffset;
+ 298              		.loc 1 238 5 is_stmt 1 view .LVU63
+ 239:modules/imu/ins_task.c ****     static float c_11, c_12, c_13, c_21, c_22, c_23, c_31, c_32, c_33;
+ 299              		.loc 1 239 5 view .LVU64
+ 240:modules/imu/ins_task.c ****     float cosPitch, cosYaw, cosRoll, sinPitch, sinYaw, sinRoll;
+ 300              		.loc 1 240 5 view .LVU65
+ 241:modules/imu/ins_task.c **** 
+ 242:modules/imu/ins_task.c ****     if (fabsf(param->Yaw - lastYawOffset) > 0.001f ||
+ 301              		.loc 1 242 5 view .LVU66
+ 302              		.loc 1 242 20 is_stmt 0 view .LVU67
+ 303 000e 90ED040A 		vldr.32	s0, [r0, #16]
+ 304              		.loc 1 242 26 view .LVU68
+ 305 0012 9F4B     		ldr	r3, .L22
+ 306 0014 D3ED007A 		vldr.32	s15, [r3]
+ 307 0018 70EE677A 		vsub.f32	s15, s0, s15
+ 308              		.loc 1 242 9 view .LVU69
+ 309 001c F0EEE77A 		vabs.f32	s15, s15
+ 310              		.loc 1 242 8 view .LVU70
+ 311 0020 9FED9C7A 		vldr.32	s14, .L22+4
+ 312 0024 F4EEC77A 		vcmpe.f32	s15, s14
+ 313 0028 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 314 002c 22DC     		bgt	.L15
+ 243:modules/imu/ins_task.c ****         fabsf(param->Pitch - lastPitchOffset) > 0.001f ||
+ 315              		.loc 1 243 20 view .LVU71
+ 316 002e D0ED057A 		vldr.32	s15, [r0, #20]
+ 317              		.loc 1 243 28 view .LVU72
+ 318 0032 994B     		ldr	r3, .L22+8
+ 319 0034 93ED007A 		vldr.32	s14, [r3]
+ 320 0038 77EEC77A 		vsub.f32	s15, s15, s14
+ 321              		.loc 1 243 9 view .LVU73
+ 322 003c F0EEE77A 		vabs.f32	s15, s15
+ 242:modules/imu/ins_task.c ****         fabsf(param->Pitch - lastPitchOffset) > 0.001f ||
+ 323              		.loc 1 242 52 discriminator 1 view .LVU74
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 11
+
+
+ 324 0040 9FED947A 		vldr.32	s14, .L22+4
+ 325 0044 F4EEC77A 		vcmpe.f32	s15, s14
+ 326 0048 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 327 004c 12DC     		bgt	.L15
+ 244:modules/imu/ins_task.c ****         fabsf(param->Roll - lastRollOffset) > 0.001f || param->flag)
+ 328              		.loc 1 244 20 view .LVU75
+ 329 004e D0ED067A 		vldr.32	s15, [r0, #24]
+ 330              		.loc 1 244 27 view .LVU76
+ 331 0052 924B     		ldr	r3, .L22+12
+ 332 0054 93ED007A 		vldr.32	s14, [r3]
+ 333 0058 77EEC77A 		vsub.f32	s15, s15, s14
+ 334              		.loc 1 244 9 view .LVU77
+ 335 005c F0EEE77A 		vabs.f32	s15, s15
+ 243:modules/imu/ins_task.c ****         fabsf(param->Pitch - lastPitchOffset) > 0.001f ||
+ 336              		.loc 1 243 56 view .LVU78
+ 337 0060 9FED8C7A 		vldr.32	s14, .L22+4
+ 338 0064 F4EEC77A 		vcmpe.f32	s15, s14
+ 339 0068 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 340 006c 02DC     		bgt	.L15
+ 341              		.loc 1 244 62 view .LVU79
+ 342 006e 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 343              		.loc 1 244 54 view .LVU80
+ 344 0070 002B     		cmp	r3, #0
+ 345 0072 6ED0     		beq	.L16
+ 346              	.L15:
+ 245:modules/imu/ins_task.c ****     {
+ 246:modules/imu/ins_task.c ****         cosYaw = arm_cos_f32(param->Yaw / 57.295779513f);
+ 347              		.loc 1 246 9 is_stmt 1 view .LVU81
+ 348              		.loc 1 246 41 is_stmt 0 view .LVU82
+ 349 0074 9FED8AAA 		vldr.32	s20, .L22+16
+ 350              		.loc 1 246 18 view .LVU83
+ 351 0078 80EE0A0A 		vdiv.f32	s0, s0, s20
+ 352 007c FFF7FEFF 		bl	arm_cos_f32
+ 353              	.LVL27:
+ 354              		.loc 1 246 18 view .LVU84
+ 355 0080 B0EE409A 		vmov.f32	s18, s0
+ 356              	.LVL28:
+ 247:modules/imu/ins_task.c ****         cosPitch = arm_cos_f32(param->Pitch / 57.295779513f);
+ 357              		.loc 1 247 9 is_stmt 1 view .LVU85
+ 358              		.loc 1 247 37 is_stmt 0 view .LVU86
+ 359 0084 94ED050A 		vldr.32	s0, [r4, #20]
+ 360              	.LVL29:
+ 361              		.loc 1 247 20 view .LVU87
+ 362 0088 80EE0A0A 		vdiv.f32	s0, s0, s20
+ 363 008c FFF7FEFF 		bl	arm_cos_f32
+ 364              	.LVL30:
+ 365 0090 F0EE408A 		vmov.f32	s17, s0
+ 366              	.LVL31:
+ 248:modules/imu/ins_task.c ****         cosRoll = arm_cos_f32(param->Roll / 57.295779513f);
+ 367              		.loc 1 248 9 is_stmt 1 view .LVU88
+ 368              		.loc 1 248 36 is_stmt 0 view .LVU89
+ 369 0094 94ED060A 		vldr.32	s0, [r4, #24]
+ 370              	.LVL32:
+ 371              		.loc 1 248 19 view .LVU90
+ 372 0098 80EE0A0A 		vdiv.f32	s0, s0, s20
+ 373 009c FFF7FEFF 		bl	arm_cos_f32
+ 374              	.LVL33:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 12
+
+
+ 375 00a0 F0EE40AA 		vmov.f32	s21, s0
+ 376              	.LVL34:
+ 249:modules/imu/ins_task.c ****         sinYaw = arm_sin_f32(param->Yaw / 57.295779513f);
+ 377              		.loc 1 249 9 is_stmt 1 view .LVU91
+ 378              		.loc 1 249 35 is_stmt 0 view .LVU92
+ 379 00a4 94ED040A 		vldr.32	s0, [r4, #16]
+ 380              	.LVL35:
+ 381              		.loc 1 249 18 view .LVU93
+ 382 00a8 80EE0A0A 		vdiv.f32	s0, s0, s20
+ 383 00ac FFF7FEFF 		bl	arm_sin_f32
+ 384              	.LVL36:
+ 385 00b0 B0EE408A 		vmov.f32	s16, s0
+ 386              	.LVL37:
+ 250:modules/imu/ins_task.c ****         sinPitch = arm_sin_f32(param->Pitch / 57.295779513f);
+ 387              		.loc 1 250 9 is_stmt 1 view .LVU94
+ 388              		.loc 1 250 37 is_stmt 0 view .LVU95
+ 389 00b4 94ED050A 		vldr.32	s0, [r4, #20]
+ 390              	.LVL38:
+ 391              		.loc 1 250 20 view .LVU96
+ 392 00b8 80EE0A0A 		vdiv.f32	s0, s0, s20
+ 393 00bc FFF7FEFF 		bl	arm_sin_f32
+ 394              	.LVL39:
+ 395 00c0 F0EE409A 		vmov.f32	s19, s0
+ 396              	.LVL40:
+ 251:modules/imu/ins_task.c ****         sinRoll = arm_sin_f32(param->Roll / 57.295779513f);
+ 397              		.loc 1 251 9 is_stmt 1 view .LVU97
+ 398              		.loc 1 251 36 is_stmt 0 view .LVU98
+ 399 00c4 94ED060A 		vldr.32	s0, [r4, #24]
+ 400              	.LVL41:
+ 401              		.loc 1 251 19 view .LVU99
+ 402 00c8 80EE0A0A 		vdiv.f32	s0, s0, s20
+ 403 00cc FFF7FEFF 		bl	arm_sin_f32
+ 404              	.LVL42:
+ 252:modules/imu/ins_task.c **** 
+ 253:modules/imu/ins_task.c ****         // 1.yaw(alpha) 2.pitch(beta) 3.roll(gamma)
+ 254:modules/imu/ins_task.c ****         c_11 = cosYaw * cosRoll + sinYaw * sinPitch * sinRoll;
+ 405              		.loc 1 254 9 is_stmt 1 view .LVU100
+ 406              		.loc 1 254 23 is_stmt 0 view .LVU101
+ 407 00d0 69EE2A6A 		vmul.f32	s13, s18, s21
+ 408              		.loc 1 254 42 view .LVU102
+ 409 00d4 28EE297A 		vmul.f32	s14, s16, s19
+ 410              		.loc 1 254 53 view .LVU103
+ 411 00d8 27EE007A 		vmul.f32	s14, s14, s0
+ 412              		.loc 1 254 33 view .LVU104
+ 413 00dc 36EE877A 		vadd.f32	s14, s13, s14
+ 414              		.loc 1 254 14 view .LVU105
+ 415 00e0 704B     		ldr	r3, .L22+20
+ 416 00e2 83ED007A 		vstr.32	s14, [r3]
+ 255:modules/imu/ins_task.c ****         c_12 = cosPitch * sinYaw;
+ 417              		.loc 1 255 9 is_stmt 1 view .LVU106
+ 418              		.loc 1 255 25 is_stmt 0 view .LVU107
+ 419 00e6 28EE887A 		vmul.f32	s14, s17, s16
+ 420              		.loc 1 255 14 view .LVU108
+ 421 00ea 6F4B     		ldr	r3, .L22+24
+ 422 00ec 83ED007A 		vstr.32	s14, [r3]
+ 256:modules/imu/ins_task.c ****         c_13 = cosYaw * sinRoll - cosRoll * sinYaw * sinPitch;
+ 423              		.loc 1 256 9 is_stmt 1 view .LVU109
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 13
+
+
+ 424              		.loc 1 256 23 is_stmt 0 view .LVU110
+ 425 00f0 29EE007A 		vmul.f32	s14, s18, s0
+ 426              		.loc 1 256 43 view .LVU111
+ 427 00f4 2AEE886A 		vmul.f32	s12, s21, s16
+ 428              		.loc 1 256 52 view .LVU112
+ 429 00f8 66EE295A 		vmul.f32	s11, s12, s19
+ 430              		.loc 1 256 33 view .LVU113
+ 431 00fc 37EE657A 		vsub.f32	s14, s14, s11
+ 432              		.loc 1 256 14 view .LVU114
+ 433 0100 6A4B     		ldr	r3, .L22+28
+ 434 0102 83ED007A 		vstr.32	s14, [r3]
+ 257:modules/imu/ins_task.c ****         c_21 = cosYaw * sinPitch * sinRoll - cosRoll * sinYaw;
+ 435              		.loc 1 257 9 is_stmt 1 view .LVU115
+ 436              		.loc 1 257 23 is_stmt 0 view .LVU116
+ 437 0106 29EE297A 		vmul.f32	s14, s18, s19
+ 438              		.loc 1 257 34 view .LVU117
+ 439 010a 27EE007A 		vmul.f32	s14, s14, s0
+ 440              		.loc 1 257 44 view .LVU118
+ 441 010e 37EE467A 		vsub.f32	s14, s14, s12
+ 442              		.loc 1 257 14 view .LVU119
+ 443 0112 674B     		ldr	r3, .L22+32
+ 444 0114 83ED007A 		vstr.32	s14, [r3]
+ 258:modules/imu/ins_task.c ****         c_22 = cosYaw * cosPitch;
+ 445              		.loc 1 258 9 is_stmt 1 view .LVU120
+ 446              		.loc 1 258 23 is_stmt 0 view .LVU121
+ 447 0118 29EE289A 		vmul.f32	s18, s18, s17
+ 448              	.LVL43:
+ 449              		.loc 1 258 14 view .LVU122
+ 450 011c 654B     		ldr	r3, .L22+36
+ 451 011e 83ED009A 		vstr.32	s18, [r3]
+ 259:modules/imu/ins_task.c ****         c_23 = -sinYaw * sinRoll - cosYaw * cosRoll * sinPitch;
+ 452              		.loc 1 259 9 is_stmt 1 view .LVU123
+ 453              		.loc 1 259 24 is_stmt 0 view .LVU124
+ 454 0122 28EE408A 		vnmul.f32	s16, s16, s0
+ 455              	.LVL44:
+ 456              		.loc 1 259 53 view .LVU125
+ 457 0126 66EEA96A 		vmul.f32	s13, s13, s19
+ 458              		.loc 1 259 34 view .LVU126
+ 459 012a 38EE668A 		vsub.f32	s16, s16, s13
+ 460              		.loc 1 259 14 view .LVU127
+ 461 012e 624B     		ldr	r3, .L22+40
+ 462 0130 83ED008A 		vstr.32	s16, [r3]
+ 260:modules/imu/ins_task.c ****         c_31 = -cosPitch * sinRoll;
+ 463              		.loc 1 260 9 is_stmt 1 view .LVU128
+ 464              		.loc 1 260 26 is_stmt 0 view .LVU129
+ 465 0134 68EEC07A 		vnmul.f32	s15, s17, s0
+ 466              		.loc 1 260 14 view .LVU130
+ 467 0138 604B     		ldr	r3, .L22+44
+ 468 013a C3ED007A 		vstr.32	s15, [r3]
+ 261:modules/imu/ins_task.c ****         c_32 = sinPitch;
+ 469              		.loc 1 261 9 is_stmt 1 view .LVU131
+ 470              		.loc 1 261 14 is_stmt 0 view .LVU132
+ 471 013e 604B     		ldr	r3, .L22+48
+ 472 0140 C3ED009A 		vstr.32	s19, [r3]
+ 262:modules/imu/ins_task.c ****         c_33 = cosPitch * cosRoll;
+ 473              		.loc 1 262 9 is_stmt 1 view .LVU133
+ 474              		.loc 1 262 25 is_stmt 0 view .LVU134
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 14
+
+
+ 475 0144 68EEAA8A 		vmul.f32	s17, s17, s21
+ 476              	.LVL45:
+ 477              		.loc 1 262 14 view .LVU135
+ 478 0148 5E4B     		ldr	r3, .L22+52
+ 479 014a C3ED008A 		vstr.32	s17, [r3]
+ 263:modules/imu/ins_task.c ****         param->flag = 0;
+ 480              		.loc 1 263 9 is_stmt 1 view .LVU136
+ 481              		.loc 1 263 21 is_stmt 0 view .LVU137
+ 482 014e 0023     		movs	r3, #0
+ 483 0150 2370     		strb	r3, [r4]
+ 484              	.LVL46:
+ 485              	.L16:
+ 237:modules/imu/ins_task.c ****     static float lastYawOffset, lastPitchOffset, lastRollOffset;
+ 486              		.loc 1 237 1 view .LVU138
+ 487 0152 0023     		movs	r3, #0
+ 488 0154 10E0     		b	.L17
+ 489              	.LVL47:
+ 490              	.L18:
+ 491              	.LBB5:
+ 264:modules/imu/ins_task.c ****     }
+ 265:modules/imu/ins_task.c ****     float gyro_temp[3];
+ 266:modules/imu/ins_task.c ****     for (uint8_t i = 0; i < 3; ++i)
+ 267:modules/imu/ins_task.c ****         gyro_temp[i] = gyro[i] * param->scale[i];
+ 492              		.loc 1 267 9 is_stmt 1 view .LVU139
+ 493              		.loc 1 267 28 is_stmt 0 view .LVU140
+ 494 0156 05EB8302 		add	r2, r5, r3, lsl #2
+ 495 015a D2ED007A 		vldr.32	s15, [r2]
+ 496              		.loc 1 267 46 view .LVU141
+ 497 015e 04EB8302 		add	r2, r4, r3, lsl #2
+ 498 0162 92ED017A 		vldr.32	s14, [r2, #4]
+ 499              		.loc 1 267 32 view .LVU142
+ 500 0166 67EE877A 		vmul.f32	s15, s15, s14
+ 501              		.loc 1 267 22 view .LVU143
+ 502 016a 06AA     		add	r2, sp, #24
+ 503 016c 02EB8302 		add	r2, r2, r3, lsl #2
+ 504 0170 42ED037A 		vstr.32	s15, [r2, #-12]
+ 266:modules/imu/ins_task.c ****         gyro_temp[i] = gyro[i] * param->scale[i];
+ 505              		.loc 1 266 32 is_stmt 1 discriminator 3 view .LVU144
+ 506 0174 0133     		adds	r3, r3, #1
+ 507              	.LVL48:
+ 266:modules/imu/ins_task.c ****         gyro_temp[i] = gyro[i] * param->scale[i];
+ 508              		.loc 1 266 32 is_stmt 0 discriminator 3 view .LVU145
+ 509 0176 DBB2     		uxtb	r3, r3
+ 510              	.LVL49:
+ 511              	.L17:
+ 266:modules/imu/ins_task.c ****         gyro_temp[i] = gyro[i] * param->scale[i];
+ 512              		.loc 1 266 27 is_stmt 1 discriminator 1 view .LVU146
+ 513 0178 022B     		cmp	r3, #2
+ 514 017a ECD9     		bls	.L18
+ 515              	.LBE5:
+ 268:modules/imu/ins_task.c **** 
+ 269:modules/imu/ins_task.c ****     gyro[X] = c_11 * gyro_temp[X] +
+ 516              		.loc 1 269 5 view .LVU147
+ 517              		.loc 1 269 31 is_stmt 0 view .LVU148
+ 518 017c DDED037A 		vldr.32	s15, [sp, #12]
+ 519              		.loc 1 269 20 view .LVU149
+ 520 0180 484B     		ldr	r3, .L22+20
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 15
+
+
+ 521              	.LVL50:
+ 522              		.loc 1 269 20 view .LVU150
+ 523 0182 93ED006A 		vldr.32	s12, [r3]
+ 524 0186 27EE867A 		vmul.f32	s14, s15, s12
+ 270:modules/imu/ins_task.c ****               c_12 * gyro_temp[Y] +
+ 525              		.loc 1 270 31 view .LVU151
+ 526 018a 9DED045A 		vldr.32	s10, [sp, #16]
+ 527              		.loc 1 270 20 view .LVU152
+ 528 018e 464B     		ldr	r3, .L22+24
+ 529 0190 D3ED002A 		vldr.32	s5, [r3]
+ 530 0194 65EE226A 		vmul.f32	s13, s10, s5
+ 269:modules/imu/ins_task.c ****               c_12 * gyro_temp[Y] +
+ 531              		.loc 1 269 35 view .LVU153
+ 532 0198 37EE267A 		vadd.f32	s14, s14, s13
+ 271:modules/imu/ins_task.c ****               c_13 * gyro_temp[Z];
+ 533              		.loc 1 271 31 view .LVU154
+ 534 019c DDED055A 		vldr.32	s11, [sp, #20]
+ 535              		.loc 1 271 20 view .LVU155
+ 536 01a0 424B     		ldr	r3, .L22+28
+ 537 01a2 93ED003A 		vldr.32	s6, [r3]
+ 538 01a6 65EE836A 		vmul.f32	s13, s11, s6
+ 270:modules/imu/ins_task.c ****               c_12 * gyro_temp[Y] +
+ 539              		.loc 1 270 35 view .LVU156
+ 540 01aa 37EE267A 		vadd.f32	s14, s14, s13
+ 269:modules/imu/ins_task.c ****               c_12 * gyro_temp[Y] +
+ 541              		.loc 1 269 13 view .LVU157
+ 542 01ae 85ED007A 		vstr.32	s14, [r5]
+ 272:modules/imu/ins_task.c ****     gyro[Y] = c_21 * gyro_temp[X] +
+ 543              		.loc 1 272 5 is_stmt 1 view .LVU158
+ 544              		.loc 1 272 20 is_stmt 0 view .LVU159
+ 545 01b2 3F4B     		ldr	r3, .L22+32
+ 546 01b4 D3ED006A 		vldr.32	s13, [r3]
+ 547 01b8 27EEA67A 		vmul.f32	s14, s15, s13
+ 273:modules/imu/ins_task.c ****               c_22 * gyro_temp[Y] +
+ 548              		.loc 1 273 20 view .LVU160
+ 549 01bc 3D4B     		ldr	r3, .L22+36
+ 550 01be D3ED003A 		vldr.32	s7, [r3]
+ 551 01c2 65EE234A 		vmul.f32	s9, s10, s7
+ 272:modules/imu/ins_task.c ****     gyro[Y] = c_21 * gyro_temp[X] +
+ 552              		.loc 1 272 35 view .LVU161
+ 553 01c6 37EE247A 		vadd.f32	s14, s14, s9
+ 274:modules/imu/ins_task.c ****               c_23 * gyro_temp[Z];
+ 554              		.loc 1 274 20 view .LVU162
+ 555 01ca 3B4B     		ldr	r3, .L22+40
+ 556 01cc 93ED004A 		vldr.32	s8, [r3]
+ 557 01d0 65EE844A 		vmul.f32	s9, s11, s8
+ 273:modules/imu/ins_task.c ****               c_22 * gyro_temp[Y] +
+ 558              		.loc 1 273 35 view .LVU163
+ 559 01d4 37EE247A 		vadd.f32	s14, s14, s9
+ 272:modules/imu/ins_task.c ****     gyro[Y] = c_21 * gyro_temp[X] +
+ 560              		.loc 1 272 13 view .LVU164
+ 561 01d8 85ED017A 		vstr.32	s14, [r5, #4]
+ 275:modules/imu/ins_task.c ****     gyro[Z] = c_31 * gyro_temp[X] +
+ 562              		.loc 1 275 5 is_stmt 1 view .LVU165
+ 563              		.loc 1 275 20 is_stmt 0 view .LVU166
+ 564 01dc 374B     		ldr	r3, .L22+44
+ 565 01de 93ED007A 		vldr.32	s14, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 16
+
+
+ 566 01e2 67EE877A 		vmul.f32	s15, s15, s14
+ 276:modules/imu/ins_task.c ****               c_32 * gyro_temp[Y] +
+ 567              		.loc 1 276 20 view .LVU167
+ 568 01e6 364B     		ldr	r3, .L22+48
+ 569 01e8 D3ED004A 		vldr.32	s9, [r3]
+ 570 01ec 25EE245A 		vmul.f32	s10, s10, s9
+ 275:modules/imu/ins_task.c ****     gyro[Z] = c_31 * gyro_temp[X] +
+ 571              		.loc 1 275 35 view .LVU168
+ 572 01f0 77EE857A 		vadd.f32	s15, s15, s10
+ 277:modules/imu/ins_task.c ****               c_33 * gyro_temp[Z];
+ 573              		.loc 1 277 20 view .LVU169
+ 574 01f4 334B     		ldr	r3, .L22+52
+ 575 01f6 93ED005A 		vldr.32	s10, [r3]
+ 576 01fa 65EE855A 		vmul.f32	s11, s11, s10
+ 276:modules/imu/ins_task.c ****               c_32 * gyro_temp[Y] +
+ 577              		.loc 1 276 35 view .LVU170
+ 578 01fe 77EEA57A 		vadd.f32	s15, s15, s11
+ 275:modules/imu/ins_task.c ****     gyro[Z] = c_31 * gyro_temp[X] +
+ 579              		.loc 1 275 13 view .LVU171
+ 580 0202 C5ED027A 		vstr.32	s15, [r5, #8]
+ 278:modules/imu/ins_task.c **** 
+ 279:modules/imu/ins_task.c ****     float accel_temp[3];
+ 581              		.loc 1 279 5 is_stmt 1 view .LVU172
+ 280:modules/imu/ins_task.c ****     for (uint8_t i = 0; i < 3; ++i)
+ 582              		.loc 1 280 5 view .LVU173
+ 583              	.LBB6:
+ 584              		.loc 1 280 10 view .LVU174
+ 585              	.LVL51:
+ 586              		.loc 1 280 18 is_stmt 0 view .LVU175
+ 587 0206 0023     		movs	r3, #0
+ 588              		.loc 1 280 5 view .LVU176
+ 589 0208 09E0     		b	.L19
+ 590              	.LVL52:
+ 591              	.L20:
+ 281:modules/imu/ins_task.c ****         accel_temp[i] = accel[i];
+ 592              		.loc 1 281 9 is_stmt 1 view .LVU177
+ 593              		.loc 1 281 30 is_stmt 0 view .LVU178
+ 594 020a 06EB8302 		add	r2, r6, r3, lsl #2
+ 595 020e 1168     		ldr	r1, [r2]	@ float
+ 596              		.loc 1 281 23 view .LVU179
+ 597 0210 06AA     		add	r2, sp, #24
+ 598 0212 02EB8302 		add	r2, r2, r3, lsl #2
+ 599 0216 42F8181C 		str	r1, [r2, #-24]	@ float
+ 280:modules/imu/ins_task.c ****     for (uint8_t i = 0; i < 3; ++i)
+ 600              		.loc 1 280 32 is_stmt 1 discriminator 3 view .LVU180
+ 601 021a 0133     		adds	r3, r3, #1
+ 602              	.LVL53:
+ 280:modules/imu/ins_task.c ****     for (uint8_t i = 0; i < 3; ++i)
+ 603              		.loc 1 280 32 is_stmt 0 discriminator 3 view .LVU181
+ 604 021c DBB2     		uxtb	r3, r3
+ 605              	.LVL54:
+ 606              	.L19:
+ 280:modules/imu/ins_task.c ****     for (uint8_t i = 0; i < 3; ++i)
+ 607              		.loc 1 280 27 is_stmt 1 discriminator 1 view .LVU182
+ 608 021e 022B     		cmp	r3, #2
+ 609 0220 F3D9     		bls	.L20
+ 610              	.LBE6:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 17
+
+
+ 282:modules/imu/ins_task.c **** 
+ 283:modules/imu/ins_task.c ****     accel[X] = c_11 * accel_temp[X] +
+ 611              		.loc 1 283 5 view .LVU183
+ 612              		.loc 1 283 33 is_stmt 0 view .LVU184
+ 613 0222 9DED002A 		vldr.32	s4, [sp]
+ 614              		.loc 1 283 21 view .LVU185
+ 615 0226 26EE026A 		vmul.f32	s12, s12, s4
+ 284:modules/imu/ins_task.c ****                c_12 * accel_temp[Y] +
+ 616              		.loc 1 284 33 view .LVU186
+ 617 022a DDED015A 		vldr.32	s11, [sp, #4]
+ 618              		.loc 1 284 21 view .LVU187
+ 619 022e 62EEA52A 		vmul.f32	s5, s5, s11
+ 283:modules/imu/ins_task.c ****                c_12 * accel_temp[Y] +
+ 620              		.loc 1 283 37 view .LVU188
+ 621 0232 36EE226A 		vadd.f32	s12, s12, s5
+ 285:modules/imu/ins_task.c ****                c_13 * accel_temp[Z];
+ 622              		.loc 1 285 33 view .LVU189
+ 623 0236 DDED027A 		vldr.32	s15, [sp, #8]
+ 624              		.loc 1 285 21 view .LVU190
+ 625 023a 23EE273A 		vmul.f32	s6, s6, s15
+ 284:modules/imu/ins_task.c ****                c_12 * accel_temp[Y] +
+ 626              		.loc 1 284 37 view .LVU191
+ 627 023e 36EE036A 		vadd.f32	s12, s12, s6
+ 283:modules/imu/ins_task.c ****                c_12 * accel_temp[Y] +
+ 628              		.loc 1 283 14 view .LVU192
+ 629 0242 86ED006A 		vstr.32	s12, [r6]
+ 286:modules/imu/ins_task.c ****     accel[Y] = c_21 * accel_temp[X] +
+ 630              		.loc 1 286 5 is_stmt 1 view .LVU193
+ 631              		.loc 1 286 21 is_stmt 0 view .LVU194
+ 632 0246 66EE826A 		vmul.f32	s13, s13, s4
+ 287:modules/imu/ins_task.c ****                c_22 * accel_temp[Y] +
+ 633              		.loc 1 287 21 view .LVU195
+ 634 024a 63EEA53A 		vmul.f32	s7, s7, s11
+ 286:modules/imu/ins_task.c ****     accel[Y] = c_21 * accel_temp[X] +
+ 635              		.loc 1 286 37 view .LVU196
+ 636 024e 76EEA36A 		vadd.f32	s13, s13, s7
+ 288:modules/imu/ins_task.c ****                c_23 * accel_temp[Z];
+ 637              		.loc 1 288 21 view .LVU197
+ 638 0252 24EE274A 		vmul.f32	s8, s8, s15
+ 287:modules/imu/ins_task.c ****                c_22 * accel_temp[Y] +
+ 639              		.loc 1 287 37 view .LVU198
+ 640 0256 76EE846A 		vadd.f32	s13, s13, s8
+ 286:modules/imu/ins_task.c ****     accel[Y] = c_21 * accel_temp[X] +
+ 641              		.loc 1 286 14 view .LVU199
+ 642 025a C6ED016A 		vstr.32	s13, [r6, #4]
+ 289:modules/imu/ins_task.c ****     accel[Z] = c_31 * accel_temp[X] +
+ 643              		.loc 1 289 5 is_stmt 1 view .LVU200
+ 644              		.loc 1 289 21 is_stmt 0 view .LVU201
+ 645 025e 27EE027A 		vmul.f32	s14, s14, s4
+ 290:modules/imu/ins_task.c ****                c_32 * accel_temp[Y] +
+ 646              		.loc 1 290 21 view .LVU202
+ 647 0262 64EEA54A 		vmul.f32	s9, s9, s11
+ 289:modules/imu/ins_task.c ****     accel[Z] = c_31 * accel_temp[X] +
+ 648              		.loc 1 289 37 view .LVU203
+ 649 0266 37EE247A 		vadd.f32	s14, s14, s9
+ 291:modules/imu/ins_task.c ****                c_33 * accel_temp[Z];
+ 650              		.loc 1 291 21 view .LVU204
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 18
+
+
+ 651 026a 25EE275A 		vmul.f32	s10, s10, s15
+ 290:modules/imu/ins_task.c ****                c_32 * accel_temp[Y] +
+ 652              		.loc 1 290 37 view .LVU205
+ 653 026e 37EE057A 		vadd.f32	s14, s14, s10
+ 289:modules/imu/ins_task.c ****     accel[Z] = c_31 * accel_temp[X] +
+ 654              		.loc 1 289 14 view .LVU206
+ 655 0272 86ED027A 		vstr.32	s14, [r6, #8]
+ 292:modules/imu/ins_task.c **** 
+ 293:modules/imu/ins_task.c ****     lastYawOffset = param->Yaw;
+ 656              		.loc 1 293 5 is_stmt 1 view .LVU207
+ 657              		.loc 1 293 26 is_stmt 0 view .LVU208
+ 658 0276 2269     		ldr	r2, [r4, #16]	@ float
+ 659              		.loc 1 293 19 view .LVU209
+ 660 0278 054B     		ldr	r3, .L22
+ 661              	.LVL55:
+ 662              		.loc 1 293 19 view .LVU210
+ 663 027a 1A60     		str	r2, [r3]	@ float
+ 294:modules/imu/ins_task.c ****     lastPitchOffset = param->Pitch;
+ 664              		.loc 1 294 5 is_stmt 1 view .LVU211
+ 665              		.loc 1 294 28 is_stmt 0 view .LVU212
+ 666 027c 6269     		ldr	r2, [r4, #20]	@ float
+ 667              		.loc 1 294 21 view .LVU213
+ 668 027e 064B     		ldr	r3, .L22+8
+ 669 0280 1A60     		str	r2, [r3]	@ float
+ 295:modules/imu/ins_task.c ****     lastRollOffset = param->Roll;
+ 670              		.loc 1 295 5 is_stmt 1 view .LVU214
+ 671              		.loc 1 295 27 is_stmt 0 view .LVU215
+ 672 0282 A269     		ldr	r2, [r4, #24]	@ float
+ 673              		.loc 1 295 20 view .LVU216
+ 674 0284 054B     		ldr	r3, .L22+12
+ 675 0286 1A60     		str	r2, [r3]	@ float
+ 296:modules/imu/ins_task.c **** }
+ 676              		.loc 1 296 1 view .LVU217
+ 677 0288 06B0     		add	sp, sp, #24
+ 678              		.cfi_def_cfa_offset 40
+ 679              		@ sp needed
+ 680 028a BDEC068B 		vldm	sp!, {d8-d10}
+ 681              		.cfi_restore 84
+ 682              		.cfi_restore 85
+ 683              		.cfi_restore 82
+ 684              		.cfi_restore 83
+ 685              		.cfi_restore 80
+ 686              		.cfi_restore 81
+ 687              		.cfi_def_cfa_offset 16
+ 688 028e 70BD     		pop	{r4, r5, r6, pc}
+ 689              	.LVL56:
+ 690              	.L23:
+ 691              		.loc 1 296 1 view .LVU218
+ 692              		.align	2
+ 693              	.L22:
+ 694 0290 00000000 		.word	lastYawOffset.11
+ 695 0294 6F12833A 		.word	981668463
+ 696 0298 00000000 		.word	lastPitchOffset.10
+ 697 029c 00000000 		.word	lastRollOffset.9
+ 698 02a0 E12E6542 		.word	1113927393
+ 699 02a4 00000000 		.word	c_11.8
+ 700 02a8 00000000 		.word	c_12.7
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 19
+
+
+ 701 02ac 00000000 		.word	c_13.6
+ 702 02b0 00000000 		.word	c_21.5
+ 703 02b4 00000000 		.word	c_22.4
+ 704 02b8 00000000 		.word	c_23.3
+ 705 02bc 00000000 		.word	c_31.2
+ 706 02c0 00000000 		.word	c_32.1
+ 707 02c4 00000000 		.word	c_33.0
+ 708              		.cfi_endproc
+ 709              	.LFE283:
+ 711              		.section	.text.IMU_Temperature_Ctrl,"ax",%progbits
+ 712              		.align	1
+ 713              		.syntax unified
+ 714              		.thumb
+ 715              		.thumb_func
+ 717              	IMU_Temperature_Ctrl:
+ 718              	.LFB277:
+  48:modules/imu/ins_task.c ****     PIDCalculate(&TempCtrl, BMI088.Temperature, RefTemp);
+ 719              		.loc 1 48 1 is_stmt 1 view -0
+ 720              		.cfi_startproc
+ 721              		@ args = 0, pretend = 0, frame = 0
+ 722              		@ frame_needed = 0, uses_anonymous_args = 0
+ 723 0000 10B5     		push	{r4, lr}
+ 724              		.cfi_def_cfa_offset 8
+ 725              		.cfi_offset 4, -8
+ 726              		.cfi_offset 14, -4
+  49:modules/imu/ins_task.c ****     IMUPWMSet(float_constrain(float_rounding(TempCtrl.Output), 0, UINT32_MAX));
+ 727              		.loc 1 49 5 view .LVU220
+ 728 0002 0F4C     		ldr	r4, .L26
+ 729 0004 DFED0F0A 		vldr.32	s1, .L26+4
+ 730 0008 0F4B     		ldr	r3, .L26+8
+ 731 000a 93ED070A 		vldr.32	s0, [r3, #28]
+ 732 000e 2046     		mov	r0, r4
+ 733 0010 FFF7FEFF 		bl	PIDCalculate
+ 734              	.LVL57:
+  50:modules/imu/ins_task.c **** }
+ 735              		.loc 1 50 5 view .LVU221
+  50:modules/imu/ins_task.c **** }
+ 736              		.loc 1 50 31 is_stmt 0 view .LVU222
+ 737 0014 94ED140A 		vldr.32	s0, [r4, #80]
+ 738 0018 FFF7FEFF 		bl	float_rounding
+ 739              	.LVL58:
+ 740 001c 00EE100A 		vmov	s0, r0	@ int
+  50:modules/imu/ins_task.c **** }
+ 741              		.loc 1 50 15 discriminator 1 view .LVU223
+ 742 0020 9FED0A1A 		vldr.32	s2, .L26+12
+ 743 0024 DFED0A0A 		vldr.32	s1, .L26+16
+ 744 0028 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 745 002c FFF7FEFF 		bl	float_constrain
+ 746              	.LVL59:
+  50:modules/imu/ins_task.c **** }
+ 747              		.loc 1 50 5 discriminator 2 view .LVU224
+ 748 0030 BCEEC00A 		vcvt.u32.f32	s0, s0
+ 749 0034 10EE103A 		vmov	r3, s0	@ int
+ 750 0038 98B2     		uxth	r0, r3
+ 751 003a FFF7FEFF 		bl	IMUPWMSet
+ 752              	.LVL60:
+  51:modules/imu/ins_task.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 20
+
+
+ 753              		.loc 1 51 1 view .LVU225
+ 754 003e 10BD     		pop	{r4, pc}
+ 755              	.L27:
+ 756              		.align	2
+ 757              	.L26:
+ 758 0040 00000000 		.word	TempCtrl
+ 759 0044 00002042 		.word	1109393408
+ 760 0048 00000000 		.word	BMI088
+ 761 004c 0000804F 		.word	1333788672
+ 762 0050 00000000 		.word	0
+ 763              		.cfi_endproc
+ 764              	.LFE277:
+ 766              		.section	.text.INS_Init,"ax",%progbits
+ 767              		.align	1
+ 768              		.global	INS_Init
+ 769              		.syntax unified
+ 770              		.thumb
+ 771              		.thumb_func
+ 773              	INS_Init:
+ 774              	.LFB279:
+  81:modules/imu/ins_task.c ****     if (!INS.init)
+ 775              		.loc 1 81 1 is_stmt 1 view -0
+ 776              		.cfi_startproc
+ 777              		@ args = 0, pretend = 0, frame = 64
+ 778              		@ frame_needed = 0, uses_anonymous_args = 0
+  82:modules/imu/ins_task.c ****         INS.init = 1;
+ 779              		.loc 1 82 5 view .LVU227
+  82:modules/imu/ins_task.c ****         INS.init = 1;
+ 780              		.loc 1 82 13 is_stmt 0 view .LVU228
+ 781 0000 304B     		ldr	r3, .L36
+ 782 0002 93F87830 		ldrb	r3, [r3, #120]	@ zero_extendqisi2
+  82:modules/imu/ins_task.c ****         INS.init = 1;
+ 783              		.loc 1 82 8 view .LVU229
+ 784 0006 0BB1     		cbz	r3, .L35
+ 116:modules/imu/ins_task.c **** 
+ 785              		.loc 1 116 1 view .LVU230
+ 786 0008 2F48     		ldr	r0, .L36+4
+ 787 000a 7047     		bx	lr
+ 788              	.L35:
+  81:modules/imu/ins_task.c ****     if (!INS.init)
+ 789              		.loc 1 81 1 view .LVU231
+ 790 000c 70B5     		push	{r4, r5, r6, lr}
+ 791              		.cfi_def_cfa_offset 16
+ 792              		.cfi_offset 4, -16
+ 793              		.cfi_offset 5, -12
+ 794              		.cfi_offset 6, -8
+ 795              		.cfi_offset 14, -4
+ 796 000e 2DED028B 		vpush.64	{d8}
+ 797              		.cfi_def_cfa_offset 24
+ 798              		.cfi_offset 80, -24
+ 799              		.cfi_offset 81, -20
+ 800 0012 90B0     		sub	sp, sp, #64
+ 801              		.cfi_def_cfa_offset 88
+  83:modules/imu/ins_task.c ****     else
+ 802              		.loc 1 83 9 is_stmt 1 view .LVU232
+  83:modules/imu/ins_task.c ****     else
+ 803              		.loc 1 83 18 is_stmt 0 view .LVU233
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 21
+
+
+ 804 0014 2B4B     		ldr	r3, .L36
+ 805 0016 0122     		movs	r2, #1
+ 806 0018 83F87820 		strb	r2, [r3, #120]
+  87:modules/imu/ins_task.c **** 
+ 807              		.loc 1 87 5 is_stmt 1 view .LVU234
+ 808 001c 0021     		movs	r1, #0
+ 809 001e 2B48     		ldr	r0, .L36+8
+ 810 0020 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 811              	.LVL61:
+  89:modules/imu/ins_task.c ****         ;
+ 812              		.loc 1 89 5 view .LVU235
+ 813              	.L30:
+  89:modules/imu/ins_task.c ****         ;
+ 814              		.loc 1 89 34 discriminator 2 view .LVU236
+  89:modules/imu/ins_task.c ****         ;
+ 815              		.loc 1 89 12 is_stmt 0 discriminator 2 view .LVU237
+ 816 0024 0121     		movs	r1, #1
+ 817 0026 2A48     		ldr	r0, .L36+12
+ 818 0028 FFF7FEFF 		bl	BMI088Init
+ 819              	.LVL62:
+  89:modules/imu/ins_task.c ****         ;
+ 820              		.loc 1 89 34 discriminator 2 view .LVU238
+ 821 002c 0028     		cmp	r0, #0
+ 822 002e F9D1     		bne	.L30
+  91:modules/imu/ins_task.c ****     IMU_Param.scale[Y] = 1;
+ 823              		.loc 1 91 5 is_stmt 1 view .LVU239
+  91:modules/imu/ins_task.c ****     IMU_Param.scale[Y] = 1;
+ 824              		.loc 1 91 24 is_stmt 0 view .LVU240
+ 825 0030 284B     		ldr	r3, .L36+16
+ 826 0032 B7EE008A 		vmov.f32	s16, #1.0e+0
+ 827 0036 83ED018A 		vstr.32	s16, [r3, #4]
+  92:modules/imu/ins_task.c ****     IMU_Param.scale[Z] = 1;
+ 828              		.loc 1 92 5 is_stmt 1 view .LVU241
+  92:modules/imu/ins_task.c ****     IMU_Param.scale[Z] = 1;
+ 829              		.loc 1 92 24 is_stmt 0 view .LVU242
+ 830 003a 83ED028A 		vstr.32	s16, [r3, #8]
+  93:modules/imu/ins_task.c ****     IMU_Param.Yaw = 0;
+ 831              		.loc 1 93 5 is_stmt 1 view .LVU243
+  93:modules/imu/ins_task.c ****     IMU_Param.Yaw = 0;
+ 832              		.loc 1 93 24 is_stmt 0 view .LVU244
+ 833 003e 83ED038A 		vstr.32	s16, [r3, #12]
+  94:modules/imu/ins_task.c ****     IMU_Param.Pitch = 0;
+ 834              		.loc 1 94 5 is_stmt 1 view .LVU245
+  94:modules/imu/ins_task.c ****     IMU_Param.Pitch = 0;
+ 835              		.loc 1 94 19 is_stmt 0 view .LVU246
+ 836 0042 DFED258A 		vldr.32	s17, .L36+20
+ 837 0046 C3ED048A 		vstr.32	s17, [r3, #16]
+  95:modules/imu/ins_task.c ****     IMU_Param.Roll = 0;
+ 838              		.loc 1 95 5 is_stmt 1 view .LVU247
+  95:modules/imu/ins_task.c ****     IMU_Param.Roll = 0;
+ 839              		.loc 1 95 21 is_stmt 0 view .LVU248
+ 840 004a C3ED058A 		vstr.32	s17, [r3, #20]
+  96:modules/imu/ins_task.c ****     IMU_Param.flag = 1;
+ 841              		.loc 1 96 5 is_stmt 1 view .LVU249
+  96:modules/imu/ins_task.c ****     IMU_Param.flag = 1;
+ 842              		.loc 1 96 20 is_stmt 0 view .LVU250
+ 843 004e C3ED068A 		vstr.32	s17, [r3, #24]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 22
+
+
+  97:modules/imu/ins_task.c **** 
+ 844              		.loc 1 97 5 is_stmt 1 view .LVU251
+  97:modules/imu/ins_task.c **** 
+ 845              		.loc 1 97 20 is_stmt 0 view .LVU252
+ 846 0052 4FF00106 		mov	r6, #1
+ 847 0056 1E70     		strb	r6, [r3]
+  99:modules/imu/ins_task.c ****     InitQuaternion(init_quaternion);
+ 848              		.loc 1 99 5 is_stmt 1 view .LVU253
+  99:modules/imu/ins_task.c ****     InitQuaternion(init_quaternion);
+ 849              		.loc 1 99 11 is_stmt 0 view .LVU254
+ 850 0058 0CAD     		add	r5, sp, #48
+ 851 005a 0446     		mov	r4, r0
+ 852 005c 0C90     		str	r0, [sp, #48]
+ 853 005e 0D90     		str	r0, [sp, #52]
+ 854 0060 0E90     		str	r0, [sp, #56]
+ 855 0062 0F90     		str	r0, [sp, #60]
+ 100:modules/imu/ins_task.c ****     IMU_QuaternionEKF_Init(init_quaternion, 10, 0.001, 1000000, 1, 0);
+ 856              		.loc 1 100 5 is_stmt 1 view .LVU255
+ 857 0064 2846     		mov	r0, r5
+ 858 0066 FFF7FEFF 		bl	InitQuaternion
+ 859              	.LVL63:
+ 101:modules/imu/ins_task.c ****     // imu heat init
+ 860              		.loc 1 101 5 view .LVU256
+ 861 006a B0EE682A 		vmov.f32	s4, s17
+ 862 006e F0EE481A 		vmov.f32	s3, s16
+ 863 0072 9FED1A1A 		vldr.32	s2, .L36+24
+ 864 0076 DFED1A0A 		vldr.32	s1, .L36+28
+ 865 007a B2EE040A 		vmov.f32	s0, #1.0e+1
+ 866 007e 2846     		mov	r0, r5
+ 867 0080 FFF7FEFF 		bl	IMU_QuaternionEKF_Init
+ 868              	.LVL64:
+ 103:modules/imu/ins_task.c ****                                 .IntegralLimit = 300,
+ 869              		.loc 1 103 5 view .LVU257
+ 103:modules/imu/ins_task.c ****                                 .IntegralLimit = 300,
+ 870              		.loc 1 103 23 is_stmt 0 view .LVU258
+ 871 0084 01AD     		add	r5, sp, #4
+ 872 0086 2C22     		movs	r2, #44
+ 873 0088 2146     		mov	r1, r4
+ 874 008a 2846     		mov	r0, r5
+ 875 008c FFF7FEFF 		bl	memset
+ 876              	.LVL65:
+ 877 0090 144B     		ldr	r3, .L36+32
+ 878 0092 0193     		str	r3, [sp, #4]	@ float
+ 879 0094 144B     		ldr	r3, .L36+36
+ 880 0096 0293     		str	r3, [sp, #8]	@ float
+ 881 0098 144B     		ldr	r3, .L36+40
+ 882 009a 0493     		str	r3, [sp, #16]	@ float
+ 883 009c 8DF81860 		strb	r6, [sp, #24]
+ 884 00a0 134B     		ldr	r3, .L36+44
+ 885 00a2 0793     		str	r3, [sp, #28]	@ float
+ 110:modules/imu/ins_task.c **** 
+ 886              		.loc 1 110 5 is_stmt 1 view .LVU259
+ 887 00a4 2946     		mov	r1, r5
+ 888 00a6 1348     		ldr	r0, .L36+48
+ 889 00a8 FFF7FEFF 		bl	PIDInit
+ 890              	.LVL66:
+ 113:modules/imu/ins_task.c ****     DWT_GetDeltaT(&INS_DWT_Count);
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 23
+
+
+ 891              		.loc 1 113 5 view .LVU260
+ 113:modules/imu/ins_task.c ****     DWT_GetDeltaT(&INS_DWT_Count);
+ 892              		.loc 1 113 18 is_stmt 0 view .LVU261
+ 893 00ac 054B     		ldr	r3, .L36
+ 894 00ae 124A     		ldr	r2, .L36+52
+ 895 00b0 9A62     		str	r2, [r3, #40]	@ float
+ 114:modules/imu/ins_task.c ****     return (attitude_t *)&INS.Gyro; // @todo: 这里偷懒了,不要这样做! 修改INT_t结构体
+ 896              		.loc 1 114 5 is_stmt 1 view .LVU262
+ 897 00b2 1248     		ldr	r0, .L36+56
+ 898 00b4 FFF7FEFF 		bl	DWT_GetDeltaT
+ 899              	.LVL67:
+ 115:modules/imu/ins_task.c **** }
+ 900              		.loc 1 115 5 view .LVU263
+ 116:modules/imu/ins_task.c **** 
+ 901              		.loc 1 116 1 is_stmt 0 view .LVU264
+ 902 00b8 0348     		ldr	r0, .L36+4
+ 903 00ba 10B0     		add	sp, sp, #64
+ 904              		.cfi_def_cfa_offset 24
+ 905              		@ sp needed
+ 906 00bc BDEC028B 		vldm	sp!, {d8}
+ 907              		.cfi_restore 80
+ 908              		.cfi_restore 81
+ 909              		.cfi_def_cfa_offset 16
+ 910 00c0 70BD     		pop	{r4, r5, r6, pc}
+ 911              	.L37:
+ 912 00c2 00BF     		.align	2
+ 913              	.L36:
+ 914 00c4 00000000 		.word	INS
+ 915 00c8 50000000 		.word	INS+80
+ 916 00cc 00000000 		.word	htim10
+ 917 00d0 00000000 		.word	hspi1
+ 918 00d4 00000000 		.word	IMU_Param
+ 919 00d8 00000000 		.word	0
+ 920 00dc 00247449 		.word	1232348160
+ 921 00e0 6F12833A 		.word	981668463
+ 922 00e4 00007A44 		.word	1148846080
+ 923 00e8 0000A041 		.word	1101004800
+ 924 00ec 0000FA44 		.word	1157234688
+ 925 00f0 00009643 		.word	1133903872
+ 926 00f4 00000000 		.word	TempCtrl
+ 927 00f8 96430B3C 		.word	1007371158
+ 928 00fc 00000000 		.word	INS_DWT_Count
+ 929              		.cfi_endproc
+ 930              	.LFE279:
+ 932              		.section	.text.BodyFrameToEarthFrame,"ax",%progbits
+ 933              		.align	1
+ 934              		.global	BodyFrameToEarthFrame
+ 935              		.syntax unified
+ 936              		.thumb
+ 937              		.thumb_func
+ 939              	BodyFrameToEarthFrame:
+ 940              	.LVL68:
+ 941              	.LFB281:
+ 193:modules/imu/ins_task.c ****     vecEF[0] = 2.0f * ((0.5f - q[2] * q[2] - q[3] * q[3]) * vecBF[0] +
+ 942              		.loc 1 193 1 is_stmt 1 view -0
+ 943              		.cfi_startproc
+ 944              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 24
+
+
+ 945              		@ frame_needed = 0, uses_anonymous_args = 0
+ 946              		@ link register save eliminated.
+ 194:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 947              		.loc 1 194 5 view .LVU266
+ 194:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 948              		.loc 1 194 33 is_stmt 0 view .LVU267
+ 949 0000 92ED026A 		vldr.32	s12, [r2, #8]
+ 194:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 950              		.loc 1 194 37 view .LVU268
+ 951 0004 66EE067A 		vmul.f32	s15, s12, s12
+ 194:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 952              		.loc 1 194 30 view .LVU269
+ 953 0008 F6EE006A 		vmov.f32	s13, #5.0e-1
+ 954 000c 76EEE77A 		vsub.f32	s15, s13, s15
+ 194:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 955              		.loc 1 194 47 view .LVU270
+ 956 0010 92ED037A 		vldr.32	s14, [r2, #12]
+ 194:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 957              		.loc 1 194 51 view .LVU271
+ 958 0014 67EE075A 		vmul.f32	s11, s14, s14
+ 194:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 959              		.loc 1 194 44 view .LVU272
+ 960 0018 77EEE57A 		vsub.f32	s15, s15, s11
+ 194:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 961              		.loc 1 194 66 view .LVU273
+ 962 001c D0ED005A 		vldr.32	s11, [r0]
+ 194:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 963              		.loc 1 194 59 view .LVU274
+ 964 0020 67EEA57A 		vmul.f32	s15, s15, s11
+ 195:modules/imu/ins_task.c ****                        (q[1] * q[3] + q[0] * q[2]) * vecBF[2]);
+ 965              		.loc 1 195 26 view .LVU275
+ 966 0024 D2ED014A 		vldr.32	s9, [r2, #4]
+ 195:modules/imu/ins_task.c ****                        (q[1] * q[3] + q[0] * q[2]) * vecBF[2]);
+ 967              		.loc 1 195 30 view .LVU276
+ 968 0028 66EE245A 		vmul.f32	s11, s12, s9
+ 195:modules/imu/ins_task.c ****                        (q[1] * q[3] + q[0] * q[2]) * vecBF[2]);
+ 969              		.loc 1 195 40 view .LVU277
+ 970 002c 92ED005A 		vldr.32	s10, [r2]
+ 195:modules/imu/ins_task.c ****                        (q[1] * q[3] + q[0] * q[2]) * vecBF[2]);
+ 971              		.loc 1 195 44 view .LVU278
+ 972 0030 27EE054A 		vmul.f32	s8, s14, s10
+ 195:modules/imu/ins_task.c ****                        (q[1] * q[3] + q[0] * q[2]) * vecBF[2]);
+ 973              		.loc 1 195 37 view .LVU279
+ 974 0034 75EEC45A 		vsub.f32	s11, s11, s8
+ 195:modules/imu/ins_task.c ****                        (q[1] * q[3] + q[0] * q[2]) * vecBF[2]);
+ 975              		.loc 1 195 59 view .LVU280
+ 976 0038 90ED014A 		vldr.32	s8, [r0, #4]
+ 195:modules/imu/ins_task.c ****                        (q[1] * q[3] + q[0] * q[2]) * vecBF[2]);
+ 977              		.loc 1 195 52 view .LVU281
+ 978 003c 65EE845A 		vmul.f32	s11, s11, s8
+ 194:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 979              		.loc 1 194 70 view .LVU282
+ 980 0040 77EEA57A 		vadd.f32	s15, s15, s11
+ 196:modules/imu/ins_task.c **** 
+ 981              		.loc 1 196 30 view .LVU283
+ 982 0044 27EE247A 		vmul.f32	s14, s14, s9
+ 196:modules/imu/ins_task.c **** 
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 25
+
+
+ 983              		.loc 1 196 44 view .LVU284
+ 984 0048 26EE056A 		vmul.f32	s12, s12, s10
+ 196:modules/imu/ins_task.c **** 
+ 985              		.loc 1 196 37 view .LVU285
+ 986 004c 37EE067A 		vadd.f32	s14, s14, s12
+ 196:modules/imu/ins_task.c **** 
+ 987              		.loc 1 196 59 view .LVU286
+ 988 0050 90ED026A 		vldr.32	s12, [r0, #8]
+ 196:modules/imu/ins_task.c **** 
+ 989              		.loc 1 196 52 view .LVU287
+ 990 0054 27EE067A 		vmul.f32	s14, s14, s12
+ 195:modules/imu/ins_task.c ****                        (q[1] * q[3] + q[0] * q[2]) * vecBF[2]);
+ 991              		.loc 1 195 63 view .LVU288
+ 992 0058 77EE877A 		vadd.f32	s15, s15, s14
+ 194:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 993              		.loc 1 194 21 view .LVU289
+ 994 005c 77EEA77A 		vadd.f32	s15, s15, s15
+ 194:modules/imu/ins_task.c ****                        (q[1] * q[2] - q[0] * q[3]) * vecBF[1] +
+ 995              		.loc 1 194 14 view .LVU290
+ 996 0060 C1ED007A 		vstr.32	s15, [r1]
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 997              		.loc 1 198 5 is_stmt 1 view .LVU291
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 998              		.loc 1 198 26 is_stmt 0 view .LVU292
+ 999 0064 D2ED015A 		vldr.32	s11, [r2, #4]
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 1000              		.loc 1 198 33 view .LVU293
+ 1001 0068 92ED027A 		vldr.32	s14, [r2, #8]
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 1002              		.loc 1 198 30 view .LVU294
+ 1003 006c 65EE877A 		vmul.f32	s15, s11, s14
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 1004              		.loc 1 198 40 view .LVU295
+ 1005 0070 D2ED004A 		vldr.32	s9, [r2]
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 1006              		.loc 1 198 47 view .LVU296
+ 1007 0074 92ED035A 		vldr.32	s10, [r2, #12]
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 1008              		.loc 1 198 44 view .LVU297
+ 1009 0078 24EE856A 		vmul.f32	s12, s9, s10
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 1010              		.loc 1 198 37 view .LVU298
+ 1011 007c 77EE867A 		vadd.f32	s15, s15, s12
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 1012              		.loc 1 198 59 view .LVU299
+ 1013 0080 90ED006A 		vldr.32	s12, [r0]
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 1014              		.loc 1 198 52 view .LVU300
+ 1015 0084 67EE867A 		vmul.f32	s15, s15, s12
+ 199:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecBF[2]);
+ 1016              		.loc 1 199 37 view .LVU301
+ 1017 0088 25EEA56A 		vmul.f32	s12, s11, s11
+ 199:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecBF[2]);
+ 1018              		.loc 1 199 30 view .LVU302
+ 1019 008c 36EEC66A 		vsub.f32	s12, s13, s12
+ 199:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecBF[2]);
+ 1020              		.loc 1 199 51 view .LVU303
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 26
+
+
+ 1021 0090 25EE054A 		vmul.f32	s8, s10, s10
+ 199:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecBF[2]);
+ 1022              		.loc 1 199 44 view .LVU304
+ 1023 0094 36EE446A 		vsub.f32	s12, s12, s8
+ 199:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecBF[2]);
+ 1024              		.loc 1 199 66 view .LVU305
+ 1025 0098 90ED014A 		vldr.32	s8, [r0, #4]
+ 199:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecBF[2]);
+ 1026              		.loc 1 199 59 view .LVU306
+ 1027 009c 26EE046A 		vmul.f32	s12, s12, s8
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 1028              		.loc 1 198 63 view .LVU307
+ 1029 00a0 77EE867A 		vadd.f32	s15, s15, s12
+ 200:modules/imu/ins_task.c **** 
+ 1030              		.loc 1 200 30 view .LVU308
+ 1031 00a4 27EE057A 		vmul.f32	s14, s14, s10
+ 200:modules/imu/ins_task.c **** 
+ 1032              		.loc 1 200 44 view .LVU309
+ 1033 00a8 65EEA45A 		vmul.f32	s11, s11, s9
+ 200:modules/imu/ins_task.c **** 
+ 1034              		.loc 1 200 37 view .LVU310
+ 1035 00ac 37EE657A 		vsub.f32	s14, s14, s11
+ 200:modules/imu/ins_task.c **** 
+ 1036              		.loc 1 200 59 view .LVU311
+ 1037 00b0 90ED026A 		vldr.32	s12, [r0, #8]
+ 200:modules/imu/ins_task.c **** 
+ 1038              		.loc 1 200 52 view .LVU312
+ 1039 00b4 27EE067A 		vmul.f32	s14, s14, s12
+ 199:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecBF[2]);
+ 1040              		.loc 1 199 70 view .LVU313
+ 1041 00b8 77EE877A 		vadd.f32	s15, s15, s14
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 1042              		.loc 1 198 21 view .LVU314
+ 1043 00bc 77EEA77A 		vadd.f32	s15, s15, s15
+ 198:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecBF[1] +
+ 1044              		.loc 1 198 14 view .LVU315
+ 1045 00c0 C1ED017A 		vstr.32	s15, [r1, #4]
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1046              		.loc 1 202 5 is_stmt 1 view .LVU316
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1047              		.loc 1 202 26 is_stmt 0 view .LVU317
+ 1048 00c4 D2ED015A 		vldr.32	s11, [r2, #4]
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1049              		.loc 1 202 33 view .LVU318
+ 1050 00c8 92ED037A 		vldr.32	s14, [r2, #12]
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1051              		.loc 1 202 30 view .LVU319
+ 1052 00cc 65EE877A 		vmul.f32	s15, s11, s14
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1053              		.loc 1 202 40 view .LVU320
+ 1054 00d0 92ED005A 		vldr.32	s10, [r2]
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1055              		.loc 1 202 47 view .LVU321
+ 1056 00d4 92ED026A 		vldr.32	s12, [r2, #8]
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1057              		.loc 1 202 44 view .LVU322
+ 1058 00d8 65EE064A 		vmul.f32	s9, s10, s12
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 27
+
+
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1059              		.loc 1 202 37 view .LVU323
+ 1060 00dc 77EEE47A 		vsub.f32	s15, s15, s9
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1061              		.loc 1 202 59 view .LVU324
+ 1062 00e0 D0ED004A 		vldr.32	s9, [r0]
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1063              		.loc 1 202 52 view .LVU325
+ 1064 00e4 67EEA47A 		vmul.f32	s15, s15, s9
+ 203:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecBF[2]);
+ 1065              		.loc 1 203 30 view .LVU326
+ 1066 00e8 27EE067A 		vmul.f32	s14, s14, s12
+ 203:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecBF[2]);
+ 1067              		.loc 1 203 44 view .LVU327
+ 1068 00ec 25EE855A 		vmul.f32	s10, s11, s10
+ 203:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecBF[2]);
+ 1069              		.loc 1 203 37 view .LVU328
+ 1070 00f0 37EE057A 		vadd.f32	s14, s14, s10
+ 203:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecBF[2]);
+ 1071              		.loc 1 203 59 view .LVU329
+ 1072 00f4 90ED015A 		vldr.32	s10, [r0, #4]
+ 203:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecBF[2]);
+ 1073              		.loc 1 203 52 view .LVU330
+ 1074 00f8 27EE057A 		vmul.f32	s14, s14, s10
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1075              		.loc 1 202 63 view .LVU331
+ 1076 00fc 77EE877A 		vadd.f32	s15, s15, s14
+ 204:modules/imu/ins_task.c **** }
+ 1077              		.loc 1 204 37 view .LVU332
+ 1078 0100 65EEA55A 		vmul.f32	s11, s11, s11
+ 204:modules/imu/ins_task.c **** }
+ 1079              		.loc 1 204 30 view .LVU333
+ 1080 0104 76EEE56A 		vsub.f32	s13, s13, s11
+ 204:modules/imu/ins_task.c **** }
+ 1081              		.loc 1 204 51 view .LVU334
+ 1082 0108 26EE066A 		vmul.f32	s12, s12, s12
+ 204:modules/imu/ins_task.c **** }
+ 1083              		.loc 1 204 44 view .LVU335
+ 1084 010c 76EEC66A 		vsub.f32	s13, s13, s12
+ 204:modules/imu/ins_task.c **** }
+ 1085              		.loc 1 204 66 view .LVU336
+ 1086 0110 90ED027A 		vldr.32	s14, [r0, #8]
+ 204:modules/imu/ins_task.c **** }
+ 1087              		.loc 1 204 59 view .LVU337
+ 1088 0114 66EE876A 		vmul.f32	s13, s13, s14
+ 203:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecBF[2]);
+ 1089              		.loc 1 203 63 view .LVU338
+ 1090 0118 77EEA67A 		vadd.f32	s15, s15, s13
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1091              		.loc 1 202 21 view .LVU339
+ 1092 011c 77EEA77A 		vadd.f32	s15, s15, s15
+ 202:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecBF[1] +
+ 1093              		.loc 1 202 14 view .LVU340
+ 1094 0120 C1ED027A 		vstr.32	s15, [r1, #8]
+ 205:modules/imu/ins_task.c **** 
+ 1095              		.loc 1 205 1 view .LVU341
+ 1096 0124 7047     		bx	lr
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 28
+
+
+ 1097              		.cfi_endproc
+ 1098              	.LFE281:
+ 1100              		.section	.text.EarthFrameToBodyFrame,"ax",%progbits
+ 1101              		.align	1
+ 1102              		.global	EarthFrameToBodyFrame
+ 1103              		.syntax unified
+ 1104              		.thumb
+ 1105              		.thumb_func
+ 1107              	EarthFrameToBodyFrame:
+ 1108              	.LVL69:
+ 1109              	.LFB282:
+ 214:modules/imu/ins_task.c ****     vecBF[0] = 2.0f * ((0.5f - q[2] * q[2] - q[3] * q[3]) * vecEF[0] +
+ 1110              		.loc 1 214 1 is_stmt 1 view -0
+ 1111              		.cfi_startproc
+ 1112              		@ args = 0, pretend = 0, frame = 0
+ 1113              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1114              		@ link register save eliminated.
+ 215:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 1115              		.loc 1 215 5 view .LVU343
+ 215:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 1116              		.loc 1 215 33 is_stmt 0 view .LVU344
+ 1117 0000 92ED026A 		vldr.32	s12, [r2, #8]
+ 215:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 1118              		.loc 1 215 37 view .LVU345
+ 1119 0004 66EE067A 		vmul.f32	s15, s12, s12
+ 215:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 1120              		.loc 1 215 30 view .LVU346
+ 1121 0008 F6EE006A 		vmov.f32	s13, #5.0e-1
+ 1122 000c 76EEE77A 		vsub.f32	s15, s13, s15
+ 215:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 1123              		.loc 1 215 47 view .LVU347
+ 1124 0010 92ED037A 		vldr.32	s14, [r2, #12]
+ 215:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 1125              		.loc 1 215 51 view .LVU348
+ 1126 0014 67EE075A 		vmul.f32	s11, s14, s14
+ 215:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 1127              		.loc 1 215 44 view .LVU349
+ 1128 0018 77EEE57A 		vsub.f32	s15, s15, s11
+ 215:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 1129              		.loc 1 215 66 view .LVU350
+ 1130 001c D0ED005A 		vldr.32	s11, [r0]
+ 215:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 1131              		.loc 1 215 59 view .LVU351
+ 1132 0020 67EEA57A 		vmul.f32	s15, s15, s11
+ 216:modules/imu/ins_task.c ****                        (q[1] * q[3] - q[0] * q[2]) * vecEF[2]);
+ 1133              		.loc 1 216 26 view .LVU352
+ 1134 0024 D2ED014A 		vldr.32	s9, [r2, #4]
+ 216:modules/imu/ins_task.c ****                        (q[1] * q[3] - q[0] * q[2]) * vecEF[2]);
+ 1135              		.loc 1 216 30 view .LVU353
+ 1136 0028 66EE245A 		vmul.f32	s11, s12, s9
+ 216:modules/imu/ins_task.c ****                        (q[1] * q[3] - q[0] * q[2]) * vecEF[2]);
+ 1137              		.loc 1 216 40 view .LVU354
+ 1138 002c 92ED005A 		vldr.32	s10, [r2]
+ 216:modules/imu/ins_task.c ****                        (q[1] * q[3] - q[0] * q[2]) * vecEF[2]);
+ 1139              		.loc 1 216 44 view .LVU355
+ 1140 0030 27EE054A 		vmul.f32	s8, s14, s10
+ 216:modules/imu/ins_task.c ****                        (q[1] * q[3] - q[0] * q[2]) * vecEF[2]);
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 29
+
+
+ 1141              		.loc 1 216 37 view .LVU356
+ 1142 0034 75EE845A 		vadd.f32	s11, s11, s8
+ 216:modules/imu/ins_task.c ****                        (q[1] * q[3] - q[0] * q[2]) * vecEF[2]);
+ 1143              		.loc 1 216 59 view .LVU357
+ 1144 0038 90ED014A 		vldr.32	s8, [r0, #4]
+ 216:modules/imu/ins_task.c ****                        (q[1] * q[3] - q[0] * q[2]) * vecEF[2]);
+ 1145              		.loc 1 216 52 view .LVU358
+ 1146 003c 65EE845A 		vmul.f32	s11, s11, s8
+ 215:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 1147              		.loc 1 215 70 view .LVU359
+ 1148 0040 77EEA57A 		vadd.f32	s15, s15, s11
+ 217:modules/imu/ins_task.c **** 
+ 1149              		.loc 1 217 30 view .LVU360
+ 1150 0044 27EE247A 		vmul.f32	s14, s14, s9
+ 217:modules/imu/ins_task.c **** 
+ 1151              		.loc 1 217 44 view .LVU361
+ 1152 0048 26EE056A 		vmul.f32	s12, s12, s10
+ 217:modules/imu/ins_task.c **** 
+ 1153              		.loc 1 217 37 view .LVU362
+ 1154 004c 37EE467A 		vsub.f32	s14, s14, s12
+ 217:modules/imu/ins_task.c **** 
+ 1155              		.loc 1 217 59 view .LVU363
+ 1156 0050 90ED026A 		vldr.32	s12, [r0, #8]
+ 217:modules/imu/ins_task.c **** 
+ 1157              		.loc 1 217 52 view .LVU364
+ 1158 0054 27EE067A 		vmul.f32	s14, s14, s12
+ 216:modules/imu/ins_task.c ****                        (q[1] * q[3] - q[0] * q[2]) * vecEF[2]);
+ 1159              		.loc 1 216 63 view .LVU365
+ 1160 0058 77EE877A 		vadd.f32	s15, s15, s14
+ 215:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 1161              		.loc 1 215 21 view .LVU366
+ 1162 005c 77EEA77A 		vadd.f32	s15, s15, s15
+ 215:modules/imu/ins_task.c ****                        (q[1] * q[2] + q[0] * q[3]) * vecEF[1] +
+ 1163              		.loc 1 215 14 view .LVU367
+ 1164 0060 C1ED007A 		vstr.32	s15, [r1]
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1165              		.loc 1 219 5 is_stmt 1 view .LVU368
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1166              		.loc 1 219 26 is_stmt 0 view .LVU369
+ 1167 0064 D2ED015A 		vldr.32	s11, [r2, #4]
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1168              		.loc 1 219 33 view .LVU370
+ 1169 0068 92ED027A 		vldr.32	s14, [r2, #8]
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1170              		.loc 1 219 30 view .LVU371
+ 1171 006c 65EE877A 		vmul.f32	s15, s11, s14
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1172              		.loc 1 219 40 view .LVU372
+ 1173 0070 D2ED004A 		vldr.32	s9, [r2]
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1174              		.loc 1 219 47 view .LVU373
+ 1175 0074 92ED035A 		vldr.32	s10, [r2, #12]
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1176              		.loc 1 219 44 view .LVU374
+ 1177 0078 24EE856A 		vmul.f32	s12, s9, s10
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1178              		.loc 1 219 37 view .LVU375
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 30
+
+
+ 1179 007c 77EEC67A 		vsub.f32	s15, s15, s12
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1180              		.loc 1 219 59 view .LVU376
+ 1181 0080 90ED006A 		vldr.32	s12, [r0]
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1182              		.loc 1 219 52 view .LVU377
+ 1183 0084 67EE867A 		vmul.f32	s15, s15, s12
+ 220:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecEF[2]);
+ 1184              		.loc 1 220 37 view .LVU378
+ 1185 0088 25EEA56A 		vmul.f32	s12, s11, s11
+ 220:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecEF[2]);
+ 1186              		.loc 1 220 30 view .LVU379
+ 1187 008c 36EEC66A 		vsub.f32	s12, s13, s12
+ 220:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecEF[2]);
+ 1188              		.loc 1 220 51 view .LVU380
+ 1189 0090 25EE054A 		vmul.f32	s8, s10, s10
+ 220:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecEF[2]);
+ 1190              		.loc 1 220 44 view .LVU381
+ 1191 0094 36EE446A 		vsub.f32	s12, s12, s8
+ 220:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecEF[2]);
+ 1192              		.loc 1 220 66 view .LVU382
+ 1193 0098 90ED014A 		vldr.32	s8, [r0, #4]
+ 220:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecEF[2]);
+ 1194              		.loc 1 220 59 view .LVU383
+ 1195 009c 26EE046A 		vmul.f32	s12, s12, s8
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1196              		.loc 1 219 63 view .LVU384
+ 1197 00a0 77EE867A 		vadd.f32	s15, s15, s12
+ 221:modules/imu/ins_task.c **** 
+ 1198              		.loc 1 221 30 view .LVU385
+ 1199 00a4 27EE057A 		vmul.f32	s14, s14, s10
+ 221:modules/imu/ins_task.c **** 
+ 1200              		.loc 1 221 44 view .LVU386
+ 1201 00a8 65EEA45A 		vmul.f32	s11, s11, s9
+ 221:modules/imu/ins_task.c **** 
+ 1202              		.loc 1 221 37 view .LVU387
+ 1203 00ac 37EE257A 		vadd.f32	s14, s14, s11
+ 221:modules/imu/ins_task.c **** 
+ 1204              		.loc 1 221 59 view .LVU388
+ 1205 00b0 90ED026A 		vldr.32	s12, [r0, #8]
+ 221:modules/imu/ins_task.c **** 
+ 1206              		.loc 1 221 52 view .LVU389
+ 1207 00b4 27EE067A 		vmul.f32	s14, s14, s12
+ 220:modules/imu/ins_task.c ****                        (q[2] * q[3] + q[0] * q[1]) * vecEF[2]);
+ 1208              		.loc 1 220 70 view .LVU390
+ 1209 00b8 77EE877A 		vadd.f32	s15, s15, s14
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1210              		.loc 1 219 21 view .LVU391
+ 1211 00bc 77EEA77A 		vadd.f32	s15, s15, s15
+ 219:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[3] * q[3]) * vecEF[1] +
+ 1212              		.loc 1 219 14 view .LVU392
+ 1213 00c0 C1ED017A 		vstr.32	s15, [r1, #4]
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1214              		.loc 1 223 5 is_stmt 1 view .LVU393
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1215              		.loc 1 223 26 is_stmt 0 view .LVU394
+ 1216 00c4 D2ED015A 		vldr.32	s11, [r2, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 31
+
+
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1217              		.loc 1 223 33 view .LVU395
+ 1218 00c8 92ED037A 		vldr.32	s14, [r2, #12]
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1219              		.loc 1 223 30 view .LVU396
+ 1220 00cc 65EE877A 		vmul.f32	s15, s11, s14
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1221              		.loc 1 223 40 view .LVU397
+ 1222 00d0 92ED005A 		vldr.32	s10, [r2]
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1223              		.loc 1 223 47 view .LVU398
+ 1224 00d4 92ED026A 		vldr.32	s12, [r2, #8]
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1225              		.loc 1 223 44 view .LVU399
+ 1226 00d8 65EE064A 		vmul.f32	s9, s10, s12
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1227              		.loc 1 223 37 view .LVU400
+ 1228 00dc 77EEA47A 		vadd.f32	s15, s15, s9
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1229              		.loc 1 223 59 view .LVU401
+ 1230 00e0 D0ED004A 		vldr.32	s9, [r0]
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1231              		.loc 1 223 52 view .LVU402
+ 1232 00e4 67EEA47A 		vmul.f32	s15, s15, s9
+ 224:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecEF[2]);
+ 1233              		.loc 1 224 30 view .LVU403
+ 1234 00e8 27EE067A 		vmul.f32	s14, s14, s12
+ 224:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecEF[2]);
+ 1235              		.loc 1 224 44 view .LVU404
+ 1236 00ec 25EE855A 		vmul.f32	s10, s11, s10
+ 224:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecEF[2]);
+ 1237              		.loc 1 224 37 view .LVU405
+ 1238 00f0 37EE457A 		vsub.f32	s14, s14, s10
+ 224:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecEF[2]);
+ 1239              		.loc 1 224 59 view .LVU406
+ 1240 00f4 90ED015A 		vldr.32	s10, [r0, #4]
+ 224:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecEF[2]);
+ 1241              		.loc 1 224 52 view .LVU407
+ 1242 00f8 27EE057A 		vmul.f32	s14, s14, s10
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1243              		.loc 1 223 63 view .LVU408
+ 1244 00fc 77EE877A 		vadd.f32	s15, s15, s14
+ 225:modules/imu/ins_task.c **** }
+ 1245              		.loc 1 225 37 view .LVU409
+ 1246 0100 65EEA55A 		vmul.f32	s11, s11, s11
+ 225:modules/imu/ins_task.c **** }
+ 1247              		.loc 1 225 30 view .LVU410
+ 1248 0104 76EEE56A 		vsub.f32	s13, s13, s11
+ 225:modules/imu/ins_task.c **** }
+ 1249              		.loc 1 225 51 view .LVU411
+ 1250 0108 26EE066A 		vmul.f32	s12, s12, s12
+ 225:modules/imu/ins_task.c **** }
+ 1251              		.loc 1 225 44 view .LVU412
+ 1252 010c 76EEC66A 		vsub.f32	s13, s13, s12
+ 225:modules/imu/ins_task.c **** }
+ 1253              		.loc 1 225 66 view .LVU413
+ 1254 0110 90ED027A 		vldr.32	s14, [r0, #8]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 32
+
+
+ 225:modules/imu/ins_task.c **** }
+ 1255              		.loc 1 225 59 view .LVU414
+ 1256 0114 66EE876A 		vmul.f32	s13, s13, s14
+ 224:modules/imu/ins_task.c ****                        (0.5f - q[1] * q[1] - q[2] * q[2]) * vecEF[2]);
+ 1257              		.loc 1 224 63 view .LVU415
+ 1258 0118 77EEA67A 		vadd.f32	s15, s15, s13
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1259              		.loc 1 223 21 view .LVU416
+ 1260 011c 77EEA77A 		vadd.f32	s15, s15, s15
+ 223:modules/imu/ins_task.c ****                        (q[2] * q[3] - q[0] * q[1]) * vecEF[1] +
+ 1261              		.loc 1 223 14 view .LVU417
+ 1262 0120 C1ED027A 		vstr.32	s15, [r1, #8]
+ 226:modules/imu/ins_task.c **** 
+ 1263              		.loc 1 226 1 view .LVU418
+ 1264 0124 7047     		bx	lr
+ 1265              		.cfi_endproc
+ 1266              	.LFE282:
+ 1268              		.section	.text.INS_Task,"ax",%progbits
+ 1269              		.align	1
+ 1270              		.global	INS_Task
+ 1271              		.syntax unified
+ 1272              		.thumb
+ 1273              		.thumb_func
+ 1275              	INS_Task:
+ 1276              	.LFB280:
+ 120:modules/imu/ins_task.c ****     static uint32_t count = 0;
+ 1277              		.loc 1 120 1 is_stmt 1 view -0
+ 1278              		.cfi_startproc
+ 1279              		@ args = 0, pretend = 0, frame = 24
+ 1280              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1281 0000 70B5     		push	{r4, r5, r6, lr}
+ 1282              		.cfi_def_cfa_offset 16
+ 1283              		.cfi_offset 4, -16
+ 1284              		.cfi_offset 5, -12
+ 1285              		.cfi_offset 6, -8
+ 1286              		.cfi_offset 14, -4
+ 1287 0002 86B0     		sub	sp, sp, #24
+ 1288              		.cfi_def_cfa_offset 40
+ 121:modules/imu/ins_task.c ****     const float gravity[3] = {0, 0, 9.81f};
+ 1289              		.loc 1 121 5 view .LVU420
+ 122:modules/imu/ins_task.c **** 
+ 1290              		.loc 1 122 5 view .LVU421
+ 122:modules/imu/ins_task.c **** 
+ 1291              		.loc 1 122 17 is_stmt 0 view .LVU422
+ 1292 0004 0023     		movs	r3, #0
+ 1293 0006 0393     		str	r3, [sp, #12]	@ float
+ 1294 0008 0493     		str	r3, [sp, #16]	@ float
+ 1295 000a 534B     		ldr	r3, .L46
+ 1296 000c 0593     		str	r3, [sp, #20]	@ float
+ 124:modules/imu/ins_task.c ****     t += dt;
+ 1297              		.loc 1 124 5 is_stmt 1 view .LVU423
+ 124:modules/imu/ins_task.c ****     t += dt;
+ 1298              		.loc 1 124 10 is_stmt 0 view .LVU424
+ 1299 000e 5348     		ldr	r0, .L46+4
+ 1300 0010 FFF7FEFF 		bl	DWT_GetDeltaT
+ 1301              	.LVL70:
+ 124:modules/imu/ins_task.c ****     t += dt;
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 33
+
+
+ 1302              		.loc 1 124 8 discriminator 1 view .LVU425
+ 1303 0014 524E     		ldr	r6, .L46+8
+ 1304 0016 86ED000A 		vstr.32	s0, [r6]
+ 125:modules/imu/ins_task.c **** 
+ 1305              		.loc 1 125 5 is_stmt 1 view .LVU426
+ 125:modules/imu/ins_task.c **** 
+ 1306              		.loc 1 125 7 is_stmt 0 view .LVU427
+ 1307 001a 524B     		ldr	r3, .L46+12
+ 1308 001c D3ED007A 		vldr.32	s15, [r3]
+ 1309 0020 77EE807A 		vadd.f32	s15, s15, s0
+ 1310 0024 C3ED007A 		vstr.32	s15, [r3]
+ 128:modules/imu/ins_task.c ****     {
+ 1311              		.loc 1 128 5 is_stmt 1 view .LVU428
+ 1312              	.LBB7:
+ 130:modules/imu/ins_task.c **** 
+ 1313              		.loc 1 130 9 view .LVU429
+ 1314 0028 4F4D     		ldr	r5, .L46+16
+ 1315 002a 2846     		mov	r0, r5
+ 1316 002c FFF7FEFF 		bl	BMI088_Read
+ 1317              	.LVL71:
+ 132:modules/imu/ins_task.c ****         INS.Accel[Y] = BMI088.Accel[Y];
+ 1318              		.loc 1 132 9 view .LVU430
+ 132:modules/imu/ins_task.c ****         INS.Accel[Y] = BMI088.Accel[Y];
+ 1319              		.loc 1 132 36 is_stmt 0 view .LVU431
+ 1320 0030 2B68     		ldr	r3, [r5]	@ float
+ 132:modules/imu/ins_task.c ****         INS.Accel[Y] = BMI088.Accel[Y];
+ 1321              		.loc 1 132 22 view .LVU432
+ 1322 0032 4E4C     		ldr	r4, .L46+20
+ 1323 0034 E365     		str	r3, [r4, #92]	@ float
+ 133:modules/imu/ins_task.c ****         INS.Accel[Z] = BMI088.Accel[Z];
+ 1324              		.loc 1 133 9 is_stmt 1 view .LVU433
+ 133:modules/imu/ins_task.c ****         INS.Accel[Z] = BMI088.Accel[Z];
+ 1325              		.loc 1 133 36 is_stmt 0 view .LVU434
+ 1326 0036 6B68     		ldr	r3, [r5, #4]	@ float
+ 133:modules/imu/ins_task.c ****         INS.Accel[Z] = BMI088.Accel[Z];
+ 1327              		.loc 1 133 22 view .LVU435
+ 1328 0038 2366     		str	r3, [r4, #96]	@ float
+ 134:modules/imu/ins_task.c ****         INS.Gyro[X] = BMI088.Gyro[X];
+ 1329              		.loc 1 134 9 is_stmt 1 view .LVU436
+ 134:modules/imu/ins_task.c ****         INS.Gyro[X] = BMI088.Gyro[X];
+ 1330              		.loc 1 134 36 is_stmt 0 view .LVU437
+ 1331 003a AB68     		ldr	r3, [r5, #8]	@ float
+ 134:modules/imu/ins_task.c ****         INS.Gyro[X] = BMI088.Gyro[X];
+ 1332              		.loc 1 134 22 view .LVU438
+ 1333 003c 6366     		str	r3, [r4, #100]	@ float
+ 135:modules/imu/ins_task.c ****         INS.Gyro[Y] = BMI088.Gyro[Y];
+ 1334              		.loc 1 135 9 is_stmt 1 view .LVU439
+ 135:modules/imu/ins_task.c ****         INS.Gyro[Y] = BMI088.Gyro[Y];
+ 1335              		.loc 1 135 34 is_stmt 0 view .LVU440
+ 1336 003e EB68     		ldr	r3, [r5, #12]	@ float
+ 135:modules/imu/ins_task.c ****         INS.Gyro[Y] = BMI088.Gyro[Y];
+ 1337              		.loc 1 135 21 view .LVU441
+ 1338 0040 2365     		str	r3, [r4, #80]	@ float
+ 136:modules/imu/ins_task.c ****         INS.Gyro[Z] = BMI088.Gyro[Z];
+ 1339              		.loc 1 136 9 is_stmt 1 view .LVU442
+ 136:modules/imu/ins_task.c ****         INS.Gyro[Z] = BMI088.Gyro[Z];
+ 1340              		.loc 1 136 34 is_stmt 0 view .LVU443
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 34
+
+
+ 1341 0042 2B69     		ldr	r3, [r5, #16]	@ float
+ 136:modules/imu/ins_task.c ****         INS.Gyro[Z] = BMI088.Gyro[Z];
+ 1342              		.loc 1 136 21 view .LVU444
+ 1343 0044 6365     		str	r3, [r4, #84]	@ float
+ 137:modules/imu/ins_task.c **** 
+ 1344              		.loc 1 137 9 is_stmt 1 view .LVU445
+ 137:modules/imu/ins_task.c **** 
+ 1345              		.loc 1 137 34 is_stmt 0 view .LVU446
+ 1346 0046 6B69     		ldr	r3, [r5, #20]	@ float
+ 137:modules/imu/ins_task.c **** 
+ 1347              		.loc 1 137 21 view .LVU447
+ 1348 0048 A365     		str	r3, [r4, #88]	@ float
+ 140:modules/imu/ins_task.c **** 
+ 1349              		.loc 1 140 9 is_stmt 1 view .LVU448
+ 1350 004a 04F15C02 		add	r2, r4, #92
+ 1351 004e 04F15001 		add	r1, r4, #80
+ 1352 0052 4748     		ldr	r0, .L46+24
+ 1353 0054 FFF7FEFF 		bl	IMU_Param_Correction
+ 1354              	.LVL72:
+ 147:modules/imu/ins_task.c **** 
+ 1355              		.loc 1 147 9 view .LVU449
+ 1356 0058 96ED003A 		vldr.32	s6, [r6]
+ 1357 005c D4ED192A 		vldr.32	s5, [r4, #100]
+ 1358 0060 94ED182A 		vldr.32	s4, [r4, #96]
+ 1359 0064 D4ED171A 		vldr.32	s3, [r4, #92]
+ 1360 0068 94ED161A 		vldr.32	s2, [r4, #88]
+ 1361 006c D4ED150A 		vldr.32	s1, [r4, #84]
+ 1362 0070 94ED140A 		vldr.32	s0, [r4, #80]
+ 1363 0074 FFF7FEFF 		bl	IMU_QuaternionEKF_Update
+ 1364              	.LVL73:
+ 149:modules/imu/ins_task.c **** 
+ 1365              		.loc 1 149 9 view .LVU450
+ 1366 0078 3E4B     		ldr	r3, .L46+28
+ 1367 007a 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 1368 007c 84E80F00 		stm	r4, {r0, r1, r2, r3}
+ 152:modules/imu/ins_task.c ****         BodyFrameToEarthFrame(yb, INS.yn, INS.q);
+ 1369              		.loc 1 152 9 view .LVU451
+ 1370 0080 2246     		mov	r2, r4
+ 1371 0082 04F12C01 		add	r1, r4, #44
+ 1372 0086 3C48     		ldr	r0, .L46+32
+ 1373 0088 FFF7FEFF 		bl	BodyFrameToEarthFrame
+ 1374              	.LVL74:
+ 153:modules/imu/ins_task.c ****         BodyFrameToEarthFrame(zb, INS.zn, INS.q);
+ 1375              		.loc 1 153 9 view .LVU452
+ 1376 008c 2246     		mov	r2, r4
+ 1377 008e 04F13801 		add	r1, r4, #56
+ 1378 0092 3A48     		ldr	r0, .L46+36
+ 1379 0094 FFF7FEFF 		bl	BodyFrameToEarthFrame
+ 1380              	.LVL75:
+ 154:modules/imu/ins_task.c **** 
+ 1381              		.loc 1 154 9 view .LVU453
+ 1382 0098 2246     		mov	r2, r4
+ 1383 009a 04F14401 		add	r1, r4, #68
+ 1384 009e 3848     		ldr	r0, .L46+40
+ 1385 00a0 FFF7FEFF 		bl	BodyFrameToEarthFrame
+ 1386              	.LVL76:
+ 157:modules/imu/ins_task.c ****         EarthFrameToBodyFrame(gravity, gravity_b, INS.q);
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 35
+
+
+ 1387              		.loc 1 157 9 view .LVU454
+ 158:modules/imu/ins_task.c ****         for (uint8_t i = 0; i < 3; ++i) // 同样过一个低通滤波
+ 1388              		.loc 1 158 9 view .LVU455
+ 1389 00a4 2246     		mov	r2, r4
+ 1390 00a6 6946     		mov	r1, sp
+ 1391 00a8 03A8     		add	r0, sp, #12
+ 1392 00aa FFF7FEFF 		bl	EarthFrameToBodyFrame
+ 1393              	.LVL77:
+ 159:modules/imu/ins_task.c ****         {
+ 1394              		.loc 1 159 9 view .LVU456
+ 1395              	.LBB8:
+ 159:modules/imu/ins_task.c ****         {
+ 1396              		.loc 1 159 14 view .LVU457
+ 159:modules/imu/ins_task.c ****         {
+ 1397              		.loc 1 159 22 is_stmt 0 view .LVU458
+ 1398 00ae 0023     		movs	r3, #0
+ 159:modules/imu/ins_task.c ****         {
+ 1399              		.loc 1 159 9 view .LVU459
+ 1400 00b0 27E0     		b	.L41
+ 1401              	.LVL78:
+ 1402              	.L42:
+ 161:modules/imu/ins_task.c ****         }
+ 1403              		.loc 1 161 13 is_stmt 1 view .LVU460
+ 161:modules/imu/ins_task.c ****         }
+ 1404              		.loc 1 161 46 is_stmt 0 view .LVU461
+ 1405 00b2 2E4A     		ldr	r2, .L46+20
+ 1406 00b4 03F11601 		add	r1, r3, #22
+ 1407 00b8 02EB8101 		add	r1, r2, r1, lsl #2
+ 1408 00bc 91ED017A 		vldr.32	s14, [r1, #4]
+ 161:modules/imu/ins_task.c ****         }
+ 1409              		.loc 1 161 61 view .LVU462
+ 1410 00c0 06A9     		add	r1, sp, #24
+ 1411 00c2 01EB8301 		add	r1, r1, r3, lsl #2
+ 1412 00c6 51ED067A 		vldr.32	s15, [r1, #-24]
+ 161:modules/imu/ins_task.c ****         }
+ 1413              		.loc 1 161 50 view .LVU463
+ 1414 00ca 37EE677A 		vsub.f32	s14, s14, s15
+ 161:modules/imu/ins_task.c ****         }
+ 1415              		.loc 1 161 66 view .LVU464
+ 1416 00ce 2449     		ldr	r1, .L46+8
+ 1417 00d0 D1ED007A 		vldr.32	s15, [r1]
+ 1418 00d4 27EE277A 		vmul.f32	s14, s14, s15
+ 161:modules/imu/ins_task.c ****         }
+ 1419              		.loc 1 161 77 view .LVU465
+ 1420 00d8 D2ED0A6A 		vldr.32	s13, [r2, #40]
+ 161:modules/imu/ins_task.c ****         }
+ 1421              		.loc 1 161 87 view .LVU466
+ 1422 00dc 77EEA67A 		vadd.f32	s15, s15, s13
+ 161:modules/imu/ins_task.c ****         }
+ 1423              		.loc 1 161 71 view .LVU467
+ 1424 00e0 87EE276A 		vdiv.f32	s12, s14, s15
+ 161:modules/imu/ins_task.c ****         }
+ 1425              		.loc 1 161 112 view .LVU468
+ 1426 00e4 191D     		adds	r1, r3, #4
+ 1427 00e6 02EB8102 		add	r2, r2, r1, lsl #2
+ 1428 00ea 92ED007A 		vldr.32	s14, [r2]
+ 161:modules/imu/ins_task.c ****         }
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 36
+
+
+ 1429              		.loc 1 161 116 view .LVU469
+ 1430 00ee 66EE876A 		vmul.f32	s13, s13, s14
+ 161:modules/imu/ins_task.c ****         }
+ 1431              		.loc 1 161 131 view .LVU470
+ 1432 00f2 86EEA77A 		vdiv.f32	s14, s13, s15
+ 161:modules/imu/ins_task.c ****         }
+ 1433              		.loc 1 161 93 view .LVU471
+ 1434 00f6 76EE077A 		vadd.f32	s15, s12, s14
+ 161:modules/imu/ins_task.c ****         }
+ 1435              		.loc 1 161 34 view .LVU472
+ 1436 00fa C2ED007A 		vstr.32	s15, [r2]
+ 159:modules/imu/ins_task.c ****         {
+ 1437              		.loc 1 159 36 is_stmt 1 discriminator 3 view .LVU473
+ 1438 00fe 0133     		adds	r3, r3, #1
+ 1439              	.LVL79:
+ 159:modules/imu/ins_task.c ****         {
+ 1440              		.loc 1 159 36 is_stmt 0 discriminator 3 view .LVU474
+ 1441 0100 DBB2     		uxtb	r3, r3
+ 1442              	.LVL80:
+ 1443              	.L41:
+ 159:modules/imu/ins_task.c ****         {
+ 1444              		.loc 1 159 31 is_stmt 1 discriminator 1 view .LVU475
+ 1445 0102 022B     		cmp	r3, #2
+ 1446 0104 D5D9     		bls	.L42
+ 1447              	.LBE8:
+ 163:modules/imu/ins_task.c **** 
+ 1448              		.loc 1 163 9 view .LVU476
+ 1449 0106 194C     		ldr	r4, .L46+20
+ 1450 0108 2246     		mov	r2, r4
+ 1451 010a 04F11C01 		add	r1, r4, #28
+ 1452 010e 04F11000 		add	r0, r4, #16
+ 1453 0112 FFF7FEFF 		bl	BodyFrameToEarthFrame
+ 1454              	.LVL81:
+ 165:modules/imu/ins_task.c ****         INS.Pitch = QEKF_INS.Pitch;
+ 1455              		.loc 1 165 9 view .LVU477
+ 165:modules/imu/ins_task.c ****         INS.Pitch = QEKF_INS.Pitch;
+ 1456              		.loc 1 165 27 is_stmt 0 view .LVU478
+ 1457 0116 1B4B     		ldr	r3, .L46+44
+ 1458 0118 93ED6A0A 		vldr.32	s0, [r3, #424]
+ 165:modules/imu/ins_task.c ****         INS.Pitch = QEKF_INS.Pitch;
+ 1459              		.loc 1 165 17 view .LVU479
+ 1460 011c 84ED1C0A 		vstr.32	s0, [r4, #112]
+ 166:modules/imu/ins_task.c ****         INS.Roll = QEKF_INS.Roll;
+ 1461              		.loc 1 166 9 is_stmt 1 view .LVU480
+ 166:modules/imu/ins_task.c ****         INS.Roll = QEKF_INS.Roll;
+ 1462              		.loc 1 166 29 is_stmt 0 view .LVU481
+ 1463 0120 D3ED690A 		vldr.32	s1, [r3, #420]
+ 166:modules/imu/ins_task.c ****         INS.Roll = QEKF_INS.Roll;
+ 1464              		.loc 1 166 19 view .LVU482
+ 1465 0124 C4ED1B0A 		vstr.32	s1, [r4, #108]
+ 167:modules/imu/ins_task.c ****         INS.YawTotalAngle = QEKF_INS.YawTotalAngle;
+ 1466              		.loc 1 167 9 is_stmt 1 view .LVU483
+ 167:modules/imu/ins_task.c ****         INS.YawTotalAngle = QEKF_INS.YawTotalAngle;
+ 1467              		.loc 1 167 28 is_stmt 0 view .LVU484
+ 1468 0128 93ED681A 		vldr.32	s2, [r3, #416]
+ 167:modules/imu/ins_task.c ****         INS.YawTotalAngle = QEKF_INS.YawTotalAngle;
+ 1469              		.loc 1 167 18 view .LVU485
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 37
+
+
+ 1470 012c 84ED1A1A 		vstr.32	s2, [r4, #104]
+ 168:modules/imu/ins_task.c **** 
+ 1471              		.loc 1 168 9 is_stmt 1 view .LVU486
+ 168:modules/imu/ins_task.c **** 
+ 1472              		.loc 1 168 37 is_stmt 0 view .LVU487
+ 1473 0130 D3F8AC31 		ldr	r3, [r3, #428]	@ float
+ 168:modules/imu/ins_task.c **** 
+ 1474              		.loc 1 168 27 view .LVU488
+ 1475 0134 6367     		str	r3, [r4, #116]	@ float
+ 170:modules/imu/ins_task.c ****     }
+ 1476              		.loc 1 170 9 is_stmt 1 view .LVU489
+ 1477 0136 FFF7FEFF 		bl	VisionSetAltitude
+ 1478              	.LVL82:
+ 1479              	.LBE7:
+ 174:modules/imu/ins_task.c ****     {
+ 1480              		.loc 1 174 5 view .LVU490
+ 174:modules/imu/ins_task.c ****     {
+ 1481              		.loc 1 174 16 is_stmt 0 view .LVU491
+ 1482 013a 134B     		ldr	r3, .L46+48
+ 1483 013c 1B68     		ldr	r3, [r3]
+ 174:modules/imu/ins_task.c ****     {
+ 1484              		.loc 1 174 8 view .LVU492
+ 1485 013e 13F0010F 		tst	r3, #1
+ 1486 0142 05D0     		beq	.L45
+ 1487              	.L43:
+ 180:modules/imu/ins_task.c ****     {
+ 1488              		.loc 1 180 5 is_stmt 1 view .LVU493
+ 180:modules/imu/ins_task.c ****     {
+ 1489              		.loc 1 180 15 is_stmt 0 view .LVU494
+ 1490 0144 104A     		ldr	r2, .L46+48
+ 1491 0146 1368     		ldr	r3, [r2]
+ 1492 0148 0133     		adds	r3, r3, #1
+ 1493 014a 1360     		str	r3, [r2]
+ 183:modules/imu/ins_task.c **** }
+ 1494              		.loc 1 183 5 is_stmt 1 view .LVU495
+ 184:modules/imu/ins_task.c **** 
+ 1495              		.loc 1 184 1 is_stmt 0 view .LVU496
+ 1496 014c 06B0     		add	sp, sp, #24
+ 1497              		.cfi_remember_state
+ 1498              		.cfi_def_cfa_offset 16
+ 1499              		@ sp needed
+ 1500 014e 70BD     		pop	{r4, r5, r6, pc}
+ 1501              	.L45:
+ 1502              		.cfi_restore_state
+ 177:modules/imu/ins_task.c ****     }
+ 1503              		.loc 1 177 9 is_stmt 1 view .LVU497
+ 1504 0150 FFF7FEFF 		bl	IMU_Temperature_Ctrl
+ 1505              	.LVL83:
+ 1506 0154 F6E7     		b	.L43
+ 1507              	.L47:
+ 1508 0156 00BF     		.align	2
+ 1509              	.L46:
+ 1510 0158 C3F51C41 		.word	1092416963
+ 1511 015c 00000000 		.word	INS_DWT_Count
+ 1512 0160 00000000 		.word	dt
+ 1513 0164 00000000 		.word	t
+ 1514 0168 00000000 		.word	BMI088
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 38
+
+
+ 1515 016c 00000000 		.word	INS
+ 1516 0170 00000000 		.word	IMU_Param
+ 1517 0174 50010000 		.word	QEKF_INS+336
+ 1518 0178 00000000 		.word	xb
+ 1519 017c 00000000 		.word	yb
+ 1520 0180 00000000 		.word	zb
+ 1521 0184 00000000 		.word	QEKF_INS
+ 1522 0188 00000000 		.word	count.12
+ 1523              		.cfi_endproc
+ 1524              	.LFE280:
+ 1526              		.section	.text.QuaternionUpdate,"ax",%progbits
+ 1527              		.align	1
+ 1528              		.global	QuaternionUpdate
+ 1529              		.syntax unified
+ 1530              		.thumb
+ 1531              		.thumb_func
+ 1533              	QuaternionUpdate:
+ 1534              	.LVL84:
+ 1535              	.LFB284:
+ 297:modules/imu/ins_task.c **** 
+ 298:modules/imu/ins_task.c **** //------------------------------------functions below are not used in this demo--------------------
+ 299:modules/imu/ins_task.c **** //----------------------------------you can read them for learning or programming------------------
+ 300:modules/imu/ins_task.c **** //----------------------------------they could also be helpful for further design------------------
+ 301:modules/imu/ins_task.c **** 
+ 302:modules/imu/ins_task.c **** /**
+ 303:modules/imu/ins_task.c ****  * @brief        Update quaternion
+ 304:modules/imu/ins_task.c ****  */
+ 305:modules/imu/ins_task.c **** void QuaternionUpdate(float *q, float gx, float gy, float gz, float dt)
+ 306:modules/imu/ins_task.c **** {
+ 1536              		.loc 1 306 1 view -0
+ 1537              		.cfi_startproc
+ 1538              		@ args = 0, pretend = 0, frame = 0
+ 1539              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1540              		@ link register save eliminated.
+ 307:modules/imu/ins_task.c ****     float qa, qb, qc;
+ 1541              		.loc 1 307 5 view .LVU499
+ 308:modules/imu/ins_task.c **** 
+ 309:modules/imu/ins_task.c ****     gx *= 0.5f * dt;
+ 1542              		.loc 1 309 5 view .LVU500
+ 1543              		.loc 1 309 16 is_stmt 0 view .LVU501
+ 1544 0000 F6EE007A 		vmov.f32	s15, #5.0e-1
+ 1545 0004 61EEA71A 		vmul.f32	s3, s3, s15
+ 1546              	.LVL85:
+ 1547              		.loc 1 309 8 view .LVU502
+ 1548 0008 21EE800A 		vmul.f32	s0, s3, s0
+ 1549              	.LVL86:
+ 310:modules/imu/ins_task.c ****     gy *= 0.5f * dt;
+ 1550              		.loc 1 310 5 is_stmt 1 view .LVU503
+ 1551              		.loc 1 310 8 is_stmt 0 view .LVU504
+ 1552 000c 61EEA00A 		vmul.f32	s1, s3, s1
+ 1553              	.LVL87:
+ 311:modules/imu/ins_task.c ****     gz *= 0.5f * dt;
+ 1554              		.loc 1 311 5 is_stmt 1 view .LVU505
+ 1555              		.loc 1 311 8 is_stmt 0 view .LVU506
+ 1556 0010 21EE811A 		vmul.f32	s2, s3, s2
+ 1557              	.LVL88:
+ 312:modules/imu/ins_task.c ****     qa = q[0];
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 39
+
+
+ 1558              		.loc 1 312 5 is_stmt 1 view .LVU507
+ 1559              		.loc 1 312 8 is_stmt 0 view .LVU508
+ 1560 0014 D0ED005A 		vldr.32	s11, [r0]
+ 1561              	.LVL89:
+ 313:modules/imu/ins_task.c ****     qb = q[1];
+ 1562              		.loc 1 313 5 is_stmt 1 view .LVU509
+ 1563              		.loc 1 313 8 is_stmt 0 view .LVU510
+ 1564 0018 90ED016A 		vldr.32	s12, [r0, #4]
+ 1565              	.LVL90:
+ 314:modules/imu/ins_task.c ****     qc = q[2];
+ 1566              		.loc 1 314 5 is_stmt 1 view .LVU511
+ 1567              		.loc 1 314 8 is_stmt 0 view .LVU512
+ 1568 001c D0ED026A 		vldr.32	s13, [r0, #8]
+ 1569              	.LVL91:
+ 315:modules/imu/ins_task.c ****     q[0] += (-qb * gx - qc * gy - q[3] * gz);
+ 1570              		.loc 1 315 5 is_stmt 1 view .LVU513
+ 1571              		.loc 1 315 18 is_stmt 0 view .LVU514
+ 1572 0020 66EE407A 		vnmul.f32	s15, s12, s0
+ 1573              		.loc 1 315 28 view .LVU515
+ 1574 0024 20EEA67A 		vmul.f32	s14, s1, s13
+ 1575              		.loc 1 315 23 view .LVU516
+ 1576 0028 77EEC77A 		vsub.f32	s15, s15, s14
+ 1577              		.loc 1 315 36 view .LVU517
+ 1578 002c 90ED037A 		vldr.32	s14, [r0, #12]
+ 1579              		.loc 1 315 40 view .LVU518
+ 1580 0030 27EE015A 		vmul.f32	s10, s14, s2
+ 1581              		.loc 1 315 33 view .LVU519
+ 1582 0034 77EEC57A 		vsub.f32	s15, s15, s10
+ 1583              		.loc 1 315 10 view .LVU520
+ 1584 0038 77EEA57A 		vadd.f32	s15, s15, s11
+ 1585 003c C0ED007A 		vstr.32	s15, [r0]
+ 316:modules/imu/ins_task.c ****     q[1] += (qa * gx + qc * gz - q[3] * gy);
+ 1586              		.loc 1 316 5 is_stmt 1 view .LVU521
+ 1587              		.loc 1 316 17 is_stmt 0 view .LVU522
+ 1588 0040 60EE257A 		vmul.f32	s15, s0, s11
+ 1589              		.loc 1 316 27 view .LVU523
+ 1590 0044 21EE265A 		vmul.f32	s10, s2, s13
+ 1591              		.loc 1 316 22 view .LVU524
+ 1592 0048 77EE857A 		vadd.f32	s15, s15, s10
+ 1593              		.loc 1 316 39 view .LVU525
+ 1594 004c 27EE205A 		vmul.f32	s10, s14, s1
+ 1595              		.loc 1 316 32 view .LVU526
+ 1596 0050 77EEC57A 		vsub.f32	s15, s15, s10
+ 1597              		.loc 1 316 10 view .LVU527
+ 1598 0054 77EE867A 		vadd.f32	s15, s15, s12
+ 1599 0058 C0ED017A 		vstr.32	s15, [r0, #4]
+ 317:modules/imu/ins_task.c ****     q[2] += (qa * gy - qb * gz + q[3] * gx);
+ 1600              		.loc 1 317 5 is_stmt 1 view .LVU528
+ 1601              		.loc 1 317 17 is_stmt 0 view .LVU529
+ 1602 005c 60EEA57A 		vmul.f32	s15, s1, s11
+ 1603              		.loc 1 317 27 view .LVU530
+ 1604 0060 21EE065A 		vmul.f32	s10, s2, s12
+ 1605              		.loc 1 317 22 view .LVU531
+ 1606 0064 77EEC57A 		vsub.f32	s15, s15, s10
+ 1607              		.loc 1 317 39 view .LVU532
+ 1608 0068 27EE005A 		vmul.f32	s10, s14, s0
+ 1609              		.loc 1 317 32 view .LVU533
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 40
+
+
+ 1610 006c 77EE857A 		vadd.f32	s15, s15, s10
+ 1611              		.loc 1 317 10 view .LVU534
+ 1612 0070 77EEA67A 		vadd.f32	s15, s15, s13
+ 1613 0074 C0ED027A 		vstr.32	s15, [r0, #8]
+ 318:modules/imu/ins_task.c ****     q[3] += (qa * gz + qb * gy - qc * gx);
+ 1614              		.loc 1 318 5 is_stmt 1 view .LVU535
+ 1615              		.loc 1 318 17 is_stmt 0 view .LVU536
+ 1616 0078 21EE251A 		vmul.f32	s2, s2, s11
+ 1617              	.LVL92:
+ 1618              		.loc 1 318 27 view .LVU537
+ 1619 007c 60EE860A 		vmul.f32	s1, s1, s12
+ 1620              	.LVL93:
+ 1621              		.loc 1 318 22 view .LVU538
+ 1622 0080 31EE201A 		vadd.f32	s2, s2, s1
+ 1623              		.loc 1 318 37 view .LVU539
+ 1624 0084 20EE260A 		vmul.f32	s0, s0, s13
+ 1625              	.LVL94:
+ 1626              		.loc 1 318 32 view .LVU540
+ 1627 0088 31EE401A 		vsub.f32	s2, s2, s0
+ 1628              		.loc 1 318 10 view .LVU541
+ 1629 008c 37EE017A 		vadd.f32	s14, s14, s2
+ 1630 0090 80ED037A 		vstr.32	s14, [r0, #12]
+ 319:modules/imu/ins_task.c **** }
+ 1631              		.loc 1 319 1 view .LVU542
+ 1632 0094 7047     		bx	lr
+ 1633              		.cfi_endproc
+ 1634              	.LFE284:
+ 1636              		.section	.text.QuaternionToEularAngle,"ax",%progbits
+ 1637              		.align	1
+ 1638              		.global	QuaternionToEularAngle
+ 1639              		.syntax unified
+ 1640              		.thumb
+ 1641              		.thumb_func
+ 1643              	QuaternionToEularAngle:
+ 1644              	.LVL95:
+ 1645              	.LFB285:
+ 320:modules/imu/ins_task.c **** 
+ 321:modules/imu/ins_task.c **** /**
+ 322:modules/imu/ins_task.c ****  * @brief        Convert quaternion to eular angle
+ 323:modules/imu/ins_task.c ****  */
+ 324:modules/imu/ins_task.c **** void QuaternionToEularAngle(float *q, float *Yaw, float *Pitch, float *Roll)
+ 325:modules/imu/ins_task.c **** {
+ 1646              		.loc 1 325 1 is_stmt 1 view -0
+ 1647              		.cfi_startproc
+ 1648              		@ args = 0, pretend = 0, frame = 0
+ 1649              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1650              		.loc 1 325 1 is_stmt 0 view .LVU544
+ 1651 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 1652              		.cfi_def_cfa_offset 24
+ 1653              		.cfi_offset 3, -24
+ 1654              		.cfi_offset 4, -20
+ 1655              		.cfi_offset 5, -16
+ 1656              		.cfi_offset 6, -12
+ 1657              		.cfi_offset 7, -8
+ 1658              		.cfi_offset 14, -4
+ 1659 0002 2DED028B 		vpush.64	{d8}
+ 1660              		.cfi_def_cfa_offset 32
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 41
+
+
+ 1661              		.cfi_offset 80, -32
+ 1662              		.cfi_offset 81, -28
+ 1663 0006 0446     		mov	r4, r0
+ 1664 0008 0F46     		mov	r7, r1
+ 1665 000a 1646     		mov	r6, r2
+ 1666 000c 1D46     		mov	r5, r3
+ 326:modules/imu/ins_task.c ****     *Yaw = atan2f(2.0f * (q[0] * q[3] + q[1] * q[2]), 2.0f * (q[0] * q[0] + q[1] * q[1]) - 1.0f) * 
+ 1667              		.loc 1 326 5 is_stmt 1 view .LVU545
+ 1668              		.loc 1 326 28 is_stmt 0 view .LVU546
+ 1669 000e D0ED000A 		vldr.32	s1, [r0]
+ 1670              		.loc 1 326 35 view .LVU547
+ 1671 0012 90ED030A 		vldr.32	s0, [r0, #12]
+ 1672              		.loc 1 326 32 view .LVU548
+ 1673 0016 20EE800A 		vmul.f32	s0, s1, s0
+ 1674              		.loc 1 326 42 view .LVU549
+ 1675 001a D0ED017A 		vldr.32	s15, [r0, #4]
+ 1676              		.loc 1 326 49 view .LVU550
+ 1677 001e 90ED027A 		vldr.32	s14, [r0, #8]
+ 1678              		.loc 1 326 46 view .LVU551
+ 1679 0022 27EE877A 		vmul.f32	s14, s15, s14
+ 1680              		.loc 1 326 39 view .LVU552
+ 1681 0026 30EE070A 		vadd.f32	s0, s0, s14
+ 1682              		.loc 1 326 68 view .LVU553
+ 1683 002a 60EEA00A 		vmul.f32	s1, s1, s1
+ 1684              		.loc 1 326 82 view .LVU554
+ 1685 002e 67EEA77A 		vmul.f32	s15, s15, s15
+ 1686              		.loc 1 326 75 view .LVU555
+ 1687 0032 70EEA70A 		vadd.f32	s1, s1, s15
+ 1688              		.loc 1 326 60 view .LVU556
+ 1689 0036 70EEA00A 		vadd.f32	s1, s1, s1
+ 1690              		.loc 1 326 12 view .LVU557
+ 1691 003a F7EE008A 		vmov.f32	s17, #1.0e+0
+ 1692 003e 70EEE80A 		vsub.f32	s1, s1, s17
+ 1693 0042 30EE000A 		vadd.f32	s0, s0, s0
+ 1694 0046 FFF7FEFF 		bl	atan2f
+ 1695              	.LVL96:
+ 1696              		.loc 1 326 98 discriminator 1 view .LVU558
+ 1697 004a 9FED1F8A 		vldr.32	s16, .L51
+ 1698 004e 20EE080A 		vmul.f32	s0, s0, s16
+ 1699              		.loc 1 326 10 discriminator 1 view .LVU559
+ 1700 0052 87ED000A 		vstr.32	s0, [r7]
+ 327:modules/imu/ins_task.c ****     *Pitch = atan2f(2.0f * (q[0] * q[1] + q[2] * q[3]), 2.0f * (q[0] * q[0] + q[3] * q[3]) - 1.0f) 
+ 1701              		.loc 1 327 5 is_stmt 1 view .LVU560
+ 1702              		.loc 1 327 30 is_stmt 0 view .LVU561
+ 1703 0056 D4ED000A 		vldr.32	s1, [r4]
+ 1704              		.loc 1 327 37 view .LVU562
+ 1705 005a 94ED010A 		vldr.32	s0, [r4, #4]
+ 1706              		.loc 1 327 34 view .LVU563
+ 1707 005e 20EE800A 		vmul.f32	s0, s1, s0
+ 1708              		.loc 1 327 44 view .LVU564
+ 1709 0062 94ED027A 		vldr.32	s14, [r4, #8]
+ 1710              		.loc 1 327 51 view .LVU565
+ 1711 0066 D4ED037A 		vldr.32	s15, [r4, #12]
+ 1712              		.loc 1 327 48 view .LVU566
+ 1713 006a 27EE277A 		vmul.f32	s14, s14, s15
+ 1714              		.loc 1 327 41 view .LVU567
+ 1715 006e 30EE070A 		vadd.f32	s0, s0, s14
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 42
+
+
+ 1716              		.loc 1 327 70 view .LVU568
+ 1717 0072 60EEA00A 		vmul.f32	s1, s1, s1
+ 1718              		.loc 1 327 84 view .LVU569
+ 1719 0076 67EEA77A 		vmul.f32	s15, s15, s15
+ 1720              		.loc 1 327 77 view .LVU570
+ 1721 007a 70EEA70A 		vadd.f32	s1, s1, s15
+ 1722              		.loc 1 327 62 view .LVU571
+ 1723 007e 70EEA00A 		vadd.f32	s1, s1, s1
+ 1724              		.loc 1 327 14 view .LVU572
+ 1725 0082 70EEE80A 		vsub.f32	s1, s1, s17
+ 1726 0086 30EE000A 		vadd.f32	s0, s0, s0
+ 1727 008a FFF7FEFF 		bl	atan2f
+ 1728              	.LVL97:
+ 1729              		.loc 1 327 100 discriminator 1 view .LVU573
+ 1730 008e 20EE080A 		vmul.f32	s0, s0, s16
+ 1731              		.loc 1 327 12 discriminator 1 view .LVU574
+ 1732 0092 86ED000A 		vstr.32	s0, [r6]
+ 328:modules/imu/ins_task.c ****     *Roll = asinf(2.0f * (q[0] * q[2] - q[1] * q[3])) * 57.295779513f;
+ 1733              		.loc 1 328 5 is_stmt 1 view .LVU575
+ 1734              		.loc 1 328 28 is_stmt 0 view .LVU576
+ 1735 0096 94ED000A 		vldr.32	s0, [r4]
+ 1736              		.loc 1 328 35 view .LVU577
+ 1737 009a D4ED027A 		vldr.32	s15, [r4, #8]
+ 1738              		.loc 1 328 32 view .LVU578
+ 1739 009e 20EE270A 		vmul.f32	s0, s0, s15
+ 1740              		.loc 1 328 42 view .LVU579
+ 1741 00a2 D4ED017A 		vldr.32	s15, [r4, #4]
+ 1742              		.loc 1 328 49 view .LVU580
+ 1743 00a6 94ED037A 		vldr.32	s14, [r4, #12]
+ 1744              		.loc 1 328 46 view .LVU581
+ 1745 00aa 67EE877A 		vmul.f32	s15, s15, s14
+ 1746              		.loc 1 328 39 view .LVU582
+ 1747 00ae 30EE670A 		vsub.f32	s0, s0, s15
+ 1748              		.loc 1 328 13 view .LVU583
+ 1749 00b2 30EE000A 		vadd.f32	s0, s0, s0
+ 1750 00b6 FFF7FEFF 		bl	asinf
+ 1751              	.LVL98:
+ 1752              		.loc 1 328 55 discriminator 1 view .LVU584
+ 1753 00ba 20EE080A 		vmul.f32	s0, s0, s16
+ 1754              		.loc 1 328 11 discriminator 1 view .LVU585
+ 1755 00be 85ED000A 		vstr.32	s0, [r5]
+ 329:modules/imu/ins_task.c **** }
+ 1756              		.loc 1 329 1 view .LVU586
+ 1757 00c2 BDEC028B 		vldm	sp!, {d8}
+ 1758              		.cfi_restore 80
+ 1759              		.cfi_restore 81
+ 1760              		.cfi_def_cfa_offset 24
+ 1761 00c6 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 1762              	.LVL99:
+ 1763              	.L52:
+ 1764              		.loc 1 329 1 view .LVU587
+ 1765              		.align	2
+ 1766              	.L51:
+ 1767 00c8 E12E6542 		.word	1113927393
+ 1768              		.cfi_endproc
+ 1769              	.LFE285:
+ 1771              		.section	.text.EularAngleToQuaternion,"ax",%progbits
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 43
+
+
+ 1772              		.align	1
+ 1773              		.global	EularAngleToQuaternion
+ 1774              		.syntax unified
+ 1775              		.thumb
+ 1776              		.thumb_func
+ 1778              	EularAngleToQuaternion:
+ 1779              	.LVL100:
+ 1780              	.LFB286:
+ 330:modules/imu/ins_task.c **** 
+ 331:modules/imu/ins_task.c **** /**
+ 332:modules/imu/ins_task.c ****  * @brief        Convert eular angle to quaternion
+ 333:modules/imu/ins_task.c ****  */
+ 334:modules/imu/ins_task.c **** void EularAngleToQuaternion(float Yaw, float Pitch, float Roll, float *q)
+ 335:modules/imu/ins_task.c **** {
+ 1781              		.loc 1 335 1 is_stmt 1 view -0
+ 1782              		.cfi_startproc
+ 1783              		@ args = 0, pretend = 0, frame = 0
+ 1784              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1785              		.loc 1 335 1 is_stmt 0 view .LVU589
+ 1786 0000 10B5     		push	{r4, lr}
+ 1787              		.cfi_def_cfa_offset 8
+ 1788              		.cfi_offset 4, -8
+ 1789              		.cfi_offset 14, -4
+ 1790 0002 2DED068B 		vpush.64	{d8, d9, d10}
+ 1791              		.cfi_def_cfa_offset 32
+ 1792              		.cfi_offset 80, -32
+ 1793              		.cfi_offset 81, -28
+ 1794              		.cfi_offset 82, -24
+ 1795              		.cfi_offset 83, -20
+ 1796              		.cfi_offset 84, -16
+ 1797              		.cfi_offset 85, -12
+ 1798 0006 0446     		mov	r4, r0
+ 336:modules/imu/ins_task.c ****     float cosPitch, cosYaw, cosRoll, sinPitch, sinYaw, sinRoll;
+ 1799              		.loc 1 336 5 is_stmt 1 view .LVU590
+ 337:modules/imu/ins_task.c ****     Yaw /= 57.295779513f;
+ 1800              		.loc 1 337 5 view .LVU591
+ 1801              		.loc 1 337 9 is_stmt 0 view .LVU592
+ 1802 0008 DFED2E7A 		vldr.32	s15, .L55
+ 1803 000c C0EE279A 		vdiv.f32	s19, s0, s15
+ 1804              	.LVL101:
+ 338:modules/imu/ins_task.c ****     Pitch /= 57.295779513f;
+ 1805              		.loc 1 338 5 is_stmt 1 view .LVU593
+ 1806              		.loc 1 338 11 is_stmt 0 view .LVU594
+ 1807 0010 80EEA7AA 		vdiv.f32	s20, s1, s15
+ 1808              	.LVL102:
+ 339:modules/imu/ins_task.c ****     Roll /= 57.295779513f;
+ 1809              		.loc 1 339 5 is_stmt 1 view .LVU595
+ 1810              		.loc 1 339 10 is_stmt 0 view .LVU596
+ 1811 0014 C1EE27AA 		vdiv.f32	s21, s2, s15
+ 1812              	.LVL103:
+ 340:modules/imu/ins_task.c ****     cosPitch = arm_cos_f32(Pitch / 2);
+ 1813              		.loc 1 340 5 is_stmt 1 view .LVU597
+ 1814              		.loc 1 340 34 is_stmt 0 view .LVU598
+ 1815 0018 B6EE008A 		vmov.f32	s16, #5.0e-1
+ 1816 001c 2AEE08AA 		vmul.f32	s20, s20, s16
+ 1817              	.LVL104:
+ 1818              		.loc 1 340 16 view .LVU599
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 44
+
+
+ 1819 0020 B0EE4A0A 		vmov.f32	s0, s20
+ 1820 0024 FFF7FEFF 		bl	arm_cos_f32
+ 1821              	.LVL105:
+ 1822              		.loc 1 340 16 view .LVU600
+ 1823 0028 F0EE408A 		vmov.f32	s17, s0
+ 1824              	.LVL106:
+ 341:modules/imu/ins_task.c ****     cosYaw = arm_cos_f32(Yaw / 2);
+ 1825              		.loc 1 341 5 is_stmt 1 view .LVU601
+ 1826              		.loc 1 341 30 is_stmt 0 view .LVU602
+ 1827 002c 69EE889A 		vmul.f32	s19, s19, s16
+ 1828              	.LVL107:
+ 1829              		.loc 1 341 14 view .LVU603
+ 1830 0030 B0EE690A 		vmov.f32	s0, s19
+ 1831              	.LVL108:
+ 1832              		.loc 1 341 14 view .LVU604
+ 1833 0034 FFF7FEFF 		bl	arm_cos_f32
+ 1834              	.LVL109:
+ 1835 0038 B0EE409A 		vmov.f32	s18, s0
+ 1836              	.LVL110:
+ 342:modules/imu/ins_task.c ****     cosRoll = arm_cos_f32(Roll / 2);
+ 1837              		.loc 1 342 5 is_stmt 1 view .LVU605
+ 1838              		.loc 1 342 32 is_stmt 0 view .LVU606
+ 1839 003c 6AEE88AA 		vmul.f32	s21, s21, s16
+ 1840              	.LVL111:
+ 1841              		.loc 1 342 15 view .LVU607
+ 1842 0040 B0EE6A0A 		vmov.f32	s0, s21
+ 1843              	.LVL112:
+ 1844              		.loc 1 342 15 view .LVU608
+ 1845 0044 FFF7FEFF 		bl	arm_cos_f32
+ 1846              	.LVL113:
+ 1847 0048 B0EE408A 		vmov.f32	s16, s0
+ 1848              	.LVL114:
+ 343:modules/imu/ins_task.c ****     sinPitch = arm_sin_f32(Pitch / 2);
+ 1849              		.loc 1 343 5 is_stmt 1 view .LVU609
+ 1850              		.loc 1 343 16 is_stmt 0 view .LVU610
+ 1851 004c B0EE4A0A 		vmov.f32	s0, s20
+ 1852              	.LVL115:
+ 1853              		.loc 1 343 16 view .LVU611
+ 1854 0050 FFF7FEFF 		bl	arm_sin_f32
+ 1855              	.LVL116:
+ 1856 0054 B0EE40AA 		vmov.f32	s20, s0
+ 1857              	.LVL117:
+ 344:modules/imu/ins_task.c ****     sinYaw = arm_sin_f32(Yaw / 2);
+ 1858              		.loc 1 344 5 is_stmt 1 view .LVU612
+ 1859              		.loc 1 344 14 is_stmt 0 view .LVU613
+ 1860 0058 B0EE690A 		vmov.f32	s0, s19
+ 1861              	.LVL118:
+ 1862              		.loc 1 344 14 view .LVU614
+ 1863 005c FFF7FEFF 		bl	arm_sin_f32
+ 1864              	.LVL119:
+ 1865 0060 F0EE409A 		vmov.f32	s19, s0
+ 1866              	.LVL120:
+ 345:modules/imu/ins_task.c ****     sinRoll = arm_sin_f32(Roll / 2);
+ 1867              		.loc 1 345 5 is_stmt 1 view .LVU615
+ 1868              		.loc 1 345 15 is_stmt 0 view .LVU616
+ 1869 0064 B0EE6A0A 		vmov.f32	s0, s21
+ 1870              	.LVL121:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 45
+
+
+ 1871              		.loc 1 345 15 view .LVU617
+ 1872 0068 FFF7FEFF 		bl	arm_sin_f32
+ 1873              	.LVL122:
+ 346:modules/imu/ins_task.c ****     q[0] = cosPitch * cosRoll * cosYaw + sinPitch * sinRoll * sinYaw;
+ 1874              		.loc 1 346 5 is_stmt 1 view .LVU618
+ 1875              		.loc 1 346 21 is_stmt 0 view .LVU619
+ 1876 006c 68EE887A 		vmul.f32	s15, s17, s16
+ 1877              		.loc 1 346 31 view .LVU620
+ 1878 0070 67EE896A 		vmul.f32	s13, s15, s18
+ 1879              		.loc 1 346 51 view .LVU621
+ 1880 0074 2AEE007A 		vmul.f32	s14, s20, s0
+ 1881              		.loc 1 346 61 view .LVU622
+ 1882 0078 27EE296A 		vmul.f32	s12, s14, s19
+ 1883              		.loc 1 346 40 view .LVU623
+ 1884 007c 76EE866A 		vadd.f32	s13, s13, s12
+ 1885              		.loc 1 346 10 view .LVU624
+ 1886 0080 C4ED006A 		vstr.32	s13, [r4]
+ 347:modules/imu/ins_task.c ****     q[1] = sinPitch * cosRoll * cosYaw - cosPitch * sinRoll * sinYaw;
+ 1887              		.loc 1 347 5 is_stmt 1 view .LVU625
+ 1888              		.loc 1 347 21 is_stmt 0 view .LVU626
+ 1889 0084 28EE0A8A 		vmul.f32	s16, s16, s20
+ 1890              	.LVL123:
+ 1891              		.loc 1 347 31 view .LVU627
+ 1892 0088 68EE096A 		vmul.f32	s13, s16, s18
+ 1893              		.loc 1 347 51 view .LVU628
+ 1894 008c 68EE808A 		vmul.f32	s17, s17, s0
+ 1895              	.LVL124:
+ 1896              		.loc 1 347 61 view .LVU629
+ 1897 0090 28EEA96A 		vmul.f32	s12, s17, s19
+ 1898              		.loc 1 347 40 view .LVU630
+ 1899 0094 76EEC66A 		vsub.f32	s13, s13, s12
+ 1900              		.loc 1 347 10 view .LVU631
+ 1901 0098 C4ED016A 		vstr.32	s13, [r4, #4]
+ 348:modules/imu/ins_task.c ****     q[2] = sinPitch * cosRoll * sinYaw + cosPitch * sinRoll * cosYaw;
+ 1902              		.loc 1 348 5 is_stmt 1 view .LVU632
+ 1903              		.loc 1 348 31 is_stmt 0 view .LVU633
+ 1904 009c 28EE298A 		vmul.f32	s16, s16, s19
+ 1905              		.loc 1 348 61 view .LVU634
+ 1906 00a0 68EE898A 		vmul.f32	s17, s17, s18
+ 1907              		.loc 1 348 40 view .LVU635
+ 1908 00a4 38EE288A 		vadd.f32	s16, s16, s17
+ 1909              		.loc 1 348 10 view .LVU636
+ 1910 00a8 84ED028A 		vstr.32	s16, [r4, #8]
+ 349:modules/imu/ins_task.c ****     q[3] = cosPitch * cosRoll * sinYaw - sinPitch * sinRoll * cosYaw;
+ 1911              		.loc 1 349 5 is_stmt 1 view .LVU637
+ 1912              		.loc 1 349 31 is_stmt 0 view .LVU638
+ 1913 00ac 67EEA97A 		vmul.f32	s15, s15, s19
+ 1914              		.loc 1 349 61 view .LVU639
+ 1915 00b0 27EE097A 		vmul.f32	s14, s14, s18
+ 1916              		.loc 1 349 40 view .LVU640
+ 1917 00b4 77EEC77A 		vsub.f32	s15, s15, s14
+ 1918              		.loc 1 349 10 view .LVU641
+ 1919 00b8 C4ED037A 		vstr.32	s15, [r4, #12]
+ 350:modules/imu/ins_task.c **** }
+ 1920              		.loc 1 350 1 view .LVU642
+ 1921 00bc BDEC068B 		vldm	sp!, {d8-d10}
+ 1922              		.cfi_restore 84
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 46
+
+
+ 1923              		.cfi_restore 85
+ 1924              		.cfi_restore 82
+ 1925              		.cfi_restore 83
+ 1926              		.cfi_restore 80
+ 1927              		.cfi_restore 81
+ 1928              		.cfi_def_cfa_offset 8
+ 1929              	.LVL125:
+ 1930              		.loc 1 350 1 view .LVU643
+ 1931 00c0 10BD     		pop	{r4, pc}
+ 1932              	.LVL126:
+ 1933              	.L56:
+ 1934              		.loc 1 350 1 view .LVU644
+ 1935 00c2 00BF     		.align	2
+ 1936              	.L55:
+ 1937 00c4 E12E6542 		.word	1113927393
+ 1938              		.cfi_endproc
+ 1939              	.LFE286:
+ 1941              		.section	.bss.c_33.0,"aw",%nobits
+ 1942              		.align	2
+ 1945              	c_33.0:
+ 1946 0000 00000000 		.space	4
+ 1947              		.section	.bss.c_32.1,"aw",%nobits
+ 1948              		.align	2
+ 1951              	c_32.1:
+ 1952 0000 00000000 		.space	4
+ 1953              		.section	.bss.c_31.2,"aw",%nobits
+ 1954              		.align	2
+ 1957              	c_31.2:
+ 1958 0000 00000000 		.space	4
+ 1959              		.section	.bss.c_23.3,"aw",%nobits
+ 1960              		.align	2
+ 1963              	c_23.3:
+ 1964 0000 00000000 		.space	4
+ 1965              		.section	.bss.c_22.4,"aw",%nobits
+ 1966              		.align	2
+ 1969              	c_22.4:
+ 1970 0000 00000000 		.space	4
+ 1971              		.section	.bss.c_21.5,"aw",%nobits
+ 1972              		.align	2
+ 1975              	c_21.5:
+ 1976 0000 00000000 		.space	4
+ 1977              		.section	.bss.c_13.6,"aw",%nobits
+ 1978              		.align	2
+ 1981              	c_13.6:
+ 1982 0000 00000000 		.space	4
+ 1983              		.section	.bss.c_12.7,"aw",%nobits
+ 1984              		.align	2
+ 1987              	c_12.7:
+ 1988 0000 00000000 		.space	4
+ 1989              		.section	.bss.c_11.8,"aw",%nobits
+ 1990              		.align	2
+ 1993              	c_11.8:
+ 1994 0000 00000000 		.space	4
+ 1995              		.section	.bss.lastRollOffset.9,"aw",%nobits
+ 1996              		.align	2
+ 1999              	lastRollOffset.9:
+ 2000 0000 00000000 		.space	4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 47
+
+
+ 2001              		.section	.bss.lastPitchOffset.10,"aw",%nobits
+ 2002              		.align	2
+ 2005              	lastPitchOffset.10:
+ 2006 0000 00000000 		.space	4
+ 2007              		.section	.bss.lastYawOffset.11,"aw",%nobits
+ 2008              		.align	2
+ 2011              	lastYawOffset.11:
+ 2012 0000 00000000 		.space	4
+ 2013              		.section	.bss.count.12,"aw",%nobits
+ 2014              		.align	2
+ 2017              	count.12:
+ 2018 0000 00000000 		.space	4
+ 2019              		.section	.bss.t,"aw",%nobits
+ 2020              		.align	2
+ 2023              	t:
+ 2024 0000 00000000 		.space	4
+ 2025              		.section	.bss.dt,"aw",%nobits
+ 2026              		.align	2
+ 2029              	dt:
+ 2030 0000 00000000 		.space	4
+ 2031              		.section	.bss.INS_DWT_Count,"aw",%nobits
+ 2032              		.align	2
+ 2035              	INS_DWT_Count:
+ 2036 0000 00000000 		.space	4
+ 2037              		.global	zb
+ 2038              		.section	.rodata.zb,"a"
+ 2039              		.align	2
+ 2042              	zb:
+ 2043 0000 00000000 		.word	0
+ 2044 0004 00000000 		.word	0
+ 2045 0008 0000803F 		.word	1065353216
+ 2046              		.global	yb
+ 2047              		.section	.rodata.yb,"a"
+ 2048              		.align	2
+ 2051              	yb:
+ 2052 0000 00000000 		.word	0
+ 2053 0004 0000803F 		.word	1065353216
+ 2054 0008 00000000 		.word	0
+ 2055              		.global	xb
+ 2056              		.section	.rodata.xb,"a"
+ 2057              		.align	2
+ 2060              	xb:
+ 2061 0000 0000803F 		.word	1065353216
+ 2062 0004 00000000 		.word	0
+ 2063 0008 00000000 		.word	0
+ 2064              		.section	.bss.TempCtrl,"aw",%nobits
+ 2065              		.align	3
+ 2068              	TempCtrl:
+ 2069 0000 00000000 		.space	120
+ 2069      00000000 
+ 2069      00000000 
+ 2069      00000000 
+ 2069      00000000 
+ 2070              		.section	.bss.IMU_Param,"aw",%nobits
+ 2071              		.align	2
+ 2074              	IMU_Param:
+ 2075 0000 00000000 		.space	28
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 48
+
+
+ 2075      00000000 
+ 2075      00000000 
+ 2075      00000000 
+ 2075      00000000 
+ 2076              		.section	.bss.INS,"aw",%nobits
+ 2077              		.align	2
+ 2080              	INS:
+ 2081 0000 00000000 		.space	124
+ 2081      00000000 
+ 2081      00000000 
+ 2081      00000000 
+ 2081      00000000 
+ 2082              		.text
+ 2083              	.Letext0:
+ 2084              		.file 2 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 2085              		.file 3 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpac
+ 2086              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 2087              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 2088              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 2089              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h"
+ 2090              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h"
+ 2091              		.file 9 "modules/imu/BMI088driver.h"
+ 2092              		.file 10 "Middlewares/ST/ARM/DSP/Inc/arm_math.h"
+ 2093              		.file 11 "modules/algorithm/kalman_filter.h"
+ 2094              		.file 12 "modules/algorithm/QuaternionEKF.h"
+ 2095              		.file 13 "modules/imu/ins_task.h"
+ 2096              		.file 14 "modules/algorithm/controller.h"
+ 2097              		.file 15 "Inc/spi.h"
+ 2098              		.file 16 "Inc/tim.h"
+ 2099              		.file 17 "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpa
+ 2100              		.file 18 "modules/algorithm/user_lib.h"
+ 2101              		.file 19 "modules/master_machine/master_process.h"
+ 2102              		.file 20 "bsp/dwt/bsp_dwt.h"
+ 2103              		.file 21 "<built-in>"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 49
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 ins_task.c
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:21     .text.IMUPWMSet:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:26     .text.IMUPWMSet:00000000 IMUPWMSet
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:43     .text.IMUPWMSet:00000008 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:48     .text.InitQuaternion:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:53     .text.InitQuaternion:00000000 InitQuaternion
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:259    .text.InitQuaternion:00000104 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:266    .text.IMU_Param_Correction:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:271    .text.IMU_Param_Correction:00000000 IMU_Param_Correction
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:694    .text.IMU_Param_Correction:00000290 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2011   .bss.lastYawOffset.11:00000000 lastYawOffset.11
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2005   .bss.lastPitchOffset.10:00000000 lastPitchOffset.10
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1999   .bss.lastRollOffset.9:00000000 lastRollOffset.9
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1993   .bss.c_11.8:00000000 c_11.8
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1987   .bss.c_12.7:00000000 c_12.7
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1981   .bss.c_13.6:00000000 c_13.6
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1975   .bss.c_21.5:00000000 c_21.5
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1969   .bss.c_22.4:00000000 c_22.4
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1963   .bss.c_23.3:00000000 c_23.3
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1957   .bss.c_31.2:00000000 c_31.2
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1951   .bss.c_32.1:00000000 c_32.1
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1945   .bss.c_33.0:00000000 c_33.0
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:712    .text.IMU_Temperature_Ctrl:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:717    .text.IMU_Temperature_Ctrl:00000000 IMU_Temperature_Ctrl
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:758    .text.IMU_Temperature_Ctrl:00000040 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2068   .bss.TempCtrl:00000000 TempCtrl
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:767    .text.INS_Init:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:773    .text.INS_Init:00000000 INS_Init
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:914    .text.INS_Init:000000c4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2080   .bss.INS:00000000 INS
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2074   .bss.IMU_Param:00000000 IMU_Param
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2035   .bss.INS_DWT_Count:00000000 INS_DWT_Count
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:933    .text.BodyFrameToEarthFrame:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:939    .text.BodyFrameToEarthFrame:00000000 BodyFrameToEarthFrame
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1101   .text.EarthFrameToBodyFrame:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1107   .text.EarthFrameToBodyFrame:00000000 EarthFrameToBodyFrame
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1269   .text.INS_Task:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1275   .text.INS_Task:00000000 INS_Task
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1510   .text.INS_Task:00000158 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2029   .bss.dt:00000000 dt
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2023   .bss.t:00000000 t
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2060   .rodata.xb:00000000 xb
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2051   .rodata.yb:00000000 yb
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2042   .rodata.zb:00000000 zb
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2017   .bss.count.12:00000000 count.12
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1527   .text.QuaternionUpdate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1533   .text.QuaternionUpdate:00000000 QuaternionUpdate
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1637   .text.QuaternionToEularAngle:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1643   .text.QuaternionToEularAngle:00000000 QuaternionToEularAngle
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1767   .text.QuaternionToEularAngle:000000c8 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1772   .text.EularAngleToQuaternion:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1778   .text.EularAngleToQuaternion:00000000 EularAngleToQuaternion
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1937   .text.EularAngleToQuaternion:000000c4 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1942   .bss.c_33.0:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1948   .bss.c_32.1:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1954   .bss.c_31.2:00000000 $d
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s 			page 50
+
+
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1960   .bss.c_23.3:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1966   .bss.c_22.4:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1972   .bss.c_21.5:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1978   .bss.c_13.6:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1984   .bss.c_12.7:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1990   .bss.c_11.8:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:1996   .bss.lastRollOffset.9:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2002   .bss.lastPitchOffset.10:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2008   .bss.lastYawOffset.11:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2014   .bss.count.12:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2020   .bss.t:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2026   .bss.dt:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2032   .bss.INS_DWT_Count:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2039   .rodata.zb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2048   .rodata.yb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2057   .rodata.xb:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2065   .bss.TempCtrl:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2071   .bss.IMU_Param:00000000 $d
+C:\Users\Administrator\AppData\Local\Temp\ccw9x55v.s:2077   .bss.INS:00000000 $d
+
+UNDEFINED SYMBOLS
+htim10
+BMI088_Read
+DWT_Delay
+Norm3d
+Dot3d
+acosf
+Cross3d
+cosf
+sinf
+BMI088
+arm_cos_f32
+arm_sin_f32
+PIDCalculate
+float_rounding
+float_constrain
+HAL_TIM_PWM_Start
+BMI088Init
+IMU_QuaternionEKF_Init
+memset
+PIDInit
+DWT_GetDeltaT
+hspi1
+IMU_QuaternionEKF_Update
+VisionSetAltitude
+QEKF_INS
+atan2f
+asinf

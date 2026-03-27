@@ -1,0 +1,1982 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"cmsis_os.c"
+  16              		.text
+  17              		.section	.text.makeFreeRtosPriority,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	makeFreeRtosPriority:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 8428     		cmp	r0, #132
+  28 0002 01D0     		beq	.L3
+  29 0004 0330     		adds	r0, r0, #3
+  30 0006 7047     		bx	lr
+  31              	.L3:
+  32 0008 0020     		movs	r0, #0
+  33 000a 7047     		bx	lr
+  35              		.section	.text.makeCmsisPriority,"ax",%progbits
+  36              		.align	1
+  37              		.syntax unified
+  38              		.thumb
+  39              		.thumb_func
+  41              	makeCmsisPriority:
+  42              		@ args = 0, pretend = 0, frame = 0
+  43              		@ frame_needed = 0, uses_anonymous_args = 0
+  44              		@ link register save eliminated.
+  45 0000 0628     		cmp	r0, #6
+  46 0002 02D8     		bhi	.L6
+  47 0004 0338     		subs	r0, r0, #3
+  48 0006 00B2     		sxth	r0, r0
+  49 0008 7047     		bx	lr
+  50              	.L6:
+  51 000a 8420     		movs	r0, #132
+  52 000c 7047     		bx	lr
+  54              		.section	.text.inHandlerMode,"ax",%progbits
+  55              		.align	1
+  56              		.syntax unified
+  57              		.thumb
+  58              		.thumb_func
+  60              	inHandlerMode:
+  61              		@ args = 0, pretend = 0, frame = 0
+  62              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 2
+
+
+  63              		@ link register save eliminated.
+  64              		.syntax unified
+  65              	@ 209 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+  66 0000 EFF30580 		MRS r0, ipsr
+  67              	@ 0 "" 2
+  68              		.thumb
+  69              		.syntax unified
+  70 0004 0038     		subs	r0, r0, #0
+  71 0006 18BF     		it	ne
+  72 0008 0120     		movne	r0, #1
+  73 000a 7047     		bx	lr
+  75              		.section	.text.osKernelStart,"ax",%progbits
+  76              		.align	1
+  77              		.global	osKernelStart
+  78              		.syntax unified
+  79              		.thumb
+  80              		.thumb_func
+  82              	osKernelStart:
+  83              		@ args = 0, pretend = 0, frame = 0
+  84              		@ frame_needed = 0, uses_anonymous_args = 0
+  85 0000 08B5     		push	{r3, lr}
+  86 0002 FFF7FEFF 		bl	vTaskStartScheduler
+  87 0006 0020     		movs	r0, #0
+  88 0008 08BD     		pop	{r3, pc}
+  90              		.section	.text.osKernelRunning,"ax",%progbits
+  91              		.align	1
+  92              		.global	osKernelRunning
+  93              		.syntax unified
+  94              		.thumb
+  95              		.thumb_func
+  97              	osKernelRunning:
+  98              		@ args = 0, pretend = 0, frame = 0
+  99              		@ frame_needed = 0, uses_anonymous_args = 0
+ 100 0000 08B5     		push	{r3, lr}
+ 101 0002 FFF7FEFF 		bl	xTaskGetSchedulerState
+ 102 0006 0128     		cmp	r0, #1
+ 103 0008 01D0     		beq	.L14
+ 104 000a 0120     		movs	r0, #1
+ 105              	.L10:
+ 106 000c 08BD     		pop	{r3, pc}
+ 107              	.L14:
+ 108 000e 0020     		movs	r0, #0
+ 109 0010 FCE7     		b	.L10
+ 111              		.section	.text.osKernelSysTick,"ax",%progbits
+ 112              		.align	1
+ 113              		.global	osKernelSysTick
+ 114              		.syntax unified
+ 115              		.thumb
+ 116              		.thumb_func
+ 118              	osKernelSysTick:
+ 119              		@ args = 0, pretend = 0, frame = 0
+ 120              		@ frame_needed = 0, uses_anonymous_args = 0
+ 121 0000 08B5     		push	{r3, lr}
+ 122 0002 FFF7FEFF 		bl	inHandlerMode
+ 123 0006 10B1     		cbz	r0, .L16
+ 124 0008 FFF7FEFF 		bl	xTaskGetTickCountFromISR
+ 125              	.L15:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 3
+
+
+ 126 000c 08BD     		pop	{r3, pc}
+ 127              	.L16:
+ 128 000e FFF7FEFF 		bl	xTaskGetTickCount
+ 129 0012 FBE7     		b	.L15
+ 131              		.section	.text.osThreadCreate,"ax",%progbits
+ 132              		.align	1
+ 133              		.global	osThreadCreate
+ 134              		.syntax unified
+ 135              		.thumb
+ 136              		.thumb_func
+ 138              	osThreadCreate:
+ 139              		@ args = 0, pretend = 0, frame = 16
+ 140              		@ frame_needed = 0, uses_anonymous_args = 0
+ 141 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 142 0004 88B0     		sub	sp, sp, #32
+ 143 0006 0F46     		mov	r7, r1
+ 144 0008 4469     		ldr	r4, [r0, #20]
+ 145 000a C4B1     		cbz	r4, .L20
+ 146 000c 8846     		mov	r8, r1
+ 147 000e 8569     		ldr	r5, [r0, #24]
+ 148 0010 ADB1     		cbz	r5, .L20
+ 149 0012 4668     		ldr	r6, [r0, #4]
+ 150 0014 0768     		ldr	r7, [r0]
+ 151 0016 0269     		ldr	r2, [r0, #16]
+ 152 0018 0592     		str	r2, [sp, #20]
+ 153 001a B0F90800 		ldrsh	r0, [r0, #8]
+ 154 001e FFF7FEFF 		bl	makeFreeRtosPriority
+ 155 0022 0295     		str	r5, [sp, #8]
+ 156 0024 0194     		str	r4, [sp, #4]
+ 157 0026 0090     		str	r0, [sp]
+ 158 0028 4346     		mov	r3, r8
+ 159 002a 059A     		ldr	r2, [sp, #20]
+ 160 002c 3946     		mov	r1, r7
+ 161 002e 3046     		mov	r0, r6
+ 162 0030 FFF7FEFF 		bl	xTaskCreateStatic
+ 163 0034 0790     		str	r0, [sp, #28]
+ 164              	.L21:
+ 165 0036 0798     		ldr	r0, [sp, #28]
+ 166              	.L19:
+ 167 0038 08B0     		add	sp, sp, #32
+ 168              		@ sp needed
+ 169 003a BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 170              	.L20:
+ 171 003e 4468     		ldr	r4, [r0, #4]
+ 172 0040 0568     		ldr	r5, [r0]
+ 173 0042 0669     		ldr	r6, [r0, #16]
+ 174 0044 B0F90800 		ldrsh	r0, [r0, #8]
+ 175 0048 FFF7FEFF 		bl	makeFreeRtosPriority
+ 176 004c 07AB     		add	r3, sp, #28
+ 177 004e 0193     		str	r3, [sp, #4]
+ 178 0050 0090     		str	r0, [sp]
+ 179 0052 3B46     		mov	r3, r7
+ 180 0054 B2B2     		uxth	r2, r6
+ 181 0056 2946     		mov	r1, r5
+ 182 0058 2046     		mov	r0, r4
+ 183 005a FFF7FEFF 		bl	xTaskCreate
+ 184 005e 0128     		cmp	r0, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 4
+
+
+ 185 0060 E9D0     		beq	.L21
+ 186 0062 0020     		movs	r0, #0
+ 187 0064 E8E7     		b	.L19
+ 189              		.section	.text.osThreadGetId,"ax",%progbits
+ 190              		.align	1
+ 191              		.global	osThreadGetId
+ 192              		.syntax unified
+ 193              		.thumb
+ 194              		.thumb_func
+ 196              	osThreadGetId:
+ 197              		@ args = 0, pretend = 0, frame = 0
+ 198              		@ frame_needed = 0, uses_anonymous_args = 0
+ 199 0000 08B5     		push	{r3, lr}
+ 200 0002 FFF7FEFF 		bl	xTaskGetCurrentTaskHandle
+ 201 0006 08BD     		pop	{r3, pc}
+ 203              		.section	.text.osThreadTerminate,"ax",%progbits
+ 204              		.align	1
+ 205              		.global	osThreadTerminate
+ 206              		.syntax unified
+ 207              		.thumb
+ 208              		.thumb_func
+ 210              	osThreadTerminate:
+ 211              		@ args = 0, pretend = 0, frame = 0
+ 212              		@ frame_needed = 0, uses_anonymous_args = 0
+ 213 0000 08B5     		push	{r3, lr}
+ 214 0002 FFF7FEFF 		bl	vTaskDelete
+ 215 0006 0020     		movs	r0, #0
+ 216 0008 08BD     		pop	{r3, pc}
+ 218              		.section	.text.osThreadYield,"ax",%progbits
+ 219              		.align	1
+ 220              		.global	osThreadYield
+ 221              		.syntax unified
+ 222              		.thumb
+ 223              		.thumb_func
+ 225              	osThreadYield:
+ 226              		@ args = 0, pretend = 0, frame = 0
+ 227              		@ frame_needed = 0, uses_anonymous_args = 0
+ 228              		@ link register save eliminated.
+ 229 0000 4FF0E023 		mov	r3, #-536813568
+ 230 0004 4FF08052 		mov	r2, #268435456
+ 231 0008 C3F8042D 		str	r2, [r3, #3332]
+ 232              		.syntax unified
+ 233              	@ 272 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 234 000c BFF34F8F 		dsb
+ 235              	@ 0 "" 2
+ 236              	@ 272 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 237 0010 BFF36F8F 		isb
+ 238              	@ 0 "" 2
+ 239              		.thumb
+ 240              		.syntax unified
+ 241 0014 0020     		movs	r0, #0
+ 242 0016 7047     		bx	lr
+ 244              		.section	.text.osThreadSetPriority,"ax",%progbits
+ 245              		.align	1
+ 246              		.global	osThreadSetPriority
+ 247              		.syntax unified
+ 248              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 5
+
+
+ 249              		.thumb_func
+ 251              	osThreadSetPriority:
+ 252              		@ args = 0, pretend = 0, frame = 0
+ 253              		@ frame_needed = 0, uses_anonymous_args = 0
+ 254 0000 10B5     		push	{r4, lr}
+ 255 0002 0446     		mov	r4, r0
+ 256 0004 0846     		mov	r0, r1
+ 257 0006 FFF7FEFF 		bl	makeFreeRtosPriority
+ 258 000a 0146     		mov	r1, r0
+ 259 000c 2046     		mov	r0, r4
+ 260 000e FFF7FEFF 		bl	vTaskPrioritySet
+ 261 0012 0020     		movs	r0, #0
+ 262 0014 10BD     		pop	{r4, pc}
+ 264              		.section	.text.osThreadGetPriority,"ax",%progbits
+ 265              		.align	1
+ 266              		.global	osThreadGetPriority
+ 267              		.syntax unified
+ 268              		.thumb
+ 269              		.thumb_func
+ 271              	osThreadGetPriority:
+ 272              		@ args = 0, pretend = 0, frame = 0
+ 273              		@ frame_needed = 0, uses_anonymous_args = 0
+ 274 0000 10B5     		push	{r4, lr}
+ 275 0002 0446     		mov	r4, r0
+ 276 0004 FFF7FEFF 		bl	inHandlerMode
+ 277 0008 28B1     		cbz	r0, .L33
+ 278 000a 2046     		mov	r0, r4
+ 279 000c FFF7FEFF 		bl	uxTaskPriorityGetFromISR
+ 280 0010 FFF7FEFF 		bl	makeCmsisPriority
+ 281              	.L34:
+ 282 0014 10BD     		pop	{r4, pc}
+ 283              	.L33:
+ 284 0016 2046     		mov	r0, r4
+ 285 0018 FFF7FEFF 		bl	uxTaskPriorityGet
+ 286 001c FFF7FEFF 		bl	makeCmsisPriority
+ 287 0020 F8E7     		b	.L34
+ 289              		.section	.text.osDelay,"ax",%progbits
+ 290              		.align	1
+ 291              		.global	osDelay
+ 292              		.syntax unified
+ 293              		.thumb
+ 294              		.thumb_func
+ 296              	osDelay:
+ 297              		@ args = 0, pretend = 0, frame = 0
+ 298              		@ frame_needed = 0, uses_anonymous_args = 0
+ 299 0000 08B5     		push	{r3, lr}
+ 300 0002 00B9     		cbnz	r0, .L37
+ 301 0004 0120     		movs	r0, #1
+ 302              	.L37:
+ 303 0006 FFF7FEFF 		bl	vTaskDelay
+ 304 000a 0020     		movs	r0, #0
+ 305 000c 08BD     		pop	{r3, pc}
+ 307              		.section	.text.osTimerCreate,"ax",%progbits
+ 308              		.align	1
+ 309              		.global	osTimerCreate
+ 310              		.syntax unified
+ 311              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 6
+
+
+ 312              		.thumb_func
+ 314              	osTimerCreate:
+ 315              		@ args = 0, pretend = 0, frame = 0
+ 316              		@ frame_needed = 0, uses_anonymous_args = 0
+ 317              		@ link register save eliminated.
+ 318 0000 0020     		movs	r0, #0
+ 319 0002 7047     		bx	lr
+ 321              		.section	.text.osTimerStart,"ax",%progbits
+ 322              		.align	1
+ 323              		.global	osTimerStart
+ 324              		.syntax unified
+ 325              		.thumb
+ 326              		.thumb_func
+ 328              	osTimerStart:
+ 329              		@ args = 0, pretend = 0, frame = 0
+ 330              		@ frame_needed = 0, uses_anonymous_args = 0
+ 331              		@ link register save eliminated.
+ 332 0000 FF20     		movs	r0, #255
+ 333 0002 7047     		bx	lr
+ 335              		.section	.text.osTimerStop,"ax",%progbits
+ 336              		.align	1
+ 337              		.global	osTimerStop
+ 338              		.syntax unified
+ 339              		.thumb
+ 340              		.thumb_func
+ 342              	osTimerStop:
+ 343              		@ args = 0, pretend = 0, frame = 0
+ 344              		@ frame_needed = 0, uses_anonymous_args = 0
+ 345              		@ link register save eliminated.
+ 346 0000 FF20     		movs	r0, #255
+ 347 0002 7047     		bx	lr
+ 349              		.section	.text.osTimerDelete,"ax",%progbits
+ 350              		.align	1
+ 351              		.global	osTimerDelete
+ 352              		.syntax unified
+ 353              		.thumb
+ 354              		.thumb_func
+ 356              	osTimerDelete:
+ 357              		@ args = 0, pretend = 0, frame = 0
+ 358              		@ frame_needed = 0, uses_anonymous_args = 0
+ 359              		@ link register save eliminated.
+ 360 0000 FF20     		movs	r0, #255
+ 361 0002 7047     		bx	lr
+ 363              		.section	.text.osSignalSet,"ax",%progbits
+ 364              		.align	1
+ 365              		.global	osSignalSet
+ 366              		.syntax unified
+ 367              		.thumb
+ 368              		.thumb_func
+ 370              	osSignalSet:
+ 371              		@ args = 0, pretend = 0, frame = 8
+ 372              		@ frame_needed = 0, uses_anonymous_args = 0
+ 373 0000 30B5     		push	{r4, r5, lr}
+ 374 0002 85B0     		sub	sp, sp, #20
+ 375 0004 0546     		mov	r5, r0
+ 376 0006 0C46     		mov	r4, r1
+ 377 0008 0023     		movs	r3, #0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 7
+
+
+ 378 000a 0393     		str	r3, [sp, #12]
+ 379 000c 0293     		str	r3, [sp, #8]
+ 380 000e FFF7FEFF 		bl	inHandlerMode
+ 381 0012 B0B1     		cbz	r0, .L45
+ 382 0014 03AB     		add	r3, sp, #12
+ 383 0016 0093     		str	r3, [sp]
+ 384 0018 02AB     		add	r3, sp, #8
+ 385 001a 0122     		movs	r2, #1
+ 386 001c 2146     		mov	r1, r4
+ 387 001e 2846     		mov	r0, r5
+ 388 0020 FFF7FEFF 		bl	xTaskGenericNotifyFromISR
+ 389 0024 0128     		cmp	r0, #1
+ 390 0026 17D1     		bne	.L48
+ 391 0028 039B     		ldr	r3, [sp, #12]
+ 392 002a 93B1     		cbz	r3, .L47
+ 393 002c 4FF0E023 		mov	r3, #-536813568
+ 394 0030 4FF08052 		mov	r2, #268435456
+ 395 0034 C3F8042D 		str	r2, [r3, #3332]
+ 396              		.syntax unified
+ 397              	@ 513 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 398 0038 BFF34F8F 		dsb
+ 399              	@ 0 "" 2
+ 400              	@ 513 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 401 003c BFF36F8F 		isb
+ 402              	@ 0 "" 2
+ 403              		.thumb
+ 404              		.syntax unified
+ 405 0040 07E0     		b	.L47
+ 406              	.L45:
+ 407 0042 02AB     		add	r3, sp, #8
+ 408 0044 0122     		movs	r2, #1
+ 409 0046 2146     		mov	r1, r4
+ 410 0048 2846     		mov	r0, r5
+ 411 004a FFF7FEFF 		bl	xTaskGenericNotify
+ 412 004e 0128     		cmp	r0, #1
+ 413 0050 05D1     		bne	.L49
+ 414              	.L47:
+ 415 0052 0298     		ldr	r0, [sp, #8]
+ 416              	.L44:
+ 417 0054 05B0     		add	sp, sp, #20
+ 418              		@ sp needed
+ 419 0056 30BD     		pop	{r4, r5, pc}
+ 420              	.L48:
+ 421 0058 4FF00040 		mov	r0, #-2147483648
+ 422 005c FAE7     		b	.L44
+ 423              	.L49:
+ 424 005e 4FF00040 		mov	r0, #-2147483648
+ 425 0062 F7E7     		b	.L44
+ 427              		.section	.text.osSignalWait,"ax",%progbits
+ 428              		.align	1
+ 429              		.global	osSignalWait
+ 430              		.syntax unified
+ 431              		.thumb
+ 432              		.thumb_func
+ 434              	osSignalWait:
+ 435              		@ args = 0, pretend = 0, frame = 16
+ 436              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 8
+
+
+ 437 0000 70B5     		push	{r4, r5, r6, lr}
+ 438 0002 84B0     		sub	sp, sp, #16
+ 439 0004 0446     		mov	r4, r0
+ 440 0006 0E46     		mov	r6, r1
+ 441 0008 1546     		mov	r5, r2
+ 442 000a 0023     		movs	r3, #0
+ 443 000c 0293     		str	r3, [sp, #8]
+ 444 000e FFF7FEFF 		bl	inHandlerMode
+ 445 0012 48B1     		cbz	r0, .L52
+ 446 0014 8223     		movs	r3, #130
+ 447 0016 0193     		str	r3, [sp, #4]
+ 448              	.L53:
+ 449 0018 04AB     		add	r3, sp, #16
+ 450 001a 13E90700 		ldmdb	r3, {r0, r1, r2}
+ 451 001e 84E80700 		stm	r4, {r0, r1, r2}
+ 452 0022 2046     		mov	r0, r4
+ 453 0024 04B0     		add	sp, sp, #16
+ 454              		@ sp needed
+ 455 0026 70BD     		pop	{r4, r5, r6, pc}
+ 456              	.L52:
+ 457 0028 2B46     		mov	r3, r5
+ 458 002a 02AA     		add	r2, sp, #8
+ 459 002c 3146     		mov	r1, r6
+ 460 002e FFF7FEFF 		bl	xTaskNotifyWait
+ 461 0032 0128     		cmp	r0, #1
+ 462 0034 05D0     		beq	.L54
+ 463 0036 0DB9     		cbnz	r5, .L55
+ 464 0038 0195     		str	r5, [sp, #4]
+ 465 003a EDE7     		b	.L53
+ 466              	.L55:
+ 467 003c 4023     		movs	r3, #64
+ 468 003e 0193     		str	r3, [sp, #4]
+ 469 0040 EAE7     		b	.L53
+ 470              	.L54:
+ 471 0042 029B     		ldr	r3, [sp, #8]
+ 472 0044 002B     		cmp	r3, #0
+ 473 0046 02DB     		blt	.L58
+ 474 0048 0823     		movs	r3, #8
+ 475 004a 0193     		str	r3, [sp, #4]
+ 476 004c E4E7     		b	.L53
+ 477              	.L58:
+ 478 004e 8623     		movs	r3, #134
+ 479 0050 0193     		str	r3, [sp, #4]
+ 480 0052 E1E7     		b	.L53
+ 482              		.section	.text.osMutexCreate,"ax",%progbits
+ 483              		.align	1
+ 484              		.global	osMutexCreate
+ 485              		.syntax unified
+ 486              		.thumb
+ 487              		.thumb_func
+ 489              	osMutexCreate:
+ 490              		@ args = 0, pretend = 0, frame = 0
+ 491              		@ frame_needed = 0, uses_anonymous_args = 0
+ 492 0000 08B5     		push	{r3, lr}
+ 493 0002 4168     		ldr	r1, [r0, #4]
+ 494 0004 19B1     		cbz	r1, .L60
+ 495 0006 0120     		movs	r0, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 9
+
+
+ 496 0008 FFF7FEFF 		bl	xQueueCreateMutexStatic
+ 497              	.L59:
+ 498 000c 08BD     		pop	{r3, pc}
+ 499              	.L60:
+ 500 000e 0120     		movs	r0, #1
+ 501 0010 FFF7FEFF 		bl	xQueueCreateMutex
+ 502 0014 FAE7     		b	.L59
+ 504              		.section	.text.osMutexWait,"ax",%progbits
+ 505              		.align	1
+ 506              		.global	osMutexWait
+ 507              		.syntax unified
+ 508              		.thumb
+ 509              		.thumb_func
+ 511              	osMutexWait:
+ 512              		@ args = 0, pretend = 0, frame = 8
+ 513              		@ frame_needed = 0, uses_anonymous_args = 0
+ 514 0000 30B5     		push	{r4, r5, lr}
+ 515 0002 83B0     		sub	sp, sp, #12
+ 516 0004 0023     		movs	r3, #0
+ 517 0006 0193     		str	r3, [sp, #4]
+ 518 0008 10B3     		cbz	r0, .L66
+ 519 000a 0D46     		mov	r5, r1
+ 520 000c 0446     		mov	r4, r0
+ 521 000e FFF7FEFF 		bl	inHandlerMode
+ 522 0012 A0B1     		cbz	r0, .L65
+ 523 0014 01AA     		add	r2, sp, #4
+ 524 0016 0021     		movs	r1, #0
+ 525 0018 2046     		mov	r0, r4
+ 526 001a FFF7FEFF 		bl	xQueueReceiveFromISR
+ 527 001e 0128     		cmp	r0, #1
+ 528 0020 18D1     		bne	.L67
+ 529 0022 019B     		ldr	r3, [sp, #4]
+ 530 0024 C3B1     		cbz	r3, .L68
+ 531 0026 4FF0E023 		mov	r3, #-536813568
+ 532 002a 4FF08052 		mov	r2, #268435456
+ 533 002e C3F8042D 		str	r2, [r3, #3332]
+ 534              		.syntax unified
+ 535              	@ 651 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 536 0032 BFF34F8F 		dsb
+ 537              	@ 0 "" 2
+ 538              	@ 651 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 539 0036 BFF36F8F 		isb
+ 540              	@ 0 "" 2
+ 541              		.thumb
+ 542              		.syntax unified
+ 543 003a 0020     		movs	r0, #0
+ 544 003c 06E0     		b	.L63
+ 545              	.L65:
+ 546 003e 2946     		mov	r1, r5
+ 547 0040 2046     		mov	r0, r4
+ 548 0042 FFF7FEFF 		bl	xQueueSemaphoreTake
+ 549 0046 0128     		cmp	r0, #1
+ 550 0048 08D1     		bne	.L69
+ 551 004a 0020     		movs	r0, #0
+ 552              	.L63:
+ 553 004c 03B0     		add	sp, sp, #12
+ 554              		@ sp needed
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 10
+
+
+ 555 004e 30BD     		pop	{r4, r5, pc}
+ 556              	.L66:
+ 557 0050 8020     		movs	r0, #128
+ 558 0052 FBE7     		b	.L63
+ 559              	.L67:
+ 560 0054 FF20     		movs	r0, #255
+ 561 0056 F9E7     		b	.L63
+ 562              	.L68:
+ 563 0058 1846     		mov	r0, r3
+ 564 005a F7E7     		b	.L63
+ 565              	.L69:
+ 566 005c FF20     		movs	r0, #255
+ 567 005e F5E7     		b	.L63
+ 569              		.section	.text.osMutexRelease,"ax",%progbits
+ 570              		.align	1
+ 571              		.global	osMutexRelease
+ 572              		.syntax unified
+ 573              		.thumb
+ 574              		.thumb_func
+ 576              	osMutexRelease:
+ 577              		@ args = 0, pretend = 0, frame = 8
+ 578              		@ frame_needed = 0, uses_anonymous_args = 0
+ 579 0000 10B5     		push	{r4, lr}
+ 580 0002 82B0     		sub	sp, sp, #8
+ 581 0004 0446     		mov	r4, r0
+ 582 0006 0023     		movs	r3, #0
+ 583 0008 0193     		str	r3, [sp, #4]
+ 584 000a FFF7FEFF 		bl	inHandlerMode
+ 585 000e 98B1     		cbz	r0, .L72
+ 586 0010 01A9     		add	r1, sp, #4
+ 587 0012 2046     		mov	r0, r4
+ 588 0014 FFF7FEFF 		bl	xQueueGiveFromISR
+ 589 0018 0128     		cmp	r0, #1
+ 590 001a 1AD1     		bne	.L74
+ 591 001c 019B     		ldr	r3, [sp, #4]
+ 592 001e D3B1     		cbz	r3, .L75
+ 593 0020 4FF0E023 		mov	r3, #-536813568
+ 594 0024 4FF08052 		mov	r2, #268435456
+ 595 0028 C3F8042D 		str	r2, [r3, #3332]
+ 596              		.syntax unified
+ 597              	@ 675 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 598 002c BFF34F8F 		dsb
+ 599              	@ 0 "" 2
+ 600              	@ 675 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 601 0030 BFF36F8F 		isb
+ 602              	@ 0 "" 2
+ 603              		.thumb
+ 604              		.syntax unified
+ 605 0034 0020     		movs	r0, #0
+ 606 0036 08E0     		b	.L71
+ 607              	.L72:
+ 608 0038 0346     		mov	r3, r0
+ 609 003a 0246     		mov	r2, r0
+ 610 003c 0146     		mov	r1, r0
+ 611 003e 2046     		mov	r0, r4
+ 612 0040 FFF7FEFF 		bl	xQueueGenericSend
+ 613 0044 0128     		cmp	r0, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 11
+
+
+ 614 0046 02D0     		beq	.L78
+ 615 0048 FF20     		movs	r0, #255
+ 616              	.L71:
+ 617 004a 02B0     		add	sp, sp, #8
+ 618              		@ sp needed
+ 619 004c 10BD     		pop	{r4, pc}
+ 620              	.L78:
+ 621 004e 0020     		movs	r0, #0
+ 622 0050 FBE7     		b	.L71
+ 623              	.L74:
+ 624 0052 FF20     		movs	r0, #255
+ 625 0054 F9E7     		b	.L71
+ 626              	.L75:
+ 627 0056 1846     		mov	r0, r3
+ 628 0058 F7E7     		b	.L71
+ 630              		.section	.text.osMutexDelete,"ax",%progbits
+ 631              		.align	1
+ 632              		.global	osMutexDelete
+ 633              		.syntax unified
+ 634              		.thumb
+ 635              		.thumb_func
+ 637              	osMutexDelete:
+ 638              		@ args = 0, pretend = 0, frame = 0
+ 639              		@ frame_needed = 0, uses_anonymous_args = 0
+ 640 0000 10B5     		push	{r4, lr}
+ 641 0002 0446     		mov	r4, r0
+ 642 0004 FFF7FEFF 		bl	inHandlerMode
+ 643 0008 20B9     		cbnz	r0, .L81
+ 644 000a 2046     		mov	r0, r4
+ 645 000c FFF7FEFF 		bl	vQueueDelete
+ 646 0010 0020     		movs	r0, #0
+ 647              	.L79:
+ 648 0012 10BD     		pop	{r4, pc}
+ 649              	.L81:
+ 650 0014 8220     		movs	r0, #130
+ 651 0016 FCE7     		b	.L79
+ 653              		.section	.text.osSemaphoreCreate,"ax",%progbits
+ 654              		.align	1
+ 655              		.global	osSemaphoreCreate
+ 656              		.syntax unified
+ 657              		.thumb
+ 658              		.thumb_func
+ 660              	osSemaphoreCreate:
+ 661              		@ args = 0, pretend = 0, frame = 0
+ 662              		@ frame_needed = 0, uses_anonymous_args = 0
+ 663 0000 10B5     		push	{r4, lr}
+ 664 0002 82B0     		sub	sp, sp, #8
+ 665 0004 4268     		ldr	r2, [r0, #4]
+ 666 0006 92B1     		cbz	r2, .L84
+ 667 0008 0129     		cmp	r1, #1
+ 668 000a 06D0     		beq	.L90
+ 669 000c 0846     		mov	r0, r1
+ 670 000e FFF7FEFF 		bl	xQueueCreateCountingSemaphoreStatic
+ 671 0012 0446     		mov	r4, r0
+ 672              	.L83:
+ 673 0014 2046     		mov	r0, r4
+ 674 0016 02B0     		add	sp, sp, #8
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 12
+
+
+ 675              		@ sp needed
+ 676 0018 10BD     		pop	{r4, pc}
+ 677              	.L90:
+ 678 001a 0323     		movs	r3, #3
+ 679 001c 0093     		str	r3, [sp]
+ 680 001e 1346     		mov	r3, r2
+ 681 0020 0022     		movs	r2, #0
+ 682 0022 1146     		mov	r1, r2
+ 683 0024 0120     		movs	r0, #1
+ 684 0026 FFF7FEFF 		bl	xQueueGenericCreateStatic
+ 685 002a 0446     		mov	r4, r0
+ 686 002c F2E7     		b	.L83
+ 687              	.L84:
+ 688 002e 0129     		cmp	r1, #1
+ 689 0030 04D0     		beq	.L91
+ 690 0032 0846     		mov	r0, r1
+ 691 0034 FFF7FEFF 		bl	xQueueCreateCountingSemaphore
+ 692 0038 0446     		mov	r4, r0
+ 693 003a EBE7     		b	.L83
+ 694              	.L91:
+ 695 003c 0322     		movs	r2, #3
+ 696 003e 0021     		movs	r1, #0
+ 697 0040 0120     		movs	r0, #1
+ 698 0042 FFF7FEFF 		bl	xQueueGenericCreate
+ 699 0046 0446     		mov	r4, r0
+ 700 0048 0028     		cmp	r0, #0
+ 701 004a E3D0     		beq	.L83
+ 702 004c 0023     		movs	r3, #0
+ 703 004e 1A46     		mov	r2, r3
+ 704 0050 1946     		mov	r1, r3
+ 705 0052 FFF7FEFF 		bl	xQueueGenericSend
+ 706 0056 DDE7     		b	.L83
+ 708              		.section	.text.osSemaphoreWait,"ax",%progbits
+ 709              		.align	1
+ 710              		.global	osSemaphoreWait
+ 711              		.syntax unified
+ 712              		.thumb
+ 713              		.thumb_func
+ 715              	osSemaphoreWait:
+ 716              		@ args = 0, pretend = 0, frame = 8
+ 717              		@ frame_needed = 0, uses_anonymous_args = 0
+ 718 0000 70B5     		push	{r4, r5, r6, lr}
+ 719 0002 82B0     		sub	sp, sp, #8
+ 720 0004 0023     		movs	r3, #0
+ 721 0006 0193     		str	r3, [sp, #4]
+ 722 0008 28B3     		cbz	r0, .L95
+ 723 000a 0E46     		mov	r6, r1
+ 724 000c 0446     		mov	r4, r0
+ 725 000e FFF7FEFF 		bl	inHandlerMode
+ 726 0012 0546     		mov	r5, r0
+ 727 0014 B0B1     		cbz	r0, .L94
+ 728 0016 01AA     		add	r2, sp, #4
+ 729 0018 0021     		movs	r1, #0
+ 730 001a 2046     		mov	r0, r4
+ 731 001c FFF7FEFF 		bl	xQueueReceiveFromISR
+ 732 0020 0128     		cmp	r0, #1
+ 733 0022 1BD1     		bne	.L96
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 13
+
+
+ 734 0024 019B     		ldr	r3, [sp, #4]
+ 735 0026 1D46     		mov	r5, r3
+ 736 0028 93B1     		cbz	r3, .L92
+ 737 002a 4FF0E023 		mov	r3, #-536813568
+ 738 002e 4FF08052 		mov	r2, #268435456
+ 739 0032 C3F8042D 		str	r2, [r3, #3332]
+ 740              		.syntax unified
+ 741              	@ 804 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 742 0036 BFF34F8F 		dsb
+ 743              	@ 0 "" 2
+ 744              	@ 804 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 745 003a BFF36F8F 		isb
+ 746              	@ 0 "" 2
+ 747              		.thumb
+ 748              		.syntax unified
+ 749 003e 0023     		movs	r3, #0
+ 750 0040 1D46     		mov	r5, r3
+ 751 0042 05E0     		b	.L92
+ 752              	.L94:
+ 753 0044 3146     		mov	r1, r6
+ 754 0046 2046     		mov	r0, r4
+ 755 0048 FFF7FEFF 		bl	xQueueSemaphoreTake
+ 756 004c 0128     		cmp	r0, #1
+ 757 004e 08D1     		bne	.L99
+ 758              	.L92:
+ 759 0050 2846     		mov	r0, r5
+ 760 0052 02B0     		add	sp, sp, #8
+ 761              		@ sp needed
+ 762 0054 70BD     		pop	{r4, r5, r6, pc}
+ 763              	.L95:
+ 764 0056 8023     		movs	r3, #128
+ 765 0058 1D46     		mov	r5, r3
+ 766 005a F9E7     		b	.L92
+ 767              	.L96:
+ 768 005c FF23     		movs	r3, #255
+ 769 005e 1D46     		mov	r5, r3
+ 770 0060 F6E7     		b	.L92
+ 771              	.L99:
+ 772 0062 FF23     		movs	r3, #255
+ 773 0064 1D46     		mov	r5, r3
+ 774 0066 F3E7     		b	.L92
+ 776              		.section	.text.osSemaphoreRelease,"ax",%progbits
+ 777              		.align	1
+ 778              		.global	osSemaphoreRelease
+ 779              		.syntax unified
+ 780              		.thumb
+ 781              		.thumb_func
+ 783              	osSemaphoreRelease:
+ 784              		@ args = 0, pretend = 0, frame = 8
+ 785              		@ frame_needed = 0, uses_anonymous_args = 0
+ 786 0000 10B5     		push	{r4, lr}
+ 787 0002 82B0     		sub	sp, sp, #8
+ 788 0004 0446     		mov	r4, r0
+ 789 0006 0023     		movs	r3, #0
+ 790 0008 0193     		str	r3, [sp, #4]
+ 791 000a FFF7FEFF 		bl	inHandlerMode
+ 792 000e 98B1     		cbz	r0, .L101
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 14
+
+
+ 793 0010 01A9     		add	r1, sp, #4
+ 794 0012 2046     		mov	r0, r4
+ 795 0014 FFF7FEFF 		bl	xQueueGiveFromISR
+ 796 0018 0128     		cmp	r0, #1
+ 797 001a 1AD1     		bne	.L103
+ 798 001c 019B     		ldr	r3, [sp, #4]
+ 799 001e D3B1     		cbz	r3, .L104
+ 800 0020 4FF0E023 		mov	r3, #-536813568
+ 801 0024 4FF08052 		mov	r2, #268435456
+ 802 0028 C3F8042D 		str	r2, [r3, #3332]
+ 803              		.syntax unified
+ 804              	@ 829 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 805 002c BFF34F8F 		dsb
+ 806              	@ 0 "" 2
+ 807              	@ 829 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 808 0030 BFF36F8F 		isb
+ 809              	@ 0 "" 2
+ 810              		.thumb
+ 811              		.syntax unified
+ 812 0034 0020     		movs	r0, #0
+ 813 0036 08E0     		b	.L100
+ 814              	.L101:
+ 815 0038 0346     		mov	r3, r0
+ 816 003a 0246     		mov	r2, r0
+ 817 003c 0146     		mov	r1, r0
+ 818 003e 2046     		mov	r0, r4
+ 819 0040 FFF7FEFF 		bl	xQueueGenericSend
+ 820 0044 0128     		cmp	r0, #1
+ 821 0046 02D0     		beq	.L107
+ 822 0048 FF20     		movs	r0, #255
+ 823              	.L100:
+ 824 004a 02B0     		add	sp, sp, #8
+ 825              		@ sp needed
+ 826 004c 10BD     		pop	{r4, pc}
+ 827              	.L107:
+ 828 004e 0020     		movs	r0, #0
+ 829 0050 FBE7     		b	.L100
+ 830              	.L103:
+ 831 0052 FF20     		movs	r0, #255
+ 832 0054 F9E7     		b	.L100
+ 833              	.L104:
+ 834 0056 1846     		mov	r0, r3
+ 835 0058 F7E7     		b	.L100
+ 837              		.section	.text.osSemaphoreDelete,"ax",%progbits
+ 838              		.align	1
+ 839              		.global	osSemaphoreDelete
+ 840              		.syntax unified
+ 841              		.thumb
+ 842              		.thumb_func
+ 844              	osSemaphoreDelete:
+ 845              		@ args = 0, pretend = 0, frame = 0
+ 846              		@ frame_needed = 0, uses_anonymous_args = 0
+ 847 0000 10B5     		push	{r4, lr}
+ 848 0002 0446     		mov	r4, r0
+ 849 0004 FFF7FEFF 		bl	inHandlerMode
+ 850 0008 20B9     		cbnz	r0, .L110
+ 851 000a 2046     		mov	r0, r4
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 15
+
+
+ 852 000c FFF7FEFF 		bl	vQueueDelete
+ 853 0010 0020     		movs	r0, #0
+ 854              	.L108:
+ 855 0012 10BD     		pop	{r4, pc}
+ 856              	.L110:
+ 857 0014 8220     		movs	r0, #130
+ 858 0016 FCE7     		b	.L108
+ 860              		.section	.text.osPoolCreate,"ax",%progbits
+ 861              		.align	1
+ 862              		.global	osPoolCreate
+ 863              		.syntax unified
+ 864              		.thumb
+ 865              		.thumb_func
+ 867              	osPoolCreate:
+ 868              		@ args = 0, pretend = 0, frame = 0
+ 869              		@ frame_needed = 0, uses_anonymous_args = 0
+ 870 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 871 0002 0446     		mov	r4, r0
+ 872 0004 4368     		ldr	r3, [r0, #4]
+ 873 0006 0333     		adds	r3, r3, #3
+ 874 0008 23F00306 		bic	r6, r3, #3
+ 875 000c 1420     		movs	r0, #20
+ 876 000e FFF7FEFF 		bl	pvPortMalloc
+ 877 0012 0546     		mov	r5, r0
+ 878 0014 D8B1     		cbz	r0, .L112
+ 879 0016 2368     		ldr	r3, [r4]
+ 880 0018 8360     		str	r3, [r0, #8]
+ 881 001a C660     		str	r6, [r0, #12]
+ 882 001c 0023     		movs	r3, #0
+ 883 001e 0361     		str	r3, [r0, #16]
+ 884 0020 2068     		ldr	r0, [r4]
+ 885 0022 FFF7FEFF 		bl	pvPortMalloc
+ 886 0026 0746     		mov	r7, r0
+ 887 0028 6860     		str	r0, [r5, #4]
+ 888 002a D0B1     		cbz	r0, .L114
+ 889 002c 2068     		ldr	r0, [r4]
+ 890 002e 06FB00F0 		mul	r0, r6, r0
+ 891 0032 FFF7FEFF 		bl	pvPortMalloc
+ 892 0036 0646     		mov	r6, r0
+ 893 0038 2860     		str	r0, [r5]
+ 894 003a 50B1     		cbz	r0, .L121
+ 895 003c 0023     		movs	r3, #0
+ 896 003e 03E0     		b	.L115
+ 897              	.L117:
+ 898 0040 6A68     		ldr	r2, [r5, #4]
+ 899 0042 0021     		movs	r1, #0
+ 900 0044 D154     		strb	r1, [r2, r3]
+ 901 0046 0133     		adds	r3, r3, #1
+ 902              	.L115:
+ 903 0048 2268     		ldr	r2, [r4]
+ 904 004a 9A42     		cmp	r2, r3
+ 905 004c F8D8     		bhi	.L117
+ 906              	.L112:
+ 907 004e 2846     		mov	r0, r5
+ 908 0050 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 909              	.L121:
+ 910 0052 6868     		ldr	r0, [r5, #4]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 16
+
+
+ 911 0054 FFF7FEFF 		bl	vPortFree
+ 912 0058 2846     		mov	r0, r5
+ 913 005a FFF7FEFF 		bl	vPortFree
+ 914 005e 3546     		mov	r5, r6
+ 915 0060 F5E7     		b	.L112
+ 916              	.L114:
+ 917 0062 2846     		mov	r0, r5
+ 918 0064 FFF7FEFF 		bl	vPortFree
+ 919 0068 3D46     		mov	r5, r7
+ 920 006a F0E7     		b	.L112
+ 922              		.section	.text.osPoolAlloc,"ax",%progbits
+ 923              		.align	1
+ 924              		.global	osPoolAlloc
+ 925              		.syntax unified
+ 926              		.thumb
+ 927              		.thumb_func
+ 929              	osPoolAlloc:
+ 930              		@ args = 0, pretend = 0, frame = 0
+ 931              		@ frame_needed = 0, uses_anonymous_args = 0
+ 932 0000 70B5     		push	{r4, r5, r6, lr}
+ 933 0002 0446     		mov	r4, r0
+ 934 0004 FFF7FEFF 		bl	inHandlerMode
+ 935 0008 60B1     		cbz	r0, .L123
+ 936              		.syntax unified
+ 937              	@ 211 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h" 1
+ 938 000a EFF31183 			mrs r3, basepri											
+ 939 000e 4FF05002 		mov r2, #80												
+ 940 0012 82F31188 		msr basepri, r2											
+ 941 0016 BFF36F8F 		isb														
+ 942 001a BFF34F8F 		dsb														
+ 943              	
+ 944              	@ 0 "" 2
+ 945              		.thumb
+ 946              		.syntax unified
+ 947 001e 1D46     		mov	r5, r3
+ 948              	.L124:
+ 949 0020 0021     		movs	r1, #0
+ 950 0022 04E0     		b	.L125
+ 951              	.L123:
+ 952 0024 0546     		mov	r5, r0
+ 953 0026 FFF7FEFF 		bl	vPortEnterCritical
+ 954 002a F9E7     		b	.L124
+ 955              	.L126:
+ 956 002c 0131     		adds	r1, r1, #1
+ 957              	.L125:
+ 958 002e A268     		ldr	r2, [r4, #8]
+ 959 0030 8A42     		cmp	r2, r1
+ 960 0032 12D9     		bls	.L132
+ 961 0034 2369     		ldr	r3, [r4, #16]
+ 962 0036 0B44     		add	r3, r3, r1
+ 963 0038 B3FBF2F0 		udiv	r0, r3, r2
+ 964 003c 02FB1033 		mls	r3, r2, r0, r3
+ 965 0040 6268     		ldr	r2, [r4, #4]
+ 966 0042 D05C     		ldrb	r0, [r2, r3]	@ zero_extendqisi2
+ 967 0044 0028     		cmp	r0, #0
+ 968 0046 F1D1     		bne	.L126
+ 969 0048 0121     		movs	r1, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 17
+
+
+ 970 004a D154     		strb	r1, [r2, r3]
+ 971 004c 2268     		ldr	r2, [r4]
+ 972 004e E168     		ldr	r1, [r4, #12]
+ 973 0050 03FB0122 		mla	r2, r3, r1, r2
+ 974 0054 1646     		mov	r6, r2
+ 975 0056 2361     		str	r3, [r4, #16]
+ 976 0058 01E0     		b	.L127
+ 977              	.L132:
+ 978 005a 0023     		movs	r3, #0
+ 979 005c 1E46     		mov	r6, r3
+ 980              	.L127:
+ 981 005e FFF7FEFF 		bl	inHandlerMode
+ 982 0062 18B1     		cbz	r0, .L129
+ 983              		.syntax unified
+ 984              	@ 229 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h" 1
+ 985 0064 85F31188 			msr basepri, r5	
+ 986              	@ 0 "" 2
+ 987              		.thumb
+ 988              		.syntax unified
+ 989              	.L122:
+ 990 0068 3046     		mov	r0, r6
+ 991 006a 70BD     		pop	{r4, r5, r6, pc}
+ 992              	.L129:
+ 993 006c FFF7FEFF 		bl	vPortExitCritical
+ 994 0070 FAE7     		b	.L122
+ 996              		.section	.text.osPoolCAlloc,"ax",%progbits
+ 997              		.align	1
+ 998              		.global	osPoolCAlloc
+ 999              		.syntax unified
+ 1000              		.thumb
+ 1001              		.thumb_func
+ 1003              	osPoolCAlloc:
+ 1004              		@ args = 0, pretend = 0, frame = 0
+ 1005              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1006 0000 08B5     		push	{r3, lr}
+ 1007 0002 FFF7FEFF 		bl	osPoolAlloc
+ 1008 0006 08B1     		cbz	r0, .L133
+ 1009 0008 0023     		movs	r3, #0
+ 1010 000a 0360     		str	r3, [r0]	@ unaligned
+ 1011              	.L133:
+ 1012 000c 08BD     		pop	{r3, pc}
+ 1014              		.section	.text.osPoolFree,"ax",%progbits
+ 1015              		.align	1
+ 1016              		.global	osPoolFree
+ 1017              		.syntax unified
+ 1018              		.thumb
+ 1019              		.thumb_func
+ 1021              	osPoolFree:
+ 1022              		@ args = 0, pretend = 0, frame = 0
+ 1023              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1024              		@ link register save eliminated.
+ 1025 0000 0346     		mov	r3, r0
+ 1026 0002 90B1     		cbz	r0, .L138
+ 1027 0004 99B1     		cbz	r1, .L139
+ 1028 0006 0268     		ldr	r2, [r0]
+ 1029 0008 8A42     		cmp	r2, r1
+ 1030 000a 12D8     		bhi	.L140
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 18
+
+
+ 1031 000c 891A     		subs	r1, r1, r2
+ 1032 000e C268     		ldr	r2, [r0, #12]
+ 1033 0010 B1FBF2F0 		udiv	r0, r1, r2
+ 1034 0014 02FB1010 		mls	r0, r2, r0, r1
+ 1035 0018 68B9     		cbnz	r0, .L141
+ 1036 001a B1FBF2F1 		udiv	r1, r1, r2
+ 1037 001e 9A68     		ldr	r2, [r3, #8]
+ 1038 0020 8A42     		cmp	r2, r1
+ 1039 0022 0AD9     		bls	.L142
+ 1040 0024 5B68     		ldr	r3, [r3, #4]
+ 1041 0026 5854     		strb	r0, [r3, r1]
+ 1042 0028 7047     		bx	lr
+ 1043              	.L138:
+ 1044 002a 8020     		movs	r0, #128
+ 1045 002c 7047     		bx	lr
+ 1046              	.L139:
+ 1047 002e 8020     		movs	r0, #128
+ 1048 0030 7047     		bx	lr
+ 1049              	.L140:
+ 1050 0032 8020     		movs	r0, #128
+ 1051 0034 7047     		bx	lr
+ 1052              	.L141:
+ 1053 0036 8020     		movs	r0, #128
+ 1054 0038 7047     		bx	lr
+ 1055              	.L142:
+ 1056 003a 8020     		movs	r0, #128
+ 1057 003c 7047     		bx	lr
+ 1059              		.section	.text.osMessageCreate,"ax",%progbits
+ 1060              		.align	1
+ 1061              		.global	osMessageCreate
+ 1062              		.syntax unified
+ 1063              		.thumb
+ 1064              		.thumb_func
+ 1066              	osMessageCreate:
+ 1067              		@ args = 0, pretend = 0, frame = 0
+ 1068              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1069 0000 00B5     		push	{lr}
+ 1070 0002 83B0     		sub	sp, sp, #12
+ 1071 0004 8268     		ldr	r2, [r0, #8]
+ 1072 0006 42B1     		cbz	r2, .L144
+ 1073 0008 C368     		ldr	r3, [r0, #12]
+ 1074 000a 33B1     		cbz	r3, .L144
+ 1075 000c 0021     		movs	r1, #0
+ 1076 000e 0091     		str	r1, [sp]
+ 1077 0010 4168     		ldr	r1, [r0, #4]
+ 1078 0012 0068     		ldr	r0, [r0]
+ 1079 0014 FFF7FEFF 		bl	xQueueGenericCreateStatic
+ 1080 0018 04E0     		b	.L143
+ 1081              	.L144:
+ 1082 001a 0022     		movs	r2, #0
+ 1083 001c 4168     		ldr	r1, [r0, #4]
+ 1084 001e 0068     		ldr	r0, [r0]
+ 1085 0020 FFF7FEFF 		bl	xQueueGenericCreate
+ 1086              	.L143:
+ 1087 0024 03B0     		add	sp, sp, #12
+ 1088              		@ sp needed
+ 1089 0026 00BD     		pop	{pc}
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 19
+
+
+ 1091              		.section	.text.osMessagePut,"ax",%progbits
+ 1092              		.align	1
+ 1093              		.global	osMessagePut
+ 1094              		.syntax unified
+ 1095              		.thumb
+ 1096              		.thumb_func
+ 1098              	osMessagePut:
+ 1099              		@ args = 0, pretend = 0, frame = 16
+ 1100              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1101 0000 30B5     		push	{r4, r5, lr}
+ 1102 0002 85B0     		sub	sp, sp, #20
+ 1103 0004 0446     		mov	r4, r0
+ 1104 0006 0191     		str	r1, [sp, #4]
+ 1105 0008 0023     		movs	r3, #0
+ 1106 000a 0393     		str	r3, [sp, #12]
+ 1107 000c 1546     		mov	r5, r2
+ 1108 000e 0AB9     		cbnz	r2, .L148
+ 1109 0010 0123     		movs	r3, #1
+ 1110 0012 1D46     		mov	r5, r3
+ 1111              	.L148:
+ 1112 0014 FFF7FEFF 		bl	inHandlerMode
+ 1113 0018 A8B1     		cbz	r0, .L149
+ 1114 001a 0023     		movs	r3, #0
+ 1115 001c 03AA     		add	r2, sp, #12
+ 1116 001e 01A9     		add	r1, sp, #4
+ 1117 0020 2046     		mov	r0, r4
+ 1118 0022 FFF7FEFF 		bl	xQueueGenericSendFromISR
+ 1119 0026 0128     		cmp	r0, #1
+ 1120 0028 18D1     		bne	.L152
+ 1121 002a 039B     		ldr	r3, [sp, #12]
+ 1122 002c C3B1     		cbz	r3, .L153
+ 1123 002e 4FF0E023 		mov	r3, #-536813568
+ 1124 0032 4FF08052 		mov	r2, #268435456
+ 1125 0036 C3F8042D 		str	r2, [r3, #3332]
+ 1126              		.syntax unified
+ 1127              	@ 1081 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 1128 003a BFF34F8F 		dsb
+ 1129              	@ 0 "" 2
+ 1130              	@ 1081 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 1131 003e BFF36F8F 		isb
+ 1132              	@ 0 "" 2
+ 1133              		.thumb
+ 1134              		.syntax unified
+ 1135 0042 0020     		movs	r0, #0
+ 1136 0044 08E0     		b	.L147
+ 1137              	.L149:
+ 1138 0046 0346     		mov	r3, r0
+ 1139 0048 2A46     		mov	r2, r5
+ 1140 004a 01A9     		add	r1, sp, #4
+ 1141 004c 2046     		mov	r0, r4
+ 1142 004e FFF7FEFF 		bl	xQueueGenericSend
+ 1143 0052 0128     		cmp	r0, #1
+ 1144 0054 06D1     		bne	.L154
+ 1145 0056 0020     		movs	r0, #0
+ 1146              	.L147:
+ 1147 0058 05B0     		add	sp, sp, #20
+ 1148              		@ sp needed
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 20
+
+
+ 1149 005a 30BD     		pop	{r4, r5, pc}
+ 1150              	.L152:
+ 1151 005c FF20     		movs	r0, #255
+ 1152 005e FBE7     		b	.L147
+ 1153              	.L153:
+ 1154 0060 1846     		mov	r0, r3
+ 1155 0062 F9E7     		b	.L147
+ 1156              	.L154:
+ 1157 0064 FF20     		movs	r0, #255
+ 1158 0066 F7E7     		b	.L147
+ 1160              		.section	.text.osMessageGet,"ax",%progbits
+ 1161              		.align	1
+ 1162              		.global	osMessageGet
+ 1163              		.syntax unified
+ 1164              		.thumb
+ 1165              		.thumb_func
+ 1167              	osMessageGet:
+ 1168              		@ args = 0, pretend = 0, frame = 16
+ 1169              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1170 0000 70B5     		push	{r4, r5, r6, lr}
+ 1171 0002 84B0     		sub	sp, sp, #16
+ 1172 0004 0546     		mov	r5, r0
+ 1173 0006 0291     		str	r1, [sp, #8]
+ 1174 0008 0023     		movs	r3, #0
+ 1175 000a 0193     		str	r3, [sp, #4]
+ 1176 000c E1B1     		cbz	r1, .L167
+ 1177 000e 0C46     		mov	r4, r1
+ 1178 0010 1646     		mov	r6, r2
+ 1179 0012 0023     		movs	r3, #0
+ 1180 0014 0393     		str	r3, [sp, #12]
+ 1181 0016 FFF7FEFF 		bl	inHandlerMode
+ 1182 001a F8B1     		cbz	r0, .L159
+ 1183 001c 03AA     		add	r2, sp, #12
+ 1184 001e 01A9     		add	r1, sp, #4
+ 1185 0020 2046     		mov	r0, r4
+ 1186 0022 FFF7FEFF 		bl	xQueueReceiveFromISR
+ 1187 0026 0128     		cmp	r0, #1
+ 1188 0028 15D0     		beq	.L168
+ 1189 002a 0023     		movs	r3, #0
+ 1190 002c 0093     		str	r3, [sp]
+ 1191              	.L161:
+ 1192 002e 039B     		ldr	r3, [sp, #12]
+ 1193 0030 FBB1     		cbz	r3, .L162
+ 1194 0032 4FF0E023 		mov	r3, #-536813568
+ 1195 0036 4FF08052 		mov	r2, #268435456
+ 1196 003a C3F8042D 		str	r2, [r3, #3332]
+ 1197              		.syntax unified
+ 1198              	@ 1134 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 1199 003e BFF34F8F 		dsb
+ 1200              	@ 0 "" 2
+ 1201              	@ 1134 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 1202 0042 BFF36F8F 		isb
+ 1203              	@ 0 "" 2
+ 1204              		.thumb
+ 1205              		.syntax unified
+ 1206 0046 14E0     		b	.L162
+ 1207              	.L167:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 21
+
+
+ 1208 0048 8023     		movs	r3, #128
+ 1209 004a 0093     		str	r3, [sp]
+ 1210 004c 9DE80700 		ldm	sp, {r0, r1, r2}
+ 1211 0050 85E80700 		stm	r5, {r0, r1, r2}
+ 1212 0054 11E0     		b	.L156
+ 1213              	.L168:
+ 1214 0056 1023     		movs	r3, #16
+ 1215 0058 0093     		str	r3, [sp]
+ 1216 005a E8E7     		b	.L161
+ 1217              	.L159:
+ 1218 005c 3246     		mov	r2, r6
+ 1219 005e 01A9     		add	r1, sp, #4
+ 1220 0060 2046     		mov	r0, r4
+ 1221 0062 FFF7FEFF 		bl	xQueueReceive
+ 1222 0066 0128     		cmp	r0, #1
+ 1223 0068 0AD0     		beq	.L169
+ 1224 006a 0EB1     		cbz	r6, .L164
+ 1225 006c 4023     		movs	r3, #64
+ 1226 006e 1E46     		mov	r6, r3
+ 1227              	.L164:
+ 1228 0070 0096     		str	r6, [sp]
+ 1229              	.L162:
+ 1230 0072 9DE80700 		ldm	sp, {r0, r1, r2}
+ 1231 0076 85E80700 		stm	r5, {r0, r1, r2}
+ 1232              	.L156:
+ 1233 007a 2846     		mov	r0, r5
+ 1234 007c 04B0     		add	sp, sp, #16
+ 1235              		@ sp needed
+ 1236 007e 70BD     		pop	{r4, r5, r6, pc}
+ 1237              	.L169:
+ 1238 0080 1023     		movs	r3, #16
+ 1239 0082 0093     		str	r3, [sp]
+ 1240 0084 F5E7     		b	.L162
+ 1242              		.section	.text.osMailCreate,"ax",%progbits
+ 1243              		.align	1
+ 1244              		.global	osMailCreate
+ 1245              		.syntax unified
+ 1246              		.thumb
+ 1247              		.thumb_func
+ 1249              	osMailCreate:
+ 1250              		@ args = 0, pretend = 0, frame = 16
+ 1251              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1252 0000 70B5     		push	{r4, r5, r6, lr}
+ 1253 0002 84B0     		sub	sp, sp, #16
+ 1254 0004 0446     		mov	r4, r0
+ 1255 0006 0368     		ldr	r3, [r0]
+ 1256 0008 0193     		str	r3, [sp, #4]
+ 1257 000a 4368     		ldr	r3, [r0, #4]
+ 1258 000c 0293     		str	r3, [sp, #8]
+ 1259 000e 0023     		movs	r3, #0
+ 1260 0010 0393     		str	r3, [sp, #12]
+ 1261 0012 8568     		ldr	r5, [r0, #8]
+ 1262 0014 0C20     		movs	r0, #12
+ 1263 0016 FFF7FEFF 		bl	pvPortMalloc
+ 1264 001a 2860     		str	r0, [r5]
+ 1265 001c A368     		ldr	r3, [r4, #8]
+ 1266 001e 1D68     		ldr	r5, [r3]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 22
+
+
+ 1267 0020 A5B1     		cbz	r5, .L170
+ 1268 0022 2C60     		str	r4, [r5]
+ 1269 0024 A368     		ldr	r3, [r4, #8]
+ 1270 0026 1D68     		ldr	r5, [r3]
+ 1271 0028 0022     		movs	r2, #0
+ 1272 002a 0421     		movs	r1, #4
+ 1273 002c 2068     		ldr	r0, [r4]
+ 1274 002e FFF7FEFF 		bl	xQueueGenericCreate
+ 1275 0032 6860     		str	r0, [r5, #4]
+ 1276 0034 A368     		ldr	r3, [r4, #8]
+ 1277 0036 1E68     		ldr	r6, [r3]
+ 1278 0038 7568     		ldr	r5, [r6, #4]
+ 1279 003a 55B1     		cbz	r5, .L174
+ 1280 003c 01A8     		add	r0, sp, #4
+ 1281 003e FFF7FEFF 		bl	osPoolCreate
+ 1282 0042 B060     		str	r0, [r6, #8]
+ 1283 0044 A368     		ldr	r3, [r4, #8]
+ 1284 0046 1D68     		ldr	r5, [r3]
+ 1285 0048 AC68     		ldr	r4, [r5, #8]
+ 1286 004a 34B1     		cbz	r4, .L175
+ 1287              	.L170:
+ 1288 004c 2846     		mov	r0, r5
+ 1289 004e 04B0     		add	sp, sp, #16
+ 1290              		@ sp needed
+ 1291 0050 70BD     		pop	{r4, r5, r6, pc}
+ 1292              	.L174:
+ 1293 0052 3046     		mov	r0, r6
+ 1294 0054 FFF7FEFF 		bl	vPortFree
+ 1295 0058 F8E7     		b	.L170
+ 1296              	.L175:
+ 1297 005a 2846     		mov	r0, r5
+ 1298 005c FFF7FEFF 		bl	vPortFree
+ 1299 0060 2546     		mov	r5, r4
+ 1300 0062 F3E7     		b	.L170
+ 1302              		.section	.text.osMailAlloc,"ax",%progbits
+ 1303              		.align	1
+ 1304              		.global	osMailAlloc
+ 1305              		.syntax unified
+ 1306              		.thumb
+ 1307              		.thumb_func
+ 1309              	osMailAlloc:
+ 1310              		@ args = 0, pretend = 0, frame = 0
+ 1311              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1312 0000 08B5     		push	{r3, lr}
+ 1313 0002 10B1     		cbz	r0, .L176
+ 1314 0004 8068     		ldr	r0, [r0, #8]
+ 1315 0006 FFF7FEFF 		bl	osPoolAlloc
+ 1316              	.L176:
+ 1317 000a 08BD     		pop	{r3, pc}
+ 1319              		.section	.text.osMailCAlloc,"ax",%progbits
+ 1320              		.align	1
+ 1321              		.global	osMailCAlloc
+ 1322              		.syntax unified
+ 1323              		.thumb
+ 1324              		.thumb_func
+ 1326              	osMailCAlloc:
+ 1327              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 23
+
+
+ 1328              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1329 0000 10B5     		push	{r4, lr}
+ 1330 0002 0446     		mov	r4, r0
+ 1331 0004 FFF7FEFF 		bl	osMailAlloc
+ 1332 0008 0146     		mov	r1, r0
+ 1333 000a 40B1     		cbz	r0, .L180
+ 1334 000c 0023     		movs	r3, #0
+ 1335 000e 02E0     		b	.L181
+ 1336              	.L183:
+ 1337 0010 0022     		movs	r2, #0
+ 1338 0012 CA54     		strb	r2, [r1, r3]
+ 1339 0014 0133     		adds	r3, r3, #1
+ 1340              	.L181:
+ 1341 0016 2268     		ldr	r2, [r4]
+ 1342 0018 5268     		ldr	r2, [r2, #4]
+ 1343 001a 9A42     		cmp	r2, r3
+ 1344 001c F8D8     		bhi	.L183
+ 1345              	.L180:
+ 1346 001e 0846     		mov	r0, r1
+ 1347 0020 10BD     		pop	{r4, pc}
+ 1349              		.section	.text.osMailPut,"ax",%progbits
+ 1350              		.align	1
+ 1351              		.global	osMailPut
+ 1352              		.syntax unified
+ 1353              		.thumb
+ 1354              		.thumb_func
+ 1356              	osMailPut:
+ 1357              		@ args = 0, pretend = 0, frame = 16
+ 1358              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1359 0000 10B5     		push	{r4, lr}
+ 1360 0002 84B0     		sub	sp, sp, #16
+ 1361 0004 0191     		str	r1, [sp, #4]
+ 1362 0006 30B3     		cbz	r0, .L189
+ 1363 0008 0446     		mov	r4, r0
+ 1364 000a 0023     		movs	r3, #0
+ 1365 000c 0393     		str	r3, [sp, #12]
+ 1366 000e FFF7FEFF 		bl	inHandlerMode
+ 1367 0012 A8B1     		cbz	r0, .L188
+ 1368 0014 0023     		movs	r3, #0
+ 1369 0016 03AA     		add	r2, sp, #12
+ 1370 0018 01A9     		add	r1, sp, #4
+ 1371 001a 6068     		ldr	r0, [r4, #4]
+ 1372 001c FFF7FEFF 		bl	xQueueGenericSendFromISR
+ 1373 0020 0128     		cmp	r0, #1
+ 1374 0022 1AD1     		bne	.L190
+ 1375 0024 039B     		ldr	r3, [sp, #12]
+ 1376 0026 D3B1     		cbz	r3, .L191
+ 1377 0028 4FF0E023 		mov	r3, #-536813568
+ 1378 002c 4FF08052 		mov	r2, #268435456
+ 1379 0030 C3F8042D 		str	r2, [r3, #3332]
+ 1380              		.syntax unified
+ 1381              	@ 1272 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 1382 0034 BFF34F8F 		dsb
+ 1383              	@ 0 "" 2
+ 1384              	@ 1272 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 1385 0038 BFF36F8F 		isb
+ 1386              	@ 0 "" 2
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 24
+
+
+ 1387              		.thumb
+ 1388              		.syntax unified
+ 1389 003c 0020     		movs	r0, #0
+ 1390 003e 08E0     		b	.L186
+ 1391              	.L188:
+ 1392 0040 0346     		mov	r3, r0
+ 1393 0042 0246     		mov	r2, r0
+ 1394 0044 01A9     		add	r1, sp, #4
+ 1395 0046 6068     		ldr	r0, [r4, #4]
+ 1396 0048 FFF7FEFF 		bl	xQueueGenericSend
+ 1397 004c 0128     		cmp	r0, #1
+ 1398 004e 08D1     		bne	.L192
+ 1399 0050 0020     		movs	r0, #0
+ 1400              	.L186:
+ 1401 0052 04B0     		add	sp, sp, #16
+ 1402              		@ sp needed
+ 1403 0054 10BD     		pop	{r4, pc}
+ 1404              	.L189:
+ 1405 0056 8020     		movs	r0, #128
+ 1406 0058 FBE7     		b	.L186
+ 1407              	.L190:
+ 1408 005a FF20     		movs	r0, #255
+ 1409 005c F9E7     		b	.L186
+ 1410              	.L191:
+ 1411 005e 1846     		mov	r0, r3
+ 1412 0060 F7E7     		b	.L186
+ 1413              	.L192:
+ 1414 0062 FF20     		movs	r0, #255
+ 1415 0064 F5E7     		b	.L186
+ 1417              		.section	.text.osMailGet,"ax",%progbits
+ 1418              		.align	1
+ 1419              		.global	osMailGet
+ 1420              		.syntax unified
+ 1421              		.thumb
+ 1422              		.thumb_func
+ 1424              	osMailGet:
+ 1425              		@ args = 0, pretend = 0, frame = 16
+ 1426              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1427 0000 70B5     		push	{r4, r5, r6, lr}
+ 1428 0002 84B0     		sub	sp, sp, #16
+ 1429 0004 0546     		mov	r5, r0
+ 1430 0006 0291     		str	r1, [sp, #8]
+ 1431 0008 E1B1     		cbz	r1, .L205
+ 1432 000a 0C46     		mov	r4, r1
+ 1433 000c 1646     		mov	r6, r2
+ 1434 000e 0023     		movs	r3, #0
+ 1435 0010 0393     		str	r3, [sp, #12]
+ 1436 0012 FFF7FEFF 		bl	inHandlerMode
+ 1437 0016 F8B1     		cbz	r0, .L197
+ 1438 0018 03AA     		add	r2, sp, #12
+ 1439 001a 01A9     		add	r1, sp, #4
+ 1440 001c 6068     		ldr	r0, [r4, #4]
+ 1441 001e FFF7FEFF 		bl	xQueueReceiveFromISR
+ 1442 0022 0128     		cmp	r0, #1
+ 1443 0024 15D0     		beq	.L206
+ 1444 0026 0023     		movs	r3, #0
+ 1445 0028 0093     		str	r3, [sp]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 25
+
+
+ 1446              	.L199:
+ 1447 002a 039B     		ldr	r3, [sp, #12]
+ 1448 002c FBB1     		cbz	r3, .L200
+ 1449 002e 4FF0E023 		mov	r3, #-536813568
+ 1450 0032 4FF08052 		mov	r2, #268435456
+ 1451 0036 C3F8042D 		str	r2, [r3, #3332]
+ 1452              		.syntax unified
+ 1453              	@ 1324 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 1454 003a BFF34F8F 		dsb
+ 1455              	@ 0 "" 2
+ 1456              	@ 1324 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 1457 003e BFF36F8F 		isb
+ 1458              	@ 0 "" 2
+ 1459              		.thumb
+ 1460              		.syntax unified
+ 1461 0042 14E0     		b	.L200
+ 1462              	.L205:
+ 1463 0044 8023     		movs	r3, #128
+ 1464 0046 0093     		str	r3, [sp]
+ 1465 0048 9DE80700 		ldm	sp, {r0, r1, r2}
+ 1466 004c 85E80700 		stm	r5, {r0, r1, r2}
+ 1467 0050 11E0     		b	.L194
+ 1468              	.L206:
+ 1469 0052 2023     		movs	r3, #32
+ 1470 0054 0093     		str	r3, [sp]
+ 1471 0056 E8E7     		b	.L199
+ 1472              	.L197:
+ 1473 0058 3246     		mov	r2, r6
+ 1474 005a 01A9     		add	r1, sp, #4
+ 1475 005c 6068     		ldr	r0, [r4, #4]
+ 1476 005e FFF7FEFF 		bl	xQueueReceive
+ 1477 0062 0128     		cmp	r0, #1
+ 1478 0064 0AD0     		beq	.L207
+ 1479 0066 0EB1     		cbz	r6, .L202
+ 1480 0068 4023     		movs	r3, #64
+ 1481 006a 1E46     		mov	r6, r3
+ 1482              	.L202:
+ 1483 006c 0096     		str	r6, [sp]
+ 1484              	.L200:
+ 1485 006e 9DE80700 		ldm	sp, {r0, r1, r2}
+ 1486 0072 85E80700 		stm	r5, {r0, r1, r2}
+ 1487              	.L194:
+ 1488 0076 2846     		mov	r0, r5
+ 1489 0078 04B0     		add	sp, sp, #16
+ 1490              		@ sp needed
+ 1491 007a 70BD     		pop	{r4, r5, r6, pc}
+ 1492              	.L207:
+ 1493 007c 2023     		movs	r3, #32
+ 1494 007e 0093     		str	r3, [sp]
+ 1495 0080 F5E7     		b	.L200
+ 1497              		.section	.text.osMailFree,"ax",%progbits
+ 1498              		.align	1
+ 1499              		.global	osMailFree
+ 1500              		.syntax unified
+ 1501              		.thumb
+ 1502              		.thumb_func
+ 1504              	osMailFree:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 26
+
+
+ 1505              		@ args = 0, pretend = 0, frame = 0
+ 1506              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1507 0000 20B1     		cbz	r0, .L210
+ 1508 0002 08B5     		push	{r3, lr}
+ 1509 0004 8068     		ldr	r0, [r0, #8]
+ 1510 0006 FFF7FEFF 		bl	osPoolFree
+ 1511 000a 08BD     		pop	{r3, pc}
+ 1512              	.L210:
+ 1513 000c 8020     		movs	r0, #128
+ 1514 000e 7047     		bx	lr
+ 1516              		.section	.text.osSystickHandler,"ax",%progbits
+ 1517              		.align	1
+ 1518              		.global	osSystickHandler
+ 1519              		.syntax unified
+ 1520              		.thumb
+ 1521              		.thumb_func
+ 1523              	osSystickHandler:
+ 1524              		@ args = 0, pretend = 0, frame = 0
+ 1525              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1526 0000 08B5     		push	{r3, lr}
+ 1527 0002 FFF7FEFF 		bl	xTaskGetSchedulerState
+ 1528 0006 0128     		cmp	r0, #1
+ 1529 0008 00D1     		bne	.L218
+ 1530              	.L215:
+ 1531 000a 08BD     		pop	{r3, pc}
+ 1532              	.L218:
+ 1533 000c FFF7FEFF 		bl	SysTick_Handler
+ 1534 0010 FBE7     		b	.L215
+ 1536              		.section	.text.osThreadSuspend,"ax",%progbits
+ 1537              		.align	1
+ 1538              		.global	osThreadSuspend
+ 1539              		.syntax unified
+ 1540              		.thumb
+ 1541              		.thumb_func
+ 1543              	osThreadSuspend:
+ 1544              		@ args = 0, pretend = 0, frame = 0
+ 1545              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1546 0000 08B5     		push	{r3, lr}
+ 1547 0002 FFF7FEFF 		bl	vTaskSuspend
+ 1548 0006 0020     		movs	r0, #0
+ 1549 0008 08BD     		pop	{r3, pc}
+ 1551              		.section	.text.osThreadResume,"ax",%progbits
+ 1552              		.align	1
+ 1553              		.global	osThreadResume
+ 1554              		.syntax unified
+ 1555              		.thumb
+ 1556              		.thumb_func
+ 1558              	osThreadResume:
+ 1559              		@ args = 0, pretend = 0, frame = 0
+ 1560              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1561 0000 10B5     		push	{r4, lr}
+ 1562 0002 0446     		mov	r4, r0
+ 1563 0004 FFF7FEFF 		bl	inHandlerMode
+ 1564 0008 78B1     		cbz	r0, .L222
+ 1565 000a 2046     		mov	r0, r4
+ 1566 000c FFF7FEFF 		bl	xTaskResumeFromISR
+ 1567 0010 0128     		cmp	r0, #1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 27
+
+
+ 1568 0012 0DD1     		bne	.L223
+ 1569 0014 4FF0E023 		mov	r3, #-536813568
+ 1570 0018 4FF08052 		mov	r2, #268435456
+ 1571 001c C3F8042D 		str	r2, [r3, #3332]
+ 1572              		.syntax unified
+ 1573              	@ 1455 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 1574 0020 BFF34F8F 		dsb
+ 1575              	@ 0 "" 2
+ 1576              	@ 1455 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c" 1
+ 1577 0024 BFF36F8F 		isb
+ 1578              	@ 0 "" 2
+ 1579              		.thumb
+ 1580              		.syntax unified
+ 1581 0028 02E0     		b	.L223
+ 1582              	.L222:
+ 1583 002a 2046     		mov	r0, r4
+ 1584 002c FFF7FEFF 		bl	vTaskResume
+ 1585              	.L223:
+ 1586 0030 0020     		movs	r0, #0
+ 1587 0032 10BD     		pop	{r4, pc}
+ 1589              		.section	.text.osThreadSuspendAll,"ax",%progbits
+ 1590              		.align	1
+ 1591              		.global	osThreadSuspendAll
+ 1592              		.syntax unified
+ 1593              		.thumb
+ 1594              		.thumb_func
+ 1596              	osThreadSuspendAll:
+ 1597              		@ args = 0, pretend = 0, frame = 0
+ 1598              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1599 0000 08B5     		push	{r3, lr}
+ 1600 0002 FFF7FEFF 		bl	vTaskSuspendAll
+ 1601 0006 0020     		movs	r0, #0
+ 1602 0008 08BD     		pop	{r3, pc}
+ 1604              		.section	.text.osThreadResumeAll,"ax",%progbits
+ 1605              		.align	1
+ 1606              		.global	osThreadResumeAll
+ 1607              		.syntax unified
+ 1608              		.thumb
+ 1609              		.thumb_func
+ 1611              	osThreadResumeAll:
+ 1612              		@ args = 0, pretend = 0, frame = 0
+ 1613              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1614 0000 08B5     		push	{r3, lr}
+ 1615 0002 FFF7FEFF 		bl	xTaskResumeAll
+ 1616 0006 0128     		cmp	r0, #1
+ 1617 0008 01D0     		beq	.L231
+ 1618 000a FF20     		movs	r0, #255
+ 1619              	.L227:
+ 1620 000c 08BD     		pop	{r3, pc}
+ 1621              	.L231:
+ 1622 000e 0020     		movs	r0, #0
+ 1623 0010 FCE7     		b	.L227
+ 1625              		.section	.text.osDelayUntil,"ax",%progbits
+ 1626              		.align	1
+ 1627              		.global	osDelayUntil
+ 1628              		.syntax unified
+ 1629              		.thumb
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 28
+
+
+ 1630              		.thumb_func
+ 1632              	osDelayUntil:
+ 1633              		@ args = 0, pretend = 0, frame = 0
+ 1634              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1635 0000 08B5     		push	{r3, lr}
+ 1636 0002 01B9     		cbnz	r1, .L233
+ 1637 0004 0121     		movs	r1, #1
+ 1638              	.L233:
+ 1639 0006 FFF7FEFF 		bl	vTaskDelayUntil
+ 1640 000a 0020     		movs	r0, #0
+ 1641 000c 08BD     		pop	{r3, pc}
+ 1643              		.section	.text.osAbortDelay,"ax",%progbits
+ 1644              		.align	1
+ 1645              		.global	osAbortDelay
+ 1646              		.syntax unified
+ 1647              		.thumb
+ 1648              		.thumb_func
+ 1650              	osAbortDelay:
+ 1651              		@ args = 0, pretend = 0, frame = 0
+ 1652              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1653              		@ link register save eliminated.
+ 1654 0000 8120     		movs	r0, #129
+ 1655 0002 7047     		bx	lr
+ 1657              		.section	.text.osThreadList,"ax",%progbits
+ 1658              		.align	1
+ 1659              		.global	osThreadList
+ 1660              		.syntax unified
+ 1661              		.thumb
+ 1662              		.thumb_func
+ 1664              	osThreadList:
+ 1665              		@ args = 0, pretend = 0, frame = 0
+ 1666              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1667              		@ link register save eliminated.
+ 1668 0000 0020     		movs	r0, #0
+ 1669 0002 7047     		bx	lr
+ 1671              		.section	.text.osMessagePeek,"ax",%progbits
+ 1672              		.align	1
+ 1673              		.global	osMessagePeek
+ 1674              		.syntax unified
+ 1675              		.thumb
+ 1676              		.thumb_func
+ 1678              	osMessagePeek:
+ 1679              		@ args = 0, pretend = 0, frame = 16
+ 1680              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1681 0000 30B5     		push	{r4, r5, lr}
+ 1682 0002 85B0     		sub	sp, sp, #20
+ 1683 0004 0546     		mov	r5, r0
+ 1684 0006 0391     		str	r1, [sp, #12]
+ 1685 0008 89B1     		cbz	r1, .L246
+ 1686 000a 0846     		mov	r0, r1
+ 1687 000c 1446     		mov	r4, r2
+ 1688 000e 02A9     		add	r1, sp, #8
+ 1689 0010 FFF7FEFF 		bl	xQueuePeek
+ 1690 0014 0128     		cmp	r0, #1
+ 1691 0016 12D0     		beq	.L247
+ 1692 0018 04B1     		cbz	r4, .L243
+ 1693 001a 4024     		movs	r4, #64
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 29
+
+
+ 1694              	.L243:
+ 1695 001c 0194     		str	r4, [sp, #4]
+ 1696              	.L242:
+ 1697 001e 04AB     		add	r3, sp, #16
+ 1698 0020 13E90700 		ldmdb	r3, {r0, r1, r2}
+ 1699 0024 85E80700 		stm	r5, {r0, r1, r2}
+ 1700              	.L238:
+ 1701 0028 2846     		mov	r0, r5
+ 1702 002a 05B0     		add	sp, sp, #20
+ 1703              		@ sp needed
+ 1704 002c 30BD     		pop	{r4, r5, pc}
+ 1705              	.L246:
+ 1706 002e 8023     		movs	r3, #128
+ 1707 0030 0193     		str	r3, [sp, #4]
+ 1708 0032 04AB     		add	r3, sp, #16
+ 1709 0034 13E90700 		ldmdb	r3, {r0, r1, r2}
+ 1710 0038 85E80700 		stm	r5, {r0, r1, r2}
+ 1711 003c F4E7     		b	.L238
+ 1712              	.L247:
+ 1713 003e 1023     		movs	r3, #16
+ 1714 0040 0193     		str	r3, [sp, #4]
+ 1715 0042 ECE7     		b	.L242
+ 1717              		.section	.text.osMessageWaiting,"ax",%progbits
+ 1718              		.align	1
+ 1719              		.global	osMessageWaiting
+ 1720              		.syntax unified
+ 1721              		.thumb
+ 1722              		.thumb_func
+ 1724              	osMessageWaiting:
+ 1725              		@ args = 0, pretend = 0, frame = 0
+ 1726              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1727 0000 10B5     		push	{r4, lr}
+ 1728 0002 0446     		mov	r4, r0
+ 1729 0004 FFF7FEFF 		bl	inHandlerMode
+ 1730 0008 18B1     		cbz	r0, .L249
+ 1731 000a 2046     		mov	r0, r4
+ 1732 000c FFF7FEFF 		bl	uxQueueMessagesWaitingFromISR
+ 1733              	.L248:
+ 1734 0010 10BD     		pop	{r4, pc}
+ 1735              	.L249:
+ 1736 0012 2046     		mov	r0, r4
+ 1737 0014 FFF7FEFF 		bl	uxQueueMessagesWaiting
+ 1738 0018 FAE7     		b	.L248
+ 1740              		.section	.text.osMessageAvailableSpace,"ax",%progbits
+ 1741              		.align	1
+ 1742              		.global	osMessageAvailableSpace
+ 1743              		.syntax unified
+ 1744              		.thumb
+ 1745              		.thumb_func
+ 1747              	osMessageAvailableSpace:
+ 1748              		@ args = 0, pretend = 0, frame = 0
+ 1749              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1750 0000 08B5     		push	{r3, lr}
+ 1751 0002 FFF7FEFF 		bl	uxQueueSpacesAvailable
+ 1752 0006 08BD     		pop	{r3, pc}
+ 1754              		.section	.text.osMessageDelete,"ax",%progbits
+ 1755              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 30
+
+
+ 1756              		.global	osMessageDelete
+ 1757              		.syntax unified
+ 1758              		.thumb
+ 1759              		.thumb_func
+ 1761              	osMessageDelete:
+ 1762              		@ args = 0, pretend = 0, frame = 0
+ 1763              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1764 0000 10B5     		push	{r4, lr}
+ 1765 0002 0446     		mov	r4, r0
+ 1766 0004 FFF7FEFF 		bl	inHandlerMode
+ 1767 0008 20B9     		cbnz	r0, .L256
+ 1768 000a 2046     		mov	r0, r4
+ 1769 000c FFF7FEFF 		bl	vQueueDelete
+ 1770 0010 0020     		movs	r0, #0
+ 1771              	.L254:
+ 1772 0012 10BD     		pop	{r4, pc}
+ 1773              	.L256:
+ 1774 0014 8220     		movs	r0, #130
+ 1775 0016 FCE7     		b	.L254
+ 1777              		.section	.text.osRecursiveMutexCreate,"ax",%progbits
+ 1778              		.align	1
+ 1779              		.global	osRecursiveMutexCreate
+ 1780              		.syntax unified
+ 1781              		.thumb
+ 1782              		.thumb_func
+ 1784              	osRecursiveMutexCreate:
+ 1785              		@ args = 0, pretend = 0, frame = 0
+ 1786              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1787              		@ link register save eliminated.
+ 1788 0000 0020     		movs	r0, #0
+ 1789 0002 7047     		bx	lr
+ 1791              		.section	.text.osRecursiveMutexRelease,"ax",%progbits
+ 1792              		.align	1
+ 1793              		.global	osRecursiveMutexRelease
+ 1794              		.syntax unified
+ 1795              		.thumb
+ 1796              		.thumb_func
+ 1798              	osRecursiveMutexRelease:
+ 1799              		@ args = 0, pretend = 0, frame = 0
+ 1800              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1801              		@ link register save eliminated.
+ 1802 0000 8120     		movs	r0, #129
+ 1803 0002 7047     		bx	lr
+ 1805              		.section	.text.osRecursiveMutexWait,"ax",%progbits
+ 1806              		.align	1
+ 1807              		.global	osRecursiveMutexWait
+ 1808              		.syntax unified
+ 1809              		.thumb
+ 1810              		.thumb_func
+ 1812              	osRecursiveMutexWait:
+ 1813              		@ args = 0, pretend = 0, frame = 0
+ 1814              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1815              		@ link register save eliminated.
+ 1816 0000 8120     		movs	r0, #129
+ 1817 0002 7047     		bx	lr
+ 1819              		.section	.text.osSemaphoreGetCount,"ax",%progbits
+ 1820              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 31
+
+
+ 1821              		.global	osSemaphoreGetCount
+ 1822              		.syntax unified
+ 1823              		.thumb
+ 1824              		.thumb_func
+ 1826              	osSemaphoreGetCount:
+ 1827              		@ args = 0, pretend = 0, frame = 0
+ 1828              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1829 0000 08B5     		push	{r3, lr}
+ 1830 0002 FFF7FEFF 		bl	uxQueueMessagesWaiting
+ 1831 0006 08BD     		pop	{r3, pc}
+ 1833              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 32
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 cmsis_os.c
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:18     .text.makeFreeRtosPriority:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:23     .text.makeFreeRtosPriority:00000000 makeFreeRtosPriority
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:36     .text.makeCmsisPriority:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:41     .text.makeCmsisPriority:00000000 makeCmsisPriority
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:55     .text.inHandlerMode:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:60     .text.inHandlerMode:00000000 inHandlerMode
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:76     .text.osKernelStart:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:82     .text.osKernelStart:00000000 osKernelStart
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:91     .text.osKernelRunning:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:97     .text.osKernelRunning:00000000 osKernelRunning
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:112    .text.osKernelSysTick:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:118    .text.osKernelSysTick:00000000 osKernelSysTick
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:132    .text.osThreadCreate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:138    .text.osThreadCreate:00000000 osThreadCreate
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:190    .text.osThreadGetId:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:196    .text.osThreadGetId:00000000 osThreadGetId
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:204    .text.osThreadTerminate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:210    .text.osThreadTerminate:00000000 osThreadTerminate
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:219    .text.osThreadYield:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:225    .text.osThreadYield:00000000 osThreadYield
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:245    .text.osThreadSetPriority:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:251    .text.osThreadSetPriority:00000000 osThreadSetPriority
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:265    .text.osThreadGetPriority:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:271    .text.osThreadGetPriority:00000000 osThreadGetPriority
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:290    .text.osDelay:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:296    .text.osDelay:00000000 osDelay
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:308    .text.osTimerCreate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:314    .text.osTimerCreate:00000000 osTimerCreate
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:322    .text.osTimerStart:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:328    .text.osTimerStart:00000000 osTimerStart
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:336    .text.osTimerStop:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:342    .text.osTimerStop:00000000 osTimerStop
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:350    .text.osTimerDelete:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:356    .text.osTimerDelete:00000000 osTimerDelete
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:364    .text.osSignalSet:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:370    .text.osSignalSet:00000000 osSignalSet
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:428    .text.osSignalWait:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:434    .text.osSignalWait:00000000 osSignalWait
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:483    .text.osMutexCreate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:489    .text.osMutexCreate:00000000 osMutexCreate
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:505    .text.osMutexWait:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:511    .text.osMutexWait:00000000 osMutexWait
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:570    .text.osMutexRelease:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:576    .text.osMutexRelease:00000000 osMutexRelease
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:631    .text.osMutexDelete:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:637    .text.osMutexDelete:00000000 osMutexDelete
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:654    .text.osSemaphoreCreate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:660    .text.osSemaphoreCreate:00000000 osSemaphoreCreate
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:709    .text.osSemaphoreWait:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:715    .text.osSemaphoreWait:00000000 osSemaphoreWait
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:777    .text.osSemaphoreRelease:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:783    .text.osSemaphoreRelease:00000000 osSemaphoreRelease
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:838    .text.osSemaphoreDelete:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:844    .text.osSemaphoreDelete:00000000 osSemaphoreDelete
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:861    .text.osPoolCreate:00000000 $t
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 33
+
+
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:867    .text.osPoolCreate:00000000 osPoolCreate
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:923    .text.osPoolAlloc:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:929    .text.osPoolAlloc:00000000 osPoolAlloc
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:997    .text.osPoolCAlloc:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1003   .text.osPoolCAlloc:00000000 osPoolCAlloc
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1015   .text.osPoolFree:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1021   .text.osPoolFree:00000000 osPoolFree
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1060   .text.osMessageCreate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1066   .text.osMessageCreate:00000000 osMessageCreate
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1092   .text.osMessagePut:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1098   .text.osMessagePut:00000000 osMessagePut
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1161   .text.osMessageGet:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1167   .text.osMessageGet:00000000 osMessageGet
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1243   .text.osMailCreate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1249   .text.osMailCreate:00000000 osMailCreate
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1303   .text.osMailAlloc:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1309   .text.osMailAlloc:00000000 osMailAlloc
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1320   .text.osMailCAlloc:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1326   .text.osMailCAlloc:00000000 osMailCAlloc
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1350   .text.osMailPut:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1356   .text.osMailPut:00000000 osMailPut
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1418   .text.osMailGet:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1424   .text.osMailGet:00000000 osMailGet
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1498   .text.osMailFree:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1504   .text.osMailFree:00000000 osMailFree
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1517   .text.osSystickHandler:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1523   .text.osSystickHandler:00000000 osSystickHandler
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1537   .text.osThreadSuspend:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1543   .text.osThreadSuspend:00000000 osThreadSuspend
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1552   .text.osThreadResume:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1558   .text.osThreadResume:00000000 osThreadResume
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1590   .text.osThreadSuspendAll:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1596   .text.osThreadSuspendAll:00000000 osThreadSuspendAll
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1605   .text.osThreadResumeAll:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1611   .text.osThreadResumeAll:00000000 osThreadResumeAll
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1626   .text.osDelayUntil:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1632   .text.osDelayUntil:00000000 osDelayUntil
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1644   .text.osAbortDelay:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1650   .text.osAbortDelay:00000000 osAbortDelay
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1658   .text.osThreadList:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1664   .text.osThreadList:00000000 osThreadList
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1672   .text.osMessagePeek:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1678   .text.osMessagePeek:00000000 osMessagePeek
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1718   .text.osMessageWaiting:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1724   .text.osMessageWaiting:00000000 osMessageWaiting
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1741   .text.osMessageAvailableSpace:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1747   .text.osMessageAvailableSpace:00000000 osMessageAvailableSpace
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1755   .text.osMessageDelete:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1761   .text.osMessageDelete:00000000 osMessageDelete
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1778   .text.osRecursiveMutexCreate:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1784   .text.osRecursiveMutexCreate:00000000 osRecursiveMutexCreate
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1792   .text.osRecursiveMutexRelease:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1798   .text.osRecursiveMutexRelease:00000000 osRecursiveMutexRelease
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1806   .text.osRecursiveMutexWait:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1812   .text.osRecursiveMutexWait:00000000 osRecursiveMutexWait
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1820   .text.osSemaphoreGetCount:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s:1826   .text.osSemaphoreGetCount:00000000 osSemaphoreGetCount
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\cckP8Pmb.s 			page 34
+
+
+
+UNDEFINED SYMBOLS
+vTaskStartScheduler
+xTaskGetSchedulerState
+xTaskGetTickCountFromISR
+xTaskGetTickCount
+xTaskCreateStatic
+xTaskCreate
+xTaskGetCurrentTaskHandle
+vTaskDelete
+vTaskPrioritySet
+uxTaskPriorityGetFromISR
+uxTaskPriorityGet
+vTaskDelay
+xTaskGenericNotifyFromISR
+xTaskGenericNotify
+xTaskNotifyWait
+xQueueCreateMutexStatic
+xQueueCreateMutex
+xQueueReceiveFromISR
+xQueueSemaphoreTake
+xQueueGiveFromISR
+xQueueGenericSend
+vQueueDelete
+xQueueCreateCountingSemaphoreStatic
+xQueueGenericCreateStatic
+xQueueCreateCountingSemaphore
+xQueueGenericCreate
+pvPortMalloc
+vPortFree
+vPortEnterCritical
+vPortExitCritical
+xQueueGenericSendFromISR
+xQueueReceive
+SysTick_Handler
+vTaskSuspend
+xTaskResumeFromISR
+vTaskResume
+vTaskSuspendAll
+xTaskResumeAll
+vTaskDelayUntil
+xQueuePeek
+uxQueueMessagesWaitingFromISR
+uxQueueMessagesWaiting
+uxQueueSpacesAvailable

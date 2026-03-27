@@ -1,0 +1,2528 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"usbd_conf.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Src/usbd_conf.c"
+  20              		.section	.text.HAL_PCD_MspInit,"ax",%progbits
+  21              		.align	1
+  22              		.global	HAL_PCD_MspInit
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	HAL_PCD_MspInit:
+  28              	.LVL0:
+  29              	.LFB239:
+   1:Src/usbd_conf.c **** /* USER CODE BEGIN Header */
+   2:Src/usbd_conf.c **** /**
+   3:Src/usbd_conf.c ****   ******************************************************************************
+   4:Src/usbd_conf.c ****   * @file           : usbd_conf.c
+   5:Src/usbd_conf.c ****   * @version        : v1.0_Cube
+   6:Src/usbd_conf.c ****   * @brief          : This file implements the board support package for the USB device library
+   7:Src/usbd_conf.c ****   ******************************************************************************
+   8:Src/usbd_conf.c ****   * @attention
+   9:Src/usbd_conf.c ****   *
+  10:Src/usbd_conf.c ****   * Copyright (c) 2023 STMicroelectronics.
+  11:Src/usbd_conf.c ****   * All rights reserved.
+  12:Src/usbd_conf.c ****   *
+  13:Src/usbd_conf.c ****   * This software is licensed under terms that can be found in the LICENSE file
+  14:Src/usbd_conf.c ****   * in the root directory of this software component.
+  15:Src/usbd_conf.c ****   * If no LICENSE file comes with this software, it is provided AS-IS.
+  16:Src/usbd_conf.c ****   *
+  17:Src/usbd_conf.c ****   ******************************************************************************
+  18:Src/usbd_conf.c ****   */
+  19:Src/usbd_conf.c **** /* USER CODE END Header */
+  20:Src/usbd_conf.c **** 
+  21:Src/usbd_conf.c **** /* Includes ------------------------------------------------------------------*/
+  22:Src/usbd_conf.c **** #include "stm32f4xx.h"
+  23:Src/usbd_conf.c **** #include "stm32f4xx_hal.h"
+  24:Src/usbd_conf.c **** #include "usbd_def.h"
+  25:Src/usbd_conf.c **** #include "usbd_core.h"
+  26:Src/usbd_conf.c **** 
+  27:Src/usbd_conf.c **** #include "usbd_cdc.h"
+  28:Src/usbd_conf.c **** 
+  29:Src/usbd_conf.c **** /* USER CODE BEGIN Includes */
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 2
+
+
+  30:Src/usbd_conf.c **** #include "bsp_dwt.h"
+  31:Src/usbd_conf.c **** /* USER CODE END Includes */
+  32:Src/usbd_conf.c **** 
+  33:Src/usbd_conf.c **** /* Private typedef -----------------------------------------------------------*/
+  34:Src/usbd_conf.c **** /* Private define ------------------------------------------------------------*/
+  35:Src/usbd_conf.c **** /* Private macro -------------------------------------------------------------*/
+  36:Src/usbd_conf.c **** 
+  37:Src/usbd_conf.c **** /* USER CODE BEGIN PV */
+  38:Src/usbd_conf.c **** /* Private variables ---------------------------------------------------------*/
+  39:Src/usbd_conf.c **** 
+  40:Src/usbd_conf.c **** /* USER CODE END PV */
+  41:Src/usbd_conf.c **** 
+  42:Src/usbd_conf.c **** PCD_HandleTypeDef hpcd_USB_OTG_FS;
+  43:Src/usbd_conf.c **** void Error_Handler(void);
+  44:Src/usbd_conf.c **** 
+  45:Src/usbd_conf.c **** /* External functions --------------------------------------------------------*/
+  46:Src/usbd_conf.c **** void SystemClock_Config(void);
+  47:Src/usbd_conf.c **** 
+  48:Src/usbd_conf.c **** /* USER CODE BEGIN 0 */
+  49:Src/usbd_conf.c **** 
+  50:Src/usbd_conf.c **** /* USER CODE END 0 */
+  51:Src/usbd_conf.c **** 
+  52:Src/usbd_conf.c **** /* USER CODE BEGIN PFP */
+  53:Src/usbd_conf.c **** /* Private function prototypes -----------------------------------------------*/
+  54:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status);
+  55:Src/usbd_conf.c **** 
+  56:Src/usbd_conf.c **** /* USER CODE END PFP */
+  57:Src/usbd_conf.c **** 
+  58:Src/usbd_conf.c **** /* Private functions ---------------------------------------------------------*/
+  59:Src/usbd_conf.c **** 
+  60:Src/usbd_conf.c **** /* USER CODE BEGIN 1 */
+  61:Src/usbd_conf.c **** 
+  62:Src/usbd_conf.c **** /* USER CODE END 1 */
+  63:Src/usbd_conf.c **** 
+  64:Src/usbd_conf.c **** /*******************************************************************************
+  65:Src/usbd_conf.c ****                        LL Driver Callbacks (PCD -> USB Device Library)
+  66:Src/usbd_conf.c **** *******************************************************************************/
+  67:Src/usbd_conf.c **** /* MSP Init */
+  68:Src/usbd_conf.c **** 
+  69:Src/usbd_conf.c **** void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
+  70:Src/usbd_conf.c **** {
+  30              		.loc 1 70 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 32
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 70 1 is_stmt 0 view .LVU1
+  35 0000 70B5     		push	{r4, r5, r6, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 16
+  38              		.cfi_offset 4, -16
+  39              		.cfi_offset 5, -12
+  40              		.cfi_offset 6, -8
+  41              		.cfi_offset 14, -4
+  42 0002 2DED028B 		vpush.64	{d8}
+  43              	.LCFI1:
+  44              		.cfi_def_cfa_offset 24
+  45              		.cfi_offset 80, -24
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 3
+
+
+  46              		.cfi_offset 81, -20
+  47 0006 88B0     		sub	sp, sp, #32
+  48              	.LCFI2:
+  49              		.cfi_def_cfa_offset 56
+  71:Src/usbd_conf.c ****   GPIO_InitTypeDef GPIO_InitStruct = {0};
+  50              		.loc 1 71 3 is_stmt 1 view .LVU2
+  51              		.loc 1 71 20 is_stmt 0 view .LVU3
+  52 0008 0023     		movs	r3, #0
+  53 000a 0393     		str	r3, [sp, #12]
+  54 000c 0493     		str	r3, [sp, #16]
+  55 000e 0593     		str	r3, [sp, #20]
+  56 0010 0693     		str	r3, [sp, #24]
+  57 0012 0793     		str	r3, [sp, #28]
+  72:Src/usbd_conf.c ****   if(pcdHandle->Instance==USB_OTG_FS)
+  58              		.loc 1 72 3 is_stmt 1 view .LVU4
+  59              		.loc 1 72 15 is_stmt 0 view .LVU5
+  60 0014 0368     		ldr	r3, [r0]
+  61              		.loc 1 72 5 view .LVU6
+  62 0016 B3F1A04F 		cmp	r3, #1342177280
+  63 001a 03D0     		beq	.L4
+  64              	.LVL1:
+  65              	.L1:
+  73:Src/usbd_conf.c ****   {
+  74:Src/usbd_conf.c ****   /* USER CODE BEGIN USB_OTG_FS_MspInit 0 */
+  75:Src/usbd_conf.c **** 
+  76:Src/usbd_conf.c ****   /* USER CODE END USB_OTG_FS_MspInit 0 */
+  77:Src/usbd_conf.c **** 
+  78:Src/usbd_conf.c ****     __HAL_RCC_GPIOA_CLK_ENABLE();
+  79:Src/usbd_conf.c ****     /**USB_OTG_FS GPIO Configuration
+  80:Src/usbd_conf.c ****     PA12     ------> USB_OTG_FS_DP
+  81:Src/usbd_conf.c ****     PA11     ------> USB_OTG_FS_DM
+  82:Src/usbd_conf.c ****     PA10     ------> USB_OTG_FS_ID
+  83:Src/usbd_conf.c ****     */
+  84:Src/usbd_conf.c ****     GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_11|GPIO_PIN_10;
+  85:Src/usbd_conf.c ****     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  86:Src/usbd_conf.c ****     GPIO_InitStruct.Pull = GPIO_NOPULL;
+  87:Src/usbd_conf.c ****     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  88:Src/usbd_conf.c ****     GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
+  89:Src/usbd_conf.c ****     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  90:Src/usbd_conf.c **** 
+  91:Src/usbd_conf.c ****     /* Peripheral clock enable */
+  92:Src/usbd_conf.c ****     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+  93:Src/usbd_conf.c **** 
+  94:Src/usbd_conf.c ****     /* Peripheral interrupt init */
+  95:Src/usbd_conf.c ****     HAL_NVIC_SetPriority(OTG_FS_IRQn, 5, 0);
+  96:Src/usbd_conf.c ****     HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
+  97:Src/usbd_conf.c ****   /* USER CODE BEGIN USB_OTG_FS_MspInit 1 */
+  98:Src/usbd_conf.c **** 
+  99:Src/usbd_conf.c ****   // 上电后重新枚举usb设备
+ 100:Src/usbd_conf.c ****     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_RESET);
+ 101:Src/usbd_conf.c ****     DWT_Delay(0.1);
+ 102:Src/usbd_conf.c ****     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_SET);
+ 103:Src/usbd_conf.c ****     DWT_Delay(0.1);
+ 104:Src/usbd_conf.c **** 
+ 105:Src/usbd_conf.c ****   /* USER CODE END USB_OTG_FS_MspInit 1 */
+ 106:Src/usbd_conf.c ****   }
+ 107:Src/usbd_conf.c **** }
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 4
+
+
+  66              		.loc 1 107 1 view .LVU7
+  67 001c 08B0     		add	sp, sp, #32
+  68              	.LCFI3:
+  69              		.cfi_remember_state
+  70              		.cfi_def_cfa_offset 24
+  71              		@ sp needed
+  72 001e BDEC028B 		vldm	sp!, {d8}
+  73              	.LCFI4:
+  74              		.cfi_restore 80
+  75              		.cfi_restore 81
+  76              		.cfi_def_cfa_offset 16
+  77 0022 70BD     		pop	{r4, r5, r6, pc}
+  78              	.LVL2:
+  79              	.L4:
+  80              	.LCFI5:
+  81              		.cfi_restore_state
+  78:Src/usbd_conf.c ****     /**USB_OTG_FS GPIO Configuration
+  82              		.loc 1 78 5 is_stmt 1 view .LVU8
+  83              	.LBB2:
+  78:Src/usbd_conf.c ****     /**USB_OTG_FS GPIO Configuration
+  84              		.loc 1 78 5 view .LVU9
+  85 0024 0025     		movs	r5, #0
+  86 0026 0195     		str	r5, [sp, #4]
+  78:Src/usbd_conf.c ****     /**USB_OTG_FS GPIO Configuration
+  87              		.loc 1 78 5 view .LVU10
+  88 0028 224C     		ldr	r4, .L5
+  89 002a 236B     		ldr	r3, [r4, #48]
+  90 002c 43F00103 		orr	r3, r3, #1
+  91 0030 2363     		str	r3, [r4, #48]
+  78:Src/usbd_conf.c ****     /**USB_OTG_FS GPIO Configuration
+  92              		.loc 1 78 5 view .LVU11
+  93 0032 236B     		ldr	r3, [r4, #48]
+  94 0034 03F00103 		and	r3, r3, #1
+  95 0038 0193     		str	r3, [sp, #4]
+  78:Src/usbd_conf.c ****     /**USB_OTG_FS GPIO Configuration
+  96              		.loc 1 78 5 view .LVU12
+  97 003a 019B     		ldr	r3, [sp, #4]
+  98              	.LBE2:
+  78:Src/usbd_conf.c ****     /**USB_OTG_FS GPIO Configuration
+  99              		.loc 1 78 5 view .LVU13
+  84:Src/usbd_conf.c ****     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+ 100              		.loc 1 84 5 view .LVU14
+  84:Src/usbd_conf.c ****     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+ 101              		.loc 1 84 25 is_stmt 0 view .LVU15
+ 102 003c 4FF4E053 		mov	r3, #7168
+ 103 0040 0393     		str	r3, [sp, #12]
+  85:Src/usbd_conf.c ****     GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 104              		.loc 1 85 5 is_stmt 1 view .LVU16
+  85:Src/usbd_conf.c ****     GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 105              		.loc 1 85 26 is_stmt 0 view .LVU17
+ 106 0042 0223     		movs	r3, #2
+ 107 0044 0493     		str	r3, [sp, #16]
+  86:Src/usbd_conf.c ****     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+ 108              		.loc 1 86 5 is_stmt 1 view .LVU18
+  87:Src/usbd_conf.c ****     GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
+ 109              		.loc 1 87 5 view .LVU19
+  87:Src/usbd_conf.c ****     GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 5
+
+
+ 110              		.loc 1 87 27 is_stmt 0 view .LVU20
+ 111 0046 0323     		movs	r3, #3
+ 112 0048 0693     		str	r3, [sp, #24]
+  88:Src/usbd_conf.c ****     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+ 113              		.loc 1 88 5 is_stmt 1 view .LVU21
+  88:Src/usbd_conf.c ****     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+ 114              		.loc 1 88 31 is_stmt 0 view .LVU22
+ 115 004a 0A23     		movs	r3, #10
+ 116 004c 0793     		str	r3, [sp, #28]
+  89:Src/usbd_conf.c **** 
+ 117              		.loc 1 89 5 is_stmt 1 view .LVU23
+ 118 004e 1A4E     		ldr	r6, .L5+4
+ 119 0050 03A9     		add	r1, sp, #12
+ 120 0052 3046     		mov	r0, r6
+ 121              	.LVL3:
+  89:Src/usbd_conf.c **** 
+ 122              		.loc 1 89 5 is_stmt 0 view .LVU24
+ 123 0054 FFF7FEFF 		bl	HAL_GPIO_Init
+ 124              	.LVL4:
+  92:Src/usbd_conf.c **** 
+ 125              		.loc 1 92 5 is_stmt 1 view .LVU25
+  92:Src/usbd_conf.c **** 
+ 126              		.loc 1 92 5 view .LVU26
+ 127 0058 636B     		ldr	r3, [r4, #52]
+ 128 005a 43F08003 		orr	r3, r3, #128
+ 129 005e 6363     		str	r3, [r4, #52]
+  92:Src/usbd_conf.c **** 
+ 130              		.loc 1 92 5 view .LVU27
+ 131              	.LBB3:
+  92:Src/usbd_conf.c **** 
+ 132              		.loc 1 92 5 view .LVU28
+ 133 0060 0295     		str	r5, [sp, #8]
+  92:Src/usbd_conf.c **** 
+ 134              		.loc 1 92 5 view .LVU29
+ 135 0062 636C     		ldr	r3, [r4, #68]
+ 136 0064 43F48043 		orr	r3, r3, #16384
+ 137 0068 6364     		str	r3, [r4, #68]
+  92:Src/usbd_conf.c **** 
+ 138              		.loc 1 92 5 view .LVU30
+ 139 006a 636C     		ldr	r3, [r4, #68]
+ 140 006c 03F48043 		and	r3, r3, #16384
+ 141 0070 0293     		str	r3, [sp, #8]
+  92:Src/usbd_conf.c **** 
+ 142              		.loc 1 92 5 view .LVU31
+ 143 0072 029B     		ldr	r3, [sp, #8]
+ 144              	.LBE3:
+  92:Src/usbd_conf.c **** 
+ 145              		.loc 1 92 5 view .LVU32
+  92:Src/usbd_conf.c **** 
+ 146              		.loc 1 92 5 view .LVU33
+  95:Src/usbd_conf.c ****     HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
+ 147              		.loc 1 95 5 view .LVU34
+ 148 0074 2A46     		mov	r2, r5
+ 149 0076 0521     		movs	r1, #5
+ 150 0078 4320     		movs	r0, #67
+ 151 007a FFF7FEFF 		bl	HAL_NVIC_SetPriority
+ 152              	.LVL5:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 6
+
+
+  96:Src/usbd_conf.c ****   /* USER CODE BEGIN USB_OTG_FS_MspInit 1 */
+ 153              		.loc 1 96 5 view .LVU35
+ 154 007e 4320     		movs	r0, #67
+ 155 0080 FFF7FEFF 		bl	HAL_NVIC_EnableIRQ
+ 156              	.LVL6:
+ 100:Src/usbd_conf.c ****     DWT_Delay(0.1);
+ 157              		.loc 1 100 5 view .LVU36
+ 158 0084 2A46     		mov	r2, r5
+ 159 0086 4FF48051 		mov	r1, #4096
+ 160 008a 3046     		mov	r0, r6
+ 161 008c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 162              	.LVL7:
+ 101:Src/usbd_conf.c ****     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_SET);
+ 163              		.loc 1 101 5 view .LVU37
+ 164 0090 9FED0A8A 		vldr.32	s16, .L5+8
+ 165 0094 B0EE480A 		vmov.f32	s0, s16
+ 166 0098 FFF7FEFF 		bl	DWT_Delay
+ 167              	.LVL8:
+ 102:Src/usbd_conf.c ****     DWT_Delay(0.1);
+ 168              		.loc 1 102 5 view .LVU38
+ 169 009c 0122     		movs	r2, #1
+ 170 009e 4FF48051 		mov	r1, #4096
+ 171 00a2 3046     		mov	r0, r6
+ 172 00a4 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 173              	.LVL9:
+ 103:Src/usbd_conf.c **** 
+ 174              		.loc 1 103 5 view .LVU39
+ 175 00a8 B0EE480A 		vmov.f32	s0, s16
+ 176 00ac FFF7FEFF 		bl	DWT_Delay
+ 177              	.LVL10:
+ 178              		.loc 1 107 1 is_stmt 0 view .LVU40
+ 179 00b0 B4E7     		b	.L1
+ 180              	.L6:
+ 181 00b2 00BF     		.align	2
+ 182              	.L5:
+ 183 00b4 00380240 		.word	1073887232
+ 184 00b8 00000240 		.word	1073872896
+ 185 00bc CDCCCC3D 		.word	1036831949
+ 186              		.cfi_endproc
+ 187              	.LFE239:
+ 189              		.section	.text.HAL_PCD_MspDeInit,"ax",%progbits
+ 190              		.align	1
+ 191              		.global	HAL_PCD_MspDeInit
+ 192              		.syntax unified
+ 193              		.thumb
+ 194              		.thumb_func
+ 196              	HAL_PCD_MspDeInit:
+ 197              	.LVL11:
+ 198              	.LFB240:
+ 108:Src/usbd_conf.c **** 
+ 109:Src/usbd_conf.c **** void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
+ 110:Src/usbd_conf.c **** {
+ 199              		.loc 1 110 1 is_stmt 1 view -0
+ 200              		.cfi_startproc
+ 201              		@ args = 0, pretend = 0, frame = 0
+ 202              		@ frame_needed = 0, uses_anonymous_args = 0
+ 203              		.loc 1 110 1 is_stmt 0 view .LVU42
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 7
+
+
+ 204 0000 08B5     		push	{r3, lr}
+ 205              	.LCFI6:
+ 206              		.cfi_def_cfa_offset 8
+ 207              		.cfi_offset 3, -8
+ 208              		.cfi_offset 14, -4
+ 111:Src/usbd_conf.c ****   if(pcdHandle->Instance==USB_OTG_FS)
+ 209              		.loc 1 111 3 is_stmt 1 view .LVU43
+ 210              		.loc 1 111 15 is_stmt 0 view .LVU44
+ 211 0002 0368     		ldr	r3, [r0]
+ 212              		.loc 1 111 5 view .LVU45
+ 213 0004 B3F1A04F 		cmp	r3, #1342177280
+ 214 0008 00D0     		beq	.L10
+ 215              	.LVL12:
+ 216              	.L7:
+ 112:Src/usbd_conf.c ****   {
+ 113:Src/usbd_conf.c ****   /* USER CODE BEGIN USB_OTG_FS_MspDeInit 0 */
+ 114:Src/usbd_conf.c **** 
+ 115:Src/usbd_conf.c ****   /* USER CODE END USB_OTG_FS_MspDeInit 0 */
+ 116:Src/usbd_conf.c ****     /* Peripheral clock disable */
+ 117:Src/usbd_conf.c ****     __HAL_RCC_USB_OTG_FS_CLK_DISABLE();
+ 118:Src/usbd_conf.c **** 
+ 119:Src/usbd_conf.c ****     /**USB_OTG_FS GPIO Configuration
+ 120:Src/usbd_conf.c ****     PA12     ------> USB_OTG_FS_DP
+ 121:Src/usbd_conf.c ****     PA11     ------> USB_OTG_FS_DM
+ 122:Src/usbd_conf.c ****     PA10     ------> USB_OTG_FS_ID
+ 123:Src/usbd_conf.c ****     */
+ 124:Src/usbd_conf.c ****     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_12|GPIO_PIN_11|GPIO_PIN_10);
+ 125:Src/usbd_conf.c **** 
+ 126:Src/usbd_conf.c ****     /* Peripheral interrupt Deinit*/
+ 127:Src/usbd_conf.c ****     HAL_NVIC_DisableIRQ(OTG_FS_IRQn);
+ 128:Src/usbd_conf.c **** 
+ 129:Src/usbd_conf.c ****   /* USER CODE BEGIN USB_OTG_FS_MspDeInit 1 */
+ 130:Src/usbd_conf.c **** 
+ 131:Src/usbd_conf.c ****   /* USER CODE END USB_OTG_FS_MspDeInit 1 */
+ 132:Src/usbd_conf.c ****   }
+ 133:Src/usbd_conf.c **** }
+ 217              		.loc 1 133 1 view .LVU46
+ 218 000a 08BD     		pop	{r3, pc}
+ 219              	.LVL13:
+ 220              	.L10:
+ 117:Src/usbd_conf.c **** 
+ 221              		.loc 1 117 5 is_stmt 1 view .LVU47
+ 222 000c 064A     		ldr	r2, .L11
+ 223 000e 536B     		ldr	r3, [r2, #52]
+ 224 0010 23F08003 		bic	r3, r3, #128
+ 225 0014 5363     		str	r3, [r2, #52]
+ 124:Src/usbd_conf.c **** 
+ 226              		.loc 1 124 5 view .LVU48
+ 227 0016 4FF4E051 		mov	r1, #7168
+ 228 001a 0448     		ldr	r0, .L11+4
+ 229              	.LVL14:
+ 124:Src/usbd_conf.c **** 
+ 230              		.loc 1 124 5 is_stmt 0 view .LVU49
+ 231 001c FFF7FEFF 		bl	HAL_GPIO_DeInit
+ 232              	.LVL15:
+ 127:Src/usbd_conf.c **** 
+ 233              		.loc 1 127 5 is_stmt 1 view .LVU50
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 8
+
+
+ 234 0020 4320     		movs	r0, #67
+ 235 0022 FFF7FEFF 		bl	HAL_NVIC_DisableIRQ
+ 236              	.LVL16:
+ 237              		.loc 1 133 1 is_stmt 0 view .LVU51
+ 238 0026 F0E7     		b	.L7
+ 239              	.L12:
+ 240              		.align	2
+ 241              	.L11:
+ 242 0028 00380240 		.word	1073887232
+ 243 002c 00000240 		.word	1073872896
+ 244              		.cfi_endproc
+ 245              	.LFE240:
+ 247              		.section	.text.HAL_PCD_SetupStageCallback,"ax",%progbits
+ 248              		.align	1
+ 249              		.global	HAL_PCD_SetupStageCallback
+ 250              		.syntax unified
+ 251              		.thumb
+ 252              		.thumb_func
+ 254              	HAL_PCD_SetupStageCallback:
+ 255              	.LVL17:
+ 256              	.LFB241:
+ 134:Src/usbd_conf.c **** 
+ 135:Src/usbd_conf.c **** /**
+ 136:Src/usbd_conf.c ****   * @brief  Setup stage callback
+ 137:Src/usbd_conf.c ****   * @param  hpcd: PCD handle
+ 138:Src/usbd_conf.c ****   * @retval None
+ 139:Src/usbd_conf.c ****   */
+ 140:Src/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+ 141:Src/usbd_conf.c **** static void PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd)
+ 142:Src/usbd_conf.c **** #else
+ 143:Src/usbd_conf.c **** void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd)
+ 144:Src/usbd_conf.c **** #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+ 145:Src/usbd_conf.c **** {
+ 257              		.loc 1 145 1 is_stmt 1 view -0
+ 258              		.cfi_startproc
+ 259              		@ args = 0, pretend = 0, frame = 0
+ 260              		@ frame_needed = 0, uses_anonymous_args = 0
+ 261              		.loc 1 145 1 is_stmt 0 view .LVU53
+ 262 0000 08B5     		push	{r3, lr}
+ 263              	.LCFI7:
+ 264              		.cfi_def_cfa_offset 8
+ 265              		.cfi_offset 3, -8
+ 266              		.cfi_offset 14, -4
+ 146:Src/usbd_conf.c ****   USBD_LL_SetupStage((USBD_HandleTypeDef*)hpcd->pData, (uint8_t *)hpcd->Setup);
+ 267              		.loc 1 146 3 is_stmt 1 view .LVU54
+ 268 0002 00F2C441 		addw	r1, r0, #1220
+ 269 0006 D0F80805 		ldr	r0, [r0, #1288]
+ 270              	.LVL18:
+ 271              		.loc 1 146 3 is_stmt 0 view .LVU55
+ 272 000a FFF7FEFF 		bl	USBD_LL_SetupStage
+ 273              	.LVL19:
+ 147:Src/usbd_conf.c **** }
+ 274              		.loc 1 147 1 view .LVU56
+ 275 000e 08BD     		pop	{r3, pc}
+ 276              		.cfi_endproc
+ 277              	.LFE241:
+ 279              		.section	.text.HAL_PCD_DataOutStageCallback,"ax",%progbits
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 9
+
+
+ 280              		.align	1
+ 281              		.global	HAL_PCD_DataOutStageCallback
+ 282              		.syntax unified
+ 283              		.thumb
+ 284              		.thumb_func
+ 286              	HAL_PCD_DataOutStageCallback:
+ 287              	.LVL20:
+ 288              	.LFB242:
+ 148:Src/usbd_conf.c **** 
+ 149:Src/usbd_conf.c **** /**
+ 150:Src/usbd_conf.c ****   * @brief  Data Out stage callback.
+ 151:Src/usbd_conf.c ****   * @param  hpcd: PCD handle
+ 152:Src/usbd_conf.c ****   * @param  epnum: Endpoint number
+ 153:Src/usbd_conf.c ****   * @retval None
+ 154:Src/usbd_conf.c ****   */
+ 155:Src/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+ 156:Src/usbd_conf.c **** static void PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
+ 157:Src/usbd_conf.c **** #else
+ 158:Src/usbd_conf.c **** void HAL_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
+ 159:Src/usbd_conf.c **** #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+ 160:Src/usbd_conf.c **** {
+ 289              		.loc 1 160 1 is_stmt 1 view -0
+ 290              		.cfi_startproc
+ 291              		@ args = 0, pretend = 0, frame = 0
+ 292              		@ frame_needed = 0, uses_anonymous_args = 0
+ 293              		.loc 1 160 1 is_stmt 0 view .LVU58
+ 294 0000 08B5     		push	{r3, lr}
+ 295              	.LCFI8:
+ 296              		.cfi_def_cfa_offset 8
+ 297              		.cfi_offset 3, -8
+ 298              		.cfi_offset 14, -4
+ 161:Src/usbd_conf.c ****   USBD_LL_DataOutStage((USBD_HandleTypeDef*)hpcd->pData, epnum, hpcd->OUT_ep[epnum].xfer_buff);
+ 299              		.loc 1 161 3 is_stmt 1 view .LVU59
+ 300 0002 01EBC103 		add	r3, r1, r1, lsl #3
+ 301 0006 00EB8303 		add	r3, r0, r3, lsl #2
+ 302 000a D3F88C22 		ldr	r2, [r3, #652]
+ 303 000e D0F80805 		ldr	r0, [r0, #1288]
+ 304              	.LVL21:
+ 305              		.loc 1 161 3 is_stmt 0 view .LVU60
+ 306 0012 FFF7FEFF 		bl	USBD_LL_DataOutStage
+ 307              	.LVL22:
+ 162:Src/usbd_conf.c **** }
+ 308              		.loc 1 162 1 view .LVU61
+ 309 0016 08BD     		pop	{r3, pc}
+ 310              		.cfi_endproc
+ 311              	.LFE242:
+ 313              		.section	.text.HAL_PCD_DataInStageCallback,"ax",%progbits
+ 314              		.align	1
+ 315              		.global	HAL_PCD_DataInStageCallback
+ 316              		.syntax unified
+ 317              		.thumb
+ 318              		.thumb_func
+ 320              	HAL_PCD_DataInStageCallback:
+ 321              	.LVL23:
+ 322              	.LFB243:
+ 163:Src/usbd_conf.c **** 
+ 164:Src/usbd_conf.c **** /**
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 10
+
+
+ 165:Src/usbd_conf.c ****   * @brief  Data In stage callback.
+ 166:Src/usbd_conf.c ****   * @param  hpcd: PCD handle
+ 167:Src/usbd_conf.c ****   * @param  epnum: Endpoint number
+ 168:Src/usbd_conf.c ****   * @retval None
+ 169:Src/usbd_conf.c ****   */
+ 170:Src/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+ 171:Src/usbd_conf.c **** static void PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
+ 172:Src/usbd_conf.c **** #else
+ 173:Src/usbd_conf.c **** void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
+ 174:Src/usbd_conf.c **** #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+ 175:Src/usbd_conf.c **** {
+ 323              		.loc 1 175 1 is_stmt 1 view -0
+ 324              		.cfi_startproc
+ 325              		@ args = 0, pretend = 0, frame = 0
+ 326              		@ frame_needed = 0, uses_anonymous_args = 0
+ 327              		.loc 1 175 1 is_stmt 0 view .LVU63
+ 328 0000 08B5     		push	{r3, lr}
+ 329              	.LCFI9:
+ 330              		.cfi_def_cfa_offset 8
+ 331              		.cfi_offset 3, -8
+ 332              		.cfi_offset 14, -4
+ 176:Src/usbd_conf.c ****   USBD_LL_DataInStage((USBD_HandleTypeDef*)hpcd->pData, epnum, hpcd->IN_ep[epnum].xfer_buff);
+ 333              		.loc 1 176 3 is_stmt 1 view .LVU64
+ 334 0002 01EBC103 		add	r3, r1, r1, lsl #3
+ 335 0006 00EB8303 		add	r3, r0, r3, lsl #2
+ 336 000a DA6C     		ldr	r2, [r3, #76]
+ 337 000c D0F80805 		ldr	r0, [r0, #1288]
+ 338              	.LVL24:
+ 339              		.loc 1 176 3 is_stmt 0 view .LVU65
+ 340 0010 FFF7FEFF 		bl	USBD_LL_DataInStage
+ 341              	.LVL25:
+ 177:Src/usbd_conf.c **** }
+ 342              		.loc 1 177 1 view .LVU66
+ 343 0014 08BD     		pop	{r3, pc}
+ 344              		.cfi_endproc
+ 345              	.LFE243:
+ 347              		.section	.text.HAL_PCD_SOFCallback,"ax",%progbits
+ 348              		.align	1
+ 349              		.global	HAL_PCD_SOFCallback
+ 350              		.syntax unified
+ 351              		.thumb
+ 352              		.thumb_func
+ 354              	HAL_PCD_SOFCallback:
+ 355              	.LVL26:
+ 356              	.LFB244:
+ 178:Src/usbd_conf.c **** 
+ 179:Src/usbd_conf.c **** /**
+ 180:Src/usbd_conf.c ****   * @brief  SOF callback.
+ 181:Src/usbd_conf.c ****   * @param  hpcd: PCD handle
+ 182:Src/usbd_conf.c ****   * @retval None
+ 183:Src/usbd_conf.c ****   */
+ 184:Src/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+ 185:Src/usbd_conf.c **** static void PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
+ 186:Src/usbd_conf.c **** #else
+ 187:Src/usbd_conf.c **** void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
+ 188:Src/usbd_conf.c **** #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+ 189:Src/usbd_conf.c **** {
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 11
+
+
+ 357              		.loc 1 189 1 is_stmt 1 view -0
+ 358              		.cfi_startproc
+ 359              		@ args = 0, pretend = 0, frame = 0
+ 360              		@ frame_needed = 0, uses_anonymous_args = 0
+ 361              		.loc 1 189 1 is_stmt 0 view .LVU68
+ 362 0000 08B5     		push	{r3, lr}
+ 363              	.LCFI10:
+ 364              		.cfi_def_cfa_offset 8
+ 365              		.cfi_offset 3, -8
+ 366              		.cfi_offset 14, -4
+ 190:Src/usbd_conf.c ****   USBD_LL_SOF((USBD_HandleTypeDef*)hpcd->pData);
+ 367              		.loc 1 190 3 is_stmt 1 view .LVU69
+ 368 0002 D0F80805 		ldr	r0, [r0, #1288]
+ 369              	.LVL27:
+ 370              		.loc 1 190 3 is_stmt 0 view .LVU70
+ 371 0006 FFF7FEFF 		bl	USBD_LL_SOF
+ 372              	.LVL28:
+ 191:Src/usbd_conf.c **** }
+ 373              		.loc 1 191 1 view .LVU71
+ 374 000a 08BD     		pop	{r3, pc}
+ 375              		.cfi_endproc
+ 376              	.LFE244:
+ 378              		.section	.text.HAL_PCD_ResetCallback,"ax",%progbits
+ 379              		.align	1
+ 380              		.global	HAL_PCD_ResetCallback
+ 381              		.syntax unified
+ 382              		.thumb
+ 383              		.thumb_func
+ 385              	HAL_PCD_ResetCallback:
+ 386              	.LVL29:
+ 387              	.LFB245:
+ 192:Src/usbd_conf.c **** 
+ 193:Src/usbd_conf.c **** /**
+ 194:Src/usbd_conf.c ****   * @brief  Reset callback.
+ 195:Src/usbd_conf.c ****   * @param  hpcd: PCD handle
+ 196:Src/usbd_conf.c ****   * @retval None
+ 197:Src/usbd_conf.c ****   */
+ 198:Src/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+ 199:Src/usbd_conf.c **** static void PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
+ 200:Src/usbd_conf.c **** #else
+ 201:Src/usbd_conf.c **** void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
+ 202:Src/usbd_conf.c **** #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+ 203:Src/usbd_conf.c **** {
+ 388              		.loc 1 203 1 is_stmt 1 view -0
+ 389              		.cfi_startproc
+ 390              		@ args = 0, pretend = 0, frame = 0
+ 391              		@ frame_needed = 0, uses_anonymous_args = 0
+ 392              		.loc 1 203 1 is_stmt 0 view .LVU73
+ 393 0000 10B5     		push	{r4, lr}
+ 394              	.LCFI11:
+ 395              		.cfi_def_cfa_offset 8
+ 396              		.cfi_offset 4, -8
+ 397              		.cfi_offset 14, -4
+ 398 0002 0446     		mov	r4, r0
+ 204:Src/usbd_conf.c ****   USBD_SpeedTypeDef speed = USBD_SPEED_FULL;
+ 399              		.loc 1 204 3 is_stmt 1 view .LVU74
+ 400              	.LVL30:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 12
+
+
+ 205:Src/usbd_conf.c **** 
+ 206:Src/usbd_conf.c ****   if ( hpcd->Init.speed == PCD_SPEED_HIGH)
+ 401              		.loc 1 206 3 view .LVU75
+ 402              		.loc 1 206 18 is_stmt 0 view .LVU76
+ 403 0004 C368     		ldr	r3, [r0, #12]
+ 404              		.loc 1 206 6 view .LVU77
+ 405 0006 3BB1     		cbz	r3, .L23
+ 207:Src/usbd_conf.c ****   {
+ 208:Src/usbd_conf.c ****     speed = USBD_SPEED_HIGH;
+ 209:Src/usbd_conf.c ****   }
+ 210:Src/usbd_conf.c ****   else if ( hpcd->Init.speed == PCD_SPEED_FULL)
+ 406              		.loc 1 210 8 is_stmt 1 view .LVU78
+ 407              		.loc 1 210 11 is_stmt 0 view .LVU79
+ 408 0008 022B     		cmp	r3, #2
+ 409 000a 01D1     		bne	.L26
+ 211:Src/usbd_conf.c ****   {
+ 212:Src/usbd_conf.c ****     speed = USBD_SPEED_FULL;
+ 410              		.loc 1 212 11 view .LVU80
+ 411 000c 0121     		movs	r1, #1
+ 412 000e 04E0     		b	.L22
+ 413              	.L26:
+ 213:Src/usbd_conf.c ****   }
+ 214:Src/usbd_conf.c ****   else
+ 215:Src/usbd_conf.c ****   {
+ 216:Src/usbd_conf.c ****     Error_Handler();
+ 414              		.loc 1 216 5 is_stmt 1 view .LVU81
+ 415 0010 FFF7FEFF 		bl	Error_Handler
+ 416              	.LVL31:
+ 204:Src/usbd_conf.c **** 
+ 417              		.loc 1 204 21 is_stmt 0 view .LVU82
+ 418 0014 0121     		movs	r1, #1
+ 419 0016 00E0     		b	.L22
+ 420              	.LVL32:
+ 421              	.L23:
+ 208:Src/usbd_conf.c ****   }
+ 422              		.loc 1 208 11 view .LVU83
+ 423 0018 0021     		movs	r1, #0
+ 424              	.LVL33:
+ 425              	.L22:
+ 217:Src/usbd_conf.c ****   }
+ 218:Src/usbd_conf.c ****     /* Set Speed. */
+ 219:Src/usbd_conf.c ****   USBD_LL_SetSpeed((USBD_HandleTypeDef*)hpcd->pData, speed);
+ 426              		.loc 1 219 3 is_stmt 1 view .LVU84
+ 427 001a D4F80805 		ldr	r0, [r4, #1288]
+ 428 001e FFF7FEFF 		bl	USBD_LL_SetSpeed
+ 429              	.LVL34:
+ 220:Src/usbd_conf.c **** 
+ 221:Src/usbd_conf.c ****   /* Reset Device. */
+ 222:Src/usbd_conf.c ****   USBD_LL_Reset((USBD_HandleTypeDef*)hpcd->pData);
+ 430              		.loc 1 222 3 view .LVU85
+ 431 0022 D4F80805 		ldr	r0, [r4, #1288]
+ 432 0026 FFF7FEFF 		bl	USBD_LL_Reset
+ 433              	.LVL35:
+ 223:Src/usbd_conf.c **** }
+ 434              		.loc 1 223 1 is_stmt 0 view .LVU86
+ 435 002a 10BD     		pop	{r4, pc}
+ 436              		.loc 1 223 1 view .LVU87
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 13
+
+
+ 437              		.cfi_endproc
+ 438              	.LFE245:
+ 440              		.section	.text.HAL_PCD_SuspendCallback,"ax",%progbits
+ 441              		.align	1
+ 442              		.global	HAL_PCD_SuspendCallback
+ 443              		.syntax unified
+ 444              		.thumb
+ 445              		.thumb_func
+ 447              	HAL_PCD_SuspendCallback:
+ 448              	.LVL36:
+ 449              	.LFB246:
+ 224:Src/usbd_conf.c **** 
+ 225:Src/usbd_conf.c **** /**
+ 226:Src/usbd_conf.c ****   * @brief  Suspend callback.
+ 227:Src/usbd_conf.c ****   * When Low power mode is enabled the debug cannot be used (IAR, Keil doesn't support it)
+ 228:Src/usbd_conf.c ****   * @param  hpcd: PCD handle
+ 229:Src/usbd_conf.c ****   * @retval None
+ 230:Src/usbd_conf.c ****   */
+ 231:Src/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+ 232:Src/usbd_conf.c **** static void PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
+ 233:Src/usbd_conf.c **** #else
+ 234:Src/usbd_conf.c **** void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
+ 235:Src/usbd_conf.c **** #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+ 236:Src/usbd_conf.c **** {
+ 450              		.loc 1 236 1 is_stmt 1 view -0
+ 451              		.cfi_startproc
+ 452              		@ args = 0, pretend = 0, frame = 0
+ 453              		@ frame_needed = 0, uses_anonymous_args = 0
+ 454              		.loc 1 236 1 is_stmt 0 view .LVU89
+ 455 0000 10B5     		push	{r4, lr}
+ 456              	.LCFI12:
+ 457              		.cfi_def_cfa_offset 8
+ 458              		.cfi_offset 4, -8
+ 459              		.cfi_offset 14, -4
+ 460 0002 0446     		mov	r4, r0
+ 237:Src/usbd_conf.c ****   /* Inform USB library that core enters in suspend Mode. */
+ 238:Src/usbd_conf.c ****   USBD_LL_Suspend((USBD_HandleTypeDef*)hpcd->pData);
+ 461              		.loc 1 238 3 is_stmt 1 view .LVU90
+ 462 0004 D0F80805 		ldr	r0, [r0, #1288]
+ 463              	.LVL37:
+ 464              		.loc 1 238 3 is_stmt 0 view .LVU91
+ 465 0008 FFF7FEFF 		bl	USBD_LL_Suspend
+ 466              	.LVL38:
+ 239:Src/usbd_conf.c ****   __HAL_PCD_GATE_PHYCLOCK(hpcd);
+ 467              		.loc 1 239 3 is_stmt 1 view .LVU92
+ 468 000c 2268     		ldr	r2, [r4]
+ 469 000e D2F8003E 		ldr	r3, [r2, #3584]
+ 470 0012 43F00103 		orr	r3, r3, #1
+ 471 0016 C2F8003E 		str	r3, [r2, #3584]
+ 240:Src/usbd_conf.c ****   /* Enter in STOP mode. */
+ 241:Src/usbd_conf.c ****   /* USER CODE BEGIN 2 */
+ 242:Src/usbd_conf.c ****   if (hpcd->Init.low_power_enable)
+ 472              		.loc 1 242 3 view .LVU93
+ 473              		.loc 1 242 17 is_stmt 0 view .LVU94
+ 474 001a 236A     		ldr	r3, [r4, #32]
+ 475              		.loc 1 242 6 view .LVU95
+ 476 001c 23B1     		cbz	r3, .L27
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 14
+
+
+ 243:Src/usbd_conf.c ****   {
+ 244:Src/usbd_conf.c ****     /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register. */
+ 245:Src/usbd_conf.c ****     SCB->SCR |= (uint32_t)((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
+ 477              		.loc 1 245 5 is_stmt 1 view .LVU96
+ 478              		.loc 1 245 8 is_stmt 0 view .LVU97
+ 479 001e 034A     		ldr	r2, .L30
+ 480 0020 1369     		ldr	r3, [r2, #16]
+ 481              		.loc 1 245 14 view .LVU98
+ 482 0022 43F00603 		orr	r3, r3, #6
+ 483 0026 1361     		str	r3, [r2, #16]
+ 484              	.L27:
+ 246:Src/usbd_conf.c ****   }
+ 247:Src/usbd_conf.c ****   /* USER CODE END 2 */
+ 248:Src/usbd_conf.c **** }
+ 485              		.loc 1 248 1 view .LVU99
+ 486 0028 10BD     		pop	{r4, pc}
+ 487              	.LVL39:
+ 488              	.L31:
+ 489              		.loc 1 248 1 view .LVU100
+ 490 002a 00BF     		.align	2
+ 491              	.L30:
+ 492 002c 00ED00E0 		.word	-536810240
+ 493              		.cfi_endproc
+ 494              	.LFE246:
+ 496              		.section	.text.HAL_PCD_ResumeCallback,"ax",%progbits
+ 497              		.align	1
+ 498              		.global	HAL_PCD_ResumeCallback
+ 499              		.syntax unified
+ 500              		.thumb
+ 501              		.thumb_func
+ 503              	HAL_PCD_ResumeCallback:
+ 504              	.LVL40:
+ 505              	.LFB247:
+ 249:Src/usbd_conf.c **** 
+ 250:Src/usbd_conf.c **** /**
+ 251:Src/usbd_conf.c ****   * @brief  Resume callback.
+ 252:Src/usbd_conf.c ****   * When Low power mode is enabled the debug cannot be used (IAR, Keil doesn't support it)
+ 253:Src/usbd_conf.c ****   * @param  hpcd: PCD handle
+ 254:Src/usbd_conf.c ****   * @retval None
+ 255:Src/usbd_conf.c ****   */
+ 256:Src/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+ 257:Src/usbd_conf.c **** static void PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
+ 258:Src/usbd_conf.c **** #else
+ 259:Src/usbd_conf.c **** void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
+ 260:Src/usbd_conf.c **** #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+ 261:Src/usbd_conf.c **** {
+ 506              		.loc 1 261 1 is_stmt 1 view -0
+ 507              		.cfi_startproc
+ 508              		@ args = 0, pretend = 0, frame = 0
+ 509              		@ frame_needed = 0, uses_anonymous_args = 0
+ 510              		.loc 1 261 1 is_stmt 0 view .LVU102
+ 511 0000 08B5     		push	{r3, lr}
+ 512              	.LCFI13:
+ 513              		.cfi_def_cfa_offset 8
+ 514              		.cfi_offset 3, -8
+ 515              		.cfi_offset 14, -4
+ 262:Src/usbd_conf.c ****   /* USER CODE BEGIN 3 */
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 15
+
+
+ 263:Src/usbd_conf.c **** 
+ 264:Src/usbd_conf.c ****   /* USER CODE END 3 */
+ 265:Src/usbd_conf.c ****   USBD_LL_Resume((USBD_HandleTypeDef*)hpcd->pData);
+ 516              		.loc 1 265 3 is_stmt 1 view .LVU103
+ 517 0002 D0F80805 		ldr	r0, [r0, #1288]
+ 518              	.LVL41:
+ 519              		.loc 1 265 3 is_stmt 0 view .LVU104
+ 520 0006 FFF7FEFF 		bl	USBD_LL_Resume
+ 521              	.LVL42:
+ 266:Src/usbd_conf.c **** }
+ 522              		.loc 1 266 1 view .LVU105
+ 523 000a 08BD     		pop	{r3, pc}
+ 524              		.cfi_endproc
+ 525              	.LFE247:
+ 527              		.section	.text.HAL_PCD_ISOOUTIncompleteCallback,"ax",%progbits
+ 528              		.align	1
+ 529              		.global	HAL_PCD_ISOOUTIncompleteCallback
+ 530              		.syntax unified
+ 531              		.thumb
+ 532              		.thumb_func
+ 534              	HAL_PCD_ISOOUTIncompleteCallback:
+ 535              	.LVL43:
+ 536              	.LFB248:
+ 267:Src/usbd_conf.c **** 
+ 268:Src/usbd_conf.c **** /**
+ 269:Src/usbd_conf.c ****   * @brief  ISOOUTIncomplete callback.
+ 270:Src/usbd_conf.c ****   * @param  hpcd: PCD handle
+ 271:Src/usbd_conf.c ****   * @param  epnum: Endpoint number
+ 272:Src/usbd_conf.c ****   * @retval None
+ 273:Src/usbd_conf.c ****   */
+ 274:Src/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+ 275:Src/usbd_conf.c **** static void PCD_ISOOUTIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
+ 276:Src/usbd_conf.c **** #else
+ 277:Src/usbd_conf.c **** void HAL_PCD_ISOOUTIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
+ 278:Src/usbd_conf.c **** #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+ 279:Src/usbd_conf.c **** {
+ 537              		.loc 1 279 1 is_stmt 1 view -0
+ 538              		.cfi_startproc
+ 539              		@ args = 0, pretend = 0, frame = 0
+ 540              		@ frame_needed = 0, uses_anonymous_args = 0
+ 541              		.loc 1 279 1 is_stmt 0 view .LVU107
+ 542 0000 08B5     		push	{r3, lr}
+ 543              	.LCFI14:
+ 544              		.cfi_def_cfa_offset 8
+ 545              		.cfi_offset 3, -8
+ 546              		.cfi_offset 14, -4
+ 280:Src/usbd_conf.c ****   USBD_LL_IsoOUTIncomplete((USBD_HandleTypeDef*)hpcd->pData, epnum);
+ 547              		.loc 1 280 3 is_stmt 1 view .LVU108
+ 548 0002 D0F80805 		ldr	r0, [r0, #1288]
+ 549              	.LVL44:
+ 550              		.loc 1 280 3 is_stmt 0 view .LVU109
+ 551 0006 FFF7FEFF 		bl	USBD_LL_IsoOUTIncomplete
+ 552              	.LVL45:
+ 281:Src/usbd_conf.c **** }
+ 553              		.loc 1 281 1 view .LVU110
+ 554 000a 08BD     		pop	{r3, pc}
+ 555              		.cfi_endproc
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 16
+
+
+ 556              	.LFE248:
+ 558              		.section	.text.HAL_PCD_ISOINIncompleteCallback,"ax",%progbits
+ 559              		.align	1
+ 560              		.global	HAL_PCD_ISOINIncompleteCallback
+ 561              		.syntax unified
+ 562              		.thumb
+ 563              		.thumb_func
+ 565              	HAL_PCD_ISOINIncompleteCallback:
+ 566              	.LVL46:
+ 567              	.LFB249:
+ 282:Src/usbd_conf.c **** 
+ 283:Src/usbd_conf.c **** /**
+ 284:Src/usbd_conf.c ****   * @brief  ISOINIncomplete callback.
+ 285:Src/usbd_conf.c ****   * @param  hpcd: PCD handle
+ 286:Src/usbd_conf.c ****   * @param  epnum: Endpoint number
+ 287:Src/usbd_conf.c ****   * @retval None
+ 288:Src/usbd_conf.c ****   */
+ 289:Src/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+ 290:Src/usbd_conf.c **** static void PCD_ISOINIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
+ 291:Src/usbd_conf.c **** #else
+ 292:Src/usbd_conf.c **** void HAL_PCD_ISOINIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
+ 293:Src/usbd_conf.c **** #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+ 294:Src/usbd_conf.c **** {
+ 568              		.loc 1 294 1 is_stmt 1 view -0
+ 569              		.cfi_startproc
+ 570              		@ args = 0, pretend = 0, frame = 0
+ 571              		@ frame_needed = 0, uses_anonymous_args = 0
+ 572              		.loc 1 294 1 is_stmt 0 view .LVU112
+ 573 0000 08B5     		push	{r3, lr}
+ 574              	.LCFI15:
+ 575              		.cfi_def_cfa_offset 8
+ 576              		.cfi_offset 3, -8
+ 577              		.cfi_offset 14, -4
+ 295:Src/usbd_conf.c ****   USBD_LL_IsoINIncomplete((USBD_HandleTypeDef*)hpcd->pData, epnum);
+ 578              		.loc 1 295 3 is_stmt 1 view .LVU113
+ 579 0002 D0F80805 		ldr	r0, [r0, #1288]
+ 580              	.LVL47:
+ 581              		.loc 1 295 3 is_stmt 0 view .LVU114
+ 582 0006 FFF7FEFF 		bl	USBD_LL_IsoINIncomplete
+ 583              	.LVL48:
+ 296:Src/usbd_conf.c **** }
+ 584              		.loc 1 296 1 view .LVU115
+ 585 000a 08BD     		pop	{r3, pc}
+ 586              		.cfi_endproc
+ 587              	.LFE249:
+ 589              		.section	.text.HAL_PCD_ConnectCallback,"ax",%progbits
+ 590              		.align	1
+ 591              		.global	HAL_PCD_ConnectCallback
+ 592              		.syntax unified
+ 593              		.thumb
+ 594              		.thumb_func
+ 596              	HAL_PCD_ConnectCallback:
+ 597              	.LVL49:
+ 598              	.LFB250:
+ 297:Src/usbd_conf.c **** 
+ 298:Src/usbd_conf.c **** /**
+ 299:Src/usbd_conf.c ****   * @brief  Connect callback.
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 17
+
+
+ 300:Src/usbd_conf.c ****   * @param  hpcd: PCD handle
+ 301:Src/usbd_conf.c ****   * @retval None
+ 302:Src/usbd_conf.c ****   */
+ 303:Src/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+ 304:Src/usbd_conf.c **** static void PCD_ConnectCallback(PCD_HandleTypeDef *hpcd)
+ 305:Src/usbd_conf.c **** #else
+ 306:Src/usbd_conf.c **** void HAL_PCD_ConnectCallback(PCD_HandleTypeDef *hpcd)
+ 307:Src/usbd_conf.c **** #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+ 308:Src/usbd_conf.c **** {
+ 599              		.loc 1 308 1 is_stmt 1 view -0
+ 600              		.cfi_startproc
+ 601              		@ args = 0, pretend = 0, frame = 0
+ 602              		@ frame_needed = 0, uses_anonymous_args = 0
+ 603              		.loc 1 308 1 is_stmt 0 view .LVU117
+ 604 0000 08B5     		push	{r3, lr}
+ 605              	.LCFI16:
+ 606              		.cfi_def_cfa_offset 8
+ 607              		.cfi_offset 3, -8
+ 608              		.cfi_offset 14, -4
+ 309:Src/usbd_conf.c ****   USBD_LL_DevConnected((USBD_HandleTypeDef*)hpcd->pData);
+ 609              		.loc 1 309 3 is_stmt 1 view .LVU118
+ 610 0002 D0F80805 		ldr	r0, [r0, #1288]
+ 611              	.LVL50:
+ 612              		.loc 1 309 3 is_stmt 0 view .LVU119
+ 613 0006 FFF7FEFF 		bl	USBD_LL_DevConnected
+ 614              	.LVL51:
+ 310:Src/usbd_conf.c **** }
+ 615              		.loc 1 310 1 view .LVU120
+ 616 000a 08BD     		pop	{r3, pc}
+ 617              		.cfi_endproc
+ 618              	.LFE250:
+ 620              		.section	.text.HAL_PCD_DisconnectCallback,"ax",%progbits
+ 621              		.align	1
+ 622              		.global	HAL_PCD_DisconnectCallback
+ 623              		.syntax unified
+ 624              		.thumb
+ 625              		.thumb_func
+ 627              	HAL_PCD_DisconnectCallback:
+ 628              	.LVL52:
+ 629              	.LFB251:
+ 311:Src/usbd_conf.c **** 
+ 312:Src/usbd_conf.c **** /**
+ 313:Src/usbd_conf.c ****   * @brief  Disconnect callback.
+ 314:Src/usbd_conf.c ****   * @param  hpcd: PCD handle
+ 315:Src/usbd_conf.c ****   * @retval None
+ 316:Src/usbd_conf.c ****   */
+ 317:Src/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+ 318:Src/usbd_conf.c **** static void PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
+ 319:Src/usbd_conf.c **** #else
+ 320:Src/usbd_conf.c **** void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
+ 321:Src/usbd_conf.c **** #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+ 322:Src/usbd_conf.c **** {
+ 630              		.loc 1 322 1 is_stmt 1 view -0
+ 631              		.cfi_startproc
+ 632              		@ args = 0, pretend = 0, frame = 0
+ 633              		@ frame_needed = 0, uses_anonymous_args = 0
+ 634              		.loc 1 322 1 is_stmt 0 view .LVU122
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 18
+
+
+ 635 0000 08B5     		push	{r3, lr}
+ 636              	.LCFI17:
+ 637              		.cfi_def_cfa_offset 8
+ 638              		.cfi_offset 3, -8
+ 639              		.cfi_offset 14, -4
+ 323:Src/usbd_conf.c ****   USBD_LL_DevDisconnected((USBD_HandleTypeDef*)hpcd->pData);
+ 640              		.loc 1 323 3 is_stmt 1 view .LVU123
+ 641 0002 D0F80805 		ldr	r0, [r0, #1288]
+ 642              	.LVL53:
+ 643              		.loc 1 323 3 is_stmt 0 view .LVU124
+ 644 0006 FFF7FEFF 		bl	USBD_LL_DevDisconnected
+ 645              	.LVL54:
+ 324:Src/usbd_conf.c **** }
+ 646              		.loc 1 324 1 view .LVU125
+ 647 000a 08BD     		pop	{r3, pc}
+ 648              		.cfi_endproc
+ 649              	.LFE251:
+ 651              		.section	.text.USBD_LL_Init,"ax",%progbits
+ 652              		.align	1
+ 653              		.global	USBD_LL_Init
+ 654              		.syntax unified
+ 655              		.thumb
+ 656              		.thumb_func
+ 658              	USBD_LL_Init:
+ 659              	.LVL55:
+ 660              	.LFB252:
+ 325:Src/usbd_conf.c **** 
+ 326:Src/usbd_conf.c **** /*******************************************************************************
+ 327:Src/usbd_conf.c ****                        LL Driver Interface (USB Device Library --> PCD)
+ 328:Src/usbd_conf.c **** *******************************************************************************/
+ 329:Src/usbd_conf.c **** 
+ 330:Src/usbd_conf.c **** /**
+ 331:Src/usbd_conf.c ****   * @brief  Initializes the low level portion of the device driver.
+ 332:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 333:Src/usbd_conf.c ****   * @retval USBD status
+ 334:Src/usbd_conf.c ****   */
+ 335:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
+ 336:Src/usbd_conf.c **** {
+ 661              		.loc 1 336 1 is_stmt 1 view -0
+ 662              		.cfi_startproc
+ 663              		@ args = 0, pretend = 0, frame = 0
+ 664              		@ frame_needed = 0, uses_anonymous_args = 0
+ 337:Src/usbd_conf.c ****   /* Init USB Ip. */
+ 338:Src/usbd_conf.c ****   if (pdev->id == DEVICE_FS) {
+ 665              		.loc 1 338 3 view .LVU127
+ 666              		.loc 1 338 11 is_stmt 0 view .LVU128
+ 667 0000 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+ 668              		.loc 1 338 6 view .LVU129
+ 669 0002 0AB1     		cbz	r2, .L49
+ 339:Src/usbd_conf.c ****   /* Link the driver to the stack. */
+ 340:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.pData = pdev;
+ 341:Src/usbd_conf.c ****   pdev->pData = &hpcd_USB_OTG_FS;
+ 342:Src/usbd_conf.c **** 
+ 343:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Instance = USB_OTG_FS;
+ 344:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.dev_endpoints = 4;
+ 345:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.speed = PCD_SPEED_FULL;
+ 346:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.dma_enable = DISABLE;
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 19
+
+
+ 347:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.phy_itface = PCD_PHY_EMBEDDED;
+ 348:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.Sof_enable = DISABLE;
+ 349:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.low_power_enable = DISABLE;
+ 350:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.lpm_enable = DISABLE;
+ 351:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.vbus_sensing_enable = DISABLE;
+ 352:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.use_dedicated_ep1 = DISABLE;
+ 353:Src/usbd_conf.c ****   if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
+ 354:Src/usbd_conf.c ****   {
+ 355:Src/usbd_conf.c ****     Error_Handler( );
+ 356:Src/usbd_conf.c ****   }
+ 357:Src/usbd_conf.c **** 
+ 358:Src/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+ 359:Src/usbd_conf.c ****   /* Register USB PCD CallBacks */
+ 360:Src/usbd_conf.c ****   HAL_PCD_RegisterCallback(&hpcd_USB_OTG_FS, HAL_PCD_SOF_CB_ID, PCD_SOFCallback);
+ 361:Src/usbd_conf.c ****   HAL_PCD_RegisterCallback(&hpcd_USB_OTG_FS, HAL_PCD_SETUPSTAGE_CB_ID, PCD_SetupStageCallback);
+ 362:Src/usbd_conf.c ****   HAL_PCD_RegisterCallback(&hpcd_USB_OTG_FS, HAL_PCD_RESET_CB_ID, PCD_ResetCallback);
+ 363:Src/usbd_conf.c ****   HAL_PCD_RegisterCallback(&hpcd_USB_OTG_FS, HAL_PCD_SUSPEND_CB_ID, PCD_SuspendCallback);
+ 364:Src/usbd_conf.c ****   HAL_PCD_RegisterCallback(&hpcd_USB_OTG_FS, HAL_PCD_RESUME_CB_ID, PCD_ResumeCallback);
+ 365:Src/usbd_conf.c ****   HAL_PCD_RegisterCallback(&hpcd_USB_OTG_FS, HAL_PCD_CONNECT_CB_ID, PCD_ConnectCallback);
+ 366:Src/usbd_conf.c ****   HAL_PCD_RegisterCallback(&hpcd_USB_OTG_FS, HAL_PCD_DISCONNECT_CB_ID, PCD_DisconnectCallback);
+ 367:Src/usbd_conf.c **** 
+ 368:Src/usbd_conf.c ****   HAL_PCD_RegisterDataOutStageCallback(&hpcd_USB_OTG_FS, PCD_DataOutStageCallback);
+ 369:Src/usbd_conf.c ****   HAL_PCD_RegisterDataInStageCallback(&hpcd_USB_OTG_FS, PCD_DataInStageCallback);
+ 370:Src/usbd_conf.c ****   HAL_PCD_RegisterIsoOutIncpltCallback(&hpcd_USB_OTG_FS, PCD_ISOOUTIncompleteCallback);
+ 371:Src/usbd_conf.c ****   HAL_PCD_RegisterIsoInIncpltCallback(&hpcd_USB_OTG_FS, PCD_ISOINIncompleteCallback);
+ 372:Src/usbd_conf.c **** #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+ 373:Src/usbd_conf.c ****   HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_FS, 0x80);
+ 374:Src/usbd_conf.c ****   HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 0, 0x40);
+ 375:Src/usbd_conf.c ****   HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 1, 0x80);
+ 376:Src/usbd_conf.c ****   }
+ 377:Src/usbd_conf.c ****   return USBD_OK;
+ 670              		.loc 1 377 3 is_stmt 1 view .LVU130
+ 378:Src/usbd_conf.c **** }
+ 671              		.loc 1 378 1 is_stmt 0 view .LVU131
+ 672 0004 0020     		movs	r0, #0
+ 673              	.LVL56:
+ 674              		.loc 1 378 1 view .LVU132
+ 675 0006 7047     		bx	lr
+ 676              	.LVL57:
+ 677              	.L49:
+ 336:Src/usbd_conf.c ****   /* Init USB Ip. */
+ 678              		.loc 1 336 1 view .LVU133
+ 679 0008 10B5     		push	{r4, lr}
+ 680              	.LCFI18:
+ 681              		.cfi_def_cfa_offset 8
+ 682              		.cfi_offset 4, -8
+ 683              		.cfi_offset 14, -4
+ 684 000a 0346     		mov	r3, r0
+ 340:Src/usbd_conf.c ****   pdev->pData = &hpcd_USB_OTG_FS;
+ 685              		.loc 1 340 3 is_stmt 1 view .LVU134
+ 340:Src/usbd_conf.c ****   pdev->pData = &hpcd_USB_OTG_FS;
+ 686              		.loc 1 340 25 is_stmt 0 view .LVU135
+ 687 000c 1548     		ldr	r0, .L51
+ 688              	.LVL58:
+ 340:Src/usbd_conf.c ****   pdev->pData = &hpcd_USB_OTG_FS;
+ 689              		.loc 1 340 25 view .LVU136
+ 690 000e C0F80835 		str	r3, [r0, #1288]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 20
+
+
+ 341:Src/usbd_conf.c **** 
+ 691              		.loc 1 341 3 is_stmt 1 view .LVU137
+ 341:Src/usbd_conf.c **** 
+ 692              		.loc 1 341 15 is_stmt 0 view .LVU138
+ 693 0012 C3F8C802 		str	r0, [r3, #712]
+ 343:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.dev_endpoints = 4;
+ 694              		.loc 1 343 3 is_stmt 1 view .LVU139
+ 343:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.dev_endpoints = 4;
+ 695              		.loc 1 343 28 is_stmt 0 view .LVU140
+ 696 0016 4FF0A043 		mov	r3, #1342177280
+ 697              	.LVL59:
+ 343:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.dev_endpoints = 4;
+ 698              		.loc 1 343 28 view .LVU141
+ 699 001a 0360     		str	r3, [r0]
+ 344:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.speed = PCD_SPEED_FULL;
+ 700              		.loc 1 344 3 is_stmt 1 view .LVU142
+ 344:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.speed = PCD_SPEED_FULL;
+ 701              		.loc 1 344 38 is_stmt 0 view .LVU143
+ 702 001c 0423     		movs	r3, #4
+ 703 001e 4360     		str	r3, [r0, #4]
+ 345:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.dma_enable = DISABLE;
+ 704              		.loc 1 345 3 is_stmt 1 view .LVU144
+ 345:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.dma_enable = DISABLE;
+ 705              		.loc 1 345 30 is_stmt 0 view .LVU145
+ 706 0020 0222     		movs	r2, #2
+ 707 0022 C260     		str	r2, [r0, #12]
+ 346:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.phy_itface = PCD_PHY_EMBEDDED;
+ 708              		.loc 1 346 3 is_stmt 1 view .LVU146
+ 346:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.phy_itface = PCD_PHY_EMBEDDED;
+ 709              		.loc 1 346 35 is_stmt 0 view .LVU147
+ 710 0024 0023     		movs	r3, #0
+ 711 0026 0361     		str	r3, [r0, #16]
+ 347:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.Sof_enable = DISABLE;
+ 712              		.loc 1 347 3 is_stmt 1 view .LVU148
+ 347:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.Sof_enable = DISABLE;
+ 713              		.loc 1 347 35 is_stmt 0 view .LVU149
+ 714 0028 8261     		str	r2, [r0, #24]
+ 348:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.low_power_enable = DISABLE;
+ 715              		.loc 1 348 3 is_stmt 1 view .LVU150
+ 348:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.low_power_enable = DISABLE;
+ 716              		.loc 1 348 35 is_stmt 0 view .LVU151
+ 717 002a C361     		str	r3, [r0, #28]
+ 349:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.lpm_enable = DISABLE;
+ 718              		.loc 1 349 3 is_stmt 1 view .LVU152
+ 349:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.lpm_enable = DISABLE;
+ 719              		.loc 1 349 41 is_stmt 0 view .LVU153
+ 720 002c 0362     		str	r3, [r0, #32]
+ 350:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.vbus_sensing_enable = DISABLE;
+ 721              		.loc 1 350 3 is_stmt 1 view .LVU154
+ 350:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.vbus_sensing_enable = DISABLE;
+ 722              		.loc 1 350 35 is_stmt 0 view .LVU155
+ 723 002e 4362     		str	r3, [r0, #36]
+ 351:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.use_dedicated_ep1 = DISABLE;
+ 724              		.loc 1 351 3 is_stmt 1 view .LVU156
+ 351:Src/usbd_conf.c ****   hpcd_USB_OTG_FS.Init.use_dedicated_ep1 = DISABLE;
+ 725              		.loc 1 351 44 is_stmt 0 view .LVU157
+ 726 0030 C362     		str	r3, [r0, #44]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 21
+
+
+ 352:Src/usbd_conf.c ****   if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
+ 727              		.loc 1 352 3 is_stmt 1 view .LVU158
+ 352:Src/usbd_conf.c ****   if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
+ 728              		.loc 1 352 42 is_stmt 0 view .LVU159
+ 729 0032 0363     		str	r3, [r0, #48]
+ 353:Src/usbd_conf.c ****   {
+ 730              		.loc 1 353 3 is_stmt 1 view .LVU160
+ 353:Src/usbd_conf.c ****   {
+ 731              		.loc 1 353 7 is_stmt 0 view .LVU161
+ 732 0034 FFF7FEFF 		bl	HAL_PCD_Init
+ 733              	.LVL60:
+ 353:Src/usbd_conf.c ****   {
+ 734              		.loc 1 353 6 discriminator 1 view .LVU162
+ 735 0038 80B9     		cbnz	r0, .L50
+ 736              	.L44:
+ 373:Src/usbd_conf.c ****   HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 0, 0x40);
+ 737              		.loc 1 373 3 is_stmt 1 view .LVU163
+ 738 003a 0A4C     		ldr	r4, .L51
+ 739 003c 8021     		movs	r1, #128
+ 740 003e 2046     		mov	r0, r4
+ 741 0040 FFF7FEFF 		bl	HAL_PCDEx_SetRxFiFo
+ 742              	.LVL61:
+ 374:Src/usbd_conf.c ****   HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 1, 0x80);
+ 743              		.loc 1 374 3 view .LVU164
+ 744 0044 4022     		movs	r2, #64
+ 745 0046 0021     		movs	r1, #0
+ 746 0048 2046     		mov	r0, r4
+ 747 004a FFF7FEFF 		bl	HAL_PCDEx_SetTxFiFo
+ 748              	.LVL62:
+ 375:Src/usbd_conf.c ****   }
+ 749              		.loc 1 375 3 view .LVU165
+ 750 004e 8022     		movs	r2, #128
+ 751 0050 0121     		movs	r1, #1
+ 752 0052 2046     		mov	r0, r4
+ 753 0054 FFF7FEFF 		bl	HAL_PCDEx_SetTxFiFo
+ 754              	.LVL63:
+ 377:Src/usbd_conf.c **** }
+ 755              		.loc 1 377 3 view .LVU166
+ 756              		.loc 1 378 1 is_stmt 0 view .LVU167
+ 757 0058 0020     		movs	r0, #0
+ 758 005a 10BD     		pop	{r4, pc}
+ 759              	.L50:
+ 355:Src/usbd_conf.c ****   }
+ 760              		.loc 1 355 5 is_stmt 1 view .LVU168
+ 761 005c FFF7FEFF 		bl	Error_Handler
+ 762              	.LVL64:
+ 763 0060 EBE7     		b	.L44
+ 764              	.L52:
+ 765 0062 00BF     		.align	2
+ 766              	.L51:
+ 767 0064 00000000 		.word	hpcd_USB_OTG_FS
+ 768              		.cfi_endproc
+ 769              	.LFE252:
+ 771              		.section	.text.USBD_LL_IsStallEP,"ax",%progbits
+ 772              		.align	1
+ 773              		.global	USBD_LL_IsStallEP
+ 774              		.syntax unified
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 22
+
+
+ 775              		.thumb
+ 776              		.thumb_func
+ 778              	USBD_LL_IsStallEP:
+ 779              	.LVL65:
+ 780              	.LFB261:
+ 379:Src/usbd_conf.c **** 
+ 380:Src/usbd_conf.c **** /**
+ 381:Src/usbd_conf.c ****   * @brief  De-Initializes the low level portion of the device driver.
+ 382:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 383:Src/usbd_conf.c ****   * @retval USBD status
+ 384:Src/usbd_conf.c ****   */
+ 385:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_DeInit(USBD_HandleTypeDef *pdev)
+ 386:Src/usbd_conf.c **** {
+ 387:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 388:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 389:Src/usbd_conf.c **** 
+ 390:Src/usbd_conf.c ****   hal_status = HAL_PCD_DeInit(pdev->pData);
+ 391:Src/usbd_conf.c **** 
+ 392:Src/usbd_conf.c ****   usb_status =  USBD_Get_USB_Status(hal_status);
+ 393:Src/usbd_conf.c **** 
+ 394:Src/usbd_conf.c ****   return usb_status;
+ 395:Src/usbd_conf.c **** }
+ 396:Src/usbd_conf.c **** 
+ 397:Src/usbd_conf.c **** /**
+ 398:Src/usbd_conf.c ****   * @brief  Starts the low level portion of the device driver.
+ 399:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 400:Src/usbd_conf.c ****   * @retval USBD status
+ 401:Src/usbd_conf.c ****   */
+ 402:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_Start(USBD_HandleTypeDef *pdev)
+ 403:Src/usbd_conf.c **** {
+ 404:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 405:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 406:Src/usbd_conf.c **** 
+ 407:Src/usbd_conf.c ****   hal_status = HAL_PCD_Start(pdev->pData);
+ 408:Src/usbd_conf.c **** 
+ 409:Src/usbd_conf.c ****   usb_status =  USBD_Get_USB_Status(hal_status);
+ 410:Src/usbd_conf.c **** 
+ 411:Src/usbd_conf.c ****   return usb_status;
+ 412:Src/usbd_conf.c **** }
+ 413:Src/usbd_conf.c **** 
+ 414:Src/usbd_conf.c **** /**
+ 415:Src/usbd_conf.c ****   * @brief  Stops the low level portion of the device driver.
+ 416:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 417:Src/usbd_conf.c ****   * @retval USBD status
+ 418:Src/usbd_conf.c ****   */
+ 419:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_Stop(USBD_HandleTypeDef *pdev)
+ 420:Src/usbd_conf.c **** {
+ 421:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 422:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 423:Src/usbd_conf.c **** 
+ 424:Src/usbd_conf.c ****   hal_status = HAL_PCD_Stop(pdev->pData);
+ 425:Src/usbd_conf.c **** 
+ 426:Src/usbd_conf.c ****   usb_status =  USBD_Get_USB_Status(hal_status);
+ 427:Src/usbd_conf.c **** 
+ 428:Src/usbd_conf.c ****   return usb_status;
+ 429:Src/usbd_conf.c **** }
+ 430:Src/usbd_conf.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 23
+
+
+ 431:Src/usbd_conf.c **** /**
+ 432:Src/usbd_conf.c ****   * @brief  Opens an endpoint of the low level driver.
+ 433:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 434:Src/usbd_conf.c ****   * @param  ep_addr: Endpoint number
+ 435:Src/usbd_conf.c ****   * @param  ep_type: Endpoint type
+ 436:Src/usbd_conf.c ****   * @param  ep_mps: Endpoint max packet size
+ 437:Src/usbd_conf.c ****   * @retval USBD status
+ 438:Src/usbd_conf.c ****   */
+ 439:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_OpenEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr, uint8_t ep_type, uint1
+ 440:Src/usbd_conf.c **** {
+ 441:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 442:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 443:Src/usbd_conf.c **** 
+ 444:Src/usbd_conf.c ****   hal_status = HAL_PCD_EP_Open(pdev->pData, ep_addr, ep_mps, ep_type);
+ 445:Src/usbd_conf.c **** 
+ 446:Src/usbd_conf.c ****   usb_status =  USBD_Get_USB_Status(hal_status);
+ 447:Src/usbd_conf.c **** 
+ 448:Src/usbd_conf.c ****   return usb_status;
+ 449:Src/usbd_conf.c **** }
+ 450:Src/usbd_conf.c **** 
+ 451:Src/usbd_conf.c **** /**
+ 452:Src/usbd_conf.c ****   * @brief  Closes an endpoint of the low level driver.
+ 453:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 454:Src/usbd_conf.c ****   * @param  ep_addr: Endpoint number
+ 455:Src/usbd_conf.c ****   * @retval USBD status
+ 456:Src/usbd_conf.c ****   */
+ 457:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_CloseEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
+ 458:Src/usbd_conf.c **** {
+ 459:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 460:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 461:Src/usbd_conf.c **** 
+ 462:Src/usbd_conf.c ****   hal_status = HAL_PCD_EP_Close(pdev->pData, ep_addr);
+ 463:Src/usbd_conf.c **** 
+ 464:Src/usbd_conf.c ****   usb_status =  USBD_Get_USB_Status(hal_status);
+ 465:Src/usbd_conf.c **** 
+ 466:Src/usbd_conf.c ****   return usb_status;
+ 467:Src/usbd_conf.c **** }
+ 468:Src/usbd_conf.c **** 
+ 469:Src/usbd_conf.c **** /**
+ 470:Src/usbd_conf.c ****   * @brief  Flushes an endpoint of the Low Level Driver.
+ 471:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 472:Src/usbd_conf.c ****   * @param  ep_addr: Endpoint number
+ 473:Src/usbd_conf.c ****   * @retval USBD status
+ 474:Src/usbd_conf.c ****   */
+ 475:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_FlushEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
+ 476:Src/usbd_conf.c **** {
+ 477:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 478:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 479:Src/usbd_conf.c **** 
+ 480:Src/usbd_conf.c ****   hal_status = HAL_PCD_EP_Flush(pdev->pData, ep_addr);
+ 481:Src/usbd_conf.c **** 
+ 482:Src/usbd_conf.c ****   usb_status =  USBD_Get_USB_Status(hal_status);
+ 483:Src/usbd_conf.c **** 
+ 484:Src/usbd_conf.c ****   return usb_status;
+ 485:Src/usbd_conf.c **** }
+ 486:Src/usbd_conf.c **** 
+ 487:Src/usbd_conf.c **** /**
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 24
+
+
+ 488:Src/usbd_conf.c ****   * @brief  Sets a Stall condition on an endpoint of the Low Level Driver.
+ 489:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 490:Src/usbd_conf.c ****   * @param  ep_addr: Endpoint number
+ 491:Src/usbd_conf.c ****   * @retval USBD status
+ 492:Src/usbd_conf.c ****   */
+ 493:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_StallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
+ 494:Src/usbd_conf.c **** {
+ 495:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 496:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 497:Src/usbd_conf.c **** 
+ 498:Src/usbd_conf.c ****   hal_status = HAL_PCD_EP_SetStall(pdev->pData, ep_addr);
+ 499:Src/usbd_conf.c **** 
+ 500:Src/usbd_conf.c ****   usb_status =  USBD_Get_USB_Status(hal_status);
+ 501:Src/usbd_conf.c **** 
+ 502:Src/usbd_conf.c ****   return usb_status;
+ 503:Src/usbd_conf.c **** }
+ 504:Src/usbd_conf.c **** 
+ 505:Src/usbd_conf.c **** /**
+ 506:Src/usbd_conf.c ****   * @brief  Clears a Stall condition on an endpoint of the Low Level Driver.
+ 507:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 508:Src/usbd_conf.c ****   * @param  ep_addr: Endpoint number
+ 509:Src/usbd_conf.c ****   * @retval USBD status
+ 510:Src/usbd_conf.c ****   */
+ 511:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_ClearStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
+ 512:Src/usbd_conf.c **** {
+ 513:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 514:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 515:Src/usbd_conf.c **** 
+ 516:Src/usbd_conf.c ****   hal_status = HAL_PCD_EP_ClrStall(pdev->pData, ep_addr);
+ 517:Src/usbd_conf.c **** 
+ 518:Src/usbd_conf.c ****   usb_status =  USBD_Get_USB_Status(hal_status);
+ 519:Src/usbd_conf.c **** 
+ 520:Src/usbd_conf.c ****   return usb_status;
+ 521:Src/usbd_conf.c **** }
+ 522:Src/usbd_conf.c **** 
+ 523:Src/usbd_conf.c **** /**
+ 524:Src/usbd_conf.c ****   * @brief  Returns Stall condition.
+ 525:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 526:Src/usbd_conf.c ****   * @param  ep_addr: Endpoint number
+ 527:Src/usbd_conf.c ****   * @retval Stall (1: Yes, 0: No)
+ 528:Src/usbd_conf.c ****   */
+ 529:Src/usbd_conf.c **** uint8_t USBD_LL_IsStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
+ 530:Src/usbd_conf.c **** {
+ 781              		.loc 1 530 1 view -0
+ 782              		.cfi_startproc
+ 783              		@ args = 0, pretend = 0, frame = 0
+ 784              		@ frame_needed = 0, uses_anonymous_args = 0
+ 785              		@ link register save eliminated.
+ 531:Src/usbd_conf.c ****   PCD_HandleTypeDef *hpcd = (PCD_HandleTypeDef*) pdev->pData;
+ 786              		.loc 1 531 3 view .LVU170
+ 787              		.loc 1 531 22 is_stmt 0 view .LVU171
+ 788 0000 D0F8C832 		ldr	r3, [r0, #712]
+ 789              	.LVL66:
+ 532:Src/usbd_conf.c **** 
+ 533:Src/usbd_conf.c ****   if((ep_addr & 0x80) == 0x80)
+ 790              		.loc 1 533 3 is_stmt 1 view .LVU172
+ 791              		.loc 1 533 5 is_stmt 0 view .LVU173
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 25
+
+
+ 792 0004 11F0800F 		tst	r1, #128
+ 793 0008 08D1     		bne	.L56
+ 534:Src/usbd_conf.c ****   {
+ 535:Src/usbd_conf.c ****     return hpcd->IN_ep[ep_addr & 0x7F].is_stall;
+ 536:Src/usbd_conf.c ****   }
+ 537:Src/usbd_conf.c ****   else
+ 538:Src/usbd_conf.c ****   {
+ 539:Src/usbd_conf.c ****     return hpcd->OUT_ep[ep_addr & 0x7F].is_stall;
+ 794              		.loc 1 539 5 is_stmt 1 view .LVU174
+ 795              		.loc 1 539 33 is_stmt 0 view .LVU175
+ 796 000a 01F07F01 		and	r1, r1, #127
+ 797              	.LVL67:
+ 798              		.loc 1 539 40 view .LVU176
+ 799 000e 01EBC101 		add	r1, r1, r1, lsl #3
+ 800 0012 03EB8103 		add	r3, r3, r1, lsl #2
+ 801              	.LVL68:
+ 802              		.loc 1 539 40 view .LVU177
+ 803 0016 93F87E02 		ldrb	r0, [r3, #638]	@ zero_extendqisi2
+ 804              	.LVL69:
+ 540:Src/usbd_conf.c ****   }
+ 541:Src/usbd_conf.c **** }
+ 805              		.loc 1 541 1 view .LVU178
+ 806 001a 7047     		bx	lr
+ 807              	.LVL70:
+ 808              	.L56:
+ 535:Src/usbd_conf.c ****   }
+ 809              		.loc 1 535 5 is_stmt 1 view .LVU179
+ 535:Src/usbd_conf.c ****   }
+ 810              		.loc 1 535 32 is_stmt 0 view .LVU180
+ 811 001c 01F07F01 		and	r1, r1, #127
+ 812              	.LVL71:
+ 535:Src/usbd_conf.c ****   }
+ 813              		.loc 1 535 39 view .LVU181
+ 814 0020 01EBC101 		add	r1, r1, r1, lsl #3
+ 815 0024 03EB8103 		add	r3, r3, r1, lsl #2
+ 816              	.LVL72:
+ 535:Src/usbd_conf.c ****   }
+ 817              		.loc 1 535 39 view .LVU182
+ 818 0028 93F83E00 		ldrb	r0, [r3, #62]	@ zero_extendqisi2
+ 819              	.LVL73:
+ 535:Src/usbd_conf.c ****   }
+ 820              		.loc 1 535 39 view .LVU183
+ 821 002c 7047     		bx	lr
+ 822              		.cfi_endproc
+ 823              	.LFE261:
+ 825              		.section	.text.USBD_LL_GetRxDataSize,"ax",%progbits
+ 826              		.align	1
+ 827              		.global	USBD_LL_GetRxDataSize
+ 828              		.syntax unified
+ 829              		.thumb
+ 830              		.thumb_func
+ 832              	USBD_LL_GetRxDataSize:
+ 833              	.LVL74:
+ 834              	.LFB265:
+ 542:Src/usbd_conf.c **** 
+ 543:Src/usbd_conf.c **** /**
+ 544:Src/usbd_conf.c ****   * @brief  Assigns a USB address to the device.
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 26
+
+
+ 545:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 546:Src/usbd_conf.c ****   * @param  dev_addr: Device address
+ 547:Src/usbd_conf.c ****   * @retval USBD status
+ 548:Src/usbd_conf.c ****   */
+ 549:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_SetUSBAddress(USBD_HandleTypeDef *pdev, uint8_t dev_addr)
+ 550:Src/usbd_conf.c **** {
+ 551:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 552:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 553:Src/usbd_conf.c **** 
+ 554:Src/usbd_conf.c ****   hal_status = HAL_PCD_SetAddress(pdev->pData, dev_addr);
+ 555:Src/usbd_conf.c **** 
+ 556:Src/usbd_conf.c ****   usb_status =  USBD_Get_USB_Status(hal_status);
+ 557:Src/usbd_conf.c **** 
+ 558:Src/usbd_conf.c ****   return usb_status;
+ 559:Src/usbd_conf.c **** }
+ 560:Src/usbd_conf.c **** 
+ 561:Src/usbd_conf.c **** /**
+ 562:Src/usbd_conf.c ****   * @brief  Transmits data over an endpoint.
+ 563:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 564:Src/usbd_conf.c ****   * @param  ep_addr: Endpoint number
+ 565:Src/usbd_conf.c ****   * @param  pbuf: Pointer to data to be sent
+ 566:Src/usbd_conf.c ****   * @param  size: Data size
+ 567:Src/usbd_conf.c ****   * @retval USBD status
+ 568:Src/usbd_conf.c ****   */
+ 569:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev, uint8_t ep_addr, uint8_t *pbuf, uint3
+ 570:Src/usbd_conf.c **** {
+ 571:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 572:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 573:Src/usbd_conf.c **** 
+ 574:Src/usbd_conf.c ****   hal_status = HAL_PCD_EP_Transmit(pdev->pData, ep_addr, pbuf, size);
+ 575:Src/usbd_conf.c **** 
+ 576:Src/usbd_conf.c ****   usb_status =  USBD_Get_USB_Status(hal_status);
+ 577:Src/usbd_conf.c **** 
+ 578:Src/usbd_conf.c ****   return usb_status;
+ 579:Src/usbd_conf.c **** }
+ 580:Src/usbd_conf.c **** 
+ 581:Src/usbd_conf.c **** /**
+ 582:Src/usbd_conf.c ****   * @brief  Prepares an endpoint for reception.
+ 583:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 584:Src/usbd_conf.c ****   * @param  ep_addr: Endpoint number
+ 585:Src/usbd_conf.c ****   * @param  pbuf: Pointer to data to be received
+ 586:Src/usbd_conf.c ****   * @param  size: Data size
+ 587:Src/usbd_conf.c ****   * @retval USBD status
+ 588:Src/usbd_conf.c ****   */
+ 589:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_PrepareReceive(USBD_HandleTypeDef *pdev, uint8_t ep_addr, uint8_t *pbuf,
+ 590:Src/usbd_conf.c **** {
+ 591:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 592:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 593:Src/usbd_conf.c **** 
+ 594:Src/usbd_conf.c ****   hal_status = HAL_PCD_EP_Receive(pdev->pData, ep_addr, pbuf, size);
+ 595:Src/usbd_conf.c **** 
+ 596:Src/usbd_conf.c ****   usb_status =  USBD_Get_USB_Status(hal_status);
+ 597:Src/usbd_conf.c **** 
+ 598:Src/usbd_conf.c ****   return usb_status;
+ 599:Src/usbd_conf.c **** }
+ 600:Src/usbd_conf.c **** 
+ 601:Src/usbd_conf.c **** /**
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 27
+
+
+ 602:Src/usbd_conf.c ****   * @brief  Returns the last transferred packet size.
+ 603:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 604:Src/usbd_conf.c ****   * @param  ep_addr: Endpoint number
+ 605:Src/usbd_conf.c ****   * @retval Received Data Size
+ 606:Src/usbd_conf.c ****   */
+ 607:Src/usbd_conf.c **** uint32_t USBD_LL_GetRxDataSize(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
+ 608:Src/usbd_conf.c **** {
+ 835              		.loc 1 608 1 is_stmt 1 view -0
+ 836              		.cfi_startproc
+ 837              		@ args = 0, pretend = 0, frame = 0
+ 838              		@ frame_needed = 0, uses_anonymous_args = 0
+ 839              		.loc 1 608 1 is_stmt 0 view .LVU185
+ 840 0000 08B5     		push	{r3, lr}
+ 841              	.LCFI19:
+ 842              		.cfi_def_cfa_offset 8
+ 843              		.cfi_offset 3, -8
+ 844              		.cfi_offset 14, -4
+ 609:Src/usbd_conf.c ****   return HAL_PCD_EP_GetRxCount((PCD_HandleTypeDef*) pdev->pData, ep_addr);
+ 845              		.loc 1 609 3 is_stmt 1 view .LVU186
+ 846              		.loc 1 609 10 is_stmt 0 view .LVU187
+ 847 0002 D0F8C802 		ldr	r0, [r0, #712]
+ 848              	.LVL75:
+ 849              		.loc 1 609 10 view .LVU188
+ 850 0006 FFF7FEFF 		bl	HAL_PCD_EP_GetRxCount
+ 851              	.LVL76:
+ 610:Src/usbd_conf.c **** }
+ 852              		.loc 1 610 1 view .LVU189
+ 853 000a 08BD     		pop	{r3, pc}
+ 854              		.cfi_endproc
+ 855              	.LFE265:
+ 857              		.section	.text.USBD_static_malloc,"ax",%progbits
+ 858              		.align	1
+ 859              		.global	USBD_static_malloc
+ 860              		.syntax unified
+ 861              		.thumb
+ 862              		.thumb_func
+ 864              	USBD_static_malloc:
+ 865              	.LVL77:
+ 866              	.LFB266:
+ 611:Src/usbd_conf.c **** 
+ 612:Src/usbd_conf.c **** #ifdef USBD_HS_TESTMODE_ENABLE
+ 613:Src/usbd_conf.c **** /**
+ 614:Src/usbd_conf.c ****   * @brief  Set High speed Test mode.
+ 615:Src/usbd_conf.c ****   * @param  pdev: Device handle
+ 616:Src/usbd_conf.c ****   * @param  testmode: test mode
+ 617:Src/usbd_conf.c ****   * @retval USBD Status
+ 618:Src/usbd_conf.c ****   */
+ 619:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_LL_SetTestMode(USBD_HandleTypeDef *pdev, uint8_t testmode)
+ 620:Src/usbd_conf.c **** {
+ 621:Src/usbd_conf.c ****   UNUSED(pdev);
+ 622:Src/usbd_conf.c ****   UNUSED(testmode);
+ 623:Src/usbd_conf.c **** 
+ 624:Src/usbd_conf.c ****   return USBD_OK;
+ 625:Src/usbd_conf.c **** }
+ 626:Src/usbd_conf.c **** #endif /* USBD_HS_TESTMODE_ENABLE */
+ 627:Src/usbd_conf.c **** 
+ 628:Src/usbd_conf.c **** /**
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 28
+
+
+ 629:Src/usbd_conf.c ****   * @brief  Static single allocation.
+ 630:Src/usbd_conf.c ****   * @param  size: Size of allocated memory
+ 631:Src/usbd_conf.c ****   * @retval None
+ 632:Src/usbd_conf.c ****   */
+ 633:Src/usbd_conf.c **** void *USBD_static_malloc(uint32_t size)
+ 634:Src/usbd_conf.c **** {
+ 867              		.loc 1 634 1 is_stmt 1 view -0
+ 868              		.cfi_startproc
+ 869              		@ args = 0, pretend = 0, frame = 0
+ 870              		@ frame_needed = 0, uses_anonymous_args = 0
+ 871              		@ link register save eliminated.
+ 635:Src/usbd_conf.c ****   static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef)/4)+1];/* On 32-bit boundary */
+ 872              		.loc 1 635 3 view .LVU191
+ 636:Src/usbd_conf.c ****   return mem;
+ 873              		.loc 1 636 3 view .LVU192
+ 637:Src/usbd_conf.c **** }
+ 874              		.loc 1 637 1 is_stmt 0 view .LVU193
+ 875 0000 0048     		ldr	r0, .L60
+ 876              	.LVL78:
+ 877              		.loc 1 637 1 view .LVU194
+ 878 0002 7047     		bx	lr
+ 879              	.L61:
+ 880              		.align	2
+ 881              	.L60:
+ 882 0004 00000000 		.word	mem.0
+ 883              		.cfi_endproc
+ 884              	.LFE266:
+ 886              		.section	.text.USBD_static_free,"ax",%progbits
+ 887              		.align	1
+ 888              		.global	USBD_static_free
+ 889              		.syntax unified
+ 890              		.thumb
+ 891              		.thumb_func
+ 893              	USBD_static_free:
+ 894              	.LVL79:
+ 895              	.LFB267:
+ 638:Src/usbd_conf.c **** 
+ 639:Src/usbd_conf.c **** /**
+ 640:Src/usbd_conf.c ****   * @brief  Dummy memory free
+ 641:Src/usbd_conf.c ****   * @param  p: Pointer to allocated  memory address
+ 642:Src/usbd_conf.c ****   * @retval None
+ 643:Src/usbd_conf.c ****   */
+ 644:Src/usbd_conf.c **** void USBD_static_free(void *p)
+ 645:Src/usbd_conf.c **** {
+ 896              		.loc 1 645 1 is_stmt 1 view -0
+ 897              		.cfi_startproc
+ 898              		@ args = 0, pretend = 0, frame = 0
+ 899              		@ frame_needed = 0, uses_anonymous_args = 0
+ 900              		@ link register save eliminated.
+ 646:Src/usbd_conf.c **** 
+ 647:Src/usbd_conf.c **** }
+ 901              		.loc 1 647 1 view .LVU196
+ 902 0000 7047     		bx	lr
+ 903              		.cfi_endproc
+ 904              	.LFE267:
+ 906              		.section	.text.USBD_LL_Delay,"ax",%progbits
+ 907              		.align	1
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 29
+
+
+ 908              		.global	USBD_LL_Delay
+ 909              		.syntax unified
+ 910              		.thumb
+ 911              		.thumb_func
+ 913              	USBD_LL_Delay:
+ 914              	.LVL80:
+ 915              	.LFB268:
+ 648:Src/usbd_conf.c **** 
+ 649:Src/usbd_conf.c **** /**
+ 650:Src/usbd_conf.c ****   * @brief  Delays routine for the USB Device Library.
+ 651:Src/usbd_conf.c ****   * @param  Delay: Delay in ms
+ 652:Src/usbd_conf.c ****   * @retval None
+ 653:Src/usbd_conf.c ****   */
+ 654:Src/usbd_conf.c **** void USBD_LL_Delay(uint32_t Delay)
+ 655:Src/usbd_conf.c **** {
+ 916              		.loc 1 655 1 view -0
+ 917              		.cfi_startproc
+ 918              		@ args = 0, pretend = 0, frame = 0
+ 919              		@ frame_needed = 0, uses_anonymous_args = 0
+ 920              		.loc 1 655 1 is_stmt 0 view .LVU198
+ 921 0000 08B5     		push	{r3, lr}
+ 922              	.LCFI20:
+ 923              		.cfi_def_cfa_offset 8
+ 924              		.cfi_offset 3, -8
+ 925              		.cfi_offset 14, -4
+ 656:Src/usbd_conf.c ****   HAL_Delay(Delay);
+ 926              		.loc 1 656 3 is_stmt 1 view .LVU199
+ 927 0002 FFF7FEFF 		bl	HAL_Delay
+ 928              	.LVL81:
+ 657:Src/usbd_conf.c **** }
+ 929              		.loc 1 657 1 is_stmt 0 view .LVU200
+ 930 0006 08BD     		pop	{r3, pc}
+ 931              		.cfi_endproc
+ 932              	.LFE268:
+ 934              		.section	.text.USBD_Get_USB_Status,"ax",%progbits
+ 935              		.align	1
+ 936              		.global	USBD_Get_USB_Status
+ 937              		.syntax unified
+ 938              		.thumb
+ 939              		.thumb_func
+ 941              	USBD_Get_USB_Status:
+ 942              	.LVL82:
+ 943              	.LFB269:
+ 658:Src/usbd_conf.c **** 
+ 659:Src/usbd_conf.c **** /**
+ 660:Src/usbd_conf.c ****   * @brief  Returns the USB status depending on the HAL status:
+ 661:Src/usbd_conf.c ****   * @param  hal_status: HAL status
+ 662:Src/usbd_conf.c ****   * @retval USB status
+ 663:Src/usbd_conf.c ****   */
+ 664:Src/usbd_conf.c **** USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
+ 665:Src/usbd_conf.c **** {
+ 944              		.loc 1 665 1 is_stmt 1 view -0
+ 945              		.cfi_startproc
+ 946              		@ args = 0, pretend = 0, frame = 0
+ 947              		@ frame_needed = 0, uses_anonymous_args = 0
+ 948              		@ link register save eliminated.
+ 666:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 30
+
+
+ 949              		.loc 1 666 3 view .LVU202
+ 667:Src/usbd_conf.c **** 
+ 668:Src/usbd_conf.c ****   switch (hal_status)
+ 950              		.loc 1 668 3 view .LVU203
+ 951 0000 0328     		cmp	r0, #3
+ 952 0002 05D8     		bhi	.L71
+ 953 0004 DFE800F0 		tbb	[pc, r0]
+ 954              	.L68:
+ 955 0008 05       		.byte	(.L66-.L68)/2
+ 956 0009 04       		.byte	(.L71-.L68)/2
+ 957 000a 02       		.byte	(.L69-.L68)/2
+ 958 000b 05       		.byte	(.L66-.L68)/2
+ 959              		.p2align 1
+ 960              	.L69:
+ 669:Src/usbd_conf.c ****   {
+ 670:Src/usbd_conf.c ****     case HAL_OK :
+ 671:Src/usbd_conf.c ****       usb_status = USBD_OK;
+ 672:Src/usbd_conf.c ****     break;
+ 673:Src/usbd_conf.c ****     case HAL_ERROR :
+ 674:Src/usbd_conf.c ****       usb_status = USBD_FAIL;
+ 675:Src/usbd_conf.c ****     break;
+ 676:Src/usbd_conf.c ****     case HAL_BUSY :
+ 677:Src/usbd_conf.c ****       usb_status = USBD_BUSY;
+ 961              		.loc 1 677 7 view .LVU204
+ 962              	.LVL83:
+ 678:Src/usbd_conf.c ****     break;
+ 963              		.loc 1 678 5 view .LVU205
+ 677:Src/usbd_conf.c ****     break;
+ 964              		.loc 1 677 18 is_stmt 0 view .LVU206
+ 965 000c 0120     		movs	r0, #1
+ 966              	.LVL84:
+ 967              		.loc 1 678 5 view .LVU207
+ 968 000e 7047     		bx	lr
+ 969              	.LVL85:
+ 970              	.L71:
+ 674:Src/usbd_conf.c ****     break;
+ 971              		.loc 1 674 18 view .LVU208
+ 972 0010 0320     		movs	r0, #3
+ 973              	.LVL86:
+ 974              	.L66:
+ 679:Src/usbd_conf.c ****     case HAL_TIMEOUT :
+ 680:Src/usbd_conf.c ****       usb_status = USBD_FAIL;
+ 681:Src/usbd_conf.c ****     break;
+ 682:Src/usbd_conf.c ****     default :
+ 683:Src/usbd_conf.c ****       usb_status = USBD_FAIL;
+ 684:Src/usbd_conf.c ****     break;
+ 685:Src/usbd_conf.c ****   }
+ 686:Src/usbd_conf.c ****   return usb_status;
+ 975              		.loc 1 686 3 is_stmt 1 view .LVU209
+ 687:Src/usbd_conf.c **** }
+ 976              		.loc 1 687 1 is_stmt 0 view .LVU210
+ 977 0012 7047     		bx	lr
+ 978              		.cfi_endproc
+ 979              	.LFE269:
+ 981              		.section	.text.USBD_LL_DeInit,"ax",%progbits
+ 982              		.align	1
+ 983              		.global	USBD_LL_DeInit
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 31
+
+
+ 984              		.syntax unified
+ 985              		.thumb
+ 986              		.thumb_func
+ 988              	USBD_LL_DeInit:
+ 989              	.LVL87:
+ 990              	.LFB253:
+ 386:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 991              		.loc 1 386 1 is_stmt 1 view -0
+ 992              		.cfi_startproc
+ 993              		@ args = 0, pretend = 0, frame = 0
+ 994              		@ frame_needed = 0, uses_anonymous_args = 0
+ 386:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 995              		.loc 1 386 1 is_stmt 0 view .LVU212
+ 996 0000 08B5     		push	{r3, lr}
+ 997              	.LCFI21:
+ 998              		.cfi_def_cfa_offset 8
+ 999              		.cfi_offset 3, -8
+ 1000              		.cfi_offset 14, -4
+ 387:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 1001              		.loc 1 387 3 is_stmt 1 view .LVU213
+ 1002              	.LVL88:
+ 388:Src/usbd_conf.c **** 
+ 1003              		.loc 1 388 3 view .LVU214
+ 390:Src/usbd_conf.c **** 
+ 1004              		.loc 1 390 3 view .LVU215
+ 390:Src/usbd_conf.c **** 
+ 1005              		.loc 1 390 16 is_stmt 0 view .LVU216
+ 1006 0002 D0F8C802 		ldr	r0, [r0, #712]
+ 1007              	.LVL89:
+ 390:Src/usbd_conf.c **** 
+ 1008              		.loc 1 390 16 view .LVU217
+ 1009 0006 FFF7FEFF 		bl	HAL_PCD_DeInit
+ 1010              	.LVL90:
+ 392:Src/usbd_conf.c **** 
+ 1011              		.loc 1 392 3 is_stmt 1 view .LVU218
+ 392:Src/usbd_conf.c **** 
+ 1012              		.loc 1 392 17 is_stmt 0 view .LVU219
+ 1013 000a FFF7FEFF 		bl	USBD_Get_USB_Status
+ 1014              	.LVL91:
+ 394:Src/usbd_conf.c **** }
+ 1015              		.loc 1 394 3 is_stmt 1 view .LVU220
+ 395:Src/usbd_conf.c **** 
+ 1016              		.loc 1 395 1 is_stmt 0 view .LVU221
+ 1017 000e 08BD     		pop	{r3, pc}
+ 1018              		.cfi_endproc
+ 1019              	.LFE253:
+ 1021              		.section	.text.USBD_LL_Start,"ax",%progbits
+ 1022              		.align	1
+ 1023              		.global	USBD_LL_Start
+ 1024              		.syntax unified
+ 1025              		.thumb
+ 1026              		.thumb_func
+ 1028              	USBD_LL_Start:
+ 1029              	.LVL92:
+ 1030              	.LFB254:
+ 403:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1031              		.loc 1 403 1 is_stmt 1 view -0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 32
+
+
+ 1032              		.cfi_startproc
+ 1033              		@ args = 0, pretend = 0, frame = 0
+ 1034              		@ frame_needed = 0, uses_anonymous_args = 0
+ 403:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1035              		.loc 1 403 1 is_stmt 0 view .LVU223
+ 1036 0000 08B5     		push	{r3, lr}
+ 1037              	.LCFI22:
+ 1038              		.cfi_def_cfa_offset 8
+ 1039              		.cfi_offset 3, -8
+ 1040              		.cfi_offset 14, -4
+ 404:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 1041              		.loc 1 404 3 is_stmt 1 view .LVU224
+ 1042              	.LVL93:
+ 405:Src/usbd_conf.c **** 
+ 1043              		.loc 1 405 3 view .LVU225
+ 407:Src/usbd_conf.c **** 
+ 1044              		.loc 1 407 3 view .LVU226
+ 407:Src/usbd_conf.c **** 
+ 1045              		.loc 1 407 16 is_stmt 0 view .LVU227
+ 1046 0002 D0F8C802 		ldr	r0, [r0, #712]
+ 1047              	.LVL94:
+ 407:Src/usbd_conf.c **** 
+ 1048              		.loc 1 407 16 view .LVU228
+ 1049 0006 FFF7FEFF 		bl	HAL_PCD_Start
+ 1050              	.LVL95:
+ 409:Src/usbd_conf.c **** 
+ 1051              		.loc 1 409 3 is_stmt 1 view .LVU229
+ 409:Src/usbd_conf.c **** 
+ 1052              		.loc 1 409 17 is_stmt 0 view .LVU230
+ 1053 000a FFF7FEFF 		bl	USBD_Get_USB_Status
+ 1054              	.LVL96:
+ 411:Src/usbd_conf.c **** }
+ 1055              		.loc 1 411 3 is_stmt 1 view .LVU231
+ 412:Src/usbd_conf.c **** 
+ 1056              		.loc 1 412 1 is_stmt 0 view .LVU232
+ 1057 000e 08BD     		pop	{r3, pc}
+ 1058              		.cfi_endproc
+ 1059              	.LFE254:
+ 1061              		.section	.text.USBD_LL_Stop,"ax",%progbits
+ 1062              		.align	1
+ 1063              		.global	USBD_LL_Stop
+ 1064              		.syntax unified
+ 1065              		.thumb
+ 1066              		.thumb_func
+ 1068              	USBD_LL_Stop:
+ 1069              	.LVL97:
+ 1070              	.LFB255:
+ 420:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1071              		.loc 1 420 1 is_stmt 1 view -0
+ 1072              		.cfi_startproc
+ 1073              		@ args = 0, pretend = 0, frame = 0
+ 1074              		@ frame_needed = 0, uses_anonymous_args = 0
+ 420:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1075              		.loc 1 420 1 is_stmt 0 view .LVU234
+ 1076 0000 08B5     		push	{r3, lr}
+ 1077              	.LCFI23:
+ 1078              		.cfi_def_cfa_offset 8
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 33
+
+
+ 1079              		.cfi_offset 3, -8
+ 1080              		.cfi_offset 14, -4
+ 421:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 1081              		.loc 1 421 3 is_stmt 1 view .LVU235
+ 1082              	.LVL98:
+ 422:Src/usbd_conf.c **** 
+ 1083              		.loc 1 422 3 view .LVU236
+ 424:Src/usbd_conf.c **** 
+ 1084              		.loc 1 424 3 view .LVU237
+ 424:Src/usbd_conf.c **** 
+ 1085              		.loc 1 424 16 is_stmt 0 view .LVU238
+ 1086 0002 D0F8C802 		ldr	r0, [r0, #712]
+ 1087              	.LVL99:
+ 424:Src/usbd_conf.c **** 
+ 1088              		.loc 1 424 16 view .LVU239
+ 1089 0006 FFF7FEFF 		bl	HAL_PCD_Stop
+ 1090              	.LVL100:
+ 426:Src/usbd_conf.c **** 
+ 1091              		.loc 1 426 3 is_stmt 1 view .LVU240
+ 426:Src/usbd_conf.c **** 
+ 1092              		.loc 1 426 17 is_stmt 0 view .LVU241
+ 1093 000a FFF7FEFF 		bl	USBD_Get_USB_Status
+ 1094              	.LVL101:
+ 428:Src/usbd_conf.c **** }
+ 1095              		.loc 1 428 3 is_stmt 1 view .LVU242
+ 429:Src/usbd_conf.c **** 
+ 1096              		.loc 1 429 1 is_stmt 0 view .LVU243
+ 1097 000e 08BD     		pop	{r3, pc}
+ 1098              		.cfi_endproc
+ 1099              	.LFE255:
+ 1101              		.section	.text.USBD_LL_OpenEP,"ax",%progbits
+ 1102              		.align	1
+ 1103              		.global	USBD_LL_OpenEP
+ 1104              		.syntax unified
+ 1105              		.thumb
+ 1106              		.thumb_func
+ 1108              	USBD_LL_OpenEP:
+ 1109              	.LVL102:
+ 1110              	.LFB256:
+ 440:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1111              		.loc 1 440 1 is_stmt 1 view -0
+ 1112              		.cfi_startproc
+ 1113              		@ args = 0, pretend = 0, frame = 0
+ 1114              		@ frame_needed = 0, uses_anonymous_args = 0
+ 440:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1115              		.loc 1 440 1 is_stmt 0 view .LVU245
+ 1116 0000 08B5     		push	{r3, lr}
+ 1117              	.LCFI24:
+ 1118              		.cfi_def_cfa_offset 8
+ 1119              		.cfi_offset 3, -8
+ 1120              		.cfi_offset 14, -4
+ 1121 0002 9446     		mov	ip, r2
+ 1122 0004 1A46     		mov	r2, r3
+ 1123              	.LVL103:
+ 441:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 1124              		.loc 1 441 3 is_stmt 1 view .LVU246
+ 442:Src/usbd_conf.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 34
+
+
+ 1125              		.loc 1 442 3 view .LVU247
+ 444:Src/usbd_conf.c **** 
+ 1126              		.loc 1 444 3 view .LVU248
+ 444:Src/usbd_conf.c **** 
+ 1127              		.loc 1 444 16 is_stmt 0 view .LVU249
+ 1128 0006 6346     		mov	r3, ip
+ 1129              	.LVL104:
+ 444:Src/usbd_conf.c **** 
+ 1130              		.loc 1 444 16 view .LVU250
+ 1131 0008 D0F8C802 		ldr	r0, [r0, #712]
+ 1132              	.LVL105:
+ 444:Src/usbd_conf.c **** 
+ 1133              		.loc 1 444 16 view .LVU251
+ 1134 000c FFF7FEFF 		bl	HAL_PCD_EP_Open
+ 1135              	.LVL106:
+ 446:Src/usbd_conf.c **** 
+ 1136              		.loc 1 446 3 is_stmt 1 view .LVU252
+ 446:Src/usbd_conf.c **** 
+ 1137              		.loc 1 446 17 is_stmt 0 view .LVU253
+ 1138 0010 FFF7FEFF 		bl	USBD_Get_USB_Status
+ 1139              	.LVL107:
+ 448:Src/usbd_conf.c **** }
+ 1140              		.loc 1 448 3 is_stmt 1 view .LVU254
+ 449:Src/usbd_conf.c **** 
+ 1141              		.loc 1 449 1 is_stmt 0 view .LVU255
+ 1142 0014 08BD     		pop	{r3, pc}
+ 1143              		.cfi_endproc
+ 1144              	.LFE256:
+ 1146              		.section	.text.USBD_LL_CloseEP,"ax",%progbits
+ 1147              		.align	1
+ 1148              		.global	USBD_LL_CloseEP
+ 1149              		.syntax unified
+ 1150              		.thumb
+ 1151              		.thumb_func
+ 1153              	USBD_LL_CloseEP:
+ 1154              	.LVL108:
+ 1155              	.LFB257:
+ 458:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1156              		.loc 1 458 1 is_stmt 1 view -0
+ 1157              		.cfi_startproc
+ 1158              		@ args = 0, pretend = 0, frame = 0
+ 1159              		@ frame_needed = 0, uses_anonymous_args = 0
+ 458:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1160              		.loc 1 458 1 is_stmt 0 view .LVU257
+ 1161 0000 08B5     		push	{r3, lr}
+ 1162              	.LCFI25:
+ 1163              		.cfi_def_cfa_offset 8
+ 1164              		.cfi_offset 3, -8
+ 1165              		.cfi_offset 14, -4
+ 459:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 1166              		.loc 1 459 3 is_stmt 1 view .LVU258
+ 1167              	.LVL109:
+ 460:Src/usbd_conf.c **** 
+ 1168              		.loc 1 460 3 view .LVU259
+ 462:Src/usbd_conf.c **** 
+ 1169              		.loc 1 462 3 view .LVU260
+ 462:Src/usbd_conf.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 35
+
+
+ 1170              		.loc 1 462 16 is_stmt 0 view .LVU261
+ 1171 0002 D0F8C802 		ldr	r0, [r0, #712]
+ 1172              	.LVL110:
+ 462:Src/usbd_conf.c **** 
+ 1173              		.loc 1 462 16 view .LVU262
+ 1174 0006 FFF7FEFF 		bl	HAL_PCD_EP_Close
+ 1175              	.LVL111:
+ 464:Src/usbd_conf.c **** 
+ 1176              		.loc 1 464 3 is_stmt 1 view .LVU263
+ 464:Src/usbd_conf.c **** 
+ 1177              		.loc 1 464 17 is_stmt 0 view .LVU264
+ 1178 000a FFF7FEFF 		bl	USBD_Get_USB_Status
+ 1179              	.LVL112:
+ 466:Src/usbd_conf.c **** }
+ 1180              		.loc 1 466 3 is_stmt 1 view .LVU265
+ 467:Src/usbd_conf.c **** 
+ 1181              		.loc 1 467 1 is_stmt 0 view .LVU266
+ 1182 000e 08BD     		pop	{r3, pc}
+ 1183              		.cfi_endproc
+ 1184              	.LFE257:
+ 1186              		.section	.text.USBD_LL_FlushEP,"ax",%progbits
+ 1187              		.align	1
+ 1188              		.global	USBD_LL_FlushEP
+ 1189              		.syntax unified
+ 1190              		.thumb
+ 1191              		.thumb_func
+ 1193              	USBD_LL_FlushEP:
+ 1194              	.LVL113:
+ 1195              	.LFB258:
+ 476:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1196              		.loc 1 476 1 is_stmt 1 view -0
+ 1197              		.cfi_startproc
+ 1198              		@ args = 0, pretend = 0, frame = 0
+ 1199              		@ frame_needed = 0, uses_anonymous_args = 0
+ 476:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1200              		.loc 1 476 1 is_stmt 0 view .LVU268
+ 1201 0000 08B5     		push	{r3, lr}
+ 1202              	.LCFI26:
+ 1203              		.cfi_def_cfa_offset 8
+ 1204              		.cfi_offset 3, -8
+ 1205              		.cfi_offset 14, -4
+ 477:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 1206              		.loc 1 477 3 is_stmt 1 view .LVU269
+ 1207              	.LVL114:
+ 478:Src/usbd_conf.c **** 
+ 1208              		.loc 1 478 3 view .LVU270
+ 480:Src/usbd_conf.c **** 
+ 1209              		.loc 1 480 3 view .LVU271
+ 480:Src/usbd_conf.c **** 
+ 1210              		.loc 1 480 16 is_stmt 0 view .LVU272
+ 1211 0002 D0F8C802 		ldr	r0, [r0, #712]
+ 1212              	.LVL115:
+ 480:Src/usbd_conf.c **** 
+ 1213              		.loc 1 480 16 view .LVU273
+ 1214 0006 FFF7FEFF 		bl	HAL_PCD_EP_Flush
+ 1215              	.LVL116:
+ 482:Src/usbd_conf.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 36
+
+
+ 1216              		.loc 1 482 3 is_stmt 1 view .LVU274
+ 482:Src/usbd_conf.c **** 
+ 1217              		.loc 1 482 17 is_stmt 0 view .LVU275
+ 1218 000a FFF7FEFF 		bl	USBD_Get_USB_Status
+ 1219              	.LVL117:
+ 484:Src/usbd_conf.c **** }
+ 1220              		.loc 1 484 3 is_stmt 1 view .LVU276
+ 485:Src/usbd_conf.c **** 
+ 1221              		.loc 1 485 1 is_stmt 0 view .LVU277
+ 1222 000e 08BD     		pop	{r3, pc}
+ 1223              		.cfi_endproc
+ 1224              	.LFE258:
+ 1226              		.section	.text.USBD_LL_StallEP,"ax",%progbits
+ 1227              		.align	1
+ 1228              		.global	USBD_LL_StallEP
+ 1229              		.syntax unified
+ 1230              		.thumb
+ 1231              		.thumb_func
+ 1233              	USBD_LL_StallEP:
+ 1234              	.LVL118:
+ 1235              	.LFB259:
+ 494:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1236              		.loc 1 494 1 is_stmt 1 view -0
+ 1237              		.cfi_startproc
+ 1238              		@ args = 0, pretend = 0, frame = 0
+ 1239              		@ frame_needed = 0, uses_anonymous_args = 0
+ 494:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1240              		.loc 1 494 1 is_stmt 0 view .LVU279
+ 1241 0000 08B5     		push	{r3, lr}
+ 1242              	.LCFI27:
+ 1243              		.cfi_def_cfa_offset 8
+ 1244              		.cfi_offset 3, -8
+ 1245              		.cfi_offset 14, -4
+ 495:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 1246              		.loc 1 495 3 is_stmt 1 view .LVU280
+ 1247              	.LVL119:
+ 496:Src/usbd_conf.c **** 
+ 1248              		.loc 1 496 3 view .LVU281
+ 498:Src/usbd_conf.c **** 
+ 1249              		.loc 1 498 3 view .LVU282
+ 498:Src/usbd_conf.c **** 
+ 1250              		.loc 1 498 16 is_stmt 0 view .LVU283
+ 1251 0002 D0F8C802 		ldr	r0, [r0, #712]
+ 1252              	.LVL120:
+ 498:Src/usbd_conf.c **** 
+ 1253              		.loc 1 498 16 view .LVU284
+ 1254 0006 FFF7FEFF 		bl	HAL_PCD_EP_SetStall
+ 1255              	.LVL121:
+ 500:Src/usbd_conf.c **** 
+ 1256              		.loc 1 500 3 is_stmt 1 view .LVU285
+ 500:Src/usbd_conf.c **** 
+ 1257              		.loc 1 500 17 is_stmt 0 view .LVU286
+ 1258 000a FFF7FEFF 		bl	USBD_Get_USB_Status
+ 1259              	.LVL122:
+ 502:Src/usbd_conf.c **** }
+ 1260              		.loc 1 502 3 is_stmt 1 view .LVU287
+ 503:Src/usbd_conf.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 37
+
+
+ 1261              		.loc 1 503 1 is_stmt 0 view .LVU288
+ 1262 000e 08BD     		pop	{r3, pc}
+ 1263              		.cfi_endproc
+ 1264              	.LFE259:
+ 1266              		.section	.text.USBD_LL_ClearStallEP,"ax",%progbits
+ 1267              		.align	1
+ 1268              		.global	USBD_LL_ClearStallEP
+ 1269              		.syntax unified
+ 1270              		.thumb
+ 1271              		.thumb_func
+ 1273              	USBD_LL_ClearStallEP:
+ 1274              	.LVL123:
+ 1275              	.LFB260:
+ 512:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1276              		.loc 1 512 1 is_stmt 1 view -0
+ 1277              		.cfi_startproc
+ 1278              		@ args = 0, pretend = 0, frame = 0
+ 1279              		@ frame_needed = 0, uses_anonymous_args = 0
+ 512:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1280              		.loc 1 512 1 is_stmt 0 view .LVU290
+ 1281 0000 08B5     		push	{r3, lr}
+ 1282              	.LCFI28:
+ 1283              		.cfi_def_cfa_offset 8
+ 1284              		.cfi_offset 3, -8
+ 1285              		.cfi_offset 14, -4
+ 513:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 1286              		.loc 1 513 3 is_stmt 1 view .LVU291
+ 1287              	.LVL124:
+ 514:Src/usbd_conf.c **** 
+ 1288              		.loc 1 514 3 view .LVU292
+ 516:Src/usbd_conf.c **** 
+ 1289              		.loc 1 516 3 view .LVU293
+ 516:Src/usbd_conf.c **** 
+ 1290              		.loc 1 516 16 is_stmt 0 view .LVU294
+ 1291 0002 D0F8C802 		ldr	r0, [r0, #712]
+ 1292              	.LVL125:
+ 516:Src/usbd_conf.c **** 
+ 1293              		.loc 1 516 16 view .LVU295
+ 1294 0006 FFF7FEFF 		bl	HAL_PCD_EP_ClrStall
+ 1295              	.LVL126:
+ 518:Src/usbd_conf.c **** 
+ 1296              		.loc 1 518 3 is_stmt 1 view .LVU296
+ 518:Src/usbd_conf.c **** 
+ 1297              		.loc 1 518 17 is_stmt 0 view .LVU297
+ 1298 000a FFF7FEFF 		bl	USBD_Get_USB_Status
+ 1299              	.LVL127:
+ 520:Src/usbd_conf.c **** }
+ 1300              		.loc 1 520 3 is_stmt 1 view .LVU298
+ 521:Src/usbd_conf.c **** 
+ 1301              		.loc 1 521 1 is_stmt 0 view .LVU299
+ 1302 000e 08BD     		pop	{r3, pc}
+ 1303              		.cfi_endproc
+ 1304              	.LFE260:
+ 1306              		.section	.text.USBD_LL_SetUSBAddress,"ax",%progbits
+ 1307              		.align	1
+ 1308              		.global	USBD_LL_SetUSBAddress
+ 1309              		.syntax unified
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 38
+
+
+ 1310              		.thumb
+ 1311              		.thumb_func
+ 1313              	USBD_LL_SetUSBAddress:
+ 1314              	.LVL128:
+ 1315              	.LFB262:
+ 550:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1316              		.loc 1 550 1 is_stmt 1 view -0
+ 1317              		.cfi_startproc
+ 1318              		@ args = 0, pretend = 0, frame = 0
+ 1319              		@ frame_needed = 0, uses_anonymous_args = 0
+ 550:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1320              		.loc 1 550 1 is_stmt 0 view .LVU301
+ 1321 0000 08B5     		push	{r3, lr}
+ 1322              	.LCFI29:
+ 1323              		.cfi_def_cfa_offset 8
+ 1324              		.cfi_offset 3, -8
+ 1325              		.cfi_offset 14, -4
+ 551:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 1326              		.loc 1 551 3 is_stmt 1 view .LVU302
+ 1327              	.LVL129:
+ 552:Src/usbd_conf.c **** 
+ 1328              		.loc 1 552 3 view .LVU303
+ 554:Src/usbd_conf.c **** 
+ 1329              		.loc 1 554 3 view .LVU304
+ 554:Src/usbd_conf.c **** 
+ 1330              		.loc 1 554 16 is_stmt 0 view .LVU305
+ 1331 0002 D0F8C802 		ldr	r0, [r0, #712]
+ 1332              	.LVL130:
+ 554:Src/usbd_conf.c **** 
+ 1333              		.loc 1 554 16 view .LVU306
+ 1334 0006 FFF7FEFF 		bl	HAL_PCD_SetAddress
+ 1335              	.LVL131:
+ 556:Src/usbd_conf.c **** 
+ 1336              		.loc 1 556 3 is_stmt 1 view .LVU307
+ 556:Src/usbd_conf.c **** 
+ 1337              		.loc 1 556 17 is_stmt 0 view .LVU308
+ 1338 000a FFF7FEFF 		bl	USBD_Get_USB_Status
+ 1339              	.LVL132:
+ 558:Src/usbd_conf.c **** }
+ 1340              		.loc 1 558 3 is_stmt 1 view .LVU309
+ 559:Src/usbd_conf.c **** 
+ 1341              		.loc 1 559 1 is_stmt 0 view .LVU310
+ 1342 000e 08BD     		pop	{r3, pc}
+ 1343              		.cfi_endproc
+ 1344              	.LFE262:
+ 1346              		.section	.text.USBD_LL_Transmit,"ax",%progbits
+ 1347              		.align	1
+ 1348              		.global	USBD_LL_Transmit
+ 1349              		.syntax unified
+ 1350              		.thumb
+ 1351              		.thumb_func
+ 1353              	USBD_LL_Transmit:
+ 1354              	.LVL133:
+ 1355              	.LFB263:
+ 570:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1356              		.loc 1 570 1 is_stmt 1 view -0
+ 1357              		.cfi_startproc
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 39
+
+
+ 1358              		@ args = 0, pretend = 0, frame = 0
+ 1359              		@ frame_needed = 0, uses_anonymous_args = 0
+ 570:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1360              		.loc 1 570 1 is_stmt 0 view .LVU312
+ 1361 0000 08B5     		push	{r3, lr}
+ 1362              	.LCFI30:
+ 1363              		.cfi_def_cfa_offset 8
+ 1364              		.cfi_offset 3, -8
+ 1365              		.cfi_offset 14, -4
+ 571:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 1366              		.loc 1 571 3 is_stmt 1 view .LVU313
+ 1367              	.LVL134:
+ 572:Src/usbd_conf.c **** 
+ 1368              		.loc 1 572 3 view .LVU314
+ 574:Src/usbd_conf.c **** 
+ 1369              		.loc 1 574 3 view .LVU315
+ 574:Src/usbd_conf.c **** 
+ 1370              		.loc 1 574 16 is_stmt 0 view .LVU316
+ 1371 0002 D0F8C802 		ldr	r0, [r0, #712]
+ 1372              	.LVL135:
+ 574:Src/usbd_conf.c **** 
+ 1373              		.loc 1 574 16 view .LVU317
+ 1374 0006 FFF7FEFF 		bl	HAL_PCD_EP_Transmit
+ 1375              	.LVL136:
+ 576:Src/usbd_conf.c **** 
+ 1376              		.loc 1 576 3 is_stmt 1 view .LVU318
+ 576:Src/usbd_conf.c **** 
+ 1377              		.loc 1 576 17 is_stmt 0 view .LVU319
+ 1378 000a FFF7FEFF 		bl	USBD_Get_USB_Status
+ 1379              	.LVL137:
+ 578:Src/usbd_conf.c **** }
+ 1380              		.loc 1 578 3 is_stmt 1 view .LVU320
+ 579:Src/usbd_conf.c **** 
+ 1381              		.loc 1 579 1 is_stmt 0 view .LVU321
+ 1382 000e 08BD     		pop	{r3, pc}
+ 1383              		.cfi_endproc
+ 1384              	.LFE263:
+ 1386              		.section	.text.USBD_LL_PrepareReceive,"ax",%progbits
+ 1387              		.align	1
+ 1388              		.global	USBD_LL_PrepareReceive
+ 1389              		.syntax unified
+ 1390              		.thumb
+ 1391              		.thumb_func
+ 1393              	USBD_LL_PrepareReceive:
+ 1394              	.LVL138:
+ 1395              	.LFB264:
+ 590:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1396              		.loc 1 590 1 is_stmt 1 view -0
+ 1397              		.cfi_startproc
+ 1398              		@ args = 0, pretend = 0, frame = 0
+ 1399              		@ frame_needed = 0, uses_anonymous_args = 0
+ 590:Src/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
+ 1400              		.loc 1 590 1 is_stmt 0 view .LVU323
+ 1401 0000 08B5     		push	{r3, lr}
+ 1402              	.LCFI31:
+ 1403              		.cfi_def_cfa_offset 8
+ 1404              		.cfi_offset 3, -8
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 40
+
+
+ 1405              		.cfi_offset 14, -4
+ 591:Src/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
+ 1406              		.loc 1 591 3 is_stmt 1 view .LVU324
+ 1407              	.LVL139:
+ 592:Src/usbd_conf.c **** 
+ 1408              		.loc 1 592 3 view .LVU325
+ 594:Src/usbd_conf.c **** 
+ 1409              		.loc 1 594 3 view .LVU326
+ 594:Src/usbd_conf.c **** 
+ 1410              		.loc 1 594 16 is_stmt 0 view .LVU327
+ 1411 0002 D0F8C802 		ldr	r0, [r0, #712]
+ 1412              	.LVL140:
+ 594:Src/usbd_conf.c **** 
+ 1413              		.loc 1 594 16 view .LVU328
+ 1414 0006 FFF7FEFF 		bl	HAL_PCD_EP_Receive
+ 1415              	.LVL141:
+ 596:Src/usbd_conf.c **** 
+ 1416              		.loc 1 596 3 is_stmt 1 view .LVU329
+ 596:Src/usbd_conf.c **** 
+ 1417              		.loc 1 596 17 is_stmt 0 view .LVU330
+ 1418 000a FFF7FEFF 		bl	USBD_Get_USB_Status
+ 1419              	.LVL142:
+ 598:Src/usbd_conf.c **** }
+ 1420              		.loc 1 598 3 is_stmt 1 view .LVU331
+ 599:Src/usbd_conf.c **** 
+ 1421              		.loc 1 599 1 is_stmt 0 view .LVU332
+ 1422 000e 08BD     		pop	{r3, pc}
+ 1423              		.cfi_endproc
+ 1424              	.LFE264:
+ 1426              		.section	.bss.mem.0,"aw",%nobits
+ 1427              		.align	2
+ 1430              	mem.0:
+ 1431 0000 00000000 		.space	544
+ 1431      00000000 
+ 1431      00000000 
+ 1431      00000000 
+ 1431      00000000 
+ 1432              		.global	hpcd_USB_OTG_FS
+ 1433              		.section	.bss.hpcd_USB_OTG_FS,"aw",%nobits
+ 1434              		.align	2
+ 1437              	hpcd_USB_OTG_FS:
+ 1438 0000 00000000 		.space	1292
+ 1438      00000000 
+ 1438      00000000 
+ 1438      00000000 
+ 1438      00000000 
+ 1439              		.text
+ 1440              	.Letext0:
+ 1441              		.file 2 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 1442              		.file 3 "D:/msys2/mingw64/arm-none-eabi/include/machine/_default_types.h"
+ 1443              		.file 4 "D:/msys2/mingw64/arm-none-eabi/include/sys/_stdint.h"
+ 1444              		.file 5 "Drivers/CMSIS/Include/core_cm4.h"
+ 1445              		.file 6 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 1446              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 1447              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 1448              		.file 9 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h"
+ 1449              		.file 10 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 41
+
+
+ 1450              		.file 11 "Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h"
+ 1451              		.file 12 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h"
+ 1452              		.file 13 "Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h"
+ 1453              		.file 14 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h"
+ 1454              		.file 15 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h"
+ 1455              		.file 16 "bsp/dwt/bsp_dwt.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 42
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 usbd_conf.c
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:21     .text.HAL_PCD_MspInit:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:27     .text.HAL_PCD_MspInit:00000000 HAL_PCD_MspInit
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:183    .text.HAL_PCD_MspInit:000000b4 $d
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:190    .text.HAL_PCD_MspDeInit:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:196    .text.HAL_PCD_MspDeInit:00000000 HAL_PCD_MspDeInit
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:242    .text.HAL_PCD_MspDeInit:00000028 $d
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:248    .text.HAL_PCD_SetupStageCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:254    .text.HAL_PCD_SetupStageCallback:00000000 HAL_PCD_SetupStageCallback
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:280    .text.HAL_PCD_DataOutStageCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:286    .text.HAL_PCD_DataOutStageCallback:00000000 HAL_PCD_DataOutStageCallback
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:314    .text.HAL_PCD_DataInStageCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:320    .text.HAL_PCD_DataInStageCallback:00000000 HAL_PCD_DataInStageCallback
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:348    .text.HAL_PCD_SOFCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:354    .text.HAL_PCD_SOFCallback:00000000 HAL_PCD_SOFCallback
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:379    .text.HAL_PCD_ResetCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:385    .text.HAL_PCD_ResetCallback:00000000 HAL_PCD_ResetCallback
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:441    .text.HAL_PCD_SuspendCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:447    .text.HAL_PCD_SuspendCallback:00000000 HAL_PCD_SuspendCallback
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:492    .text.HAL_PCD_SuspendCallback:0000002c $d
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:497    .text.HAL_PCD_ResumeCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:503    .text.HAL_PCD_ResumeCallback:00000000 HAL_PCD_ResumeCallback
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:528    .text.HAL_PCD_ISOOUTIncompleteCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:534    .text.HAL_PCD_ISOOUTIncompleteCallback:00000000 HAL_PCD_ISOOUTIncompleteCallback
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:559    .text.HAL_PCD_ISOINIncompleteCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:565    .text.HAL_PCD_ISOINIncompleteCallback:00000000 HAL_PCD_ISOINIncompleteCallback
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:590    .text.HAL_PCD_ConnectCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:596    .text.HAL_PCD_ConnectCallback:00000000 HAL_PCD_ConnectCallback
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:621    .text.HAL_PCD_DisconnectCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:627    .text.HAL_PCD_DisconnectCallback:00000000 HAL_PCD_DisconnectCallback
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:652    .text.USBD_LL_Init:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:658    .text.USBD_LL_Init:00000000 USBD_LL_Init
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:767    .text.USBD_LL_Init:00000064 $d
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1437   .bss.hpcd_USB_OTG_FS:00000000 hpcd_USB_OTG_FS
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:772    .text.USBD_LL_IsStallEP:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:778    .text.USBD_LL_IsStallEP:00000000 USBD_LL_IsStallEP
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:826    .text.USBD_LL_GetRxDataSize:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:832    .text.USBD_LL_GetRxDataSize:00000000 USBD_LL_GetRxDataSize
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:858    .text.USBD_static_malloc:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:864    .text.USBD_static_malloc:00000000 USBD_static_malloc
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:882    .text.USBD_static_malloc:00000004 $d
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1430   .bss.mem.0:00000000 mem.0
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:887    .text.USBD_static_free:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:893    .text.USBD_static_free:00000000 USBD_static_free
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:907    .text.USBD_LL_Delay:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:913    .text.USBD_LL_Delay:00000000 USBD_LL_Delay
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:935    .text.USBD_Get_USB_Status:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:941    .text.USBD_Get_USB_Status:00000000 USBD_Get_USB_Status
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:955    .text.USBD_Get_USB_Status:00000008 $d
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:959    .text.USBD_Get_USB_Status:0000000c $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:982    .text.USBD_LL_DeInit:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:988    .text.USBD_LL_DeInit:00000000 USBD_LL_DeInit
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1022   .text.USBD_LL_Start:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1028   .text.USBD_LL_Start:00000000 USBD_LL_Start
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1062   .text.USBD_LL_Stop:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1068   .text.USBD_LL_Stop:00000000 USBD_LL_Stop
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s 			page 43
+
+
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1102   .text.USBD_LL_OpenEP:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1108   .text.USBD_LL_OpenEP:00000000 USBD_LL_OpenEP
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1147   .text.USBD_LL_CloseEP:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1153   .text.USBD_LL_CloseEP:00000000 USBD_LL_CloseEP
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1187   .text.USBD_LL_FlushEP:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1193   .text.USBD_LL_FlushEP:00000000 USBD_LL_FlushEP
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1227   .text.USBD_LL_StallEP:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1233   .text.USBD_LL_StallEP:00000000 USBD_LL_StallEP
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1267   .text.USBD_LL_ClearStallEP:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1273   .text.USBD_LL_ClearStallEP:00000000 USBD_LL_ClearStallEP
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1307   .text.USBD_LL_SetUSBAddress:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1313   .text.USBD_LL_SetUSBAddress:00000000 USBD_LL_SetUSBAddress
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1347   .text.USBD_LL_Transmit:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1353   .text.USBD_LL_Transmit:00000000 USBD_LL_Transmit
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1387   .text.USBD_LL_PrepareReceive:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1393   .text.USBD_LL_PrepareReceive:00000000 USBD_LL_PrepareReceive
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1427   .bss.mem.0:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccnuVgRb.s:1434   .bss.hpcd_USB_OTG_FS:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_GPIO_Init
+HAL_NVIC_SetPriority
+HAL_NVIC_EnableIRQ
+HAL_GPIO_WritePin
+DWT_Delay
+HAL_GPIO_DeInit
+HAL_NVIC_DisableIRQ
+USBD_LL_SetupStage
+USBD_LL_DataOutStage
+USBD_LL_DataInStage
+USBD_LL_SOF
+Error_Handler
+USBD_LL_SetSpeed
+USBD_LL_Reset
+USBD_LL_Suspend
+USBD_LL_Resume
+USBD_LL_IsoOUTIncomplete
+USBD_LL_IsoINIncomplete
+USBD_LL_DevConnected
+USBD_LL_DevDisconnected
+HAL_PCD_Init
+HAL_PCDEx_SetRxFiFo
+HAL_PCDEx_SetTxFiFo
+HAL_PCD_EP_GetRxCount
+HAL_Delay
+HAL_PCD_DeInit
+HAL_PCD_Start
+HAL_PCD_Stop
+HAL_PCD_EP_Open
+HAL_PCD_EP_Close
+HAL_PCD_EP_Flush
+HAL_PCD_EP_SetStall
+HAL_PCD_EP_ClrStall
+HAL_PCD_SetAddress
+HAL_PCD_EP_Transmit
+HAL_PCD_EP_Receive

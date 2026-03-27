@@ -1,0 +1,601 @@
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"SEGGER_RTT_printf.c"
+  16              		.text
+  17              		.section	.text._StoreChar,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	_StoreChar:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 10B5     		push	{r4, lr}
+  27 0002 0446     		mov	r4, r0
+  28 0004 8268     		ldr	r2, [r0, #8]
+  29 0006 531C     		adds	r3, r2, #1
+  30 0008 4068     		ldr	r0, [r0, #4]
+  31 000a 8342     		cmp	r3, r0
+  32 000c 05D8     		bhi	.L2
+  33 000e 2068     		ldr	r0, [r4]
+  34 0010 8154     		strb	r1, [r0, r2]
+  35 0012 A360     		str	r3, [r4, #8]
+  36 0014 E368     		ldr	r3, [r4, #12]
+  37 0016 0133     		adds	r3, r3, #1
+  38 0018 E360     		str	r3, [r4, #12]
+  39              	.L2:
+  40 001a A268     		ldr	r2, [r4, #8]
+  41 001c 6368     		ldr	r3, [r4, #4]
+  42 001e 9A42     		cmp	r2, r3
+  43 0020 00D0     		beq	.L6
+  44              	.L1:
+  45 0022 10BD     		pop	{r4, pc}
+  46              	.L6:
+  47 0024 2168     		ldr	r1, [r4]
+  48 0026 2069     		ldr	r0, [r4, #16]
+  49 0028 FFF7FEFF 		bl	SEGGER_RTT_Write
+  50 002c A368     		ldr	r3, [r4, #8]
+  51 002e 9842     		cmp	r0, r3
+  52 0030 03D0     		beq	.L4
+  53 0032 4FF0FF33 		mov	r3, #-1
+  54 0036 E360     		str	r3, [r4, #12]
+  55 0038 F3E7     		b	.L1
+  56              	.L4:
+  57 003a 0023     		movs	r3, #0
+  58 003c A360     		str	r3, [r4, #8]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s 			page 2
+
+
+  59 003e F0E7     		b	.L1
+  61              		.section	.text._PrintUnsigned,"ax",%progbits
+  62              		.align	1
+  63              		.syntax unified
+  64              		.thumb
+  65              		.thumb_func
+  67              	_PrintUnsigned:
+  68              		@ args = 8, pretend = 0, frame = 0
+  69              		@ frame_needed = 0, uses_anonymous_args = 0
+  70 0000 2DE9F84F 		push	{r3, r4, r5, r6, r7, r8, r9, r10, fp, lr}
+  71 0004 8146     		mov	r9, r0
+  72 0006 0F46     		mov	r7, r1
+  73 0008 1546     		mov	r5, r2
+  74 000a 1E46     		mov	r6, r3
+  75 000c DDF828A0 		ldr	r10, [sp, #40]
+  76 0010 0B9A     		ldr	r2, [sp, #44]
+  77 0012 0B46     		mov	r3, r1
+  78 0014 4FF00108 		mov	r8, #1
+  79 0018 03E0     		b	.L8
+  80              	.L9:
+  81 001a B3FBF5F3 		udiv	r3, r3, r5
+  82 001e 08F10108 		add	r8, r8, #1
+  83              	.L8:
+  84 0022 AB42     		cmp	r3, r5
+  85 0024 F9D2     		bcs	.L9
+  86 0026 B045     		cmp	r8, r6
+  87 0028 00D2     		bcs	.L10
+  88 002a B046     		mov	r8, r6
+  89              	.L10:
+  90 002c 12F00103 		ands	r3, r2, #1
+  91 0030 9B46     		mov	fp, r3
+  92 0032 18D1     		bne	.L11
+  93 0034 BAF1000F 		cmp	r10, #0
+  94 0038 15D0     		beq	.L11
+  95 003a 12F0020F 		tst	r2, #2
+  96 003e 02D0     		beq	.L24
+  97 0040 BEB1     		cbz	r6, .L25
+  98 0042 2024     		movs	r4, #32
+  99 0044 00E0     		b	.L13
+ 100              	.L24:
+ 101 0046 2024     		movs	r4, #32
+ 102              	.L13:
+ 103 0048 BAF1000F 		cmp	r10, #0
+ 104 004c 0BD0     		beq	.L11
+ 105 004e C245     		cmp	r10, r8
+ 106 0050 09D9     		bls	.L11
+ 107 0052 0AF1FF3A 		add	r10, r10, #-1
+ 108 0056 2146     		mov	r1, r4
+ 109 0058 4846     		mov	r0, r9
+ 110 005a FFF7FEFF 		bl	_StoreChar
+ 111 005e D9F80C30 		ldr	r3, [r9, #12]
+ 112 0062 002B     		cmp	r3, #0
+ 113 0064 F0DA     		bge	.L13
+ 114              	.L11:
+ 115 0066 D9F80C30 		ldr	r3, [r9, #12]
+ 116 006a 002B     		cmp	r3, #0
+ 117 006c 24DB     		blt	.L7
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s 			page 3
+
+
+ 118 006e 0124     		movs	r4, #1
+ 119 0070 07E0     		b	.L19
+ 120              	.L25:
+ 121 0072 3024     		movs	r4, #48
+ 122 0074 E8E7     		b	.L13
+ 123              	.L16:
+ 124 0076 B7FBF4F3 		udiv	r3, r7, r4
+ 125 007a 9D42     		cmp	r5, r3
+ 126 007c 06D8     		bhi	.L18
+ 127              	.L17:
+ 128 007e 05FB04F4 		mul	r4, r5, r4
+ 129              	.L19:
+ 130 0082 012E     		cmp	r6, #1
+ 131 0084 F7D9     		bls	.L16
+ 132 0086 013E     		subs	r6, r6, #1
+ 133 0088 F9E7     		b	.L17
+ 134              	.L26:
+ 135 008a 1C46     		mov	r4, r3
+ 136              	.L18:
+ 137 008c B7FBF4F3 		udiv	r3, r7, r4
+ 138 0090 04FB1377 		mls	r7, r4, r3, r7
+ 139 0094 114A     		ldr	r2, .L28
+ 140 0096 D15C     		ldrb	r1, [r2, r3]	@ zero_extendqisi2
+ 141 0098 4846     		mov	r0, r9
+ 142 009a FFF7FEFF 		bl	_StoreChar
+ 143 009e D9F80C30 		ldr	r3, [r9, #12]
+ 144 00a2 002B     		cmp	r3, #0
+ 145 00a4 03DB     		blt	.L20
+ 146 00a6 B4FBF5F3 		udiv	r3, r4, r5
+ 147 00aa AC42     		cmp	r4, r5
+ 148 00ac EDD2     		bcs	.L26
+ 149              	.L20:
+ 150 00ae 5B46     		mov	r3, fp
+ 151 00b0 13B1     		cbz	r3, .L7
+ 152 00b2 BAF1000F 		cmp	r10, #0
+ 153 00b6 01D1     		bne	.L21
+ 154              	.L7:
+ 155 00b8 BDE8F88F 		pop	{r3, r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 156              	.L21:
+ 157 00bc BAF1000F 		cmp	r10, #0
+ 158 00c0 FAD0     		beq	.L7
+ 159 00c2 C245     		cmp	r10, r8
+ 160 00c4 F8D9     		bls	.L7
+ 161 00c6 0AF1FF3A 		add	r10, r10, #-1
+ 162 00ca 2021     		movs	r1, #32
+ 163 00cc 4846     		mov	r0, r9
+ 164 00ce FFF7FEFF 		bl	_StoreChar
+ 165 00d2 D9F80C30 		ldr	r3, [r9, #12]
+ 166 00d6 002B     		cmp	r3, #0
+ 167 00d8 F0DA     		bge	.L21
+ 168 00da EDE7     		b	.L7
+ 169              	.L29:
+ 170              		.align	2
+ 171              	.L28:
+ 172 00dc 00000000 		.word	_aV2C.0
+ 174              		.section	.text._PrintInt,"ax",%progbits
+ 175              		.align	1
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s 			page 4
+
+
+ 176              		.syntax unified
+ 177              		.thumb
+ 178              		.thumb_func
+ 180              	_PrintInt:
+ 181              		@ args = 8, pretend = 0, frame = 0
+ 182              		@ frame_needed = 0, uses_anonymous_args = 0
+ 183 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 184 0004 82B0     		sub	sp, sp, #8
+ 185 0006 0746     		mov	r7, r0
+ 186 0008 8846     		mov	r8, r1
+ 187 000a 1546     		mov	r5, r2
+ 188 000c 9946     		mov	r9, r3
+ 189 000e 0A9E     		ldr	r6, [sp, #40]
+ 190 0010 81EAE17C 		eor	ip, r1, r1, asr #31
+ 191 0014 ACEBE17C 		sub	ip, ip, r1, asr #31
+ 192 0018 0124     		movs	r4, #1
+ 193 001a 02E0     		b	.L31
+ 194              	.L32:
+ 195 001c 9CFBF5FC 		sdiv	ip, ip, r5
+ 196 0020 0134     		adds	r4, r4, #1
+ 197              	.L31:
+ 198 0022 6545     		cmp	r5, ip
+ 199 0024 FADD     		ble	.L32
+ 200 0026 4C45     		cmp	r4, r9
+ 201 0028 00D2     		bcs	.L33
+ 202 002a 4C46     		mov	r4, r9
+ 203              	.L33:
+ 204 002c 3EB1     		cbz	r6, .L34
+ 205 002e B8F1000F 		cmp	r8, #0
+ 206 0032 03DB     		blt	.L35
+ 207 0034 0B9B     		ldr	r3, [sp, #44]
+ 208 0036 13F0040F 		tst	r3, #4
+ 209 003a 00D0     		beq	.L34
+ 210              	.L35:
+ 211 003c 013E     		subs	r6, r6, #1
+ 212              	.L34:
+ 213 003e 0B9B     		ldr	r3, [sp, #44]
+ 214 0040 13F00203 		ands	r3, r3, #2
+ 215 0044 9A46     		mov	r10, r3
+ 216 0046 01D0     		beq	.L36
+ 217 0048 4B46     		mov	r3, r9
+ 218 004a 23B1     		cbz	r3, .L37
+ 219              	.L36:
+ 220 004c 0B9B     		ldr	r3, [sp, #44]
+ 221 004e 13F0010F 		tst	r3, #1
+ 222 0052 00D1     		bne	.L37
+ 223 0054 DEB9     		cbnz	r6, .L38
+ 224              	.L37:
+ 225 0056 FB68     		ldr	r3, [r7, #12]
+ 226 0058 002B     		cmp	r3, #0
+ 227 005a 15DB     		blt	.L30
+ 228 005c B8F1000F 		cmp	r8, #0
+ 229 0060 22DB     		blt	.L48
+ 230 0062 0B9B     		ldr	r3, [sp, #44]
+ 231 0064 13F0040F 		tst	r3, #4
+ 232 0068 25D1     		bne	.L49
+ 233              	.L42:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s 			page 5
+
+
+ 234 006a FB68     		ldr	r3, [r7, #12]
+ 235 006c 002B     		cmp	r3, #0
+ 236 006e 0BDB     		blt	.L30
+ 237 0070 5346     		mov	r3, r10
+ 238 0072 33B1     		cbz	r3, .L43
+ 239 0074 0B9B     		ldr	r3, [sp, #44]
+ 240 0076 13F0010F 		tst	r3, #1
+ 241 007a 02D1     		bne	.L43
+ 242 007c 4B46     		mov	r3, r9
+ 243 007e 03B9     		cbnz	r3, .L43
+ 244 0080 F6B9     		cbnz	r6, .L44
+ 245              	.L43:
+ 246 0082 FB68     		ldr	r3, [r7, #12]
+ 247 0084 002B     		cmp	r3, #0
+ 248 0086 28DA     		bge	.L50
+ 249              	.L30:
+ 250 0088 02B0     		add	sp, sp, #8
+ 251              		@ sp needed
+ 252 008a BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 253              	.L38:
+ 254 008e 002E     		cmp	r6, #0
+ 255 0090 E1D0     		beq	.L37
+ 256 0092 A642     		cmp	r6, r4
+ 257 0094 DFD9     		bls	.L37
+ 258 0096 013E     		subs	r6, r6, #1
+ 259 0098 2021     		movs	r1, #32
+ 260 009a 3846     		mov	r0, r7
+ 261 009c FFF7FEFF 		bl	_StoreChar
+ 262 00a0 FB68     		ldr	r3, [r7, #12]
+ 263 00a2 002B     		cmp	r3, #0
+ 264 00a4 F3DA     		bge	.L38
+ 265 00a6 D6E7     		b	.L37
+ 266              	.L48:
+ 267 00a8 C8F10008 		rsb	r8, r8, #0
+ 268 00ac 2D21     		movs	r1, #45
+ 269 00ae 3846     		mov	r0, r7
+ 270 00b0 FFF7FEFF 		bl	_StoreChar
+ 271 00b4 D9E7     		b	.L42
+ 272              	.L49:
+ 273 00b6 2B21     		movs	r1, #43
+ 274 00b8 3846     		mov	r0, r7
+ 275 00ba FFF7FEFF 		bl	_StoreChar
+ 276 00be D4E7     		b	.L42
+ 277              	.L44:
+ 278 00c0 002E     		cmp	r6, #0
+ 279 00c2 DED0     		beq	.L43
+ 280 00c4 A642     		cmp	r6, r4
+ 281 00c6 DCD9     		bls	.L43
+ 282 00c8 013E     		subs	r6, r6, #1
+ 283 00ca 3021     		movs	r1, #48
+ 284 00cc 3846     		mov	r0, r7
+ 285 00ce FFF7FEFF 		bl	_StoreChar
+ 286 00d2 FB68     		ldr	r3, [r7, #12]
+ 287 00d4 002B     		cmp	r3, #0
+ 288 00d6 F3DA     		bge	.L44
+ 289 00d8 D3E7     		b	.L43
+ 290              	.L50:
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s 			page 6
+
+
+ 291 00da 0B9B     		ldr	r3, [sp, #44]
+ 292 00dc 0193     		str	r3, [sp, #4]
+ 293 00de 0096     		str	r6, [sp]
+ 294 00e0 4B46     		mov	r3, r9
+ 295 00e2 2A46     		mov	r2, r5
+ 296 00e4 4146     		mov	r1, r8
+ 297 00e6 3846     		mov	r0, r7
+ 298 00e8 FFF7FEFF 		bl	_PrintUnsigned
+ 299 00ec CCE7     		b	.L30
+ 301              		.section	.text.SEGGER_RTT_vprintf,"ax",%progbits
+ 302              		.align	1
+ 303              		.global	SEGGER_RTT_vprintf
+ 304              		.syntax unified
+ 305              		.thumb
+ 306              		.thumb_func
+ 308              	SEGGER_RTT_vprintf:
+ 309              		@ args = 0, pretend = 0, frame = 88
+ 310              		@ frame_needed = 0, uses_anonymous_args = 0
+ 311 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 312 0002 99B0     		sub	sp, sp, #100
+ 313 0004 0746     		mov	r7, r0
+ 314 0006 0C46     		mov	r4, r1
+ 315 0008 1546     		mov	r5, r2
+ 316 000a 03AB     		add	r3, sp, #12
+ 317 000c 1393     		str	r3, [sp, #76]
+ 318 000e 4023     		movs	r3, #64
+ 319 0010 1493     		str	r3, [sp, #80]
+ 320 0012 0023     		movs	r3, #0
+ 321 0014 1593     		str	r3, [sp, #84]
+ 322 0016 1790     		str	r0, [sp, #92]
+ 323 0018 1693     		str	r3, [sp, #88]
+ 324 001a 92E0     		b	.L80
+ 325              	.L90:
+ 326 001c 0020     		movs	r0, #0
+ 327 001e 0122     		movs	r2, #1
+ 328 0020 0DE0     		b	.L60
+ 329              	.L86:
+ 330 0022 0022     		movs	r2, #0
+ 331 0024 0AE0     		b	.L58
+ 332              	.L55:
+ 333 0026 302B     		cmp	r3, #48
+ 334 0028 03D1     		bne	.L85
+ 335 002a 40F00200 		orr	r0, r0, #2
+ 336 002e 0134     		adds	r4, r4, #1
+ 337 0030 04E0     		b	.L58
+ 338              	.L85:
+ 339 0032 0022     		movs	r2, #0
+ 340 0034 02E0     		b	.L58
+ 341              	.L54:
+ 342 0036 40F00100 		orr	r0, r0, #1
+ 343 003a 0134     		adds	r4, r4, #1
+ 344              	.L58:
+ 345 003c 7AB1     		cbz	r2, .L62
+ 346              	.L60:
+ 347 003e 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 348 0040 2D2B     		cmp	r3, #45
+ 349 0042 F8D0     		beq	.L54
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s 			page 7
+
+
+ 350 0044 EFD8     		bhi	.L55
+ 351 0046 232B     		cmp	r3, #35
+ 352 0048 05D0     		beq	.L56
+ 353 004a 2B2B     		cmp	r3, #43
+ 354 004c E9D1     		bne	.L86
+ 355 004e 40F00400 		orr	r0, r0, #4
+ 356 0052 0134     		adds	r4, r4, #1
+ 357 0054 F2E7     		b	.L58
+ 358              	.L56:
+ 359 0056 40F00800 		orr	r0, r0, #8
+ 360 005a 0134     		adds	r4, r4, #1
+ 361 005c EEE7     		b	.L58
+ 362              	.L62:
+ 363 005e 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 364 0060 A3F13001 		sub	r1, r3, #48
+ 365 0064 C9B2     		uxtb	r1, r1
+ 366 0066 0929     		cmp	r1, #9
+ 367 0068 07D8     		bhi	.L61
+ 368 006a 0134     		adds	r4, r4, #1
+ 369 006c 02EB8202 		add	r2, r2, r2, lsl #2
+ 370 0070 03EB4203 		add	r3, r3, r2, lsl #1
+ 371 0074 A3F13002 		sub	r2, r3, #48
+ 372 0078 F1E7     		b	.L62
+ 373              	.L61:
+ 374 007a 2E2B     		cmp	r3, #46
+ 375 007c 02D0     		beq	.L87
+ 376 007e 0023     		movs	r3, #0
+ 377              	.L63:
+ 378 0080 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+ 379 0082 14E0     		b	.L67
+ 380              	.L87:
+ 381 0084 0134     		adds	r4, r4, #1
+ 382 0086 0023     		movs	r3, #0
+ 383 0088 06E0     		b	.L64
+ 384              	.L88:
+ 385 008a 0134     		adds	r4, r4, #1
+ 386 008c 03EB8303 		add	r3, r3, r3, lsl #2
+ 387 0090 01EB4301 		add	r1, r1, r3, lsl #1
+ 388 0094 A1F13003 		sub	r3, r1, #48
+ 389              	.L64:
+ 390 0098 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+ 391 009a A1F1300C 		sub	ip, r1, #48
+ 392 009e 5FFA8CFC 		uxtb	ip, ip
+ 393 00a2 BCF1090F 		cmp	ip, #9
+ 394 00a6 F0D9     		bls	.L88
+ 395 00a8 EAE7     		b	.L63
+ 396              	.L65:
+ 397 00aa 14F8011F 		ldrb	r1, [r4, #1]!	@ zero_extendqisi2
+ 398              	.L67:
+ 399 00ae 6C29     		cmp	r1, #108
+ 400 00b0 FBD0     		beq	.L65
+ 401 00b2 6829     		cmp	r1, #104
+ 402 00b4 F9D0     		beq	.L65
+ 403 00b6 7029     		cmp	r1, #112
+ 404 00b8 58D0     		beq	.L68
+ 405 00ba 23D8     		bhi	.L69
+ 406 00bc 6329     		cmp	r1, #99
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s 			page 8
+
+
+ 407 00be 35D0     		beq	.L70
+ 408 00c0 13D8     		bhi	.L71
+ 409 00c2 2529     		cmp	r1, #37
+ 410 00c4 04D1     		bne	.L89
+ 411 00c6 2521     		movs	r1, #37
+ 412 00c8 13A8     		add	r0, sp, #76
+ 413 00ca FFF7FEFF 		bl	_StoreChar
+ 414 00ce 34E0     		b	.L74
+ 415              	.L89:
+ 416 00d0 5829     		cmp	r1, #88
+ 417 00d2 32D1     		bne	.L74
+ 418              	.L73:
+ 419 00d4 2968     		ldr	r1, [r5]
+ 420 00d6 0E1D     		adds	r6, r1, #4
+ 421 00d8 2E60     		str	r6, [r5]
+ 422 00da 0968     		ldr	r1, [r1]
+ 423 00dc 0190     		str	r0, [sp, #4]
+ 424 00de 0092     		str	r2, [sp]
+ 425 00e0 1022     		movs	r2, #16
+ 426 00e2 13A8     		add	r0, sp, #76
+ 427 00e4 FFF7FEFF 		bl	_PrintUnsigned
+ 428 00e8 27E0     		b	.L74
+ 429              	.L71:
+ 430 00ea 6429     		cmp	r1, #100
+ 431 00ec 25D1     		bne	.L74
+ 432 00ee 2968     		ldr	r1, [r5]
+ 433 00f0 0E1D     		adds	r6, r1, #4
+ 434 00f2 2E60     		str	r6, [r5]
+ 435 00f4 0968     		ldr	r1, [r1]
+ 436 00f6 0190     		str	r0, [sp, #4]
+ 437 00f8 0092     		str	r2, [sp]
+ 438 00fa 0A22     		movs	r2, #10
+ 439 00fc 13A8     		add	r0, sp, #76
+ 440 00fe FFF7FEFF 		bl	_PrintInt
+ 441 0102 1AE0     		b	.L74
+ 442              	.L69:
+ 443 0104 7529     		cmp	r1, #117
+ 444 0106 26D0     		beq	.L76
+ 445 0108 7829     		cmp	r1, #120
+ 446 010a E3D0     		beq	.L73
+ 447 010c 7329     		cmp	r1, #115
+ 448 010e 14D1     		bne	.L74
+ 449 0110 2B68     		ldr	r3, [r5]
+ 450 0112 1A1D     		adds	r2, r3, #4
+ 451 0114 2A60     		str	r2, [r5]
+ 452 0116 1E68     		ldr	r6, [r3]
+ 453              	.L78:
+ 454 0118 16F8011B 		ldrb	r1, [r6], #1	@ zero_extendqisi2
+ 455 011c 69B1     		cbz	r1, .L74
+ 456 011e 13A8     		add	r0, sp, #76
+ 457 0120 FFF7FEFF 		bl	_StoreChar
+ 458 0124 169B     		ldr	r3, [sp, #88]
+ 459 0126 002B     		cmp	r3, #0
+ 460 0128 F6DA     		bge	.L78
+ 461 012a 06E0     		b	.L74
+ 462              	.L70:
+ 463 012c 2B68     		ldr	r3, [r5]
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s 			page 9
+
+
+ 464 012e 1A1D     		adds	r2, r3, #4
+ 465 0130 2A60     		str	r2, [r5]
+ 466 0132 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 467 0134 13A8     		add	r0, sp, #76
+ 468 0136 FFF7FEFF 		bl	_StoreChar
+ 469              	.L74:
+ 470 013a 0134     		adds	r4, r4, #1
+ 471              	.L79:
+ 472 013c 169B     		ldr	r3, [sp, #88]
+ 473 013e 002B     		cmp	r3, #0
+ 474 0140 21DB     		blt	.L52
+ 475              	.L80:
+ 476 0142 14F8011B 		ldrb	r1, [r4], #1	@ zero_extendqisi2
+ 477 0146 F1B1     		cbz	r1, .L52
+ 478 0148 2529     		cmp	r1, #37
+ 479 014a 3FF467AF 		beq	.L90
+ 480 014e 13A8     		add	r0, sp, #76
+ 481 0150 FFF7FEFF 		bl	_StoreChar
+ 482 0154 F2E7     		b	.L79
+ 483              	.L76:
+ 484 0156 2968     		ldr	r1, [r5]
+ 485 0158 0E1D     		adds	r6, r1, #4
+ 486 015a 2E60     		str	r6, [r5]
+ 487 015c 0968     		ldr	r1, [r1]
+ 488 015e 0190     		str	r0, [sp, #4]
+ 489 0160 0092     		str	r2, [sp]
+ 490 0162 0A22     		movs	r2, #10
+ 491 0164 13A8     		add	r0, sp, #76
+ 492 0166 FFF7FEFF 		bl	_PrintUnsigned
+ 493 016a E6E7     		b	.L74
+ 494              	.L68:
+ 495 016c 2B68     		ldr	r3, [r5]
+ 496 016e 1A1D     		adds	r2, r3, #4
+ 497 0170 2A60     		str	r2, [r5]
+ 498 0172 1968     		ldr	r1, [r3]
+ 499 0174 0023     		movs	r3, #0
+ 500 0176 0193     		str	r3, [sp, #4]
+ 501 0178 0823     		movs	r3, #8
+ 502 017a 0093     		str	r3, [sp]
+ 503 017c 1022     		movs	r2, #16
+ 504 017e 13A8     		add	r0, sp, #76
+ 505 0180 FFF7FEFF 		bl	_PrintUnsigned
+ 506 0184 D9E7     		b	.L74
+ 507              	.L52:
+ 508 0186 169B     		ldr	r3, [sp, #88]
+ 509 0188 002B     		cmp	r3, #0
+ 510 018a 05DD     		ble	.L81
+ 511 018c 159A     		ldr	r2, [sp, #84]
+ 512 018e 32B9     		cbnz	r2, .L91
+ 513              	.L82:
+ 514 0190 169B     		ldr	r3, [sp, #88]
+ 515 0192 159A     		ldr	r2, [sp, #84]
+ 516 0194 1344     		add	r3, r3, r2
+ 517 0196 1693     		str	r3, [sp, #88]
+ 518              	.L81:
+ 519 0198 1698     		ldr	r0, [sp, #88]
+ 520 019a 19B0     		add	sp, sp, #100
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s 			page 10
+
+
+ 521              		@ sp needed
+ 522 019c F0BD     		pop	{r4, r5, r6, r7, pc}
+ 523              	.L91:
+ 524 019e 03A9     		add	r1, sp, #12
+ 525 01a0 3846     		mov	r0, r7
+ 526 01a2 FFF7FEFF 		bl	SEGGER_RTT_Write
+ 527 01a6 F3E7     		b	.L82
+ 529              		.section	.text.SEGGER_RTT_printf,"ax",%progbits
+ 530              		.align	1
+ 531              		.global	SEGGER_RTT_printf
+ 532              		.syntax unified
+ 533              		.thumb
+ 534              		.thumb_func
+ 536              	SEGGER_RTT_printf:
+ 537              		@ args = 4, pretend = 12, frame = 8
+ 538              		@ frame_needed = 0, uses_anonymous_args = 1
+ 539 0000 0EB4     		push	{r1, r2, r3}
+ 540 0002 00B5     		push	{lr}
+ 541 0004 82B0     		sub	sp, sp, #8
+ 542 0006 03AB     		add	r3, sp, #12
+ 543 0008 53F8041B 		ldr	r1, [r3], #4
+ 544 000c 0193     		str	r3, [sp, #4]
+ 545 000e 01AA     		add	r2, sp, #4
+ 546 0010 FFF7FEFF 		bl	SEGGER_RTT_vprintf
+ 547 0014 02B0     		add	sp, sp, #8
+ 548              		@ sp needed
+ 549 0016 5DF804EB 		ldr	lr, [sp], #4
+ 550 001a 03B0     		add	sp, sp, #12
+ 551 001c 7047     		bx	lr
+ 553              		.section	.rodata._aV2C.0,"a"
+ 554              		.align	2
+ 557              	_aV2C.0:
+ 558 0000 30313233 		.ascii	"0123456789ABCDEF"
+ 558      34353637 
+ 558      38394142 
+ 558      43444546 
+ 559              		.ident	"GCC: (xPack GNU Arm Embedded GCC x86_64) 15.2.1 20251203"
+ARM GAS  C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 SEGGER_RTT_printf.c
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:18     .text._StoreChar:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:23     .text._StoreChar:00000000 _StoreChar
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:62     .text._PrintUnsigned:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:67     .text._PrintUnsigned:00000000 _PrintUnsigned
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:172    .text._PrintUnsigned:000000dc $d
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:557    .rodata._aV2C.0:00000000 _aV2C.0
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:175    .text._PrintInt:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:180    .text._PrintInt:00000000 _PrintInt
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:302    .text.SEGGER_RTT_vprintf:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:308    .text.SEGGER_RTT_vprintf:00000000 SEGGER_RTT_vprintf
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:530    .text.SEGGER_RTT_printf:00000000 $t
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:536    .text.SEGGER_RTT_printf:00000000 SEGGER_RTT_printf
+C:\Users\Administrator\AppData\Local\Temp\ccpwQiBa.s:554    .rodata._aV2C.0:00000000 $d
+
+UNDEFINED SYMBOLS
+SEGGER_RTT_Write
