@@ -167,7 +167,11 @@ void INS_Task(void)
         INS.Roll = QEKF_INS.Roll;
         INS.YawTotalAngle = QEKF_INS.YawTotalAngle;
 
-        VisionSetAltitude(INS.Yaw, INS.Pitch, INS.Roll);
+        VisionUpdateTx(0,
+                       INS.q[0], INS.q[1], INS.q[2], INS.q[3],
+                       INS.Yaw, INS.Gyro[Z],
+                       INS.Pitch, INS.Gyro[Y],
+                       0, 0);
     }
 
     // temperature control
