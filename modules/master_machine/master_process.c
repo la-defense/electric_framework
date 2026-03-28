@@ -69,6 +69,8 @@ void VisionUpdateTx(uint8_t mode,
 
 static void DecodeVision(uint16_t recv_len)
 {
+    LOGINFO("[vision] DecodeVision called, recv_len=%d", recv_len);
+
     if (recv_len < sizeof(Vision_Recv_s))
         return;
 
@@ -80,9 +82,15 @@ static void DecodeVision(uint16_t recv_len)
         if (pkt.head[0] != 'S' || pkt.head[1] != 'P')
             continue;
 
-        if (!VisionCheckCRC16((const uint8_t *)&pkt, sizeof(Vision_Recv_s)))
-            continue;
+        LOGINFO("[vision] Found SP header at offset %d", i);
 
+        if (!VisionCheckCRC16((const uint8_t *)&pkt, sizeof(Vision_Recv_s)))
+        {
+            LOGWARNING("[vision] CRC check failed");
+            continue;
+        }
+
+        LOGINFO("[vision] Received: mode=%d, yaw=%.3f, pitch=%.3f", pkt.mode, pkt.yaw, pkt.pitch);
         recv_data = pkt;
         DaemonReload(vision_daemon_instance);
         return;

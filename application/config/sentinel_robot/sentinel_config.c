@@ -157,8 +157,8 @@ Robot_Config_s *SentinelConfigInit(void)
                     .speed_feedback_source = OTHER_FEED,
                     .outer_loop_type = ANGLE_LOOP,
                     .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
-                    .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
-                    .feedback_reverse_flag = FEEDBACK_DIRECTION_NORMAL,
+                    .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+                    .feedback_reverse_flag = FEEDBACK_DIRECTION_REVERSE,
                 },
                 .motor_type = GM6020
             }                
