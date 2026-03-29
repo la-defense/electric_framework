@@ -22,6 +22,7 @@
 #define HALF_RC_CH_MAX ((RC_CH_VALUE_MAX - RC_CH_VALUE_MIN) / 2.0f)
 #define RAD_TO_DEG 57.295779513f
 #define YAW_GEAR_RATIO 1.25f  // yaw轴皮带传动比 1:1.25
+#define PITCH_ZERO_OFFSET 0.0f  // pitch轴零点偏移，调整此值使上位机发送0时云台水平
 
 /* cmd应用包含的模块实例指针和交互信息存储*/
 static Robot_Config_s *robot_config;
@@ -235,19 +236,31 @@ static void RemoteControlSet()
 #endif
 
     // 云台陀螺仪模式,并且视觉未识别到目标,纯遥控器拨杆控制
-    add_yaw = RC_TO_YAW_ANGLE * (float)rc_data[TEMP].rc.rocker_l_;
-    add_pitch = RC_TO_PITCH_ANGLE * (float)rc_data[TEMP].rc.rocker_l1;
+    add_yaw = 0;//RC_TO_YAW_ANGLE * (float)rc_data[TEMP].rc.rocker_l_;
+    add_pitch = 0;//RC_TO_PITCH_ANGLE * (float)rc_data[TEMP].rc.rocker_l1;
 
     if (robot_state == ROBOT_READY)
     {
         // 视觉接管优先级最高
         if (vision_recv_data->mode == 1 || vision_recv_data->mode == 2)
         {
-            gimbal_cmd_send.gimbal_mode = GIMBAL_GYRO_MODE;
-            gimbal_cmd_send.yaw = vision_recv_data->yaw * RAD_TO_DEG / YAW_GEAR_RATIO;
-            gimbal_cmd_send.pitch = vision_recv_data->pitch * RAD_TO_DEG;
-            add_yaw = 0.0f;
-            add_pitch = 0.0f;
+            float vision_yaw = vision_recv_data->yaw * RAD_TO_DEG * YAW_GEAR_RATIO;
+            float vision_pitch = vision_recv_data->pitch * RAD_TO_DEG + PITCH_ZERO_OFFSET;
+
+            // 数据有效性检查，防止异常值
+            if (fabs(vision_yaw) < 360.0f && fabs(vision_pitch) < 90.0f)
+            {
+                if(vision_recv_data->mode == 2)
+                    shoot_cmd_send.shoot_mode = SHOOT_ON;
+                else
+                    shoot_cmd_send.shoot_mode = SHOOT_OFF;
+
+                gimbal_cmd_send.gimbal_mode = GIMBAL_GYRO_MODE;
+                gimbal_cmd_send.yaw = vision_yaw;
+                gimbal_cmd_send.pitch = vision_pitch;
+                add_yaw = 0.0f;
+                add_pitch = 0.0f;
+            }
         }
         else if (gimbal_cmd_send.gimbal_mode == GIMBAL_GYRO_MODE)
         { // 按照摇杆的输出大小进行角度增量,拨杆向右/向上为正
@@ -414,8 +427,8 @@ static void MouseKeySet()
         break;
     }
 
-    gimbal_cmd_send.yaw += add_yaw;
-    gimbal_cmd_send.pitch += add_pitch;
+    // gimbal_cmd_send.yaw += add_yaw;
+    // gimbal_cmd_send.pitch += add_pitch;
 
     if (chassis_cmd_send.chassis_mode == CHASSIS_FOLLOW_GIMBAL_YAW)
         // 云台角度限幅,要放在增量以后

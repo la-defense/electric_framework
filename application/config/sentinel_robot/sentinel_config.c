@@ -144,9 +144,9 @@ Robot_Config_s *SentinelConfigInit(void)
                         .MaxOut = 500,
                     },
                     .speed_PID = {
-                        .Kp = 60.0,
+                        .Kp = 45.0,
                         .Ki = 0.0,
-                        .Kd = 0.0,
+                        .Kd = 0.2,
                         .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
                         .IntegralLimit = 2500,
                         .MaxOut = 20000,
