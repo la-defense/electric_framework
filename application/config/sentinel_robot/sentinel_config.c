@@ -55,7 +55,7 @@ Robot_Config_s *SentinelConfigInit(void)
             .gimbal_offset = {
                 .mini_yaw_offset = -36.0f,
                 .yaw_offset = 118,
-                .pitch_min_angle = -24.0f,
+                .pitch_min_angle = -25.0f,
                 .pitch_max_angle = 25.0f,
             },
 
@@ -144,8 +144,8 @@ Robot_Config_s *SentinelConfigInit(void)
                         .MaxOut = 500,
                     },
                     .speed_PID = {
-                        .Kp = 30.0, 
-                        .Ki = 0.0, 
+                        .Kp = 60.0,
+                        .Ki = 0.0,
                         .Kd = 0.0,
                         .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
                         .IntegralLimit = 2500,

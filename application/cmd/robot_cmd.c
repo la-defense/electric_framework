@@ -21,6 +21,7 @@
 /* 根据remote_control.h中的通道值自动计算的参数 */
 #define HALF_RC_CH_MAX ((RC_CH_VALUE_MAX - RC_CH_VALUE_MIN) / 2.0f)
 #define RAD_TO_DEG 57.295779513f
+#define YAW_GEAR_RATIO 1.25f  // yaw轴皮带传动比 1:1.25
 
 /* cmd应用包含的模块实例指针和交互信息存储*/
 static Robot_Config_s *robot_config;
@@ -243,7 +244,7 @@ static void RemoteControlSet()
         if (vision_recv_data->mode == 1 || vision_recv_data->mode == 2)
         {
             gimbal_cmd_send.gimbal_mode = GIMBAL_GYRO_MODE;
-            gimbal_cmd_send.yaw = vision_recv_data->yaw * RAD_TO_DEG;
+            gimbal_cmd_send.yaw = vision_recv_data->yaw * RAD_TO_DEG / YAW_GEAR_RATIO;
             gimbal_cmd_send.pitch = vision_recv_data->pitch * RAD_TO_DEG;
             add_yaw = 0.0f;
             add_pitch = 0.0f;
