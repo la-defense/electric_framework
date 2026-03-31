@@ -253,7 +253,7 @@ static void RemoteControlSet()
                 shoot_cmd_send.shoot_rate = 10;
             } else { // mode == 1: 识别到目标但不射击
                 shoot_cmd_send.load_mode = LOAD_STOP;
-                shoot_cmd_send.friction_mode = FRICTION_OFF;
+                shoot_cmd_send.friction_mode = FRICTION_ON;
             }
             gimbal_cmd_send.gimbal_mode = GIMBAL_GYRO_MODE;
             gimbal_cmd_send.yaw = vision_yaw;
