@@ -245,7 +245,7 @@ static void RemoteControlSet()
         // 视觉接管优先级最高
         if (vision_recv_data->mode == 1 || vision_recv_data->mode == 2)
         {
-            float vision_yaw = vision_recv_data->yaw * RAD_TO_DEG * YAW_GEAR_RATIO;
+            float vision_yaw = vision_recv_data->yaw * RAD_TO_DEG;
             float vision_pitch = vision_recv_data->pitch * RAD_TO_DEG + PITCH_ZERO_OFFSET;
             if (vision_recv_data->mode == 2) {
                 shoot_cmd_send.shoot_mode = SHOOT_ON;
@@ -269,8 +269,11 @@ static void RemoteControlSet()
         }
         if (gimbal_cmd_send.gimbal_mode == GIMBAL_GYRO_MODE)
         { // 按照摇杆的输出大小进行角度增量,拨杆向右/向上为正
-            gimbal_cmd_send.yaw += add_yaw;
-            gimbal_cmd_send.pitch += add_pitch;
+            if (vision_recv_data->mode == 0) { // 只有在视觉未识别到目标时才允许遥控器调整云台角度
+                gimbal_cmd_send.yaw += add_yaw;
+                gimbal_cmd_send.pitch += add_pitch;
+            }
+            
         }
     }
 

@@ -13,9 +13,9 @@ Robot_Config_s *SentinelConfigInit(void)
             .wheel_measure = {
                 .center_gimbal_offset_x = 0.0,
                 .center_gimbal_offset_y = 0.0,
-                .wheel_base = 370,
-                .track_width = 420,
-                .radius_wheel = 75,
+                .wheel_base = 500,
+                .track_width = 500,
+                .radius_wheel = 150,
                 .reduction_ratio_wheel = 19.0,
             },
 
@@ -88,7 +88,7 @@ Robot_Config_s *SentinelConfigInit(void)
                     .speed_feedback_source = OTHER_FEED,
                     .outer_loop_type = ANGLE_LOOP,
                     .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
-                    .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+                    .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
                     .feedback_reverse_flag = FEEDBACK_DIRECTION_NORMAL,
                 },
                 .motor_type = GM6020,
