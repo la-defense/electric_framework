@@ -21,6 +21,7 @@
 /* 根据remote_control.h中的通道值自动计算的参数 */
 #define HALF_RC_CH_MAX ((RC_CH_VALUE_MAX - RC_CH_VALUE_MIN) / 2.0f)
 #define RAD_TO_DEG 57.295779513f
+#define DEG_TO_RAD (1.0f / 57.295779513f)
 #define YAW_GEAR_RATIO 1.25f  // yaw轴皮带传动比 1:1.25
 #define PITCH_ZERO_OFFSET 0.0f  // pitch轴零点偏移，调整此值使上位机发送0时云台水平
 
@@ -261,11 +262,10 @@ static void RemoteControlSet()
             add_yaw = 0.0f;
             add_pitch = 0.0f;
         }
-        else // mode == 0: 未识别到目标
+        else // mode == 0: 未识别到目标，切换回手动控制
         {
-            shoot_cmd_send.shoot_mode = SHOOT_OFF;
-            shoot_cmd_send.load_mode = LOAD_STOP;
-            shoot_cmd_send.friction_mode = FRICTION_OFF;
+            // 恢复手动控制，使用遥控器摇杆控制云台
+            // add_yaw 和 add_pitch 已经在前面计算好了
         }
         if (gimbal_cmd_send.gimbal_mode == GIMBAL_GYRO_MODE)
         { // 按照摇杆的输出大小进行角度增量,拨杆向右/向上为正
@@ -601,17 +601,21 @@ static void RefereeHandler()
         shoot_cmd_send.load_mode = LOAD_STOP;
 
     // 视觉数据反馈
-    // 我方颜色id小于7是红色,大于7是蓝色,注意这里发送的是对方的颜色, 0:red, 1:blue
-    /* 先把通讯打通：四元数先临时给单位四元数 */
+    float q[4];
+    EularAngleToQuaternion(gimbal_fetch_data.gimbal_imu_data.Yaw,
+                           gimbal_fetch_data.gimbal_imu_data.Pitch,
+                           gimbal_fetch_data.gimbal_imu_data.Roll,
+                           q);
+
     VisionUpdateTx(
-        (gimbal_cmd_send.gimbal_mode == GIMBAL_GYRO_MODE) ? 1 : 0,  // 先映射成 IDLE / AUTO_AIM
-        1.0f, 0.0f, 0.0f, 0.0f,                                     // 临时四元数，占位
-        gimbal_fetch_data.gimbal_imu_data.YawTotalAngle,
-        0.0f,
+        (gimbal_cmd_send.gimbal_mode == GIMBAL_GYRO_MODE) ? 1 : 0,
+        q[0], q[1], q[2], q[3],
+        gimbal_fetch_data.gimbal_imu_data.YawTotalAngle / YAW_GEAR_RATIO,
+        gimbal_fetch_data.gimbal_imu_data.Gyro[2],
         gimbal_fetch_data.gimbal_imu_data.Pitch,
-        0.0f,
-        15.0f,                                                      // 没有真实弹速先给常数
-        0
+        gimbal_fetch_data.gimbal_imu_data.Gyro[0],
+        referee_data->ShootData.bullet_speed,
+        referee_data->GameRobotState.shooter_barrel_cooling_value
     );
     VisionSend();
     // 当前只做了17mm热量的数据获取,后续根据robot_def中的宏切换双枪管和英雄42mm的情况
