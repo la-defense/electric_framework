@@ -285,8 +285,8 @@ static void RemoteControlSet()
           robot_config->gimbal_param.gimbal_offset.pitch_max_angle);
 
     // 底盘参数,目前没有加入小陀螺(调试似乎暂时没有必要),系数为2.0m/s(经测量,空转转速最大3.0m/s,实际速度和地面接触受力有关)
-    chassis_cmd_send.vx = 3.0f / HALF_RC_CH_MAX * (float)rc_data[TEMP].rc.rocker_r_;    // 横移方向
-    chassis_cmd_send.vy = 3.5f / HALF_RC_CH_MAX * (float)rc_data[TEMP].rc.rocker_r1;    // 前进方向
+    chassis_cmd_send.vx = 3.0f / HALF_RC_CH_MAX * (float)rc_data[TEMP].rc.rocker_r1;    // 横移方向
+    chassis_cmd_send.vy = 3.5f / HALF_RC_CH_MAX * (float)rc_data[TEMP].rc.rocker_r_;    // 前进方向
     chassis_cmd_send.wz = 2.5f / HALF_RC_CH_MAX * (float)rc_data[TEMP].rc.rocker_l_;    // 旋转方向
 
     // chassis_cmd_send.vx = vision_recv_data->data.speed_vector.vx;
@@ -587,8 +587,153 @@ static void EmergencyHandler()
     AlarmHandler(); // 报警处理
 }
 
+/* -----------------------------------------------------------------------
+ * 开环底盘运动任务
+ * 流程: 前进6m -> 左移5m -> 后退2m -> 云台360°旋转搜寻 -> 视觉接管
+ * 速度单位: m/s，时间积分估算位移
+ * ----------------------------------------------------------------------- */
+typedef enum {
+    OPEN_LOOP_FORWARD = 0, // 前进6m
+    OPEN_LOOP_LEFT,        // 左移5m
+    OPEN_LOOP_BACKWARD,    // 后退2m
+    OPEN_LOOP_SEARCH,      // 云台旋转搜寻
+    OPEN_LOOP_VISION,      // 视觉接管
+    OPEN_LOOP_DONE,        // 任务完成
+} OpenLoopPhase_e;
+
+#define OPEN_LOOP_MOVE_SPEED  1.5f   // 底盘平移速度 m/s
+#define OPEN_LOOP_SEARCH_WZ   1.5f   // 云台搜寻旋转速度 rad/s（yaw增量/周期）
+#define OPEN_LOOP_TASK_DT_MS  5.0f   // 任务调用周期 ms（与RobotCMDTask一致，200Hz）
+
+static OpenLoopPhase_e open_loop_phase = OPEN_LOOP_FORWARD;
+static float open_loop_dist_accum = 0.0f;  // 当前阶段已行驶距离 m
+static float open_loop_yaw_accum  = 0.0f;  // 搜寻阶段已旋转角度 deg
+
 /**
- * @brief  裁判系统反馈，包括UI数据/小电脑数据/裁判系统限制
+ * @brief 开环底盘运动任务主体
+ *        每个控制周期调用一次，内部维护状态机
+ *        需在 RobotCMDTask 中判断入口条件后调用
+ */
+static void OpenLoopMotionTask()
+{
+    const float dt_s = OPEN_LOOP_TASK_DT_MS / 1000.0f; // 周期转换为秒
+
+    // 视觉识别到目标时，任何阶段均可切入视觉接管
+    if (vision_recv_data->mode == 1 || vision_recv_data->mode == 2)
+    {
+        open_loop_phase = OPEN_LOOP_VISION;
+    }
+
+    switch (open_loop_phase)
+    {
+    case OPEN_LOOP_FORWARD:
+        chassis_cmd_send.chassis_mode = CHASSIS_NO_FOLLOW;
+        gimbal_cmd_send.gimbal_mode   = GIMBAL_GYRO_MODE;
+        chassis_cmd_send.vx = OPEN_LOOP_MOVE_SPEED; // 前进
+        chassis_cmd_send.vy = 0.0f;
+        chassis_cmd_send.wz = 0.0f;
+        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
+        if (open_loop_dist_accum >= 6.0f)
+        {
+            open_loop_dist_accum = 0.0f;
+            open_loop_phase = OPEN_LOOP_LEFT;
+        }
+        break;
+
+    case OPEN_LOOP_LEFT:
+        chassis_cmd_send.chassis_mode = CHASSIS_NO_FOLLOW;
+        gimbal_cmd_send.gimbal_mode   = GIMBAL_GYRO_MODE;
+        chassis_cmd_send.vx = 0.0f;
+        chassis_cmd_send.vy = OPEN_LOOP_MOVE_SPEED; // 左移（vy正方向为横移）
+        chassis_cmd_send.wz = 0.0f;
+        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
+        if (open_loop_dist_accum >= 5.0f)
+        {
+            open_loop_dist_accum = 0.0f;
+            open_loop_phase = OPEN_LOOP_BACKWARD;
+        }
+        break;
+
+    case OPEN_LOOP_BACKWARD:
+        chassis_cmd_send.chassis_mode = CHASSIS_NO_FOLLOW;
+        gimbal_cmd_send.gimbal_mode   = GIMBAL_GYRO_MODE;
+        chassis_cmd_send.vx = -OPEN_LOOP_MOVE_SPEED; // 后退
+        chassis_cmd_send.vy = 0.0f;
+        chassis_cmd_send.wz = 0.0f;
+        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
+        if (open_loop_dist_accum >= 2.0f)
+        {
+            open_loop_dist_accum = 0.0f;
+            open_loop_yaw_accum  = 0.0f;
+            open_loop_phase = OPEN_LOOP_SEARCH;
+        }
+        break;
+
+    case OPEN_LOOP_SEARCH:
+        // 底盘停止，云台持续旋转搜寻
+        chassis_cmd_send.chassis_mode = CHASSIS_NO_FOLLOW;
+        gimbal_cmd_send.gimbal_mode   = GIMBAL_GYRO_MODE;
+        chassis_cmd_send.vx = 0.0f;
+        chassis_cmd_send.vy = 0.0f;
+        chassis_cmd_send.wz = 0.0f;
+        // yaw增量驱动云台旋转（单位deg，与RemoteControlSet中一致）
+        gimbal_cmd_send.yaw += OPEN_LOOP_SEARCH_WZ * RAD_TO_DEG * dt_s;
+        open_loop_yaw_accum += OPEN_LOOP_SEARCH_WZ * RAD_TO_DEG * dt_s;
+        if (open_loop_yaw_accum >= 360.0f)
+        {
+            // 转满一圈仍未发现目标，任务结束
+            open_loop_phase = OPEN_LOOP_DONE;
+        }
+        break;
+
+    case OPEN_LOOP_VISION:
+        // 视觉接管：云台跟随视觉，底盘停止
+        chassis_cmd_send.chassis_mode = CHASSIS_NO_FOLLOW;
+        gimbal_cmd_send.gimbal_mode   = GIMBAL_GYRO_MODE;
+        chassis_cmd_send.vx = 0.0f;
+        chassis_cmd_send.vy = 0.0f;
+        chassis_cmd_send.wz = 0.0f;
+        {
+            float vision_yaw   = vision_recv_data->yaw   * RAD_TO_DEG * YAW_GEAR_RATIO;
+            float vision_pitch = vision_recv_data->pitch * RAD_TO_DEG + PITCH_ZERO_OFFSET;
+            gimbal_cmd_send.yaw   = vision_yaw;
+            gimbal_cmd_send.pitch = vision_pitch;
+            if (vision_recv_data->mode == 2)
+            {
+                shoot_cmd_send.shoot_mode    = SHOOT_ON;
+                shoot_cmd_send.friction_mode = FRICTION_ON;
+                shoot_cmd_send.load_mode     = LOAD_BURSTFIRE;
+                shoot_cmd_send.shoot_rate    = 10;
+            }
+            else
+            {
+                shoot_cmd_send.friction_mode = FRICTION_ON;
+                shoot_cmd_send.load_mode     = LOAD_STOP;
+            }
+        }
+        // 视觉丢失则退回搜寻
+        if (vision_recv_data->mode == 0)
+        {
+            open_loop_yaw_accum = 0.0f;
+            open_loop_phase = OPEN_LOOP_SEARCH;
+        }
+        break;
+
+    case OPEN_LOOP_DONE:
+    default:
+        chassis_cmd_send.vx = 0.0f;
+        chassis_cmd_send.vy = 0.0f;
+        chassis_cmd_send.wz = 0.0f;
+        break;
+    }
+
+    VAL_LIMIT(gimbal_cmd_send.pitch,
+              robot_config->gimbal_param.gimbal_offset.pitch_min_angle,
+              robot_config->gimbal_param.gimbal_offset.pitch_max_angle);
+}
+
+/**
+ * @brief 裁判系统反馈，包括UI数据/小电脑数据/裁判系统限制
  *
  */
 static void RefereeHandler()
@@ -637,6 +782,8 @@ static void RefereeHandler()
     // ui_data.bullet_speed = shoot_cmd_send.bullet_speed;    
 }
 
+
+
 /* 机器人核心控制任务,200Hz频率运行(必须高于视觉发送频率) */
 void RobotCMDTask()
 {
@@ -653,15 +800,43 @@ void RobotCMDTask()
     // 根据gimbal的反馈值计算云台和底盘正方向的夹角,不需要传参,通过static私有变量完成
     CalcOffsetAngle();
 
+    /* -----------------------------------------------------------------------
+     * 开环运动任务入口判断（放在函数外，与遥控器/键鼠控制互斥）
+     * 触发条件：遥控器左侧开关[上] 且 右侧开关[上]
+     * 退出条件：open_loop_phase == OPEN_LOOP_DONE，或拨轮急停
+     * ----------------------------------------------------------------------- */
+    static uint8_t open_loop_active = 0;
+    if (!open_loop_active &&
+        switch_is_up(rc_data[TEMP].rc.switch_left) &&
+        switch_is_up(rc_data[TEMP].rc.switch_right))
+    {
+        // 重置状态机，启动开环任务
+        open_loop_phase      = OPEN_LOOP_FORWARD;
+        open_loop_dist_accum = 0.0f;
+        open_loop_yaw_accum  = 0.0f;
+        open_loop_active     = 1;
+    }
+    // 急停或任务完成时退出开环模式
+    if (open_loop_phase == OPEN_LOOP_DONE || rc_data[TEMP].rc.dial < -400)
+    {
+        open_loop_active = 0;
+    }
+
+    if (open_loop_active)
+    {
+        OpenLoopMotionTask();
+    }
+    else
+    {
     // B键开关遥控器
-    switch (rc_data[TEMP].key_count[KEY_PRESS][Key_B] % 2) 
+    switch (rc_data[TEMP].key_count[KEY_PRESS][Key_B] % 2)
     {
     case 0:
         RemoteControlSet();
         rc_data[TEMP].key_count[KEY_PRESS][Key_G] = 0;  // 初始化键盘控制
-        rc_data[TEMP].key_count[KEY_PRESS][Key_F] = 0;  
+        rc_data[TEMP].key_count[KEY_PRESS][Key_F] = 0;
         ui_data.Referee_Interactive_Flag.refresh_flag = 0;
-        break;    
+        break;
     case 1:
         MouseKeySet();
         if (!ui_data.Referee_Interactive_Flag.refresh_flag)
@@ -669,11 +844,12 @@ void RobotCMDTask()
 
         if (rc_data[TEMP].rc.dial < -400)
             rc_data[TEMP].key_count[KEY_PRESS][Key_B] = 0;     // 上拨切换回遥控器控制
-        break;            
+        break;
     default:
         RemoteControlSet();
         break;
     }
+    } // end open_loop_active else
 
     // EmergencyHandler(); // 处理模块离线和遥控器急停等紧急情况
 
