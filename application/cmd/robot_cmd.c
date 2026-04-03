@@ -588,80 +588,107 @@ static void EmergencyHandler()
 }
 
 /* -----------------------------------------------------------------------
- * 开环底盘运动任务
- * 流程: 前进6m -> 左移5m -> 后退2m -> 云台360°旋转搜寻 -> 视觉接管
+ * 自主运动任务（哨兵）
+ *
+ * 触发条件（二选一）：
+ *   A. 裁判系统比赛开始后5秒（game_progress==4 且 stage_remain_time<=415）
+ *   B. 调试模式：左右拨杆均[上]
+ *
+ * 主流程（占点）：
+ *   前进7m -> 左移6m -> 后退4m -> 到达占点区
+ *   -> 底盘停止，云台360°旋转搜寻
+ *   -> 视觉识别到目标：视觉接管云台（mode=2时开火）
+ *   -> 视觉丢失：退出视觉接管，继续360°旋转搜寻
+ *
+ * 撤退条件：自身血量 < 100
+ *   -> 前进4m -> 右移6m -> 后退7m -> 回到启动区 -> 停止
+ *
  * 速度单位: m/s，时间积分估算位移
  * ----------------------------------------------------------------------- */
 typedef enum {
-    OPEN_LOOP_FORWARD = 0, // 前进6m
-    OPEN_LOOP_LEFT,        // 左移5m
-    OPEN_LOOP_BACKWARD,    // 后退2m
-    OPEN_LOOP_SEARCH,      // 云台旋转搜寻
-    OPEN_LOOP_VISION,      // 视觉接管
-    OPEN_LOOP_DONE,        // 任务完成
+    // 占点路径
+    OPEN_LOOP_FORWARD_1 = 0, // 前进7m
+    OPEN_LOOP_LEFT_1,        // 左移6m
+    OPEN_LOOP_BACKWARD_1,    // 后退4m
+    // 占点区行为
+    OPEN_LOOP_SEARCH,        // 云台360°旋转搜寻
+    OPEN_LOOP_VISION,        // 视觉接管
+    // 撤退路径
+    OPEN_LOOP_RETREAT_FWD,   // 前进4m（撤退第一段）
+    OPEN_LOOP_RETREAT_RIGHT, // 右移6m（撤退第二段）
+    OPEN_LOOP_RETREAT_BACK,  // 后退7m（撤退第三段）
+    // 结束
+    OPEN_LOOP_DONE,
 } OpenLoopPhase_e;
 
-#define OPEN_LOOP_MOVE_SPEED  1.5f   // 底盘平移速度 m/s
-#define OPEN_LOOP_SEARCH_WZ   1.5f   // 云台搜寻旋转速度 rad/s（yaw增量/周期）
-#define OPEN_LOOP_TASK_DT_MS  5.0f   // 任务调用周期 ms（与RobotCMDTask一致，200Hz）
+#define OPEN_LOOP_MOVE_SPEED  1.5f  // 底盘平移速度 m/s
+#define OPEN_LOOP_SEARCH_WZ   1.5f  // 云台搜寻旋转速度 rad/s
+#define OPEN_LOOP_TASK_DT_MS  5.0f  // 任务调用周期 ms（200Hz）
+#define OPEN_LOOP_LOW_HP      100   // 撤退血量阈值
 
-static OpenLoopPhase_e open_loop_phase = OPEN_LOOP_FORWARD;
-static float open_loop_dist_accum = 0.0f;  // 当前阶段已行驶距离 m
-static float open_loop_yaw_accum  = 0.0f;  // 搜寻阶段已旋转角度 deg
+static OpenLoopPhase_e open_loop_phase = OPEN_LOOP_FORWARD_1;
+static float open_loop_dist_accum = 0.0f;
+static float open_loop_yaw_accum  = 0.0f;
 
 /**
- * @brief 开环底盘运动任务主体
- *        每个控制周期调用一次，内部维护状态机
- *        需在 RobotCMDTask 中判断入口条件后调用
+ * @brief 自主运动任务主体，每控制周期调用一次
+ *        入口条件在 RobotCMDTask 中判断
  */
 static void OpenLoopMotionTask()
 {
-    const float dt_s = OPEN_LOOP_TASK_DT_MS / 1000.0f; // 周期转换为秒
+    const float dt_s = OPEN_LOOP_TASK_DT_MS / 1000.0f;
 
-    // 视觉识别到目标时，任何阶段均可切入视觉接管
-    if (vision_recv_data->mode == 1 || vision_recv_data->mode == 2)
+    // 占点区阶段：血量低于阈值时触发撤退
+    if ((open_loop_phase == OPEN_LOOP_SEARCH || open_loop_phase == OPEN_LOOP_VISION) &&
+        referee_data->GameRobotState.current_HP < OPEN_LOOP_LOW_HP)
+    {
+        open_loop_dist_accum = 0.0f;
+        open_loop_phase = OPEN_LOOP_RETREAT_FWD;
+    }
+
+    // 占点区阶段：视觉识别到目标则切入视觉接管
+    if ((open_loop_phase == OPEN_LOOP_SEARCH) &&
+        (vision_recv_data->mode == 1 || vision_recv_data->mode == 2))
     {
         open_loop_phase = OPEN_LOOP_VISION;
     }
 
+    chassis_cmd_send.chassis_mode = CHASSIS_NO_FOLLOW;
+    gimbal_cmd_send.gimbal_mode   = GIMBAL_GYRO_MODE;
+
     switch (open_loop_phase)
     {
-    case OPEN_LOOP_FORWARD:
-        chassis_cmd_send.chassis_mode = CHASSIS_NO_FOLLOW;
-        gimbal_cmd_send.gimbal_mode   = GIMBAL_GYRO_MODE;
-        chassis_cmd_send.vx = OPEN_LOOP_MOVE_SPEED; // 前进
+    // ---- 占点路径 ----
+    case OPEN_LOOP_FORWARD_1:
+        chassis_cmd_send.vx = OPEN_LOOP_MOVE_SPEED;
         chassis_cmd_send.vy = 0.0f;
+        chassis_cmd_send.wz = 0.0f;
+        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
+        if (open_loop_dist_accum >= 7.0f)
+        {
+            open_loop_dist_accum = 0.0f;
+            open_loop_phase = OPEN_LOOP_LEFT_1;
+        }
+        break;
+
+    case OPEN_LOOP_LEFT_1:
+        chassis_cmd_send.vx = 0.0f;
+        chassis_cmd_send.vy = OPEN_LOOP_MOVE_SPEED; // vy正方向为左移
         chassis_cmd_send.wz = 0.0f;
         open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
         if (open_loop_dist_accum >= 6.0f)
         {
             open_loop_dist_accum = 0.0f;
-            open_loop_phase = OPEN_LOOP_LEFT;
+            open_loop_phase = OPEN_LOOP_BACKWARD_1;
         }
         break;
 
-    case OPEN_LOOP_LEFT:
-        chassis_cmd_send.chassis_mode = CHASSIS_NO_FOLLOW;
-        gimbal_cmd_send.gimbal_mode   = GIMBAL_GYRO_MODE;
-        chassis_cmd_send.vx = 0.0f;
-        chassis_cmd_send.vy = OPEN_LOOP_MOVE_SPEED; // 左移（vy正方向为横移）
-        chassis_cmd_send.wz = 0.0f;
-        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
-        if (open_loop_dist_accum >= 5.0f)
-        {
-            open_loop_dist_accum = 0.0f;
-            open_loop_phase = OPEN_LOOP_BACKWARD;
-        }
-        break;
-
-    case OPEN_LOOP_BACKWARD:
-        chassis_cmd_send.chassis_mode = CHASSIS_NO_FOLLOW;
-        gimbal_cmd_send.gimbal_mode   = GIMBAL_GYRO_MODE;
-        chassis_cmd_send.vx = -OPEN_LOOP_MOVE_SPEED; // 后退
+    case OPEN_LOOP_BACKWARD_1:
+        chassis_cmd_send.vx = -OPEN_LOOP_MOVE_SPEED;
         chassis_cmd_send.vy = 0.0f;
         chassis_cmd_send.wz = 0.0f;
         open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
-        if (open_loop_dist_accum >= 2.0f)
+        if (open_loop_dist_accum >= 4.0f)
         {
             open_loop_dist_accum = 0.0f;
             open_loop_yaw_accum  = 0.0f;
@@ -669,27 +696,18 @@ static void OpenLoopMotionTask()
         }
         break;
 
+    // ---- 占点区行为 ----
     case OPEN_LOOP_SEARCH:
-        // 底盘停止，云台持续旋转搜寻
-        chassis_cmd_send.chassis_mode = CHASSIS_NO_FOLLOW;
-        gimbal_cmd_send.gimbal_mode   = GIMBAL_GYRO_MODE;
         chassis_cmd_send.vx = 0.0f;
         chassis_cmd_send.vy = 0.0f;
         chassis_cmd_send.wz = 0.0f;
-        // yaw增量驱动云台旋转（单位deg，与RemoteControlSet中一致）
         gimbal_cmd_send.yaw += OPEN_LOOP_SEARCH_WZ * RAD_TO_DEG * dt_s;
         open_loop_yaw_accum += OPEN_LOOP_SEARCH_WZ * RAD_TO_DEG * dt_s;
         if (open_loop_yaw_accum >= 360.0f)
-        {
-            // 转满一圈仍未发现目标，任务结束
-            open_loop_phase = OPEN_LOOP_DONE;
-        }
+            open_loop_yaw_accum = 0.0f; // 持续循环搜寻，不退出
         break;
 
     case OPEN_LOOP_VISION:
-        // 视觉接管：云台跟随视觉，底盘停止
-        chassis_cmd_send.chassis_mode = CHASSIS_NO_FOLLOW;
-        gimbal_cmd_send.gimbal_mode   = GIMBAL_GYRO_MODE;
         chassis_cmd_send.vx = 0.0f;
         chassis_cmd_send.vy = 0.0f;
         chassis_cmd_send.wz = 0.0f;
@@ -711,11 +729,48 @@ static void OpenLoopMotionTask()
                 shoot_cmd_send.load_mode     = LOAD_STOP;
             }
         }
-        // 视觉丢失则退回搜寻
+        // 视觉丢失退回搜寻
         if (vision_recv_data->mode == 0)
         {
             open_loop_yaw_accum = 0.0f;
             open_loop_phase = OPEN_LOOP_SEARCH;
+        }
+        break;
+
+    // ---- 撤退路径 ----
+    case OPEN_LOOP_RETREAT_FWD:
+        chassis_cmd_send.vx = OPEN_LOOP_MOVE_SPEED;
+        chassis_cmd_send.vy = 0.0f;
+        chassis_cmd_send.wz = 0.0f;
+        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
+        if (open_loop_dist_accum >= 4.0f)
+        {
+            open_loop_dist_accum = 0.0f;
+            open_loop_phase = OPEN_LOOP_RETREAT_RIGHT;
+        }
+        break;
+
+    case OPEN_LOOP_RETREAT_RIGHT:
+        chassis_cmd_send.vx = 0.0f;
+        chassis_cmd_send.vy = -OPEN_LOOP_MOVE_SPEED; // vy负方向为右移
+        chassis_cmd_send.wz = 0.0f;
+        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
+        if (open_loop_dist_accum >= 6.0f)
+        {
+            open_loop_dist_accum = 0.0f;
+            open_loop_phase = OPEN_LOOP_RETREAT_BACK;
+        }
+        break;
+
+    case OPEN_LOOP_RETREAT_BACK:
+        chassis_cmd_send.vx = -OPEN_LOOP_MOVE_SPEED;
+        chassis_cmd_send.vy = 0.0f;
+        chassis_cmd_send.wz = 0.0f;
+        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
+        if (open_loop_dist_accum >= 7.0f)
+        {
+            open_loop_dist_accum = 0.0f;
+            open_loop_phase = OPEN_LOOP_DONE;
         }
         break;
 
@@ -801,22 +856,39 @@ void RobotCMDTask()
     CalcOffsetAngle();
 
     /* -----------------------------------------------------------------------
-     * 开环运动任务入口判断（放在函数外，与遥控器/键鼠控制互斥）
-     * 触发条件：遥控器左侧开关[上] 且 右侧开关[上]
-     * 退出条件：open_loop_phase == OPEN_LOOP_DONE，或拨轮急停
+     * 自主运动任务入口判断
+     *
+     * 触发条件（二选一，均为一次性触发）：
+     *   A. 裁判系统：比赛进行中（game_progress==4）且剩余时间<=415s（开赛5s后）
+     *   B. 调试模式：左右拨杆均[上]
+     *
+     * 退出条件：任务完成（OPEN_LOOP_DONE）或拨轮急停（dial<-400）
      * ----------------------------------------------------------------------- */
     static uint8_t open_loop_active = 0;
+
+    // 裁判系统触发：比赛开始5秒后自动启动（game_progress=4表示比赛中，总时长420s）
     if (!open_loop_active &&
-        switch_is_up(rc_data[TEMP].rc.switch_left) &&
-        switch_is_up(rc_data[TEMP].rc.switch_right))
+        referee_data->GameState.game_progress == 4 &&
+        referee_data->GameState.stage_remain_time <= 415)
     {
-        // 重置状态机，启动开环任务
-        open_loop_phase      = OPEN_LOOP_FORWARD;
+        open_loop_phase      = OPEN_LOOP_FORWARD_1;
         open_loop_dist_accum = 0.0f;
         open_loop_yaw_accum  = 0.0f;
         open_loop_active     = 1;
     }
-    // 急停或任务完成时退出开环模式
+
+    // 调试模式触发：左右拨杆均[上]
+    if (!open_loop_active &&
+        switch_is_up(rc_data[TEMP].rc.switch_left) &&
+        switch_is_up(rc_data[TEMP].rc.switch_right))
+    {
+        open_loop_phase      = OPEN_LOOP_FORWARD_1;
+        open_loop_dist_accum = 0.0f;
+        open_loop_yaw_accum  = 0.0f;
+        open_loop_active     = 1;
+    }
+
+    // 急停或任务完成时退出
     if (open_loop_phase == OPEN_LOOP_DONE || rc_data[TEMP].rc.dial < -400)
     {
         open_loop_active = 0;
